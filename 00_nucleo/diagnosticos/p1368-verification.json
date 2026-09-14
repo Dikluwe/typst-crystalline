@@ -1,0 +1,50 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1368",
+  "verdict": "PASS_WITH_LIMITED_ATTESTATION",
+  "regime": "executado sem atestacao de isolamento",
+  "baseline": {
+    "head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "not_committed"
+  },
+  "artifacts": {
+    "step_sha256": "71ebae321566983494819375cdbf61309cb1e84f3c39b1a721b690181d0df222",
+    "preflight_sha256": "9d87644ef0214575316d8a6e3f9b7e617e819c883a85f2decf1485a3f36b4286",
+    "contract_sha256": "c40baa32bb636185946f5fab0c41784fc0d11cbdeb6127570ab3c6c7c7356164",
+    "observer_sha256": "fbd1a49c5389e0d469001083852216fd40c6bd223c8c14356ccdcdf8e96b0a06",
+    "test_sha256": "15d9b9e0e08a02cce3fd39b35978560e9ba6173eff6fa65ef3f4ec45fdc53d6f"
+  },
+  "red": {
+    "exit": 1,
+    "reason": "FileNotFoundError: p1368_s02_observer.py absent",
+    "reported_output_tokens": 375
+  },
+  "green": {
+    "exit": 0,
+    "tests_run": 1,
+    "tests_passed": 1,
+    "elapsed_seconds_reported": 0.0,
+    "reported_output_tokens": 25,
+    "valid_boolean_mutants_rejected": 7,
+    "valid_boolean_mutants_total": 7,
+    "mutation_score": 1.0,
+    "opaque_payload_classes": 4
+  },
+  "gates": {
+    "python_compile": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "cargo_runs": 0,
+    "typst_runs": 0,
+    "watch_runs": 0,
+    "pdfinfo_runs": 0
+  },
+  "memory_policy": {
+    "test_timeout_seconds": 30,
+    "commands_sequential": true,
+    "tool_output_caps_used": true,
+    "oom_timeout_or_sigkill_observed": false
+  },
+  "claim_limit": "Atesta somente o parser fail-closed e o classificador do vetor S02; nao atesta isolamento nem paridade bilateral do produto."
+}
+

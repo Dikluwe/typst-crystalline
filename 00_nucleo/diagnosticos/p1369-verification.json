@@ -1,0 +1,51 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1369",
+  "verdict": "CONTRACT_REFUTED",
+  "regime": "executado sem atestacao de isolamento",
+  "baseline_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "hashes": {
+    "step": "de955223ca46bf09386996ef308d59dea0cce6c2a6820f7ba62b5f5efb9d0dd2",
+    "contract": "c83ac81db64c3fc4f22d67ca0d5f5c22fabd80d51f502270fca47ccf4dafdad5",
+    "oracles": "dac455390c4ebba2508527d15d8a44de77a06b142622bf0a4e797a698d82fdac",
+    "runner": "e2d63bb0c5b90a8890f5eb91ff7df34d59ce22cc5773bdcea1cd337aaa4d17c5",
+    "runner_test": "d54e2df7e009b967ad5ca3ff4ddf9b5568a057227dffba5dc131cc08923ddc53",
+    "results": "1e6c38c2c7fe387e4877d18eb6890e11a25d8572e3a39483bbaf3261dded7b05"
+  },
+  "red": {"exit": 1, "reason": "runner module absent"},
+  "green": {"exit": 0, "tests_run": 1, "tests_passed": 1},
+  "gates": {
+    "python_compile": 0,
+    "json_validation": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "cargo_runs": 0,
+    "watch_runs": 0
+  },
+  "measurement": {
+    "jobs": 24,
+    "pdfinfo_calls": 24,
+    "profiles": 4,
+    "observed_vanila_vectors": [[true, true, true], [true, true, true], [true, true, true], [true, true, true]],
+    "observed_cristalino_vectors": [[true, true, true], [true, true, true], [true, true, true], [true, true, true]],
+    "frozen_expected_vector": [true, false, true],
+    "frozen_classifier_counts": {"DIFFERENCE": 4},
+    "timeouts": 0,
+    "signals": 0,
+    "unknown": 0,
+    "max_compile_ms": 316.243,
+    "max_pdfinfo_ms": 34.478,
+    "max_pdf_bytes": 5639,
+    "max_stdout_bytes": 441,
+    "max_stderr_bytes": 276
+  },
+  "memory": {
+    "parallel_processes": 1,
+    "address_space_limit_bytes": 2147483648,
+    "file_size_limit_bytes": 16777216,
+    "channel_read_limit_bytes": 1048576,
+    "oom_or_sigkill_observed": false,
+    "actual_peak_rss_measured": false
+  },
+  "claim_limit": "O contrato de precedencia foi refutado; igualdade bilateral observada nao e promovida retroativamente a MATCH."
+}

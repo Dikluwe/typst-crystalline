@@ -1,0 +1,15 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1371",
+  "positive": [{"id":"P01","input":"exit 0; 1 passed; 0 failed; exact target","expected":"Preserved"}],
+  "negative": [
+    {"id":"N01","input":"exit nonzero with completed test","expected":"Violated"},
+    {"id":"N02","input":"zero or multiple tests","expected":"Unknown"},
+    {"id":"N03","input":"timeout, signal or resource limit","expected":"Unknown"},
+    {"id":"N04","input":"different target or non-exact filter","expected":"Unknown"}
+  ],
+  "inherited_duration_mutation_score": 1.0,
+  "inherited_valid_mutants": 22,
+  "unknown_credit": 0
+}
+

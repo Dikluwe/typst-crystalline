@@ -1,0 +1,46 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1370",
+  "verdict": "MATCH_WITH_LIMITED_ATTESTATION",
+  "regime": "executado sem atestacao de isolamento",
+  "baseline_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "hashes": {
+    "step": "6b2e3290d5d6f05a70a218317241aa1a00c3348fb522fda0dd13052152459fe1",
+    "preflight": "ba598cd7e5974601e09b583212a254169b8cfbcefcf89d97522bad346c9df523",
+    "contract": "bf380cec7955c95a62e227b2c2d47f6d59e3d6ec346cc9f15ed0364fe461e924",
+    "oracles": "7c2d1426fd879f07bf6513f4d0ea87bfe23890ecaa622740e5eb8a77cdb7536d",
+    "reclassifier": "d982aba3d7d52ee0b743e58521aaaa6a0f069b8bf57343daf10182c747b13b9f",
+    "test": "631311f4c9148b5831dc4f17606bda358c5fffcb41cef3a12fb0a9348a05478d",
+    "input_p1369": "1e6c38c2c7fe387e4877d18eb6890e11a25d8572e3a39483bbaf3261dded7b05",
+    "result": "3e0b35ab443da594a568fa66908adc80c6798faa926158b996e53c7bac3246ce"
+  },
+  "red": {"exit": 1, "reason": "reclassifier module absent", "reported_output_tokens": 376},
+  "green": {"exit": 0, "tests_run": 1, "tests_passed": 1, "reported_elapsed_seconds": 0.0, "reported_output_tokens": 25},
+  "gates": {
+    "python_compile": 0,
+    "json_validation": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "cargo_runs": 0,
+    "typst_runs": 0,
+    "pdfinfo_runs": 0,
+    "watch_runs": 0
+  },
+  "mutation": {"valid_vector_mutants": 7, "rejected": 7, "score": 1.0},
+  "reclassification": {
+    "input_jobs": 24,
+    "profiles": 4,
+    "counts": {"MATCH": 4},
+    "vanila_vector": [true, true, true],
+    "cristalino_vector": [true, true, true],
+    "external_product_processes": 0
+  },
+  "memory": {
+    "input_bytes": 31718,
+    "output_bytes": 2294,
+    "input_and_output_limit_bytes_each": 65536,
+    "sequential": true,
+    "oom_timeout_or_sigkill_observed": false
+  },
+  "claim_limit": "MATCH apenas para S02 no resultado P1369 pinado; sem atestacao de isolamento ou paridade geral."
+}

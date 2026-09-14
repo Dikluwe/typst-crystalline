@@ -1,0 +1,15 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "step": "P1372",
+  "products": ["vanila", "cristalino"],
+  "profiles": ["a11y-extras", "html+a11y"],
+  "cases": ["lone", "control"],
+  "expected_jobs": 8,
+  "expected_text": "ProbeAfter",
+  "marker": "After",
+  "coordinate_precision_pt": 0.001,
+  "baseline_policy": "vanila absolute positions plus lone-control relation define expected per profile",
+  "unknown_policy": "fail_closed",
+  "limits": {"parallel_processes":1,"timeout_seconds":45,"address_space_bytes":2147483648,"file_size_bytes":16777216,"channel_read_bytes":1048576},
+  "claim_limit": "S07 vertical relation only; tag morphology excluded"
+}

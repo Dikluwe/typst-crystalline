@@ -1,0 +1,55 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1371",
+  "verdict": "MATCH_WITH_LIMITED_ATTESTATION",
+  "regime": "executado sem atestacao de isolamento",
+  "hashes": {
+    "step": "fc53450b6a357d0c9eab08362ca086e056e053a8d6e80ef4123dab8769124247",
+    "contract": "ca01abc8e4e9de00e307605db0be8cd8a7bf7e5c0ab06aa1168335095e1e5d93",
+    "oracles": "31854e48a07a1594585eecbb6d505b0bccee65f69b124c8ad148288aebf1a6e7",
+    "runner": "ae34bf65b98d578476e9040490a9a93280d7a76110719fdca113de9f2b169cb4",
+    "runner_test": "acffa3c6f1a1753b32cf024ac0db382409d944de5023c944a8ae373c2b6f2bb8",
+    "result": "44e88eba833f80066a04bbe5adcf98cc7b3db19d6dea659f7cd77d864bd6fc03",
+    "test_binary": "06c91f0646fff5c4263935851e8d2899ea2cc3b8eb86af5beab6964daa75e1be",
+    "p1361_verification": "72f83b6d0864b857982fc217043330157a7d68b129eb2a58f8cd2c74f2cf608b",
+    "vanila_duration_source": "8c4aebfcb63da6b6df1cbd9c539ba3142dbd9496b6e23d4c8f9fd10104019a07"
+  },
+  "historical_red": {"exit": 1, "reason": "runner module absent"},
+  "runner_green": {"exit": 0, "tests_run": 1, "tests_passed": 1},
+  "gates": {
+    "python_compile": 0,
+    "json_validation": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "accepted_cargo_runs": 0,
+    "watch_runs": 0
+  },
+  "calibration": {
+    "cargo_attempts": 2,
+    "cargo_test_executions": 0,
+    "failure_signal": 25,
+    "reason": "RLIMIT_FSIZE inherited by rustc",
+    "stderr_bytes_each": 24314,
+    "oom": false,
+    "resolution": "execute pinned preexisting focal test binary directly"
+  },
+  "accepted_execution": {
+    "exit": 0,
+    "passed": 1,
+    "failed": 0,
+    "elapsed_ms": 5.476,
+    "stdout_bytes": 187,
+    "stderr_bytes": 0,
+    "classification": "Preserved",
+    "s11_status": "MATCH"
+  },
+  "memory": {
+    "address_space_limit_bytes": 3221225472,
+    "file_size_limit_bytes": 8388608,
+    "channel_read_limit_bytes": 2097152,
+    "parallel_processes": 1,
+    "oom_timeout_or_sigkill_observed": false,
+    "actual_peak_rss_measured": false
+  },
+  "claim_limit": "MATCH somente para o vetor S11 e binario focal pinado; sem isolamento forte ou paridade geral."
+}

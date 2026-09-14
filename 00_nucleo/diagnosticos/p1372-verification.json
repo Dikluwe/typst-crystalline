@@ -1,0 +1,68 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1372",
+  "verdict": "DIFFERENCE_WITH_LIMITED_ATTESTATION",
+  "regime": "executado sem atestacao de isolamento",
+  "hashes": {
+    "step": "470264946954d3550725facecc8f478f0c993d2b6e520e83307d9a557d5c11e8",
+    "contract": "7462c57d279dec8c2ba382aa5be7db024f1613b37bfc15a6f520ca0a642d750e",
+    "oracles": "2c77b49acbfcae337bd38d38192f6ed4f0af455aa168db856289cd50c2799655",
+    "runner": "b474cb94aa47785dc8dff0b709e77a40679e6a398fcd64ce8f97a863f5f74e2c",
+    "runner_test": "59530f1b71b6695f2475f20a833938a82518fdd5b0100f6d738a5a8cf9093fba",
+    "calibration_rejected": "81205948caa0a002bed32d0d85c734690e60f60bd4b54486ff2c0bf9e1d44847",
+    "result": "2204623bf179ad192ef8bdb3c036b746f305dba5916fa0564e8d6737d28911ec",
+    "report": "5ec77f21bf051edf3b241a51993f3affd92ff798b5a1bda7f923b271732755c0",
+    "p1357_sentinels": "3cba351d8830c002feb2296a45a7f87de4b83e28163e123e78ae01cc9ebe7e88",
+    "vanila_binary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino_binary": "60851811dca31074eca38f5d4e397ce04a89eccb7bf49c9d6e28f6759ba761f9",
+    "pdftotext_binary": "0fb98ea179e19154a90202608c164f2a319b79f16576fa6534b2d601033565e7"
+  },
+  "historical_red": [
+    {"exit": 1, "reason": "runner module absent"},
+    {"exit": 1, "reason": "vertical_signature absent after common-cancellation defect was measured"}
+  ],
+  "runner_green": {"exit": 0, "tests_run": 1, "tests_passed": 1},
+  "calibration": {
+    "identity_preflight_rejections": 1,
+    "jobs_started_during_identity_rejection": 0,
+    "rejected_matrix_jobs": 8,
+    "rejected_reason": "relation-only oracle allowed common cancellation and false MATCH",
+    "final_matrix_jobs": 8
+  },
+  "accepted_execution": {
+    "typst_jobs": 8,
+    "pdftotext_jobs": 8,
+    "complete_observations": 8,
+    "profile_counts": {"DIFFERENCE": 2},
+    "vanila_signature": {
+      "lone": {"page": 1, "y_min": "7.404"},
+      "control": {"page": 1, "y_min": "7.404"},
+      "relation": {"page_delta": 0, "y_delta": "0.000"}
+    },
+    "cristalino_signature": {
+      "lone": {"page": 0, "y_min": "42.230"},
+      "control": {"page": 0, "y_min": "42.230"},
+      "relation": {"page_delta": 0, "y_delta": "0.000"}
+    }
+  },
+  "gates": {
+    "python_compile": 0,
+    "runner_unit_test": 0,
+    "json_validation": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "cargo_runs": 0,
+    "watch_runs": 0
+  },
+  "memory": {
+    "address_space_limit_bytes": 2147483648,
+    "file_size_limit_bytes": 16777216,
+    "channel_read_limit_bytes": 1048576,
+    "parallel_processes": 1,
+    "largest_output_file_bytes": 6244,
+    "largest_channel_bytes": 1137,
+    "oom_timeout_sigkill_or_limit_observed": false,
+    "actual_peak_rss_measured": false
+  },
+  "claim_limit": "DIFFERENCE somente para a expansao vertical S07 nos dois perfis medidos; morfologia de tags e paridade geral excluidas."
+}

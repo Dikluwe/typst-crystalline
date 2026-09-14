@@ -1,0 +1,24 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "step": "P1368",
+  "baseline_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "fragment": "normalizacao binding-free do campo pdfinfo Tagged e classificacao do vetor S02",
+  "positive_vector": [true, false, true],
+  "unknown_policy": "fail_closed",
+  "parser": {
+    "accepted_field_count": 1,
+    "accepted_values": ["yes", "no"],
+    "case_insensitive": true,
+    "trim_outer_space": true,
+    "invalid_utf8": "Unknown",
+    "missing_duplicate_or_invalid": "Unknown"
+  },
+  "classifier": {
+    "complete_expected_vector": "Preserved",
+    "complete_other_vector": "Violated",
+    "any_unknown": "Unknown"
+  },
+  "forbidden_test_capabilities": ["filesystem", "subprocess", "pdfinfo", "typst", "watch", "network", "clock", "sleep"],
+  "claim_limit": "observador S02 apenas; nao prova paridade do produto"
+}
+

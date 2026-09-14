@@ -1,0 +1,22 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1370",
+  "positive": [
+    {"id":"P01","input":[true,true,true],"expected":"Preserved"},
+    {"id":"P02","input":"24 observacoes canonicas bilaterais","expected":"4 MATCH"},
+    {"id":"P03","input":"resultado P1369 pinado","expected":"reconstruir de rows, ignorar verdicts derivados"}
+  ],
+  "negative": [
+    {"id":"N01","input":"cada um dos sete vetores booleanos nao canonicos","expected":"Violated"},
+    {"id":"N02","input":"job ausente, duplicado ou extra","expected":"Unknown"},
+    {"id":"N03","input":"hash ou identidade divergente","expected":"Unknown"}
+  ],
+  "opaque": [
+    {"id":"O01","input":"observacao incomplete","expected":"Unknown"},
+    {"id":"O02","input":"valor nao booleano","expected":"Unknown"}
+  ],
+  "valid_vector_mutants": 7,
+  "required_mutation_score": 1.0,
+  "unknown_credit": 0
+}
+

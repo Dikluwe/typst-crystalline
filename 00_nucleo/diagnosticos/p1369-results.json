@@ -1,0 +1,938 @@
+{
+  "schema": "p1369-s02-bilateral/v1",
+  "created_at": "2026-09-13T15:21:20.831791+00:00",
+  "identities": {
+    "vanila": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino": "60851811dca31074eca38f5d4e397ce04a89eccb7bf49c9d6e28f6759ba761f9",
+    "pdfinfo": "fee70ade670fb025343aca2b5c3a2aacacb8ed9edce1b716b233b5de924b6bf5"
+  },
+  "limits": {
+    "parallel_processes": 1,
+    "timeout_seconds": 45,
+    "address_space_bytes": 2147483648,
+    "file_size_bytes": 16777216,
+    "cpu_seconds": 45,
+    "channel_read_bytes": 1048576
+  },
+  "job_count": 24,
+  "pdfinfo_count": 24,
+  "counts": {
+    "DIFFERENCE": 4
+  },
+  "profiles": [
+    {
+      "profile": "default",
+      "products": {
+        "vanila": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        },
+        "cristalino": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        }
+      },
+      "bilateral": "DIFFERENCE"
+    },
+    {
+      "profile": "html",
+      "products": {
+        "vanila": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        },
+        "cristalino": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        }
+      },
+      "bilateral": "DIFFERENCE"
+    },
+    {
+      "profile": "a11y-extras",
+      "products": {
+        "vanila": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        },
+        "cristalino": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        }
+      },
+      "bilateral": "DIFFERENCE"
+    },
+    {
+      "profile": "html+a11y",
+      "products": {
+        "vanila": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        },
+        "cristalino": {
+          "classification": "Violated",
+          "vector": [
+            true,
+            true,
+            true
+          ],
+          "reason_code": "S02_VECTOR_MISMATCH"
+        }
+      },
+      "bilateral": "DIFFERENCE"
+    }
+  ],
+  "rows": [
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "default",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.12,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 34.381,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "a22e32255505d9c7f214f65cef4c5bfefa07a6b24afc03fd4514552782d841dd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4995,
+      "output_sha256": "42b3d6a8f5da246cadefe27c3424365e7dff64f0eded892462f23901e17d0abf",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "default",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.152,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.892,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "6698f5e9f279e59ce8379299d21c5cb9c2d0b2fd6657b9d8e111befe8cd7716e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5639,
+      "output_sha256": "870f67256e705b6d15aa484844afd3b595a708adc646e78d77bb2f8319072c3c",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "default",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.987,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 33.979,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "d22e65e15333b4831c29f73f37626229b5ea71c27da226597ff02729627dd032",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4833,
+      "output_sha256": "7f2fb3f3777badd82974339a0ce91f3a43594b432e9d99385bfe4c198f980d31",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.222,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.822,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "4627ddf4208d4413116fa6cc500fcae329521952640f0159e823db08bbdd04cc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4995,
+      "output_sha256": "a54776784d7c5b4bdbf7b2b02c5642e0dc368791f20a08f23eebcf33736561c3",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.805,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 33.909,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "02f418bfd35e9167bca3aa2ee351ea6550c957c5787865b70660bc0b1720407f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5639,
+      "output_sha256": "6d8c6e87be829b4218a1b2b238b1ce00498b26d54f1b432c3b113ed7ebca6ce7",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.979,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 34.006,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "a2b59503d92973272db62f6d32c9d4bd4db0fbe91e98503cf5ac85c38219ffc9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4833,
+      "output_sha256": "794db884e1ac19a944b53aaab68f3ce17c76ee3cb4d3f63b0bbf9094204c2176",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "a11y-extras",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.974,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 33.945,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "4e83909e015a8840ad2b078d9581553e7e566711e282584b207238afa6cce69e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4995,
+      "output_sha256": "ddc0c0e777c48383c8051fdaa1429af6fd3985321ef68877c338353fc2568cb7",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "a11y-extras",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.243,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.947,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "1c965c9165607da305988d807e1bf8caae437eadd173ca1028f449dd14ac152f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5639,
+      "output_sha256": "5817a9fb1004f2794952d0146ab29b54bc18142751819e302815cc300c12c680",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "a11y-extras",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.007,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 34.478,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "e99589dfd2e391d83ae8755220a349b8425a0ca856c4b242cd1fda85df92b670",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4833,
+      "output_sha256": "5280297a48e531a7825ef4978640b23c22ab49a5d0e182488225ea82f70eaae3",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html+a11y",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.944,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.736,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "90f8748a9c790d5104ad462095c71e4a1b6260818648d85e681a4470bbecd549",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4995,
+      "output_sha256": "d71968f1480be59636ff511af9c8aab84cde8158e71627b56ed8acb27c90f0e3",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html+a11y",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.903,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.919,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "fe674d32f5a1500d2fd7c24940f6bd5fb4447c88415400e1f642930ca4261a9d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5639,
+      "output_sha256": "37caca758a0dc9560028b87dabdd986faebd8354c89879462514d3714e33c9e9",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html+a11y",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.133,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.983,
+        "stdout_size": 436,
+        "stderr_size": 0,
+        "stdout_sha256": "48a5b04dad700354807b06667649da6f801d9c4e31029c285f27c5300a76c91b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4833,
+      "output_sha256": "898eb892489a93b1dd938391428a04d74fdc0dd1442c4180ad06af31ae655e28",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "default",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.632,
+        "stdout_size": 0,
+        "stderr_size": 263,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "8193623871e9e2234dfc94c933bc7bd0b4ab719fb6f7d0c439656d92ec8e1310",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/default/top_level/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: true)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.621,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "fe07a65e55d5695c8cf53354e58fa65f5355233e01c607c5c8005a18788279b1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4705,
+      "output_sha256": "9a409883abbb1c915cfd641bbd08f581c76135bbe9e090312ccc3fc48b9ca41a",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "default",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.624,
+        "stdout_size": 0,
+        "stderr_size": 272,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "5600b95fa7821da70209b78a5da70365913e53716cc0465be7e4f265999b044b",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/default/document_over_cli/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: false)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.416,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "2084b5ca3d013b6743526e63226f560870008d249fce730bc2a149946e297539",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5382,
+      "output_sha256": "6f7b935389f50604bf0d6eb98a0ac05ab56beaa40281b31e1521412e477faa14",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "default",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.812,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.321,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "7a879d1c9a532262c4be4468cfcf8950c7bcac3c584998477529e8bc532c343f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4556,
+      "output_sha256": "056084e9f478fdbbe390f3fdab19e476836f8ebf474cebb45ccbffa21fd79ca5",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.468,
+        "stdout_size": 0,
+        "stderr_size": 260,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "6dbd67c6ca58eea446e1d1e9c8325460203e83caf62616375ba08cbbf6b3a111",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/html/top_level/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: true)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.61,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "fe07a65e55d5695c8cf53354e58fa65f5355233e01c607c5c8005a18788279b1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4705,
+      "output_sha256": "15a639ad51d791f0ef0118efe4962b087085629d67cd3f0b7ea5e449710af3a8",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.56,
+        "stdout_size": 0,
+        "stderr_size": 269,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "98b5dda11b4faae8ccbcb027b3322c36c50386ff9e37548cd2be1c46a991a275",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/html/document_over_cli/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: false)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.357,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "2084b5ca3d013b6743526e63226f560870008d249fce730bc2a149946e297539",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5382,
+      "output_sha256": "8a023396aaf318d67bdf1c7574758e903830e12c819b9d6091eeb7ae27fb2508",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.423,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.475,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "7a879d1c9a532262c4be4468cfcf8950c7bcac3c584998477529e8bc532c343f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4556,
+      "output_sha256": "c51555f3a24a5b9e5be3a8f6b298ada63544536abc5e1c513a3f57b9a4cbd059",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "a11y-extras",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.586,
+        "stdout_size": 0,
+        "stderr_size": 267,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "4d328d59edb76bf29d0cdfce3d84b9a60fb78ef0da664f00af2b294fc72e032e",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/a11y-extras/top_level/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: true)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.852,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "1d80bd6a6d6960f7022903ac667a262380a1aeb5906df4af99000a9c48026bf2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4705,
+      "output_sha256": "4412235fbd8ef9894e21f4aa8b8becad55ecad855e41ba861f6b57696a860c79",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "a11y-extras",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.856,
+        "stdout_size": 0,
+        "stderr_size": 276,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "fef7d4f382b2f17181b8c7182d844c573f12b0832c3f251fb17d9ff30a5f23d0",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/a11y-extras/document_over_cli/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: false)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.492,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "080c90f7e37e489c34750cf0561c7114d8360a35212c44de036d78bd55d75d36",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5382,
+      "output_sha256": "41cc7d20095bbff239ee39a145490d03f60866551a38b62ae5687b218115b7e3",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "a11y-extras",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.61,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.458,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "ac952f0569bebb7c617b7f6f92013e8fc2f886c30259b99125eef0c1611ea84e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4556,
+      "output_sha256": "0936e48b3542a3e550ccb814e0c985283b18e9d90ac8ec3f4b765cc00af2e7ff",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html+a11y",
+        "case": "top_level"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.616,
+        "stdout_size": 0,
+        "stderr_size": 265,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "b2763296c9d5b48e82f4eb3a775ec386e6be6c44609bf3f02618e3543a9f456f",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/html+a11y/top_level/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: true)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.525,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "1d80bd6a6d6960f7022903ac667a262380a1aeb5906df4af99000a9c48026bf2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4705,
+      "output_sha256": "947d0b774fb50cc99da6cf5e12b65fc73748539ce5b11c2e5998609d8c1f305b",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html+a11y",
+        "case": "document_over_cli"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.694,
+        "stdout_size": 0,
+        "stderr_size": 274,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "5c21bb52a155cc38a114d24a08286eec3eb685e2f93c8f06a992f919d4671fac",
+        "stderr_preview": "warning: set: target 'pdf' ainda não suportado\n  ┌─ /tmp/p1369-s02.ujae2kcs/cristalino/html+a11y/document_over_cli/probe.typ:1:5\n  │\n1 │ #set pdf(tagged: false)\n  │      ^^^\n  │\n  = hint: targets suportados: heading, page, figure, text, par, table, smartquote\n\n"
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.396,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "080c90f7e37e489c34750cf0561c7114d8360a35212c44de036d78bd55d75d36",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5382,
+      "output_sha256": "325aa3286d2c0fda81dac9304ca2b94c76fad0e8e324481a6e166a5b14436a1c",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html+a11y",
+        "case": "cli_only"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.639,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdfinfo": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.305,
+        "stdout_size": 441,
+        "stderr_size": 0,
+        "stdout_sha256": "ac952f0569bebb7c617b7f6f92013e8fc2f886c30259b99125eef0c1611ea84e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 4556,
+      "output_sha256": "febd2c46983f0758944cf2c690c96e39450823407e46e424d1f53e7e30bdf222",
+      "observation": {
+        "complete": true,
+        "value": true,
+        "reason_code": null
+      }
+    }
+  ]
+}

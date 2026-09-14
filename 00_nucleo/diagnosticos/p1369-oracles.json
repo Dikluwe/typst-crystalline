@@ -1,0 +1,23 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1369",
+  "positive": [
+    {"id":"P01","predicate":"planner contains the exact 24 unique product/profile/case jobs"},
+    {"id":"P02","predicate":"each profile has exactly three ordered cases per product"},
+    {"id":"P03","predicate":"all process limits equal the frozen contract"},
+    {"id":"P04","predicate":"only complete canonical vectors can yield MATCH"}
+  ],
+  "negative": [
+    {"id":"N01","attack":"drop, duplicate or add a job","expected":"Violated"},
+    {"id":"N02","attack":"change a case source or CLI precedence option","expected":"Violated"},
+    {"id":"N03","attack":"raise a resource limit or enable parallelism/retry","expected":"Violated"},
+    {"id":"N04","attack":"promote incomplete observation to MATCH","expected":"Violated"}
+  ],
+  "opaque": [
+    {"id":"O01","input":"timeout, signal or resource-limit termination","expected":"Unknown"},
+    {"id":"O02","input":"missing/duplicate/invalid Tagged field","expected":"Unknown"},
+    {"id":"O03","input":"binary identity mismatch","expected":"Unknown"}
+  ],
+  "unknown_credit": 0
+}
+
