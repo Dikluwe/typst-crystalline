@@ -1,0 +1,26 @@
+{
+  "schema":"p1389-single-inter-fragment-wrap-matrix/v1",
+  "created_at":"2026-09-14T11:20:48-03:00",
+  "provenance":{"repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248","working_tree":"nao commitado e agregado com P1356-P1389","diff_stat":"47 files changed, 5482 insertions(+), 419 deletions(-)","status_entries":399},
+  "identities":{"vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f","cristalino":"221784f2655d4e88dd9bada4c7ae2c1ce11eec95eefa295e6ea8d833a1a41c7a","test_binary":"159ae59248748e59f043b8d574da8a34ef423593e9f784d148160209de46fb1a"},
+  "limits":{"parallel_processes":1,"check_address_space_bytes":3221225472,"link_address_space_bytes":4294967296,"link_file_size_bytes":536870912,"matrix_address_space_bytes":2147483648,"matrix_file_size_bytes":16777216,"timeout_seconds":45},
+  "counts":{"MATCH":5,"Unknown":1},
+  "cases":[
+    {"id":"20-equal-no-wrap-control","classification":"MATCH","fixture_sha256":"7dcf3fbf3e12ca7daa28958092b019c5432807ade344c66073df107be9f4d768","vanila":{"Lead":"5.280","More":"5.280","One":"33.763990","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"5.280","More":"5.280","One":"33.764","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"21-equal-one-wrap","classification":"MATCH","fixture_sha256":"2fce86f127de08269ad622e2eb3ea42102def4380706f05339002a1c98e40514","vanila":{"Lead":"5.044","More":"26.012","One":"55.390","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"5.044","More":"26.012","One":"55.390","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"22-equal-one-wrap","classification":"MATCH","fixture_sha256":"52158d5467d3b01699e8e01086966de74db74354999af1da74fee5435963ebc9","vanila":{"Lead":"4.808","More":"26.434","One":"56.706010","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"4.808","More":"26.434","One":"56.706","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"24-equal-one-wrap","classification":"MATCH","fixture_sha256":"52caad13f3ab28492ec9c0ce7da98e4fdeb20f859cf8f8a983ad4fb2a5c060c3","vanila":{"Lead":"4.335990","More":"27.278010","One":"59.338","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"4.336","More":"27.278","One":"59.338","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"30-equal-one-wrap","classification":"MATCH","fixture_sha256":"7fc27e5b030e1a363ff5be4a338761dd768631219b5d9c0c0470a49c525b7644","vanila":{"Lead":"2.920","More":"29.810","One":"67.234","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"2.920","More":"29.810","One":"67.234","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"multiword-body","classification":"Unknown","reason":"the explicit single-word gate rejects internal or multiple wrap; behavioral fail-closed control passes"}
+  ],
+  "tests":{"initial_red":{"run":1,"passed":0,"failed":1,"observed_advance_pt":28.35,"max_rss_kib":1961364},"candidate_v1":{"run":1,"passed":0,"failed":1,"observed_advance_pt":21.85,"max_rss_kib":2490096},"candidate_v2":{"focal_run":1,"focal_passed":1,"productive_matrix":"rejected","reason":"false 14.85pt synthetic oracle omitted current maximum-ascent correction"},"reopened_red":{"run":1,"passed":0,"failed":1,"observed_advance_pt":14.85,"max_rss_kib":1653628},"final_green":{"p1389_run":3,"p1389_passed":3,"max_rss_kib":1779264},"p138":{"run":29,"passed":29,"max_rss_kib":68160},"p137":{"run":21,"passed":21,"max_rss_kib":68316}},
+  "candidate_history":[
+    {"id":"v1-forced-outer-next","verdict":"refined","reason":"correctly reached 21.85pt FixedMetrics advance but the synthetic oracle was wrong"},
+    {"id":"v2-no-current-ascent-adjustment","verdict":"rejected","reason":"productive coordinates were early by top(internal)-top(outer)"},
+    {"id":"v3-current-max-plus-outer-next","verdict":"accepted","reason":"productive matrix matches while ordinary singleton flush is unchanged"}
+  ],
+  "discrimination":{"declared_mutants":8,"violated":8,"mutation_score":1.0},
+  "memory":{"max_compile_or_test_rss_kib":2490096,"release_build_rss_kib":1144828,"final_release_build_rss_kib":1141656,"final_build_rss_kib":1172068,"check_rss_kib":822556,"fix_hashes_rss_kib":298208,"lint_rss_kib":211648,"matrix_peak_rss_kib":37476,"controlled_limit_abort":false,"host_oom_timeout_sigkill":false},
+  "lint":{"blocking_violations":0,"warnings":248,"info":1185,"advisories":1433,"new_advisories":0},
+  "claim_limit":"MATCH for two equal above-outer size-only single-word Styled(Text) fragments with exactly one inter-fragment wrap and a vertically fitting prefix; excluded forms remain Unknown"
+}

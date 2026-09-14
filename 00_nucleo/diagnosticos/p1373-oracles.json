@@ -1,0 +1,22 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1373",
+  "positive": [
+    {"id":"P01","predicate":"100% is stored as rel=1 and abs=0"},
+    {"id":"P02","predicate":"absolute Content::block constructor remains source-compatible"},
+    {"id":"P03","predicate":"100% resolves to 220pt in the frozen 240pt page with 10pt margins"},
+    {"id":"P04","predicate":"P1372 yields MATCH in both frozen profiles"}
+  ],
+  "negative": [
+    {"id":"N01","mutation":"map Ratio to Length::ZERO","expected":"Violated"},
+    {"id":"N02","mutation":"map Ratio to em units","expected":"Violated"},
+    {"id":"N03","mutation":"resolve against full page height 240pt","expected":"Violated"},
+    {"id":"N04","mutation":"resolve against remaining cursor height","expected":"Violated"},
+    {"id":"N05","mutation":"resolve after replacing outer region height","expected":"Violated"},
+    {"id":"N06","mutation":"change Content::block public parameter to Rel","expected":"Violated"},
+    {"id":"N07","mutation":"condition height on metadata or child cardinality","expected":"Violated"},
+    {"id":"N08","mutation":"promote incomplete bilateral observation to MATCH","expected":"Unknown"}
+  ],
+  "mutation_score_required": 1.0,
+  "status": "confirmed_for_preseal_2026-09-13"
+}

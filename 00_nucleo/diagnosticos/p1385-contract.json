@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1385",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1384-results.json","sha256":"6d37b402ef0570a81a8b36d70549f8135dbe0e918942aec434e1eabea9280cde"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/sequence.rs",
+  "observable":"exactly two size-only Styled(Text) fragments receive fractional preflight credit when the first is larger than outer and the second is less than or equal to outer",
+  "metrics":["shared mixed baseline","first strict maximum textual style","active outer next-ascent","active outer leading","matching outer paragraph-to-block boundary"],
+  "preserve":"P1374-P1384 remain unchanged except the explicitly targeted 18-to-11 Unknown; all other opaque neighboring shapes remain unchanged",
+  "fail_closed":["second size above outer even when below first","equal sizes","second size larger","first size not larger than outer","additional style delta","three or more fragments","wrap","nested wrapper","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

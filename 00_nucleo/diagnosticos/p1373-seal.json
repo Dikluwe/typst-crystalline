@@ -1,0 +1,29 @@
+{
+  "schema": "tekt-segregated-materialization-seal/v1",
+  "step": "P1373",
+  "created_at": "2026-09-13T13:55:43-03:00",
+  "regime": "executado sem atestacao de isolamento",
+  "verdict": "SEALED",
+  "scope": "transporte e resolucao de block.height relativo e progressao da primeira linha posterior na sonda S07",
+  "inputs": {
+    "step": {"path":"00_nucleo/materialization/typst-passo-1373.md","sha256":"6e4bac553c4a3d13a610b2b20cb0f5d26ba4e865759dd86edb3b1a55bd8709de"},
+    "manifest": {"path":"00_nucleo/diagnosticos/p1373-manifest.json","sha256":"e3790a6b7d6c3a8bc099d023e24f6daba88742a0c77fef13561a36cad2be1966"},
+    "contract": {"path":"00_nucleo/diagnosticos/p1373-contract.json","sha256":"208dd39f1b222e2ecbe44d88b79a17bacb52289ccec65abce4fa4555c32c0fb7"},
+    "oracles": {"path":"00_nucleo/diagnosticos/p1373-oracles.json","sha256":"be4e838c71c4f0d7d0445877137d0cae18d3aec1294d7340f081c8fcc7a13bc8"},
+    "mutants": {"path":"00_nucleo/diagnosticos/p1373-mutants.json","sha256":"ed6e2409ff93cf7ffe121de4f86a63454612614668665c2dc9197efcdaa901e4"},
+    "runner": {"path":"00_nucleo/diagnosticos/p1373_runner.py","sha256":"3da09ef7eb7eacf0d7cb326ff1638cec0af224b21506ff8bb979285e851a6f86"},
+    "runner_test": {"path":"00_nucleo/diagnosticos/p1373_runner_test.py","sha256":"05f85fbade852208624106a800b2eef7b1b1ad493a3b95afd824b7fb62aa086f"},
+    "result": {"path":"00_nucleo/diagnosticos/p1373-results.json","sha256":"5c8fe7ae4591d472bfbf4c800355293ca2181cc61332b06bb74b1adda69ba0db"},
+    "baseline": {"path":"00_nucleo/diagnosticos/p1372-results.json","sha256":"2204623bf179ad192ef8bdb3c036b746f305dba5916fa0564e8d6737d28911ec"}
+  },
+  "discrimination": {"valid_mutants":10,"violated":10,"unexpected_unknown":0,"mutation_score":1.0},
+  "accepted_execution": {"profiles":{"a11y-extras":"MATCH","html+a11y":"MATCH"},"complete_observations":8,"expected_text":"ProbeAfter"},
+  "execution_safety": {"parallel_processes":1,"matrix_address_space_bytes":2147483648,"matrix_file_size_bytes":16777216,"cargo_address_space_bytes":4294967296,"cargo_file_size_bytes":536870912,"oom":false,"timeout":false,"sigkill":false},
+  "attestation_limitations": [
+    "contrato, implementacao, ataques e verificacao compartilham workspace e autoridade",
+    "mutantes foram discriminados por testemunhos focais declarativos; nao houve reescrita destrutiva repetida do candidato",
+    "warnings e infos preexistentes do linter nao recebem credito nem bloqueiam seu exit zero"
+  ],
+  "invalidation": "qualquer mudanca nos inputs selados, L0s owners, codigo candidato, binarios pinados ou sonda P1372 invalida o selo",
+  "claim_limit": "MATCH somente para a expansao vertical S07 nos dois perfis medidos; width relativa, altura fracionaria, morfologia PDF e paridade geral ficam fora"
+}

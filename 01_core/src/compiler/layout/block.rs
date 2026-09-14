@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/block.md
-//! @prompt-hash 9d21742e
+//! @prompt-hash 97ed5385
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -9,11 +9,35 @@
 //! é idêntica; só o endereço mudou. O `match` no núcleo delega numa linha.
 
 use crate::entities::dir::Dir;
-use crate::entities::elements::block::BlockElem;
-use crate::entities::layout_types::{FrameItem, Pt};
+use crate::entities::elements::block::{BlockElem, BlockHeight};
+use crate::entities::layout_types::{FrameItem, Length, Pt};
+use crate::entities::rel::Rel;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+/// Resolve altura relativa contra a região exterior, sem multiplicar
+/// `infinity * 0` no caso absoluto de páginas com altura automática.
+pub(super) fn resolve_height_pt(
+    height: Rel<Length>,
+    font: f64,
+    outer_height: f64,
+) -> Option<f64> {
+    let relative = if height.rel == 0.0 { 0.0 } else { outer_height * height.rel };
+    let resolved = relative + height.abs.resolve_pt(font);
+    (resolved.is_finite() && resolved >= 0.0).then_some(resolved)
+}
+
+/// Resolve largura relativa uma única vez contra a região exterior útil.
+pub(super) fn resolve_width_pt(
+    width: Rel<Length>,
+    font: f64,
+    outer_width: f64,
+) -> Option<f64> {
+    let relative = if width.rel == 0.0 { 0.0 } else { outer_width * width.rel };
+    let resolved = relative + width.abs.resolve_pt(font);
+    (resolved.is_finite() && resolved >= 0.0).then_some(resolved)
+}
 
 /// Layout do container `Block` (P156G/P242/P243/P247/P248/P250/P252/P273.6).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
@@ -50,6 +74,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &e.below,
     );
     let font = layouter.style.size.val();
+    let resolved_width = (*width)
+        .and_then(|value| resolve_width_pt(value, font, layouter.available_width()));
+    let resolved_height = match *height {
+        Some(BlockHeight::Relative(value)) => {
+            resolve_height_pt(value, font, layouter.available_height())
+        }
+        Some(BlockHeight::Fractional(_)) => layouter.fractional_block_height,
+        None => None,
+    };
     let inset_left = inset.left.resolve_pt(font);
     let inset_top = inset.top.resolve_pt(font);
     let inset_bottom = inset.bottom.resolve_pt(font);
@@ -107,12 +140,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // "overlong atómico"). Default `breakable: true` preserva
     // comportamento P156G literal.
     if !*breakable {
-        let avail_w = match width {
-            Some(w) => w.resolve_pt(font),
-            None => layouter.available_width(),
-        };
+        let avail_w = resolved_width.unwrap_or_else(|| layouter.available_width());
         let (_, body_h) = layouter.measure_content_constrained(body, avail_w);
-        let height_min = height.map(|h| h.resolve_pt(font)).unwrap_or(0.0);
+        let height_min = resolved_height.unwrap_or(0.0);
         let inner_h = body_h.max(height_min);
         let block_total_h =
             outset_top + inset_top + inner_h + inset_bottom + outset_bottom;
@@ -148,8 +178,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Value::Dir(dir) => Some(*dir),
         _ => None,
     }) == Some(Dir::RTL);
-    let block_origin_x = if let (true, Some(w)) = (is_rtl, width) {
-        let outer_width = w.resolve_pt(font) + inset_left;
+    let block_origin_x = if let (true, Some(w_pt)) = (is_rtl, resolved_width) {
+        let outer_width = w_pt + inset_left;
         Pt(saved_width - layouter.page_config.margin.right - outer_width)
     } else {
         saved_line_start
@@ -162,19 +192,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // clampa `regions.current.width` ao valor user-provided
     // durante body layout via save/restore. `width: None`
     // preserva largura herdada.
-    if let Some(w) = width {
-        let w_pt = w.resolve_pt(font);
+    if let Some(w_pt) = resolved_width {
         let line_start_pt = layouter.regions.current.line_start_x.0;
-        // Width efectiva = line_start + w_pt (ponto onde wrap deve ocorrer).
-        layouter.regions.current.width = (line_start_pt + w_pt).max(0.0);
+        // `Region.width` permanece em coordenadas de página e
+        // `available_width()` desconta a margem direita; incluir essa margem
+        // evita descontá-la duas vezes dentro do Block.
+        layouter.regions.current.width =
+            (line_start_pt + w_pt + layouter.page_config.margin.right).max(0.0);
     }
     // P1292 v12 — uma altura explícita também é a região efetiva dos
     // descendentes durante o body. Como o Block preserva coordenadas
     // absolutas no Layouter, o limite local é expresso a partir de `start_y`;
     // o outset superior fica fora da altura interna declarada. O limite
     // externo é restaurado logo após o body, como já ocorre com a largura.
-    if let Some(h) = height {
-        let h_pt = h.resolve_pt(font);
+    if let Some(h_pt) = resolved_height {
         layouter.regions.current.height = saved_height.min(start_y + outset_top + h_pt);
     }
 
@@ -204,9 +235,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P273.6 — save/restore parent_bbox (Decisão 3γ.2.γ:
         // popular apenas quando width+height literais).
         let saved_parent_bbox = layouter.parent_bbox;
-        if let (Some(w), Some(h)) = (width, height) {
-            let w_pt = w.resolve_pt(font);
-            let h_pt = h.resolve_pt(font);
+        if let (Some(w_pt), Some(h_pt)) = (resolved_width, resolved_height) {
             layouter.parent_bbox = Some(crate::entities::layout_types::Rect {
                 x: layouter.regions.current.cursor_x,
                 y: layouter.regions.current.cursor_y,
@@ -247,9 +276,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         // P273.6 — save/restore parent_bbox (Decisão 3γ.2.γ).
         let saved_parent_bbox = layouter.parent_bbox;
-        if let (Some(w), Some(h)) = (width, height) {
-            let w_pt = w.resolve_pt(font);
-            let h_pt = h.resolve_pt(font);
+        if let (Some(w_pt), Some(h_pt)) = (resolved_width, resolved_height) {
             layouter.parent_bbox = Some(crate::entities::layout_types::Rect {
                 x: layouter.regions.current.cursor_x,
                 y: layouter.regions.current.cursor_y,
@@ -277,8 +304,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     //    h é altura INTERNA do bloco (sem outset); por isso
     //    compara com `cursor_y - start_y - outset_top` que é a
     //    altura consumida desde o topo interno.
-    if let Some(h) = height {
-        let h_pt = h.resolve_pt(font);
+    if let Some(h_pt) = resolved_height {
         let consumed_inner = layouter.regions.current.cursor_y.0 - start_y - outset_top;
         if consumed_inner < h_pt {
             layouter.regions.current.cursor_y += Pt(h_pt - consumed_inner);
@@ -294,8 +320,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // items_before) para que fill+stroke renderizem por baixo
     // do conteúdo. Bounds outer incluem outset+inset+body.
     if has_shape || has_outset {
-        let block_outer_w = match width {
-            Some(w) => w.resolve_pt(font) + inset_left,
+        let block_outer_w = match resolved_width {
+            Some(w_pt) => w_pt + inset_left,
             None => saved_width - saved_line_start.0,
         };
         let mut outer_w = block_outer_w + outset_left + outset_right;
@@ -387,4 +413,38 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.block_chain_active = true;
     }
     layouter.prev_margin_is_parbreak = false;
+}
+
+#[cfg(test)]
+mod p1373_tests {
+    use super::*;
+
+    #[test]
+    fn p1373_height_100_percent_resolves_against_usable_region() {
+        let height = Rel::<Length>::from_percent(100.0);
+        let resolved = resolve_height_pt(height, 11.0, 220.0)
+            .expect("100% de região finita deve resolver");
+        assert!((resolved - 220.0).abs() < 1e-9, "resolved={resolved}");
+    }
+
+    #[test]
+    fn p1373_mixed_height_preserves_absolute_offset() {
+        let height = Rel::<Length>::from_percent(50.0) + Length::pt(10.0);
+        let resolved = resolve_height_pt(height, 11.0, 220.0)
+            .expect("altura relativa mista válida deve resolver");
+        assert!((resolved - 120.0).abs() < 1e-9, "resolved={resolved}");
+    }
+}
+
+#[cfg(test)]
+mod p1374_tests {
+    use super::*;
+
+    #[test]
+    fn p1374_width_60_percent_resolves_against_usable_region() {
+        let width = Rel::<Length>::from_percent(60.0);
+        let resolved = resolve_width_pt(width, 11.0, 180.0)
+            .expect("60% de região finita deve resolver");
+        assert!((resolved - 108.0).abs() < 1e-9, "resolved={resolved}");
+    }
 }

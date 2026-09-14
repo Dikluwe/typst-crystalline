@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: b90b2853
+Hash do Código: da788fff
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -18,6 +18,110 @@ dimensão do conteúdo real, sem constantes posicionais de oracle.
 
 Wrap, RTL, linebreak, parbreak, footnotes, páginas auto e limites permanecem
 geométrica e morfologicamente equivalentes ao vanilla ratificado.
+
+## P1382 — baseline e avanço de linha com fragmentos textuais de tamanhos mistos
+
+### Medição anterior à decisão
+
+Com página 200pt × 120pt, margem 10pt e a linha `Lead` em 11pt seguida de
+`More` em 18pt, o vanila posicionou ambas as baselines em 21,844pt e a linha
+seguinte em 36,232pt. O cristalino posicionou a primeira linha em 17,238pt e
+a seguinte em 40,782pt. Com a ordem inversa, o vanila manteve 21,844pt e
+36,232pt; o cristalino acertou a primeira baseline em 21,844pt, mas pôs a
+seguinte em 38,888pt. A fonte ratificada constrói a linha com o maior ascent
+e descent dos frames e translada cada frame para a baseline comum
+(`inline/line.rs:562-632`).
+
+### Decisão
+
+Ao fechar uma linha, este owner distingue três grandezas:
+
+1. o ascent da linha corrente é o máximo entre o top-edge de todos os
+   fragmentos textuais e as extensões inline;
+2. o descent corrente é o máximo entre o bottom-edge textual e as extensões
+   inline;
+3. o ascent previsto da linha seguinte e o leading são resolvidos pelo estilo
+   ativo do parágrafo depois de restaurados os estilos inline.
+
+Esta decomposição aplica-se quando a própria linha contém pelo menos dois
+tamanhos textuais distintos. Linha uniforme ou com um único fragmento textual
+mantém a fórmula anterior, já selada pelos casos P762/P1120/P1381; ampliar essa
+regra exige uma medição própria.
+
+Se o ascent corrente excede o ascent assumido quando a baseline foi criada,
+a linha inteira e o cursor descem somente essa diferença. O avanço posterior
+é `ascent_seguinte + descent_corrente + leading_do_parágrafo`; não reutiliza o
+ascent máximo da linha anterior como se também governasse a seguinte. O
+ascent assumido armazenado passa a ser o ascent seguinte. Verificações de
+fitting usam a mesma correção de baseline, sem fórmula paralela.
+
+Nenhuma assinatura pública, fase, carrier ou estrutura de documento muda.
+Wrap, caixas inline, tamanhos uniformes e os caminhos P1374–P1381 permanecem
+controles obrigatórios. Distribuição fracionária com prefixo textual misto
+continua `Unknown` neste passo: a correção do cursor não relaxa o gate
+fail-closed de `sequence.rs`.
+
+### Aceitação
+
+Nas ordens 11pt→18pt e 18pt→8pt, todos os fragmentos da primeira linha
+partilham a baseline do vanila e a linha seguinte também coincide. Três
+fragmentos 11pt→18pt→11pt produzem uma única baseline comum. Tamanho uniforme,
+leading explícito, caixa inline e paginação não regridem.
+
+## P1374 — fechamento da linha terminal de distribuição fracionária
+
+### Medição anterior à decisão
+
+Na matriz 1fr/2fr, depois de as parcelas reproduzirem exatamente as posições
+do vanila, `ensure_initial_baseline` tratou a baseline terminal no limite útil
+como overflow e moveu `After` para uma segunda página. Quando a linha ficou na
+primeira página, `flush_line` ainda criou uma segunda página vazia porque o
+avanço até à baseline hipotética seguinte ultrapassou o limite, embora a tinta
+da linha terminal coubesse. A causa é distinta de P1373: aqui o finalizador
+fracionário ocupa deliberadamente toda a região.
+
+### Decisão
+
+Uma sentinela interna, armada pelo owner Sequence apenas para a unidade
+terminal de uma distribuição fracionária válida, permite igualdade com o
+limite em `ensure_initial_baseline`. No primeiro `flush_line`, a sentinela é
+consumida; se a tinta real cabe, o avanço de baseline seguinte não cria página
+vazia. Se a tinta excede o limite, a paginação normal permanece. A sentinela
+participa do checkpoint de replay e não altera sequências sem frações.
+
+### Aceitação
+
+A sonda 1fr/2fr permanece numa página, com `After` no limite observado no
+vanila; conteúdo que realmente ultrapasse o limite continua a paginar. A
+sentinela é consumida uma vez e não afeta a linha posterior.
+
+## P1373 — progressão da primeira linha após região preenchida
+
+### Medição anterior à decisão
+
+Depois de `block(height: 100%)` passar a conservar e resolver sua altura, a
+sonda S07 recompilada produziu duas páginas no cristalino, mas a segunda ficou
+vazia e `pdftotext` observou somente `Probe`. O Block terminou no limite útil;
+`ensure_initial_baseline` posicionou a linha `After` além desse limite e
+`flush_line` só avançou a página depois de drenar a linha para a página
+anterior. Isto explica o `TEXT_MISMATCH` sem atribuí-lo a metadata ou PDF.
+
+### Decisão
+
+Antes de materializar a baseline de uma primeira linha cujo cursor já atingiu
+ou ultrapassou o limite inferior finito, este owner progride pela transição
+normal de região se a página corrente já contém conteúdo. A linha nasce na
+nova região; não é drenada fora dos bounds nem copiada depois. Página vazia e
+altura automática não avançam, evitando ciclo sem progresso e página
+artificial. O owner não conhece `Block`, percentagem ou seu espaçamento: usa
+somente cursor, limite e ocupação correntes.
+
+### Aceitação
+
+Na sonda P1373, `Probe` permanece na primeira página e `After` aparece uma vez
+na segunda, na mesma posição do vanila. Um documento terminado no Block não
+ganha página vazia. A transição é no máximo uma por primeira linha e não cria
+recursão.
 
 ## P1292 — finish/advance do prefixo de floats em `place.flush`
 
@@ -189,3 +293,92 @@ O vetor principal permanece: p3 `AFTER_FLOW=-2.596±0.002pt` e
 p1, com `AFTER_FLOW=40.604±0.002pt` e
 `AFTER_MARKER=47.842±0.002pt`. Tornar os controles dependentes de flag de
 replay, tipo futuro ou caso especial de Block refuta este owner.
+
+### Amendment-12 — tolerância da baseline terminal fracionária
+
+#### Medição anterior à decisão
+
+No prefixo P1386, `One` já coincide com o vanila após remover a boundary
+duplicada da reserva, mas `After` é enviado à página seguinte. Guardas de ULPs,
+0,000001pt e 0,0009pt na reserva não alteraram o resultado release. O ponto de
+decisão restante é `ensure_initial_baseline`: somente quando
+`fractional_flow_tail_pending` está ativo, ele aceita a baseline terminal até
+`page_bottom_limit + f64::EPSILON`, limite menor que a precisão acumulada do
+pipeline e muito menor que o oráculo de 0,001pt.
+
+#### Decisão interna
+
+Somente para uma cauda fracionária já marcada pelo distribuidor, quando a
+baseline seguinte ultrapassa o fundo no máximo pela boundary exterior
+`below - leading`, o Cursor fixa essa baseline no próprio fundo. Acima da
+boundary mais a tolerância de 0,001pt, a quebra ordinária permanece. O ajuste
+não aumenta Block, não reconhece Content e não se aplica a fluxo ordinário;
+ele remove a segunda representação da mesma boundary já entregue antes do
+Block pelo prefixo P1386.
+
+#### Aceitação
+
+18pt→12pt, 18pt→14pt, 20pt→14pt e 20pt→18pt P1386 permanecem em uma página,
+com coordenadas iguais ao vanila dentro de 0,001pt. P1385 e P1374–P1384 permanecem exatos; fluxo sem
+`fractional_flow_tail_pending`, caudas acima de uma boundary exterior e os
+controles de largura P1386 continuam seguindo a quebra ordinária.
+
+### Amendment-13 — mistura relativa ao estilo ativo
+
+#### Medição anterior à decisão
+
+Nos pares P1387 12→12 até 20→20, os itens têm tamanho igual entre si, mas
+diferem do exterior 11pt. O Cursor P1382 deixa `mixed_text_sizes=false` porque
+o fold compara somente cada item com o primeiro. O vanila mantém o próximo
+ascent e o leading exteriores: `One` segue o máximo e `After=Tail`, enquanto o
+cristalino faz ambos dependerem do tamanho uniforme.
+
+#### Decisão interna
+
+`mixed_text_sizes` é verdadeiro se tamanhos dos itens diferem entre si ou se,
+havendo pelo menos dois itens textuais, um item difere do estilo ativo do
+parágrafo. Nesse segundo caso aplicam-se
+as mesmas escolhas P1382: próximo ascent e leading vêm do exterior. Conteúdo,
+baseline compartilhada, estilos visuais e máximo textual não mudam.
+
+#### Aceitação
+
+Os quatro pares uniformes P1387 aceitos pelo gate de largura (12pt–18pt)
+coincidem com o vanila dentro de 0,001pt. 20pt permanece `Unknown` no
+preflight, embora a regra de Cursor feche sua cauda.
+Singletons P1381, linhas realmente exteriores, linhas mistas P1382–P1386, fluxo ordinário e a
+tolerância terminal Amendment-12 preservam seus resultados.
+
+### Amendment-14 — fechamento de linha no wrap certificado P1389
+
+#### Medição anterior à decisão
+
+No prefixo uniforme 21→21, o primeiro wrapper deixa um único item de 21pt na
+linha. Ao detectar overflow dentro do segundo wrapper, o fechamento ordinário
+usa esse tamanho tanto para o próximo ascent quanto para o leading e posiciona
+`More=32,512pt`; o vanila usa o estilo exterior de 11pt e produz
+`More=26,012pt`. O mesmo crescimento indevido aparece de 22pt a 40pt. Tornar
+todo singleton relativo ao exterior foi refutado no P1387 porque altera os
+singletons P1381 que não nasceram deste wrap.
+
+#### Decisão interna
+
+Cursor oferece um fechamento interno exclusivo para o carrier certificado de
+P1389. Ele reutiliza integralmente `flush_line`, mas marca a linha textual
+singleton como mista em relação ao estilo exterior ativo: máximo e descent
+continuam pertencendo ao item, enquanto próximo ascent e leading vêm do
+exterior. Como a baseline foi inicialmente assumida pelo exterior do
+parágrafo, o ajuste positivo até o ascent máximo da linha continua obrigatório;
+suprimi-lo desloca `More` para cima por `top(interno)-top(exterior)`. O
+fechamento ordinário não muda.
+
+Sequence só chama essa entrada antes do segundo wrapper e antes de fechar sua
+linha final no prefixo P1389. Não há flag persistente, campo em checkpoint,
+inspeção de Content no Cursor, API pública ou mudança para wrap geral.
+
+#### Aceitação
+
+Nos positivos P1389, a distância entre `Lead` e `More` usa próximo ascent e
+leading exteriores e a cauda fracionária termina no fundo. Singletons P1381,
+prefixos sem wrap P1383–P1388 e todo `flush_line` ordinário preservam seus
+resultados.

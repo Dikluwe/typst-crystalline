@@ -1,0 +1,25 @@
+{
+  "schema":"tekt-materialization-verification/v1",
+  "step":"P1389",
+  "verified_at":"2026-09-14T11:22:45-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "manifest_sha256":"c429e5cd7aea6f0b1fed2f1df39c3a0a599060a60b5497bc1a0b6595f52d22f3",
+  "seal_sha256":"57c711d890481f6f5f41e2e6dbdeb03b7086ad9ec3ef31aa2c655b6428e048d6",
+  "checks":[
+    {"name":"P1389 RED and calibrated GREEN","status":"pass","initial_red_failed":1,"reopened_red_failed":1,"final_run":3,"final_passed":3},
+    {"name":"P1380-P1389 focal and controls","status":"pass","run":29,"passed":29},
+    {"name":"P1374-P1379 historical controls","status":"pass","run":21,"passed":21},
+    {"name":"bilateral sealed matrix","status":"pass","match":5,"unknown":1},
+    {"name":"new productive one-wrap pairs","status":"pass","match":4},
+    {"name":"mutation discrimination","status":"pass","violated":8,"declared":8},
+    {"name":"cargo build release typst-wiring","status":"pass"},
+    {"name":"cargo build typst-wiring","status":"pass"},
+    {"name":"cargo check typst-core","status":"pass"},
+    {"name":"cargo fmt check","status":"pass"},
+    {"name":"git diff check","status":"pass"},
+    {"name":"crystalline lint","status":"pass","violations":0,"advisories":1433,"new_advisories":0}
+  ],
+  "memory":{"bounded":true,"parallel_processes":1,"peak_rss_kib":2490096,"controlled_limit_abort":false,"host_oom":false,"timeout":false,"sigkill":false,"swap":false},
+  "verdict":"verified within the manifest claim limit",
+  "independence":"not attested; same authority performed all roles"
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — `block`
-Hash do Código: e857945c
+Hash do Código: f299b643
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -20,6 +20,68 @@ consumer e nenhum despacho dinâmico é introduzido.
 
 Testes focais e a suíte do subsistema preservam comportamento e morfologia;
 alteração observável exige medição e decisão próprias.
+
+## P1373 — resolução de altura relativa
+
+### Medição anterior à decisão
+
+O P1372 isolou o comportamento com texto `ProbeAfter` idêntico. Nos perfis
+`a11y-extras` e `html+a11y`, vanila posicionou `After` na página 1 em
+`yMin=7,404`; cristalino posicionou na página 0 em `yMin=42,230`. Lone e
+controle tiveram delta interno zero nos dois produtos. Na fonte cristalina,
+`native_block` perde `Ratio` antes do layout; na fonte ratificada,
+`flow/block.rs:323-331` resolve a altura relativa contra a base da região.
+
+### Decisão owner-correct
+
+Este owner recebe `Option<Rel<Length>>` já preservado. Quando presente,
+captura a altura útil da região exterior antes de alterar
+`regions.current.height` e resolve exatamente uma vez:
+
+```text
+resolved_height = height.resolve(Length::pt(outer_available_height))
+                        .resolve_pt(effective_font_size)
+```
+
+O resultado finito e não negativo é usado coerentemente no fitting de
+`breakable:false`, no limite temporário dos descendentes, em `parent_bbox`, no
+avanço mínimo e na altura da shape. `100%` refere-se à altura útil completa da
+região (altura menos margens), não à altura restante no cursor, ao font-size
+ou ao tamanho natural do body. A região exterior é restaurada após o body.
+
+Não resolver em eval, não usar `page_config.height` sem descontar margens, não
+resolver novamente depois que a região local foi reduzida e não condicionar o
+cálculo a metadata ou ao número de filhos.
+
+### Aceitação e escopo
+
+Em página 240pt com margens de 10pt, `height:100%` resolve para 220pt e empurra
+o marcador posterior para a mesma página/posição observada no vanila P1372.
+Altura absoluta mantém os testes existentes. P1374 completa width relativa e
+altura fracionária; esses eixos não recebem crédito em P1373.
+
+## P1374 — consumo proposto de width relativa e height fracionária
+
+### Medição anterior à decisão
+
+Na sonda width 60%, os 180pt úteis implicam 108pt; o vanila alinhou `Right`
+com `xMin=93,668`, enquanto o cristalino truncou a região e cortou o texto. Na
+sonda 1fr/2fr, o vanila preservou razão proporcional e o cristalino rejeitou a
+entrada. A fonte ratificada delega a parcela fracionária ao distribuidor de
+flow, não ao container isolado.
+
+### Decisão proposta
+
+Resolver width `Rel<Length>` uma única vez contra a largura útil exterior e
+usar o mesmo valor para região dos descendentes, bbox, RTL e shape. Height
+`Relative` mantém integralmente P1373. Height `Fractional` só é disposto quando
+o owner de flow fornece uma parcela concreta; o Block não calcula espaço
+restante nem soma pesos. Ausência dessa parcela em contexto fora da fatia
+P1374 fecha em `Unknown`/sem crédito, não em altura zero silenciosa.
+
+Não mudar inset/outset, spacing, breakability, clip ou parent bbox além de
+substituir seus usos de width/height pelo valor resolvido único. Gate público
+ADR-0127 antes do código.
 
 ## P1292 amendment-11 — transição Block → flow ordinário
 

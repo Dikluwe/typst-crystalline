@@ -1,0 +1,17 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1379",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1378-results.json","sha256":"75abfbc189e1edad3173720cb758ff457800c41c3c19dac2ca7dab2e47453603"},
+  "public_changes":[],
+  "owners":["01_core/src/compiler/layout/sequence.rs","01_core/src/compiler/layout/columns.rs"],
+  "region":"each explicit segment distributes fractional height from its own entry cursor to the finite column bottom",
+  "roundoff":"recomposition cannot move the terminal fixed line to another region by floating-point overshoot",
+  "isolation":"fixed content and fractional weights are local to one segment",
+  "forms":["columns container","page columns","sequence","singleton","empty"],
+  "style_transport":"one outer Styled wrapper is preserved independently on every explicit segment",
+  "fixed_prefix":"direct unwrapped text before the first fractional block closes the line, applies max(0, par.spacing - par.leading), and reserves that boundary plus pending initial top-edge and exact flush_line advance",
+  "preserve":"P1374-P1378 and fractional footnotes remain fail-closed",
+  "fail_closed":["nested fractional distribution","multi-region overflow","grid","box","place","general parity"],
+  "unknown_policy":"fail_closed",
+  "adr_0127":"continuous_internal_parity_correction"
+}

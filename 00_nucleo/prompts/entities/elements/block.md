@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/block` — `BlockElem`
-Hash do Código: f62b2886
+Hash do Código: b3424cfb
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/block.rs`
 **Origem**: modelo D (ADR-0105), **Lote 15 P330** (lote tardio da triagem
@@ -15,8 +15,8 @@ densa** do roteiro (14 campos); família L12/`Boxed`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BlockElem {
     pub body:      Content,            // era Box<Content>
-    pub width:     Option<Length>,
-    pub height:    Option<Length>,
+    pub width:     Option<Rel<Length>>,
+    pub height:    Option<BlockHeight>,
     pub inset:     Sides<Length>,
     pub breakable: bool,
     pub outset:    Sides<Length>,
@@ -30,6 +30,68 @@ pub struct BlockElem {
     pub sticky:    bool,
 }
 ```
+
+### P1373 — altura relativa preservada
+
+#### Medição anterior à decisão
+
+`compiler/stdlib/layout.rs:861-874` reduz `Value::Ratio` a `Length::ZERO`, e
+`native_block:1535-1539` aplica esse extrator a `height`. O P1372 mediu, nos
+dois perfis, `After` na página 1 (`yMin=7,404`) no vanila e na página 0
+(`yMin=42,230`) no cristalino. Lone e controle coincidem dentro de cada
+produto, isolando a perda da altura, não a cardinalidade ou o metadata.
+
+O vanila ratificado conserva `BlockElem::height` como `Sizing` e sua variante
+relativa até o layout (`container.rs:257-284,474-505`).
+
+#### Decisão
+
+O campo público `height` é `Option<Rel<Length>>`: `None` representa auto;
+comprimentos absolutos usam `rel=0`; percentagens puras usam `abs=0`; valores
+mistos conservam ambas as partes. `map_content`, `map_text`, igualdade e hash
+preservam o valor integralmente.
+
+Esta é mudança de contrato público sujeita ao gate ADR-0127. Não codificar a
+parte relativa em `Length::em`, `NaN`, sinal ou qualquer outra sentinela.
+
+**Estado dividido:** P1373 não materializa `Sizing::Fr` nem torna `width`
+relativa. O Passo P1374 completa esses dois subconjuntos; até lá, fração em
+height deve continuar rejeitada e width percentual não recebe crédito.
+
+### P1374 — contrato público proposto para width relativa e height fracionária
+
+#### Medição anterior à decisão
+
+No vanila ratificado, `BlockElem::width` é `Smart<Rel<Length>>` e height é
+`Sizing { Auto, Rel, Fr }` (`layout/container.rs:257-284,476-505`). O
+cristalino P1373 possui `Option<Length>` para width e
+`Option<Rel<Length>>` para height: o primeiro perde percentagem e o segundo
+não representa fração sem sentinela.
+
+#### Decisão pública proposta
+
+Declarar neste mesmo owner:
+
+```rust
+pub enum BlockHeight {
+    Relative(Rel<Length>),
+    Fractional(f64),
+}
+```
+
+`BlockElem::width` torna-se `Option<Rel<Length>>` e height torna-se
+`Option<BlockHeight>`; `None` continua auto. O carrier rejeita peso fracionário
+negativo ou não finito nas fronteiras de construção. Igualdade e hash incluem
+variante e payload. É proibido codificar `fr` em `Rel`, `Length::em`, NaN,
+infinito, sinal ou outro sentinel.
+
+O nome e a estrutura Rust podem divergir do upstream; o contrato de linguagem
+é distinguir auto, relativo e fracionário. Esta mudança pública exige
+confirmação ADR-0127 antes de qualquer código.
+
+**Fatia declaradamente incompleta:** P1374 materializa distribuição em
+Sequence direta de uma região finita. P1375 completa wrappers transparentes,
+colunas e multi-região; até lá esses contextos são `Unknown` sem crédito.
 
 `Content::Block { … }` → `Content::Block(Arc<BlockElem>)`. Construtor ergonómico
 preservado: `Content::block(body, width, height, inset, breakable)` — **cobre só

@@ -1,0 +1,26 @@
+{
+  "schema": "tekt-oracle-suite/v1",
+  "step": "P1374",
+  "positive": [
+    {"id":"P01","predicate":"width 60% is preserved as rel=0.6 and resolves to 108pt of 180pt"},
+    {"id":"P02","predicate":"height Relative remains behaviorally identical to P1373"},
+    {"id":"P03","predicate":"height 1fr and 2fr are distinct carrier variants with finite weights"},
+    {"id":"P04","predicate":"1fr and 2fr shares have ratio 1:2 after fixed-flow deduction"},
+    {"id":"P05","predicate":"Content::block absolute call sites remain source-compatible"},
+    {"id":"P06","predicate":"zero total fraction does not divide, loop or allocate nonzero share"}
+  ],
+  "negative": [
+    {"id":"N01","mutation":"truncate width Ratio to zero","expected":"Violated"},
+    {"id":"N02","mutation":"resolve width against full page 200pt","expected":"Violated"},
+    {"id":"N03","mutation":"encode Fractional in Rel, em, NaN, infinity or sign","expected":"Violated"},
+    {"id":"N04","mutation":"accept Fraction for block width","expected":"Violated"},
+    {"id":"N05","mutation":"resolve each fractional Block independently to all remaining space","expected":"Violated"},
+    {"id":"N06","mutation":"include fractional Block body twice in fixed-space deduction","expected":"Violated"},
+    {"id":"N07","mutation":"divide by zero when all weights are zero","expected":"Violated"},
+    {"id":"N08","mutation":"leak a sibling share into the next Block or subframe","expected":"Violated"},
+    {"id":"N09","mutation":"change Content::block public parameters to relative/fractional","expected":"Violated"},
+    {"id":"N10","mutation":"promote an out-of-scope multi-region observation to MATCH","expected":"Unknown"}
+  ],
+  "mutation_score_required": 1.0,
+  "status": "confirmed_for_preseal_2026-09-13"
+}

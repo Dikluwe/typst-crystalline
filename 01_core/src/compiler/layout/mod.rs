@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash a4975ead
+//! @prompt-hash 13292493
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -361,6 +361,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// entre blocks consecutivos. Reset por Sequence consumer +
     /// non-Block arms.
     pub(super) prev_block_below_pending: f64,
+    /// P1374 — cota calculada pelo `Sequence` para o bloco fracionário
+    /// directo em composição. `None` fora dessa ocorrência.
+    pub(super) fractional_block_height: Option<f64>,
+    /// Guarda do preflight puro P1374; impede distribuição aninhada/reentrada.
+    pub(super) fractional_preflight_active: bool,
+    /// A próxima linha fecha uma distribuição `fr`; o overflow considera a
+    /// tinta confirmada, não a baseline hipotética seguinte.
+    pub(super) fractional_flow_tail_pending: bool,
     /// **P250** — `true` se o elemento previamente laid out foi
     /// `Content::Block`. Used by `prev_block_below_pending` collapse
     /// logic + first-block-in-sequence above suppression. Reset por
@@ -639,6 +647,9 @@ pub(super) struct FlowSuffixCheckpoint {
     cursor_y_bottom_reserve: f64,
     enum_counter: Option<u32>,
     prev_block_below_pending: f64,
+    fractional_block_height: Option<f64>,
+    fractional_preflight_active: bool,
+    fractional_flow_tail_pending: bool,
     block_chain_active: bool,
     prev_margin_is_parbreak: bool,
     prev_line_baseline: f64,
@@ -926,6 +937,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             enum_counter: None,
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
+            fractional_block_height: None,
+            fractional_preflight_active: false,
+            fractional_flow_tail_pending: false,
             block_chain_active: false,
             prev_margin_is_parbreak: false,
             // P813 — sem flush prévio; a primeira equação de bloco usa o
@@ -1024,6 +1038,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cursor_y_bottom_reserve: self.cursor_y_bottom_reserve,
             enum_counter: self.enum_counter,
             prev_block_below_pending: self.prev_block_below_pending,
+            fractional_block_height: self.fractional_block_height,
+            fractional_preflight_active: self.fractional_preflight_active,
+            fractional_flow_tail_pending: self.fractional_flow_tail_pending,
             block_chain_active: self.block_chain_active,
             prev_margin_is_parbreak: self.prev_margin_is_parbreak,
             prev_line_baseline: self.prev_line_baseline,
@@ -1111,6 +1128,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.cursor_y_bottom_reserve = checkpoint.cursor_y_bottom_reserve;
         self.enum_counter = checkpoint.enum_counter;
         self.prev_block_below_pending = checkpoint.prev_block_below_pending;
+        self.fractional_block_height = checkpoint.fractional_block_height;
+        self.fractional_preflight_active = checkpoint.fractional_preflight_active;
+        self.fractional_flow_tail_pending = checkpoint.fractional_flow_tail_pending;
         self.block_chain_active = checkpoint.block_chain_active;
         self.prev_margin_is_parbreak = checkpoint.prev_margin_is_parbreak;
         self.prev_line_baseline = checkpoint.prev_line_baseline;
@@ -2597,7 +2617,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let inset_t = inset.top.resolve_pt(font);
                 let inset_b = inset.bottom.resolve_pt(font);
                 let body_max = match width {
-                    Some(w) => w.resolve_pt(font).min(max_width - inset_l - inset_r),
+                    Some(w) => block::resolve_width_pt(*w, font, max_width)
+                        .unwrap_or(max_width)
+                        .min(max_width - inset_l - inset_r),
                     None => (max_width - inset_l - inset_r).max(0.0),
                 };
                 let (bw, bh) = self.measure_content_constrained(body, body_max);
@@ -2608,12 +2630,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // `block(width: 3cm, align(top, place(..)))` numa coluna
                 // auto de grid) — a coluna auto-dimensionava para 0pt.
                 let total_w = match width {
-                    Some(w) => w.resolve_pt(font).min(max_width),
+                    Some(w) => block::resolve_width_pt(*w, font, max_width)
+                        .unwrap_or(bw + inset_l + inset_r)
+                        .min(max_width),
                     None => bw + inset_l + inset_r,
                 };
                 let body_h_with_inset = bh + inset_t + inset_b;
                 let total_h = match height {
-                    Some(h) => h.resolve_pt(font).max(body_h_with_inset),
+                    Some(crate::entities::elements::block::BlockHeight::Relative(h)) => {
+                        block::resolve_height_pt(*h, font, self.available_height())
+                            .unwrap_or(body_h_with_inset)
+                            .max(body_h_with_inset)
+                    }
+                    Some(crate::entities::elements::block::BlockHeight::Fractional(
+                        _,
+                    )) => self
+                        .fractional_block_height
+                        .unwrap_or(body_h_with_inset)
+                        .max(body_h_with_inset),
                     None => body_h_with_inset,
                 };
                 (total_w, total_h)

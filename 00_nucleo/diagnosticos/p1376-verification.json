@@ -1,0 +1,16 @@
+{
+  "schema":"tekt-verification-certificate/v1",
+  "step":"P1376",
+  "verified_at":"2026-09-13T16:28:15-03:00",
+  "verdict":"PASS_WITH_LIMITED_ATTESTATION",
+  "regime":"protocolo completo executado sem atestacao de isolamento",
+  "provenance":{"repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248","working_tree":"nao commitado e agregado com P1356-P1376","measured_diff_stat":"45 files changed, 3269 insertions(+), 336 deletions(-)","measured_status_entries":256},
+  "hashes":{"step":"9391066357fff4a568d6e0ee407ea1c3cd2a6c9089f6e8a23c50de7f2a16b717","manifest":"b2201ab3d8835fb5ebf06a127f14c586405dc54c5eab9c28d3d623e504bd01c0","contract":"c0c607266059538a30e3e7061343a9e8e7fbb3dcde79a9132c11820085ce9333","oracles":"764aaf0a65ef6776a09e8a31eae924f182c2902bc82569dbf3200a5127d3f6fe","mutants":"2824df130cfea941b674b5c967e7f38b487382e641e5bbaab7fba62dca9cd7ea","preseal":"39b477e08854adb88b488cbdbc4b07db6d3140126ed34bf8c8995840abd9e6eb","results":"6648687956978ebf950ddac4bb69b4ff11eb1a581e5fbdaf9b87855ec63ede03","report":"79710b8bb6a6c403d2c17042602467ac3e5283c9cfed5413fd3087f09b657bd6","seal":"e5da3d286e17b7450f2e5adee60e56d0cfc3733327b34ebc1043f4e995c0d44a","vanila_binary":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f","cristalino_binary":"ef9871508f5a42452569f8b3184072905f294f0da97660af74164743e7958bc2","pdftotext_binary":"0fb98ea179e19154a90202608c164f2a319b79f16576fa6534b2d601033565e7","test_binary":"cfd45facc1c5df47ad16fc862a3717e82794ac06c2163c340faa3f4199fbca75"},
+  "candidate":{"eligibility":"column_mode and page_columns Some","formula":"max(0, page_bottom_limit - cursor_y) in continuous columns","segmented_guard":"page_columns None remains blocked","public_changes":false},
+  "red_green":{"red":"missing fractional_region_remaining; exit 101 in 14.7 seconds","green":{"p1374":{"run":4,"passed":4},"p1375":{"run":2,"passed":2},"p1376":{"run":1,"passed":1,"filtered_out":5681}},"matrix":{"MATCH":2,"Unknown":5}},
+  "gates":{"cargo_check":0,"cargo_build_no_debug":0,"cargo_fmt_check":0,"json_validation_ruby":0,"git_diff_check":0,"crystalline_lint":0,"prompt_drift_remaining":0,"blocking_lint_violations":0},
+  "memory":{"cargo_build_jobs":1,"cargo_check_limit_bytes":3221225472,"cargo_link_limit_bytes":4294967296,"cargo_file_limit_bytes":536870912,"matrix_address_space_limit_bytes":2147483648,"matrix_file_limit_bytes":16777216,"test_binary_bytes":87210280,"cristalino_binary_bytes":98166960,"largest_cristalino_matrix_pdf_bytes":6061,"algorithm":"constant-space formula; no recursion buffers or new collections","host_oom_timeout_sigkill":false,"actual_peak_rss_measured":false},
+  "discrimination":{"valid_mutants":6,"violated":6,"unexpected_unknown":0,"mutation_score":1.0},
+  "attestation_limit":"same authority controls contract implementation attacks and verification",
+  "claim_limit":"MATCH only for continuous columns at top boundary; offset segmented grid box place and general parity remain Unknown"
+}

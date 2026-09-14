@@ -1,0 +1,11 @@
+{
+  "schema":"tekt-materialization-seal/v1",
+  "step":"P1385",
+  "created_at":"2026-09-13T23:04:53-03:00",
+  "manifest_sha256":"d492309483cf92cd10944a96803cabeec9a066402dafc738c42613da2ad3990d",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "verdict":"accepted narrow MATCH",
+  "gates":{"l0_before_code":true,"red_observed":true,"candidate_v1_rejected":true,"contract_reopened_before_v2":true,"focal_green":true,"controls_green":true,"bilateral_matrix":true,"mutation_score_one":true,"memory_bounded":true,"cargo_check":true,"format":true,"diff_check":true,"crystalline_lint_exit_zero":true,"no_new_lint_advisory":true},
+  "claim_limit":"exactly two size-only Styled(Text), first larger than outer and second less than or equal to outer, without wrap; second above outer, equal/growing pair, first not larger, extra delta and singleton Unknown",
+  "isolation_attested":false
+}

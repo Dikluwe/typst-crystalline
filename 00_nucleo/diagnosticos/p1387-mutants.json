@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1387",
+  "mutants":[
+    {"id":"M1","change":"keep equal above-outer pair rejected","killed_by":"four positive pairs"},
+    {"id":"M2","change":"compare text items only with first item","killed_by":"four positive pairs"},
+    {"id":"M3","change":"use uniform large leading","killed_by":"One and After progression"},
+    {"id":"M4","change":"use uniform large next-ascent","killed_by":"One coordinate"},
+    {"id":"M5","change":"duplicate outer boundary in fixed reserve","killed_by":"After and Tail"},
+    {"id":"M6","change":"accept size at or below outer","killed_by":"opaque control"},
+    {"id":"M7","change":"accept growing order","killed_by":"18-to-20 control"},
+    {"id":"M8","change":"accept additional delta, third fragment or wrap","killed_by":"opaque controls"},
+    {"id":"M9","change":"regress P1386 decreasing pair","killed_by":"P1386 controls"}
+  ]
+}

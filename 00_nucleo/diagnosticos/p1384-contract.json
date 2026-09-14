@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1384",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1383-results.json","sha256":"c1fd8c211964d1eb1021531207c20347675aea69b54c505edd6e31232d677717"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/sequence.rs",
+  "observable":"one size-only larger Styled(Text) followed by one direct outer Text receives the same fractional preflight credit after P1382 line alignment",
+  "metrics":["shared mixed baseline","strict maximum textual style","active outer next-ascent","active outer leading","matching outer paragraph-to-block boundary"],
+  "preserve":"P1374-P1383 and opaque neighboring shapes remain unchanged",
+  "fail_closed":["single larger fragment","two styled fragments","larger size combined with fill","three or more fragments","second fragment non-outer","wrap","nested wrapper","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

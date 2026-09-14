@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1381",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1380-results.json","sha256":"4d4d3e90a093045e7d02f483c269b3dbe9f5d23f283975873430b80680db390a"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/sequence.rs",
+  "prefix":"one Styled(Text) fragment may reduce text.size in the P1380 one-line prefix",
+  "metrics":["first textual top-edge","strict maximum-size text style with outer fallback","last textual leading","outer paragraph-to-block boundary"],
+  "preserve":"P1374-P1380 and non-segmented contexts",
+  "fail_closed":["more than one textual fragment when size changes","text size larger than outer style","wrapped prefix","nested wrapper","explicit leading","top or bottom edge","tracking","font change","script","custom style channel","nested fraction","multi-region","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

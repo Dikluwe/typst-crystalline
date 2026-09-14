@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: 70a484a4
+Hash do Código: 93004005
 
 
 **Camada**: L1  
@@ -7,6 +7,108 @@ Hash do Código: 70a484a4
 **Ficheiros adjacentes**: `01_core/src/compiler/layout/cursor.rs`, `01_core/src/compiler/layout/mod.rs`, `01_core/src/compiler/layout/footnote.rs`, `01_core/src/entities/elements/columns.rs`  
 **Origem**: P537 (colunas reais), P537b (`#set page(columns:)`), P552 (correcção de footnotes), P553 (correcção geométrica de largura de coluna)  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (graded / scope-outs).
+
+## P1377 — fronteira vertical do contentor de colunas
+
+### Medição anterior à decisão
+
+Na fonte ratificada, `ColumnsElem` é realizado como
+`BlockElem::multi_layouter` (`lab/typst-original/crates/typst-layout/src/rules.rs:687-688`).
+O coletor de flow emite `above` e `below` do Block com fallback em
+`par.spacing` (`flow/collect.rs:253-285`), cujo default do Block é `1.2em`
+(`typst-library/src/layout/container.rs:324-360`). Em página de 200pt × 240pt,
+margem 10pt e fonte 11pt, `Intro` seguido de `#columns(2)[Inside]` posiciona
+as baselines aparentes em `7,404`, `27,842` e, para `Outside`, `48,280` no
+vanila. O cristalino P1376 produz `7,404`, `21,792`, `36,180`: faltam os
+dois deltas `(1.2 - 0.65) × 11 = 6,05pt` nas fronteiras do contentor.
+
+### Decisão interna
+
+`columns::layout` participa do mesmo protocolo vertical de um Block auto:
+
+1. se houver linha inline aberta, fecha-a e estabelece o topo pendente do
+   próximo Block a partir da baseline anterior mais `par.spacing`; a baseline
+   só é fixada quando o conteúdo real entra, evitando descontar `top-edge` de
+   preflights regionais;
+2. se já houver cadeia de blocos/parágrafo, colapsa a margem de entrada pelo
+   máximo, sem somar margens adjacentes;
+3. no fim, conserva `par.spacing` como margem inferior pendente e ativa a
+   cadeia para o próximo bloco ou parágrafo;
+4. no topo de uma região, não cria margem forte nem desloca a primeira linha.
+
+O avanço observável entre linhas continua equivalente ao excesso de
+`par.spacing` sobre `par.leading`; os valores respeitam ambos e o tamanho de
+texto ativos.
+A correção não cria campo, API pública, fase de pipeline, recursão ou coleção.
+P1377 dá crédito apenas às colunas contínuas; o modo segmentado por
+`colbreak()`, multi-região e sub-layouts continuam `Unknown`.
+
+## P1378 — origem lógica independente dos segmentos explícitos
+
+### Medição anterior à decisão
+
+Em `#columns(2)[One #colbreak() Two]` no topo, o vanila coloca `One` e
+`Two` em `y=7,404` e o texto exterior em `y=27,842`. O cristalino P1377
+produz respectivamente `17,238`, `10,000` e `30,438`. Depois de `Intro`, o
+vanila usa `27,842` nas duas colunas; o cristalino usa `37,676` e `30,438`.
+Com duas linhas somente no primeiro segmento, o vanila coloca `Lower` em
+`21,792` e `Outside` em `42,230`; no cristalino, `Outside=30,438` precede
+`Lower=31,626`. Um primeiro segmento vazio não altera a origem do segundo no
+vanila (`Two=7,404`).
+
+A causa está em `layout_segmented`: ele inicializa cada segmento em
+`column_start_y + ascender`, embora a fronteira P1377 já conserve o topo
+lógico e `ensure_initial_baseline` seja o dono da conversão topo→baseline.
+Além disso, o estado de baseline/cadeia atravessa segmentos que deveriam ser
+regiões irmãs, e a saída conserva a baseline do último segmento em vez da
+mais profunda.
+
+### Decisão interna
+
+Cada segmento explícito começa em `column_start_y`, sem pré-somar ascender, e
+recebe uma cópia do estado lógico de entrada (`initial_baseline_pending`,
+baseline anterior e cadeia de colapso). O estado produzido por um segmento
+não entra no seguinte. Depois do flush, somente segmentos com itens podem
+concorrer para a baseline de saída; vence a maior baseline, enquanto o cursor
+continua usando o maior fundo já calculado. Segmento vazio não inventa
+baseline nem deslocamento.
+
+O algoritmo usa apenas snapshots escalares e um `Option<(f64, f64)>`; não adiciona
+recursão, buffer por conteúdo ou API pública. Altura `fr` segmentada continua
+bloqueada pelo P1376 e permanece `Unknown` para o próximo passo.
+
+## P1379 — distribuição fracionária por segmento explícito
+
+### Medição anterior à decisão
+
+No caso P1378 com um Block `1fr` em cada lado, o vanila posiciona os corpos em
+`7,404` e as caudas em `220,166`; o cristalino posiciona os corpos corretamente,
+mas deixa as caudas em `42,230`. Depois de `Intro`, as caudas vanila continuam
+em `220,166`, contra `62,668`. Com pesos `1fr` e `2fr` no primeiro segmento, o
+vanila produz `One=7,404`, `Two=82,724670`, `After=220,166`; o cristalino
+produz `7,404`, `42,230`, `77,056`. A forma `#set page(columns: 2)` com
+`colbreak()` também termina ambas as caudas em `220,166` no vanila.
+
+### Decisão interna
+
+Cada segmento é entregue à entrada dedicada de Sequence para região
+fracionária cursor-relativa. Essa entrada aceita Sequence, singleton ou vazio
+sem clonar ou reescrever conteúdo. A distribuição é refeita por segmento:
+itens fixos e pesos de uma coluna não participam da outra, e todas usam como
+limite inferior `page_bottom_limit` da região vigente.
+
+O `Styled` exterior criado por `#set page(...)` é transparente apenas nesta
+fronteira: `split_by_colbreak` inspeciona sua Sequence interna, divide nos
+separadores e reaplica uma única cópia do mesmo `Styles` a cada segmento.
+Sequence executa esse wrapper por save/push/restore iterativo, sem recursão.
+Wrappers `Styled` aninhados continuam fora do crédito.
+
+O modo contínuo P1376, a origem/saída P1378 e o tratamento de notas conservam
+os caminhos atuais. A autorização contextual não usa `page_columns` como
+sentinela durante o despacho — isso evitaria que overflow explícito acionasse
+transição automática de coluna e evita abrir inadvertidamente frações dentro
+de footnotes. Não há API pública, novo estado persistente, recursão ou buffer.
+Overflow multi-região, frações aninhadas e sub-layouts continuam `Unknown`.
 
 ---
 

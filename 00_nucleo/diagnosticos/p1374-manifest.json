@@ -1,0 +1,36 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": "P1374",
+  "protocol": "full_without_isolation_attestation",
+  "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree": "uncommitted aggregated state",
+  "baseline": {"path":"00_nucleo/diagnosticos/p1373-results.json","sha256":"5c8fe7ae4591d472bfbf4c800355293ca2181cc61332b06bb74b1adda69ba0db"},
+  "step_document": {"path":"00_nucleo/materialization/typst-passo-1374.md","sha256":"b79cb866287f6fffc84a9f78edbf2fadce679065503495411f20fba593afe9ef"},
+  "prompts": {
+    "entities_block":"0cf391a6a5df354bf5ef1babf6f095343174ccc93e087460fd7e80559f8c204f",
+    "entities_content":"b59a04e5c0e9d110597d7bb462fb6bacc545b8addacc412b7a46414c6f28723e",
+    "stdlib_layout":"2e5bc7b551769ba653c597abad8b338b44e87e14fca0a0a68ec7f3a0fe91ceee",
+    "layout_block":"8c8b4dfdcca29ff8fc7aad841db5796825ce9e09cba708dac8323925127dad07",
+    "layout_sequence":"92cf05a95e22f7eaa60b5f0475a9fb0b9a27729672083f1ec9c46bab24e66152",
+    "layout_tests":"8a1c18006ec78c2b05bb789c36fe338176fe8c9d02cc6c6db8660e12e6bf2909",
+    "layout_engine":"d97711d348789ae79a7117bce08cadbd5573ae158dc8dfe5992ebcbc4b112688"
+  },
+  "contract": {"path":"00_nucleo/diagnosticos/p1374-contract.json","sha256":"83edd230b262e6b67b9460bc652562a3a1941c1d6e1c0bfb51b25d6dcfc9f26f"},
+  "oracles": {"path":"00_nucleo/diagnosticos/p1374-oracles.json","sha256":"dd0470c3f4dd3603d3942f5e955d33d5c7f0787c24db9f61465d244a21b9bc96"},
+  "mutants": {"path":"00_nucleo/diagnosticos/p1374-mutants.json","sha256":"07ba2a2b08b92c96b80d2b54b28e44a1a365efba6dd841b29d499ba6a9f72cc8"},
+  "preflight": {"path":"00_nucleo/diagnosticos/p1374-preflight.md","sha256":"55bd9ea41a793fbaa2fb8dbe5b0611128997058b1f0848ed4550a1c082f58748"},
+  "vanila_sources": {
+    "container":"56f673258670f56ba73807d47db316bb14d48b82114c1d9b4ce50aa62a8c220a",
+    "flow_collect":"87386365e5327ebca4d6096e1208dbb6657dfeabc782d78ff59a4effb844f9e1",
+    "flow_distribute":"8264f6b0f682c0f548ac3e36911c894107b606837583492d512251da51d737dc"
+  },
+  "observables": ["width relative carrier and x position", "height fraction carrier", "1:2 vertical allocation", "absolute constructor compatibility", "bounded progress"],
+  "unknown_policy": "fail_closed",
+  "roles": {
+    "intent_contract_oracles":"root shared workspace",
+    "implementation":"root shared workspace after human gate",
+    "verification":"not_started"
+  },
+  "capability_limitation": "shared filesystem and authority; no isolation claim",
+  "status": "human_confirmed_adr_0127_2026-09-13"
+}

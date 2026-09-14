@@ -1,0 +1,34 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1378",
+  "created_at":"2026-09-13T18:07:53-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1378",
+  "provenance":{"diff_stat":"47 files changed, 3547 insertions(+), 348 deletions(-)","status_entries":281},
+  "artifacts":{
+    "step":"5e293ac22e9e14d73b2e25617d4920d529dd5d1068127dd0dbbebbea1b62e55b",
+    "contract":"2056ebdc64c1365efebb953b54aa8230c1a96924943bcf6305031be1d22f892e",
+    "oracles":"e16fe042d4d65c26a31cd7d7f7b87580c8f953bd046e9de5e897476d448f0201",
+    "mutants":"8e9ff749eda1d0ea78e51c50be1583b23c7ad36767cc009731c9bd71ddcac798",
+    "preflight":"28059a90f318ad74e0426a1be19900bab1b7c41265bf110b4d7420b954f145f8",
+    "preseal":"7f83ff9cb2840e76758435ae47f8a7a5aedaabea43ebea5e1fd6384fbe863d98",
+    "results":"75abfbc189e1edad3173720cb758ff457800c41c3c19dac2ca7dab2e47453603",
+    "report":"dfaae3a3fc791141f08083a1b7de3609be53316b03a7ac5db20db5d6a6dccffa",
+    "prompt":"b4bacb5ecccecc1221f8679fbbca419637b3a1124edfb89a89a54093e7d47c62",
+    "consumer":"31adeae1f618aa91f7e32a5dac301589f0f5550443aff75e5c1f34648894a705"
+  },
+  "fixtures":{
+    "plain_top":"055ebc975fb2caa0451e88ff176b23760eca351e2c8623fa51e0d91f38ca734c",
+    "plain_offset":"69844b608769bfdbce036031a98fcc7b3648b1af8788394b656c1b225b15fc79",
+    "plain_uneven":"a5008bcf8e0ff7a3d7e37f1bfd74b37d6d1630467eec2c09f77c4b80f080b323",
+    "empty_first":"28a0903cad55153c4eb5a0b09a2610549c55205d492cbbb1d259f027bcfb06e8",
+    "continuous_control":"a4c9e1edd4ef684991c7b010b8c823c1ef77dfb4b53393ceeddb746d36560f7e",
+    "fractional_segmented":"8ec909f0a3e5cb4872d9454ee1e2de1997d10ce8c35e2eedaf2d7e041af62da1"
+  },
+  "binaries":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"5c2441f289a27f008138a3e22568c55fdb44e6435dcffb5822e1a3bcdf6ca849",
+    "test":"0a049665543d52ed63252208de11e2b55d4779ada376a1b25b420758d598138c"
+  },
+  "regime":"protocolo completo sem atestacao de isolamento"
+}

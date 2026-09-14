@@ -1,0 +1,14 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1384",
+  "mutants":[
+    {"id":"M1","change":"keep rejecting the decreasing mixed pair","killed_by":"larger-then-outer positive"},
+    {"id":"M2","change":"accept a single larger fragment","killed_by":"single-larger opaque control"},
+    {"id":"M3","change":"accept two styled fragments","killed_by":"two-styled-fragments opaque control"},
+    {"id":"M4","change":"accept size combined with fill","killed_by":"first-size-plus-fill opaque control"},
+    {"id":"M5","change":"accept three textual fragments","killed_by":"three-fragments opaque control"},
+    {"id":"M6","change":"double-count the first larger top-edge","killed_by":"One minus Two coordinate"},
+    {"id":"M7","change":"use larger leading or boundary","killed_by":"After and Tail coordinates"},
+    {"id":"M8","change":"ignore wrap or regress the growing order","killed_by":"fail-closed and P1383 controls"}
+  ]
+}

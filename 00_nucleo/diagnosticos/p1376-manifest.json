@@ -1,0 +1,21 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1376",
+  "protocol":"full_without_isolation_attestation",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"uncommitted aggregated state",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1375-results.json","sha256":"9585aa0c31f0f7971c0a414c2a468101133f1883c645ef8978ba1bf720f79e43"},
+  "step_document":{"path":"00_nucleo/materialization/typst-passo-1376.md","sha256":"9391066357fff4a568d6e0ee407ea1c3cd2a6c9089f6e8a23c50de7f2a16b717"},
+  "owner_prompt":{"path":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"dac35c7a4e7be317db5fa213cd61fbae4492cdd57cc53e6e3175164502ab7ef2"},
+  "constraint_prompt":{"path":"00_nucleo/prompts/compiler/columns.md","sha256":"c9a11325f774c74d080b513ae7d02bf33ce59d562b27c961e78c544396e53f27"},
+  "contract":{"path":"00_nucleo/diagnosticos/p1376-contract.json","sha256":"c0c607266059538a30e3e7061343a9e8e7fbb3dcde79a9132c11820085ce9333"},
+  "oracles":{"path":"00_nucleo/diagnosticos/p1376-oracles.json","sha256":"764aaf0a65ef6776a09e8a31eae924f182c2902bc82569dbf3200a5127d3f6fe"},
+  "mutants":{"path":"00_nucleo/diagnosticos/p1376-mutants.json","sha256":"2824df130cfea941b674b5c967e7f38b487382e641e5bbaab7fba62dca9cd7ea"},
+  "preflight":{"path":"00_nucleo/diagnosticos/p1376-preflight.md","sha256":"850f656854624fee9b2e42a0258b4a60cf11ea8316fde95ed25d63eec1c87817"},
+  "fixture_hashes":["db66d3ecd9526020bb83e1ded98a37e7e67318378c455ac634dba8b017f01ee7","22479e7a0dfa8f5c26f515d4f69d9809039932ff7dd77128e0ab1071c15dec6b","286fb071e52cdaf0a0464ea8186d5a84fc7d0cd76be902f29d07c29d20747cea","8ec909f0a3e5cb4872d9454ee1e2de1997d10ce8c35e2eedaf2d7e041af62da1","2baf8ef4643dab6715ed68ad6b6ddeec0504311f6d96ebff737daf1a7e70354f","273cff943e16de03da2d8eb694b0f1feccc975057ec4f7bf31c3283b36cd59cf","591ebf3f6dc6530b20be23be52c834c9f0e6951df4add6f87482a3d6d4dce86e"],
+  "observables":["page count","One Two After vertical positions","offset-sensitive remaining height","P1374/P1375 controls","bounded progress"],
+  "unknown_policy":"fail_closed",
+  "roles":{"intent_contract_oracles":"root shared workspace","implementation":"root shared workspace after preseal","verification":"not_started"},
+  "capability_limitation":"shared filesystem and authority; no isolation claim",
+  "status":"sealed_for_internal_implementation"
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": "P1374",
+  "manifest_sha256": "7168f8df7c0d3c14b105aa999de402330f35e279adcf10d2ab951ecf3708f8ad",
+  "prompt_hashes_confirmed": true,
+  "baseline_hash_confirmed": true,
+  "contract_hash_confirmed": true,
+  "oracles_hash_confirmed": true,
+  "mutation_score": 1.0,
+  "status": "sealed_for_implementation",
+  "attestation": "without_isolation",
+  "code_authorized": true
+}

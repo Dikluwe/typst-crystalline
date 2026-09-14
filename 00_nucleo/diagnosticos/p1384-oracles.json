@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-oracles/v1",
+  "step":"P1384",
+  "vanila_pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "numeric_tolerance_pt":0.001,
+  "cases":[
+    {"id":"larger-then-outer","fixture_sha256":"2fd7f64d2d920e4ca44051755c94c7466c64c339374363cc843ca7b876cdb5be","expect":{"pages":1,"Lead":"5.752","More":"12.010","One":"32.448","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"single-larger","fixture_sha256":"6b532e7af2bc9b0ceb9a55170c245b71c559daacd6c7e1a2d04bfbc6bb3877f9","expect_classification":"Unknown"},
+    {"id":"two-styled-fragments","expect_classification":"Unknown"},
+    {"id":"first-size-plus-fill","expect_classification":"Unknown"},
+    {"id":"three-fragments","expect_classification":"Unknown"},
+    {"id":"p1383-growing-and-historical-controls","expect_classification":"MATCH"}
+  ],
+  "unexpected":"Unknown"
+}

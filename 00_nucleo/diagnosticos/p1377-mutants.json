@@ -1,0 +1,12 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1377",
+  "mutants":[
+    {"id":"M1","change":"omit entry boundary","killed_by":"columns-offset"},
+    {"id":"M2","change":"omit exit boundary","killed_by":"columns-exit"},
+    {"id":"M3","change":"add full par.spacing after flush","killed_by":"columns-offset"},
+    {"id":"M4","change":"add boundary spacing at region top","killed_by":"columns-top"},
+    {"id":"M5","change":"sum adjacent margins instead of max collapse","killed_by":"columns-parbreak-collapse"},
+    {"id":"M6","change":"credit segmented columns","killed_by":"fail-closed classification"}
+  ]
+}

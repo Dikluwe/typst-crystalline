@@ -1,0 +1,22 @@
+{
+  "schema":"tekt-preseal/v1",
+  "step":"P1383",
+  "created_at":"2026-09-13T21:40:25-03:00",
+  "regime":"protocolo completo sem atestacao de isolamento",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1383",
+  "hashes":{
+    "step":"64025735b036f5198e394710ec539ae9dd1239993a64553b2b3171278654b41c",
+    "contract":"fda1be11ad9f2d9b5ac6a57043de789473b4c75cc14c958114418750b88d0dce",
+    "oracles":"5d79948819b89f786bbe6c7c600e0fcce92a48428ff2509df8fde6a3ef762d12",
+    "mutants":"ce3220c9839cf409860fc7f271e4bd6a90594be5ad26bd32de315fe41814a2e6",
+    "preflight":"e6b0459cfa65162039b430f2756ece9bf22a7660f587b3916ebbbfa6d274915f",
+    "prompt_final":"9e666738b1137260739352217ff5fc17cd6a2d93af44c72efb2e91f1f7aa56ee",
+    "candidate_v1":"205909bb8656dac08f16f8c0e144326a73d5a14b7a0d91999b9d0b35e02086d4",
+    "candidate_v2_final":"5a382ee00ec9c5a494bfbb8ec9d0f45d6c07264b4d108b438503f3948fb7baac"
+  },
+  "implementation_gate":"one outer direct Text followed by one size-only larger Styled(Text)",
+  "calibration":"reverse order, single larger, third fragment and additional delta remain Unknown",
+  "calibration_budget":{"focal_revisions":2,"full_matrix_after_focal_green":1},
+  "attestation_limit":"same authority controls contract implementation attacks and verification"
+}

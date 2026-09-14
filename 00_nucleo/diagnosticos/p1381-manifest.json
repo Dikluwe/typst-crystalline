@@ -1,0 +1,24 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1381",
+  "created_at":"2026-09-13T20:51:24-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "artifacts":{
+    "step":{"path":"00_nucleo/materialization/typst-passo-1381.md","sha256":"f4531b8da6796a97ad1e2ab774a4ceb393f034578406e445d09194d440f92a53"},
+    "contract":{"path":"00_nucleo/diagnosticos/p1381-contract.json","sha256":"933e095807e06c7c56e563094b25a85491904ed61bd6d94afe6ed0570b1768f5"},
+    "oracles":{"path":"00_nucleo/diagnosticos/p1381-oracles.json","sha256":"c71af09765d63289d6a88b4ce4c7ab1d728947a872f12f88a6fcbc12ba00b7d6"},
+    "mutants":{"path":"00_nucleo/diagnosticos/p1381-mutants.json","sha256":"6803413475bb50cae021410027c4c0a142cb6968ad26521371b8c3d2b7de6bfa"},
+    "preflight":{"path":"00_nucleo/diagnosticos/p1381-preflight.md","sha256":"29e982a73cfe421163bc026c89fa15d9724c5b495197efcbe2444ca184af6777"},
+    "preseal":{"path":"00_nucleo/diagnosticos/p1381-preseal.json","sha256":"1a7c69b12ea2fe76341ac9f39b646ac6a0b2dbbd44a0765a461bd3d6fe694152"},
+    "results":{"path":"00_nucleo/diagnosticos/p1381-results.json","sha256":"fba10aa6ee6a525d0673d82fa9fd1a137d83df9e3184c58545f4299880ea7884"},
+    "report":{"path":"00_nucleo/diagnosticos/p1381-report.md","sha256":"c8cac357bec4a6a771892cd7d15c8a873b064e76cfb6beed830901bd5e4eb9f5"},
+    "prompt":{"path":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"f1ff35f785f539d1794ebef8568080f4d0bb1e915b9e2d83f3fae29f045a9dc3"},
+    "consumer":{"path":"01_core/src/compiler/layout/sequence.rs","sha256":"8355ea74c69b784fc6f2948c62ce4ea0e6944a6e4e6ee82155b692d938143424"},
+    "tests":{"path":"01_core/src/compiler/layout/tests.rs","sha256":"2b78b7f442fd668dec9a4398308f3159ed5a6b1bcd8cc1673c5fc6a9e8312cd1"},
+    "cristalino_binary":{"path":"target/release/typst","sha256":"2d353f53839a67f6cc83a680d6a6df51dba100e80d367306bfea7f8c5593fc92"},
+    "test_binary":{"path":"target/debug/deps/typst_core-9a71a057a2e7b625","sha256":"ad9e63510d530bfa368c7910273673ca076db81a319964d412f61d74cb1d4b69"}
+  },
+  "vanila":{"pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d","binary_sha256":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+  "verdict":"MATCH for one downsized unwrapped Styled(Text) prefix; broader size variation Unknown",
+  "attestation_limit":"same authority controls all protocol roles"
+}

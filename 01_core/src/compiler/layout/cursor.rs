@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash fba34d63
+//! @prompt-hash 0b610463
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -183,13 +183,46 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.line_assumed_ascent = top.0;
             self.initial_baseline_pending = false;
             self.prev_margin_is_parbreak = false;
-        } else if self.block_chain_active && self.prev_block_below_pending > 0.0 {
-            // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
+        } else if self.block_chain_active {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            self.regions.current.cursor_y = Pt(self.prev_line_baseline
-                + self.prev_block_equation_descent
-                + self.prev_block_below_pending)
-                + top;
+            let next_baseline = if self.prev_block_below_pending > 0.0 {
+                self.prev_line_baseline
+                    + self.prev_block_equation_descent
+                    + self.prev_block_below_pending
+                    + top.0
+            } else {
+                self.regions.current.cursor_y.0
+            };
+
+            // P1373 — a linha posterior a uma região preenchida deve nascer
+            // na região seguinte. Fazer o avanço antes de criar qualquer
+            // item evita drenar texto fora dos bounds para a página anterior.
+            let page_bottom = self.page_bottom_limit();
+            let outer_leading = self
+                .style
+                .leading
+                .map(|leading| leading.resolve_pt(self.style.size.val()))
+                .unwrap_or_else(|| {
+                    self.style.size.val() * super::vanilla_defaults::PAR_LEADING
+                });
+            let tail_boundary = (self.prev_block_below_pending - outer_leading).max(0.0);
+            let snap_fractional_tail = self.fractional_flow_tail_pending
+                && next_baseline > page_bottom
+                && next_baseline <= page_bottom + tail_boundary + 0.001;
+            if self.page_config.height.is_finite()
+                && next_baseline >= page_bottom
+                && !snap_fractional_tail
+                && !self.current_page_is_empty()
+            {
+                self.new_page();
+                return;
+            }
+
+            // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
+            if self.prev_block_below_pending > 0.0 {
+                self.regions.current.cursor_y =
+                    Pt(if snap_fractional_tail { page_bottom } else { next_baseline });
+            }
             // P1120 — ascent assumido ao fixar esta baseline.
             self.line_assumed_ascent = top.0;
             self.prev_block_below_pending = 0.0;
@@ -465,6 +498,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn flush_line(&mut self) {
+        self.flush_line_with_outer_singleton(false);
+    }
+
+    /// P1389 — fecha uma linha singleton que pertence ao prefixo de wrap
+    /// certificado. O máximo/descent continuam no item; apenas o próximo
+    /// ascent e o leading passam a seguir o estilo exterior activo.
+    pub(super) fn flush_wrapped_inline_prefix_line(&mut self) {
+        self.flush_line_with_outer_singleton(true);
+    }
+
+    fn flush_line_with_outer_singleton(&mut self, force_outer_singleton: bool) {
         // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
         // medição da linha (collector de decorações, leading, RTL align).
         self.expand_fr_spacings();
@@ -478,8 +522,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o estilo do item que o possui (clonado para não manter borrow da
         // current_line durante o drain). Se a linha não tiver items de texto,
         // usa self.style como fallback.
+        let outer_font_size = self.style.size;
         #[allow(deprecated)]
-        let (max_font_size, max_style) = self
+        let (max_font_size, max_style, _, mut mixed_text_sizes, text_count) = self
             .regions
             .current
             .current_line
@@ -491,56 +536,97 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 } => Some((style.size, style.clone())),
                 _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
             })
-            .fold((self.style.size, self.style.clone()), |max, (size, style)| {
-                if size.0 > max.0 .0 {
-                    (size, style)
-                } else {
-                    max
-                }
-            });
+            .fold(
+                (self.style.size, self.style.clone(), None::<f64>, false, 0usize),
+                |(max_size, max_style, first_size, mixed, text_count), (size, style)| {
+                    let mixed = mixed
+                        || (text_count > 0 && size.0 != outer_font_size.0)
+                        || first_size.is_some_and(|first| size.0 != first);
+                    let first_size = first_size.or(Some(size.0));
+                    if size.0 > max_size.0 {
+                        (size, style, first_size, mixed, text_count + 1)
+                    } else {
+                        (max_size, max_style, first_size, mixed, text_count + 1)
+                    }
+                },
+            );
+        if force_outer_singleton
+            && text_count == 1
+            && max_font_size.0 != outer_font_size.0
+        {
+            mixed_text_sizes = true;
+        }
 
-        // **P762** — consumer leading com default do vanilla (0,65 em).
-        // `self.style` pode ter sido restaurado ao outer scope antes de
-        // flush_line ser chamado. Em vez disso, peek no último item da
-        // current_line — resolve o leading com base no seu próprio tamanho.
+        // **P1382/P762** — numa linha realmente mista, o leading pertence ao
+        // estilo activo do parágrafo. Linhas uniformes preservam a regra
+        // P762/P1381 já selada, baseada no último fragmento textual.
         #[allow(deprecated)]
-        let line_leading_pt = self
-            .regions
-            .current
-            .current_line
-            .iter()
-            .rev()
-            .find_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. }
-                | crate::entities::layout_types::FrameItem::TextShaped {
-                    style, ..
-                } => Some(
-                    style
+        let line_leading_pt = if mixed_text_sizes {
+            self.style
+                .leading
+                .map(|l| l.resolve_pt(self.style.size.val()))
+                .unwrap_or_else(|| {
+                    self.style.size.val() * super::vanilla_defaults::PAR_LEADING
+                })
+        } else {
+            self.regions
+                .current
+                .current_line
+                .iter()
+                .rev()
+                .find_map(|item| match item {
+                    crate::entities::layout_types::FrameItem::Text { style, .. }
+                    | crate::entities::layout_types::FrameItem::TextShaped {
+                        style,
+                        ..
+                    } => Some(
+                        style
+                            .leading
+                            .map(|l| l.resolve_pt(style.size.val()))
+                            .unwrap_or_else(|| {
+                                style.size.val() * super::vanilla_defaults::PAR_LEADING
+                            }),
+                    ),
+                    _ => None,
+                })
+                .unwrap_or_else(|| {
+                    self.style
                         .leading
-                        .map(|l| l.resolve_pt(style.size.val()))
-                        // PAR_LEADING, ver vanilla_defaults.rs
+                        .map(|l| l.resolve_pt(self.style.size.val()))
                         .unwrap_or_else(|| {
-                            style.size.val() * super::vanilla_defaults::PAR_LEADING
-                        }),
-                ),
-                _ => None, // neutro: N16[β] — itens não-textuais não contribuem leading para espaçamento entre linhas
-            })
-            .unwrap_or_else(|| {
-                // Sem texto na linha: usar o estilo activo do layouter.
-                self.style
-                    .leading
-                    .map(|l| l.resolve_pt(self.style.size.val()))
-                    // PAR_LEADING, ver vanilla_defaults.rs
-                    .unwrap_or_else(|| {
-                        self.style.size.val() * super::vanilla_defaults::PAR_LEADING
-                    })
-            });
+                            self.style.size.val() * super::vanilla_defaults::PAR_LEADING
+                        })
+                })
+        };
 
         // **P1120** — extensões inline da linha (caixas com altura própria).
         let inline_ascent = self.line_inline_ascent;
         let inline_descent = self.line_inline_descent;
         self.line_inline_ascent = 0.0;
         self.line_inline_descent = 0.0;
+
+        // **P1382** — a baseline corrente usa o maior ascent dos frames já
+        // produzidos. O avanço, porém, deve prever o ascent do estilo activo
+        // da linha seguinte; reutilizar o maior fragmento corrente alongava
+        // a distância quando um wrapper inline mudava o tamanho da fonte.
+        let (current_text_top, current_text_bottom) =
+            self.metrics.text_edges(max_font_size, &max_style);
+        let next_text_top = if mixed_text_sizes {
+            self.metrics.text_edges(self.style.size, &self.style).0
+        } else {
+            current_text_top
+        };
+        let assumed_ascent = if self.line_assumed_ascent > 0.0 {
+            self.line_assumed_ascent
+        } else {
+            next_text_top.0
+        };
+        let line_extra_ascent = if mixed_text_sizes {
+            inline_ascent.max(current_text_top.0) - assumed_ascent
+        } else {
+            inline_ascent - assumed_ascent
+        }
+        .max(0.0);
 
         // P1292-D v10 — uma inserção bottom reduz a geometria efectiva
         // antes de o próximo child estabilizar. Se a tinta da linha corrente
@@ -551,16 +637,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             && self.page_config.height.is_finite()
             && self.regions.current.height + f64::EPSILON < self.page_config.height
         {
-            let assumed = if self.line_assumed_ascent > 0.0 {
-                self.line_assumed_ascent
-            } else {
-                self.metrics.text_edges(max_font_size, &max_style).0 .0
-            };
-            let extra_ascent = (inline_ascent - assumed).max(0.0);
-            let (_, bottom) = self.metrics.text_edges(max_font_size, &max_style);
             let ink_bottom = self.regions.current.cursor_y.0
-                + extra_ascent
-                + (-bottom.0).max(inline_descent);
+                + line_extra_ascent
+                + (-current_text_bottom.0).max(inline_descent);
             if ink_bottom > self.page_bottom_limit()
                 && (!self.regions.current.current_items.is_empty()
                     || !self.pages.is_empty())
@@ -586,6 +665,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
+        // P1374 — uma distribuição fracionária ocupa a região até à
+        // bottom-edge da última linha. O avanço de baseline calculado abaixo
+        // pertence apenas a uma linha hipotética seguinte e não cria página
+        // vazia quando a tinta desta linha ainda cabe.
+        if had_items && self.fractional_flow_tail_pending {
+            let ink_bottom = self.regions.current.cursor_y.0
+                + line_extra_ascent
+                + (-current_text_bottom.0).max(inline_descent);
+            effective_line_committed |= ink_bottom <= self.page_bottom_limit();
+            self.fractional_flow_tail_pending = false;
+        }
+
         // P286 — regista a linha somente depois da eventual migração,
         // para que baseline e collector pertençam à região estabilizada.
         if had_items {
@@ -599,23 +690,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        // **P1120** — a baseline desta linha foi fixada quando a linha
+        // **P1120/P1382** — a baseline desta linha foi fixada quando a linha
         // anterior fechou (ou por `ensure_initial_baseline`), assumindo o
         // ascent do texto. Se um item inline pede mais ascent (caixa mais
         // alta que o texto), o topo da linha mantém-se e é a baseline que
         // desce — o vanilla alinha os items inline pela baseline. A linha
         // inteira desce a diferença, antes de ser drenada.
-        if had_items {
-            let assumed = if self.line_assumed_ascent > 0.0 {
-                self.line_assumed_ascent
-            } else {
-                self.metrics.text_edges(max_font_size, &max_style).0 .0
-            };
-            let extra_ascent = inline_ascent - assumed;
-            if extra_ascent > 0.0 {
-                self.shift_current_line_y(extra_ascent);
-                self.regions.current.cursor_y += Pt(extra_ascent);
-            }
+        if had_items && line_extra_ascent > 0.0 {
+            self.shift_current_line_y(line_extra_ascent);
+            self.regions.current.cursor_y += Pt(line_extra_ascent);
         }
 
         // P576 — alinhamento de parágrafo RTL.
@@ -626,16 +709,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
         self.justify_opportunities.clear();
         if had_items {
-            let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            // **P1120** — o avanço assume que a próxima linha tem o ascent do
-            // texto desta; se tiver items inline maiores, corrige-se no flush
-            // seguinte pelo mesmo mecanismo.
-            self.line_assumed_ascent = top.0;
+            // **P1382** — a próxima baseline nasce com o ascent do estilo
+            // activo, não com o maior ascent transitório da linha corrente.
+            self.line_assumed_ascent = next_text_top.0;
 
             // **P1120** — descida da linha = a maior entre a aresta inferior
             // do texto e o descent dos items inline (`h − ascent` da caixa).
-            let line_descent = (-bottom.0).max(inline_descent);
-            let advance = top + Pt(line_descent) + Pt(line_leading_pt);
+            let line_descent = (-current_text_bottom.0).max(inline_descent);
+            let advance = next_text_top + Pt(line_descent) + Pt(line_leading_pt);
             // **P813** — registar o avanço aplicado, para que consumidores
             // posteriores (equações de bloco) recuperem a baseline da linha
             // anterior (`cursor_y - last_flush_advance`).

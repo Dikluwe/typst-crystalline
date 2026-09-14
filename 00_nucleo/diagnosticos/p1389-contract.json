@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1389",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1388-results.json","sha256":"354c4b1379f4673a08fce7f35c97d1be9e749ae2095dc72813d5584bd20af5ef"},
+  "public_changes":[],
+  "owners":["01_core/src/compiler/layout/sequence.rs","01_core/src/compiler/layout/cursor.rs"],
+  "observable":"two equal above-outer size-only single-word Styled(Text) fragments that require exactly one inter-fragment wrap retain the current maximum-ascent correction, use outer next-ascent and leading, and preserve fractional distribution to the region bottom",
+  "metrics":["two baselines","current maximum-ascent correction","outer next-ascent and leading","One","Two","After","Tail","page count"],
+  "preserve":"P1374-P1388 and ordinary flush behavior retain their verdicts",
+  "fail_closed":["multiword body","unequal sizes","additional delta","three or more fragments","internal or multiple wrap","insufficient vertical region","nested wrapper","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

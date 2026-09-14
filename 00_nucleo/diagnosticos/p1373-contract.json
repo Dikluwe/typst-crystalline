@@ -1,0 +1,28 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "step": "P1373",
+  "baseline": {
+    "path": "00_nucleo/diagnosticos/p1372-results.json",
+    "sha256": "2204623bf179ad192ef8bdb3c036b746f305dba5916fa0564e8d6737d28911ec",
+    "status": {"a11y-extras": "DIFFERENCE", "html+a11y": "DIFFERENCE"}
+  },
+  "public_contract_change": "BlockElem.height: Option<Length> -> Option<Rel<Length>>",
+  "preserved_public_contract": "Content::block height parameter remains Option<Length>",
+  "input_mapping": {
+    "Length|Float|Int": "Rel { rel: 0, abs: value }",
+    "Ratio": "Rel { rel: ratio, abs: Length::ZERO }",
+    "Relative": "preserve rel and abs",
+    "Fraction": "reject; P1374"
+  },
+  "layout_context": "outer available region height before local restriction",
+  "fixture": {"page_height_pt": 240, "vertical_margins_pt": 20, "expected_resolved_height_pt": 220},
+  "acceptance": {
+    "stdlib_relative_preserved": true,
+    "rust_absolute_constructor_preserved": true,
+    "p1372_profiles": {"a11y-extras": "MATCH", "html+a11y": "MATCH"},
+    "payload": "ProbeAfter"
+  },
+  "unknown_policy": "fail_closed",
+  "scope_out": ["relative width", "fractional height", "PDF tag morphology", "general parity"],
+  "status": "human_confirmed_adr_0127_2026-09-13"
+}

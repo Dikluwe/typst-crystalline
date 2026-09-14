@@ -1,0 +1,17 @@
+{
+  "schema":"tekt-preseal/v1",
+  "step":"P1377",
+  "created_at":"2026-09-13T17:29:41-03:00",
+  "regime":"protocolo completo sem atestacao de isolamento",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1377",
+  "hashes":{
+    "step":"98b6e5ad97f9dac1121c904741ed9085cf7bf42f63a24f2dd820b2fe9a7538e6",
+    "contract":"99eb1b7f628899002c40bc2be559c9178810bef23da674f721d18d2f67caeb66",
+    "mutants":"71076bb9955775706bda20dfb092a647d953b2c4bcc1393ffbf31636fd747db2",
+    "preflight":"fa3e1c538ba89ecf481e36c87fd36ec8671892a7c729d62c7a070a8322431774"
+  },
+  "oracle_hash_before_custom_case":"fb10ecf27a73b59a6517861811d1e10997fd3c6e665724b4ba6c51031ed3aa6f",
+  "note":"o caso custom foi medido depois do primeiro preseal e sera pinado no manifesto final",
+  "implementation_gate":"authorized internal parity correction; no public change"
+}

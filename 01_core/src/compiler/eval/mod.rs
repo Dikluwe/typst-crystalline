@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash d0b21ac0
+//! @prompt-hash 4f74d1f1
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -3662,6 +3662,23 @@ impl ObservationEq for crate::entities::elements::block::BlockElem {
             .and(self.above.observation_relation(&other.above))
             .and(self.below.observation_relation(&other.below))
             .and(self.sticky.observation_relation(&other.sticky))
+    }
+}
+impl ObservationEq for crate::entities::elements::block::BlockHeight {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        use crate::entities::elements::block::BlockHeight;
+        match (self, other) {
+            (BlockHeight::Relative(a), BlockHeight::Relative(b)) => {
+                a.observation_relation(b)
+            }
+            (BlockHeight::Fractional(a), BlockHeight::Fractional(b)) => {
+                a.observation_relation(b)
+            }
+            (BlockHeight::Relative(_), BlockHeight::Fractional(_))
+            | (BlockHeight::Fractional(_), BlockHeight::Relative(_)) => {
+                ObservationRelation::Different
+            }
+        }
     }
 }
 impl ObservationEq for crate::entities::elements::repeat::RepeatElem {

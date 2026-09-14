@@ -1,0 +1,19 @@
+{
+  "schema":"p1376-continuous-columns-matrix/v1",
+  "created_at":"2026-09-13T16:27:29-03:00",
+  "provenance":{"repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248","working_tree":"nao commitado e agregado com P1356-P1376","diff_stat":"45 files changed, 3269 insertions(+), 336 deletions(-)","status_entries":256},
+  "identities":{"vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f","cristalino":"ef9871508f5a42452569f8b3184072905f294f0da97660af74164743e7958bc2","pdftotext":"0fb98ea179e19154a90202608c164f2a319b79f16576fa6534b2d601033565e7"},
+  "limits":{"parallel_processes":1,"cargo_check_address_space_bytes":3221225472,"cargo_link_address_space_bytes":4294967296,"cargo_file_size_bytes":536870912,"matrix_address_space_bytes":2147483648,"matrix_file_size_bytes":16777216,"timeout_seconds":45},
+  "counts":{"MATCH":2,"Unknown":5},
+  "cases":[
+    {"id":"columns-top","classification":"MATCH","vanila":{"pages":1,"One":"7.404","Two":"82.724670","After":"220.166"},"cristalino":{"pages":1,"One":"7.404","Two":"82.724670","After":"220.166"}},
+    {"id":"page-columns-top","classification":"MATCH","vanila":{"pages":1,"One":"7.404","Two":"82.724670","After":"220.166"},"cristalino":{"pages":1,"One":"7.404","Two":"82.724670","After":"220.166"}},
+    {"id":"columns-after-intro","classification":"Unknown","partial_preserved":"After reaches 220.166 and cursor-relative fraction base is active","vanila":{"Intro":"7.404","One":"27.842","Two":"96.349990","After":"220.166"},"cristalino":{"Intro":"7.404","One":"21.792","Two":"97.142","After":"220.166"},"reason":"pre-existing container entry baseline/spacing divergence"},
+    {"id":"columns-segmented","classification":"Unknown","reason":"page_columns is None and preflight remains blocked; pre-existing first-column baseline divergence"},
+    {"id":"grid","classification":"Unknown","vanila":{"After":"220.166"},"cristalino":{"After":"42.230"}},
+    {"id":"box","classification":"Unknown","vanila":{"pages":1},"cristalino":{"pages":2}},
+    {"id":"place","classification":"Unknown","reason":"placed fractional body has distinct overlay/origin semantics"}
+  ],
+  "tests":{"p1374":{"run":4,"passed":4,"failed":0},"p1375":{"run":2,"passed":2,"failed":0},"p1376":{"run":1,"passed":1,"failed":0,"filtered_out":5681}},
+  "claim_limit":"MATCH only for continuous columns beginning at top boundary"
+}

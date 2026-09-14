@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1380",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1379-results.json","sha256":"bc622ce102425021abad511eb4377808e2555fcf8a2c69fa95ed9dd192d91c29"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/sequence.rs",
+  "prefix":"one unwrapped inline line before the first fractional block is measured and realized once",
+  "accepted_nodes":["Text","Space","Empty","one-level Styled(Text)","one-level Strong(Text)","one-level Emph(Text)"],
+  "accepted_style_axes":["fill","bold","italic","weight","lang"],
+  "boundary":"pending first-fragment top-edge plus one flush_line advance plus max(0, par.spacing - par.leading)",
+  "preserve":"P1374-P1379 and non-segmented contexts",
+  "fail_closed":["wrapped prefix","nested wrapper","vertical style change","tracking","font change","script","custom style channel","nested fraction","multi-region","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

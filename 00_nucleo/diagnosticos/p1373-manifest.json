@@ -1,0 +1,29 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": "P1373",
+  "regime": "full_without_isolation_attestation",
+  "human_confirmation": "2026-09-13",
+  "baseline": {"path":"00_nucleo/diagnosticos/p1372-results.json","sha256":"2204623bf179ad192ef8bdb3c036b746f305dba5916fa0564e8d6737d28911ec"},
+  "prompts": {
+    "entities_block": "d7d3e42bf23ef243f712b2d1e5cfe9a4d7363b87bb2ad5aa5d2c5b69dd33f183",
+    "entities_content": "625f34c1410e0d5ee8d2059302b7eb9d233a5c5107af55b162ae9e3e55404acd",
+    "stdlib_layout": "b962b07c451140dc4e6db3bab272cb20cefe41dcd7b378e8a9235df7268c42b6",
+    "layout_block": "a07b934efa109c04bf4d73c21da67c63e2bd623a5abf27ae2b34455d7813624a",
+    "layout_cursor": "bd1c368b4abeed9245291c8890f431bbc8f5cb5f933e163589a794c3d2157169",
+    "layout_tests": "470e2845273ca010859677b9f47eeb4601788f5d78cbd74e51634bbb7c8e181b",
+    "stdlib_facade": "5e8f2cd4a098f65f0a4d758f9ffcae2595d979b25240b139f4dee9cb6f4fc0ea",
+    "layout_engine": "fbf439ec68a449d8b5abea56d7c6de8313b3933735bca68be648c6294876806a"
+  },
+  "contract": {"path":"00_nucleo/diagnosticos/p1373-contract.json","sha256":"208dd39f1b222e2ecbe44d88b79a17bacb52289ccec65abce4fa4555c32c0fb7"},
+  "oracles": {"path":"00_nucleo/diagnosticos/p1373-oracles.json","sha256":"be4e838c71c4f0d7d0445877137d0cae18d3aec1294d7340f081c8fcc7a13bc8"},
+  "observables": ["stored relative height", "resolved useful-region height", "following-line page and yMin", "terminal block page count"],
+  "unknown_policy": "fail_closed",
+  "roles": {
+    "intent_contract_oracles": "root shared workspace",
+    "implementation": "root shared workspace after human gate",
+    "verification": "deterministic gates under root shared workspace"
+  },
+  "capability_limitation": "roles share conversation, filesystem and write authority; no isolation claim",
+  "revision": 4,
+  "revision_reason": "post-fix matrix discovered cursor transition consumer; L0 was amended before its RED and implementation"
+}

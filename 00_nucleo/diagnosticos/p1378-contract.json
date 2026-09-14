@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1378",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1377-results.json","sha256":"3ac0d58ed4fb0d4e8c127a0dfc82abcdd33ad4dee7e556888094f2257ba43dbf"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/columns.rs",
+  "segment_origin":"all explicit sibling segments begin at the same logical column top",
+  "segment_isolation":"baseline and block-chain state produced by one segment do not enter another",
+  "exit":"following flow starts below the deepest non-empty segment",
+  "empty":"empty segment contributes neither baseline nor displacement",
+  "preserve":"P1377 continuous columns behavior",
+  "fail_closed":["fractional segmented height","multi-region","grid","box","place","general parity"],
+  "unknown_policy":"fail_closed",
+  "adr_0127":"continuous_internal_parity_correction"
+}

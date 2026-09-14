@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1388",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1387-results.json","sha256":"010f276f45ebd82f94d6e554e3a64ec31f3099dd0ec34a6dcefef8a884a8a3cd"},
+  "public_changes":[],
+  "owners":["01_core/src/compiler/layout/sequence.rs"],
+  "observable":"a certified inline prefix applies its paragraph-to-block boundary exactly once even when terminal whitespace already closed the current line before the fractional block",
+  "metrics":["one shared baseline","terminator-caused flush","certified block boundary","One","After","Tail"],
+  "preserve":"P1374-P1387 and ordinary wrapping retain their verdicts",
+  "fail_closed":["21-to-21 actual wrap","size at or below outer","growing order","additional delta","three or more fragments","nested wrapper","general parity"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

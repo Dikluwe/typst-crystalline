@@ -1,0 +1,22 @@
+{
+  "schema": "tekt-observable-contract/v1",
+  "step": "P1374",
+  "baseline": {"path":"00_nucleo/diagnosticos/p1373-results.json","sha256":"5c8fe7ae4591d472bfbf4c800355293ca2181cc61332b06bb74b1adda69ba0db"},
+  "public_changes": [
+    "BlockElem.width: Option<Length> -> Option<Rel<Length>>",
+    "BlockElem.height: Option<Rel<Length>> -> Option<BlockHeight>",
+    "new public closed enum BlockHeight { Relative(Rel<Length>), Fractional(f64) }"
+  ],
+  "preserved_public_contract": "Content::block keeps Option<Length> width and height parameters",
+  "width": {"accepted":["Length","Float","Int","Ratio","Relative"],"fraction":"reject","base":"outer usable width"},
+  "height": {"accepted":["Length","Float","Int","Ratio","Relative","Fraction"],"fraction_base":"remaining finite vertical flow space after fixed siblings and normal gaps"},
+  "fraction_rule": "share = remaining * weight / sum(valid sibling weights)",
+  "fixtures": {
+    "page":{"width_pt":200,"height_pt":240,"margin_pt":10},
+    "width_60_percent":{"vanila_text":"RightAfter","right_x_min":"93.668"},
+    "height_1fr_2fr":{"vanila":{"One_y_min":"7.404","Two_y_min":"82.724670","After_y_min":"220.166"}}
+  },
+  "unknown_policy": "fail_closed",
+  "scope_out": ["transparent wrappers","columns","multi-region fractional distribution","PDF tag morphology","general parity"],
+  "status": "human_confirmed_adr_0127_2026-09-13"
+}

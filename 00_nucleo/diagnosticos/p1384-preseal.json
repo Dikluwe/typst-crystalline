@@ -1,0 +1,24 @@
+{
+  "schema":"tekt-preseal/v1",
+  "step":"P1384",
+  "created_at":"2026-09-13T22:08:19-03:00",
+  "regime":"protocolo completo sem atestacao de isolamento",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1384",
+  "hashes":{
+    "baseline_results":"c1fd8c211964d1eb1021531207c20347675aea69b54c505edd6e31232d677717",
+    "step":"e7dc216bc22680a68bc4ee31d91ec70403463c0b4b556db9cecebe025dd44061",
+    "contract":"8019d496b9f72231b9b9c3883d345132e3ba3b7439a789fdb9682a6bb5f14280",
+    "oracles":"688103248c1d07e79cbd11d364344880b90ba88868a64b31e27adb4dcd9c5ba4",
+    "mutants":"cbb50b52246ceebe446655021504b772e826009d5e79249a9a0e88b29459e967",
+    "preflight":"abef1b3d01077a44e777fb18090726b460eea925b6630dacac609d0b9530365a",
+    "prompt_final":"2ab01d7f4e955a611b3ed991abf05a2feb6effbe3a71ba2a64a11401e71afba3",
+    "candidate_final":"cc6002ed88e8988e4b63bb8eda82b57e7ddf65f7243494e67b5584dc53f67207",
+    "tests_final":"a02d473fadab271169d94b3140fd285a150d977f0e09a7108535f44753ad5760"
+  },
+  "implementation_gate":"one size-only larger Styled(Text) followed by one direct outer Text",
+  "calibration":"single larger, two styled fragments, extra delta, third fragment and wrap remain Unknown",
+  "invalidated_predecessor":"historical reverse fixture was 18pt-to-8pt; candidate and tests removed before corrected bilateral restart",
+  "calibration_budget":{"focal_revisions":2,"full_matrix_after_focal_green":1},
+  "attestation_limit":"same authority controls contract implementation attacks and verification"
+}

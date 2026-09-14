@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/block.md
-//! @prompt-hash 6adaed6a
+//! @prompt-hash b23cdaf5
 //! @layer L1
 //! @updated 2026-06-12
 //!
@@ -15,15 +15,23 @@ use crate::entities::corners::Corners;
 use crate::entities::elements::Element;
 use crate::entities::geometry::Stroke;
 use crate::entities::layout_types::{Color, Length};
+use crate::entities::rel::Rel;
 use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
+
+/// Altura de bloco preservada até à fase de layout.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum BlockHeight {
+    Relative(Rel<Length>),
+    Fractional(f64),
+}
 
 /// Container block (`block`). `body` + 13 cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BlockElem {
     pub body: Content,
-    pub width: Option<Length>,
-    pub height: Option<Length>,
+    pub width: Option<Rel<Length>>,
+    pub height: Option<BlockHeight>,
     pub inset: Sides<Length>,
     pub breakable: bool,
     pub outset: Sides<Length>,
@@ -80,6 +88,15 @@ mod tests {
     use super::*;
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
+
+    #[test]
+    fn p1374_block_height_distinguishes_relative_and_fractional() {
+        let relative = BlockHeight::Relative(Rel::from_percent(60.0));
+        let fractional = BlockHeight::Fractional(2.0);
+        assert_ne!(relative, fractional);
+        assert!(matches!(relative, BlockHeight::Relative(value) if value.rel == 0.6));
+        assert!(matches!(fractional, BlockHeight::Fractional(2.0)));
+    }
 
     fn ex() -> BlockElem {
         BlockElem {

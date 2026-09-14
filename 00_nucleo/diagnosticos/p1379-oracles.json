@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-oracles/v1",
+  "step":"P1379",
+  "vanila_pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "cases":[
+    {"id":"basic","expect":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"offset","expect":{"Intro":"7.404","One":"27.842","Two":"27.842","After":"220.166","Tail":"220.166"}},
+    {"id":"weights","expect":{"One":"7.404","Two":"82.724670","Three":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"fixed-prefix","expect":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"page-columns","expect":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"p1378-plain-control","expect":{"One":"7.404","Two":"7.404","Outside":"27.842"}}
+  ],
+  "numeric_tolerance_pt":0.001,
+  "unexpected":"Unknown"
+}

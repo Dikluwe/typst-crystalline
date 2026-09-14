@@ -1,0 +1,40 @@
+{
+  "schema":"p1380-inline-prefix-fractional-matrix/v1",
+  "created_at":"2026-09-13T20:13:31-03:00",
+  "provenance":{
+    "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree":"nao commitado e agregado com P1356-P1380",
+    "diff_stat":"47 files changed, 4272 insertions(+), 350 deletions(-)",
+    "status_entries":301
+  },
+  "identities":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"9ef1ea39cff202f00b1f6b03cd091edeb329e8637e1b910bf8a7727739250a08",
+    "test_binary":"89c7415cab41b09c302868270a3150193e0be4c8a4c8ac6e3a7c25382fc943b3"
+  },
+  "limits":{
+    "parallel_processes":1,
+    "check_address_space_bytes":3221225472,
+    "link_address_space_bytes":4294967296,
+    "link_file_size_bytes":536870912,
+    "matrix_address_space_bytes":2147483648,
+    "matrix_file_size_bytes":16777216,
+    "timeout_seconds":45
+  },
+  "counts":{"MATCH":4,"Unknown":1},
+  "cases":[
+    {"id":"styled-prefix","classification":"MATCH","vanila":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"strong-prefix","classification":"MATCH","vanila":{"Lead":"7.261","One":"27.699","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"7.261","One":"27.699","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"compound-prefix","classification":"MATCH","vanila":{"Lead":"7.404","More":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"7.404","More":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"p1379-direct-control","classification":"MATCH","vanila":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"wrapped-prefix","classification":"Unknown","reason":"the accumulated inline width exceeds the finite column width; P1380 deliberately does not claim wrapped-prefix parity"}
+  ],
+  "tests":{
+    "red":{"run":3,"passed":0,"failed":3},
+    "green":{"p1380":{"run":4,"passed":4,"failed":0,"filtered_out":5691},"p137_control":{"run":21,"passed":21,"failed":0,"filtered_out":5674}},
+    "additional_serial_observation":{"filter":"p13","run":281,"passed":281,"failed":0,"note":"broader than intended; not repeated"}
+  },
+  "discrimination":{"valid_mutants":7,"violated":7,"mutation_score":1.0},
+  "memory":{"final_matrix_peak_rss_kib":37576,"host_oom_timeout_sigkill":false},
+  "claim_limit":"MATCH only for one-line direct, one-level Styled/Strong/Emph and compound textual prefixes before the first fractional block in explicit column segments"
+}

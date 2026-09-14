@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 6e784ef0
+//! @prompt-hash 4462e2ee
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -875,6 +875,30 @@ fn extract_length(val: &Value) -> Option<Length> {
     }
 }
 
+/// P1374 — conserva percentagem/offset de `block(width:)` até o layout.
+fn extract_block_width(val: &Value) -> Option<crate::entities::rel::Rel<Length>> {
+    use crate::entities::rel::Rel;
+    match val {
+        Value::Relative(value) => Some(*value),
+        Value::Ratio(value) => Some(Rel { rel: value.get(), abs: Length::ZERO }),
+        Value::Length(value) => Some(Rel { rel: 0.0, abs: *value }),
+        Value::Float(value) => Some(Rel { rel: 0.0, abs: Length::pt(*value) }),
+        Value::Int(value) => Some(Rel { rel: 0.0, abs: Length::pt(*value as f64) }),
+        _ => None,
+    }
+}
+
+/// P1374 — conserva altura relativa ou fracionária até ao flow layout.
+fn extract_block_height(
+    val: &Value,
+) -> Option<crate::entities::elements::block::BlockHeight> {
+    use crate::entities::elements::block::BlockHeight;
+    match val {
+        Value::Fraction(value) => Some(BlockHeight::Fractional(*value)),
+        _ => extract_block_width(val).map(BlockHeight::Relative),
+    }
+}
+
 /// **P475** — Parse `Value` para `Sides<Length>`: uniforme (Length / Relative / Float / Int)
 /// ou dict `{left?, right?, top?, bottom?, x?, y?, rest?}` per-side.
 /// Precedência dentro do dict: específico > eixo (`x`/`y`) > `rest`.
@@ -1519,21 +1543,21 @@ pub fn native_block(
         None => Content::Empty,
     };
 
-    let mut width: Option<Length> = None;
-    let mut height: Option<Length> = None;
+    let mut width: Option<crate::entities::rel::Rel<Length>> = None;
+    let mut height: Option<crate::entities::elements::block::BlockHeight> = None;
     let mut inset_val: Option<&Value> = None;
     let mut breakable: bool = true;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "width" => {
-                width = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                width = Some(extract_block_width(value).ok_or_else(|| vec![SourceDiagnostic::error(
                     args.span,
                     format!("block(width:) espera length, recebeu {}", value.type_name()),
                 )])?);
             }
             "height" => {
-                height = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                height = Some(extract_block_height(value).ok_or_else(|| vec![SourceDiagnostic::error(
                     args.span,
                     format!("block(height:) espera length, recebeu {}", value.type_name()),
                 )])?);
@@ -1560,18 +1584,33 @@ pub fn native_block(
     }
 
     // Validação: width/height negativos rejeitados.
-    for (label, len) in [("width", width), ("height", height)]
-        .iter()
-        .filter_map(|(l, opt)| opt.map(|len| (*l, len)))
-        .collect::<Vec<_>>()
+    for (label, len) in [("width", width)]
+        .into_iter()
+        .filter_map(|(l, opt)| opt.map(|len| (l, len)))
     {
-        if len.abs.0 < 0.0 || len.em < 0.0 {
+        if len.rel < 0.0 || len.abs.abs.0 < 0.0 || len.abs.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!(
                     "block({}:): valor negativo não suportado neste passo (P156G)",
                     label
                 ),
+            )]);
+        }
+    }
+    if let Some(value) = height {
+        let valid = match value {
+            crate::entities::elements::block::BlockHeight::Relative(value) => {
+                value.rel >= 0.0 && value.abs.abs.0 >= 0.0 && value.abs.em >= 0.0
+            }
+            crate::entities::elements::block::BlockHeight::Fractional(weight) => {
+                weight.is_finite() && weight >= 0.0
+            }
+        };
+        if !valid {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "block(height:): valor negativo não suportado neste passo (P1373)",
             )]);
         }
     }
@@ -2580,5 +2619,43 @@ mod p1292_flush_tests {
         named.named.insert("extra".into(), Value::Bool(true));
         let named = validate_flush_args(&named).unwrap_err();
         assert_eq!(named[0].message, "unexpected argument: extra");
+    }
+}
+
+#[cfg(test)]
+mod p1373_block_relative_height_tests {
+    use super::*;
+
+    #[test]
+    fn p1373_ratio_height_is_preserved_until_layout() {
+        let height = extract_block_height(&Value::Ratio(
+            crate::entities::layout_types::Ratio::from_percent(100.0),
+        ))
+        .expect("100% deve ser altura relativa válida");
+        assert!(matches!(height,
+            crate::entities::elements::block::BlockHeight::Relative(value)
+                if value.rel == 1.0 && value.abs == Length::ZERO
+        ));
+    }
+}
+
+#[cfg(test)]
+mod p1374_block_sizing_tests {
+    use super::*;
+    use crate::entities::elements::block::BlockHeight;
+
+    #[test]
+    fn p1374_width_ratio_and_height_fraction_keep_their_kinds() {
+        let width = extract_block_width(&Value::Ratio(
+            crate::entities::layout_types::Ratio::from_percent(60.0),
+        ))
+        .expect("60% deve ser width relativa válida");
+        assert_eq!(width.rel, 0.6);
+        assert_eq!(width.abs, Length::ZERO);
+
+        let height = extract_block_height(&Value::Fraction(2.0))
+            .expect("2fr deve ser height fracionária válida");
+        assert!(matches!(height, BlockHeight::Fractional(2.0)));
+        assert!(extract_block_width(&Value::Fraction(1.0)).is_none());
     }
 }

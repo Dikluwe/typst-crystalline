@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-materialization-seal/v1",
+  "step":"P1378",
+  "sealed_at":"2026-09-13T18:08:10-03:00",
+  "manifest_sha256":"aeaad02c258edcefbe202fa965e861f3f4db794c478d1ff81570ed29a3e2529a",
+  "verdict":"PASS_WITH_LIMITED_ATTESTATION",
+  "contract_satisfied":true,
+  "matrix":{"MATCH":5,"Unknown":1},
+  "mutation":{"valid":6,"killed":6,"score":1.0},
+  "public_changes":false,
+  "unknowns":["fractional segmented height","multi-region","grid","box","place","general parity"],
+  "attestation_limit":"same authority controls contract implementation attacks and verification"
+}

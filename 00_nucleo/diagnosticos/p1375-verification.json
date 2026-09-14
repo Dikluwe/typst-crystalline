@@ -1,0 +1,70 @@
+{
+  "schema": "tekt-verification-certificate/v1",
+  "step": "P1375",
+  "verified_at": "2026-09-13T15:25:15-03:00",
+  "verdict": "PASS_WITH_LIMITED_ATTESTATION",
+  "regime": "protocolo completo executado sem atestacao de isolamento",
+  "provenance": {
+    "repository_head": "8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree": "nao commitado e agregado com P1356-P1375",
+    "measured_diff_stat": "45 files changed, 3210 insertions(+), 336 deletions(-)",
+    "measured_status_entries": 245,
+    "attribution_limit": "estado integral observado; diff agregado nao prova isolamento"
+  },
+  "hashes": {
+    "step": "e3b7961530d0b510bb1cc0cfef05874124926ab9b31ecec8941f542f3ab1ad92",
+    "manifest": "c71e185dbef9e77f208afe8fd3e4cae64786efbc96d0c708208a2ac2f393b45e",
+    "contract": "213bff483147395a2ec1312e08119298d2df7bfe5a42f95fed615ff603a25add",
+    "oracles": "7d7066568b900ef4229e7a2d93c73dca6cded00fee718d00915a5eb8826e8fb4",
+    "mutants": "cd812234274667d8ae67b93e4ff64749ef82eacd516b7eec835ca715ad97516f",
+    "preseal": "51c8bdf9e198337a063f3d8ddb69e09274660c35f28559a590f948a0dfe08fc4",
+    "result": "9585aa0c31f0f7971c0a414c2a468101133f1883c645ef8978ba1bf720f79e43",
+    "report": "121d0f157c04f3b5b3eb2459dd0ee982ece9dbb263be2123510a6aa811869ef6",
+    "seal": "c3692fe9a56a2c30067982f0f125515cf97fc05e2ba9f49d994504d756a3d643",
+    "vanila_binary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino_binary": "6419f9ee7c9de718a8865f57504f7b0793f03efc737fa1896a03bc89762f72b3",
+    "pdftotext_binary": "0fb98ea179e19154a90202608c164f2a319b79f16576fa6534b2d601033565e7",
+    "test_binary": "b9f095ea11b7b41cb90a62a0fc482fc4183d1f9b9edd4d689fb1efad282153f2"
+  },
+  "candidate": {
+    "recognition": "iterative reference-only descent through Styled and singleton Sequence",
+    "ambiguity": "zero or multiple substantive children fail closed",
+    "transport": "inherited share is preserved only when inner Sequence has no own distribution and restored after layout",
+    "public_changes": false
+  },
+  "red_green": {
+    "red": "missing fractional_block; exit 101 in 14.7 seconds",
+    "green": {
+      "p1374":{"run":4,"passed":4,"failed":0,"filtered_out":5677},
+      "p1375":{"run":2,"passed":2,"failed":0,"filtered_out":5679}
+    },
+    "matrix": {"cases":1,"MATCH":1,"Unknown":0}
+  },
+  "gates": {
+    "cargo_check": 0,
+    "cargo_build_no_debug": 0,
+    "cargo_fmt_check": 0,
+    "json_validation_ruby": 0,
+    "git_diff_check": 0,
+    "crystalline_lint": 0,
+    "prompt_drift_remaining": 0,
+    "blocking_lint_violations": 0
+  },
+  "memory": {
+    "cargo_build_jobs": 1,
+    "cargo_check_limit_bytes": 3221225472,
+    "cargo_link_limit_bytes": 4294967296,
+    "cargo_file_limit_bytes": 536870912,
+    "matrix_address_space_limit_bytes": 2147483648,
+    "matrix_file_limit_bytes": 16777216,
+    "test_binary_bytes": 87207408,
+    "cristalino_binary_bytes": 98166400,
+    "largest_matrix_pdf_bytes": 6553,
+    "algorithm": "iterative traversal; no recursive wrapper descent and no proportional allocation",
+    "host_oom_timeout_sigkill": false,
+    "actual_peak_rss_measured": false
+  },
+  "discrimination": {"valid_mutants":6,"violated":6,"unexpected_unknown":0,"mutation_score":1.0},
+  "attestation_limit": "mesma autoridade escreveu contrato, implementacao, ataques e verificacao; hashes e ordem preservados, sem independencia forte",
+  "claim_limit": "MATCH somente para Block fracionario sob Styled/singleton Sequence em flow direto finito de uma regiao"
+}

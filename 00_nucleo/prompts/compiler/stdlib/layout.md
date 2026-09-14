@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 5047d9fc
+Hash do Código: 9bae54f3
 
 ## P1140.20.2 — canvas preparatório
 
@@ -37,6 +37,23 @@ fn native_X(
 ```
 
 A maioria ignora `ctx`/`world`/`current_file`.
+
+### P1374 — `block` relativo/fracionário proposto
+
+#### Medição anterior à decisão
+
+`extract_length` ainda reduz Ratio a zero e `native_block` o usa em width;
+height P1373 aceita Rel mas rejeita `Value::Fraction`. O vanila separa width
+relativa de height `Sizing` e não aceita fração como width de Block.
+
+#### Decisão proposta
+
+`native_block(width:)` aceita Length, Float, Int, Ratio e Relative e conserva
+`Rel<Length>` integral. `native_block(height:)` aceita os mesmos mais
+Fraction, construindo `BlockHeight::Relative` ou `Fractional`. Fraction em
+width, peso negativo/não finito e relativo negativo permanecem erro. Eval não
+consulta região nem converte `fr` em pontos. Gate ADR-0127 obrigatório antes
+do código.
 
 ---
 
@@ -330,11 +347,13 @@ linebreak(foo: true) -> erro
 
 ### `native_block(body, width?, height?, inset?, breakable?, outset?, radius?, clip?, fill?, stroke?, spacing?, above?, below?, sticky?)`
 
-**Assinatura**: `block(body: Content | Str?, width: Length?, height: Length?, inset: Length?, breakable: bool = true, outset: Length?, radius: Length | Dict?, clip: bool?, fill: Color?, stroke: Stroke?, spacing: Length?, above: Length?, below: Length?, sticky: bool?) -> Content`
+**Assinatura**: `block(body: Content | Str?, width: Length?, height: RelativeLength?, inset: Length?, breakable: bool = true, outset: Length?, radius: Length | Dict?, clip: bool?, fill: Color?, stroke: Stroke?, spacing: Length?, above: Length?, below: Length?, sticky: bool?) -> Content`
 
 **Argumentos**:
 - `body`: posicional opcional (`Content`, `Str`, ou omitido → `Empty`).
-- `width` / `height`: `Length` (ou `Float`/`Int` coagidos), ausente = auto.
+- `width`: `Length` (ou `Float`/`Int` coagidos), ausente = auto.
+- `height`: `Length`, `Float`, `Int`, `Ratio` ou `Relative`, ausente = auto
+  (P1373).
 - `inset`: `Length` uniforme, `Relative` (parte abs), ou `Dict {left?, right?, top?, bottom?, x?, y?, rest?}` per-side (P475). Default `0pt`.
 - `breakable`: bool default `true`.
 - `outset`: `Length` uniforme, `Relative` (parte abs), ou `Dict` per-side (P475). Default `0pt`.
@@ -350,6 +369,20 @@ linebreak(foo: true) -> erro
 **Paridade vanilla**: Equivalente a `#block(width: 5cm, [body])`; scope-outs listados acima.
 
 **Limitações / scope-outs**: `inset: (left: 50%)` — parte relativa truncada para `Length::ZERO`; fills complexos scope-out per ADR-0054 graded.
+
+#### P1373 — transporte de `height` relativo
+
+Medição: o extrator genérico em `layout.rs:861-874` reduz `Ratio` a zero e
+`native_block:1535-1539` o reutiliza para height. Isso explica a assinatura
+vertical P1372 divergente. A nativa passa a usar extrator dedicado que produz
+`Rel<Length>`: Length/Float/Int viram parte absoluta, Ratio vira parte
+relativa e Relative é preservado integralmente. A resolução pertence ao owner
+`compiler/layout/block.md`; eval não consulta página/região.
+
+Negatividade puramente absoluta continua rejeitada. Uma combinação relativa
+não deve ser truncada só porque contém offset negativo; sua dimensão efetiva
+depende da região e é validada ao resolver. Fraction permanece rejeitada neste
+passo e será tratada pelo P1374, junto com width relativa.
 
 **Testes canónicos**:
 ```

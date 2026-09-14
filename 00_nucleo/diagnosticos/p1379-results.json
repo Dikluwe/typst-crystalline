@@ -1,0 +1,41 @@
+{
+  "schema":"p1379-segmented-fractional-regions-matrix/v1",
+  "created_at":"2026-09-13T19:26:57-03:00",
+  "provenance":{
+    "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree":"nao commitado e agregado com P1356-P1379",
+    "diff_stat":"47 files changed, 3969 insertions(+), 350 deletions(-)",
+    "status_entries":290
+  },
+  "identities":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"4be4889678c6e52b461dc81d5b27d9737731f6a8cce02e2605ddbc11cec7666e",
+    "test_binary":"130833139b7c04a588dae14bfe31a4a9c704f08c67a29b3432a4e38867b86552"
+  },
+  "limits":{
+    "parallel_processes":1,
+    "cargo_check_address_space_bytes":3221225472,
+    "cargo_link_address_space_bytes":4294967296,
+    "cargo_file_size_bytes":536870912,
+    "matrix_address_space_bytes":2147483648,
+    "matrix_file_size_bytes":16777216,
+    "timeout_seconds":45
+  },
+  "counts":{"MATCH":6,"Unknown":0},
+  "cases":[
+    {"id":"basic","classification":"MATCH","vanila":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"offset","classification":"MATCH","vanila":{"Intro":"7.404","One":"27.842","Two":"27.842","After":"220.166","Tail":"220.166"},"cristalino":{"Intro":"7.404","One":"27.842","Two":"27.842","After":"220.166","Tail":"220.166"}},
+    {"id":"weights","classification":"MATCH","vanila":{"One":"7.404","Two":"82.724670","Three":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"One":"7.404","Two":"82.724670","Three":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"fixed-prefix","classification":"MATCH","vanila":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"Lead":"7.404","One":"27.842","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"page-columns","classification":"MATCH","vanila":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"},"cristalino":{"One":"7.404","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"p1378-plain-control","classification":"MATCH","vanila":{"One":"7.404","Two":"7.404","Outside":"27.842"},"cristalino":{"One":"7.404","Two":"7.404","Outside":"27.842"}}
+  ],
+  "tests":{
+    "initial_red":{"run":3,"passed":0,"failed":3},
+    "calibration_red":{"fixed_prefix_body_coordinate":{"run":1,"passed":0,"failed":1}},
+    "green":{"p1374_through_p1379":{"run":21,"passed":21,"failed":0,"filtered_out":5670}}
+  },
+  "discrimination":{"valid_mutants":11,"violated":11,"mutation_score":1.0},
+  "memory":{"final_matrix_peak_rss_kib":37656,"host_oom_timeout_sigkill":false},
+  "claim_limit":"MATCH only for explicit colbreak-segmented fractional distribution in the six declared forms; nested fractions, multi-region overflow, grid, box, place, footnote fractions and general parity remain Unknown"
+}

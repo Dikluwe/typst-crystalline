@@ -1,0 +1,33 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1377",
+  "created_at":"2026-09-13T17:31:00-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1377",
+  "provenance":{"diff_stat":"47 files changed, 3383 insertions(+), 343 deletions(-)","status_entries":270},
+  "artifacts":{
+    "step":"98b6e5ad97f9dac1121c904741ed9085cf7bf42f63a24f2dd820b2fe9a7538e6",
+    "contract":"99eb1b7f628899002c40bc2be559c9178810bef23da674f721d18d2f67caeb66",
+    "oracles":"acd9e0a30d528065423e52bdba356e562c803f7d4e01bc8b0676edde955b6794",
+    "mutants":"71076bb9955775706bda20dfb092a647d953b2c4bcc1393ffbf31636fd747db2",
+    "preflight":"fa3e1c538ba89ecf481e36c87fd36ec8671892a7c729d62c7a070a8322431774",
+    "preseal":"15d490214959917229c961ab6e04766cf8d666eac8161730ffbbbfe671cfcb6f",
+    "results":"3ac0d58ed4fb0d4e8c127a0dfc82abcdd33ad4dee7e556888094f2257ba43dbf",
+    "report":"fa4afcbb630dc51332abed08766f69001c624e502010dc2640e56b9536b14e36",
+    "prompt":"00674e628c925b1f423ccca2650cb797f67f6e6735e1ce812665c42e7a1366ba",
+    "consumer":"87297e09c5bc6868f029af48717573e8d76a7c2364d43d217ed85ae139e3afe7"
+  },
+  "fixtures":{
+    "offset":"22479e7a0dfa8f5c26f515d4f69d9809039932ff7dd77128e0ab1071c15dec6b",
+    "parbreak":"2cd235f606c1cde50f33bd52a5f48dbbeabe0206333001d87d5219c11c0be61d",
+    "block_intro":"3a91a7a91a7966b4a53b858a40456606697b4175dd681edef3beeca31b47eea6",
+    "exit":"a4c9e1edd4ef684991c7b010b8c823c1ef77dfb4b53393ceeddb746d36560f7e",
+    "custom_spacing":"3e83912486aeda45979734b8ea66c45b58d55c0fcacb9941bd968a114408807c"
+  },
+  "binaries":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"0c32fa2d783b209c9e4d2fa5b64e7936602e7e37bccfcb5a046a8eacc30a6852",
+    "test":"fad2b107a17c90d81384f5d0c7ad95aaf6e61d545e325aa922be73af7d8f3074"
+  },
+  "regime":"protocolo completo sem atestacao de isolamento"
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: f3971329
+Hash do Código: f6bbef9b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -23,6 +23,28 @@ preservam referencial e causalidade.
 Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição final
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
+
+## P1374 — parcela fracionária interna proposta
+
+### Medição anterior à decisão
+
+O Block fracionário precisa receber do flow uma parcela já calculada; o
+Layouter vigente não possui esse estado. Resolver dentro do Block confundiria
+o peso local com o conjunto de siblings e impediria a razão 1fr/2fr observada
+no vanila.
+
+### Decisão proposta
+
+Adicionar somente estado interno e não-público para a parcela vertical da
+ocorrência fracionária corrente, guarda de preflight e sentinela consumível da
+linha terminal da distribuição. Sequence instala e restaura a parcela ao
+redor do dispatch do Block; Block apenas a consome. A sentinela permite ao
+Cursor distinguir a tinta terminal confirmada do avanço para uma baseline
+hipotética seguinte e é consumida no primeiro fechamento. Esses estados
+entram em snapshots/checkpoints capazes de atravessar replay e nunca vazam
+entre siblings, subframes ou páginas. Ausência de parcela não equivale a zero.
+Não criar nova fase pública ou dispatcher dinâmico. O carrier público de Block
+permanece sujeito ao gate ADR-0127 P1374.
 
 ## P1339 — sincronização das ocorrências Strong/Emph
 
@@ -229,3 +251,24 @@ O selo/runtime P1291 já foi materializado. P1292 preserva integralmente esta
 ligação e não cria nova fase. Contrato detalhado:
 `compiler/math/layout/callbacks.md`; implementação da capacidade:
 `infra/pipeline.md`.
+
+## P1373 — medição intrínseca de Block relativo
+
+### Medição anterior à decisão
+
+Depois de `BlockElem::height` passar ao contrato confirmado
+`Option<Rel<Length>>`, o check focal encontrou em
+`layout/mod.rs:2588-2618` o segundo consumer produtivo: o braço de
+`measure_content_constrained` ainda chamava `Length::resolve_pt` diretamente.
+Esse braço mede Block para grid e fitting; não é proprietário da fórmula de
+altura.
+
+### Decisão
+
+Ao medir `Content::Block`, o motor delega a resolução relativa ao helper
+estático descendente de `compiler/layout/block.rs`, fornecendo font-size e
+`available_height()` externos. O valor resolvido continua sendo apenas o
+mínimo entre altura declarada e altura natural com inset. Não duplicar a
+fórmula, não usar `max_width` como eixo vertical e não resolver contra a altura
+do body. Alturas absolutas mantêm as expectativas existentes; width relativa
+e height fracionária permanecem no P1374.

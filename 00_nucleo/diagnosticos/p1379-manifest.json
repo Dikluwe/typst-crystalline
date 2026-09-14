@@ -1,0 +1,36 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1379",
+  "created_at":"2026-09-13T19:26:57-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1379",
+  "provenance":{"diff_stat":"47 files changed, 3969 insertions(+), 350 deletions(-)","status_entries":290},
+  "artifacts":{
+    "step":"39ce04beff90e49a99aa38d670b6301b38056a1f9e4d25d22b15d27592826fa4",
+    "contract":"a74e0d9f2c0c503d6f0ab1ca935b53760b8b78463ef78e834ded638dbba43bef",
+    "oracles":"0df3f9b8b0aa4187207416b699c7f4e1ba2e4cdae58fbfc89941a572a2df421f",
+    "mutants":"aa70580eb1e8f490ee2fe68141b5145648435de56e2106cac8219c20cdcb8b11",
+    "preflight":"d9336cdfc05e03dc87877af1d41103856babd5dd4e98612e83f85aaca74139e4",
+    "preseal":"3b66e1d12b1f611b5c2b0bbe821d8132d55d1c0f3d97923f8485264569aab863",
+    "results":"bc622ce102425021abad511eb4377808e2555fcf8a2c69fa95ed9dd192d91c29",
+    "report":"c64a367fef398e98c04ae5a7571e3dcc38cdfa72c236b4d305c07331636e9b0b",
+    "sequence_prompt":"d75e7b9d39069ba133c5b420c91692c51f0c510a80c9c0f841a7d290ee3f5ef5",
+    "columns_prompt":"bf63f91fc10fd17b8beb141b303d4d9932e44272a27fd680a4f3e0d02921fe89",
+    "sequence_consumer":"90d5f7324d0e03e8d5878e8c307ce75820fda271e33c1d88adc74636d82ff982",
+    "columns_consumer":"20425519729f63ce0b32db6eb5697b56269be6f228849be7f3334a168eee0685"
+  },
+  "fixtures":{
+    "basic":"8ec909f0a3e5cb4872d9454ee1e2de1997d10ce8c35e2eedaf2d7e041af62da1",
+    "offset":"930504b80cc0516480710f6b60a9e85337a75d88a996538cb6cfa827a6ae0649",
+    "weights":"878232854050ec7ae4efc8afc0c899adcb072cd6f74754851212f035bfb0ecbf",
+    "fixed_prefix":"f2ec3f2d2932c1f1d825ffed35ea86e033cbd3befa4006f4a399031770a5b29d",
+    "page_columns":"3d4de04e2450ca3783152c773c87e57645b53b9f20bc444f43d45d57348aee35",
+    "p1378_plain_control":"055ebc975fb2caa0451e88ff176b23760eca351e2c8623fa51e0d91f38ca734c"
+  },
+  "binaries":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"4be4889678c6e52b461dc81d5b27d9737731f6a8cce02e2605ddbc11cec7666e",
+    "test":"130833139b7c04a588dae14bfe31a4a9c704f08c67a29b3432a4e38867b86552"
+  },
+  "regime":"protocolo completo sem atestacao de isolamento"
+}

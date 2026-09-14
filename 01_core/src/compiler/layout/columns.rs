@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash 2c1368ee
+//! @prompt-hash c6554bad
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -28,6 +28,66 @@ use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
+fn flow_block_spacing<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+) -> (f64, f64) {
+    let font = layouter.style.size.val();
+    let spacing = match layouter.chain.custom("par.spacing") {
+        Some(Value::Length(length)) => length.resolve_pt(font),
+        _ => font * super::vanilla_defaults::PAR_SPACING,
+    };
+    let leading = match layouter.chain.custom("par.leading") {
+        Some(Value::Length(length)) => length.resolve_pt(font),
+        _ => layouter
+            .style
+            .leading
+            .map(|length| length.resolve_pt(font))
+            .unwrap_or(font * super::vanilla_defaults::PAR_LEADING),
+    };
+    (spacing, leading)
+}
+
+/// P1377 — `ColumnsElem` é realizado como Block no flow vanila. Entra no
+/// protocolo sem criar margem no topo da região e sem duplicar o leading que
+/// `flush_line` já incluiu para uma linha inline anterior.
+fn enter_flow_block<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+    let had_inline_line = !layouter.regions.current.current_line.is_empty();
+    if had_inline_line {
+        layouter.flush_line();
+    }
+
+    let (spacing, _) = flow_block_spacing(layouter);
+    if had_inline_line {
+        // Representar a fronteira como topo pendente do próximo Block, não
+        // como baseline já fixada. Isto é observavelmente equivalente a
+        // `spacing - leading` para texto simples, mas permite que preflights
+        // regionais vejam a mesma origem que uma cadeia Parbreak→Block.
+        layouter.regions.current.cursor_y = Pt(layouter.prev_line_baseline
+            + layouter.prev_block_equation_descent
+            + spacing);
+        layouter.initial_baseline_pending = true;
+    } else if layouter.block_chain_active {
+        let gap = layouter.prev_block_below_pending.max(spacing);
+        layouter.regions.current.cursor_y =
+            Pt(layouter.prev_line_baseline + layouter.prev_block_equation_descent + gap);
+        layouter.initial_baseline_pending = true;
+    }
+
+    layouter.prev_block_below_pending = 0.0;
+    layouter.prev_margin_is_parbreak = false;
+}
+
+/// P1377 — deixa a margem inferior como estado colapsável. O avanço extra é
+/// conservado no cursor para um próximo elemento estrutural; texto posterior
+/// resolve sua baseline a partir de `prev_line_baseline` pela cadeia normal.
+fn leave_flow_block<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+    let (spacing, leading) = flow_block_spacing(layouter);
+    layouter.regions.current.cursor_y += Pt((spacing - leading).max(0.0));
+    layouter.prev_block_below_pending = spacing;
+    layouter.block_chain_active = true;
+    layouter.prev_margin_is_parbreak = false;
+}
+
 /// Divide uma sequência de content pelos `Content::Colbreak`.
 /// Garante pelo menos `count` segmentos — se houver menos colbreaks do que
 /// `count - 1`, os segmentos em falta ficam vazios.
@@ -36,6 +96,13 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// modo fluxo contínuo).
 fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
     let mut segments: Vec<Vec<Content>> = vec![Vec::new()];
+    // P1379 — `#set page(...)` transporta as propriedades da página num
+    // único Styled exterior. Inspecionar o body para encontrar colbreaks e
+    // reaplicar o mesmo wrapper uma vez por região irmã.
+    let (content, outer_styles) = match content {
+        Content::Styled(body, styles) => (body.as_ref(), Some(styles)),
+        other => (other, None),
+    };
     let children = match content {
         Content::Sequence(seq) => seq.iter().collect::<Vec<_>>(),
         Content::Empty => Vec::new(),
@@ -60,7 +127,17 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
         let tail: Vec<Content> = segments.drain(count - 1..).flatten().collect();
         segments.push(tail);
     }
-    (segments.into_iter().map(Content::sequence).collect(), had_colbreak)
+    let segments = segments
+        .into_iter()
+        .map(|parts| {
+            let segment = Content::sequence(parts);
+            match outer_styles {
+                Some(styles) => Content::Styled(Box::new(segment), styles.clone()),
+                None => segment,
+            }
+        })
+        .collect();
+    (segments, had_colbreak)
 }
 
 /// **P626/P627** — descobre a direcção de texto (canal `"text.dir"`) que
@@ -135,11 +212,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &ColumnsElem,
 ) {
-    // 1. Flush line pendente (columns são structural — começam
-    //    em nova linha lógica).
-    if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
-        layouter.flush_line();
-    }
+    // 1. Columns são realizados como Block no flow vanila. P1377 incorpora
+    //    a fronteira vertical antes de configurar a mini-região.
+    enter_flow_block(layouter);
 
     let page_width = layouter.regions.current.width;
     let margins = layouter.page_config.margin;
@@ -212,6 +287,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             margins.left,
         );
     }
+
+    leave_flow_block(layouter);
 }
 
 /// Modo segmentado (P537): cada segmento delimitado por `colbreak()` é
@@ -229,13 +306,21 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     margin: f64,
     page_columns: bool,
 ) {
-    let ascender = layouter
-        .metrics
-        .vertical_metrics(layouter.style.size, &layouter.style)
-        .0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
     let mut max_column_bottom_y = column_start_y;
+    let mut deepest_column_baseline: Option<(f64, f64)> = None;
+
+    // P1378 — todos os segmentos são regiões irmãs. Cada um recebe o mesmo
+    // snapshot lógico de entrada; estado produzido por uma coluna não pode
+    // deslocar a seguinte.
+    let entry_initial_baseline_pending = layouter.initial_baseline_pending;
+    let entry_prev_line_baseline = layouter.prev_line_baseline;
+    let entry_prev_equation_descent = layouter.prev_block_equation_descent;
+    let entry_prev_below = layouter.prev_block_below_pending;
+    let entry_block_chain = layouter.block_chain_active;
+    let entry_prev_margin_is_parbreak = layouter.prev_margin_is_parbreak;
+    let entry_line_assumed_ascent = layouter.line_assumed_ascent;
 
     // Guardar footnotes eventualmente pendentes do contexto exterior.
     let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
@@ -247,6 +332,14 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
         let saved_cursor_x = layouter.regions.current.cursor_x;
         let saved_width = layouter.regions.current.width;
+
+        layouter.initial_baseline_pending = entry_initial_baseline_pending;
+        layouter.prev_line_baseline = entry_prev_line_baseline;
+        layouter.prev_block_equation_descent = entry_prev_equation_descent;
+        layouter.prev_block_below_pending = entry_prev_below;
+        layouter.block_chain_active = entry_block_chain;
+        layouter.prev_margin_is_parbreak = entry_prev_margin_is_parbreak;
+        layouter.line_assumed_ascent = entry_line_assumed_ascent;
 
         // Activar modo coluna para flush de footnotes.
         layouter.column_mode = true;
@@ -260,14 +353,33 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.width = column_region_width;
         layouter.regions.current.cursor_x = Pt(margin);
         layouter.regions.current.line_start_x = Pt(margin);
-        layouter.regions.current.cursor_y = column_start_y + ascender;
+        // `column_start_y` é topo lógico quando a baseline está pendente.
+        // `ensure_initial_baseline` continua único dono de adicionar o
+        // top-edge; pré-somar ascender duplicava a primeira coluna.
+        layouter.regions.current.cursor_y = column_start_y;
 
         // Layout do segmento e flush final da coluna.
-        layouter.layout_content(segment);
+        // P1379 — cada segmento explícito recebe uma distribuição `fr`
+        // cursor-relativa própria, sem reutilizar `page_columns` como
+        // sentinela e sem abrir outros contextos de `column_mode`.
+        super::sequence::layout_segmented_region(layouter, segment);
         layouter.flush_line();
         if page_columns {
             // Notas por coluna: flush imediato no fundo desta coluna.
             layouter.flush_pending_footnote_bodies(None);
+        }
+
+        let segment_has_items = !layouter.regions.current.current_items.is_empty();
+        if segment_has_items {
+            let candidate =
+                (layouter.prev_line_baseline, layouter.prev_block_equation_descent);
+            let candidate_bottom = candidate.0 + candidate.1;
+            if deepest_column_baseline
+                .map(|current| candidate_bottom > current.0 + current.1)
+                .unwrap_or(true)
+            {
+                deepest_column_baseline = Some(candidate);
+            }
         }
 
         // Altura consumida por esta coluna.
@@ -325,6 +437,15 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     // 8. Avançar o cursor principal para a altura máxima consumida pelas
     //    colunas (ou pelas notas, se empilhadas).
     layouter.regions.current.cursor_y = max_column_bottom_y;
+    if let Some((baseline, descent)) = deepest_column_baseline {
+        layouter.prev_line_baseline = baseline;
+        layouter.prev_block_equation_descent = descent;
+        layouter.initial_baseline_pending = false;
+    } else {
+        layouter.prev_line_baseline = entry_prev_line_baseline;
+        layouter.prev_block_equation_descent = entry_prev_equation_descent;
+        layouter.initial_baseline_pending = entry_initial_baseline_pending;
+    }
 }
 
 /// Modo fluxo contínuo (P538c): o body é renderizado numa sequência de
@@ -388,4 +509,225 @@ fn translate_item_x(item: FrameItem, dx: f64) -> FrameItem {
     use crate::compiler::layout::helpers::{item_pos, translate_frame_item};
     let (x, y) = item_pos(&item);
     translate_frame_item(item, Pt(x + dx), Pt(y))
+}
+
+#[cfg(test)]
+mod p1377_tests {
+    use super::super::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
+
+    #[test]
+    fn p1377_default_block_boundary_adds_only_spacing_minus_leading() {
+        let font = 11.0;
+        let extra = (font * PAR_SPACING - font * PAR_LEADING).max(0.0);
+        assert!((extra - 6.05).abs() < 1e-9);
+    }
+}
+
+#[cfg(test)]
+mod p1378_tests {
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::FrameItem;
+
+    fn text_y(
+        document: &crate::entities::layout_types::PagedDocument,
+        needle: &str,
+    ) -> f64 {
+        document
+            .pages
+            .iter()
+            .flat_map(|page| page.items.iter())
+            .find_map(|item| match item {
+                #[allow(deprecated)]
+                FrameItem::Text { text, pos, .. }
+                | FrameItem::TextShaped { text, pos, .. }
+                    if text.as_str() == needle =>
+                {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto ausente: {needle}"))
+    }
+
+    #[test]
+    fn p1378_segments_irmaos_partilham_origem_logica() {
+        let columns = Content::columns(
+            Content::sequence(vec![
+                Content::text("One"),
+                Content::colbreak(false),
+                Content::text("Two"),
+            ]),
+            2,
+            None,
+        );
+        let document = super::super::layout(&Content::sequence(vec![
+            columns,
+            Content::text("Outside"),
+        ]));
+        let one = text_y(&document, "One");
+        let two = text_y(&document, "Two");
+        assert!((one - two).abs() < 1e-9, "One={one}, Two={two}");
+        assert!(text_y(&document, "Outside") > one);
+    }
+
+    #[test]
+    fn p1378_saida_segue_segmento_mais_profundo() {
+        let columns = Content::columns(
+            Content::sequence(vec![
+                Content::text("One"),
+                Content::linebreak(),
+                Content::text("Lower"),
+                Content::colbreak(false),
+                Content::text("Two"),
+            ]),
+            2,
+            None,
+        );
+        let document = super::super::layout(&Content::sequence(vec![
+            columns,
+            Content::text("Outside"),
+        ]));
+        assert!((text_y(&document, "One") - text_y(&document, "Two")).abs() < 1e-9);
+        assert!(text_y(&document, "Outside") > text_y(&document, "Lower"));
+    }
+
+    #[test]
+    fn p1378_segmento_vazio_nao_desloca_o_seguinte() {
+        let control = super::super::layout(&Content::text("Control"));
+        let empty_first = super::super::layout(&Content::columns(
+            Content::sequence(vec![
+                Content::Empty,
+                Content::colbreak(false),
+                Content::text("Two"),
+            ]),
+            2,
+            None,
+        ));
+        assert!((text_y(&control, "Control") - text_y(&empty_first, "Two")).abs() < 1e-9);
+    }
+}
+
+#[cfg(test)]
+mod p1379_tests {
+    use std::sync::Arc;
+
+    use crate::entities::{
+        content::Content,
+        corners::Corners,
+        elements::block::{BlockElem, BlockHeight},
+        layout_types::{FrameItem, Length},
+        sides::Sides,
+    };
+
+    fn fractional(text: &str, weight: f64) -> Content {
+        Content::Block(Arc::new(BlockElem {
+            body: Content::text(text),
+            width: None,
+            height: Some(BlockHeight::Fractional(weight)),
+            inset: Sides::uniform(Length::ZERO),
+            breakable: true,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
+        }))
+    }
+
+    fn text_y(
+        document: &crate::entities::layout_types::PagedDocument,
+        needle: &str,
+    ) -> f64 {
+        document
+            .pages
+            .iter()
+            .flat_map(|page| page.items.iter())
+            .find_map(|item| match item {
+                #[allow(deprecated)]
+                FrameItem::Text { text, pos, .. }
+                | FrameItem::TextShaped { text, pos, .. }
+                    if text.as_str() == needle =>
+                {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto ausente: {needle}"))
+    }
+
+    #[test]
+    fn p1379_cada_segmento_expande_fr_ate_o_mesmo_fundo() {
+        let columns = Content::columns(
+            Content::sequence(vec![
+                fractional("One", 1.0),
+                Content::text("After"),
+                Content::colbreak(false),
+                fractional("Two", 1.0),
+                Content::text("Tail"),
+            ]),
+            2,
+            None,
+        );
+        let document = super::super::layout(&columns);
+        let one = text_y(&document, "One");
+        let two = text_y(&document, "Two");
+        let after = text_y(&document, "After");
+        let tail = text_y(&document, "Tail");
+        assert!((one - two).abs() < 1e-9);
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+        assert!(after - one > 100.0, "One={one}, After={after}");
+    }
+
+    #[test]
+    fn p1379_pesos_e_conteudo_fixo_sao_locais_ao_segmento() {
+        let columns = Content::columns(
+            Content::sequence(vec![
+                fractional("One", 1.0),
+                fractional("Two", 2.0),
+                Content::text("After"),
+                Content::colbreak(false),
+                fractional("Three", 3.0),
+                Content::text("Tail"),
+            ]),
+            2,
+            None,
+        );
+        let document = super::super::layout(&columns);
+        let one = text_y(&document, "One");
+        let two = text_y(&document, "Two");
+        let after = text_y(&document, "After");
+        let tail = text_y(&document, "Tail");
+        assert!(two - one > 50.0, "One={one}, Two={two}");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+    }
+
+    #[test]
+    fn p1379_offset_exterior_reduz_a_parcela_sem_mudar_o_fundo() {
+        let columns = Content::columns(
+            Content::sequence(vec![
+                fractional("One", 1.0),
+                Content::text("After"),
+                Content::colbreak(false),
+                fractional("Two", 1.0),
+                Content::text("Tail"),
+            ]),
+            2,
+            None,
+        );
+        let document = super::super::layout(&Content::sequence(vec![
+            Content::text("Intro"),
+            columns,
+        ]));
+        let intro = text_y(&document, "Intro");
+        let one = text_y(&document, "One");
+        let after = text_y(&document, "After");
+        let tail = text_y(&document, "Tail");
+        assert!(one > intro);
+        assert!(after - intro > 150.0, "Intro={intro}, After={after}");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+    }
 }

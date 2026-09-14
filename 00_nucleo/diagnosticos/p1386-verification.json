@@ -1,0 +1,23 @@
+{
+  "schema":"tekt-materialization-verification/v1",
+  "step":"P1386",
+  "verified_at":"2026-09-14T00:07:00-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "manifest_sha256":"2e600f853f5faefa4fda7cde419dd9575b8b0d686025b741f60a2968606125a8",
+  "seal_sha256":"615434eb065f2c264e0efbeef1b454ab9e0d0b381b36c4d4f2ad96b469c30830",
+  "checks":[
+    {"name":"P1380-P1386 focal and controls","status":"pass","run":24,"passed":24},
+    {"name":"P1374-P1379 historical controls","status":"pass","run":21,"passed":21},
+    {"name":"bilateral matrix","status":"pass","match":5,"unknown":3},
+    {"name":"new productive pairs","status":"pass","match":4},
+    {"name":"mutation discrimination","status":"pass","violated":9,"declared":9},
+    {"name":"cargo build release","status":"pass"},
+    {"name":"cargo check typst-core","status":"pass"},
+    {"name":"cargo fmt check","status":"pass"},
+    {"name":"git diff check","status":"pass"},
+    {"name":"crystalline lint","status":"pass","violations":0,"advisories":1433,"new_advisories":0}
+  ],
+  "memory":{"bounded":true,"parallel_processes":1,"peak_rss_kib":1961048,"controlled_link_limit_abort":true,"host_oom":false,"timeout":false,"sigkill":false},
+  "verdict":"verified within the manifest claim limit",
+  "independence":"not attested; same authority performed all roles"
+}

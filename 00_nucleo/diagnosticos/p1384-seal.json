@@ -1,0 +1,25 @@
+{
+  "schema":"tekt-materialization-seal/v1",
+  "step":"P1384",
+  "created_at":"2026-09-13T22:10:20-03:00",
+  "manifest_sha256":"e4340d98518faac1fd83e201ceca371ac7d50a0b3efb9f677c4d1ae2d2ddc9a6",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "verdict":"accepted narrow MATCH",
+  "gates":{
+    "l0_before_final_code":true,
+    "invalid_chain_restarted":true,
+    "red_observed":true,
+    "focal_green":true,
+    "controls_green":true,
+    "bilateral_matrix":true,
+    "mutation_score_one":true,
+    "memory_bounded":true,
+    "cargo_check":true,
+    "format":true,
+    "diff_check":true,
+    "crystalline_lint_exit_zero":true,
+    "no_new_lint_advisory":true
+  },
+  "claim_limit":"one size-only larger Styled(Text) followed by one direct outer Text, exactly two fragments and no wrap; single larger, second wrapper, extra delta and third fragment Unknown",
+  "isolation_attested":false
+}

@@ -1,8 +1,24 @@
 # Prompt L0 — Content
-Hash do Código: 2d4d9103
+Hash do Código: d7909352
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1374 — compatibilidade do construtor `Content::block`
+
+### Medição anterior à decisão
+
+O construtor público vigente recebe width e height como `Option<Length>` e é
+usado por callers Rust que não precisam expressar percentagem ou fração. A
+mudança proposta dos campos de `BlockElem` não exige quebrar esses callers.
+
+### Decisão proposta
+
+Preservar a assinatura pública atual. Width absoluto é elevado para
+`Rel { rel: 0, abs }`; height absoluto para
+`BlockHeight::Relative(Rel { rel: 0, abs })`; ausência permanece auto. O
+construtor não ganha argumento fracionário nesta fatia e não aceita sentinel.
+Esta obrigação participa do gate público P1374 antes de código.
 
 ## P1293 — constructors do carrier triestatal de `MathAttach`
 
@@ -1317,6 +1333,15 @@ com erro hard até refino futuro.
   breakable: ?)`.
 - Construtor Rust: `Content::block(body, width, height,
   inset, breakable)`.
+
+#### P1373 — compatibilidade do construtor Rust
+
+Embora `BlockElem::height` passe a `Option<Rel<Length>>`, a assinatura pública
+de `Content::block` permanece com `height: Option<Length>`. O construtor eleva
+o valor para `Rel { rel: 0, abs: height }`. Assim, consumidores Rust absolutos
+não precisam migrar; percentagens entram pela nativa Typst, que possui o
+contexto de tipo correto antes do layout. O construtor não resolve nem lê
+geometria de página.
 
 ### Limitações conscientes (P156G)
 

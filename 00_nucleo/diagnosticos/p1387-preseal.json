@@ -1,0 +1,25 @@
+{
+  "schema":"tekt-preseal/v1",
+  "step":"P1387",
+  "created_at":"2026-09-14T09:49:13-03:00",
+  "regime":"protocolo completo sem atestacao de isolamento",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1387",
+  "hashes":{
+    "baseline_results":"a9835668a7ef7260e7ad71c64ede62e10bf836c0b0669155188f98a0e4ed309e",
+    "step":"2c97a7e4aba73ec1015281e650c18560b139717335557c9b1405899f2f1106fb",
+    "contract":"d2687501749c8cd3492293ee405e2da2ebb8d714ca368a9205558ad0b6825381",
+    "oracles":"c8dcfe86e513dd92727fe4bc1cdcd3be0827c05afe8ed6c6442b2dd29c4c8897",
+    "mutants":"7fd63e09f93fa94078b7d7100f679f21aa310c1dcb8822a464bfd25f0c528d99",
+    "preflight":"b8965328983d5b6539ff21714b8fd088e55154405a20705722304896ded3ae91",
+    "sequence_prompt":"de3b772e1171868459c4568eb0b8a17a07f63152cf42bc5080d4476f9c64acfc",
+    "cursor_prompt":"b71f962ebd185309fa98d07321dd832c40d338c397c18a3198c8a0fcd6bef824",
+    "sequence_consumer":"4291bd64efb77b23596b71397da92f85134c9233e44a56045a2dc8debf810328",
+    "cursor_consumer":"4c6ff61cba82667ca3db3600de5936cbf23b2924dc19546331f165acf9534817",
+    "tests":"2bdaa289c60ea61e21fc490134f2ac5603be38c7268a5eb0039fe58575a697a0"
+  },
+  "implementation_gate":"exactly two equal size-only Styled(Text) wrappers above the exterior size, accepted by the existing productive width gate",
+  "calibration":"20pt equal, growing, first not larger, additional delta, third fragment and actual wrap remain Unknown",
+  "candidate_history":"global outer-relative comparison regressed P1381 singletons; restricting it to the second text item preserved the singleton contract without recursion or collection",
+  "attestation_limit":"same authority controls contract implementation attacks and verification"
+}

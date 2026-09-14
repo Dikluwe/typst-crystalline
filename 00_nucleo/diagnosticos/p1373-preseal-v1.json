@@ -1,0 +1,14 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": "P1373",
+  "manifest_sha256": "05eaf36da3c634f40e8e7f351d62efbd06724cd13f1d37bcf5919c8679ff6338",
+  "prompt_hashes_confirmed": true,
+  "baseline_hash_confirmed": true,
+  "contract_hash_confirmed": true,
+  "oracles_hash_confirmed": true,
+  "mutation_score": null,
+  "reason": "preseal freezes inputs before RED; mutation score evaluated by focal tests after implementation",
+  "attestation": "without_isolation",
+  "invalidated": true,
+  "invalidation_reason": "layout/tests and stdlib facade test-only owners were added to the protected input graph"
+}

@@ -1,0 +1,24 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1385",
+  "created_at":"2026-09-13T23:04:25-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "artifacts":{
+    "step":{"path":"00_nucleo/materialization/typst-passo-1385.md","sha256":"adbf901ad9857442ca4467a3f9d0088c15f4e826851619ca129f349bc0fe3350"},
+    "contract":{"path":"00_nucleo/diagnosticos/p1385-contract.json","sha256":"2a4d3debc981eaa2c641ce0313ec13dca15739bcc21f0f9c99c644038dcf71d8"},
+    "oracles":{"path":"00_nucleo/diagnosticos/p1385-oracles.json","sha256":"8208cd0ec4182e83c4a02fd778b3c48f9bafecbf892dc470f4d8208a3c9831d5"},
+    "mutants":{"path":"00_nucleo/diagnosticos/p1385-mutants.json","sha256":"4c222b3ba8f8393e02c317eaad5c044592d7f0c040174d0c937505dd77667a33"},
+    "preflight":{"path":"00_nucleo/diagnosticos/p1385-preflight.md","sha256":"889ba9504cad1dc72613fb00c85b945bc30b977bb5fff5adca2bab67d8c28bf2"},
+    "preseal":{"path":"00_nucleo/diagnosticos/p1385-preseal.json","sha256":"337e30fd1978aabd6baa6e9a9193e23ac31cb0c651bf3c3eb89567a275db318e"},
+    "results":{"path":"00_nucleo/diagnosticos/p1385-results.json","sha256":"23e32e52d388600f0c38194afa5ea7a5fcec56c760216db1c7430a3d5e021969"},
+    "report":{"path":"00_nucleo/diagnosticos/p1385-report.md","sha256":"73bfd3f25118a92ed0d5eecbb2c6fc83e7cedbfa17bee1d1e01c903e3628ba00"},
+    "prompt":{"path":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"34562ebfb4acc8f2734ec816249034b4ef415c121fccf49d340a8b31fa75e4f5"},
+    "consumer":{"path":"01_core/src/compiler/layout/sequence.rs","sha256":"b6a6413aa389f24c5bedbc812ddd45995e54b83a1b598aab291c744b400b00d6"},
+    "tests":{"path":"01_core/src/compiler/layout/tests.rs","sha256":"7b62a41c6b6874a3c9985abb1faa23cca3aed15b25aaf3ac5e3a14dcbf4ad9c1"},
+    "cristalino_binary":{"path":"target/release/typst","sha256":"9b089823fb8fa0fdaec85de2747dda2c16388770b3213ee58d5028e49672ae46"},
+    "test_binary":{"path":"target/debug/deps/typst_core-4fe6667e5c134140","sha256":"cf3e2c701e862efd4e70cebdb611d4461605a1b124b686ce41fc2a3abb261604"}
+  },
+  "vanila":{"pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d","binary_sha256":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+  "verdict":"MATCH for two size-only Styled(Text), first larger than outer and second less than or equal to outer; neighboring shapes Unknown",
+  "attestation_limit":"same authority controls all protocol roles"
+}

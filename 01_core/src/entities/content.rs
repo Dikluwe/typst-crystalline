@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 88439fde
+//! @prompt-hash e2feb2d0
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -2321,8 +2321,12 @@ impl Content {
     ) -> Self {
         Self::Block(Arc::new(BlockElem {
             body,
-            width,
-            height,
+            width: width.map(|abs| crate::entities::rel::Rel { rel: 0.0, abs }),
+            height: height.map(|abs| {
+                crate::entities::elements::block::BlockHeight::Relative(
+                    crate::entities::rel::Rel { rel: 0.0, abs },
+                )
+            }),
             inset,
             breakable,
             outset: Sides::new(
@@ -5020,8 +5024,16 @@ mod tests {
             false,
         );
         if let Content::Block(e) = &b {
-            assert_eq!(e.width, Some(Length::pt(100.0)));
-            assert_eq!(e.height, Some(Length::pt(50.0)));
+            assert_eq!(
+                e.width,
+                Some(crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(100.0) })
+            );
+            assert_eq!(
+                e.height,
+                Some(crate::entities::elements::block::BlockHeight::Relative(
+                    crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(50.0) }
+                ))
+            );
             assert_eq!(e.inset.left, Length::pt(8.0));
             assert!(!e.breakable);
         } else {

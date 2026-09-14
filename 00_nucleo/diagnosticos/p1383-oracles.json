@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-oracles/v1",
+  "step":"P1383",
+  "vanila_pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "numeric_tolerance_pt":0.001,
+  "cases":[
+    {"id":"outer-then-larger","fixture_sha256":"88b1f66f14a3fdb85e3a8f813471f255e4a98e661495afb7698c7b294a0227cc","expect":{"pages":1,"Lead":"12.010","More":"5.752","One":"32.448","Two":"7.404","After":"220.166","Tail":"220.166"}},
+    {"id":"larger-first","fixture_sha256":"3c140d022f93cecb3a708762bd3911656ff552cb3e4b6a932702ed6ed2635062","expect_classification":"Unknown"},
+    {"id":"single-larger","fixture_sha256":"6b532e7af2bc9b0ceb9a55170c245b71c559daacd6c7e1a2d04bfbc6bb3877f9","expect_classification":"Unknown"},
+    {"id":"three-fragments","expect_classification":"Unknown"},
+    {"id":"size-plus-fill","expect_classification":"Unknown"},
+    {"id":"p1381-small-and-p1380-controls","expect_classification":"MATCH"}
+  ],
+  "unexpected":"Unknown"
+}

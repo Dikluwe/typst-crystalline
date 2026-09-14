@@ -1,0 +1,24 @@
+{
+  "schema":"tekt-materialization-manifest/v1",
+  "step":"P1384",
+  "created_at":"2026-09-13T22:09:53-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "artifacts":{
+    "step":{"path":"00_nucleo/materialization/typst-passo-1384.md","sha256":"e7dc216bc22680a68bc4ee31d91ec70403463c0b4b556db9cecebe025dd44061"},
+    "contract":{"path":"00_nucleo/diagnosticos/p1384-contract.json","sha256":"8019d496b9f72231b9b9c3883d345132e3ba3b7439a789fdb9682a6bb5f14280"},
+    "oracles":{"path":"00_nucleo/diagnosticos/p1384-oracles.json","sha256":"688103248c1d07e79cbd11d364344880b90ba88868a64b31e27adb4dcd9c5ba4"},
+    "mutants":{"path":"00_nucleo/diagnosticos/p1384-mutants.json","sha256":"cbb50b52246ceebe446655021504b772e826009d5e79249a9a0e88b29459e967"},
+    "preflight":{"path":"00_nucleo/diagnosticos/p1384-preflight.md","sha256":"abef1b3d01077a44e777fb18090726b460eea925b6630dacac609d0b9530365a"},
+    "preseal":{"path":"00_nucleo/diagnosticos/p1384-preseal.json","sha256":"729e2207c130785bf970ff273462581b0ee2b3f8bf409ba361b4f24d514dd7a0"},
+    "results":{"path":"00_nucleo/diagnosticos/p1384-results.json","sha256":"6d37b402ef0570a81a8b36d70549f8135dbe0e918942aec434e1eabea9280cde"},
+    "report":{"path":"00_nucleo/diagnosticos/p1384-report.md","sha256":"9df5bf5403ed010975aeea67c946729adaddfac83f8748f743e83253a1f29edf"},
+    "prompt":{"path":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"2ab01d7f4e955a611b3ed991abf05a2feb6effbe3a71ba2a64a11401e71afba3"},
+    "consumer":{"path":"01_core/src/compiler/layout/sequence.rs","sha256":"cc6002ed88e8988e4b63bb8eda82b57e7ddf65f7243494e67b5584dc53f67207"},
+    "tests":{"path":"01_core/src/compiler/layout/tests.rs","sha256":"a02d473fadab271169d94b3140fd285a150d977f0e09a7108535f44753ad5760"},
+    "cristalino_binary":{"path":"target/release/typst","sha256":"99940887066c45594d134b578365b0a528fb97fe59f783d964f6b3f3b54064f0"},
+    "test_binary":{"path":"target/debug/deps/typst_core-4fe6667e5c134140","sha256":"dc527685a6fbb28ac8183bf7a5ab235b00ca28cc2ba11a20892d0f5f76576d01"}
+  },
+  "vanila":{"pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d","binary_sha256":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+  "verdict":"MATCH for one size-only larger Styled(Text) followed by one direct outer Text before a fractional Block; opaque neighboring shapes Unknown",
+  "attestation_limit":"same authority controls all protocol roles"
+}

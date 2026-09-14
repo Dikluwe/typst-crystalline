@@ -1,0 +1,12 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1381",
+  "mutants":[
+    {"id":"M1","change":"continue rejecting every size change","killed_by":"small-prefix"},
+    {"id":"M2","change":"use outer leading instead of the reduced text leading","killed_by":"small-prefix"},
+    {"id":"M3","change":"accept compound variable-size prefix","killed_by":"mixed-prefix fail-closed control"},
+    {"id":"M4","change":"accept first text larger than outer style","killed_by":"large-prefix and reverse-prefix fail-closed controls"},
+    {"id":"M5","change":"accept explicit leading or wrapped prefix","killed_by":"fail-closed gates"},
+    {"id":"M6","change":"regress size-neutral P1380","killed_by":"P1380 controls"}
+  ]
+}

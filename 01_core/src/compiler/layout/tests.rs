@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 84d04b9b
+//! @prompt-hash 09301c53
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -27,6 +27,73 @@ use crate::entities::{
     style::Styles,
     value::Value,
 };
+
+fn block_height_pt(value: f64) -> crate::entities::elements::block::BlockHeight {
+    crate::entities::elements::block::BlockHeight::Relative(crate::entities::rel::Rel {
+        rel: 0.0,
+        abs: crate::entities::layout_types::Length::pt(value),
+    })
+}
+
+fn block_width_pt(
+    value: f64,
+) -> crate::entities::rel::Rel<crate::entities::layout_types::Length> {
+    crate::entities::rel::Rel {
+        rel: 0.0,
+        abs: crate::entities::layout_types::Length::pt(value),
+    }
+}
+
+#[test]
+fn p1373_full_height_block_moves_following_line_without_losing_it() {
+    use crate::entities::corners::Corners;
+    use crate::entities::elements::block::BlockElem;
+    use crate::entities::layout_types::Length;
+    use crate::entities::rel::Rel;
+    use crate::entities::sides::Sides;
+
+    let full = |body| {
+        Content::Block(std::sync::Arc::new(BlockElem {
+            body,
+            width: None,
+            height: Some(crate::entities::elements::block::BlockHeight::Relative(
+                Rel::from_percent(100.0),
+            )),
+            inset: Sides::uniform(Length::ZERO),
+            breakable: true,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
+        }))
+    };
+    let document = layout(&Content::Sequence(std::sync::Arc::from(vec![
+        full(Content::text("Probe")),
+        Content::Parbreak,
+        Content::text("After"),
+    ])));
+
+    assert_eq!(document.pages.len(), 2);
+    let page_text = |page: usize| {
+        frame_items_recursive(&document.pages[page].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect::<String>()
+    };
+    assert_eq!(page_text(0), "Probe");
+    assert_eq!(page_text(1), "After");
+
+    let terminal = layout(&full(Content::text("Probe")));
+    assert_eq!(terminal.pages.len(), 1, "Block terminal não cria página vazia");
+}
 
 /// Vista recursiva read-only usada por testes que inspecionam folhas visuais.
 /// `Semantic` é transparente; `Group` e `Link` também são percorridos, mas o
@@ -4513,7 +4580,7 @@ fn p772f_measure_content_constrained_block_largura_explicita_nao_colapsa() {
     }));
     let block = Content::Block(std::sync::Arc::new(BlockElem {
         body,
-        width: Some(Length::pt(85.039)), // 3cm
+        width: Some(block_width_pt(85.039)), // 3cm
         height: None,
         inset: Sides::uniform(Length::pt(0.0)),
         breakable: true,
@@ -5839,6 +5906,507 @@ mod tests_set_rule_integration {
             right.unwrap().1 > left.unwrap().1,
             "segunda coluna deve estar à direita da primeira"
         );
+    }
+
+    fn p1379_text_y(doc: &PagedDocument, needle: &str) -> f64 {
+        doc.pages
+            .iter()
+            .flat_map(|page| page.items.iter())
+            .find_map(|item| match item {
+                #[allow(deprecated)]
+                FrameItem::Text { text, pos, .. }
+                | FrameItem::TextShaped { text, pos, .. }
+                    if text.as_str() == needle =>
+                {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto ausente: {needle}"))
+    }
+
+    #[test]
+    fn p1379_page_columns_fracionario_termina_ambas_as_colunas_no_fundo() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt, columns: 2)
+#block(height: 1fr)[One]
+After
+#colbreak()
+#block(height: 1fr)[Two]
+Tail"#,
+        );
+        assert_eq!(doc.pages.len(), 1);
+        let after = p1379_text_y(&doc, "After");
+        let tail = p1379_text_y(&doc, "Tail");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+        assert!(after - p1379_text_y(&doc, "One") > 100.0);
+    }
+
+    #[test]
+    fn p1379_prefixo_fixo_preserva_cauda_na_mesma_pagina() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  Lead
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        let page_texts: Vec<String> = doc
+            .pages
+            .iter()
+            .map(|page| {
+                page.items
+                    .iter()
+                    .filter_map(|item| match item {
+                        #[allow(deprecated)]
+                        FrameItem::Text { text, .. }
+                        | FrameItem::TextShaped { text, .. } => Some(text.as_str()),
+                        _ => None,
+                    })
+                    .collect()
+            })
+            .collect();
+        assert_eq!(doc.pages.len(), 1, "pages={page_texts:?}");
+        let after = p1379_text_y(&doc, "After");
+        let tail = p1379_text_y(&doc, "Tail");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+        let one = p1379_text_y(&doc, "One");
+        let two = p1379_text_y(&doc, "Two");
+        assert!(((one - two) - 20.9).abs() < 0.001, "One={one}, Two={two}");
+        assert!(after - p1379_text_y(&doc, "One") > 100.0);
+    }
+
+    fn p1380_assert_prefixo_inline(doc: &PagedDocument, expected_one_minus_two: f64) {
+        let page_texts: Vec<String> = doc
+            .pages
+            .iter()
+            .map(|page| {
+                page.items
+                    .iter()
+                    .filter_map(|item| match item {
+                        #[allow(deprecated)]
+                        FrameItem::Text { text, .. }
+                        | FrameItem::TextShaped { text, .. } => Some(text.as_str()),
+                        _ => None,
+                    })
+                    .collect()
+            })
+            .collect();
+        assert_eq!(doc.pages.len(), 1, "pages={page_texts:?}");
+        let one = p1379_text_y(doc, "One");
+        let two = p1379_text_y(doc, "Two");
+        assert!(
+            ((one - two) - expected_one_minus_two).abs() < 0.001,
+            "One={one}, Two={two}"
+        );
+        let after = p1379_text_y(doc, "After");
+        let tail = p1379_text_y(doc, "Tail");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+    }
+
+    #[test]
+    fn p1380_prefixo_styled_fecha_uma_unica_linha() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(fill: red)[Lead]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 20.9);
+    }
+
+    #[test]
+    fn p1380_prefixo_strong_preserva_uma_unica_linha() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  *Lead*
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 20.9);
+    }
+
+    #[test]
+    fn p1380_prefixo_composto_nao_soma_altura_por_fragmento() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  Lead #text(fill: red)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 20.9);
+        assert!((p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9);
+    }
+
+    #[test]
+    fn p1381_primeiro_fragmento_maior_permanece_fail_closed() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 18pt)[Lead]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_eq!(doc.pages.len(), 2);
+    }
+
+    #[test]
+    fn p1381_prefixo_8pt_preserva_fallback_exterior_e_leading_final() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 8pt)[Lead]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 18.8);
+    }
+
+    #[test]
+    fn p1383_prefixo_exterior_seguido_por_maior_distribui_ate_o_fundo() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  Lead #text(size: 18pt)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_eq!(doc.pages.len(), 1);
+        let lead = p1379_text_y(&doc, "Lead");
+        let more = p1379_text_y(&doc, "More");
+        let after = p1379_text_y(&doc, "After");
+        let tail = p1379_text_y(&doc, "Tail");
+        assert!((lead - more).abs() < 1e-9, "Lead={lead}, More={more}");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+    }
+
+    #[test]
+    fn p1383_tres_fragmentos_com_tamanho_permanecem_fail_closed() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  Lead #text(size: 18pt)[Peak] End
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1383_size_e_fill_permanecem_fail_closed() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  Lead #text(size: 18pt, fill: red)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1384_prefixo_maior_seguido_por_exterior_distribui_ate_o_fundo() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 18pt)[Lead] More
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 25.8);
+        assert!((p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9);
+    }
+
+    #[test]
+    fn p1385_par_18_11_substitui_fail_closed_p1384() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 18pt)[Lead] #text(size: 11pt)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        p1380_assert_prefixo_inline(&doc, 25.8);
+    }
+
+    #[test]
+    fn p1384_primeiro_size_e_fill_permanece_fail_closed() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 18pt, fill: red)[Lead] More
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    fn p1385_layout_pair(first: u8, second: u8) -> PagedDocument {
+        layout_typst(&format!(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: {first}pt)[Lead] #text(size: {second}pt)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        ))
+    }
+
+    fn p1385_assert_pair(first: u8, second: u8, expected_delta: Option<f64>) {
+        let doc = p1385_layout_pair(first, second);
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "first={first}, second={second}, After={}, Tail={}",
+            p1379_text_y(&doc, "After"),
+            p1379_text_y(&doc, "Tail")
+        );
+        assert!((p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9);
+        let after = p1379_text_y(&doc, "After");
+        let tail = p1379_text_y(&doc, "Tail");
+        assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+        if let Some(expected) = expected_delta {
+            let one = p1379_text_y(&doc, "One");
+            let two = p1379_text_y(&doc, "Two");
+            assert!(((one - two) - expected).abs() < 0.001, "One={one}, Two={two}");
+        }
+    }
+
+    #[test]
+    fn p1385_par_18_8_distribui_ate_o_fundo() {
+        p1385_assert_pair(18, 8, Some(25.8));
+    }
+
+    #[test]
+    fn p1386_par_18_12_distribui_ate_o_fundo() {
+        let doc = p1385_layout_pair(18, 12);
+        assert_eq!(doc.pages.len(), 1);
+        assert!((p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9);
+        assert!((p1379_text_y(&doc, "After") - p1379_text_y(&doc, "Tail")).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1386_par_18_14_distribui_ate_o_fundo() {
+        let doc = p1385_layout_pair(18, 14);
+        assert_eq!(doc.pages.len(), 1);
+        assert!((p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9);
+        assert!((p1379_text_y(&doc, "After") - p1379_text_y(&doc, "Tail")).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1386_oraculo_sintetico_20_14_conserva_gate_de_largura() {
+        let doc = p1385_layout_pair(20, 14);
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1386_oraculo_sintetico_20_18_conserva_gate_de_largura() {
+        let doc = p1385_layout_pair(20, 18);
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1387_oraculo_sintetico_pares_12_a_16_distribui_ate_o_fundo() {
+        for size in [12, 14, 16] {
+            let doc = p1385_layout_pair(size, size);
+            assert_eq!(doc.pages.len(), 1, "size={size}");
+            assert!(
+                (p1379_text_y(&doc, "Lead") - p1379_text_y(&doc, "More")).abs() < 1e-9
+            );
+            let after = p1379_text_y(&doc, "After");
+            let tail = p1379_text_y(&doc, "Tail");
+            assert!(
+                (after - tail).abs() < 0.001,
+                "size={size}, After={after}, Tail={tail}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1388_terminador_que_fecha_linha_preserva_boundary_do_prefixo() {
+        let trailing = p1385_layout_pair(16, 16);
+        let compact = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 16pt)[Lead] #text(size: 16pt)[More]#block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+
+        assert_eq!(trailing.pages.len(), 1);
+        assert_eq!(compact.pages.len(), 1);
+        let trailing_one = p1379_text_y(&trailing, "One");
+        let compact_one = p1379_text_y(&compact, "One");
+        assert!(
+            (trailing_one - compact_one).abs() < 0.001,
+            "One trailing={trailing_one}, compact={compact_one}"
+        );
+        assert!(
+            (p1379_text_y(&trailing, "After") - p1379_text_y(&trailing, "Tail")).abs()
+                < 0.001
+        );
+    }
+
+    #[test]
+    fn p1389_wrap_entre_wrappers_usa_avanco_exterior_e_distribui() {
+        let doc = p1385_layout_pair(21, 21);
+        let lead = p1379_text_y(&doc, "Lead");
+        let more = p1379_text_y(&doc, "More");
+        assert!(
+            ((more - lead) - 21.85).abs() < 0.001,
+            "Lead={lead}, More={more}, avanço={}",
+            more - lead
+        );
+        assert_eq!(doc.pages.len(), 1);
+        assert!((p1379_text_y(&doc, "After") - p1379_text_y(&doc, "Tail")).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1389_multiword_permanece_opaco() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 21pt)[Lead Long] #text(size: 21pt)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1385_par_16_8_distribui_ate_o_fundo() {
+        p1385_assert_pair(16, 8, None);
+    }
+
+    #[test]
+    fn p1385_ordens_nao_decrescentes_e_primeiro_pequeno_ficam_opacos() {
+        for (first, second) in [(18, 20), (10, 8)] {
+            let doc = p1385_layout_pair(first, second);
+            assert_ne!(
+                p1379_text_y(&doc, "After"),
+                p1379_text_y(&doc, "Tail"),
+                "first={first}, second={second}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1385_segundo_size_e_fill_permanece_fail_closed() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 18pt)[Lead] #text(size: 8pt, fill: red)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
+        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+    }
+
+    #[test]
+    fn p1382_fragmento_maior_posterior_define_baseline_comum() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 120pt, margin: 10pt)
+Lead #text(size: 18pt)[More] #linebreak() Next"#,
+        );
+        let lead = p1379_text_y(&doc, "Lead");
+        let more = p1379_text_y(&doc, "More");
+        let next = p1379_text_y(&doc, "Next");
+        assert!((lead - 22.6).abs() < 1e-9, "Lead={lead}");
+        assert!((lead - more).abs() < 1e-9, "Lead={lead}, More={more}");
+        assert!((next - 37.45).abs() < 1e-9, "Next={next}");
+    }
+
+    #[test]
+    fn p1382_fragmento_maior_inicial_nao_governa_linha_seguinte() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 120pt, margin: 10pt)
+#text(size: 18pt)[Lead] #text(size: 8pt)[More] #linebreak() Next"#,
+        );
+        let lead = p1379_text_y(&doc, "Lead");
+        let more = p1379_text_y(&doc, "More");
+        let next = p1379_text_y(&doc, "Next");
+        assert!((lead - 22.6).abs() < 1e-9, "Lead={lead}");
+        assert!((lead - more).abs() < 1e-9, "Lead={lead}, More={more}");
+        assert!((next - 37.45).abs() < 1e-9, "Next={next}");
+    }
+
+    #[test]
+    fn p1382_tres_fragmentos_partilham_maior_ascent() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 100pt, margin: 10pt)
+Lead #text(size: 18pt)[Peak] End"#,
+        );
+        let lead = p1379_text_y(&doc, "Lead");
+        let peak = p1379_text_y(&doc, "Peak");
+        let end = p1379_text_y(&doc, "End");
+        assert!((lead - 22.6).abs() < 1e-9, "Lead={lead}");
+        assert!((lead - peak).abs() < 1e-9, "Lead={lead}, Peak={peak}");
+        assert!((lead - end).abs() < 1e-9, "Lead={lead}, End={end}");
     }
 
     /// **P537b** — `#set page(columns: 2)` com footnotes posiciona cada nota
@@ -9197,7 +9765,7 @@ mod tests_show_rule_integration {
         let block = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p243block"),
-                width: Some(Length::pt(150.0)), // Block.width efectivo P243.
+                width: Some(block_width_pt(150.0)), // Block.width efectivo P243.
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
@@ -9381,7 +9949,7 @@ mod tests_show_rule_integration {
         let block = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: inner_pad,
-                width: Some(Length::pt(200.0)),
+                width: Some(block_width_pt(200.0)),
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
@@ -9424,7 +9992,7 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p247fill"),
-                width: Some(Length::pt(50.0)),
+                width: Some(block_width_pt(50.0)),
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
@@ -9463,7 +10031,7 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p247stroke"),
-                width: Some(Length::pt(40.0)),
+                width: Some(block_width_pt(40.0)),
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
@@ -9510,7 +10078,7 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p247rounded"),
-                width: Some(Length::pt(60.0)),
+                width: Some(block_width_pt(60.0)),
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
@@ -9552,8 +10120,8 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p247outset"),
-                width: Some(Length::pt(50.0)),
-                height: Some(Length::pt(20.0)),
+                width: Some(block_width_pt(50.0)),
+                height: Some(block_height_pt(20.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(10.0)),
@@ -9764,7 +10332,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p248overlong"),
                 width: None,
-                height: Some(Length::pt(10_000.0)),
+                height: Some(block_height_pt(10_000.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: false,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -9807,7 +10375,7 @@ mod tests_show_rule_integration {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("p248new"),
                     width: None,
-                    height: Some(Length::pt(100.0)),
+                    height: Some(block_height_pt(100.0)),
                     inset: Sides::uniform(Length::pt(0.0)),
                     breakable: false,
                     outset: Sides::uniform(Length::pt(0.0)),
@@ -9839,7 +10407,7 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p248cross"),
-                width: Some(Length::pt(60.0)),
+                width: Some(block_width_pt(60.0)),
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: false,
@@ -10102,7 +10670,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("ovf"),
                 width: None,
-                height: Some(Length::pt(100.0)), // força >> cell_h
+                height: Some(block_height_pt(100.0)), // força >> cell_h
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -10180,7 +10748,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("fillovf"),
                 width: None,
-                height: Some(Length::pt(80.0)),
+                height: Some(block_height_pt(80.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -10262,7 +10830,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("cross"),
                 width: None,
-                height: Some(Length::pt(60.0)), // excede cell row
+                height: Some(block_height_pt(60.0)), // excede cell row
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: false,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -10338,7 +10906,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p248inset"),
                 width: None,
-                height: Some(Length::pt(50.0)),
+                height: Some(block_height_pt(50.0)),
                 inset: Sides::uniform(Length::pt(10.0)),
                 breakable: false,
                 outset: Sides::uniform(Length::pt(5.0)),
@@ -10426,7 +10994,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("inner"),
                 width: None,
-                height: Some(Length::pt(150.0)),
+                height: Some(block_height_pt(150.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: false,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -10477,7 +11045,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("radius cross"),
                 width: None,
-                height: Some(Length::pt(80.0)),
+                height: Some(block_height_pt(80.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -10600,7 +11168,7 @@ mod tests_show_rule_integration {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("p248outset"),
                     width: None,
-                    height: Some(Length::pt(80.0)),
+                    height: Some(block_height_pt(80.0)),
                     inset: Sides::uniform(Length::pt(0.0)),
                     breakable: false,
                     outset: Sides::uniform(Length::pt(30.0)), // +60pt total Y
@@ -10746,7 +11314,11 @@ mod tests_show_rule_integration {
         Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
             body,
             width: None,
-            height,
+            height: height.map(|abs| {
+                crate::entities::elements::block::BlockHeight::Relative(
+                    crate::entities::rel::Rel { rel: 0.0, abs },
+                )
+            }),
             inset: Sides::uniform(Length::pt(0.0)),
             breakable: true,
             outset: Sides::uniform(Length::pt(0.0)),
@@ -11025,7 +11597,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("sk1"),
                 width: None,
-                height: Some(Length::pt(20.0)),
+                height: Some(block_height_pt(20.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11243,8 +11815,8 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("a4completo"),
-                width: Some(Length::pt(80.0)),
-                height: Some(Length::pt(40.0)),
+                width: Some(block_width_pt(80.0)),
+                height: Some(block_height_pt(40.0)),
                 inset: Sides::uniform(Length::pt(3.0)),
                 breakable: false,                          // P248
                 outset: Sides::uniform(Length::pt(2.0)),   // P231+P247
@@ -11303,7 +11875,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("fxd"),
                 width: None,
-                height: Some(Length::pt(100.0)), // excede cell
+                height: Some(block_height_pt(100.0)), // excede cell
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11386,7 +11958,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("auto"),
                 width: None,
-                height: Some(Length::pt(50.0)),
+                height: Some(block_height_pt(50.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11534,7 +12106,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("tail"),
                 width: None,
-                height: Some(Length::pt(100.0)),
+                height: Some(block_height_pt(100.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11608,7 +12180,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::block::BlockElem {
                 body: Content::text("filltail"),
                 width: None,
-                height: Some(Length::pt(80.0)),
+                height: Some(block_height_pt(80.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11705,7 +12277,7 @@ mod tests_show_rule_integration {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text(label),
                     width: None,
-                    height: Some(Length::pt(40.0)),
+                    height: Some(block_height_pt(40.0)),
                     inset: Sides::uniform(Length::pt(0.0)),
                     breakable: true,
                     outset: Sides::uniform(Length::pt(0.0)),
@@ -11826,8 +12398,8 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p252lit"),
-                width: Some(Length::pt(50.0)),
-                height: Some(Length::pt(30.0)),
+                width: Some(block_width_pt(50.0)),
+                height: Some(block_height_pt(30.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -11873,8 +12445,8 @@ mod tests_show_rule_integration {
         let b = Content::Block(std::sync::Arc::new(
             crate::entities::elements::block::BlockElem {
                 body: Content::text("p252ov"),
-                width: Some(Length::pt(50.0)),
-                height: Some(Length::pt(30.0)),
+                width: Some(block_width_pt(50.0)),
+                height: Some(block_height_pt(30.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 breakable: true,
                 outset: Sides::uniform(Length::pt(0.0)),
@@ -19960,7 +20532,7 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     let tall_block = Content::Block(std::sync::Arc::new(BlockElem {
         body: Content::text("TALL"),
         width: None,
-        height: Some(Length::pt(tall_height)),
+        height: Some(block_height_pt(tall_height)),
         inset: Sides::uniform(Length::pt(0.0)),
         breakable: true,
         outset: Sides::uniform(Length::pt(0.0)),
@@ -20122,7 +20694,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
                     width: None,
-                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    height: Some(block_height_pt(200.0)),
                     inset: crate::entities::sides::Sides::uniform(
                         crate::entities::layout_types::Length::pt(0.0),
                     ),
@@ -20548,7 +21120,7 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
                     width: None,
-                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    height: Some(block_height_pt(200.0)),
                     inset: crate::entities::sides::Sides::uniform(
                         crate::entities::layout_types::Length::pt(0.0),
                     ),
@@ -20665,7 +21237,7 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
                     width: None,
-                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    height: Some(block_height_pt(200.0)),
                     inset: crate::entities::sides::Sides::uniform(
                         crate::entities::layout_types::Length::pt(0.0),
                     ),
@@ -20789,7 +21361,7 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
                     width: None,
-                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    height: Some(block_height_pt(200.0)),
                     inset: crate::entities::sides::Sides::uniform(
                         crate::entities::layout_types::Length::pt(0.0),
                     ),

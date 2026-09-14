@@ -1,0 +1,15 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1386",
+  "mutants":[
+    {"id":"M1","change":"keep rejecting every above-outer decreasing pair","killed_by":"18-to-12 and 18-to-14 positive pairs"},
+    {"id":"M2","change":"include outer boundary in fixed height","killed_by":"After and Tail coordinates"},
+    {"id":"M3","change":"accept equal sizes","killed_by":"18-to-18 opaque control"},
+    {"id":"M4","change":"accept a growing second size","killed_by":"18-to-20 opaque control"},
+    {"id":"M5","change":"accept first size not larger than outer","killed_by":"10-to-8 opaque control"},
+    {"id":"M6","change":"accept an additional style delta","killed_by":"size-plus-fill opaque control"},
+    {"id":"M7","change":"use second wrapper metrics as the maximum","killed_by":"20-to-14 and 20-to-18 productive invariance"},
+    {"id":"M8","change":"accept third fragment or ignore wrap","killed_by":"opaque controls"},
+    {"id":"M9","change":"regress P1385 or earlier recognized shapes","killed_by":"historical controls"}
+  ]
+}

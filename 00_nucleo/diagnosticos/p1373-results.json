@@ -1,0 +1,418 @@
+{
+  "schema": "p1373-s07-post-fix/v1",
+  "created_at": "2026-09-13T16:52:34.080780+00:00",
+  "identities": {
+    "vanila": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino": "0b318c3fa19863ac2d788efd734334eafe1d84be975af328d6c6ade1f5124e15",
+    "pdftotext": "0fb98ea179e19154a90202608c164f2a319b79f16576fa6534b2d601033565e7"
+  },
+  "limits": {
+    "parallel_processes": 1,
+    "timeout_seconds": 45,
+    "address_space_bytes": 2147483648,
+    "file_size_bytes": 16777216,
+    "cpu_seconds": 45,
+    "channel_read_bytes": 1048576
+  },
+  "job_count": 8,
+  "pdftotext_count": 8,
+  "counts": {
+    "MATCH": 2
+  },
+  "profiles": [
+    {
+      "profile": "a11y-extras",
+      "products": {
+        "vanila": {
+          "complete": true,
+          "value": {
+            "lone": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "control": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "relation": {
+              "page_delta": 0,
+              "y_delta": "0.000"
+            }
+          },
+          "reason_code": null
+        },
+        "cristalino": {
+          "complete": true,
+          "value": {
+            "lone": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "control": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "relation": {
+              "page_delta": 0,
+              "y_delta": "0.000"
+            }
+          },
+          "reason_code": null
+        }
+      },
+      "bilateral": "MATCH"
+    },
+    {
+      "profile": "html+a11y",
+      "products": {
+        "vanila": {
+          "complete": true,
+          "value": {
+            "lone": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "control": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "relation": {
+              "page_delta": 0,
+              "y_delta": "0.000"
+            }
+          },
+          "reason_code": null
+        },
+        "cristalino": {
+          "complete": true,
+          "value": {
+            "lone": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "control": {
+              "page": 1,
+              "y_min": "7.404"
+            },
+            "relation": {
+              "page_delta": 0,
+              "y_delta": "0.000"
+            }
+          },
+          "reason_code": null
+        }
+      },
+      "bilateral": "MATCH"
+    }
+  ],
+  "rows": [
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "a11y-extras",
+        "case": "lone"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.102,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 18.024,
+        "stdout_size": 1137,
+        "stderr_size": 0,
+        "stdout_sha256": "d2016e7b465056447f72821b7c55105243e259dde99c555429a5fcd2d90da6ac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 6217,
+      "output_sha256": "64c37732ffa21b15d5893128f0edf63cdfbdcef1da31067c3221ecef9369c1bf",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "a11y-extras",
+        "case": "control"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.099,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.907,
+        "stdout_size": 1137,
+        "stderr_size": 0,
+        "stdout_sha256": "d2016e7b465056447f72821b7c55105243e259dde99c555429a5fcd2d90da6ac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 6244,
+      "output_sha256": "48a68e209fd34f8667a445ef06904f6ca12659ab8de7496f0239169403735094",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html+a11y",
+        "case": "lone"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 315.965,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 18.137,
+        "stdout_size": 1137,
+        "stderr_size": 0,
+        "stdout_sha256": "5e0eb5d17ae3241ce8dac3167a7409d271985c8863965d70f3711e530165ba2a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 6217,
+      "output_sha256": "ccc9f36a8240d479318cc03aec6172b4a57a9447df76fcc3cc466bf5e327afe3",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "vanila",
+        "profile": "html+a11y",
+        "case": "control"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 316.153,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 18.058,
+        "stdout_size": 1137,
+        "stderr_size": 0,
+        "stdout_sha256": "5e0eb5d17ae3241ce8dac3167a7409d271985c8863965d70f3711e530165ba2a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 6244,
+      "output_sha256": "d7b2def660a0303503bd13e447c19fe596b02adae245b864abdb061732234f3d",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "a11y-extras",
+        "case": "lone"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.835,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.377,
+        "stdout_size": 1138,
+        "stderr_size": 0,
+        "stdout_sha256": "a6fe5b3e1487dfa34ae621997aea64b83a8f3735f594763d6a0af78f91e21f42",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5902,
+      "output_sha256": "eca3f4580f507355d061ee565c8db467987181395e40ec8fe54d4cf1e46a0673",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "a11y-extras",
+        "case": "control"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.597,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.651,
+        "stdout_size": 1138,
+        "stderr_size": 0,
+        "stdout_sha256": "a6fe5b3e1487dfa34ae621997aea64b83a8f3735f594763d6a0af78f91e21f42",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5754,
+      "output_sha256": "a07505fd0abb407e812c717486a98a2ba127b8ffc838922e4259472abeec95b0",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html+a11y",
+        "case": "lone"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.826,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.64,
+        "stdout_size": 1138,
+        "stderr_size": 0,
+        "stdout_sha256": "a6fe5b3e1487dfa34ae621997aea64b83a8f3735f594763d6a0af78f91e21f42",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5902,
+      "output_sha256": "bb5e21dac2e34dbac2ccd9bc7140adbbaefbcc13593fdba6fd276c64441a2964",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    },
+    {
+      "job": {
+        "product": "cristalino",
+        "profile": "html+a11y",
+        "case": "control"
+      },
+      "compile": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 115.613,
+        "stdout_size": 0,
+        "stderr_size": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "pdftotext": {
+        "exit_code": 0,
+        "reason_code": null,
+        "elapsed_ms": 17.696,
+        "stdout_size": 1138,
+        "stderr_size": 0,
+        "stdout_sha256": "9f8531d51974cd3e7615845b7b2337ebf666ac8e2538d2a59952e1c0afb33229",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_preview": ""
+      },
+      "output_size": 5754,
+      "output_sha256": "465ab203d8870482ed191c54f6866798df9cb23e259f0a71d1158ae84cdcbaa5",
+      "observation": {
+        "complete": true,
+        "text": "ProbeAfter",
+        "after": {
+          "page": 1,
+          "y_min": "7.404"
+        },
+        "reason_code": null
+      }
+    }
+  ],
+  "source_runner": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/p1372_runner.py",
+    "sha256": "b474cb94aa47785dc8dff0b709e77a40679e6a398fcd64ce8f97a863f5f74e2c"
+  }
+}

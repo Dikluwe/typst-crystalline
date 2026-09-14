@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-mutants/v1",
+  "step":"P1382",
+  "mutants":[
+    {"id":"M1","change":"use first textual ascent instead of maximum","killed_by":"larger-later"},
+    {"id":"M2","change":"use last textual ascent instead of maximum","killed_by":"larger-first"},
+    {"id":"M3","change":"reuse current maximum ascent for the following line","killed_by":"both next-line oracles"},
+    {"id":"M4","change":"shift items but not cursor","killed_by":"larger-later next line"},
+    {"id":"M5","change":"resolve leading from the last inline fragment","killed_by":"opposite-order next-line oracles"},
+    {"id":"M6","change":"ignore inline ascent or regress uniform lines","killed_by":"P1120 and uniform controls"},
+    {"id":"M7","change":"relax fractional mixed-prefix gate","killed_by":"P1381 fail-closed control"}
+  ]
+}

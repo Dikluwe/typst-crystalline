@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: c239668b
+Hash do Código: 7c5508fa
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -59,6 +59,15 @@ Funções que não aceitam named args chamam `expect_no_named(&args.named)?` no 
 | `guard_float(f)` | NaN → Err "não é um número", Inf → Err "infinito" |
 | `format_float(f)` | compacto sem trailing zeros; garante ponto decimal (`"3.0"`) |
 | `format_length(l)` | `Length` → `"12pt"`, `"1.5em"`, `"6pt + 1em"` |
+
+### P1373 — expectativas locais de Block
+
+Os testes históricos da fachada que chamam `native_block` continuam aqui por
+legado, embora a implementação pertença a `stdlib/layout.rs`. Após a mudança
+confirmada de `BlockElem::height`, expectativas absolutas comparam
+`Rel { rel: 0, abs }` sem alterar o valor observado. O teste novo de
+preservação percentual fica junto da implementação em `stdlib/layout.rs` e é
+legitimado pelo owner dedicado, não por esta fachada.
 
 ## Sistema de Tipos — Regras de Promoção
 

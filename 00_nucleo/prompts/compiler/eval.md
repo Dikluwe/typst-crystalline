@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: e1b27745
+Hash do Código: 5b4d8447
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -17,6 +17,18 @@ base, a passagem dupla, `eval_markup` e o dispatcher exaustivo de `Expr`; os
 corpos especializados já delegam aos seus módulos donos.
 
 ## Contrato
+
+### P1374 — relação observacional do carrier de altura de Block
+
+Medição: a introdução de `BlockHeight` torna `Option<BlockHeight>` parte da
+comparação estrutural já executada por `BlockElem::observation_relation`; sem
+uma implementação própria, o consumer deixa de compilar por ausência de
+`ObservationEq`.
+
+Decisão: comparar payloads relativos somente com relativos e pesos
+fracionários somente com fracionários; variantes distintas são
+observacionalmente diferentes. O match é nominalmente exaustivo e não altera
+callbacks, I/O, API pública nem a semântica de outros elementos.
 
 ### P1225/P1285 — formatter público de representação para serialização
 

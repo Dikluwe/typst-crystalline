@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 4fcd1614
+//! @prompt-hash 5fd9f264
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -6701,7 +6701,10 @@ mod tests {
         args.named.insert("width".into(), Value::Length(Length::pt(100.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.width, Some(Length::pt(100.0)));
+            assert_eq!(
+                e.width,
+                Some(crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(100.0) })
+            );
         } else {
             panic!("esperado Content::Block");
         }
@@ -6715,7 +6718,12 @@ mod tests {
         args.named.insert("height".into(), Value::Int(50));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.height, Some(Length::pt(50.0)));
+            assert_eq!(
+                e.height,
+                Some(crate::entities::elements::block::BlockHeight::Relative(
+                    crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(50.0) }
+                ))
+            );
         } else {
             panic!("esperado Content::Block");
         }
@@ -6762,8 +6770,16 @@ mod tests {
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Block(e)) = r {
-            assert_eq!(e.width, Some(Length::pt(200.0)));
-            assert_eq!(e.height, Some(Length::pt(80.0)));
+            assert_eq!(
+                e.width,
+                Some(crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(200.0) })
+            );
+            assert_eq!(
+                e.height,
+                Some(crate::entities::elements::block::BlockHeight::Relative(
+                    crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(80.0) }
+                ))
+            );
             assert_eq!(e.inset.top, Length::pt(4.0));
             assert!(!e.breakable);
         } else {

@@ -1,0 +1,21 @@
+{
+  "schema":"tekt-preseal/v1",
+  "step":"P1382",
+  "created_at":"2026-09-13T21:22:36-03:00",
+  "regime":"protocolo completo sem atestacao de isolamento",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "working_tree":"nao commitado e agregado com P1356-P1382",
+  "hashes":{
+    "step":"9f303fcde87193e807ede111e37412bbb8839307f8fdfeaacd6dcc9bba01a85d",
+    "contract":"3c8f30ced01a6da0a92b83fbc106b63ac8cf3aadd50990def62aa1e8d4109cbc",
+    "oracles":"5a31fa727d7b3391a3f08e91369bcca546a0104dedc2e8ff8079f3edb5637175",
+    "mutants":"0b5637aac476bbcdca603ffb702e5818581b1b51f5f9ee23cc5d8900d4d7fe27",
+    "preflight":"412e3f5619a702a1ccf5bf61b67b06afc5c0b6e032f676035675e38bfca07f52",
+    "cursor_prompt":"a495874fc4e611eac0f46250969dfb8e9131ec14b0a8db378ba29e695875570f",
+    "cursor_candidate":"16e2cd1dd9a4ad3c2d59a77f93f87c2eeed6abe6e18afea91518ffc3da22005c"
+  },
+  "implementation_gate":"authorized internal parity correction only for lines with distinct textual sizes",
+  "calibration":"fractional mixed-size prefix remains Unknown and is not reopened",
+  "calibration_budget":{"focal_revisions":2,"full_matrix_after_focal_green":1},
+  "attestation_limit":"same authority controls contract implementation attacks and verification"
+}

@@ -1,0 +1,13 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1382",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1381-results.json","sha256":"fba10aa6ee6a525d0673d82fa9fd1a137d83df9e3184c58545f4299880ea7884"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/cursor.rs",
+  "observable":"mixed-size textual fragments share the maximum line baseline and the following line uses its own paragraph ascent",
+  "metrics":["maximum current textual or inline ascent","maximum current descent","next active-style ascent","active paragraph leading"],
+  "preserve":"single-fragment and uniform text, explicit leading, inline boxes, pagination, P1374-P1381",
+  "fail_closed":["fractional mixed-size prefix remains Unknown","no public carrier","no second line model"],
+  "unknown_policy":"explicit",
+  "adr_0127":"continuous_internal_parity_correction"
+}

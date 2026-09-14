@@ -1,0 +1,14 @@
+{
+  "schema":"tekt-observable-contract/v1",
+  "step":"P1377",
+  "baseline":{"path":"00_nucleo/diagnosticos/p1376-results.json","sha256":"6648687956978ebf950ddac4bb69b4ff11eb1a581e5fbdaf9b87855ec63ede03"},
+  "public_changes":[],
+  "owner":"01_core/src/compiler/layout/columns.rs",
+  "entry":"close inline line then retain prior baseline + par.spacing as pending block top, or collapse existing block chain; observable line delta adds spacing-leading",
+  "exit":"retain par.spacing as collapsible below boundary",
+  "top_boundary":"no added spacing",
+  "preserve":"P1374-P1376 direct and continuous-top behavior",
+  "fail_closed":["segmented colbreak columns","multi-region","grid","box","place","general parity"],
+  "unknown_policy":"fail_closed",
+  "adr_0127":"continuous_internal_parity_correction"
+}

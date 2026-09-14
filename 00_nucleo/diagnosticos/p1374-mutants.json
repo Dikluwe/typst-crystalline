@@ -1,0 +1,23 @@
+{
+  "schema": "tekt-mutant-suite/v1",
+  "step": "P1374",
+  "regime": "executado sem atestacao de isolamento",
+  "validity_rule": "cada mutante muda exatamente um observavel congelado e permanece representavel pelas sondas P1374",
+  "score_rule": "validos Violated / validos; Unknown vale zero fora do caso opaco deliberado",
+  "mutants": [
+    {"id":"M01","change":"width Ratio vira zero","oracle":"N01","classification":"Violated","witness":"carrier e bbox width 60%"},
+    {"id":"M02","change":"width usa 200pt em vez de 180pt","oracle":"N02","classification":"Violated","witness":"108pt e xMin 93.668"},
+    {"id":"M03","change":"Fractional e sentinel em Rel/NaN","oracle":"N03","classification":"Violated","witness":"variante fechada e peso finito"},
+    {"id":"M04","change":"width aceita Fraction","oracle":"N04","classification":"Violated","witness":"erro focal tipado"},
+    {"id":"M05","change":"cada fr recebe todo remaining","oracle":"N05","classification":"Violated","witness":"ratio 1:2 e bbox bilateral"},
+    {"id":"M06","change":"body fr entra duas vezes na deducao","oracle":"N06","classification":"Violated","witness":"posicoes absolutas One/Two/After"},
+    {"id":"M07","change":"soma zero divide","oracle":"N07","classification":"Violated","witness":"controle zero finito e termina"},
+    {"id":"M08","change":"parcela vaza ao sibling","oracle":"N08","classification":"Violated","witness":"save/restore e duas parcelas distintas"},
+    {"id":"M09","change":"Content::block quebra assinatura","oracle":"N09","classification":"Violated","witness":"controle Rust absoluto compila"},
+    {"id":"M10","change":"multi-regiao opaco promovido a MATCH","oracle":"N10","classification":"Violated","witness":"politica exige Unknown"}
+  ],
+  "opaque": [{"id":"O01","case":"fractional Block sob wrapper ou coluna","classification":"Unknown","credit":0}],
+  "determinism": {"repeat_each":2,"orders":["M01..M10","M10..M01"],"same_result":true},
+  "summary": {"valid_mutants":10,"violated":10,"unexpected_unknown":0,"mutation_score":1.0},
+  "claim_limit": "somente sizing P1374 em Sequence direta, finita e de uma regiao"
+}

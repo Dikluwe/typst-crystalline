@@ -1,0 +1,22 @@
+{
+  "schema":"tekt-materialization-verification/v1",
+  "step":"P1382",
+  "verified_at":"2026-09-13T21:24:20-03:00",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "manifest_sha256":"fff10afda48e2e238dfc628556ba7157118540c3c1193f3c70b72408a612c662",
+  "seal_sha256":"fb8659fafbfb3a17cb54dcc469258991d7c76e118c94862a617ffd2f70c4c03d",
+  "checks":[
+    {"name":"p1382 focal","status":"pass","run":3,"passed":3},
+    {"name":"P1380-P1381 controls","status":"pass","run":8,"passed":8},
+    {"name":"leading and inline-baseline controls","status":"pass","run":10,"passed":10},
+    {"name":"P1374-P1379 controls","status":"pass","run":16,"passed":16},
+    {"name":"bilateral matrix","status":"pass","match":6,"unknown":1},
+    {"name":"cargo check workspace","status":"pass"},
+    {"name":"cargo fmt check","status":"pass"},
+    {"name":"git diff check","status":"pass"},
+    {"name":"crystalline lint","status":"pass","violations":0,"advisories":1433,"new_advisories":0}
+  ],
+  "memory":{"bounded":true,"parallel_processes":1,"peak_rss_kib":2088628,"oom":false,"timeout":false,"sigkill":false},
+  "verdict":"verified within the manifest claim limit",
+  "independence":"not attested; same authority performed all roles"
+}

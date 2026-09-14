@@ -1,0 +1,15 @@
+{
+  "schema": "tekt-mutant-suite/v1",
+  "step": "P1375",
+  "regime": "declarativo sem atestacao de isolamento",
+  "mutants": [
+    {"id":"M01","change":"Styled vira cauda fixa","oracle":"N01","classification":"Violated","witness":"duas paginas no baseline P1374"},
+    {"id":"M02","change":"body wrapped entra no fixed","oracle":"N02","classification":"Violated","witness":"posicoes absolutas congeladas"},
+    {"id":"M03","change":"primeiro de dois filhos e escolhido","oracle":"N03","classification":"Violated","witness":"teste estrutural ambiguo"},
+    {"id":"M04","change":"Sequence interna zera share herdada","oracle":"N04","classification":"Violated","witness":"matriz Styled"},
+    {"id":"M05","change":"share nao e restaurada","oracle":"N05","classification":"Violated","witness":"1fr wrapped e 2fr direto mantem razao"},
+    {"id":"M06","change":"coluna recebe MATCH sem sonda","oracle":"N06","classification":"Violated","witness":"politica Unknown"}
+  ],
+  "summary": {"valid_mutants":6,"violated":6,"unexpected_unknown":0,"mutation_score":1.0},
+  "claim_limit": "Styled e singleton Sequence transparentes em flow direto finito de uma regiao"
+}

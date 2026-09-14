@@ -1,5 +1,5 @@
 # Prompt L0 — regressões do motor de layout
-Hash do Código: ce6786c3
+Hash do Código: f2dc7523
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -12,6 +12,35 @@ Núcleos Tekt:
 Concentrar Worlds/métricas test-only e regressões de geometria e morfologia do
 layout. Testes cobrem referencial absoluto, rebase, regiões, paginação, texto,
 containers e aninhamento; números decisórios registram estado e vanilla.
+
+### P1373 — adaptação test-only de `BlockElem::height`
+
+Com a mudança pública confirmada de `Option<Length>` para
+`Option<Rel<Length>>`, fixtures que constroem `BlockElem` diretamente elevam
+alturas absolutas para `Rel { rel: 0, abs }` por helper test-only. A adaptação
+não muda valores, tolerâncias, paginação esperada nem produção. Os novos
+testes percentuais vivem no owner `compiler/layout/block.md`; este arquivo
+preserva as regressões absolutas existentes.
+
+### P1373 — linha posterior à altura relativa cheia
+
+A primeira matriz pós-implementação preservou `Probe`, mas perdeu `After` e
+classificou os dois perfis como `Unknown/TEXT_MISMATCH`; o PDF cristalino tinha
+uma primeira página com `Probe` e uma segunda vazia. A causa observada é a
+linha posterior ter sido anexada fora do limite antes do avanço de página.
+
+O teste focal constrói um Block de altura relativa 100%, seguido de parbreak e
+texto. Exige duas páginas, `Probe` somente na primeira e `After` somente na
+segunda. Também mantém sentinela de Block terminal para proibir página vazia
+e execução ilimitada.
+
+### P1374 — regressões propostas de sizing de Block
+
+Após o gate, testar separadamente: carrier auto/relative/fractional; width 60%
+contra 180pt úteis; duas alturas 1fr/2fr com razão de parcelas 1:2 após itens
+fixos; zero fr sem divisão; compatibilidade de width/height absolutos; rejeição
+de width fracionária e pesos inválidos. A matriz black-box compara texto,
+página e bbox congelados, nunca bytes PDF. Contextos P1375 ficam Unknown.
 
 ## Observação recursiva em coordenadas globais
 

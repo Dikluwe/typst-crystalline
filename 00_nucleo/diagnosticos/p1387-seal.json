@@ -1,0 +1,11 @@
+{
+  "schema":"tekt-materialization-seal/v1",
+  "step":"P1387",
+  "created_at":"2026-09-14T09:50:53-03:00",
+  "manifest_sha256":"0c603daf47f63c0fcb8bd14b4bd274851cce29a1ad08e85169c550ff67833856",
+  "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+  "verdict":"accepted bounded MATCH",
+  "gates":{"l0_before_code":true,"red_observed":true,"failed_candidates_recorded":true,"contract_reopened":true,"focal_green":true,"historical_controls_green":true,"bilateral_matrix":true,"mutation_score_one":true,"memory_bounded":true,"cargo_build_release":true,"cargo_check":true,"format":true,"diff_check":true,"crystalline_lint_exit_zero":true,"no_new_lint_advisory":true},
+  "claim_limit":"exactly two equal size-only Styled(Text) wrappers above the exterior size, accepted by the existing productive width gate; 20pt equal and all excluded forms remain Unknown",
+  "isolation_attested":false
+}

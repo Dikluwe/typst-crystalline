@@ -1,0 +1,47 @@
+{
+  "schema":"p1377-columns-block-boundary-matrix/v1",
+  "created_at":"2026-09-13T17:29:41-03:00",
+  "provenance":{
+    "repository_head":"8ceea20f92dff06b6ca5a34828135c0fd3e35248",
+    "working_tree":"nao commitado e agregado com P1356-P1377",
+    "diff_stat":"47 files changed, 3381 insertions(+), 341 deletions(-)",
+    "status_entries":267
+  },
+  "identities":{
+    "vanila":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino":"0c32fa2d783b209c9e4d2fa5b64e7936602e7e37bccfcb5a046a8eacc30a6852",
+    "test_binary":"fad2b107a17c90d81384f5d0c7ad95aaf6e61d545e325aa922be73af7d8f3074"
+  },
+  "limits":{
+    "parallel_processes":1,
+    "cargo_check_address_space_bytes":3221225472,
+    "cargo_link_address_space_bytes":4294967296,
+    "cargo_file_size_bytes":536870912,
+    "matrix_address_space_bytes":2147483648,
+    "matrix_file_size_bytes":16777216,
+    "timeout_seconds":45
+  },
+  "counts":{"MATCH":6,"Unknown":1},
+  "cases":[
+    {"id":"columns-top","classification":"MATCH","vanila":{"One":"7.404","Two":"82.724670","After":"220.166"},"cristalino":{"One":"7.404","Two":"82.724670","After":"220.166"}},
+    {"id":"page-columns-top","classification":"MATCH","vanila":{"One":"7.404","Two":"82.724670","After":"220.166"},"cristalino":{"One":"7.404","Two":"82.724670","After":"220.166"}},
+    {"id":"columns-offset","classification":"MATCH","vanila":{"Intro":"7.404","One":"27.842","Two":"96.349990","After":"220.166"},"cristalino":{"Intro":"7.404","One":"27.842","Two":"96.350000","After":"220.166"}},
+    {"id":"columns-exit","classification":"MATCH","vanila":{"Intro":"7.404","Inside":"27.842","Outside":"48.280"},"cristalino":{"Intro":"7.404","Inside":"27.842","Outside":"48.280"}},
+    {"id":"columns-parbreak-collapse","classification":"MATCH","vanila":{"Intro":"7.404","One":"27.842","Two":"96.349990","After":"220.166"},"cristalino":{"Intro":"7.404","One":"27.842","Two":"96.350000","After":"220.166"}},
+    {"id":"columns-custom-spacing","classification":"MATCH","vanila":{"Intro":"7.404","Inside":"34.642","Outside":"61.879990"},"cristalino":{"Intro":"7.404","Inside":"34.642","Outside":"61.880000"}},
+    {"id":"columns-segmented","classification":"Unknown","reason":"P1376 fractional preflight remains fail-closed when page_columns is None"}
+  ],
+  "tests":{
+    "p1374":{"run":4,"passed":4,"failed":0},
+    "p1375":{"run":2,"passed":2,"failed":0},
+    "p1376":{"run":1,"passed":1,"failed":0},
+    "p1377":{"run":1,"passed":1,"failed":0,"filtered_out":5682}
+  },
+  "discrimination":{
+    "valid_mutants":6,
+    "violated":6,
+    "mutation_score":1.0,
+    "initial_naive_cursor_mutant":{"Two":"101.175330","expected":"96.349990","status":"killed"}
+  },
+  "claim_limit":"MATCH only for continuous columns block boundaries; segmented and general parity remain Unknown"
+}
