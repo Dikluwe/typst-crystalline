@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 3a072fbb
+//! @prompt-hash 22dc8e9c
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1153,15 +1153,15 @@ pub fn make_math_module() -> Value {
     }
 
     // Limits-style operators (12) — limits: true. Multi-word usam
-    // text literal vanilla (e.g. `liminf` → "lim inf").
+    // o espaço fino U+2009 do literal vanila (e.g. `liminf` → "lim inf").
     for (name, text) in [
         ("det", "det"),
         ("gcd", "gcd"),
         ("lcm", "lcm"),
         ("inf", "inf"),
         ("lim", "lim"),
-        ("liminf", "lim inf"),
-        ("limsup", "lim sup"),
+        ("liminf", "lim\u{2009}inf"),
+        ("limsup", "lim\u{2009}sup"),
         ("max", "max"),
         ("min", "min"),
         ("Pr", "Pr"),

@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 7c5508fa
+Hash do Código: f2a05c3a
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -68,6 +68,24 @@ confirmada de `BlockElem::height`, expectativas absolutas comparam
 `Rel { rel: 0, abs }` sem alterar o valor observado. O teste novo de
 preservação percentual fica junto da implementação em `stdlib/layout.rs` e é
 legitimado pelo owner dedicado, não por esta fachada.
+
+### P1396-R1 — expectativas locais dos operadores compostos
+
+**Medição anterior à decisão:** no baseline
+`3f081c97f7dba59549a70e89d6bfb93afcc82b1a`, o consumer deste L0,
+`01_core/src/compiler/stdlib/mod.rs` SHA-256
+`18c3811be31af00eb8a0dcc2fa27ad33df4c9149850877cada4a9160538b813f`,
+contém em `:12759-12777` os testes P299 de `liminf` e `limsup`. Seus expected
+e comentário ainda afirmam U+0020 (`"lim inf"`/`"lim sup"`), em contradição
+com a obrigação P1396 do owner estrutural e com U+2009 medido no vanila
+ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
+
+**Classificação e decisão:** estes asserts são expectativas test-only da
+fachada, não um segundo owner produtivo da tabela. Devem esperar
+`"lim\u{2009}inf"` e `"lim\u{2009}sup"`; o comentário local deve nomear espaço
+fino U+2009. Nenhum outro teste, helper, reexport, módulo ou comportamento da
+fachada muda. A verificação dinâmica pertence ao oráculo CLI P1396; este
+lib-test monolítico não deve ser compilado ou executado neste passo.
 
 ## Sistema de Tipos — Regras de Promoção
 

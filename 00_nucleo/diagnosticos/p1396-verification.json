@@ -1,0 +1,230 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1396,
+  "revision": "R2",
+  "verified_at": "2026-09-14T16:24:16-03:00",
+  "verdict": "PASS_LIMITED_FRAGMENT",
+  "claim": "The crystalline candidate preserves the frozen exact-repr contract for math.liminf, math.limsup, math.lim and math.max, including one U+2009 separator in each changed operator.",
+  "claim_limit": "This verdict covers only the exact textual morphology of math.liminf/math.limsup, limits: true, the lim/max adjacent controls, and coherence of the scoped comments and P299 expectations. It does not establish general math or Typst parity.",
+  "authority": {
+    "role": "independent_final_verifier",
+    "executor": "/root/verificador_p1396",
+    "environment": "shared workspace",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "read_after_seal": true,
+    "judged_artifacts_edited": false,
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1396-verification.json",
+      "00_nucleo/diagnosticos/p1396-report.md"
+    ],
+    "forbidden_heavy_execution_respected": true
+  },
+  "causal_state": {
+    "head": "3f081c97f7dba59549a70e89d6bfb93afcc82b1a",
+    "working_tree": "P1396 uncommitted candidate plus its L0, contract, oracle, adversarial and seal artifacts",
+    "r0_status": "SUPERSEDED_AND_INVALID",
+    "r1_status": "SUPERSEDED_AND_INVALID",
+    "r2_status": "FINAL_INPUT_PRESEAL_ACCEPTED"
+  },
+  "protected_input_hashes": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1396.md",
+      "sha256": "3a46521a603db79d6c3f1ee7724892fdc6ac7086f95f0f0bd1be2c7f0f96ff95",
+      "matches_r2": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1396-contract.json",
+      "sha256": "867d199b21265418221df49990d12b0b1cead85376ba5ebd0946f05330c043b0",
+      "matches_r2": true
+    },
+    {
+      "path": "lab/parity/p1396_math_limit_spacing.py",
+      "sha256": "19f8df92ccb866893f876d40fe1463773a086411fae123c4ee60c83976ee00ae",
+      "matches_r2": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1396-oracles.json",
+      "sha256": "38fe80374cf9803c79f22af47f43b8fe79dde2debc9f77fc9b12678612338b40",
+      "matches_r2": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1396-mutants.json",
+      "sha256": "c91cf1548d69a19dd22d2ee55892bffe5e446c06e921c74c0cc8c524c8bf4acd",
+      "matches_r2": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1396-preseal.json",
+      "sha256": "06d1d6d93b273cbc83566d5530b61a8466e42a1be3b9bddee40d2447a5b93ef3",
+      "matches_r2": true
+    }
+  ],
+  "final_artifact_hashes": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "sha256": "422c678d197ec48d0299059d90629bd3a9db852734394c32d0907b96bceb2dd6",
+      "role": "final facade L0 after authorized lineage reseal"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "e58334e2be9db99a59ad35b251316e29d0064383ace335a1c9419eddd8b9f42e",
+      "role": "final product L0 after authorized lineage reseal"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/mod.rs",
+      "sha256": "7b25817f43926b9fdbba6ecadf6ae33a78e0ab166d2fef5c97249323d7bd6b36",
+      "role": "final facade consumer with scoped P299 expectations"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math.rs",
+      "sha256": "14ba94bf6de39bf9a8d905499181d5c9e7ac7d3063f994816391449ed2de6578",
+      "role": "final productive candidate"
+    },
+    {
+      "path": "target/release/typst",
+      "sha256": "f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474",
+      "role": "candidate executable; R2 changed only a source comment after this build"
+    },
+    {
+      "path": "/tmp/p1396-green.json",
+      "sha256": "4a959c8a10dc1351c864ce103114147bc6bd6d9572e079e18ec4c184a1af8c46",
+      "role": "final dynamic oracle receipt"
+    }
+  ],
+  "delta_gate": {
+    "passed": true,
+    "productive_changes": [
+      "liminf literal U+0020 -> U+2009",
+      "limsup literal U+0020 -> U+2009",
+      "one immediately preceding limits-table comment corrected from the stale U+0020 example to explicit U+2009",
+      "authorized product-owner lineage metadata"
+    ],
+    "test_only_changes": [
+      "P299 liminf expected and its local comments now describe U+2009",
+      "P299 limsup expected and its local comment now describe U+2009",
+      "authorized facade lineage metadata"
+    ],
+    "l0_changes": [
+      "structural math L0 records the measured U+2009 morphology and lineage",
+      "facade L0 records the scoped P299 expectation correction and lineage"
+    ],
+    "forbidden_productive_path_changed": false,
+    "unrelated_table_entry_changed": false,
+    "stale_u0020_claim_in_scoped_sources": false,
+    "evidence": "git diff -U0 and literal/codepoint inspection against HEAD"
+  },
+  "dynamic_gate": {
+    "receipt": "/tmp/p1396-green.json",
+    "binary_identity_accepted": true,
+    "binary_sha256": "f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474",
+    "overall": "Preserved",
+    "counts": {
+      "Preserved": 4,
+      "Difference": 0,
+      "Unknown": 0
+    },
+    "direct_repeat_reverse_agree": true,
+    "liminf_thin_space_count": 1,
+    "limsup_thin_space_count": 1,
+    "adjacent_controls_unchanged": true,
+    "exit": 0,
+    "elapsed_seconds": 1.20,
+    "max_rss_kib": 32948,
+    "swap": 0,
+    "rlimit_as_kib": 524288
+  },
+  "adversarial_gate": {
+    "method": "static and counterfactual composite audit with executed dynamic witnesses; no mutant or monolithic lib-test compilation",
+    "valid_applicable_mutants": 19,
+    "rejected": 19,
+    "survived": 0,
+    "unknown": 0,
+    "mutation_score": 1.0,
+    "passed": true,
+    "opaque_cases": 3,
+    "opaque_in_denominator": false,
+    "unknown_policy": "fail-closed",
+    "witness_groups": {
+      "exact_repr_and_controls": "M01-M11 and M14-M15 rejected by exact UTF-8/codepoint expectations and four-case GREEN receipt",
+      "oracle_exactness": "M12 rejected by static inspection: stdout bytes are compared directly without whitespace normalization",
+      "fail_closed_identity": "M13 rejected by the executed identity-mismatch control, which returned Unknown/exit 2 and received zero credit",
+      "scope": "M16-M17 rejected by the exact final diff",
+      "p299_coherence": "M18 rejected by final expected values/comments containing U+2009 and no stale U+0020 claim",
+      "productive_comment_coherence": "M19 rejected by the final local limits-table comment naming U+2009 and showing the thin-space example"
+    }
+  },
+  "execution_receipts": [
+    {
+      "gate": "release build",
+      "applicability": "productive R1 candidate and P299 test-source edits; R2 was comment-only",
+      "exit": 0,
+      "elapsed": "2m28.49s",
+      "max_rss_kib": 1134628,
+      "swap": 0,
+      "parallelism": 1,
+      "rlimit_data_kib": 2097152
+    },
+    {
+      "gate": "cargo check -p typst-core after R1 test edits",
+      "exit": 0,
+      "max_rss_kib": 526208,
+      "swap": 0,
+      "parallelism": 1,
+      "rlimit_data_kib": 2097152
+    },
+    {
+      "gate": "crystalline-lint --fix-hashes after R1",
+      "exit": 0,
+      "max_rss_kib": 115356,
+      "swap": 0
+    },
+    {
+      "gate": "crystalline-lint after R1",
+      "exit": 0,
+      "violations": 0,
+      "max_rss_kib": 70840,
+      "swap": 0
+    },
+    {
+      "gate": "crystalline-lint --fix-hashes after R2 comment",
+      "exit": 0,
+      "result": "Nothing to fix",
+      "max_rss_kib": 112992,
+      "swap": 0
+    },
+    {
+      "gate": "crystalline-lint after R2 comment",
+      "exit": 0,
+      "violations": 0,
+      "max_rss_kib": 70292,
+      "swap": 0
+    },
+    {
+      "gate": "cargo fmt --check",
+      "exit": 0
+    },
+    {
+      "gate": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "resource_verdict": {
+    "passed": true,
+    "cargo_test_run": false,
+    "monolithic_lib_test_compiled": false,
+    "workspace_test_run": false,
+    "largest_observed_rss_kib": 1134628,
+    "configured_abort_rss_kib": 1782579,
+    "swap_nonzero_observed": false,
+    "oom_observed": false,
+    "note": "The verifier ran only lightweight read-only hash, diff and text inspections. Heavy receipts were supplied by the coordinator and are recorded with their declared resource limits."
+  },
+  "limitations": [
+    "The workspace and inherited context are shared, so physical isolation was not attested.",
+    "The 19/19 score is a static/counterfactual composite gate with executed witnesses, not nineteen separately compiled mutants.",
+    "The monolithic Rust lib-test was deliberately neither compiled nor run; the two P299 expectations and comments were checked structurally.",
+    "The R2 source change after the candidate build is comment-only; the unchanged executable identity and dynamic GREEN remain applicable to behavior.",
+    "Execution resource receipts other than the final verifier's lightweight checks were supplied by the coordinator and cross-checked against the protected artifacts where possible."
+  ]
+}

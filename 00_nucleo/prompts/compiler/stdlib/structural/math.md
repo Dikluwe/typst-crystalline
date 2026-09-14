@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 4a4d07ab
+Hash do Código: e702b9c5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -10,7 +10,10 @@ Núcleos Tekt:
 `structural/mod.rs` e da história acumulada destas nativas (marcos P69…P962). Este L0
 especifica **a superfície do nó**; o detalhe por marco vive no pai.
 **Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: `typst-library/src/math/{accent,cancel,op,underover,style}.rs`. Co-mudança: P290-301 e P317 movem `native_accent`, `native_cancel`, `native_op`, `native_underover`, `op_value` e `make_math_module` como bloco.
+**Vanila ratificado**: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
+`typst-library/src/math/{accent,cancel,op,underover,style}.rs`. Co-mudança:
+P290-301 e P317 movem `native_accent`, `native_cancel`, `native_op`,
+`native_underover`, `op_value` e `make_math_module` como bloco.
 
 ---
 
@@ -58,6 +61,32 @@ Constrói `math` como `Value::Module` com os **41 operadores** vanilla
 pré-definidos, o elemento chamável `equation`, `op`, os cinco
 espaçamentos nomeados (P895) e as funções math explicitamente registradas.
 `dif`/`Dif` levam `upright` explícito — não itálico (§P962).
+
+### P1396 — separador morfológico de `liminf` e `limsup`
+
+**Medição anterior à decisão (2026-09-14, vanila ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`):**
+`typst-library/src/math/op.rs:88-89` declara respectivamente os textos
+`"lim\u{2009}inf"` e `"lim\u{2009}sup"`, com espaço fino Unicode U+2009.
+Uma sonda CLI de `repr(math.liminf)` devolveu
+`"op(text: [lim inf], limits: true)"` no vanila (exit 0, RSS máximo
+18.260 KiB, zero swap), enquanto o cristalino no baseline
+`3f081c97f7dba59549a70e89d6bfb93afcc82b1a` devolveu a variante com espaço
+comum U+0020 (exit 0, RSS máximo 32.884 KiB, zero swap).
+
+**Classificação e decisão:** o texto carregado pelo `MathOp` é morfologia
+da língua (ADR-0107). A declaração nominal e explícita dos dois literais na
+fonte ratificada sustenta a intenção; não se infere intenção apenas do
+render. Esta conclusão seria refutada por outro literal na mesma revisão
+pinada ou por uma sonda bilateral válida que produzisse a mesma sequência de
+codepoints.
+
+`make_math_module` deve registrar `liminf` como `lim\u{2009}inf` e `limsup`
+como `lim\u{2009}sup`, preservando `limits: true`. Nenhum outro operador,
+assinatura, layout, serializador, diagnóstico ou fase do pipeline muda. O gate
+observa a representação de linguagem e os codepoints do texto; bytes de PDF
+não são critério. Identidade ambígua, falha de parse/build, timeout, OOM,
+swap ou saída ilegível permanecem `Unknown` e bloqueiam aceitação.
 
 ### P1283 — espelho estrutural integral `sym → math`
 

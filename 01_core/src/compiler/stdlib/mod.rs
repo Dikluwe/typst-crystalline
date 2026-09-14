@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 5fd9f264
+//! @prompt-hash fc58fa39
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -12757,13 +12757,13 @@ mod tests {
 
     #[test]
     fn p299_math_module_contem_liminf_multi_word_text() {
-        // liminf vanilla → text "lim inf" (multi-word).
+        // liminf vanila → text com espaço fino U+2009 (multi-word).
         let v = lookup_math("liminf").expect("math.liminf deve existir");
         if let Value::Content(Content::MathOp(e)) = v {
             assert_eq!(
                 e.text.plain_text(),
-                "lim inf",
-                "multi-word: name 'liminf' mapeia para text 'lim inf'"
+                "lim\u{2009}inf",
+                "multi-word: name 'liminf' mapeia para text com U+2009"
             );
             assert!(e.limits);
         }
@@ -12773,7 +12773,8 @@ mod tests {
     fn p299_math_module_contem_limsup_multi_word_text() {
         let v = lookup_math("limsup").expect("math.limsup deve existir");
         if let Value::Content(Content::MathOp(e)) = v {
-            assert_eq!(e.text.plain_text(), "lim sup");
+            // O separador morfológico é espaço fino U+2009.
+            assert_eq!(e.text.plain_text(), "lim\u{2009}sup");
             assert!(e.limits);
         }
     }
