@@ -1,5 +1,5 @@
 # Prompt L0 — regressões do motor de layout
-Hash do Código: fdd85000
+Hash do Código: de8a7954
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -160,3 +160,19 @@ acerta `More`, mas não a reserva; a ordem maior→exterior diverge nos dois.
 Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um par com
 segundo tamanho 8pt deve continuar opaco, provando que igualdade ao exterior
 não virou comparação permissiva. Preservar P1390, P1389 e P1388.
+
+## P1392 — regressão do wrap abaixo/acima do exterior
+
+### Medição anterior à decisão
+
+Nos pares 8↔40, 40↔8, 7↔40 e 40↔7, o vanila conserva uma página e
+`After=Tail`; o cristalino P1391 pagina `After`. As duas ordens preservam um
+único wrap, mas exercitam fechamentos distintos: explícito quando o menor vem
+primeiro e automático overlong quando 40pt vem primeiro.
+
+### Obrigação test-only
+
+Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um caso
+40↔8 cujo segundo wrapper também altera `fill` deve continuar opaco, provando
+que o certificado não ignora deltas compostos. Preservar P1391, P1390, P1389
+e P1388; não inspecionar carrier ou arm privados.

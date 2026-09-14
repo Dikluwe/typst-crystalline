@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash b5c2804c
+//! @prompt-hash 76122964
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -533,35 +533,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // usa self.style como fallback.
         let outer_font_size = self.style.size;
         #[allow(deprecated)]
-        let (max_font_size, max_style, _, mut mixed_text_sizes, text_count) = self
-            .regions
-            .current
-            .current_line
-            .iter()
-            .filter_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. }
-                | crate::entities::layout_types::FrameItem::TextShaped {
-                    style, ..
-                } => Some((style.size, style.clone())),
-                _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
-            })
-            .fold(
-                (self.style.size, self.style.clone(), None::<f64>, false, 0usize),
-                |(max_size, max_style, first_size, mixed, text_count), (size, style)| {
-                    let mixed = mixed
-                        || (text_count > 0 && size.0 != outer_font_size.0)
-                        || first_size.is_some_and(|first| size.0 != first);
-                    let first_size = first_size.or(Some(size.0));
-                    if size.0 > max_size.0 {
-                        (size, style, first_size, mixed, text_count + 1)
-                    } else {
-                        (max_size, max_style, first_size, mixed, text_count + 1)
-                    }
-                },
-            );
+        let (max_font_size, max_style, first_text_size, mut mixed_text_sizes, text_count) =
+            self.regions
+                .current
+                .current_line
+                .iter()
+                .filter_map(|item| match item {
+                    crate::entities::layout_types::FrameItem::Text { style, .. }
+                    | crate::entities::layout_types::FrameItem::TextShaped {
+                        style,
+                        ..
+                    } => Some((style.size, style.clone())),
+                    _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
+                })
+                .fold(
+                    (self.style.size, self.style.clone(), None::<f64>, false, 0usize),
+                    |(max_size, max_style, first_size, mixed, text_count),
+                     (size, style)| {
+                        let mixed = mixed
+                            || (text_count > 0 && size.0 != outer_font_size.0)
+                            || first_size.is_some_and(|first| size.0 != first);
+                        let first_size = first_size.or(Some(size.0));
+                        if size.0 > max_size.0 {
+                            (size, style, first_size, mixed, text_count + 1)
+                        } else {
+                            (max_size, max_style, first_size, mixed, text_count + 1)
+                        }
+                    },
+                );
+        let forced_smaller_singleton = force_outer_singleton
+            && text_count == 1
+            && first_text_size.is_some_and(|size| size < outer_font_size.0);
         if force_outer_singleton
             && text_count == 1
-            && max_font_size.0 != outer_font_size.0
+            && !forced_smaller_singleton
+            && first_text_size.is_some_and(|size| size != outer_font_size.0)
         {
             mixed_text_sizes = true;
         }
@@ -570,7 +576,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // estilo activo do parágrafo. Linhas uniformes preservam a regra
         // P762/P1381 já selada, baseada no último fragmento textual.
         #[allow(deprecated)]
-        let line_leading_pt = if mixed_text_sizes {
+        let line_leading_pt = if mixed_text_sizes || forced_smaller_singleton {
             self.style
                 .leading
                 .map(|l| l.resolve_pt(self.style.size.val()))

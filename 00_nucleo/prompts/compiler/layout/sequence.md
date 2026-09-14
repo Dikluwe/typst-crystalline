@@ -1,5 +1,5 @@
 # Prompt L0 — layout de sequência
-Hash do Código: 496b5d6a
+Hash do Código: 9cddef62
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
@@ -605,3 +605,46 @@ recursão, simulação ou coleção proporcional.
 11→39, 39→11, 11→40 e 40→11 ficam em uma página e coincidem com o vanila em
 `Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. 40→8
 continua opaco; P1390, P1389 e P1388 conservam seus vereditos.
+
+## P1392 — wrap único atravessando o tamanho exterior
+
+### Medição anterior à decisão
+
+Nos pares size-only 8→40, 40→8, 7→40 e 40→7, ambos os motores quebram
+exatamente antes de `More`. O vanila mantém uma página, `After=Tail=220,166`
+e posiciona `One` em 59,338pt para 8pt e 58,680pt para 7pt. O cristalino P1391
+pagina `After`; na ordem menor→maior também antecipa `More`, enquanto na ordem
+maior→menor a primeira palavra overlong fecha antes do carrier.
+
+### Decisão interna
+
+O certificado aceita exatamente dois `Styled(Text)` size-only, uma palavra
+não-whitespace por body, quando um tamanho é estritamente menor que o exterior,
+o outro é estritamente maior e existe um único wrap na fronteira. A reserva
+vertical completa deve caber. A soma linha-a-linha P1390, a boundary única
+P1388 e os fechamentos exteriores P1389 são reutilizados.
+
+Na ordem maior→menor, o scanner pode adiar a rejeição da primeira palavra
+overlong até provar a forma P1392 completa e então arma o fechamento one-shot
+P1391. Na ordem menor→maior, Sequence fecha explicitamente a primeira linha;
+o singleton menor preserva baseline, ascent, alinhamento e próximo ascent
+próprios, usando somente o leading exterior. Assim a reserva linha-a-linha já
+usa top-edge própria e leading exterior. Quando o menor é a segunda linha, o
+fechamento anterior já deixou uma baseline exterior; Sequence antecipa essa
+baseline uma única vez pelo delta `top-edge exterior - top-edge menor`, antes
+de visitar o segundo wrapper. A reserva já representa a mesma redução por usar
+a top-edge própria da segunda linha; não há compensação adicional, recursão ou
+simulação. O veredito final não amplia P1390/P1391 nem legitima um prefixo
+overlong incompleto.
+
+Tamanho igual ao exterior pertence a P1391; ambos acima pertencem a
+P1389/P1390; delta composto, multiword, terceiro fragmento, wrapper aninhado,
+wrap interno/múltiplo, forma opaca e fitting insuficiente continuam `Unknown`.
+Não há API pública, recursão, simulação ou coleção proporcional.
+
+### Aceitação
+
+8→40, 40→8, 7→40 e 40→7 ficam em uma página e coincidem com o vanila
+em `Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. O caso
+40→8 com `fill` adicional no segundo wrapper permanece opaco. P1391, P1390,
+P1389 e P1388 conservam seus vereditos.

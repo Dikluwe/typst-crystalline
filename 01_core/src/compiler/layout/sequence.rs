@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash 332a437b
+//! @prompt-hash f8f708fb
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -101,6 +101,7 @@ struct InlinePrefix {
     block_boundary: f64,
     wrap_before: Option<usize>,
     first_fragment_overlong: bool,
+    second_smaller_baseline_adjustment: f64,
 }
 
 #[derive(Clone, Copy)]
@@ -109,6 +110,7 @@ struct InlinePrefixRuntime {
     block_boundary: f64,
     wrap_before: Option<usize>,
     first_fragment_overlong: bool,
+    second_smaller_baseline_adjustment: f64,
 }
 
 fn p1380_inline_safe_styles(styles: &crate::entities::style::Styles) -> bool {
@@ -337,6 +339,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             block_boundary: 0.0,
             wrap_before: None,
             first_fragment_overlong: false,
+            second_smaller_baseline_adjustment: 0.0,
         });
     }
     // P1383 — P1382 tornou decidível somente a forma crescente exacta. Não
@@ -403,13 +406,27 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             (first == outer_size && last > outer_size)
                 || (first > outer_size && last == outer_size)
         });
-    if first_fragment_overlong && !p1391_wrapped_outer_and_larger {
+    // P1392 — os dois wrappers atravessam estritamente o tamanho exterior.
+    // Igualdade continua sob P1391; duas pontas no mesmo lado permanecem nos
+    // certificados anteriores ou no fallback opaco.
+    let p1392_wrapped_below_and_above_outer = wrap_before.is_some()
+        && text_fragments == 2
+        && first_fragment_size_only
+        && second_fragment_size_only
+        && first_size.zip(last_size).is_some_and(|(first, last)| {
+            (first < outer_size && last > outer_size)
+                || (first > outer_size && last < outer_size)
+        });
+    if first_fragment_overlong
+        && !(p1391_wrapped_outer_and_larger || p1392_wrapped_below_and_above_outer)
+    {
         return None;
     }
     if wrap_before.is_some()
         && (!(p1387_equal_pair_above_outer
             || p1390_unequal_wrapped_pair_above_outer
-            || p1391_wrapped_outer_and_larger)
+            || p1391_wrapped_outer_and_larger
+            || p1392_wrapped_below_and_above_outer)
             || !all_fragments_single_word)
     {
         return None;
@@ -421,6 +438,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1387_equal_pair_above_outer
         && !p1390_unequal_wrapped_pair_above_outer
         && !p1391_wrapped_outer_and_larger
+        && !p1392_wrapped_below_and_above_outer
     {
         return None;
     }
@@ -433,6 +451,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1387_equal_pair_above_outer
         && !p1390_unequal_wrapped_pair_above_outer
         && !p1391_wrapped_outer_and_larger
+        && !p1392_wrapped_below_and_above_outer
     {
         return None;
     }
@@ -450,6 +469,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         || p1387_equal_pair_above_outer
         || p1390_unequal_wrapped_pair_above_outer
         || p1391_wrapped_outer_and_larger
+        || p1392_wrapped_below_and_above_outer
     {
         &layouter.style
     } else {
@@ -471,6 +491,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             || p1387_equal_pair_above_outer
             || p1390_unequal_wrapped_pair_above_outer
             || p1391_wrapped_outer_and_larger
+            || p1392_wrapped_below_and_above_outer
         {
             layouter.metrics.text_edges(layouter.style.size, &layouter.style).0 .0
         } else {
@@ -484,11 +505,13 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         || p1387_equal_pair_above_outer
         || p1390_unequal_wrapped_pair_above_outer
         || p1391_wrapped_outer_and_larger
+        || p1392_wrapped_below_and_above_outer
     {
         0.0
     } else {
         block_boundary
     };
+    let mut second_smaller_baseline_adjustment = 0.0;
     let fixed_height = if wrap_before.is_some() {
         // P1390 — cada singleton tem métricas próprias. P1389 era igual e
         // podia reutilizar o máximo; fazê-lo para tamanhos desiguais
@@ -499,6 +522,15 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             layouter.metrics.text_edges(first_style.size, first_style);
         let (second_line_top, second_line_bottom) =
             layouter.metrics.text_edges(second_style.size, second_style);
+        second_smaller_baseline_adjustment = if p1392_wrapped_below_and_above_outer
+            && second_style.size.0 < layouter.style.size.0
+        {
+            let outer_top =
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style).0;
+            (outer_top.0 - second_line_top.0).max(0.0)
+        } else {
+            0.0
+        };
         initial_top
             + first_line_top.0
             + (-first_line_bottom.0)
@@ -517,6 +549,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         block_boundary,
         wrap_before,
         first_fragment_overlong,
+        second_smaller_baseline_adjustment,
     })
 }
 
@@ -700,6 +733,8 @@ fn fractional_preflight<M: FontMetrics, S: ImageSizer>(
                 block_boundary: prefix.block_boundary,
                 wrap_before: prefix.wrap_before,
                 first_fragment_overlong: prefix.first_fragment_overlong,
+                second_smaller_baseline_adjustment: prefix
+                    .second_smaller_baseline_adjustment,
             }
         }),
     ))
@@ -835,6 +870,13 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             && !layouter.regions.current.current_line.is_empty()
         {
             layouter.flush_wrapped_inline_prefix_line();
+        }
+        if let Some(adjustment) = inline_prefix
+            .filter(|prefix| prefix.wrap_before == Some(part_index))
+            .map(|prefix| prefix.second_smaller_baseline_adjustment)
+            .filter(|adjustment| *adjustment > 0.0)
+        {
+            layouter.regions.current.cursor_y += Pt(-adjustment);
         }
         if inline_prefix.is_some_and(|prefix| {
             prefix.wrap_before.is_some_and(|index| part_index > index)

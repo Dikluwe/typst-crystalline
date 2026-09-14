@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: e5403bed
+Hash do Código: e8f83712
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -403,3 +403,28 @@ O Cursor não reconhece Content nem decide quando armar: Sequence é o único
 dono do certificado. O estado não é global, não recursa e é consumido no
 primeiro flush. Os quatro pares P1391 coincidem com o vanila em página e bbox;
 P1390, P1389, P1388 e singletons ordinários permanecem controles.
+
+### Amendment-16 — singleton menor certificado por P1392
+
+#### Medição anterior à decisão
+
+Em 8→40 e 7→40, Sequence alcança a fronteira do wrap com um único item menor
+que o exterior. O fold de `flush_line` parte do estilo exterior; por isso o
+máximo continua 11pt e o teste P1389 `max_font_size != outer_font_size` não
+detecta que o item real é 8pt/7pt. O fechamento não seleciona a fórmula
+exterior e antecipa `More` em 1,95pt/2,60pt.
+
+#### Decisão interna
+
+No fechamento singleton explicitamente certificado, o tamanho do único item
+textual real é comparado ao exterior, não apenas ao máximo que já inclui o
+fallback exterior. Se esse item é menor, baseline, ascent, alinhamento e
+próximo ascent continuam próprios do item; somente o leading usa o exterior.
+Classificá-lo como linha mista deslocaria a baseline menor, divergindo do
+vanila. Um singleton maior mantém a fórmula exterior completa de P1389.
+Máximo/descent e linhas não certificadas não mudam.
+
+O arm one-shot P1391 também pode ser emitido pelo certificado P1392 na ordem
+maior→menor; Cursor apenas o consome e não reconhece Content. Os quatro pares
+P1392 coincidem com o vanila; P1391, P1390, P1389, singletons ordinários e
+deltas compostos permanecem controles.

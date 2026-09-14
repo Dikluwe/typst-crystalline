@@ -1,0 +1,56 @@
+{
+  "schema": "p1392-cross-outer-single-wrap-matrix/v1",
+  "created_at": "2026-09-14T13:12:57-03:00",
+  "provenance": {
+    "repository_head": "d0ab401c12e7aa34b93748d00c00281f860ee00e",
+    "working_tree": "uncommitted P1392 only",
+    "tracked_diff": "10 files changed, 239 insertions(+), 41 deletions(-)",
+    "untracked": ["00_nucleo/diagnosticos/p1392-*", "00_nucleo/materialization/typst-passo-1392.md"]
+  },
+  "identities": {
+    "vanila": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "cristalino": "1f2f392c64b77ff558d103327a94d9a9fa0ccc48606e773b2bf936e3d93f0c00",
+    "test_binary": "51bd4daf03df52d7752846df4ef2e03deaf221ad43a3888e28b2281bdd666192"
+  },
+  "limits": {
+    "parallel_processes": 1,
+    "test_and_link_address_space_bytes": 6442450944,
+    "release_address_space_bytes": 4294967296,
+    "check_and_lint_address_space_bytes": 3221225472,
+    "matrix_address_space_bytes": 2147483648,
+    "timeout_seconds": 180
+  },
+  "cases": [
+    {"id":"8-40","classification":"MATCH","vanila":{"pages":1,"Lead":"8.112000","More":"12.974010","One":"59.338000","Two":"7.404000","After":"220.166000","Tail":"220.166000"},"cristalino":{"pages":1,"Lead":"8.112000","More":"12.974000","One":"59.338000","Two":"7.404000","After":"220.166000","Tail":"220.166000"}},
+    {"id":"40-8","classification":"MATCH","vanila":{"pages":1,"Lead":"0.560000","More":"41.582010","One":"59.338000","Two":"7.404000","After":"220.166000","Tail":"220.166000"},"cristalino":{"pages":1,"Lead":"0.560000","More":"41.582000","One":"59.338000","Two":"7.404000","After":"220.166000","Tail":"220.166000"}},
+    {"id":"7-40","classification":"MATCH","vanila":{"pages":1,"Lead":"8.348000","More":"12.316000","One":"58.680000","Two":"7.404000","After":"220.166000","Tail":"220.166000"},"cristalino":{"pages":1,"Lead":"8.348000","More":"12.316000","One":"58.680000","Two":"7.404000","After":"220.166000","Tail":"220.166000"}},
+    {"id":"40-7","classification":"MATCH","vanila":{"pages":1,"Lead":"0.560000","More":"41.818000","One":"58.680000","Two":"7.404000","After":"220.166000","Tail":"220.166000"},"cristalino":{"pages":1,"Lead":"0.560000","More":"41.818000","One":"58.680000","Two":"7.404000","After":"220.166000","Tail":"220.166000"}}
+  ],
+  "tests": {
+    "red": {"run":2,"passed":1,"failed":1,"reason":"8->40 produced two pages before implementation","max_rss_kib":2123328},
+    "green_final": {"run":2,"passed":2,"failed":0,"max_rss_kib":1638008},
+    "p138_controls": {"run":29,"passed":29,"max_rss_kib":77836},
+    "p137_controls": {"run":21,"passed":21,"max_rss_kib":38020},
+    "p139_controls": {"run":5,"passed":5,"max_rss_kib":44148}
+  },
+  "adversarial_review": {
+    "declared_mutants": 10,
+    "mechanically_executed": 0,
+    "oracle_discriminated": 10,
+    "limitation": "mutants were reviewed against focused, fail-closed, historical and bilateral oracles but not injected into separate candidates"
+  },
+  "memory": {
+    "peak_rss_kib": 2123328,
+    "final_test_link_rss_kib": 1638008,
+    "final_release_build_rss_kib": 1597064,
+    "check_rss_kib": 577336,
+    "fix_hashes_rss_kib": 322536,
+    "matrix_peak_rss_kib": 37552,
+    "swap": false,
+    "timeout": false,
+    "sigkill": false,
+    "host_oom": false
+  },
+  "lint": {"violations":0,"warnings":248,"info":1185,"new_advisories":0},
+  "verdict": "MATCH for the bounded below/above outer single-wrap contract; excluded forms remain Unknown"
+}

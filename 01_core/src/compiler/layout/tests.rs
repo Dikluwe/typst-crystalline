@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 315c012f
+//! @prompt-hash 2be2eb2c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -6322,7 +6322,16 @@ Tail"#,
     fn p1390_wrap_desigual_nas_duas_ordens_distribui_ate_o_fundo() {
         for (first, second) in [(21, 24), (24, 21), (22, 30), (30, 22)] {
             let doc = p1385_layout_pair(first, second);
-            assert_eq!(doc.pages.len(), 1, "first={first}, second={second}");
+            assert_eq!(
+                doc.pages.len(),
+                1,
+                "first={first}, second={second}, Lead={}, More={}, One={}, After={}, Tail={}",
+                p1379_text_y(&doc, "Lead"),
+                p1379_text_y(&doc, "More"),
+                p1379_text_y(&doc, "One"),
+                p1379_text_y(&doc, "After"),
+                p1379_text_y(&doc, "Tail")
+            );
             assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
             let after = p1379_text_y(&doc, "After");
             let tail = p1379_text_y(&doc, "Tail");
@@ -6358,8 +6367,42 @@ Tail"#,
     }
 
     #[test]
-    fn p1391_wrap_com_tamanho_abaixo_do_exterior_permanece_opaco() {
-        let doc = p1385_layout_pair(40, 8);
+    fn p1392_wrap_abaixo_e_acima_do_exterior_distribui_nas_duas_ordens() {
+        for (first, second) in [(8, 40), (40, 8), (7, 40), (40, 7)] {
+            let doc = p1385_layout_pair(first, second);
+            assert_eq!(
+                doc.pages.len(),
+                1,
+                "first={first}, second={second}, Lead={}, More={}, One={}, After={}, Tail={}",
+                p1379_text_y(&doc, "Lead"),
+                p1379_text_y(&doc, "More"),
+                p1379_text_y(&doc, "One"),
+                p1379_text_y(&doc, "After"),
+                p1379_text_y(&doc, "Tail")
+            );
+            assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
+            let after = p1379_text_y(&doc, "After");
+            let tail = p1379_text_y(&doc, "Tail");
+            assert!(
+                (after - tail).abs() < 0.001,
+                "first={first}, second={second}, After={after}, Tail={tail}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1392_wrap_com_delta_composto_permanece_opaco() {
+        let doc = layout_typst(
+            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+#columns(2, gutter: 10pt)[
+  #text(size: 40pt)[Lead] #text(size: 8pt, fill: red)[More]
+  #block(height: 1fr)[One]
+  After
+  #colbreak()
+  #block(height: 1fr)[Two]
+  Tail
+]"#,
+        );
         assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
         assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
     }

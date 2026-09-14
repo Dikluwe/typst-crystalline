@@ -295,3 +295,19 @@ Não há nova API pública, fase ou default. Ausência do certificado, prefixo
 incompleto, outra célula de tamanho e fluxo ordinário nunca armam o estado.
 11→39, 39→11, 11→40 e 40→11 devem manter uma página e `After=Tail`;
 40→8 permanece opaco.
+
+## P1392 — reutilização do arm por certificado cruzado
+
+### Medição anterior à decisão
+
+Em 40→8 e 40→7, a palavra inicial é overlong e fecha dentro do layout de
+texto, pela mesma causalidade P1391. O vanila prevê a linha seguinte pelo
+estilo exterior; sem o arm, o cristalino usa 40pt e pagina a cauda.
+
+### Decisão interna
+
+O mesmo booleano privado one-shot pode ser armado também depois de Sequence
+certificar a forma P1392 completa. Inicialização, consumo, checkpoint e
+isolamento permanecem idênticos a P1391; não se adiciona campo, API ou fase.
+Formas não certificadas nunca armam o estado. P1391 e os controles de replay
+continuam invariantes.

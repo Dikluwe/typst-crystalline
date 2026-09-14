@@ -1,0 +1,12 @@
+{
+  "schema":"tekt-oracles/v1",
+  "step":1392,
+  "positive":[
+    {"pair":"8-40","vanila":{"pages":1,"Lead":"8.112000","More":"12.974010","One":"59.338000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"11.024000","One":"89.270000"}},
+    {"pair":"40-8","vanila":{"pages":1,"Lead":"0.560000","More":"41.582010","One":"59.338000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"81.488000","One":"91.244000"}},
+    {"pair":"7-40","vanila":{"pages":1,"Lead":"8.348000","More":"12.316000","One":"58.680000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"9.716000","One":"87.962000"}},
+    {"pair":"40-7","vanila":{"pages":1,"Lead":"0.560000","More":"41.818000","One":"58.680000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"82.382000","One":"90.594000"}}
+  ],
+  "opaque":[{"case":"40-8-plus-fill","expected":"Unknown because second delta is compound"}],
+  "tolerance_pt":0.001
+}

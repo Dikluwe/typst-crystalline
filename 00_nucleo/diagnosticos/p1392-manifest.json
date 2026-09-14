@@ -1,0 +1,37 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": "P1392",
+  "created_at": "2026-09-14T13:12:57-03:00",
+  "repository_head": "d0ab401c12e7aa34b93748d00c00281f860ee00e",
+  "artifacts": {
+    "step": {"path":"00_nucleo/materialization/typst-passo-1392.md","sha256":"3ca6765b5b9c971555d61b3d2a354902ac5d3940a09240a6e48efb757bd8c5a7"},
+    "contract": {"path":"00_nucleo/diagnosticos/p1392-contract.json","sha256":"8806ea527a3e6599a7f31cb4b70471cf6c2900ef970c9a1b90e05be50db83009"},
+    "oracles": {"path":"00_nucleo/diagnosticos/p1392-oracles.json","sha256":"2c24938a0cf2a28a0913baa57b06e547b9aa4deb88b1efc670eaea9bf3f91cfc"},
+    "mutants": {"path":"00_nucleo/diagnosticos/p1392-mutants.json","sha256":"16a3e0b4c5c3adf20cdfbe6b297a567c3cf364f51ebf2eefc7660c66d62d3e04"},
+    "preflight": {"path":"00_nucleo/diagnosticos/p1392-preflight.md","sha256":"7af6fdf833f6f575c85cb6593c5367b43f301da6ddd786c478ee116da0eb723d"},
+    "preseal": {"path":"00_nucleo/diagnosticos/p1392-preseal.json","sha256":"fa4e5585119769dc01c8029c720cd9bf7883952074bd13b32e17159eb878fa31"},
+    "results": {"path":"00_nucleo/diagnosticos/p1392-results.json","sha256":"60a0f816c7e82da14782b248e2b864eca448ae51d0c554ed3242f67963def4b6"},
+    "report": {"path":"00_nucleo/diagnosticos/p1392-report.md","sha256":"63ca571c5701cc12d9dc17d7cc49641d3227ffd7f4c8a8d2ed027ae5dae38864"},
+    "layout_prompt": {"path":"00_nucleo/prompts/compiler/layout.md","sha256":"79eeb3edf0485fca5f5cb897cbd3aae12a8f7e27b208beb230db5dd5495df527"},
+    "cursor_prompt": {"path":"00_nucleo/prompts/compiler/layout/cursor.md","sha256":"0c64494c4de574b8aea4f4279ef37471e009be53db6d216ac97564b9ae343072"},
+    "sequence_prompt": {"path":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"068632bc1cb4f996ee612415141ebd08f12aa29fc6e617bc3f3538128cb45e05"},
+    "sub_frame_prompt": {"path":"00_nucleo/prompts/compiler/layout/sub_frame.md","sha256":"5b927c4b88c5e97e49580783bd1356e8c5a9869d2ec2c439d36738f175fdc44b"},
+    "tests_prompt": {"path":"00_nucleo/prompts/compiler/layout/tests.md","sha256":"a689bddeb4313ddf183e30c2121f3dd10494aa9b7803b4d89cb57ed55499c994"},
+    "layout_consumer": {"path":"01_core/src/compiler/layout/mod.rs","sha256":"20e959281302ab2ce380c30466f3f5972c59fa6d3790c9ae964f0c6345c16da8"},
+    "cursor_consumer": {"path":"01_core/src/compiler/layout/cursor.rs","sha256":"2f8941fe1ed9fa7816b74aa55e2a63a8fabf028104b605f9744172ee595e61f4"},
+    "sequence_consumer": {"path":"01_core/src/compiler/layout/sequence.rs","sha256":"f7003b8708ce33b41c369d62cf3cc32a67ff32a7f5e4e42c508d134776cfd50c"},
+    "sub_frame_consumer": {"path":"01_core/src/compiler/layout/sub_frame.rs","sha256":"bf1e430455c797d3a2a8d9e7d7cbeb3a3c7282e67ea9c73c037304bd4d1abe85"},
+    "tests_consumer": {"path":"01_core/src/compiler/layout/tests.rs","sha256":"1db63fc5b5a06543774825d6f39a2a242c75201a0e3bac894e56cc61d8a22775"},
+    "cristalino_binary": {"path":"target/release/typst","sha256":"1f2f392c64b77ff558d103327a94d9a9fa0ccc48606e773b2bf936e3d93f0c00"},
+    "test_binary": {"path":"target/debug/deps/typst_core-d51858d7cd5964e0","sha256":"51bd4daf03df52d7752846df4ef2e03deaf221ad43a3888e28b2281bdd666192"}
+  },
+  "fixtures": {
+    "8-40":"8d934cbee1d3c842199a0678c603943a62b0e50a3c43ddfa191cfe1ec9a82441",
+    "40-8":"d86c021e0d1b5422b8b394941f65a73f1372520f7b4dd7bc22c97a7c931b8d82",
+    "7-40":"d6890b859bcaefacf9fc3b5107277df0b9e9fb0636da827cda5b18268e704200",
+    "40-7":"13358bab9a27bb86a4bef55eb1414709bcb215dc236814b3fd0bd616e3e328eb"
+  },
+  "vanila": {"pin":"586e1bd43fae6c9a973218163d3165c53ab8d16d","binary_sha256":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+  "verdict": "MATCH for the bounded below/above outer single-wrap contract; excluded forms remain Unknown",
+  "attestation_limit": "same authority controls all protocol roles"
+}

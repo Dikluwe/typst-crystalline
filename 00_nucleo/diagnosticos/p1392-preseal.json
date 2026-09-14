@@ -1,0 +1,15 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": "P1392",
+  "created_at": "2026-09-14T13:12:57-03:00",
+  "repository_head": "d0ab401c12e7aa34b93748d00c00281f860ee00e",
+  "lineage": [
+    {"prompt":"00_nucleo/prompts/compiler/layout.md","sha256":"79eeb3edf0485fca5f5cb897cbd3aae12a8f7e27b208beb230db5dd5495df527","consumer":"01_core/src/compiler/layout/mod.rs","sha256_consumer":"20e959281302ab2ce380c30466f3f5972c59fa6d3790c9ae964f0c6345c16da8"},
+    {"prompt":"00_nucleo/prompts/compiler/layout/cursor.md","sha256":"0c64494c4de574b8aea4f4279ef37471e009be53db6d216ac97564b9ae343072","consumer":"01_core/src/compiler/layout/cursor.rs","sha256_consumer":"2f8941fe1ed9fa7816b74aa55e2a63a8fabf028104b605f9744172ee595e61f4"},
+    {"prompt":"00_nucleo/prompts/compiler/layout/sequence.md","sha256":"068632bc1cb4f996ee612415141ebd08f12aa29fc6e617bc3f3538128cb45e05","consumer":"01_core/src/compiler/layout/sequence.rs","sha256_consumer":"f7003b8708ce33b41c369d62cf3cc32a67ff32a7f5e4e42c508d134776cfd50c"},
+    {"prompt":"00_nucleo/prompts/compiler/layout/sub_frame.md","sha256":"5b927c4b88c5e97e49580783bd1356e8c5a9869d2ec2c439d36738f175fdc44b","consumer":"01_core/src/compiler/layout/sub_frame.rs","sha256_consumer":"bf1e430455c797d3a2a8d9e7d7cbeb3a3c7282e67ea9c73c037304bd4d1abe85"},
+    {"prompt":"00_nucleo/prompts/compiler/layout/tests.md","sha256":"a689bddeb4313ddf183e30c2121f3dd10494aa9b7803b4d89cb57ed55499c994","consumer":"01_core/src/compiler/layout/tests.rs","sha256_consumer":"1db63fc5b5a06543774825d6f39a2a242c75201a0e3bac894e56cc61d8a22775"}
+  ],
+  "gates": {"l0_before_final_code":true,"red_observed":true,"focal_green":true,"bilateral_matrix":true,"historical_controls":true,"memory_bounded":true,"lineage_fixed":true},
+  "isolation_attested": false
+}
