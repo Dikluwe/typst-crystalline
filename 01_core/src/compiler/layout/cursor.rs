@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 0b610463
+//! @prompt-hash b5c2804c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -498,13 +498,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn flush_line(&mut self) {
-        self.flush_line_with_outer_singleton(false);
+        let force_outer_singleton =
+            std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
+        self.flush_line_with_outer_singleton(force_outer_singleton);
+    }
+
+    /// P1391 — o texto overlong pode fechar a linha antes de Sequence voltar
+    /// a controlar o fluxo. O arm é consumido pelo primeiro `flush_line`.
+    pub(super) fn arm_wrapped_inline_prefix_line(&mut self) {
+        self.wrapped_inline_prefix_line_armed = true;
     }
 
     /// P1389 — fecha uma linha singleton que pertence ao prefixo de wrap
     /// certificado. O máximo/descent continuam no item; apenas o próximo
     /// ascent e o leading passam a seguir o estilo exterior activo.
     pub(super) fn flush_wrapped_inline_prefix_line(&mut self) {
+        self.wrapped_inline_prefix_line_armed = false;
         self.flush_line_with_outer_singleton(true);
     }
 

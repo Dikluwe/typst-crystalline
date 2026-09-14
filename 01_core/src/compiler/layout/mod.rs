@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 13292493
+//! @prompt-hash 72e6b8f8
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -415,6 +415,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// fixada (aresta superior do texto). `flush_line` compara-o com
     /// `line_inline_ascent` para saber quanto a linha tem de descer.
     pub(super) line_assumed_ascent: f64,
+    /// P1391 — arm one-shot para o flush automático de uma primeira palavra
+    /// overlong certificada por Sequence.
+    pub(super) wrapped_inline_prefix_line_armed: bool,
     /// **P1120** — fundo do último sub-frame layoutado (`last_block_descent_y`
     /// interno), em coordenadas do sub-frame. Permite ao chamador derivar o
     /// descent real do frame (`fundo − baseline`) — as arestas de fonte não
@@ -660,6 +663,7 @@ pub(super) struct FlowSuffixCheckpoint {
     line_inline_ascent: f64,
     line_inline_descent: f64,
     line_assumed_ascent: f64,
+    wrapped_inline_prefix_line_armed: bool,
     last_sub_frame_bottom: Option<f64>,
     last_sub_frame_width: f64,
     pending_cell_tails_len: usize,
@@ -953,6 +957,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             line_inline_ascent: 0.0,
             line_inline_descent: 0.0,
             line_assumed_ascent: 0.0,
+            wrapped_inline_prefix_line_armed: false,
             last_sub_frame_bottom: None,
             last_sub_frame_width: 0.0,
 
@@ -1051,6 +1056,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             line_inline_ascent: self.line_inline_ascent,
             line_inline_descent: self.line_inline_descent,
             line_assumed_ascent: self.line_assumed_ascent,
+            wrapped_inline_prefix_line_armed: self.wrapped_inline_prefix_line_armed,
             last_sub_frame_bottom: self.last_sub_frame_bottom,
             last_sub_frame_width: self.last_sub_frame_width,
             pending_cell_tails_len: self.pending_cell_tails.len(),
@@ -1141,6 +1147,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.line_inline_ascent = checkpoint.line_inline_ascent;
         self.line_inline_descent = checkpoint.line_inline_descent;
         self.line_assumed_ascent = checkpoint.line_assumed_ascent;
+        self.wrapped_inline_prefix_line_armed =
+            checkpoint.wrapped_inline_prefix_line_armed;
         self.last_sub_frame_bottom = checkpoint.last_sub_frame_bottom;
         self.last_sub_frame_width = checkpoint.last_sub_frame_width;
         self.pending_cell_tails.truncate(checkpoint.pending_cell_tails_len);

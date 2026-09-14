@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: da788fff
+Hash do Código: e5403bed
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -382,3 +382,24 @@ Nos positivos P1389, a distância entre `Lead` e `More` usa próximo ascent e
 leading exteriores e a cauda fracionária termina no fundo. Singletons P1381,
 prefixos sem wrap P1383–P1388 e todo `flush_line` ordinário preservam seus
 resultados.
+
+### Amendment-15 — consumo antecipado da palavra overlong P1391
+
+#### Medição anterior à decisão
+
+Na ordem 39/40→11, a primeira palavra fecha dentro do próprio layout de texto,
+antes da chamada explícita P1389 de Sequence. O fechamento ordinário produz
+`More` 36,624pt/37,932pt abaixo do vanila e a cauda pagina. Na ordem
+11→39/40, a chamada explícita já ocorre a tempo e coincide.
+
+#### Decisão interna
+
+`flush_line` consome o arm one-shot privado do Layouter e, quando ativo,
+executa exatamente `flush_line_with_outer_singleton(true)`. O fechamento
+explícito P1389 também limpa o arm antes de usar a mesma fórmula. Nenhuma
+outra parte do algoritmo, item, métrica ou decisão de paginação muda.
+
+O Cursor não reconhece Content nem decide quando armar: Sequence é o único
+dono do certificado. O estado não é global, não recursa e é consumido no
+primeiro flush. Os quatro pares P1391 coincidem com o vanila em página e bbox;
+P1390, P1389, P1388 e singletons ordinários permanecem controles.

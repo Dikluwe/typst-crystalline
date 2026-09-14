@@ -1,0 +1,9 @@
+{
+  "schema":"tekt-contract/v1",
+  "step":1391,
+  "scope":"single wrap between two size-only Styled(Text) words where exactly one size equals the outer size and the other is greater",
+  "owners":["00_nucleo/prompts/compiler/layout/sequence.md","00_nucleo/prompts/compiler/layout/tests.md"],
+  "acceptance":["11<->39 and 11<->40 remain on one page","After and Tail share y within 0.001pt","two distinct baselines are preserved"],
+  "excluded":["size below outer","equal pair","multiword","compound delta","third fragment","nested wrapper","internal or multiple wrap","insufficient reservation"],
+  "isolation_attestation":false
+}

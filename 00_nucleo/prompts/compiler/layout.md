@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: f6bbef9b
+Hash do Código: 4d61ad98
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -7,7 +7,7 @@ Núcleos Tekt:
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
-**Vanilla ratificado:** `a51e02804`
+**Vanila ratificado:** `586e1bd43`
 **ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
 
 ## Medição e contrato
@@ -272,3 +272,26 @@ mínimo entre altura declarada e altura natural com inset. Não duplicar a
 fórmula, não usar `max_width` como eixo vertical e não resolver contra a altura
 do body. Alturas absolutas mantêm as expectativas existentes; width relativa
 e height fracionária permanecem no P1374.
+
+## P1391 — arm interno de fechamento overlong certificado
+
+### Medição anterior à decisão
+
+Nos pares 39/40→11, a primeira palavra size-only é horizontalmente overlong e
+o layout de texto fecha sua linha antes de Sequence alcançar o segundo
+wrapper. O fechamento ordinário usa o estilo 39/40pt para a baseline seguinte;
+o vanila usa o estilo exterior de 11pt. O carrier posterior P1389 chega tarde
+demais para selecionar a fórmula correta.
+
+### Decisão interna
+
+Layouter mantém um booleano privado one-shot, armado exclusivamente por
+Sequence após o preflight certificar a forma P1391 completa. O primeiro
+`flush_line` consome o estado e pede a fórmula singleton exterior já definida
+por Cursor P1389. O estado inicia falso, integra checkpoint/rollback e é
+isolado em sub-frame; não sobrevive ao fechamento que o consome.
+
+Não há nova API pública, fase ou default. Ausência do certificado, prefixo
+incompleto, outra célula de tamanho e fluxo ordinário nunca armam o estado.
+11→39, 39→11, 11→40 e 40→11 devem manter uma página e `After=Tail`;
+40→8 permanece opaco.

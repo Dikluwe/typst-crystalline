@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 3a81e8cb
+//! @prompt-hash cb007c41
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -103,6 +103,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_prev_margin_is_parbreak =
             std::mem::replace(&mut self.prev_margin_is_parbreak, false);
         let saved_line_assumed_ascent = self.line_assumed_ascent;
+        let saved_wrapped_inline_prefix_line_armed =
+            std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
         // **P772x** — swap do `decoration_lines_collector` ambiente por um
         // collector LOCAL (coordenadas relativas ao sub-frame), para que os
         // segmentos colectados durante `self.layout_content(content)` abaixo
@@ -296,6 +298,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.last_flush_advance = saved_last_flush_advance;
         self.prev_block_equation_descent = saved_prev_eq_descent;
         self.line_assumed_ascent = saved_line_assumed_ascent;
+        self.wrapped_inline_prefix_line_armed = saved_wrapped_inline_prefix_line_armed;
         self.prev_line_baseline = saved_prev_line_baseline;
         self.prev_block_below_pending = saved_prev_block_below;
         self.block_chain_active = saved_block_chain_active;

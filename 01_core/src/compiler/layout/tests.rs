@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 04b54bf9
+//! @prompt-hash 315c012f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -6334,8 +6334,32 @@ Tail"#,
     }
 
     #[test]
-    fn p1390_wrap_com_segundo_tamanho_exterior_permanece_opaco() {
-        let doc = p1385_layout_pair(40, 11);
+    fn p1391_wrap_exterior_e_maior_nas_duas_ordens_distribui_ate_o_fundo() {
+        for (first, second) in [(11, 39), (39, 11), (11, 40), (40, 11)] {
+            let doc = p1385_layout_pair(first, second);
+            assert_eq!(
+                doc.pages.len(),
+                1,
+                "first={first}, second={second}, Lead={}, More={}, One={}, After={}, Tail={}",
+                p1379_text_y(&doc, "Lead"),
+                p1379_text_y(&doc, "More"),
+                p1379_text_y(&doc, "One"),
+                p1379_text_y(&doc, "After"),
+                p1379_text_y(&doc, "Tail")
+            );
+            assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
+            let after = p1379_text_y(&doc, "After");
+            let tail = p1379_text_y(&doc, "Tail");
+            assert!(
+                (after - tail).abs() < 0.001,
+                "first={first}, second={second}, After={after}, Tail={tail}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1391_wrap_com_tamanho_abaixo_do_exterior_permanece_opaco() {
+        let doc = p1385_layout_pair(40, 8);
         assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
         assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
     }

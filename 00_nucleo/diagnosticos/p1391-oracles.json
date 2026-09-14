@@ -1,0 +1,12 @@
+{
+  "schema":"tekt-oracles/v1",
+  "step":1391,
+  "positive":[
+    {"pair":"11-39","vanila":{"pages":1,"More":"15.184000","One":"60.654000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"15.184000","One":"91.228000"}},
+    {"pair":"39-11","vanila":{"pages":1,"More":"40.216000","One":"60.654000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"76.840000","One":"91.228000"}},
+    {"pair":"11-40","vanila":{"pages":1,"More":"14.948010","One":"61.312000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"14.948000","One":"93.194000"}},
+    {"pair":"40-11","vanila":{"pages":1,"More":"40.874010","One":"61.312000","After":"220.166000","Tail":"220.166000"},"cristalino_before":{"pages":2,"More":"78.806000","One":"93.194000"}}
+  ],
+  "opaque":[{"pair":"40-8","expected":"Unknown because one size is below outer"}],
+  "tolerance_pt":0.001
+}

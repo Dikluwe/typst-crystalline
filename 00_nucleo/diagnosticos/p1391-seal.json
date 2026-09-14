@@ -1,0 +1,27 @@
+{
+  "schema": "tekt-materialization-seal/v1",
+  "step": "P1391",
+  "created_at": "2026-09-14T12:27:54-03:00",
+  "manifest_sha256": "8a8c5771f8b7a0dbedac41d9b77f803ef45e409a6074a553ddea43f5bb4be9ae",
+  "repository_head": "70f7725d19fbfec892b6a0ee80a48479cad4f490",
+  "verdict": "accepted bounded MATCH",
+  "gates": {
+    "l0_before_final_code": true,
+    "red_observed": true,
+    "focal_green": true,
+    "fail_closed_control_green": true,
+    "historical_controls_green": true,
+    "bilateral_matrix": true,
+    "memory_bounded": true,
+    "cargo_build_release": true,
+    "cargo_check_workspace": true,
+    "format_check": true,
+    "diff_check": true,
+    "lineage_fixed": true,
+    "crystalline_lint_exit_zero": true,
+    "no_new_lint_advisory": true
+  },
+  "claim_limit": "two unequal size-only single-word Styled(Text) fragments, exactly one at outer size and one above it, with exactly one inter-fragment wrap and a vertically fitting prefix",
+  "mechanical_mutation_execution": false,
+  "isolation_attested": false
+}

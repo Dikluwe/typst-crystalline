@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash b5c3d127
+//! @prompt-hash 332a437b
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -100,6 +100,7 @@ struct InlinePrefix {
     closes_line: bool,
     block_boundary: f64,
     wrap_before: Option<usize>,
+    first_fragment_overlong: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -107,6 +108,7 @@ struct InlinePrefixRuntime {
     block_index: usize,
     block_boundary: f64,
     wrap_before: Option<usize>,
+    first_fragment_overlong: bool,
 }
 
 fn p1380_inline_safe_styles(styles: &crate::entities::style::Styles) -> bool {
@@ -216,6 +218,11 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     let mut second_fragment_size_only = false;
     let mut all_fragments_single_word = true;
     let mut wrap_before = None;
+    // P1391 — uma primeira palavra size-only maior pode ser overlong para a
+    // coluna e ainda assim formar uma linha válida antes do segundo wrapper.
+    // O adiamento só é legitimado no veredito final pela célula exterior/
+    // maior; as demais formas continuam Unknown.
+    let mut first_fragment_overlong = false;
 
     for (part_index, part) in parts[..end].iter().enumerate() {
         let (fragment, fragment_single_word) = match part {
@@ -304,11 +311,18 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             let wraps_between_fragments = wrap_before.is_none()
                 && had_text_before_fragment
                 && fragment_has_text
-                && p1380_is_unwrapped(width_before_fragment, max_width)
+                && (p1380_is_unwrapped(width_before_fragment, max_width)
+                    || first_fragment_overlong)
                 && all_fragments_single_word;
             if wraps_between_fragments {
                 wrap_before = Some(part_index);
                 width = fragment.0;
+            } else if text_fragments == 1
+                && first_fragment_size_only
+                && fragment_single_word
+                && first_size.is_some_and(|size| size > outer_size)
+            {
+                first_fragment_overlong = true;
             } else {
                 return None;
             }
@@ -322,6 +336,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             closes_line: false,
             block_boundary: 0.0,
             wrap_before: None,
+            first_fragment_overlong: false,
         });
     }
     // P1383 — P1382 tornou decidível somente a forma crescente exacta. Não
@@ -370,14 +385,31 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     // na fronteira entre os dois fragmentos. Isso não amplia a célula
     // crescente sem wrap, que continua opaca.
     let p1390_unequal_wrapped_pair_above_outer = wrap_before.is_some()
+        && !first_fragment_overlong
         && text_fragments == 2
         && first_fragment_size_only
         && second_fragment_size_only
         && first_size.is_some_and(|size| size > outer_size)
         && last_size.is_some_and(|size| size > outer_size)
         && first_size != last_size;
+    // P1391 — fronteira exacta: um wrapper herda numericamente o tamanho
+    // exterior e o outro é maior. `<=` aqui alargaria indevidamente a célula
+    // para tamanhos menores, que permanecem opacos.
+    let p1391_wrapped_outer_and_larger = wrap_before.is_some()
+        && text_fragments == 2
+        && first_fragment_size_only
+        && second_fragment_size_only
+        && first_size.zip(last_size).is_some_and(|(first, last)| {
+            (first == outer_size && last > outer_size)
+                || (first > outer_size && last == outer_size)
+        });
+    if first_fragment_overlong && !p1391_wrapped_outer_and_larger {
+        return None;
+    }
     if wrap_before.is_some()
-        && (!(p1387_equal_pair_above_outer || p1390_unequal_wrapped_pair_above_outer)
+        && (!(p1387_equal_pair_above_outer
+            || p1390_unequal_wrapped_pair_above_outer
+            || p1391_wrapped_outer_and_larger)
             || !all_fragments_single_word)
     {
         return None;
@@ -388,6 +420,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1386_decreasing_pair_above_outer
         && !p1387_equal_pair_above_outer
         && !p1390_unequal_wrapped_pair_above_outer
+        && !p1391_wrapped_outer_and_larger
     {
         return None;
     }
@@ -399,6 +432,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         && !p1386_decreasing_pair_above_outer
         && !p1387_equal_pair_above_outer
         && !p1390_unequal_wrapped_pair_above_outer
+        && !p1391_wrapped_outer_and_larger
     {
         return None;
     }
@@ -415,6 +449,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         || p1386_decreasing_pair_above_outer
         || p1387_equal_pair_above_outer
         || p1390_unequal_wrapped_pair_above_outer
+        || p1391_wrapped_outer_and_larger
     {
         &layouter.style
     } else {
@@ -435,6 +470,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             || p1386_decreasing_pair_above_outer
             || p1387_equal_pair_above_outer
             || p1390_unequal_wrapped_pair_above_outer
+            || p1391_wrapped_outer_and_larger
         {
             layouter.metrics.text_edges(layouter.style.size, &layouter.style).0 .0
         } else {
@@ -447,6 +483,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     let fixed_boundary = if p1386_decreasing_pair_above_outer
         || p1387_equal_pair_above_outer
         || p1390_unequal_wrapped_pair_above_outer
+        || p1391_wrapped_outer_and_larger
     {
         0.0
     } else {
@@ -479,6 +516,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         closes_line: true,
         block_boundary,
         wrap_before,
+        first_fragment_overlong,
     })
 }
 
@@ -661,6 +699,7 @@ fn fractional_preflight<M: FontMetrics, S: ImageSizer>(
                 block_index: prefix.end,
                 block_boundary: prefix.block_boundary,
                 wrap_before: prefix.wrap_before,
+                first_fragment_overlong: prefix.first_fragment_overlong,
             }
         }),
     ))
@@ -784,6 +823,14 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         }
 
         let inline_prefix = distribution.and_then(|(_, _, inline_prefix)| inline_prefix);
+        if part_index == 0
+            && inline_prefix.is_some_and(|prefix| prefix.first_fragment_overlong)
+        {
+            // P1391 — a palavra overlong fecha-se dentro do próprio layout de
+            // texto, antes de Sequence alcançar `wrap_before`. Armar o próximo
+            // flush preserva o ascent/leading exterior nesse fechamento único.
+            layouter.arm_wrapped_inline_prefix_line();
+        }
         if inline_prefix.is_some_and(|prefix| prefix.wrap_before == Some(part_index))
             && !layouter.regions.current.current_line.is_empty()
         {

@@ -1,5 +1,5 @@
 # Prompt L0 — layout de sequência
-Hash do Código: 0f4d3dd7
+Hash do Código: 496b5d6a
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
@@ -567,3 +567,41 @@ aninhado, wrap interno/múltiplo, forma opaca e reserva insuficiente continuam
 21→24, 24→21, 22→30 e 30→22 ficam em uma página e coincidem com o vanila em
 `Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. P1389 igual,
 P1388 sem wrap e os controles P1374–P1387 conservam seus vereditos.
+
+## P1391 — wrap único entre wrapper exterior e maior
+
+### Medição anterior à decisão
+
+11→39, 39→11, 11→40 e 40→11 quebram uma vez antes de `More` nos dois
+motores. O vanila conserva uma página e `After=Tail`; o cristalino P1390
+pagina `After`. Quando o fragmento exterior vem primeiro, `More` já coincide,
+mas `One` revela reserva excessiva; na ordem inversa, o fechamento ordinário
+também atrasa a segunda baseline.
+
+### Decisão interna
+
+O certificado admite exatamente dois `Styled(Text)` size-only desiguais,
+uma palavra não-whitespace por body, quando um tamanho é exatamente o
+exterior e o outro é estritamente maior, existe um único wrap na fronteira e
+a reserva completa cabe. O carrier e os fechamentos exteriores de P1389 e a
+soma de métricas por linha de P1390 são reutilizados. Na ordem
+maior→exterior, a primeira palavra pode ser horizontalmente overlong e ainda
+forma uma linha válida. O scanner pode adiar essa rejeição apenas até ler o
+segundo fragmento; o veredito final exige a célula P1391 completa e não amplia
+P1390 nem aceita um prefixo incompleto. Como a palavra overlong fecha dentro
+do layout de texto, antes de Sequence alcançar o segundo wrapper, um arm
+one-shot faz esse único fechamento usar ascent e leading exteriores; o
+estado é consumido no primeiro flush e não sobrevive a sub-frame/checkpoint.
+A boundary de bloco não integra a reserva das duas linhas e continua aplicada
+exatamente uma vez.
+
+Um tamanho abaixo do exterior, dois tamanhos exteriores, multiword, delta
+composto, terceiro fragmento, wrapper aninhado, wrap interno/múltiplo, forma
+opaca e fitting insuficiente continuam `Unknown`. Não há API pública,
+recursão, simulação ou coleção proporcional.
+
+### Aceitação
+
+11→39, 39→11, 11→40 e 40→11 ficam em uma página e coincidem com o vanila em
+`Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. 40→8
+continua opaco; P1390, P1389 e P1388 conservam seus vereditos.
