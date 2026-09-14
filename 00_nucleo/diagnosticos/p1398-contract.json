@@ -1,0 +1,373 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1398,
+  "status": "candidate-contract-unsealed",
+  "regime": {
+    "kind": "full",
+    "reason": "Correção semântica da morfologia pública de Symbol::repr com contrato, oráculos, ataques, implementação e veredito segregados.",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "seal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "head": "762e95025a76cb8dec4b58097ca57aa878e05243",
+    "observed_at": "2026-09-14T17:24:01-03:00",
+    "working_tree_before_p1398": {
+      "git_status_short": "",
+      "git_diff_head_stat": ""
+    }
+  },
+  "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "scope": "Escape canônico uniforme das strings emitidas dentro de Symbol::repr, sem exceções nominais e sem alterar construção, validação, modifiers, layout ou outros repr.",
+  "classification": {
+    "language_axis": "morphology-and-syntax",
+    "mechanics_excluded": [
+      "Rust helper choice",
+      "allocation strategy",
+      "constructor and grapheme validation",
+      "modifier selection",
+      "layout and rendered bytes",
+      "repr of non-Symbol values"
+    ],
+    "adr_0127": "continuous-flow internal parity correction",
+    "human_gate_required": false,
+    "intent_evidence": "The ratified Symbol repr delegates every emitted value to string repr, whose ratified source explicitly distinguishes NUL, apostrophe and double quote before canonical escaping of all other characters.",
+    "refuted_by": "Pinned source with a different per-character representation, a valid bilateral probe contradicting the frozen mapping, or evidence that the change requires public Rust API, constructor, validation, modifier, layout, or non-Symbol repr changes."
+  },
+  "ownership": {
+    "prompt": "00_nucleo/prompts/entities/symbol.md",
+    "exact_productive_consumer": "01_core/src/entities/symbol.rs",
+    "other_historical_paths_are": "dependencies-or-consumers-not-owners"
+  },
+  "contract_artifacts": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1398.md",
+      "sha256": "31c8d3282fa522b4849711a54661d314b37e705c5addaa991912e9971d980d41"
+    },
+    "updated_l0": {
+      "path": "00_nucleo/prompts/entities/symbol.md",
+      "baseline_sha256": "159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a",
+      "semantic_pre_candidate_sha256": "1c872b3c7f6d740c9c8912a4b23adb042062545b1b3b0bada82f9b125dbedd49"
+    }
+  },
+  "protected_inputs": [
+    {
+      "path": "01_core/src/entities/symbol.rs",
+      "role": "productive_baseline",
+      "sha256": "abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/symbol.rs",
+      "role": "ratified_symbol_repr_source",
+      "sha256": "4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a",
+      "lines": [
+        "339-390"
+      ]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/str.rs",
+      "role": "ratified_string_repr_source",
+      "sha256": "8648ad25be763830470664c9dc022f096902a496e4b553a7d75259b25334cdb7",
+      "lines": [
+        "718-753"
+      ]
+    }
+  ],
+  "binary_identities": {
+    "vanila": {
+      "revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "crystalline_baseline": {
+      "path": "target/release/typst",
+      "sha256": "50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c"
+    }
+  },
+  "measurements": {
+    "observed_at": "2026-09-14T17:24:42-03:00",
+    "execution": {
+      "parallelism": 1,
+      "rlimit_as_kib": 524288,
+      "timeout_seconds": 60,
+      "swap_kib": 0
+    },
+    "valid_summary": {
+      "required_red_cases": 9,
+      "preserved_control_cases": 7,
+      "vanila_max_rss_kib": 18196,
+      "crystalline_max_rss_kib": 33320
+    },
+    "red_families": [
+      "runtime-apostrophe",
+      "runtime-double-quote",
+      "runtime-nul",
+      "sym.quote-base-single-double",
+      "math.quote-base-single-double"
+    ],
+    "preserved_controls": [
+      "runtime-backslash",
+      "runtime-newline",
+      "runtime-tab",
+      "runtime-carriage-return",
+      "runtime-zwj-grapheme",
+      "emoji.heart-variation-selector",
+      "sym.arrow.r-variants"
+    ],
+    "discarded": [
+      {
+        "side": "vanila",
+        "count": 13,
+        "exit": 2,
+        "reason": "Initial exploratory command placed --color after the eval subcommand; this CLI rejected the option. All outputs and resource numbers from that round are excluded from evidence."
+      }
+    ]
+  },
+  "obligations": [
+    {
+      "id": "P1398-SYMBOL-STRING-ESCAPE",
+      "subject": "every string literal emitted inside Symbol::repr",
+      "mapping": {
+        "U+0027_APOSTROPHE": "literal apostrophe without backslash",
+        "U+0022_DOUBLE_QUOTE": "exactly one backslash followed by the quote",
+        "U+0000_NUL": "exactly \\u{0}",
+        "U+005C_BACKSLASH": "canonical doubled backslash",
+        "U+000A_NEWLINE": "exactly \\n",
+        "U+0009_TAB": "exactly \\t",
+        "U+000D_CARRIAGE_RETURN": "exactly \\r",
+        "ZWJ_AND_VARIATION_SELECTORS": "preserve current lowercase Unicode escapes and the complete grapheme"
+      },
+      "must_not": [
+        "recognize quote, sym, math, single, double, witness glyphs, or variant positions",
+        "apply a second escaping pass",
+        "truncate or normalize a grapheme"
+      ]
+    },
+    {
+      "id": "P1398-UNIFORM-COVERAGE",
+      "subject": "simple symbols, bases, variant values, and every other string emitted by the Symbol owner",
+      "must": "Apply one semantic mapping uniformly while preserving variant filtering, ordering, modifier trimming, and compact/multiline formatting.",
+      "must_not": [
+        "fix only runtime symbols",
+        "fix only bases or only variants",
+        "fix only sym.quote or math.quote"
+      ]
+    }
+  ],
+  "mandatory_observables": [
+    {
+      "family": "quote-paths",
+      "expressions": [
+        "repr(sym.quote)",
+        "repr(sym.quote.single)",
+        "repr(sym.quote.double)",
+        "repr(math.quote)",
+        "repr(math.quote.single)",
+        "repr(math.quote.double)"
+      ],
+      "requirements": [
+        "sym and math outputs are pairwise identical",
+        "every apostrophe value is literal without backslash",
+        "every double quote value contains exactly one escape backslash",
+        "all non-quote variants, order, and line formatting remain byte-for-byte equal to the ratified output"
+      ]
+    },
+    {
+      "case": "runtime-double-quote",
+      "expression": "repr(symbol(\"\\\"\"))",
+      "expected": "symbol(\"\\\"\")"
+    },
+    {
+      "case": "runtime-apostrophe",
+      "expression": "repr(symbol(\"'\"))",
+      "expected": "symbol(\"'\")"
+    },
+    {
+      "case": "runtime-nul",
+      "expression": "repr(symbol(\"\\u{0}\"))",
+      "expected": "symbol(\"\\u{0}\")"
+    },
+    {
+      "family": "escape-controls",
+      "cases": [
+        {
+          "input": "U+005C",
+          "expected_inner_escape": "\\\\"
+        },
+        {
+          "input": "U+000A",
+          "expected_inner_escape": "\\n"
+        },
+        {
+          "input": "U+0009",
+          "expected_inner_escape": "\\t"
+        },
+        {
+          "input": "U+000D",
+          "expected_inner_escape": "\\r"
+        },
+        {
+          "input": "U+200D inside woman-technologist grapheme",
+          "expected_inner_escape": "\\u{200d}"
+        },
+        {
+          "expression": "repr(emoji.heart)",
+          "expected_required_fragment": "❤\\u{fe0f}"
+        },
+        {
+          "expression": "repr(sym.arrow.r)",
+          "expected": "exact ratified output including ordering and variation selectors"
+        }
+      ]
+    }
+  ],
+  "authorized_delta": {
+    "productive_path": "01_core/src/entities/symbol.rs",
+    "owner": "00_nucleo/prompts/entities/symbol.md",
+    "surface": "private Symbol string-representation helpers",
+    "test_only": "Add or update directly related local unit expectations; do not compile the monolithic lib-test in this step.",
+    "lineage_metadata_update_allowed": true,
+    "forbidden": [
+      "public API or signatures",
+      "constructors and grapheme validation",
+      "modifier filtering, selection, or ordering",
+      "symbol tables or coverage",
+      "Value, bindings, eval, layout, export",
+      "repr of non-Symbol values",
+      "nominal witness special cases"
+    ]
+  },
+  "oracle_policy": {
+    "preserved": "Valid case exactly matches the frozen ratified morphology.",
+    "violated": "A valid negative mutation differs and yields a public witness.",
+    "unknown": "Identity ambiguity, unsupported parse/construction, failed build or execution, timeout, OOM, swap use, unreadable output, or exhausted budget.",
+    "unknown_on_mandatory_blocks": true,
+    "repeat_and_reverse_order_required": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "formula": "valid negative mutations rejected / valid negative mutations",
+    "surviving_valid_mutation_blocks_seal": true,
+    "minimum_attack_families": [
+      "apostrophe-left-as-escape-debug",
+      "double-quote-double-escaped",
+      "nul-left-as-short-zero",
+      "base-only-or-variant-only-fix",
+      "nominal-quote-only-fix",
+      "backslash-newline-tab-carriage-regression",
+      "variation-selector-or-zwj-regression",
+      "variant-order-or-pretty-format-regression"
+    ]
+  },
+  "memory_policy": {
+    "forbidden": [
+      "cargo test",
+      "workspace test suite",
+      "monolithic lib-test compilation",
+      "parallel probes or builds"
+    ],
+    "cli": {
+      "rlimit_as_kib": 524288,
+      "timeout_seconds": 60,
+      "parallelism": 1
+    },
+    "build_check": {
+      "rlimit_data_kib": 2097152,
+      "cargo_build_jobs": 1,
+      "parallelism": 1
+    },
+    "abort_if": {
+      "swap_nonzero": true,
+      "max_rss_above_kib": 1782579
+    }
+  },
+  "calibration_budget": {
+    "maximum_revisions_per_same_reason": 2,
+    "full_corpus_runs_before_seal": 1,
+    "full_corpus_runs_after_candidate": 1,
+    "policy": "Run affected slices and boundary controls first; two revisions with no discriminatory gain reopen the design and never relax Unknown."
+  },
+  "role_capabilities": [
+    {
+      "role": "contract-author",
+      "executor": "/root/contrato_p1398",
+      "read_allowlist": [
+        "AGENTS.md",
+        "tekt-materializacao-segregada skill and its two direct references",
+        "00_nucleo/prompts/entities/symbol.md",
+        "01_core/src/entities/symbol.rs baseline only",
+        "ratified foundations/symbol.rs:339-390",
+        "ratified foundations/str.rs:718-753",
+        "bilateral CLI outputs produced before candidate",
+        "P1397 step and contract as historical formatting templates"
+      ],
+      "write_allowlist": [
+        "00_nucleo/materialization/typst-passo-1398.md",
+        "00_nucleo/prompts/entities/symbol.md",
+        "00_nucleo/diagnosticos/p1398-contract.json"
+      ],
+      "forbidden": [
+        "future candidate implementation",
+        "oracle suite",
+        "mutants",
+        "seal",
+        "verdict"
+      ],
+      "context_inherited": "Role assignment, repository instructions, frozen identities, witnesses, memory limits, and no candidate patch."
+    },
+    {
+      "role": "oracle-author",
+      "restriction": "May write oracle artifacts from frozen contract; must not adapt expected results to candidate."
+    },
+    {
+      "role": "adversary",
+      "restriction": "May write mutation artifacts; must not select or repair implementation."
+    },
+    {
+      "role": "implementer",
+      "restriction": "May modify only authorized productive delta after pre-seal; must not edit protected contract or oracle inputs."
+    },
+    {
+      "role": "verifier",
+      "restriction": "May judge sealed artifacts and candidate outputs; must not edit anything judged."
+    }
+  ],
+  "skill_inputs": [
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    }
+  ],
+  "historical_template_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1397.md",
+      "sha256": "23ea09186ea561457685dc594b8e5276301a2378f8a76d5d2103d119e889af44",
+      "use": "artifact structure only"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1397-contract.json",
+      "sha256": "2a381fbf2c9e69e8d26526c174b7252a796d8fe0778b535555588d8ed405e0ef",
+      "use": "artifact structure only"
+    }
+  ],
+  "scope_out": [
+    "symbol tables and coverage",
+    "constructor and validation errors",
+    "modifier semantics",
+    "equality, hashing, concatenation, and markup",
+    "math layout and export",
+    "pretty-printer width policy",
+    "general string repr outside Symbol",
+    "functional parity beyond the frozen escape fragment"
+  ]
+}

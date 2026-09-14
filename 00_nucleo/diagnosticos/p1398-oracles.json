@@ -1,0 +1,265 @@
+{
+  "schema": "tekt-oracles/v1",
+  "step": 1398,
+  "role": "independent-oracle-author",
+  "executor": "/root/oraculos_p1398",
+  "environment": "shared workspace; no physical isolation attestation",
+  "regime": "full",
+  "regime_reason": "The change affects public repr syntax and Unicode morphology; an independently authored exact-byte oracle must be frozen before candidate implementation.",
+  "causal_predecessor": "762e95025a76cb8dec4b58097ca57aa878e05243",
+  "candidate_implementation_read": false,
+  "candidate_implementation_present_at_measurement": false,
+  "current_productive_source_read": false,
+  "contract_or_l0_read": false,
+  "inputs": [
+    {
+      "kind": "parent-frozen-intention",
+      "value": "Exact repr parity for the six sym.quote/math.quote paths and runtime Symbol containing double quote, apostrophe, or NUL; backslash, newline, emoji.heart variation selectors, and sym.arrow.r are preservation controls."
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "path": "target/release/typst",
+      "role": "frozen crystalline baseline executable",
+      "sha256": "50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c"
+    },
+    {
+      "path": "lab/typst-original/target/release/typst",
+      "role": "ratified vanila executable",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  ],
+  "capabilities": {
+    "read_allowlist": [
+      "AGENTS.md",
+      "tekt-materializacao-segregada skill and both direct references",
+      "parent-frozen intention and binary identities",
+      "P1397 oracle artifacts as harness-format precedent",
+      "ratified foundations/symbol.rs and foundations/str.rs",
+      "public CLI output from the two frozen executables"
+    ],
+    "write_allowlist": [
+      "lab/parity/p1398_symbol_string_repr.py",
+      "00_nucleo/diagnosticos/p1398-oracles.json"
+    ],
+    "forbidden_inputs_respected": [
+      "candidate implementation patch",
+      "current productive repr implementation",
+      "private implementer output",
+      "P1398 contract, L0 revision, and step draft"
+    ],
+    "inherited_context": "Parent assignment fixed the observable families, resource ceilings, binary identities, source references, and prohibition on adapting to future candidate implementation."
+  },
+  "ratified_source_evidence": [
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/symbol.rs",
+      "sha256": "4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a",
+      "lines": "339-390",
+      "evidence": "Single and variant Symbol repr delegates all values and modifiers to the canonical string Repr; variant filtering and order remain independent controls."
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/str.rs",
+      "sha256": "8648ad25be763830470664c9dc022f096902a496e4b553a7d75259b25334cdb7",
+      "lines": "718-749",
+      "evidence": "Canonical string Repr writes NUL as \\u{0}, leaves apostrophe literal, escapes double quote as \\\", and delegates all other characters to escape_debug."
+    }
+  ],
+  "suite": {
+    "kind": "Python standard-library CLI black box",
+    "path": "lab/parity/p1398_symbol_string_repr.py",
+    "sha256": "5ddc534788e2bf5695dfd8f1e8015be68e863ba3808d01490a5a88382d62377b",
+    "interface": [
+      "--binary PATH",
+      "--output PATH",
+      "--expected-binary-sha256 SHA256",
+      "--cli-profile crystalline|vanila"
+    ],
+    "execution": "serial subprocesses; 5-second timeout per eval process; outer 60-second process timeout",
+    "invocation": "typst eval --format raw [--color never] EXPRESSION",
+    "comparison": "exact UTF-8 bytes and Unicode code points; no normalization",
+    "output_memory_control": "stdout and stderr are redirected to temporary files; at most 65536 bytes per stream are read into memory; overflow is Unknown",
+    "case_count": 16,
+    "passes_per_case": 3,
+    "pass_orders": [
+      "direct",
+      "repeated",
+      "reverse"
+    ],
+    "calibration_budget": {
+      "maximum_full_corpus_runs_before_freeze": 4,
+      "maximum_oracle_revisions": 2,
+      "maximum_process_seconds_per_case": 5,
+      "maximum_outer_seconds_per_run": 60,
+      "actual_full_corpus_runs": 4,
+      "actual_oracle_revisions": 1
+    },
+    "cases": [
+      {"id": "sym-quote", "expression": "repr(sym.quote)", "family": "quote-path"},
+      {"id": "sym-quote-double", "expression": "repr(sym.quote.double)", "family": "quote-path"},
+      {"id": "sym-quote-single", "expression": "repr(sym.quote.single)", "family": "quote-path"},
+      {"id": "math-quote", "expression": "repr(math.quote)", "family": "quote-alias"},
+      {"id": "math-quote-double", "expression": "repr(math.quote.double)", "family": "quote-alias"},
+      {"id": "math-quote-single", "expression": "repr(math.quote.single)", "family": "quote-alias"},
+      {"id": "runtime-double-quote", "expression": "repr(symbol(\"\\\"\"))", "family": "runtime-string"},
+      {"id": "runtime-apostrophe", "expression": "repr(symbol(\"'\"))", "family": "runtime-string"},
+      {"id": "runtime-nul", "expression": "repr(symbol(\"\\u{0}\"))", "family": "runtime-string"},
+      {"id": "runtime-backslash-control", "expression": "repr(symbol(\"\\\\\"))", "family": "escape-control"},
+      {"id": "runtime-newline-control", "expression": "repr(symbol(\"\\n\"))", "family": "escape-control"},
+      {"id": "runtime-tab-control", "expression": "repr(symbol(\"\\t\"))", "family": "escape-control"},
+      {"id": "runtime-carriage-return-control", "expression": "repr(symbol(\"\\r\"))", "family": "escape-control"},
+      {"id": "runtime-zwj-control", "expression": "repr(symbol(\"👩‍💻\"))", "family": "escape-control"},
+      {"id": "emoji-heart-vs-control", "expression": "repr(emoji.heart)", "family": "variation-selector-control"},
+      {"id": "arrow-r-control", "expression": "repr(sym.arrow.r)", "family": "large-symbol-control"}
+    ],
+    "expectations_origin": "Exact public outputs measured from the hash-pinned vanila executable and cross-checked against ratified source intent before candidate implementation existed; R1 adds the three mandatory controls transmitted from the completed contract.",
+    "unknown_policy": {
+      "mode": "fail-closed",
+      "exit": 2,
+      "reasons": [
+        "binary missing or unreadable",
+        "binary SHA-256 mismatch",
+        "tool execution failure",
+        "timeout",
+        "nonzero process exit",
+        "missing output",
+        "invalid UTF-8",
+        "output limit exceeded",
+        "repeat or reverse-order disagreement"
+      ]
+    }
+  },
+  "measurement_state": {
+    "head": "762e95025a76cb8dec4b58097ca57aa878e05243",
+    "git_diff_head_stat": "00_nucleo/prompts/entities/symbol.md | 68 ++++++++++++++++++++++++++++++------; 1 file changed, 58 insertions(+), 10 deletions(-)",
+    "untracked_inputs_present": [
+      "00_nucleo/diagnosticos/p1398-mutants.json",
+      "00_nucleo/materialization/typst-passo-1398.md",
+      "lab/parity/p1398_symbol_string_repr.py"
+    ],
+    "productive_candidate_present": false,
+    "note": "Concurrent contract/adversarial artifacts were visible by path in git status but were not opened. The parent transmitted only the final contract obligation to add tab, carriage-return, and ZWJ controls."
+  },
+  "r1_tracking": {
+    "trigger": "The completed contract made runtime tab, carriage return, and ZWJ symbol repr mandatory before seal.",
+    "hypothesis": "All three added cases are already preserved by both executables, so the baseline vector changes from 9 Difference/4 Preserved to 9 Difference/7 Preserved while the vanila vector changes from 13 to 16 Preserved.",
+    "affected_slice_first": true,
+    "affected_slice_cases": [
+      "runtime-tab-control",
+      "runtime-carriage-return-control",
+      "runtime-zwj-control"
+    ],
+    "affected_slice_result": {
+      "crystalline": {"Preserved": 3, "Difference": 0, "Unknown": 0},
+      "vanila": {"Preserved": 3, "Difference": 0, "Unknown": 0}
+    },
+    "previous_vector": {
+      "crystalline": {"Difference": 9, "Preserved": 4, "Unknown": 0},
+      "vanila": {"Difference": 0, "Preserved": 13, "Unknown": 0}
+    },
+    "new_vector": {
+      "crystalline": {"Difference": 9, "Preserved": 7, "Unknown": 0},
+      "vanila": {"Difference": 0, "Preserved": 16, "Unknown": 0}
+    },
+    "corrected_cases": [
+      "runtime-tab-control",
+      "runtime-carriage-return-control",
+      "runtime-zwj-control"
+    ],
+    "regressed_cases": [],
+    "reason_code": "CONTRACT_OBSERVABLES_ADDED",
+    "full_corpus_rerun_performed": true,
+    "order_agreement": true,
+    "discriminatory_gain": "Three independent escape_debug controls now distinguish the target quote/apostrophe/NUL rule from generic control and ZWJ escaping."
+  },
+  "red": {
+    "classification": "Difference",
+    "reason_code": "EXACT_REPR_MISMATCH",
+    "credit_as_red": true,
+    "timestamp": "2026-09-14T17:30:52.480022345-03:00",
+    "command": "bash -lc 'ulimit -v 524288; timeout 60s /usr/bin/time -v python3 lab/parity/p1398_symbol_string_repr.py --binary target/release/typst --output /tmp/p1398-red-r1.json --expected-binary-sha256 50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c --cli-profile crystalline'",
+    "rlimit_as_kib": 524288,
+    "timeout_seconds": 60,
+    "exit": 1,
+    "elapsed_seconds": 5.60,
+    "max_rss_kib": 33616,
+    "rss_fraction_of_limit": 0.0641,
+    "swap": 0,
+    "output": "/tmp/p1398-red-r1.json",
+    "output_sha256": "e03daeb56ea7a3d5fde6a5e3569715e98ec3beb3bf7313a913c1089774e2c6ad",
+    "output_bytes": 678282,
+    "binary_identity_accepted": true,
+    "order_agreement": true,
+    "counts": {"Difference": 9, "Preserved": 7, "Unknown": 0},
+    "difference_cases": [
+      "sym-quote",
+      "sym-quote-double",
+      "sym-quote-single",
+      "math-quote",
+      "math-quote-double",
+      "math-quote-single",
+      "runtime-double-quote",
+      "runtime-apostrophe",
+      "runtime-nul"
+    ],
+    "preserved_controls": [
+      "runtime-backslash-control",
+      "runtime-newline-control",
+      "runtime-tab-control",
+      "runtime-carriage-return-control",
+      "runtime-zwj-control",
+      "emoji-heart-vs-control",
+      "arrow-r-control"
+    ]
+  },
+  "positive_control": {
+    "classification": "Preserved",
+    "binary_role": "ratified vanila",
+    "timestamp": "2026-09-14T17:31:03.342214202-03:00",
+    "command": "bash -lc 'ulimit -v 524288; timeout 60s /usr/bin/time -v python3 lab/parity/p1398_symbol_string_repr.py --binary lab/typst-original/target/release/typst --output /tmp/p1398-vanila-r1.json --expected-binary-sha256 eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f --cli-profile vanila'",
+    "rlimit_as_kib": 524288,
+    "timeout_seconds": 60,
+    "exit": 0,
+    "elapsed_seconds": 0.48,
+    "max_rss_kib": 27680,
+    "rss_fraction_of_limit": 0.0528,
+    "swap": 0,
+    "output": "/tmp/p1398-vanila-r1.json",
+    "output_sha256": "0a0840cbd0987c8b0baca07c57aeeb74f8adf1544567d32a92e80e8760500567",
+    "output_bytes": 676242,
+    "binary_identity_accepted": true,
+    "order_agreement": true,
+    "counts": {"Difference": 0, "Preserved": 16, "Unknown": 0}
+  },
+  "fail_closed_control": {
+    "kind": "deliberately wrong expected SHA-256",
+    "timestamp": "2026-09-14T17:31:11.735891889-03:00",
+    "exit": 2,
+    "elapsed_seconds": 0.09,
+    "max_rss_kib": 24036,
+    "swap": 0,
+    "output": "/tmp/p1398-unknown-r1.json",
+    "output_sha256": "364eb510e5940d4383217b1ba747418344c9e7cfca2fae1418f03e742d23cfb5",
+    "output_bytes": 344679,
+    "counts": {"Difference": 0, "Preserved": 0, "Unknown": 16},
+    "overall": "Unknown",
+    "reason_code": "BINARY_IDENTITY_MISMATCH",
+    "credit_as_positive_or_red": false
+  },
+  "seal_emitted": false,
+  "final_verdict_emitted": false,
+  "claim_limit": "This oracle covers only exact repr bytes for the six quote symbol paths, three runtime-symbol escape targets, and seven preservation controls; it does not establish general Symbol, repr, math, or Typst parity."
+}

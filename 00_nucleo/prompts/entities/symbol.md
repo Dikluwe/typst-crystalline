@@ -1,8 +1,13 @@
 # Prompt L0 — `Symbol` — grapheme Unicode nomeado com modifiers e constructor
-Hash do Código: 5a1c3363
+Hash do Código: 9e803b06
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`, `01_core/src/compiler/eval/bindings.rs`, `01_core/src/compiler/eval/closures.rs`, `01_core/src/compiler/eval/repr.rs`, `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/stdlib/foundations.rs`
+**Ficheiro alvo**: `01_core/src/entities/symbol.rs`
+**Dependências e consumidores históricos (não owners deste L0)**:
+`01_core/src/entities/value.rs`, `01_core/src/compiler/eval/bindings.rs`,
+`01_core/src/compiler/eval/closures.rs`, `01_core/src/compiler/eval/repr.rs`,
+`01_core/src/compiler/stdlib/sym.rs` e
+`01_core/src/compiler/stdlib/foundations.rs`.
 **Origem**: Passo 471 — `Value::Symbol` subset minimal (S); Passo 765a — modifiers encadeados e constructor.
 **ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0029 (pureza L1).
 
@@ -10,10 +15,12 @@ Hash do Código: 5a1c3363
 
 ## 1. Contexto
 
-O Typst vanilla expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`) e via constructor `symbol(...)`.
+O Typst vanila expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`) e via constructor `symbol(...)`.
 
-> **Fonte de paridade (P1031)** — **citação literal** do doc comment `#[ty]` do vanilla
-> ratificado (`e0e8ca4d`), `crates/typst-library/src/foundations/symbol.rs:19-37`, publicado
+> **Fonte de paridade (P1031, revalidada em P1398)** — **citação literal** do doc
+> comment `#[ty]` do vanila ratificado
+> (`586e1bd43fae6c9a973218163d3165c53ab8d16d`),
+> `crates/typst-library/src/foundations/symbol.rs:19-37`, publicado
 > em `typst.app/docs/reference/foundations/symbol/`:
 >
 > *"A Unicode symbol. Typst defines common symbols so that they can easily be written with
@@ -43,7 +50,8 @@ Passo 765a acrescenta:
 2. Constructor `symbol(...)` para symbols runtime.
 3. `repr()` de symbols com variants.
 
-**P1161 — medição anterior à decisão.** No vanilla ratificado `a51e02804`,
+**P1161 — medição anterior à decisão, revalidada por P1398.** No vanila
+ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
 `emoji.heart` serializa/renderiza `U+2764 U+FE0F`; `symbol("👩‍💻")`,
 `symbol("👍🏽")` e `symbol("🇧🇷")` são aceites, enquanto `symbol("")` e
 `symbol("ab")` falham com `variant value must be exactly one grapheme
@@ -54,7 +62,7 @@ iguais são `true`, e concatenação preserva o cluster inteiro. Fonte ratificad
 
 Classificação: o cluster, constructor, `repr`, concatenação, modifiers,
 igualdade e erros são semântica/morfologia observável. `SymbolInner`,
-`Arc<Modified>` e strings estáticas/runtime do vanilla são mecânica e não são
+`Arc<Modified>` e strings estáticas/runtime do vanila são mecânica e não são
 copiados. A igualdade observada não é reduzida ao texto visível: a identidade
 e a lista de variants permanecem parte do valor da linguagem.
 
@@ -81,7 +89,7 @@ pub struct Symbol {
 `EcoString` é a representação escolhida: preserva o cluster sem I/O, já é
 permitida em L1 e clona O(1). Um enum `Scalar | Cluster` é rejeitado porque a
 linguagem só distingue “um grapheme válido”, não duas classes semânticas.
-Copiar o enum estático/runtime e o `Arc` do vanilla é rejeitado como mecânica
+Copiar o enum estático/runtime e o `Arc` do vanila é rejeitado como mecânica
 sem ganho observável. Manter `char` mais um sufixo é rejeitado porque permite
 estados partidos e obriga cada consumer a reconstruir a morfologia.
 
@@ -145,8 +153,40 @@ lista as variants compatíveis com os modifiers aplicados, removendo os
 modifiers já aplicados. O escape percorre a string completa; VS16 aparece
 como `\u{fe0f}` e ZWJ como `\u{200d}` conforme a medição.
 
-**P1163 — forma compacta/multilinha.** Medição em 2026-08-25 contra o vanilla
-ratificado `a51e02804` (`foundations/symbol.rs:339-390` e
+**P1398 — escape canônico de toda string interna.** Medição em
+`2026-09-14T17:24:42-03:00`, sobre HEAD limpo
+`762e95025a76cb8dec4b58097ca57aa878e05243`, comparou o binário cristalino
+baseline SHA-256
+`50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c`
+com o vanila ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, binário SHA-256
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+As sondas seriais, limitadas a 512 MiB, mediram que o cristalino acrescenta
+uma barra indevida ao apóstrofo e às aspas duplas e abrevia NUL como `\0`,
+enquanto os controles de barra invertida, nova linha, tab, carriage return,
+variation selector e ZWJ já coincidem. A fonte ratificada
+`foundations/symbol.rs:339-390` delega cada valor à representação de string;
+`foundations/str.rs:718-753` torna explícita a regra por caractere. Portanto,
+a obrigação geral para **toda string emitida dentro de `Symbol::repr`** é:
+
+- apóstrofo U+0027 permanece literal, sem escape;
+- aspas duplas U+0022 tornam-se exatamente `\"`;
+- NUL U+0000 torna-se exatamente `\u{0}`;
+- barra invertida, nova linha, tab e carriage return usam respectivamente
+  `\\`, `\n`, `\t` e `\r`;
+- ZWJ e variation selectors preservam os escapes Unicode canônicos já
+  vigentes, sem perda ou normalização do grapheme.
+
+A regra é uniforme para valores simples, bases e valores de variantes; não
+reconhece nomes como `quote`, módulos `sym`/`math`, modifiers ou glyphs
+testemunha. P1398 pode alterar somente os helpers privados de representação e
+testes locais deste consumer. Não altera constructor, validação de grapheme,
+seleção de modifiers, tabelas, igualdade, layout nem outros tipos de `repr`.
+É correção interna de paridade em fluxo contínuo conforme ADR-0127.
+
+**P1163 — forma compacta/multilinha.** Medição revalidada em P1398 contra o
+vanila ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+(`foundations/symbol.rs:339-390` e
 `foundations/repr.rs:170-223`): a lista resultante passa por
 `pretty_array_like(..., false)`. A soma em bytes das peças e separadores cabe
 horizontalmente até 50; acima disso, cada variant ocupa uma linha indentada
@@ -161,7 +201,7 @@ e a sua localização são mecânica interna (ADR-0107).
 
 ## 11. Scope-out
 
-- Tabela completa de variants do vanilla: apenas `arrow` materializado com subset medido.
+- Tabela completa de variants do vanila: apenas `arrow` materializado com subset medido.
 - Variantes com deprecation/warnings.
 - `Symbol::func()` para math accents callable.
 - Normalização Unicode: os codepoints fornecidos são preservados; NFC/NFD não
@@ -178,4 +218,12 @@ symbol("❤️") → value U+2764 U+FE0F, sem truncamento
 symbol("👩‍💻"), symbol("👍🏽"), symbol("🇧🇷") → aceites
 symbol(""), symbol("ab") → erro de exactamente um grapheme cluster
 repr(symbol(("bold", "α"), ("italic", "α"))) == "symbol((\"bold\", \"α\"), (\"italic\", \"α\"))"
+repr(symbol("'")) → symbol("'")
+repr(symbol("\"")) → symbol("\"")
+repr(symbol("\u{0}")) → symbol("\u{0}")
+repr(symbol("\\")) → symbol("\\")
+repr(symbol("\n")) → symbol("\n")
+repr(symbol("\t")) → symbol("\t")
+repr(symbol("\r")) → symbol("\r")
+repr(symbol("👩‍💻")) → symbol("👩\u{200d}💻")
 ```

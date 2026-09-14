@@ -1,0 +1,461 @@
+{
+  "schema": "tekt-mutant-suite/v1",
+  "step": "P1398",
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1398-mutants.json",
+    "kind": "negative_mutation_catalog",
+    "status": "R0_CATALOG_CANDIDATE_UNEXECUTED",
+    "created_at": "2026-09-14T17:25:02-03:00",
+    "revision": "R0 Symbol string repr escaping and variant-container controls",
+    "mutation_execution_performed": false,
+    "candidate_implementation_read": false,
+    "candidate_implementation_edited": false,
+    "solution_proposed": false,
+    "seal_or_verdict_issued": false
+  },
+  "authority": {
+    "regime": "protocolo completo, fase adversarial",
+    "role": "adversario",
+    "executor": "/root/adversario_p1398",
+    "environment": "agente delegado no working tree compartilhado typst-crystalline",
+    "context_inherited": "all; a restricao de capacidade, e nao isolamento tecnico do filesystem, governa esta fase",
+    "repository_head_at_authoring": "762e95025a76cb8dec4b58097ca57aa878e05243",
+    "causal_predecessor": "lacuna publica P1335/P1357: repr dos seis bindings sym.quote/math.quote e variants diverge por escaping de string dentro de Symbol",
+    "isolation_claim": "executado sem atestacao de isolamento",
+    "read_allowlist": [
+      "AGENTS.md",
+      "skill tekt-materializacao-segregada e suas duas referencias",
+      "00_nucleo/prompts/entities/symbol.md no baseline congelado",
+      "01_core/src/entities/symbol.rs no baseline congelado, sem candidata",
+      "00_nucleo/prompts/compiler/eval/repr.md no baseline congelado",
+      "01_core/src/compiler/eval/repr.rs no baseline congelado, sem candidata",
+      "lab/typst-original/crates/typst-library/src/foundations/symbol.rs",
+      "00_nucleo/diagnosticos/p1335-o-que-falta-para-paridade.md",
+      "00_nucleo/diagnosticos/p1357-parity-backlog.json"
+    ],
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1398-mutants.json"
+    ],
+    "explicitly_denied_writes": [
+      "00_nucleo/prompts/entities/symbol.md",
+      "00_nucleo/prompts/compiler/eval/repr.md",
+      "00_nucleo/materialization/typst-passo-1398.md",
+      "00_nucleo/diagnosticos/p1398-contract.json",
+      "00_nucleo/diagnosticos/p1398-oracles.json",
+      "lab/parity/p1398_symbol_repr_escaping.py",
+      "01_core/src/entities/symbol.rs",
+      "01_core/src/compiler/eval/repr.rs",
+      "qualquer outro codigo produtivo, oraculo, selo, recibo ou veredito"
+    ]
+  },
+  "frozen_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/symbol.md",
+      "sha256": "159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a",
+      "role": "L0 owner baseline before P1398 candidate"
+    },
+    {
+      "path": "01_core/src/entities/symbol.rs",
+      "sha256": "abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03",
+      "role": "productive Symbol baseline; future candidate forbidden"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24",
+      "role": "caller contract baseline"
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "sha256": "c31e786562cbbcd7d874c91ef3b8884fa802cb64ca7c84f421b761bb5ee9cc52",
+      "role": "Value::Symbol caller baseline; outside adversarial writes"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/symbol.rs",
+      "sha256": "4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a",
+      "role": "ratified vanila source at 586e1bd43fae6c9a973218163d3165c53ab8d16d"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1335-o-que-falta-para-paridade.md",
+      "sha256": "4f3b6ae9b1d3a4f98ea7579fe6b3bbddde9cdef740c3a2f234ade3223dd0a797",
+      "role": "measured backlog attribution"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1357-parity-backlog.json",
+      "sha256": "d097b8c0ed5d81932075733a0569f0358a0c3fb7469bcef8346fd295c12523b9",
+      "role": "six affected public binding paths"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    }
+  ],
+  "contract_dependency": {
+    "path": "00_nucleo/diagnosticos/p1398-contract.json",
+    "state_at_authoring": "pending independent contract author",
+    "oracle_path_expected": "00_nucleo/diagnosticos/p1398-oracles.json",
+    "gate": "Contrato e oraculo estavam concorrentes e ausentes neste instante. Antes do pre-selo, reconciliar ids, outputs byte-exact, hashes e escopo. Qualquer divergencia invalida este R0; nao adaptar silenciosamente witnesses ao candidato."
+  },
+  "frozen_intent": {
+    "string_repr": "Toda string que aparece dentro de Symbol usa uma unica camada da representacao canonica de string da linguagem: aspas duplas, barra invertida, newline, NUL e demais controles seguem o vanila byte a byte.",
+    "quote_rule": "U+0022 e escapado exatamente uma vez; U+0027 nao e escapado por estar dentro de literal delimitado por aspas duplas.",
+    "nul_rule": "U+0000 usa a forma canonica medida no vanila e nao a forma Rust escape_debug \\0.",
+    "unicode_rule": "Variation selectors U+FE00..U+FE0F/U+E0100..U+E01EF e U+200D ZWJ permanecem scalar values do grapheme e usam os escapes canonicos medidos; nao podem ser removidos, normalizados nem deixados depender de Debug Rust.",
+    "generality": "A regra cobre Symbols estaticos, modificados e runtime, qualquer nome e valor; os seis bindings quote sao testemunhas, nao uma allowlist nominal.",
+    "variant_container": "Ordem de declaracao, filtro por modifiers aplicados, chaves restantes e decisao pretty de uma/multiplas linhas permanecem iguais ao vanila.",
+    "comparison": "stdout UTF-8 e comparado byte a byte, inclusive barras, aspas, virgulas, espacos, indentacao e quebras; sem trim, parse/re-emissao ou normalizacao Unicode.",
+    "unknown_policy": "Unknown obrigatorio bloqueia e nunca equivale a Preserved ou mutante morto.",
+    "claim_limit": "somente repr publico de strings dentro de Symbol e o container de variants diretamente afetado; nenhuma paridade Symbol ou repr geral"
+  },
+  "safe_execution_policy": {
+    "catalog_only": true,
+    "compile_mutants": false,
+    "run_mutants": false,
+    "run_cargo": false,
+    "run_workspace_tests": false,
+    "parallelism": 1,
+    "application": "Transformacoes sao contrafactuais para copia limpa; este papel nao as injeta no workspace.",
+    "memory_rule": "Nenhum cargo, rustc, linker ou binario Typst e iniciado nesta fase. Gates posteriores devem usar execucao serial, teto explicito, timeout e swap zero."
+  },
+  "mutation_protocol": {
+    "application_model": "Aplicar exatamente uma transformacao deterministica por vez, mantendo o restante do contrato congelado.",
+    "validity_rule": "Mutacao valida viola escaping canonico, preservacao de scalar value, generalidade estatica/runtime, identidade/ordem/filtro de variants, pretty formatting byte-exact ou politica de Unknown.",
+    "expected_for_every_valid_applicable_mutant": "Violated",
+    "unexpected_unknown": "fail_closed",
+    "required_mutation_score": 1.0,
+    "score_formula": "valid_applicable_mutants_rejected / valid_applicable_mutants",
+    "opaque_policy": "Casos deliberadamente opacos devem resultar Unknown, ficam fora do denominador e nao recebem credito de mutacao.",
+    "execution_status": "catalogado; nao injetado, compilado ou executado"
+  },
+  "mutants": [
+    {
+      "id": "M01_KEEP_CURRENT_DOUBLE_ESCAPE_QUOTE",
+      "ordinal": 1,
+      "category": "quote_double_escape",
+      "mutation": "Manter o algoritmo baseline escape_debug seguido de nova substituicao de U+0022, produzindo uma barra adicional diante da aspa.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["sym-quote-base", "sym-quote-double", "math-quote-base", "runtime-double-quote"],
+        "required": "a aspa dupla recebe exatamente uma camada de escape dentro de symbol(...)",
+        "reason_code": "DOUBLE_QUOTE_ESCAPED_TWICE"
+      }
+    },
+    {
+      "id": "M02_ESCAPE_APOSTROPHE_AS_RUST_DEBUG",
+      "ordinal": 2,
+      "category": "wrong_literal_context",
+      "mutation": "Escapar U+0027 como \\' mesmo dentro de string delimitada por aspas duplas.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-apostrophe", "runtime-apostrophe-variant"],
+        "required": "U+0027 literal sem barra adicional",
+        "reason_code": "APOSTROPHE_OVERESCAPED"
+      }
+    },
+    {
+      "id": "M03_NUL_AS_BACKSLASH_ZERO",
+      "ordinal": 3,
+      "category": "control_escape",
+      "mutation": "Representar U+0000 com o escape Rust \\0 em vez da grafia canonica vanila.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-nul", "runtime-nul-variant"],
+        "required": "bytes do escape U+0000 exatamente iguais ao vanila",
+        "reason_code": "NUL_RUST_ESCAPE_LEAK"
+      }
+    },
+    {
+      "id": "M04_LEAVE_DOUBLE_QUOTE_UNESCAPED",
+      "ordinal": 4,
+      "category": "delimiter_breakage",
+      "mutation": "Emitir U+0022 literal sem barra dentro das aspas externas.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["sym-quote-base", "math-quote-double", "runtime-double-quote"],
+        "required": "literal permanece sintaticamente delimitado e byte-exact",
+        "reason_code": "DOUBLE_QUOTE_NOT_ESCAPED"
+      }
+    },
+    {
+      "id": "M05_BREAK_BACKSLASH_ESCAPE",
+      "ordinal": 5,
+      "category": "backslash_escape",
+      "mutation": "Emitir U+005C cru, removê-lo ou aplicar uma camada extra de escape.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-backslash", "runtime-backslash-variant"],
+        "required": "a cardinalidade de barras no stdout coincide exatamente com o vanila",
+        "reason_code": "BACKSLASH_ESCAPE_MISMATCH"
+      }
+    },
+    {
+      "id": "M06_BREAK_NEWLINE_ESCAPE",
+      "ordinal": 6,
+      "category": "control_escape",
+      "mutation": "Emitir newline literal, removê-lo ou usar escape Unicode no lugar da grafia canonica curta do vanila.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-newline", "runtime-newline-variant"],
+        "required": "newline preservado como escape canonico, sem criar quebra estrutural do pretty formatter",
+        "reason_code": "NEWLINE_ESCAPE_MISMATCH"
+      }
+    },
+    {
+      "id": "M07_REMOVE_OR_LITERALIZE_VARIATION_SELECTOR",
+      "ordinal": 7,
+      "category": "unicode_scalar_loss",
+      "mutation": "Remover um variation selector, normalizar o grapheme sem ele ou emiti-lo literalmente em vez do escape canonico medido.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-vs16", "runtime-supplementary-vs"],
+        "required": "todos os scalar values e seus escapes canonicos permanecem presentes",
+        "reason_code": "VARIATION_SELECTOR_LOST_OR_MISREPRESENTED"
+      }
+    },
+    {
+      "id": "M08_REMOVE_OR_LITERALIZE_ZWJ",
+      "ordinal": 8,
+      "category": "unicode_scalar_loss",
+      "mutation": "Remover U+200D, dividir o grapheme ou emitir ZWJ literal em vez do escape canonico medido.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-zwj-grapheme", "runtime-zwj-variant"],
+        "required": "sequencia multi-codepoint conserva U+200D no lugar e na forma canonica",
+        "reason_code": "ZWJ_LOST_OR_MISREPRESENTED"
+      }
+    },
+    {
+      "id": "M09_SPECIAL_CASE_QUOTE_NAMES",
+      "ordinal": 9,
+      "category": "nominal_special_case",
+      "mutation": "Corrigir somente Symbols cujo nome interno e quote, deixando o mesmo valor em outro Symbol incorreto.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-double-quote", "runtime-apostrophe", "runtime-mixed-escapes"],
+        "required": "escaping depende do valor da string, nunca do nome do Symbol",
+        "reason_code": "QUOTE_NAME_ALLOWLIST"
+      }
+    },
+    {
+      "id": "M10_SPECIAL_CASE_SIX_PUBLIC_BINDINGS",
+      "ordinal": 10,
+      "category": "witness_allowlist",
+      "mutation": "Hardcodar outputs para math.quote, math.quote.double, math.quote.single, sym.quote, sym.quote.double e sym.quote.single.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-double-quote", "runtime-double-quote-variant", "runtime-mixed-escapes"],
+        "required": "os seis bindings provam a regra geral e nao autorizam tabela nominal de reparo",
+        "reason_code": "SIX_BINDING_HARDCODE"
+      }
+    },
+    {
+      "id": "M11_FIX_RUNTIME_ONLY",
+      "ordinal": 11,
+      "category": "construction_kind_underfit",
+      "mutation": "Aplicar o escaping canonico somente a Symbol::runtime e preservar o erro em Symbols estaticos/modificados.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["sym-quote-base", "sym-quote-double", "sym-quote-single", "math-quote-base", "math-quote-double", "math-quote-single"],
+        "required": "mesmo encoder para construcao estatica, modificada e runtime",
+        "reason_code": "RUNTIME_ONLY_FIX"
+      }
+    },
+    {
+      "id": "M12_FIX_STATIC_ONLY",
+      "ordinal": 12,
+      "category": "construction_kind_underfit",
+      "mutation": "Corrigir os bindings estaticos/modificados e deixar Symbol runtime sob escape_debug.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-double-quote", "runtime-apostrophe", "runtime-nul", "runtime-backslash", "runtime-newline"],
+        "required": "runtime compartilha a mesma representacao canonica",
+        "reason_code": "STATIC_ONLY_FIX"
+      }
+    },
+    {
+      "id": "M13_CHANGE_PRETTY_MULTILINE_POLICY",
+      "ordinal": 13,
+      "category": "container_format_regression",
+      "mutation": "Alterar limiar, indentacao, trailing comma ou decisao one-line/multiline enquanto se troca o encoder da string.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["variants-short-one-line", "variants-long-multiline", "variants-multiline-boundary"],
+        "required": "forma pretty e bytes do container iguais ao vanila em ambos os lados da fronteira",
+        "reason_code": "PRETTY_CONTAINER_CHANGED"
+      }
+    },
+    {
+      "id": "M14_REORDER_VARIANTS",
+      "ordinal": 14,
+      "category": "variant_order_regression",
+      "mutation": "Ordenar variants por modifier, valor ou hash em vez de preservar a ordem publica de declaracao.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["runtime-variant-declaration-order", "static-quote-variant-order"],
+        "required": "tuplas aparecem na ordem canonica observada",
+        "reason_code": "VARIANT_ORDER_CHANGED"
+      }
+    },
+    {
+      "id": "M15_REMOVE_APPLIED_MODIFIER_FILTER",
+      "ordinal": 15,
+      "category": "variant_filter_regression",
+      "mutation": "Imprimir variants que nao contem todos os modifiers aplicados ou deixar modifiers ja aplicados nas chaves exibidas.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["modified-symbol-filter", "modified-symbol-trim-key"],
+        "required": "somente variants alcancaveis permanecem e a chave omite modifiers aplicados",
+        "reason_code": "APPLIED_MODIFIER_FILTER_REMOVED"
+      }
+    },
+    {
+      "id": "M16_OVERFILTER_OR_FALLBACK_TO_CURRENT_VALUE",
+      "ordinal": 16,
+      "category": "variant_filter_regression",
+      "mutation": "Descartar variants alcancaveis ou reduzir indevidamente uma lista a apenas self.value apos modifiers.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["modified-symbol-retains-accessible-variants", "runtime-multiple-variants"],
+        "required": "todas e somente as variants ainda alcancaveis sao representadas",
+        "reason_code": "ACCESSIBLE_VARIANTS_LOST"
+      }
+    },
+    {
+      "id": "M17_NORMALIZE_EXACT_OUTPUT",
+      "ordinal": 17,
+      "category": "comparison_weakening",
+      "mutation": "Comparar apos parse/re-emissao, trim, collapse de whitespace, normalizacao Unicode ou contagem apenas de barras.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["sym-quote-byte-exact", "runtime-mixed-escapes-byte-exact", "variants-long-multiline"],
+        "required": "comparacao integral de stdout UTF-8 sem transformacao",
+        "reason_code": "EXACT_REPR_NORMALIZED"
+      }
+    },
+    {
+      "id": "M18_UNKNOWN_ACCEPTED_AS_SUCCESS",
+      "ordinal": 18,
+      "category": "unknown_policy",
+      "mutation": "Converter timeout, processo morto por limite, parser sem suporte, stdout ausente ou identidade ambigua em Preserved.",
+      "valid": true,
+      "applicable": true,
+      "expected": "Violated",
+      "witness": {
+        "killed_by": ["opaque-timeout", "opaque-unsupported-construction", "opaque-empty-output", "opaque-wrong-binary"],
+        "required": "Unknown permanece bloqueante e fora do credito de mutacao",
+        "reason_code": "UNKNOWN_IS_NOT_SUCCESS"
+      }
+    }
+  ],
+  "required_controls": {
+    "positive": [
+      "sym-quote-base",
+      "sym-quote-double",
+      "sym-quote-single",
+      "math-quote-base",
+      "math-quote-double",
+      "math-quote-single",
+      "runtime-double-quote",
+      "runtime-double-quote-variant",
+      "runtime-apostrophe",
+      "runtime-apostrophe-variant",
+      "runtime-nul",
+      "runtime-nul-variant",
+      "runtime-backslash",
+      "runtime-backslash-variant",
+      "runtime-newline",
+      "runtime-newline-variant",
+      "runtime-vs16",
+      "runtime-supplementary-vs",
+      "runtime-zwj-grapheme",
+      "runtime-zwj-variant",
+      "runtime-mixed-escapes",
+      "ordinary-symbol-no-overescape",
+      "runtime-variant-declaration-order",
+      "static-quote-variant-order",
+      "modified-symbol-filter",
+      "modified-symbol-trim-key",
+      "modified-symbol-retains-accessible-variants",
+      "runtime-multiple-variants",
+      "variants-short-one-line",
+      "variants-long-multiline",
+      "variants-multiline-boundary"
+    ],
+    "negative": [
+      "double-escaped-quote-rejected",
+      "unescaped-quote-rejected",
+      "escaped-apostrophe-rejected",
+      "nul-backslash-zero-rejected",
+      "literal-newline-rejected",
+      "missing-vs-rejected",
+      "missing-zwj-rejected",
+      "reordered-variants-rejected",
+      "unfiltered-variants-rejected",
+      "normalized-output-rejected"
+    ],
+    "opaque": [
+      "opaque-timeout",
+      "opaque-unsupported-construction",
+      "opaque-empty-output",
+      "opaque-wrong-binary"
+    ],
+    "repetition_and_order": "O gate selador executa o corpus em ordem direta e reversa e o repete; classificacoes e bytes devem permanecer identicos."
+  },
+  "calibration_budget": {
+    "full_corpus_runs_before_seal": 2,
+    "focused_revision_limit_per_reason_code": 2,
+    "mutation_injection_runs": 0,
+    "stop_rule": "Duas revisoes sem ganho no mesmo vetor/reason_code reabrem contrato ou observabilidade; nao autorizam afrouxar expected nem promover Unknown."
+  },
+  "gate_requirements": {
+    "preseal": "Reconciliar este R0 com contrato e oraculos independentes publicados, registrar hashes e provar que cada mutante valido aplicavel tem witness executavel ou estrutural publico.",
+    "required_mutation_score": 1.0,
+    "survivor_policy": "Qualquer mutante valido aplicavel sobrevivente impede selo.",
+    "claim_boundary": "O catalogo ataca apenas o fragmento Symbol string repr registrado em P1398 e nao atesta paridade geral."
+  }
+}

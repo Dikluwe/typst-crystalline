@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/symbol.md
-//! @prompt-hash b73d3175
+//! @prompt-hash 83833d83
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -119,21 +119,6 @@ impl Symbol {
     /// da chave. O caractere base (sem modifiers restantes) aparece como
     /// string literal.
     pub fn repr_variants(&self) -> String {
-        fn repr_text(value: &str) -> String {
-            let mut escaped = String::new();
-            for ch in value.chars() {
-                if ch == '\u{200d}'
-                    || ('\u{fe00}'..='\u{fe0f}').contains(&ch)
-                    || ('\u{e0100}'..='\u{e01ef}').contains(&ch)
-                {
-                    escaped.push_str(&format!("\\u{{{:x}}}", ch as u32));
-                } else {
-                    escaped.extend(ch.escape_debug());
-                }
-            }
-            format!("\"{}\"", escaped.replace('"', "\\\""))
-        }
-
         let items: Vec<String> = self
             .variants
             .iter()
@@ -151,16 +136,16 @@ impl Symbol {
                     })
                     .collect();
                 if trimmed.is_empty() {
-                    repr_text(value)
+                    repr_typst_string(value)
                 } else {
                     let key = trimmed.join(".");
-                    format!("({}, {})", repr_char_str(&key), repr_text(value))
+                    format!("({}, {})", repr_char_str(&key), repr_typst_string(value))
                 }
             })
             .collect();
 
         if items.is_empty() {
-            repr_text(&self.value)
+            repr_typst_string(&self.value)
         } else {
             pretty_array_inner(&items)
         }
@@ -189,7 +174,33 @@ fn pretty_array_inner(parts: &[String]) -> String {
 }
 
 fn repr_char_str(s: &str) -> String {
-    format!("\"{}\"", s.escape_debug().collect::<String>().replace('"', "\\\""))
+    repr_typst_string(s)
+}
+
+/// Representa uma string com os escapes canônicos da linguagem Typst.
+fn repr_typst_string(value: &str) -> String {
+    let mut output = String::with_capacity(value.len() + 2);
+    output.push('"');
+    for ch in value.chars() {
+        match ch {
+            '\0' => output.push_str("\\u{0}"),
+            '\'' => output.push('\''),
+            '"' => output.push_str("\\\""),
+            _ if uses_explicit_unicode_escape(ch) => {
+                output.push_str(&format!("\\u{{{:x}}}", ch as u32));
+            }
+            _ => output.extend(ch.escape_debug()),
+        }
+    }
+    output.push('"');
+    output
+}
+
+fn uses_explicit_unicode_escape(ch: char) -> bool {
+    let scalar = ch as u32;
+    ch == '\u{200d}'
+        || (0xfe00..=0xfe0f).contains(&scalar)
+        || (0xe0100..=0xe01ef).contains(&scalar)
 }
 
 #[cfg(test)]
@@ -253,5 +264,24 @@ mod tests {
         let repr = s.repr_variants();
         assert!(repr.contains("bold"));
         assert!(repr.contains("italic"));
+    }
+
+    #[test]
+    fn p1398_repr_string_usa_escape_canonico_typst() {
+        for (value, expected) in [
+            ("'", r#""'""#),
+            ("\"", r#""\"""#),
+            ("\0", r#""\u{0}""#),
+            ("\\", r#""\\""#),
+            ("\n", r#""\n""#),
+            ("\t", r#""\t""#),
+            ("\r", r#""\r""#),
+            ("👩‍💻", r#""👩\u{200d}💻""#),
+            ("❤️", r#""❤\u{fe0f}""#),
+        ] {
+            assert_eq!(repr_typst_string(value), expected);
+            let symbol = Symbol::runtime(vec![(EcoString::default(), value.into())]);
+            assert_eq!(symbol.repr_variants(), expected);
+        }
     }
 }
