@@ -1,0 +1,424 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1400,
+  "status": "candidate-contract-unsealed",
+  "contract_revision": {
+    "revision": "R1",
+    "reopened_from_contract_sha256": "9abeeddac99dc637ffbb06b40906954ee5c07af6fccff5a390a69fabd235d57b",
+    "trigger_preseal_path": "00_nucleo/diagnosticos/p1400-preseal.json",
+    "trigger_preseal_sha256": "5cdba82d3b8a4556240a1a7070553f60edea6778c6e2477e08170b7f2547c87f",
+    "trigger_verdict": "BLOCKED_ORACLE_REDESIGN_REQUIRED",
+    "reopened_at": "2026-09-14T19:26:00-03:00",
+    "hypothesis": "Probes alternativos e construções executados em processos independentes tornam observável a diferença entre ausência integral e implementação parcial mesmo quando o acesso qualificado aborta; a classificação mutuamente exclusiva então atribui PARTIAL antes de ABSENT quando uma alternativa funcional bilateral é demonstrada.",
+    "delta": [
+      "Exigir probe alternativo separado e alcançável por rota sempre que o probe qualificado puder abortar.",
+      "Exigir html.elem com a tag literal correspondente, separadamente, para cada uma das 44 rotas HTML.",
+      "Tornar PARTIAL e ABSENT mutuamente exclusivos: alternativa bilateral válida e funcional implica PARTIAL; ABSENT exige que nenhuma alternativa funcional tenha sido demonstrada.",
+      "Exigir construção independente para membros de instância, sem depender do ancestor constructor qualificado investigado."
+    ],
+    "cost": {
+      "contract_revisions_this_reopen": 1,
+      "focal_diagnostics_read": 1,
+      "files_changed": 1,
+      "product_processes": 0,
+      "full_corpus_runs": 0,
+      "builds": 0,
+      "tests": 0,
+      "candidate_runner_read": false
+    },
+    "scope_stability": "O passo, manifesto, pin, denominador, lista de 93 rotas e identidades permanecem inalterados.",
+    "required_recalibration": "Recalibrar primeiro os recortes HTML, math e membros de instância, depois os mutantes novos; somente após aprovação focal repetir o corpus integral e emitir novo preseal."
+  },
+  "contract_reopen_r2": {
+    "revision": "R2",
+    "reopened_from_contract_sha256": "47337bacc47a46f0b73f8e9ce29985e55f30d3ed5fcb94540574ad61fe4713fb",
+    "reopened_at": "2026-09-14T20:07:54-03:00",
+    "trigger": "A execução oficial terminou INCONCLUSIVE porque o controle html-valid-args usou typst eval --target html: o vanila aceitou a opção, mas a CLI cristalina rejeitou --target antes da expressão, contaminando as 93 rotas com UNKNOWN(PARSER_CONTROL_FAILED).",
+    "hypothesis": "Separar um controle neutro do parser/feature em eval de um controle de target/fixture em compile, usando em cada controle apenas a interseção bilateral da CLI, permite atribuir falhas à fase correta sem esconder a assimetria pública de eval --target nem contaminar famílias às quais o target HTML não se aplica.",
+    "delta": [
+      "Proibir typst eval --target como controle bilateral, porque essa opção não pertence à superfície comum observada.",
+      "Substituir html-valid-args por controles independentes de parser/feature, target/fixture e API HTML, cada qual com recibo e escopo de aplicabilidade próprios.",
+      "Selecionar target HTML bilateralmente por typst compile --features html --format html, nunca por uma flag assimétrica em eval.",
+      "Impedir que falha de controle HTML promova estados ou invalide rotas default não HTML; ela bloqueia apenas as rotas que dependem desse controle.",
+      "Preservar a rejeição cristalina de eval --target html como diferença pública de CLI fora do denominador, sem reinterpretá-la como ausência das 93 rotas."
+    ],
+    "cost": {
+      "contract_revisions_this_reopen": 1,
+      "diagnostic_artifacts_read": 3,
+      "files_changed": 1,
+      "public_help_processes": 4,
+      "route_expressions_executed": 0,
+      "full_corpus_runs": 0,
+      "builds": 0,
+      "tests": 0,
+      "candidate_runner_read": false,
+      "execution_policy": "serial, each help process guarded by 512 MiB and 15 s"
+    },
+    "public_cli_measurement": {
+      "observed_at": "2026-09-14T20:07:54-03:00",
+      "vanila_eval_help": "supports --target, --features and --format",
+      "crystalline_eval_help": "supports --features and --format but not --target",
+      "vanila_compile_help": "supports --features and --format html",
+      "crystalline_compile_help": "supports --features and --format html",
+      "common_eval_surface": ["--features", "--format"],
+      "common_html_target_surface": ["compile", "--features html", "--format html"],
+      "classification_boundary": "Help establishes CLI grammar only, not route behavior or target success."
+    },
+    "superseded_attempt": {
+      "status": "retained as immutable INCONCLUSIVE receipt",
+      "contract_sha256": "47337bacc47a46f0b73f8e9ce29985e55f30d3ed5fcb94540574ad61fe4713fb",
+      "preseal_sha256": "4505869ea3fbdfed8ebfe646e94ff58c32ff9d01ea672c256cee25d911ba436c",
+      "oracles_sha256": "a15eb7a0ac52ebbfca4cb515b4bdbf9dce8338d1a92a72a197e0e350c3d9b53a",
+      "mutants_sha256": "bc603c7a69e4d9cbb5b4f0e2d4ca13c7a9d10c88d9618fda824f4a684203ff41",
+      "runner_sha256": "0babc9c7fd2f0969f2d17db5d513c8bba90614231b937c093834174959d0ca3d",
+      "results_sha256": "cf7ca9350d128597985b13c092a6ea613f80d33037f636f7b63eddf7bc40668a",
+      "report_sha256": "a5830fab0b04eda33f2bdb592fb9bf7d8749a48bc3a263365d29710a81c2c02b",
+      "verification_sha256": "dc28bf5d0002df41ecb9a092406b6ff9b2d02d10908b5b08606c7e803ad77eb3",
+      "state_counts": {"UNKNOWN": 93},
+      "reason_code": "PARSER_CONTROL_FAILED",
+      "root_cause": "The mandatory control invoked the non-common eval --target html option and the crystalline CLI exited 2 before expression evaluation.",
+      "reuse_for_classification_forbidden": true
+    },
+    "invalidation": {
+      "first_affected_phase": "contract R2",
+      "invalidated_for_future_seal": ["R1 oracles", "R1 mutants", "R1 preseal", "R1 runner", "official results as current classification", "official report as current verdict", "official verification as current certificate"],
+      "preserved_as_history": ["official results", "official report", "official verification and their hashes"],
+      "unchanged_inputs": ["step", "manifest", "pin", "inventory", "93-route denominator", "binary identities"],
+      "required_chain": "Revise oracles and attacks from R2, run focal discriminatory gates, emit a new preseal, then revise the runner and perform one new official execution."
+    }
+  },
+  "contract_reopen_r3": {
+    "revision": "R3",
+    "reopened_from_contract_sha256": "f77c17d6d7becca58401ba7fb912f1604e8fbb7bf4c2eff329a5f89de5c4a6d0",
+    "reopened_at": "2026-09-14T20:18:15-03:00",
+    "trigger": "A tentativa focal do controle html-target-fixture-common demonstrou que #assert.eq(target(), \"html\") é inválido no vanila porque target() é contextual.",
+    "measured_valid_form": "#context assert.eq(target(), \"html\")",
+    "hypothesis": "Colocar somente a asserção de target no contexto requerido pela linguagem torna a fixture válida sem alterar o target, o texto projetado, a superfície CLI bilateral ou a política fail-closed.",
+    "delta": [
+      "Substituir byte a byte a primeira linha da fixture por #context assert.eq(target(), \"html\").",
+      "Fixar SHA-256 dos bytes UTF-8 completos da fixture, sem newline final implícita.",
+      "Preservar todos os controles separados, perfis, comandos, estados, limites, invalidação R2 e recibo oficial INCONCLUSIVE."
+    ],
+    "cost": {
+      "contract_revisions_this_reopen": 1,
+      "focal_attempts_consumed": 1,
+      "files_changed": 1,
+      "route_processes": 0,
+      "full_corpus_runs": 0,
+      "builds": 0,
+      "tests": 0,
+      "candidate_runner_read": false
+    },
+    "superseded_focal_fixture": {
+      "contract_sha256": "f77c17d6d7becca58401ba7fb912f1604e8fbb7bf4c2eff329a5f89de5c4a6d0",
+      "fixture_utf8": "#assert.eq(target(), \"html\")\nHTML target fixture.",
+      "result": "INVALID_IN_VANILA",
+      "cause": "target() requires contextual evaluation",
+      "classification_credit": "none"
+    },
+    "invalidation": {
+      "first_affected_phase": "contract R3 fixture bytes",
+      "invalidated_for_future_seal": ["R2 oracle expected for html-target-fixture-common", "R2 mutant receipts that hash or assume the old fixture", "any R2 focal preseal"],
+      "preserved": ["R1 official INCONCLUSIVE receipt and hashes", "R2 control separation", "step", "manifest", "pin", "inventory", "93-route denominator", "binary identities"],
+      "required_gate": "Recalibrate only html-target-fixture-common and its direct boundary/attack controls first. Resume the remaining R2 focal gate only after the contextual fixture passes bilaterally; full corpus remains blocked until every focal slice passes."
+    }
+  },
+  "regime": {
+    "kind": "full",
+    "product_read_only": true,
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "seal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "head": "2ded754d01f36294536d0d0feeea63c31209eba9",
+    "tree": "a5018a56096a48e7dde4f4907b8a80c37b634bec",
+    "observed_at": "2026-09-14T18:59:56-03:00",
+    "working_tree": "working tree não commitado",
+    "git_status_short": "?? 00_nucleo/materialization/typst-passo-1400.md",
+    "git_diff_head_stat": ""
+  },
+  "contract_artifacts": {
+    "step": {"path": "00_nucleo/materialization/typst-passo-1400.md", "sha256": "7d4e258c9fb217b7c8b68b34c2ba930aad4f78fe5f5655062b747b8d8e284375"},
+    "manifest": {"path": "00_nucleo/diagnosticos/p1400-manifest.json", "status": "candidate; hash recorded by downstream receipts"},
+    "inventory": {"path": "/tmp/p1400-current-inventory.json", "sha256": "b1d1ed0f827df3e2ad1efdb12305c12c20fb7df772e4b0b8322545606d9c16e2"}
+  },
+  "baseline_identities": {
+    "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanila_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_binary_sha256": "508842d9e0f3cf7684d1acea4f3850c616afdf38e3aa0fac1c0ab68d7e026fcc",
+    "vanila_enumerator_sha256": "11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13",
+    "crystalline_enumerator_sha256": "0552b34e4b585b6869f4b453be72ebfaaddf78da1a868d6098f1f9c16597ede9"
+  },
+  "scope": {
+    "denominator": 93,
+    "source": "The exact unique VANILLA_ONLY paths outside the format family in the frozen P1357 inventory.",
+    "format_family_excluded": {"total": 124, "root": "format", "descendants_with_prefix_format_dot": 123},
+    "families": {"color_and_html": 46, "math": 31, "elements_introspection_helpers": 16},
+    "product_delta": "none",
+    "mechanics_excluded": ["Rust reflection", "memory addresses", "HashMap order", "internal PDF bytes", "textual code presence", "algorithmic step equality"]
+  },
+  "frozen_routes": [
+    "color.spot", "color.spot.tint", "html.area", "html.audio", "html.base", "html.blockquote", "html.canvas", "html.caption", "html.colgroup", "html.data", "html.del", "html.details", "html.dialog", "html.embed", "html.fieldset", "html.form", "html.frame", "html.hr", "html.img", "html.input", "html.ins", "html.label", "html.link", "html.map", "html.meta", "html.meter", "html.object", "html.optgroup", "html.option", "html.output", "html.progress", "html.q", "html.script", "html.slot", "html.source", "html.style", "html.table", "html.tbody", "html.td", "html.textarea", "html.tfoot", "html.th", "html.thead", "html.time", "html.tr", "html.track",
+    "math.abs", "math.accent", "math.bold", "math.cal", "math.cases", "math.display", "math.frac", "math.italic", "math.limits", "math.lr", "math.mat", "math.mid", "math.norm", "math.overbrace", "math.overbracket", "math.overline", "math.overparen", "math.overshell", "math.primes", "math.root", "math.round", "math.sans", "math.scr", "math.sscript", "math.stretch", "math.text", "math.underbrace", "math.underbracket", "math.underparen", "math.undershell", "math.upright",
+    "enum.item", "figure.caption", "footnote.entry", "list.item", "outline.entry", "outline.entry.body", "outline.entry.indented", "outline.entry.inner", "outline.entry.page", "outline.entry.prefix", "par.line", "polygon.regular", "raw.line", "selector.after", "selector.before", "terms.item"
+  ],
+  "inventory_precondition": {
+    "must_all_hold": {
+      "VANILLA_ONLY_cells": 544,
+      "VANILLA_ONLY_unique_paths": 217,
+      "format_family_unique_paths": 124,
+      "non_format_family_unique_paths": 93,
+      "frozen_route_list_exact_set_equality": true,
+      "determinism_hashes_identical_count": 4,
+      "determinism_hash": "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae",
+      "product_and_enumerator_identities_exact": true
+    },
+    "failure": {"state": "UNKNOWN", "reason_code": "BASELINE_DRIFT", "required_action": "Record nominal delta and reopen scope before changing expected."}
+  },
+  "profiles": {
+    "default": {"features": [], "target": "paged/default", "target_transport": "eval without --target or compile default, according to the route's public observable", "required": true},
+    "html": {"features": ["html"], "target": "html", "target_transport": "compile --features html --format html", "eval_target_flag_forbidden": true, "required": true},
+    "a11y-extras": {"features": ["a11y-extras"], "target": "paged/default", "target_transport": "eval --features a11y-extras without --target or compile default", "required": true},
+    "html+a11y": {"features": ["html", "a11y-extras"], "target": "html", "target_transport": "compile --features html,a11y-extras --format html", "eval_target_flag_forbidden": true, "required": true}
+  },
+  "classification_contract": {
+    "exactly_one_state_per_route": true,
+    "states": {
+      "MATCH": "The same qualified public form exists bilaterally and all declared language observables coincide.",
+      "ABSENT": "The vanila qualified public form is valid, its controls pass, the crystalline product rejects that exact path specifically as absent, and no required independent probe demonstrates a related functional bilateral alternative. A skipped, unreachable, failed, or Unknown alternative probe can never establish ABSENT.",
+      "PARTIAL": "The exact crystalline qualified form or a mandatory subset is unavailable, while a separately executed related alternative is valid, functional, and bilaterally demonstrated. This evidence takes PARTIAL over ABSENT and never upgrades the route to MATCH.",
+      "DIFFERENCE": "Both products execute the same valid public form but differ in semantics, syntax, morphology, or exact public diagnostic.",
+      "UNKNOWN": "Identity, construction, observer, parser/target/feature/fixture control, execution, resources, or evidence cannot support a decision. The reason must name the failing phase; an unsupported CLI option cannot be mislabeled as an expression-parser or route failure.",
+      "SCOPE_OUT": "A currently valid ADR or exact Prompt L0 clause explicitly excludes the obligation; a name resemblance or current absence is insufficient."
+    },
+    "decision_procedure": [
+      "If an identity, mandatory control, qualified probe, required alternative probe, or required independent construction is unresolved, classify UNKNOWN.",
+      "Otherwise, if a current ADR or exact L0 clause explicitly excludes the obligation, classify SCOPE_OUT.",
+      "Otherwise, if the exact qualified form executes bilaterally, classify MATCH when all declared observables coincide and DIFFERENCE when any declared observable differs.",
+      "Otherwise, when the vanila qualified form is valid and the crystalline qualified form is specifically absent, classify PARTIAL if a required independent alternative probe demonstrates a related functional bilateral alternative.",
+      "Only otherwise classify ABSENT, after every applicable independent alternative probe completed conclusively without demonstrating a functional alternative."
+    ],
+    "precedence": ["UNKNOWN", "SCOPE_OUT", "MATCH_OR_DIFFERENCE_FOR_BILATERAL_QUALIFIED_FORM", "PARTIAL_WHEN_FUNCTIONAL_ALTERNATIVE_IS_DEMONSTRATED", "ABSENT_ONLY_WITHOUT_DEMONSTRATED_FUNCTIONAL_ALTERNATIVE"],
+    "precedence_note": "PARTIAL and ABSENT are mutually exclusive. A demonstrated bilateral functional alternative requires PARTIAL; inconclusive alternative evidence requires UNKNOWN; ABSENT is the conclusive residual only after applicable alternatives are independently exercised.",
+    "unknown_fail_closed": true,
+    "unknown_never_success": true,
+    "unknown_on_mandatory_blocks_closure": true,
+    "sibling_extrapolation_forbidden": true,
+    "absent_without_alternative_probe_forbidden_when_alternative_applicable": true
+  },
+  "case_contract": {
+    "one_primary_case_per_route": true,
+    "stable_id_pattern": "^P1400-(COLOR|HTML|MATH|ELEM)-[0-9]{3}$",
+    "required_fields": [
+      "id", "path", "family", "minimum_profile", "features", "target", "typst_source_or_cli_expression", "bilateral_argv", "vanila_identity", "crystalline_identity", "raw_stdout", "raw_stderr", "exit_code", "artifact", "public_projection", "adr_0107_axis", "state", "reason_code", "positive_controls", "observed_cause", "inferred_cause", "inference_refuted_by", "instant", "duration_ms", "max_rss_kib", "swap_kib", "stdout_bytes", "stderr_bytes", "truncated"
+    ],
+    "public_axes": ["semantics", "syntax", "morphology", "exact_public_diagnostic"],
+    "requirements_by_family": {
+      "math": ["qualified access in its own probe/process", "minimal valid qualified call", "bare or math-mode equivalent in a separate probe/process when it exists", "the alternative probe must remain reachable after qualified access aborts", "P1395-P1397 controls", "bare success requires PARTIAL when qualified access is absent and never establishes MATCH"],
+      "html": ["html feature enabled symmetrically", "HTML target selected symmetrically through compile --features html --format html", "typst eval --target is forbidden in bilateral controls and route probes", "independent parser/feature, target/fixture, and HTML API controls", "separate missing tag/function from invalid args, prohibited content, target, or fixture failure", "one independent html.elem literal-tag probe for every investigated html route", "no generic div control can grant route-specific credit", "no sibling extrapolation"],
+      "color": ["separate constructor existence", "argument validity", "representation", "tint method behavior", "do not substitute luma or color serialization"],
+      "elements_introspection_helpers": ["construct a valid public instance in a probe independent from member access", "do not construct through the qualified ancestor route under investigation", "for nested members such as outline.entry.body, obtain the instance through an independent valid document/query/introspection route", "run construction and member access separately when either can abort", "use document projection when eval cannot observe the member", "construction failure or ancestor-constructor absence is UNKNOWN, never ABSENT"]
+    }
+  },
+  "alternative_probe_contract": {
+    "separate_per_route": true,
+    "separate_process_required_when_qualified_can_abort": true,
+    "embedded_after_qualified_forbidden": true,
+    "receipt_independence": "Each qualified, alternative, and construction probe has its own argv, stdout, stderr, exit, limits, identity, timestamp, and classification receipt.",
+    "reachability_gate": "The runner must execute the route's alternative probe even when the qualified probe exits nonzero, times out, is killed, or reports absence. A scheduler that suppresses the alternative makes the route UNKNOWN.",
+    "credit_gate": "Alternative credit is route-local. A probe for one path, sibling, tag, wrapper, or ancestor cannot grant PARTIAL to another route.",
+    "state_effect": {
+      "qualified_present_and_observables_equal": "MATCH regardless of a related alternative, because the exact public obligation is satisfied.",
+      "qualified_present_and_observables_differ": "DIFFERENCE.",
+      "qualified_absent_and_alternative_functional_bilateral": "PARTIAL.",
+      "qualified_absent_and_all_applicable_alternatives_conclusively_nonfunctional_or_unavailable": "ABSENT.",
+      "qualified_absent_and_any_required_alternative_unexecuted_unreachable_failed_or_unknown": "UNKNOWN."
+    },
+    "math": {
+      "route_count": 31,
+      "required": "For each route with a related bare or math-mode form, place that form in an independent source and process; never append it after repr(math.<member>) in the same evaluation."
+    },
+    "html": {
+      "route_count": 44,
+      "constructor": "html.elem",
+      "invocation_template": "html.elem(\"<tag>\") with route-appropriate argument/content controls in a separate bilateral process",
+      "qualified_route_to_literal_tag_rule": "Strip the exact html. prefix and pass the remaining route component as the literal tag. No shared html.elem(\"div\") probe satisfies another route.",
+      "literal_tags_exact": ["area", "audio", "base", "blockquote", "canvas", "caption", "colgroup", "data", "del", "details", "dialog", "embed", "fieldset", "form", "frame", "hr", "img", "input", "ins", "label", "link", "map", "meta", "meter", "object", "optgroup", "option", "output", "progress", "q", "script", "slot", "source", "style", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "time", "tr", "track"],
+      "literal_tag_count": 44,
+      "credit": "A valid functional bilateral html.elem literal-tag result requires PARTIAL when the corresponding html.<tag> qualified route is absent."
+    },
+    "instance_members": {
+      "independent_construction_required": true,
+      "ancestor_qualified_constructor_forbidden": true,
+      "nested_member_example": "outline.entry.body",
+      "accepted_construction_shape": "A minimal valid document plus public query/introspection/projection that yields the instance without evaluating the qualified ancestor constructor being classified.",
+      "failure_policy": "If no independent valid construction is demonstrated, classify UNKNOWN(UNSUPPORTED_CONSTRUCTION) or the more specific control failure; never ABSENT."
+    }
+  },
+  "control_separation_r2": {
+    "applicability_is_route_local": true,
+    "global_poisoning_forbidden": "A control may block only routes whose declared observable depends on that control. HTML target or fixture failure cannot overwrite a completed non-HTML route result.",
+    "same_cli_surface_required_bilaterally": true,
+    "per_product_flag_substitution_forbidden": true,
+    "eval_target_flag": {
+      "allowed_in_bilateral_controls": false,
+      "reason": "The vanila CLI accepts eval --target; the crystalline CLI rejects it before the expression. Using it as a common prerequisite tests CLI asymmetry rather than the route.",
+      "gap_preservation": "Record the asymmetric exit, stderr and argv as an out-of-denominator public CLI difference. Do not discard, normalize, or use it to classify any frozen route."
+    },
+    "parser_and_feature_control": {
+      "id": "eval-parser-feature-common",
+      "applies_to": "All eval-based route probes, with the same feature set as the route profile.",
+      "argv_template": ["<binary>", "eval", "--features", "<comma-separated-profile-features when nonempty>", "--format", "raw", "repr(1 + 1)"],
+      "default_profile_argv_template": ["<binary>", "eval", "--format", "raw", "repr(1 + 1)"],
+      "expected_public_projection": "2",
+      "must_not_include": ["--target", "HTML constructors", "route under investigation"],
+      "purpose": "Prove common eval CLI parsing, expression parsing, serialization, and feature-option parsing without selecting an asymmetric target.",
+      "failure_reason_codes": ["PARSER_CONTROL_FAILED", "FEATURE_CONTROL_FAILED"],
+      "required_failure_phase": ["CLI_OPTION_PARSING", "EXPRESSION_PARSING", "FEATURE_ACTIVATION"],
+      "phase_attribution_required": true
+    },
+    "html_target_and_fixture_control": {
+      "id": "html-target-fixture-common",
+      "applies_to": ["html", "html+a11y"],
+      "fixture_utf8": "#context assert.eq(target(), \"html\")\nHTML target fixture.",
+      "fixture_utf8_sha256": "6c66dc26fa1e6a37d8f2345c070ed2541d89425c78ed720dbf786e5c42adf664",
+      "fixture_final_newline": false,
+      "html_profile_argv_template": ["<binary>", "compile", "--features", "html", "--format", "html", "<input.typ>", "<output.html>"],
+      "html_a11y_profile_argv_template": ["<binary>", "compile", "--features", "html,a11y-extras", "--format", "html", "<input.typ>", "<output.html>"],
+      "same_logical_argv_required": true,
+      "required_public_projection": ["exit 0", "readable nonempty HTML output", "rendered text contains HTML target fixture"],
+      "purpose": "Prove feature activation, target selection and fixture/export path independently from any investigated HTML route.",
+      "failure_reason_codes": ["FEATURE_CONTROL_FAILED", "TARGET_CONTROL_FAILED", "FIXTURE_CONTROL_FAILED"],
+      "required_failure_phase": ["CLI_TARGET_SELECTION", "FEATURE_ACTIVATION", "TARGET_COMPILATION", "FIXTURE_PROJECTION"],
+      "failure_policy": "Preserve the bilateral receipts and the target gap. Block only HTML-target-dependent routes as UNKNOWN with the exact phase reason; never call it PARSER_CONTROL_FAILED unless expression parsing actually failed."
+    },
+    "html_api_valid_args_control": {
+      "id": "html-api-valid-args-common",
+      "applies_to": ["html", "html+a11y"],
+      "prerequisites": ["eval-parser-feature-common passes for the profile", "html-target-fixture-common passes for the profile"],
+      "execution": "Use a standalone compile --features html --format html fixture containing the minimal public call html.elem(\"div\"); do not use eval --target.",
+      "required_separation": "Own process, argv, streams, exit, artifact and projection receipts; not concatenated after target or route probes.",
+      "purpose": "Separate validity of a known HTML API call from route-specific qualified and literal-tag probes.",
+      "credit_boundary": "This control proves only the common HTML API/argument fixture. It grants no existence or PARTIAL credit to any of the 44 route-specific tags."
+    },
+    "html_route_execution": {
+      "qualified_and_alternative_transport": "For observations requiring target html, compile separate minimal fixtures with --features html --format html. Use eval only for target-independent qualified-access morphology and never pass --target.",
+      "route_receipts_must_reference": ["parser_and_feature_control receipt", "html_target_and_fixture_control receipt", "html_api_valid_args_control receipt", "route-specific qualified probe", "route-specific html.elem literal-tag alternative probe"],
+      "target_failure_not_hidden": true
+    }
+  },
+  "execution_contract": {
+    "route_batch_size_max": 12,
+    "parallelism": 1,
+    "processes": "Use distinct processes for a route's qualified probe, every applicable alternative probe, and required instance-construction probe whenever an earlier diagnostic or abort could hide a later observation.",
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "same_classification_vector_required": true,
+    "positive_control_per_batch_required": true,
+    "difference_sentinel_per_batch": "required when available",
+    "all_four_profiles_must_be_exercised": true,
+    "unexecuted_sibling_credit_forbidden": true,
+    "control_applicability_isolation_required": true,
+    "html_control_cannot_block_non_html_route": true,
+    "limits": {"rlimit_as_kib": 524288, "timeout_seconds_per_process": 15, "stdout_bytes": 65536, "stderr_bytes": 65536, "swap_kib": 0},
+    "on_limit_or_truncation": "UNKNOWN with a literal resource reason_code",
+    "raw_outputs_location": "/tmp",
+    "forbidden": ["build", "cargo test", "workspace test", "lib-test", "parallel execution", "automatic memory increase"]
+  },
+  "results_schema": {
+    "path": "00_nucleo/diagnosticos/p1400-results.json",
+    "schema": "p1400-route-results/v1",
+    "required_top_level": ["schema", "manifest_sha256", "contract_sha256", "preseal_sha256", "head", "tree", "working_tree", "started_at", "finished_at", "binary_identities", "execution_orders", "batches", "routes", "state_counts", "unknown_count", "verdict"],
+    "route_constraints": {"count": 93, "unique_path": true, "exact_frozen_set": true, "exactly_one_state": true, "evidence_required": true, "unknown_reason_literal_required": true, "qualified_probe_receipt_required": true, "applicable_alternative_receipts_required": true, "instance_construction_receipt_required_when_applicable": true, "unreachable_alternative_forces_unknown": true},
+    "batch_constraints": {"route_count_max": 12, "parallelism": 1, "positive_control": 1, "difference_sentinel_when_available": true},
+    "verdict_values": ["PASS", "INCONCLUSIVE", "FAIL"],
+    "pass_requires": ["93 exact route records", "zero identity or baseline drift", "stable direct/direct-repeat/reverse vector", "all resource receipts complete", "no implicit Unknown promotion", "all controls use bilateral CLI intersections", "parser, feature, target, fixture and API failures are attributed separately", "no HTML-control failure contaminates non-HTML routes"]
+  },
+  "owner_ledger_schema": {
+    "path": "00_nucleo/diagnosticos/p1400-owner-ledger.tsv",
+    "format": "UTF-8 TSV with one header and exactly 93 data rows",
+    "header_columns_exact_order": ["case_id", "path", "family", "minimum_profile", "state", "reason_code", "witness_id", "observed_cause", "inferred_cause", "inference_refuted_by", "owner_l0", "owner_l0_sha256", "productive_consumer", "owner_state", "adr_0127_class", "adr_0127_refuted_by", "cause_group", "dependencies", "regression_risk"],
+    "owner_state_values": ["CURRENT", "STALE", "MISSING", "AMBIGUOUS"],
+    "ownership_policy": "Read full candidate L0 only after route measurement; prove exact 1:1 productive consumer; never infer by name or directory.",
+    "unproved_owner_policy": "Keep as nucleation debt; do not route directly to implementation."
+  },
+  "backlog_schema": {
+    "path": "00_nucleo/diagnosticos/p1400-backlog.json",
+    "schema": "p1400-causal-backlog/v1",
+    "required_top_level": ["schema", "manifest_sha256", "contract_sha256", "results_sha256", "ledger_sha256", "head", "working_tree", "generated_at", "denominator", "groups", "recommended_next_product_step"],
+    "group_required_fields": ["cause_group", "member_paths", "states", "minimum_witness", "observed_cause", "inferred_cause", "inference_refuted_by", "owner_l0", "productive_consumer", "owner_state", "adr_0127_class", "dependencies", "regression_risk"],
+    "grouping_policy": "Group only by shared demonstrated cause and proven owner, never by naming convenience.",
+    "recommendation_policy": "Exactly one smallest ABSENT, PARTIAL, or DIFFERENCE cause with unique current owner and complete witness; otherwise literal null plus blocking reason.",
+    "format_family_forbidden": true
+  },
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "reasons": ["BASELINE_DRIFT", "IDENTITY_MISMATCH", "AMBIGUOUS_IDENTITY", "UNSUPPORTED_CONSTRUCTION", "PARSER_CONTROL_FAILED", "TARGET_CONTROL_FAILED", "FEATURE_CONTROL_FAILED", "FIXTURE_CONTROL_FAILED", "RUNNER_FAILURE", "TOOL_MISSING", "TARGET_UNAVAILABLE", "UNEXPECTED_EXIT", "TIMEOUT", "OOM", "NONZERO_SWAP", "OUTPUT_MISSING", "OUTPUT_TRUNCATED", "OUTPUT_UNREADABLE", "STREAM_LIMIT", "NON_BILATERAL_EVIDENCE", "CALIBRATION_BUDGET_EXHAUSTED", "OWNER_AMBIGUOUS"],
+    "all_unknown_require_public_witness_or_resource_receipt": true,
+    "implicit_conversion_to_match_absent_partial_difference_or_scope_out": false
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "formula": "valid negative mutations rejected / valid negative mutations",
+    "positive_expected": "Preserved",
+    "negative_expected": "Violated with public witness",
+    "opaque_expected": "Unknown only for explicitly declared opacity",
+    "required_attack_families": ["denominator-route-removal", "format-family-inclusion", "alternate-route-upgraded-to-match", "profile-or-feature-asymmetry", "argument-error-as-existence", "construction-failure-as-absent", "stderr-or-exit-discard", "public-morphology-normalization", "resource-or-identity-failure-as-success", "sibling-extrapolation", "nominal-owner-assignment", "post-candidate-expected-edit", "generic-html-elem-credit-without-literal-tag-probe", "unreached-math-alternative-credit-after-qualified-abort", "ancestor-constructor-failure-as-member-absence"],
+    "repeat_and_reverse_order_required": true,
+    "valid_survivor_blocks_preseal": true
+  },
+  "calibration_budget": {
+    "maximum_focal_revisions_per_reason_code": 2,
+    "maximum_focal_runs_per_revision": 2,
+    "full_corpus_runs_before_preseal": 1,
+    "full_corpus_runs_after_candidate": 1,
+    "focal_slice_before_full_corpus": true,
+    "revision_receipt_requires": ["correction hypothesis", "classification delta", "corrected cases", "regressed cases", "dominant reason_code", "elapsed time and process count"],
+    "stop_and_redesign_if": ["two consecutive revisions have the same vector and cause", "opaque and positive cases trade regressions without monotonic progress", "mutation score is 1.0 while mandatory controls remain unresolved", "classification needs unavailable public information", "marginal cost exceeds budget without a new witness or hypothesis"],
+    "budget_never_authorizes": ["contract relaxation", "Unknown promotion", "memory increase", "expected adaptation to crystalline"],
+    "r1_receipt": {
+      "hypothesis": "Independent route-local alternatives and constructions close the observability gap without changing the denominator or adapting expected values to the crystalline product.",
+      "classification_delta": "qualified absent + demonstrated functional bilateral alternative now deterministically yields PARTIAL; ABSENT is permitted only when no applicable alternative is demonstrated after conclusive independent execution; unreachable or failed required alternatives yield UNKNOWN",
+      "cases_corrected_by_contract": {"html": 44, "math": 31, "instance_members": "all applicable among the 16 element/introspection/helper routes"},
+      "cases_regressed": 0,
+      "dominant_reason_codes_addressed": ["P1400-ALT-HTML-ROUTE-COVERAGE", "P1400-ALT-MATH-REACHABILITY", "P1400-CONTRACT-STATE-OVERLAP"],
+      "material_cost": {"files_changed": 1, "product_processes": 0, "full_corpus_runs": 0, "builds": 0, "tests": 0},
+      "next_gate": "focal recalibration only; full corpus remains forbidden until the affected slices and boundary controls pass"
+    },
+    "r2_receipt": {
+      "hypothesis": "A neutral eval control plus a compile-based HTML target/fixture control removes the false parser conflation while preserving any real target or API gap as explicit evidence.",
+      "classification_delta": "The superseded 93 UNKNOWN(PARSER_CONTROL_FAILED) remain immutable history and grant no credit. New runs attribute failures to CLI, parser, feature, target, fixture, API, or route; HTML-only failures block only applicable HTML routes.",
+      "cases_corrected_by_contract": {"all_routes_parser_control": 93, "html_target_dependent_routes": 44, "non_html_routes_protected_from_html_control": 49},
+      "cases_regressed": 0,
+      "dominant_reason_code_addressed": "PARSER_CONTROL_FAILED caused by non-common eval --target html",
+      "material_cost": {"files_changed": 1, "public_help_processes": 4, "route_processes": 0, "full_corpus_runs": 0, "builds": 0, "tests": 0},
+      "focal_gate": [
+        "Validate both common eval parser/feature argv templates on both binaries for default and feature-bearing profiles.",
+        "Validate the compile-based target/fixture control bilaterally for html and html+a11y, with output projection and exact phase reason codes.",
+        "Validate html-api-valid-args-common separately without eval --target.",
+        "Run one HTML qualified route plus its literal-tag alternative and one non-HTML boundary route to prove applicability isolation.",
+        "Attack rejection of asymmetric eval --target, global poisoning, target failure mislabeled as parser failure, and per-product flag substitution.",
+        "Only after the focal vector passes, repeat the full discriminatory corpus direct, direct-repeat and reverse before a new preseal."
+      ]
+    }
+  },
+  "role_capabilities": {
+    "contract_author": {"executor": "/root/contrato_p1400", "environment": "shared workspace", "can_read_candidate": false, "can_write": ["step before freeze", "manifest", "contract"], "cannot_write": ["product", "L0", "Núcleos", "runner", "oracles", "mutants", "preseal", "verdict"]},
+    "oracle_author": {"inputs": ["step", "manifest", "contract", "public vanila baseline"], "can_write": ["oracles only"], "cannot_read": ["candidate runner", "candidate classification output"]},
+    "adversary": {"inputs": ["step", "manifest", "contract", "inventory baseline"], "can_write": ["mutants only"], "cannot": ["repair harness", "choose solution", "edit expected", "issue verdict"]},
+    "instrument_implementer": {"requires_valid_preseal": true, "can_write": ["lab/parity/p1400_route_probe.py", "sealed-authorized fixtures"], "cannot_write": ["product", "L0", "Núcleos", "sealed inputs", "verdict"]},
+    "verifier": {"requires_protected_hashes": true, "can_write": ["results", "owner ledger", "backlog", "report", "verification"], "cannot": ["edit judged artifacts", "change expected", "repair candidate", "promote Unknown"]}
+  },
+  "closure_criteria": [
+    "Every one of the 93 exact routes has exactly one state.",
+    "Every state has current reproducible bilateral evidence and a proven owner or literal owner-absence reason.",
+    "All numeric decisions record HEAD, working tree, timestamp, argv, and product hashes.",
+    "The mutation score is exactly 1.0 and order invariance holds.",
+    "No L0, Nucleus, or L1-L4 byte changed.",
+    "No Unknown was promoted implicitly.",
+    "The report makes exactly one qualified next-product-step recommendation or records why none is legally selectable."
+  ],
+  "claim_boundary": "The verdict covers only executed public observables for the exact frozen denominator of 93 routes; it never establishes general functional parity of Typst."
+}

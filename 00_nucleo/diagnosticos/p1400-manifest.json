@@ -1,0 +1,186 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1400",
+  "status": "candidate-manifest-unsealed",
+  "created_at": "2026-09-14T19:00:40-03:00",
+  "regime": {
+    "kind": "full",
+    "reason": "O diagnóstico poderá fundamentar mudanças semânticas futuras e exige obrigação, contrato, oráculos, ataques, instrumento e veredito segregados.",
+    "product_read_only": true,
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "seal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_baseline": {
+    "repository_head": "2ded754d01f36294536d0d0feeea63c31209eba9",
+    "repository_tree": "a5018a56096a48e7dde4f4907b8a80c37b634bec",
+    "observed_at": "2026-09-14T18:59:56-03:00",
+    "working_tree": "working tree não commitado",
+    "git_status_short": "?? 00_nucleo/materialization/typst-passo-1400.md",
+    "git_diff_head_stat": "",
+    "status_explanation": "O único ficheiro presente era o próprio passo novo; git diff HEAD --stat não lista ficheiros não rastreados.",
+    "candidate_runner_existed": false
+  },
+  "artifacts": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1400.md",
+      "sha256": "7d4e258c9fb217b7c8b68b34c2ba930aad4f78fe5f5655062b747b8d8e284375"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1400-manifest.json",
+      "self_hash_policy": "O hash é registrado pelos recibos posteriores para evitar identidade recursiva."
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1400-contract.json",
+      "hash_policy": "O hash é registrado por oráculos e preseal depois da criação."
+    },
+    "inventory": {
+      "path": "/tmp/p1400-current-inventory.json",
+      "sha256": "b1d1ed0f827df3e2ad1efdb12305c12c20fb7df772e4b0b8322545606d9c16e2",
+      "mtime": "2026-09-14 18:38:26.781275862 -0300",
+      "schema": "p1357-eight-inventories-v2",
+      "verdict": "PASS",
+      "raw_directory": "/tmp/p1357-inventory.current2-2ded754d"
+    }
+  },
+  "identities": {
+    "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanila_product": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "crystalline_product": {
+      "path": "target/release/typst",
+      "sha256": "508842d9e0f3cf7684d1acea4f3850c616afdf38e3aa0fac1c0ab68d7e026fcc"
+    },
+    "vanila_enumerator": {
+      "path": "lab/typst-original/target/release/p1140-inventory",
+      "sha256": "11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13",
+      "mtime": "2026-09-14 18:37:40.576278087 -0300",
+      "inventory_argv_evidence": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/p1140-inventory",
+      "supersedes_unsubstantiated_sha256": "6cbc7dfc6591f95e61ebe74cd9fa6de32ed23b8a203f9fbf6f231185ca3081d1",
+      "retification": "Nenhum outro ficheiro p1140-inventory foi encontrado em /tmp ou no repositório, e o hash substituído só aparecia na declaração incorreta do passo."
+    },
+    "crystalline_enumerator": {
+      "path": "lab/surface-inventory/target/release/surface-inventory-p1140",
+      "sha256": "0552b34e4b585b6869f4b453be72ebfaaddf78da1a868d6098f1f9c16597ede9"
+    }
+  },
+  "inventory_gate": {
+    "crosswalk_semantics": "presence-only",
+    "vanila_only_cells": 544,
+    "vanila_only_unique_paths": 217,
+    "format_family_paths": 124,
+    "format_family_definition": "A raiz literal format e os 123 descendentes cujo prefixo literal é format.",
+    "format_descendant_paths": 123,
+    "non_format_family_paths": 93,
+    "arithmetic": "217 - (1 + 123) = 93",
+    "determinism_hashes": [
+      "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae",
+      "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae",
+      "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae",
+      "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae"
+    ],
+    "profile_counts": {
+      "default": {"BOTH_PRESENT": 1966, "VANILLA_ONLY": 55, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2037, "VANILLA_ONLY": 214, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 1969, "VANILLA_ONLY": 58, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2040, "VANILLA_ONLY": 217, "CRYSTALLINE_ONLY": 42}
+    },
+    "on_mismatch": "UNKNOWN(BASELINE_DRIFT); registrar delta nominal e reabrir escopo sem alterar expected."
+  },
+  "profiles": {
+    "default": {"features": [], "target": "paged unless the case explicitly requires another public projection"},
+    "html": {"features": ["html"], "target": "html"},
+    "a11y-extras": {"features": ["a11y-extras"], "target": "paged"},
+    "html+a11y": {"features": ["html", "a11y-extras"], "target": "html"}
+  },
+  "frozen_routes": [
+    "color.spot", "color.spot.tint", "html.area", "html.audio", "html.base", "html.blockquote", "html.canvas", "html.caption", "html.colgroup", "html.data", "html.del", "html.details", "html.dialog", "html.embed", "html.fieldset", "html.form", "html.frame", "html.hr", "html.img", "html.input", "html.ins", "html.label", "html.link", "html.map", "html.meta", "html.meter", "html.object", "html.optgroup", "html.option", "html.output", "html.progress", "html.q", "html.script", "html.slot", "html.source", "html.style", "html.table", "html.tbody", "html.td", "html.textarea", "html.tfoot", "html.th", "html.thead", "html.time", "html.tr", "html.track",
+    "math.abs", "math.accent", "math.bold", "math.cal", "math.cases", "math.display", "math.frac", "math.italic", "math.limits", "math.lr", "math.mat", "math.mid", "math.norm", "math.overbrace", "math.overbracket", "math.overline", "math.overparen", "math.overshell", "math.primes", "math.root", "math.round", "math.sans", "math.scr", "math.sscript", "math.stretch", "math.text", "math.underbrace", "math.underbracket", "math.underparen", "math.undershell", "math.upright",
+    "enum.item", "figure.caption", "footnote.entry", "list.item", "outline.entry", "outline.entry.body", "outline.entry.indented", "outline.entry.inner", "outline.entry.page", "outline.entry.prefix", "par.line", "polygon.regular", "raw.line", "selector.after", "selector.before", "terms.item"
+  ],
+  "route_cardinality": 93,
+  "mandatory_observables": [
+    "public qualified path access",
+    "minimal valid public invocation or access",
+    "stdout, stderr and exit status",
+    "public output artifact or public projection when required",
+    "language semantics, syntax, morphology, or exact public diagnostic",
+    "positive parser, target, feature, fixture, and construction controls applicable to the route",
+    "bilateral command and immutable product identities"
+  ],
+  "classification_states": ["MATCH", "ABSENT", "PARTIAL", "DIFFERENCE", "UNKNOWN", "SCOPE_OUT"],
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "implicit_success_forbidden": true,
+    "mandatory_unknown_blocks_close": true,
+    "reasons": [
+      "BASELINE_DRIFT", "IDENTITY_MISMATCH", "AMBIGUOUS_IDENTITY", "UNSUPPORTED_CONSTRUCTION", "PARSER_CONTROL_FAILED", "TARGET_CONTROL_FAILED", "FEATURE_CONTROL_FAILED", "FIXTURE_CONTROL_FAILED", "RUNNER_FAILURE", "TOOL_MISSING", "TARGET_UNAVAILABLE", "UNEXPECTED_EXIT", "TIMEOUT", "OOM", "NONZERO_SWAP", "OUTPUT_MISSING", "OUTPUT_TRUNCATED", "OUTPUT_UNREADABLE", "STREAM_LIMIT", "NON_BILATERAL_EVIDENCE", "CALIBRATION_BUDGET_EXHAUSTED", "OWNER_AMBIGUOUS"
+    ]
+  },
+  "resource_policy": {
+    "route_batch_size_max": 12,
+    "parallelism": 1,
+    "process_rlimit_as_kib": 524288,
+    "per_process_timeout_seconds": 15,
+    "max_stdout_bytes": 65536,
+    "max_stderr_bytes": 65536,
+    "raw_outputs_directory": "/tmp",
+    "swap_must_equal_kib": 0,
+    "automatic_limit_increase": false,
+    "build_allowed": false,
+    "tests_allowed": false,
+    "forbidden": ["cargo test", "workspace tests", "monolithic lib-test", "global rebuild", "parallel subprocesses"]
+  },
+  "calibration_budget": {
+    "maximum_focal_revisions_per_reason_code": 2,
+    "maximum_focal_runs_per_revision": 2,
+    "full_corpus_runs_before_preseal": 1,
+    "full_corpus_runs_after_candidate": 1,
+    "required_orders": ["direct", "direct-repeat", "reverse"],
+    "two_consecutive_no_gain_revisions_require_redesign": true,
+    "budget_never_authorizes_relaxation": true
+  },
+  "role_capabilities": [
+    {
+      "role": "obligation-and-contract-author",
+      "executor": "/root/contrato_p1400",
+      "environment": "shared workspace",
+      "read_allowlist": ["AGENTS.md", "selected skill and direct references", "applicable ADRs", "P1400 step", "frozen inventory and binary metadata", "historical contract structures"],
+      "write_allowlist": ["00_nucleo/materialization/typst-passo-1400.md before freeze", "00_nucleo/diagnosticos/p1400-manifest.json", "00_nucleo/diagnosticos/p1400-contract.json"],
+      "forbidden": ["Prompt L0", "Núcleo Tekt", "L1-L4", "candidate runner", "oracles", "mutants", "preseal", "results", "ledger", "backlog", "report", "verification", "verdict"],
+      "context_inherited": "Role assignment, repository instructions, disputed enumerator identity, frozen measurements, memory limits, and statement that no candidate runner exists."
+    },
+    {
+      "role": "oracle-author",
+      "read_allowlist": ["step", "manifest", "contract", "ratified inventory and public vanila behavior"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1400-oracles.json"],
+      "forbidden": ["candidate runner", "candidate results", "product", "contract changes", "verdict"]
+    },
+    {
+      "role": "adversary",
+      "read_allowlist": ["step", "manifest", "contract", "inventory baseline"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1400-mutants.json"],
+      "forbidden": ["candidate repair", "solution selection", "product", "contract changes", "verdict"]
+    },
+    {
+      "role": "instrument-implementer",
+      "requires": "valid preseal",
+      "read_allowlist": ["sealed step", "manifest", "contract", "oracles", "mutants"],
+      "write_allowlist": ["lab/parity/p1400_route_probe.py", "fixtures explicitly authorized by the sealed contract"],
+      "forbidden": ["Prompt L0", "Núcleo Tekt", "L1-L4", "sealed inputs", "expected changes", "verdict"]
+    },
+    {
+      "role": "verifier",
+      "requires": "sealed hashes and candidate outputs",
+      "read_allowlist": ["all sealed inputs", "candidate instrument and outputs", "read-only L0 ownership candidates after measurement"],
+      "write_allowlist": ["p1400-results.json", "p1400-owner-ledger.tsv", "p1400-backlog.json", "p1400-report.md", "p1400-verification.json"],
+      "forbidden": ["editing any judged artifact", "editing product", "changing expected", "promoting Unknown"]
+    }
+  ],
+  "invalidation": "Any byte change to step, pin, route list, manifest, contract, or oracle after preseal invalidates the chain from the first affected phase.",
+  "claim_boundary": "This manifest covers only the 93 frozen non-format-family routes and their executed public observables; it does not claim general Typst language parity."
+}

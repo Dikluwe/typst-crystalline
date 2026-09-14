@@ -1,0 +1,888 @@
+{
+  "schema": "p1400-adversarial-mutants/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1400",
+  "status": "candidate-mutants-r4-for-contract-r3-unsealed",
+  "created_at": "2026-09-14T19:06:10-03:00",
+  "updated_at": "2026-09-14T20:20:29-03:00",
+  "revision": {
+    "revision": "R1",
+    "previous_mutants_sha256": "86185a343ac0c5ac7b60310a4d11f1c2be960a2ac932991542d9f71da5a1ce53",
+    "contract_sha256": "47337bacc47a46f0b73f8e9ce29985e55f30d3ed5fcb94540574ad61fe4713fb",
+    "trigger_preseal_sha256": "5cdba82d3b8a4556240a1a7070553f60edea6778c6e2477e08170b7f2547c87f",
+    "trigger_verdict": "BLOCKED_ORACLE_REDESIGN_REQUIRED",
+    "hypothesis": "Quatro ataques focais tornam discrimináveis crédito HTML genérico, alternativa math inalcançada, precedência indevida de ABSENT e ausência falsa causada pelo constructor ancestor.",
+    "delta": {
+      "valid_negative_added": 4,
+      "positive_controls_added": 2,
+      "opaque_controls_added": 2,
+      "valid_negative_before": 25,
+      "valid_negative_after": 29,
+      "positive_before": 4,
+      "positive_after": 6,
+      "opaque_before": 6,
+      "opaque_after": 8,
+      "regressed_cases": 0
+    },
+    "cost": {
+      "focal_revisions_consumed_this_reason": 1,
+      "focal_data_runs": 1,
+      "full_corpus_runs": 0,
+      "product_processes": 0,
+      "builds": 0,
+      "tests": 0,
+      "files_changed": 1,
+      "candidate_runner_read": false
+    }
+  },
+  "revision_r2": {
+    "revision": "R2",
+    "previous_mutants_sha256": "f32de509ba447680d26f6eea7e83754e4d0e433992461f7cc56bbf58533ea249",
+    "contract_sha256": "47337bacc47a46f0b73f8e9ce29985e55f30d3ed5fcb94540574ad61fe4713fb",
+    "trigger_preseal_sha256": "0ebf69e9be850423af8762f27b4b4534c53e8e28c6ba1180b3d650ee1aef5e34",
+    "trigger_verdict": "BLOCKED_INTEGRAL_RECALIBRATION_AND_RECEIPT_REPAIR_REQUIRED",
+    "hypothesis": "Corrigir a cardinalidade literal da política de Unknown e executar uma campanha integral do gate modelado nas três ordens torna o recibo adversarial fiel ao corpus R1 sem alterar seus casos ou expected.",
+    "delta": {
+      "negative_mutations": "29 -> 29",
+      "positive_controls": "6 -> 6",
+      "opaque_controls": "8 -> 8",
+      "calibration_budget_unknown_policy": "seis -> oito controles opacos",
+      "full_modeled_gate_campaigns_consumed": "0 -> 1",
+      "order_runs_in_campaign": 3,
+      "expected_changes": 0,
+      "regressed_cases": 0
+    },
+    "cost": {
+      "focal_revisions_consumed_this_reason": 0,
+      "full_modeled_gate_campaigns": 1,
+      "modeled_order_runs": 3,
+      "data_processes": 1,
+      "elapsed_seconds": 0.07,
+      "max_rss_kib": 28148,
+      "exit_code": 0,
+      "full_product_corpus_runs": 0,
+      "product_processes": 0,
+      "builds": 0,
+      "tests": 0,
+      "files_changed": 1,
+      "candidate_runner_read": false
+    }
+  },
+  "revision_r3": {
+    "revision": "R3-mutants-for-contract-R2",
+    "previous_mutants_sha256": "bc603c7a69e4d9cbb5b4f0e2d4ca13c7a9d10c88d9618fda824f4a684203ff41",
+    "contract_revision": "R2",
+    "contract_sha256": "f77c17d6d7becca58401ba7fb912f1604e8fbb7bf4c2eff329a5f89de5c4a6d0",
+    "superseded_inconclusive_preseal_sha256": "4505869ea3fbdfed8ebfe646e94ff58c32ff9d01ea672c256cee25d911ba436c",
+    "hypothesis": "Ataques separados a eval --target html, envenenamento global de controles HTML e substituição de flags por produto discriminam a separação R2 entre gramática CLI, target HTML e aplicabilidade por família.",
+    "delta": {
+      "valid_negative_added": 3,
+      "valid_negative_before": 29,
+      "valid_negative_after": 32,
+      "positive_controls": "6 -> 6",
+      "opaque_controls": "8 -> 8",
+      "expected_changes": 0,
+      "regressed_cases": 0
+    },
+    "cost": {
+      "focal_revisions_consumed_this_reason": 1,
+      "focal_modeled_runs": 1,
+      "focal_elapsed_seconds": 0.05,
+      "focal_max_rss_kib": 23312,
+      "full_modeled_gate_campaigns": 1,
+      "modeled_order_runs": 3,
+      "full_elapsed_seconds": 0.18,
+      "full_max_rss_kib": 28124,
+      "modeled_gate_exit_codes": [0, 0],
+      "full_product_corpus_runs": 0,
+      "product_processes": 0,
+      "builds": 0,
+      "tests": 0,
+      "files_changed": 1,
+      "candidate_runner_read": false
+    }
+  },
+  "revision_r4": {
+    "revision": "R4-mutants-for-contract-R3",
+    "previous_mutants_sha256": "b6ebe30e2eabe5e006efc022ead35b08cce54c304405056eff05ed663bc82ac8",
+    "contract_revision": "R3",
+    "contract_sha256": "b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545",
+    "hypothesis": "Remover o marcador contextual da fixture deve ser rejeitado porque torna target() inválido no vanila e elimina a prova bilateral de target/fixture antes de qualquer crédito às rotas HTML.",
+    "delta": {
+      "valid_negative_added": 1,
+      "valid_negative_before": 32,
+      "valid_negative_after": 33,
+      "positive_controls": "6 -> 6",
+      "opaque_controls": "8 -> 8",
+      "expected_changes": 0,
+      "regressed_cases": 0
+    },
+    "cost": {
+      "focal_revisions_consumed_this_reason": 1,
+      "focal_modeled_runs": 1,
+      "focal_elapsed_seconds": 0.13,
+      "focal_max_rss_kib": 23596,
+      "full_modeled_gate_campaigns": 1,
+      "modeled_order_runs": 3,
+      "full_elapsed_seconds": 0.33,
+      "full_max_rss_kib": 28412,
+      "modeled_gate_exit_codes": [0, 0],
+      "full_product_corpus_runs": 0,
+      "product_processes": 0,
+      "builds": 0,
+      "tests": 0,
+      "files_changed": 1,
+      "candidate_runner_read": false
+    }
+  },
+  "regime": {
+    "kind": "full",
+    "role": "adversary",
+    "executor": "/root/adversario_p1400",
+    "environment": "shared workspace",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "claim_boundary": "Ataques ao contrato observável das 93 rotas congeladas; não é veredito sobre o runner, o produto ou paridade geral."
+  },
+  "causal_snapshot": {
+    "head": "2ded754d01f36294536d0d0feeea63c31209eba9",
+    "tree": "a5018a56096a48e7dde4f4907b8a80c37b634bec",
+    "observed_at": "2026-09-14T19:06:10-03:00",
+    "working_tree": "working tree não commitado",
+    "git_status_short": [
+      "?? 00_nucleo/diagnosticos/p1400-contract.json",
+      "?? 00_nucleo/diagnosticos/p1400-manifest.json",
+      "?? 00_nucleo/materialization/typst-passo-1400.md"
+    ],
+    "git_diff_head_stat": "",
+    "candidate_runner_read": false,
+    "candidate_results_read": false
+  },
+  "input_hashes": {
+    "AGENTS.md": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf",
+    "skill": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "skill_roles_reference": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "skill_gates_reference": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d",
+    "step": "7d4e258c9fb217b7c8b68b34c2ba930aad4f78fe5f5655062b747b8d8e284375",
+    "manifest": "ca82c6a78b370f366de75077e978ec0b85e419f11cf5d45f33c73f56e9654fd7",
+    "contract": "b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545",
+    "superseded_inconclusive_preseal": "4505869ea3fbdfed8ebfe646e94ff58c32ff9d01ea672c256cee25d911ba436c",
+    "frozen_inventory": "b1d1ed0f827df3e2ad1efdb12305c12c20fb7df772e4b0b8322545606d9c16e2"
+  },
+  "baseline_model": {
+    "source": "/tmp/p1400-current-inventory.json",
+    "semantics": "presence-only",
+    "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanila_only_cells": 544,
+    "vanila_only_unique_paths": 217,
+    "format_family_paths": 124,
+    "format_root": "format",
+    "format_descendants": 123,
+    "non_format_denominator": 93,
+    "families": {
+      "color_and_html": 46,
+      "math": 31,
+      "elements_introspection_helpers": 16
+    },
+    "profiles": {
+      "default": [],
+      "html": ["html"],
+      "a11y-extras": ["a11y-extras"],
+      "html+a11y": ["html", "a11y-extras"]
+    },
+    "determinism_hash": "dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae",
+    "determinism_observations": 4,
+    "copy_policy": "Cada ataque é aplicado a uma cópia lógica desta entrada; a entrada congelada não é modificada."
+  },
+  "capabilities": {
+    "read_allowlist_used": [
+      "AGENTS.md",
+      "skill tekt-materializacao-segregada e referências diretas",
+      "00_nucleo/materialization/typst-passo-1400.md",
+      "00_nucleo/diagnosticos/p1400-manifest.json",
+      "00_nucleo/diagnosticos/p1400-contract.json",
+      "00_nucleo/diagnosticos/p1400-preseal.json",
+      "/tmp/p1400-current-inventory.json"
+    ],
+    "write_allowlist": ["00_nucleo/diagnosticos/p1400-mutants.json"],
+    "forbidden_and_not_used": [
+      "runner candidato",
+      "resultados candidatos",
+      "produto L1-L4",
+      "Prompt L0 e Núcleos Tekt",
+      "passo, manifesto, contrato e oráculos",
+      "reparo do harness",
+      "seleção de solução",
+      "emissão de selo ou veredito"
+    ],
+    "context_inherited": "Atribuição do papel adversário, instruções do repositório e lista de classes mínimas de ataque; workspace compartilhado.",
+    "output": "00_nucleo/diagnosticos/p1400-mutants.json"
+  },
+  "calibration_budget": {
+    "maximum_focal_revisions_per_reason_code": 2,
+    "maximum_focal_runs_per_revision": 2,
+    "full_corpus_runs_before_preseal": 1,
+    "required_orders": ["direct", "direct-repeat", "reverse"],
+    "parallelism": 1,
+    "valid_negative_count": 33,
+    "positive_control_count": 6,
+    "opaque_control_count": 8,
+    "required_mutation_score": 1.0,
+    "formula": "valid_negative_mutations_classified_Violated / 33",
+    "survivor_policy": "Qualquer mutante negativo válido não classificado como Violated bloqueia o preseal.",
+    "unknown_policy": "Unknown só é correto para os oito controles explicitamente opacos; nunca conta como rejeição de mutante negativo válido.",
+    "full_modeled_gate_campaigns_consumed_before_preseal": 1,
+    "modeled_order_runs_consumed": ["direct", "direct-repeat", "reverse"],
+    "historical_full_modeled_gate_campaigns_total": 3,
+    "current_contract_r2_full_modeled_gate_campaigns": 1,
+    "current_contract_r3_full_modeled_gate_campaigns": 1,
+    "full_product_corpus_runs_consumed": 0,
+    "stop_policy": "Duas revisões focais consecutivas sem ganho e com a mesma causa dominante exigem redesenho."
+  },
+  "negative_mutations": [
+    {
+      "id": "P1400-MUT-001",
+      "attack_family": "denominator-route-removal",
+      "mutation_target": "denominator",
+      "mutation": "Remover html.track da cópia da lista congelada e declarar denominador 92.",
+      "witness": {"path": "html.track", "baseline_member": true, "mutated_member": false, "baseline_count": 93, "mutated_count": 92},
+      "reason_code": "DENOMINATOR_ROUTE_REMOVED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-002",
+      "attack_family": "format-family-inclusion",
+      "mutation_target": "denominator",
+      "mutation": "Acrescentar a raiz format à cópia do corpus.",
+      "witness": {"injected_path": "format", "format_family": true, "baseline_count": 93, "mutated_count": 94},
+      "reason_code": "FORMAT_FAMILY_INCLUDED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-003",
+      "attack_family": "format-family-inclusion",
+      "mutation_target": "denominator",
+      "mutation": "Acrescentar o descendente format.date à cópia do corpus.",
+      "witness": {"injected_path": "format.date", "format_family": true, "baseline_count": 93, "mutated_count": 94},
+      "reason_code": "FORMAT_DESCENDANT_INCLUDED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-004",
+      "attack_family": "denominator-duplicate",
+      "mutation_target": "denominator",
+      "mutation": "Duplicar math.frac e manter 93 registos por remoção compensatória de math.root.",
+      "witness": {"duplicate": "math.frac", "missing": "math.root", "record_count": 93, "unique_count": 92},
+      "reason_code": "DENOMINATOR_NOT_EXACT_UNIQUE_SET",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-005",
+      "attack_family": "denominator-unfrozen-addition",
+      "mutation_target": "denominator",
+      "mutation": "Trocar math.abs por calc.abs, que não pertence ao conjunto congelado embora não seja format.",
+      "witness": {"removed_path": "math.abs", "injected_path": "calc.abs", "record_count": 93},
+      "reason_code": "DENOMINATOR_SET_DRIFT",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-006",
+      "attack_family": "alternate-route-upgraded-to-match",
+      "mutation_target": "classifier",
+      "mutation": "Classificar math.abs como MATCH porque uma forma bare relacionada executa, embora math.abs qualificado permaneça ausente.",
+      "witness": {"path": "math.abs", "qualified_form": "absent", "alternate_form": "executes", "mutated_state": "MATCH", "maximum_legal_state_from_alternate": "PARTIAL"},
+      "reason_code": "ALTERNATE_FORM_FALSE_MATCH",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-007",
+      "attack_family": "profile-or-feature-asymmetry",
+      "mutation_target": "corpus",
+      "mutation": "Executar html.audio no vanila com feature html e target html, mas no cristalino sem feature html.",
+      "witness": {"path": "html.audio", "vanila": {"profile": "html", "features": ["html"], "target": "html"}, "crystalline": {"profile": "default", "features": [], "target": "paged"}},
+      "reason_code": "ASYMMETRIC_PROFILE_FEATURE_TARGET",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-008",
+      "attack_family": "profile-or-feature-asymmetry",
+      "mutation_target": "classifier",
+      "mutation": "Ignorar falha do controle de target HTML e ainda emitir ABSENT.",
+      "witness": {"path": "html.table", "target_control": "failed", "mutated_state": "ABSENT", "required_state": "UNKNOWN"},
+      "reason_code": "TARGET_CONTROL_FAILURE_PROMOTED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-009",
+      "attack_family": "argument-error-as-existence",
+      "mutation_target": "classifier",
+      "mutation": "Tratar diagnóstico de argumento inválido como prova suficiente de existência e emitir MATCH.",
+      "witness": {"path": "color.spot", "qualified_access": "unresolved", "invocation": "invalid-argument", "exit_code": 1, "mutated_state": "MATCH"},
+      "reason_code": "INVALID_ARGUMENT_FALSE_EXISTENCE",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-010",
+      "attack_family": "construction-failure-as-absent",
+      "mutation_target": "classifier",
+      "mutation": "Classificar outline.entry.page como ABSENT quando a instância pública não foi construída.",
+      "witness": {"path": "outline.entry.page", "construction": "failed", "member_access_reached": false, "mutated_state": "ABSENT", "required_state": "UNKNOWN"},
+      "reason_code": "CONSTRUCTION_FAILURE_FALSE_ABSENCE",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-011",
+      "attack_family": "stderr-or-exit-discard",
+      "mutation_target": "public_projection",
+      "mutation": "Comparar apenas stdout e descartar stderr divergente num caso cujo observável é o diagnóstico público.",
+      "witness": {"path": "selector.before", "stdout_equal": true, "stderr_equal": false, "exit_equal": true, "mutated_state": "MATCH"},
+      "reason_code": "STDERR_DIAGNOSTIC_DISCARDED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-012",
+      "attack_family": "stderr-or-exit-discard",
+      "mutation_target": "public_projection",
+      "mutation": "Comparar texto mas descartar exit divergente.",
+      "witness": {"path": "html.form", "stdout_equal": true, "stderr_equal": true, "vanila_exit": 0, "crystalline_exit": 1, "mutated_state": "MATCH"},
+      "reason_code": "EXIT_STATUS_DISCARDED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-013",
+      "attack_family": "public-morphology-normalization",
+      "mutation_target": "public_projection",
+      "mutation": "Remover markup semântico antes da comparação e ocultar diferença entre *bold* e texto plano.",
+      "witness": {"path": "math.bold", "vanila_projection": "*x*", "crystalline_projection": "x", "normalization": "strip semantic markup", "mutated_state": "MATCH"},
+      "reason_code": "PUBLIC_MORPHOLOGY_ERASED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-014",
+      "attack_family": "resource-or-identity-failure-as-success",
+      "mutation_target": "classifier",
+      "mutation": "Converter timeout de uma perna bilateral em MATCH usando a saída parcial da outra.",
+      "witness": {"path": "html.canvas", "vanila": "completed", "crystalline": "TIMEOUT", "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "TIMEOUT_PROMOTED_TO_SUCCESS",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-015",
+      "attack_family": "resource-or-identity-failure-as-success",
+      "mutation_target": "classifier",
+      "mutation": "Converter OOM ou swap não zero em ABSENT.",
+      "witness": {"path": "html.object", "resource_result": "OOM", "swap_kib": 64, "mutated_state": "ABSENT", "required_state": "UNKNOWN"},
+      "reason_code": "RESOURCE_FAILURE_PROMOTED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-016",
+      "attack_family": "resource-or-identity-failure-as-success",
+      "mutation_target": "classifier",
+      "mutation": "Aceitar hash divergente do binário vanila e emitir resultados decisórios.",
+      "witness": {"declared_vanila_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f", "observed_vanila_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "IDENTITY_MISMATCH_PROMOTED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-017",
+      "attack_family": "resource-or-identity-failure-as-success",
+      "mutation_target": "classifier",
+      "mutation": "Aceitar stdout truncado acima de 64 KiB como projeção completa.",
+      "witness": {"path": "html.script", "stdout_bytes": 65537, "truncated": true, "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "TRUNCATED_OUTPUT_PROMOTED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-018",
+      "attack_family": "sibling-extrapolation",
+      "mutation_target": "corpus",
+      "mutation": "Executar html.td e copiar seu estado para html.th, html.tr, html.thead, html.tbody e html.tfoot.",
+      "witness": {"executed": ["html.td"], "credited_without_execution": ["html.th", "html.tr", "html.thead", "html.tbody", "html.tfoot"]},
+      "reason_code": "HTML_SIBLING_EXTRAPOLATION",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-019",
+      "attack_family": "sibling-extrapolation",
+      "mutation_target": "corpus",
+      "mutation": "Executar math.overbrace e copiar seu estado para os wrappers overbracket, overline, overparen e overshell.",
+      "witness": {"executed": ["math.overbrace"], "credited_without_execution": ["math.overbracket", "math.overline", "math.overparen", "math.overshell"]},
+      "reason_code": "MATH_SIBLING_EXTRAPOLATION",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-020",
+      "attack_family": "nominal-owner-assignment",
+      "mutation_target": "owner_classifier",
+      "mutation": "Atribuir html.track ao primeiro Prompt L0 cujo nome contém html sem ler a cláusula integral nem provar consumer 1:1.",
+      "witness": {"path": "html.track", "selection_basis": "name similarity", "full_l0_read": false, "productive_consumer_proved": false, "mutated_owner_state": "CURRENT"},
+      "reason_code": "OWNER_ASSIGNED_BY_NAME",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-021",
+      "attack_family": "post-candidate-expected-edit",
+      "mutation_target": "corpus_expected",
+      "mutation": "Depois de observar que o candidato produz MATCH, alterar expected de DIFFERENCE para MATCH.",
+      "witness": {"case_id": "P1400-MATH-001", "expected_before_candidate": "DIFFERENCE", "candidate_observed": "MATCH", "expected_after_candidate": "MATCH"},
+      "reason_code": "EXPECTED_ADAPTED_AFTER_CANDIDATE",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-022",
+      "attack_family": "implicit-unknown-promotion",
+      "mutation_target": "classifier",
+      "mutation": "Aplicar fallback MATCH a reason_code desconhecido em vez de falhar fechado.",
+      "witness": {"path": "raw.line", "evidence_state": "UNKNOWN", "reason_code": "OUTPUT_UNREADABLE", "mutated_state": "MATCH"},
+      "reason_code": "UNKNOWN_IMPLICITLY_PROMOTED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-023",
+      "attack_family": "non-bilateral-evidence",
+      "mutation_target": "corpus",
+      "mutation": "Classificar polygon.regular usando somente execução no cristalino.",
+      "witness": {"path": "polygon.regular", "vanila_execution": null, "crystalline_execution": "completed", "mutated_state": "MATCH"},
+      "reason_code": "NON_BILATERAL_CLASSIFICATION",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-024",
+      "attack_family": "batch-and-control-violation",
+      "mutation_target": "corpus",
+      "mutation": "Executar lote de 13 rotas em paralelo 2 sem controle positivo.",
+      "witness": {"route_count": 13, "parallelism": 2, "positive_control_count": 0, "allowed_route_count_max": 12, "allowed_parallelism": 1},
+      "reason_code": "BATCH_EXECUTION_CONTRACT_BROKEN",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-025",
+      "attack_family": "scope-out-without-authority",
+      "mutation_target": "classifier",
+      "mutation": "Emitir SCOPE_OUT para color.spot.tint por ausência atual ou semelhança nominal, sem cláusula exata de ADR ou Prompt L0 vigente.",
+      "witness": {"path": "color.spot.tint", "exact_adr_or_l0_clause": null, "selection_basis": "current absence", "mutated_state": "SCOPE_OUT"},
+      "reason_code": "UNPROVED_SCOPE_OUT",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-026",
+      "attack_family": "generic-html-elem-credit-without-literal-tag-probe",
+      "mutation_target": "corpus-and-classifier",
+      "mutation": "Executar uma única alternativa html.elem(\"div\") e extrapolar seu crédito às 44 rotas html.<tag> sem executar as tags literais correspondentes.",
+      "witness": {
+        "generic_probe": "html.elem(\"div\")",
+        "generic_probe_executed": true,
+        "credited_route_count": 44,
+        "route_local_literal_probes_executed": 0,
+        "example_false_credit": {"path": "html.track", "required_literal_probe": "html.elem(\"track\")"},
+        "mutated_state": "PARTIAL"
+      },
+      "reason_code": "GENERIC_HTML_ELEM_FALSE_ROUTE_CREDIT",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-027",
+      "attack_family": "unreached-math-alternative-credit-after-qualified-abort",
+      "mutation_target": "corpus-and-classifier",
+      "mutation": "Colocar a forma math/bare depois do acesso qualificado no mesmo processo e creditá-la como funcional quando a falha qualificada aborta antes da alternativa.",
+      "witness": {
+        "path": "math.abs",
+        "single_process_expression_order": ["repr(math.abs)", "eval(bare-abs)"],
+        "qualified_probe": "aborted",
+        "alternative_reached": false,
+        "alternative_receipt": null,
+        "mutated_state": "PARTIAL",
+        "required_state": "UNKNOWN"
+      },
+      "reason_code": "UNREACHED_MATH_ALTERNATIVE_FALSE_CREDIT",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-028",
+      "attack_family": "absent-before-partial-precedence",
+      "mutation_target": "classifier",
+      "mutation": "Aplicar ABSENT antes de PARTIAL quando a forma qualificada está ausente e uma alternativa independente, válida, funcional e bilateral foi demonstrada.",
+      "witness": {
+        "path": "math.frac",
+        "qualified_vanila": "valid",
+        "qualified_crystalline": "specifically absent",
+        "alternative_probe": "independent and reached",
+        "alternative_functional_bilateral": true,
+        "mutated_precedence": ["ABSENT", "PARTIAL"],
+        "mutated_state": "ABSENT",
+        "required_state": "PARTIAL"
+      },
+      "reason_code": "ABSENT_PRECEDENCE_OVER_DEMONSTRATED_PARTIAL",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-029",
+      "attack_family": "ancestor-constructor-failure-as-member-absence",
+      "mutation_target": "corpus-and-classifier",
+      "mutation": "Construir outline.entry.body por outline.entry qualificado; após falha do ancestor, classificar o membro body como ABSENT sem construção pública independente.",
+      "witness": {
+        "path": "outline.entry.body",
+        "construction_route": "qualified ancestor under investigation",
+        "ancestor_constructor": "failed",
+        "independent_document_query_construction": "not executed",
+        "member_access_reached": false,
+        "mutated_state": "ABSENT",
+        "required_state": "UNKNOWN"
+      },
+      "reason_code": "ANCESTOR_CONSTRUCTION_FAILURE_FALSE_MEMBER_ABSENCE",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-030",
+      "attack_family": "asymmetric-eval-target-reused-as-bilateral-control",
+      "mutation_target": "control-corpus",
+      "mutation": "Reutilizar typst eval --target html como controle bilateral obrigatório, embora a opção pertença apenas à CLI de eval do vanila observada.",
+      "witness": {
+        "control_id": "html-valid-args-reused",
+        "vanila_argv": ["<vanila>", "eval", "--target", "html", "--features", "html", "--format", "raw", "repr(1 + 1)"],
+        "crystalline_argv": ["<crystalline>", "eval", "--target", "html", "--features", "html", "--format", "raw", "repr(1 + 1)"],
+        "vanila_cli_accepts_target": true,
+        "crystalline_cli_accepts_target": false,
+        "failure_phase": "CLI_OPTION_PARSING",
+        "mutated_reason_code": "PARSER_CONTROL_FAILED"
+      },
+      "reason_code": "ASYMMETRIC_EVAL_TARGET_REUSED_AS_COMMON_CONTROL",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-031",
+      "attack_family": "html-control-global-poisoning",
+      "mutation_target": "classifier-and-control-applicability",
+      "mutation": "Propagar uma falha do controle de target/fixture HTML às 49 rotas não HTML e substituí-las por UNKNOWN.",
+      "witness": {
+        "failed_control": "html-target-fixture-common",
+        "legitimate_applicability": ["html", "html+a11y"],
+        "html_route_count": 44,
+        "non_html_route_count": 49,
+        "non_html_families": ["color", "math", "elements-introspection-helpers"],
+        "completed_non_html_results_overwritten": 49,
+        "mutated_state": "UNKNOWN",
+        "mutated_reason_code": "TARGET_CONTROL_FAILED"
+      },
+      "reason_code": "HTML_CONTROL_CONTAMINATES_49_NON_HTML_ROUTES",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-032",
+      "attack_family": "per-product-flag-substitution",
+      "mutation_target": "bilateral-argv",
+      "mutation": "Substituir flags ou subcomandos assimetricamente por produto e tratar os processos como o mesmo controle bilateral.",
+      "witness": {
+        "control": "html-target-fixture-common",
+        "vanila_argv": ["<vanila>", "eval", "--target", "html", "--features", "html", "--format", "raw", "<expression>"],
+        "crystalline_argv": ["<crystalline>", "compile", "--features", "html", "--format", "html", "<input.typ>", "<output.html>"],
+        "same_logical_argv": false,
+        "mutated_result": "control passes",
+        "required_common_transport": "compile --features html --format html on both products"
+      },
+      "reason_code": "ASYMMETRIC_PER_PRODUCT_FLAG_SUBSTITUTION",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1400-MUT-033",
+      "attack_family": "html-target-fixture-context-removal",
+      "mutation_target": "control-fixture-bytes",
+      "mutation": "Remover o token context da primeira linha da fixture HTML e manter o controle como se target() continuasse válido fora de avaliação contextual.",
+      "witness": {
+        "control_id": "html-target-fixture-common",
+        "contract_fixture_utf8": "#context assert.eq(target(), \"html\")\nHTML target fixture.",
+        "contract_fixture_sha256": "6c66dc26fa1e6a37d8f2345c070ed2541d89425c78ed720dbf786e5c42adf664",
+        "mutated_fixture_utf8": "#assert.eq(target(), \"html\")\nHTML target fixture.",
+        "removed_token": "context",
+        "vanila_result": "invalid because target() requires contextual evaluation",
+        "mutated_control_result": "PASS",
+        "classification_credit": "none"
+      },
+      "reason_code": "HTML_TARGET_FIXTURE_CONTEXT_REMOVED",
+      "expected_contract_classification": "Violated",
+      "valid_negative": true
+    }
+  ],
+  "positive_controls": [
+    {
+      "id": "P1400-POS-001",
+      "control": "A cópia contém exatamente os 93 paths únicos congelados e exclui format e todo prefixo format.",
+      "witness": {"route_count": 93, "unique_count": 93, "format_family_count": 0},
+      "reason_code": "EXACT_DENOMINATOR_PRESERVED",
+      "expected_contract_classification": "Preserved"
+    },
+    {
+      "id": "P1400-POS-002",
+      "control": "Forma qualificada bilateral válida com todos os observáveis declarados iguais é MATCH.",
+      "witness": {"qualified_form_valid_bilaterally": true, "stdout_equal": true, "stderr_equal": true, "exit_equal": true, "public_projection_equal": true},
+      "reason_code": "BILATERAL_PUBLIC_OBSERVABLES_MATCH",
+      "expected_contract_classification": "Preserved"
+    },
+    {
+      "id": "P1400-POS-003",
+      "control": "Forma alternativa independente, alcançada, válida, funcional e bilateral prevalece sobre ABSENT quando a forma qualificada está ausente.",
+      "witness": {"qualified_form": "absent", "alternate_process": "independent", "alternate_reached": true, "alternate_functional_bilateral": true, "state": "PARTIAL"},
+      "reason_code": "PARTIAL_PRECEDENCE_PRESERVED",
+      "expected_contract_classification": "Preserved"
+    },
+    {
+      "id": "P1400-POS-004",
+      "control": "Falha do constructor ancestor, sem construção pública independente, permanece UNKNOWN e não prova ausência do membro.",
+      "witness": {"ancestor_construction": "failed", "independent_construction": "not demonstrated", "member_access_reached": false, "state": "UNKNOWN", "route_reason_code": "UNSUPPORTED_CONSTRUCTION"},
+      "reason_code": "ANCESTOR_CONSTRUCTION_OPACITY_PRESERVED",
+      "expected_contract_classification": "Preserved"
+    },
+    {
+      "id": "P1400-POS-005",
+      "control": "Cada uma das 44 rotas HTML recebe somente o crédito de seu próprio probe html.elem com tag literal correspondente.",
+      "witness": {"html_route_count": 44, "route_local_literal_probe_count": 44, "mapping_rule": "html.<tag> -> html.elem(\"<tag>\")", "generic_div_cross_credit": 0},
+      "reason_code": "HTML_LITERAL_ROUTE_CREDIT_PRESERVED",
+      "expected_contract_classification": "Preserved"
+    },
+    {
+      "id": "P1400-POS-006",
+      "control": "Construção pública independente produz a instância antes de um acesso de membro executado separadamente.",
+      "witness": {"path": "outline.entry.body", "construction": "independent document/query", "construction_completed": true, "member_access_process": "separate and reached"},
+      "reason_code": "INDEPENDENT_MEMBER_CONSTRUCTION_PRESERVED",
+      "expected_contract_classification": "Preserved"
+    }
+  ],
+  "opaque_controls": [
+    {
+      "id": "P1400-OPAQUE-001",
+      "opacity": "Hash observado do produto não corresponde à identidade congelada.",
+      "witness": {"condition": "binary identity mismatch", "route_decision_available": false},
+      "reason_code": "IDENTITY_MISMATCH",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-002",
+      "opacity": "A construção pública necessária não é suportada pelo observador disponível.",
+      "witness": {"condition": "member access not reached", "route_decision_available": false},
+      "reason_code": "UNSUPPORTED_CONSTRUCTION",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-003",
+      "opacity": "O controle positivo de parser falha antes do path investigado.",
+      "witness": {"condition": "parser control failed", "route_decision_available": false},
+      "reason_code": "PARSER_CONTROL_FAILED",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-004",
+      "opacity": "Um processo excede 15 segundos.",
+      "witness": {"duration_seconds": 15.001, "limit_seconds": 15, "route_decision_available": false},
+      "reason_code": "TIMEOUT",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-005",
+      "opacity": "Um stream é truncado no limite de 64 KiB.",
+      "witness": {"stream": "stderr", "bytes": 65536, "truncated": true, "route_decision_available": false},
+      "reason_code": "OUTPUT_TRUNCATED",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-006",
+      "opacity": "O budget de duas revisões focais da mesma causa foi esgotado sem ganho discriminatório.",
+      "witness": {"focal_revisions": 2, "classification_delta": 0, "same_dominant_cause": true, "route_decision_available": false},
+      "reason_code": "CALIBRATION_BUDGET_EXHAUSTED",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-007",
+      "opacity": "O probe qualificado math aborta e o probe alternativo obrigatório fica embutido e inalcançado, sem recibo próprio.",
+      "witness": {"qualified_probe": "aborted", "required_alternative_reached": false, "independent_alternative_receipt": null, "route_decision_available": false},
+      "reason_code": "RUNNER_FAILURE",
+      "expected_contract_classification": "Unknown"
+    },
+    {
+      "id": "P1400-OPAQUE-008",
+      "opacity": "O constructor ancestor falha e nenhuma construção pública independente produz a instância cujo membro seria observado.",
+      "witness": {"ancestor_constructor": "failed", "independent_construction": "not demonstrated", "member_access_reached": false, "route_decision_available": false},
+      "reason_code": "UNSUPPORTED_CONSTRUCTION",
+      "expected_contract_classification": "Unknown"
+    }
+  ],
+  "evaluation_protocol": {
+    "data_only": true,
+    "candidate_independent": true,
+    "orders": [
+      {"name": "direct", "negative_ids": "ascending", "controls": "positive then opaque"},
+      {"name": "direct-repeat", "negative_ids": "ascending", "controls": "positive then opaque"},
+      {"name": "reverse", "negative_ids": "descending", "controls": "opaque then positive"}
+    ],
+    "canonical_projection": ["id", "reason_code", "expected_contract_classification"],
+    "required_invariance": "Os três vetores canônicos devem ser idênticos depois de reordenados por id.",
+    "expected_counts": {"Violated": 33, "Preserved": 6, "Unknown": 8},
+    "expected_mutation_score": 1.0,
+    "score_denominator": 33,
+    "score_numerator_required": 33,
+    "opaque_excluded_from_score": true,
+    "valid_survivor_blocks_preseal": true
+  },
+  "r2_integral_modeled_gate_receipt": {
+    "started_at": "2026-09-14T19:42:55-03:00",
+    "finished_at": "2026-09-14T19:42:55-03:00",
+    "kind": "uma campanha integral do gate modelado de dados",
+    "orders_executed_serially": ["direct", "direct-repeat", "reverse"],
+    "parallelism": 1,
+    "vector_size_per_order": 43,
+    "checks_per_order": {"Violated": 29, "Preserved": 6, "Unknown": 8},
+    "denominator_routes_reconciled": 93,
+    "inventory_counts_reconciled": {"vanila_only_cells": 544, "unique_paths": 217, "format_family": 124, "non_format": 93},
+    "mutation_score": 1.0,
+    "score_fraction": "29/29",
+    "order_invariant": true,
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.07,
+    "max_rss_kib": 28148,
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false,
+    "full_product_corpus_executed": false,
+    "receipt_scope": "Execução integral apenas do modelo adversarial registrado; não é execução bilateral das 93 rotas nem veredito sobre candidato."
+  },
+  "r3_focal_modeled_gate_receipt": {
+    "started_at": "2026-09-14T20:12:25-03:00",
+    "finished_at": "2026-09-14T20:12:25-03:00",
+    "contract_revision": "R2",
+    "case_ids": ["P1400-MUT-030", "P1400-MUT-031", "P1400-MUT-032"],
+    "expected": "Violated",
+    "violated": 3,
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.05,
+    "max_rss_kib": 23312,
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false
+  },
+  "r3_integral_modeled_gate_receipt": {
+    "started_at": "2026-09-14T20:12:45-03:00",
+    "finished_at": "2026-09-14T20:12:45-03:00",
+    "contract_revision": "R2",
+    "kind": "uma campanha integral do gate modelado de dados após o recorte focal passar",
+    "orders_executed_serially": ["direct", "direct-repeat", "reverse"],
+    "parallelism": 1,
+    "vector_size_per_order": 46,
+    "checks_per_order": {"Violated": 32, "Preserved": 6, "Unknown": 8},
+    "denominator_routes_reconciled": 93,
+    "mutation_score": 1.0,
+    "score_fraction": "32/32",
+    "order_invariant": true,
+    "rlimit_as_kib": 524288,
+    "timeout_seconds": 15,
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.18,
+    "max_rss_kib": 28124,
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false,
+    "full_product_corpus_executed": false,
+    "receipt_scope": "Execução integral apenas do modelo adversarial registrado; não é execução bilateral das 93 rotas nem veredito sobre candidato."
+  },
+  "r4_focal_modeled_gate_receipt": {
+    "started_at": "2026-09-14T20:20:06-03:00",
+    "finished_at": "2026-09-14T20:20:06-03:00",
+    "contract_revision": "R3",
+    "case_ids": ["P1400-MUT-033"],
+    "expected": "Violated",
+    "violated": 1,
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.13,
+    "max_rss_kib": 23596,
+    "rlimit_as_kib": 524288,
+    "timeout_seconds": 15,
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false
+  },
+  "r4_integral_modeled_gate_receipt": {
+    "started_at": "2026-09-14T20:20:29-03:00",
+    "finished_at": "2026-09-14T20:20:29-03:00",
+    "contract_revision": "R3",
+    "kind": "uma campanha integral do gate modelado de dados após o recorte focal passar",
+    "orders_executed_serially": ["direct", "direct-repeat", "reverse"],
+    "parallelism": 1,
+    "vector_size_per_order": 47,
+    "checks_per_order": {"Violated": 33, "Preserved": 6, "Unknown": 8},
+    "denominator_routes_reconciled": 93,
+    "mutation_score": 1.0,
+    "score_fraction": "33/33",
+    "order_invariant": true,
+    "rlimit_as_kib": 524288,
+    "timeout_seconds": 15,
+    "result": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.33,
+    "max_rss_kib": 28412,
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false,
+    "full_product_corpus_executed": false,
+    "receipt_scope": "Execução integral apenas do modelo adversarial registrado; não é execução bilateral das 93 rotas nem veredito sobre candidato."
+  },
+  "author_validation": {
+    "executed_at": "2026-09-14T20:20:29-03:00",
+    "execution_environment": "dados e cópias lógicas; nenhum runner candidato ou produto foi executado",
+    "checks": [
+      "JSON parseável",
+      "IDs únicos",
+      "33 negativos válidos com witness, reason_code e Violated esperados",
+      "6 positivos com Preserved esperado",
+      "8 opacos explicitamente declarados com Unknown esperado",
+      "15 famílias exigidas pelo contrato R1 e o ataque explícito de precedência ABSENT-before-PARTIAL presentes",
+      "os quatro ataques focais R1 têm witness público e estado de fronteira refutador",
+      "vetores direct, direct-repeat e reverse idênticos após projeção canônica por ID",
+      "o ataque de remoção de context da fixture HTML foi rejeitado no recorte focal antes da campanha integral",
+      "mutation_score modelado igual a 33/33 = 1.0",
+      "inventário com 544 células VANILLA_ONLY, 217 paths únicos, 124 da família format e 93 fora dela",
+      "igualdade exata entre as 93 rotas derivadas do inventário, manifesto e contrato",
+      "hashes de passo, manifesto, contrato e inventário ainda iguais ao snapshot"
+    ],
+    "result": "PASS",
+    "counts": {"valid_negative": 33, "preserved_positive": 6, "explicit_opaque": 8},
+    "modeled_mutation_score": 1.0,
+    "order_invariant": true,
+    "full_gate_executions_consumed": 3,
+    "current_contract_r2_full_gate_executions_consumed": 1,
+    "current_contract_r3_full_gate_executions_consumed": 1,
+    "full_gate_kind": "campanha integral do gate modelado de dados nas três ordens",
+    "full_product_corpus_executions_consumed": 0,
+    "focal_revisions_consumed": 3,
+    "note": "Este PASS valida o artefato adversarial e seu modelo de dados; não sela o contrato e não julga implementação candidata."
+  }
+}
