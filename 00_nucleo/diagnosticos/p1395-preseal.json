@@ -1,0 +1,183 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": 1395,
+  "revision": "R6",
+  "status": "SEALED_FOR_CANDIDATE_VERIFICATION",
+  "recorded_at": "2026-09-14T15:24:15-03:00",
+  "supersedes": {
+    "revision": "R5",
+    "preseal_sha256": "e3b10e85a32773a524ce0f3f28bbc27940e3419e7dec125a46a31d02e7b57e81",
+    "valid": false,
+    "reason": "A medicao direta do vanila ratificado refutou tres expected instrumentais protegidos; toda entrada causal afetada foi revista antes deste novo selo."
+  },
+  "regime": {
+    "kind": "full",
+    "execution_language": "executado sem atestacao de isolamento",
+    "isolation_attested": false,
+    "limitation": "As autoridades tiveram escritas segregadas, mas compartilharam o working tree. Hashes registram identidade e ordem, nao provam isolamento fisico.",
+    "candidate_implementation_existed_during_r6": true,
+    "candidate_implementation_read_by_r6_contract_oracle_adversary": false,
+    "candidate_implementation_read_by_this_verifier": false,
+    "candidate_product_file_read_or_hashed_by_this_verifier": false,
+    "final_implementation_verdict_emitted": false
+  },
+  "authority": {
+    "role": "independent_verifier_and_resealer",
+    "executor": "/root/selador_p1395",
+    "write_allowlist": ["00_nucleo/diagnosticos/p1395-preseal.json"],
+    "forbidden_writes_respected": [
+      "00_nucleo/prompts/compiler/eval/math.md",
+      "00_nucleo/materialization/typst-passo-1395.md",
+      "00_nucleo/diagnosticos/p1395-contract.json",
+      "lab/parity/p1395_math_callee.py",
+      "00_nucleo/diagnosticos/p1395-oracles.json",
+      "00_nucleo/diagnosticos/p1395-mutants.json",
+      "01_core/src/compiler/eval/math.rs",
+      "01_core/src/compiler/eval/tests.rs"
+    ],
+    "candidate_boundary": "O verificador leu somente intencao, contrato, oraculo, recibos e catalogo R6; nao leu nem inspecionou o candidato em math.rs.",
+    "causal_predecessor": "dd33334ca36e2d7abf79d16b200f07691d950c59"
+  },
+  "sealed_r6_inputs": [
+    {"path": "00_nucleo/prompts/compiler/eval/math.md", "sha256": "6e25eefa26e0cf55410866bb4633bb325c5f728458c7039ab1dcce613e5e4d65", "bytes": 17252, "role": "authoritative_product_l0_r6"},
+    {"path": "00_nucleo/materialization/typst-passo-1395.md", "sha256": "634493d61eb86fe4248d84693978bee94e135a0d6e845f3056ff9b6d32f137b7", "bytes": 21134, "role": "execution_step_r6"},
+    {"path": "00_nucleo/diagnosticos/p1395-contract.json", "sha256": "8c693a3ffab0690e3d0ca2bea11b91bed2884f27bdba5852bff7dc108fa22e1e", "bytes": 28271, "role": "contract_r6"},
+    {"path": "lab/parity/p1395_math_callee.py", "sha256": "883ea48d230e95c56d6eaec44a0dc4cd73976793fefa8bb4089d1c09fe041b29", "bytes": 8226, "role": "independent_cli_oracle_r6"},
+    {"path": "00_nucleo/diagnosticos/p1395-oracles.json", "sha256": "e7b0f32a1240fa6b10e20f9003eec4fc02f814fd62892c70c4b4161ce4311d8b", "bytes": 13711, "role": "oracle_receipt_r6"},
+    {"path": "00_nucleo/diagnosticos/p1395-mutants.json", "sha256": "18621537f3a8340fb965cfffc9ba325a60ae67ce20f73aefde1cd1a46e6000f7", "bytes": 25776, "role": "adversarial_catalog_r6"},
+    {"path": "00_nucleo/prompts/compiler/eval/tests.md", "sha256": "5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33", "bytes": 5215, "role": "restored_test_l0_baseline"},
+    {"path": "01_core/src/compiler/eval/tests.rs", "sha256": "95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730", "bytes": 822575, "role": "restored_monolithic_test_baseline_not_to_execute"}
+  ],
+  "r6_change_audit": {
+    "oracle_delta": [
+      {"case": "local-abs-non-func-positional", "old_expected": "7(1, x)", "new_expected": "7(1, 𝑥)"},
+      {"case": "local-abs-non-func-named", "change": "remove only the instrumental `abs` is not a function hint; retain primary and colon repair hint"},
+      {"case": "local-abs-non-func-spread", "change": "remove only the instrumental `abs` is not a function hint; retain primary and dots repair hint"}
+    ],
+    "all_other_script_bytes_unchanged": true,
+    "proof": "Reversing exactly these three expectation edits in memory reproduced the protected R5 script SHA-256 268e9e52c4d14c97dca3a4b3ae95e655ec3353a0c9fd17138f267f6252a01c78.",
+    "fixtures_changed": false,
+    "classifier_changed": false,
+    "timeouts_or_commands_changed": false,
+    "closure_and_native_expectations_changed": false
+  },
+  "direct_vanila_measurement": {
+    "artifact": "/tmp/p1395-vanila-r4.json",
+    "sha256": "145f6974f70b85a992ba02e43d3e36e1cc937b43304314af0e1bcbc5bf8adc22",
+    "bytes": 11893,
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "ratified_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "executed_before_r6_recalibration": {
+      "counts_under_old_expectations": {"Difference": 3, "Preserved": 4, "Unknown": 0},
+      "elapsed_seconds": 4.55,
+      "max_rss_kib": 32288,
+      "swap": 0,
+      "order_agreement": true
+    },
+    "static_reclassification_under_sealed_r6_expectations": {"Difference": 0, "Preserved": 7, "Unknown": 0},
+    "direct_repeat_reverse_reclassification_equal": true,
+    "candidate_output_used": false
+  },
+  "red_gate": {
+    "causal_execution_artifact": "/tmp/p1395-red-r4.json",
+    "causal_execution_sha256": "b8b20058892dd17b78ff8d932215451b524eea911194b4d8808c5bcc4d87bf49",
+    "bytes": 11199,
+    "baseline_crystalline_binary_sha256_at_execution": "9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+    "execution_script_sha256": "268e9e52c4d14c97dca3a4b3ae95e655ec3353a0c9fd17138f267f6252a01c78",
+    "r6_red_reexecuted": false,
+    "reason_not_reexecuted": "O binario baseline protegido foi substituido pelo build candidato; o contrato proibe usar o candidato como baseline e esta autoridade foi instruida a nao executar binarios.",
+    "static_reclassification_under_r6_expectations": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+    "difference_cases": ["local-abs-closure", "local-sqrt-closure", "local-abs-non-func-positional", "local-abs-non-func-named", "local-abs-non-func-spread"],
+    "preserved_controls": ["native-abs-control", "native-sqrt-control"],
+    "direct_repeat_reverse_reclassification_equal": true,
+    "semantic_red_preserved_by_causal_evidence": true,
+    "unknown_required": 0,
+    "unknown_observed": 0
+  },
+  "scope_outs_without_credit": {
+    "single_argument_evaluation": {
+      "classification": "NotObserved",
+      "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+      "included_in_mutation_denominator": false,
+      "score_credit": 0,
+      "treated_as_success": false
+    },
+    "callee_annotation_span_named_and_spread": {
+      "observable_in_vanila_stderr": true,
+      "display_text": "`abs` is not a function",
+      "kind": "annotation anchored to the callee span without hint prefix",
+      "captured_by_public_diagnostics": false,
+      "representable_by_simplified_source_diagnostic": false,
+      "classification": "NotObserved",
+      "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+      "included_in_integral_diagnostic_equivalence": false,
+      "score_credit": 0,
+      "treated_as_success": false,
+      "claim_prohibited": "integral diagnostic MATCH"
+    }
+  },
+  "discriminatory_gate": {
+    "method": "Deterministic contract-level static/in-memory/mock evaluation from a fresh record for each mutation. No source mutant was written, compiled or executed, and no candidate code was read.",
+    "cataloged_valid_mutants": 15,
+    "applicable_valid_mutants": 14,
+    "rejected_as_violated": 14,
+    "survivors": 0,
+    "unexpected_unknown": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "normal_order_passes": 2,
+    "reverse_order_passes": 2,
+    "all_four_passes_equal_by_id_classification_reason_and_witness": true,
+    "fresh_copy_per_mutant": true,
+    "compiled_mutants": 0,
+    "executed_mutants": 0,
+    "results": [
+      {"id": "M01_LOOKUP_AFTER_HARDCODE", "classification": "Violated", "reason_code": "HARDCODE_PREEMPTS_LOCAL"},
+      {"id": "M02_SPECIAL_CASE_ABS_ONLY", "classification": "Violated", "reason_code": "SQRT_NOT_SHADOWED"},
+      {"id": "M03_SPECIAL_CASE_SQRT_ONLY", "classification": "Violated", "reason_code": "ABS_NOT_SHADOWED"},
+      {"id": "M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL", "classification": "Violated", "reason_code": "LOOKUP_DOMAIN_EXPANDED"},
+      {"id": "M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE", "classification": "Violated", "reason_code": "NON_FUNC_NATIVE_FALLTHROUGH"},
+      {"id": "M07_DROP_NON_FUNC_POSITIONAL_ARGS", "classification": "Violated", "reason_code": "POSITIONAL_PAYLOAD_DROPPED"},
+      {"id": "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION", "classification": "Violated", "reason_code": "PUNCTUATION_MORPHOLOGY_CHANGED"},
+      {"id": "M09_ACCEPT_NAMED_ON_NON_FUNC", "classification": "Violated", "reason_code": "NAMED_DIAGNOSTIC_SUPPRESSED"},
+      {"id": "M10_ACCEPT_SPREAD_ON_NON_FUNC", "classification": "Violated", "reason_code": "SPREAD_DIAGNOSTIC_SUPPRESSED"},
+      {"id": "M11_BREAK_NATIVE_ABS_CONTROL", "classification": "Violated", "reason_code": "NATIVE_ABS_CONTROL_REGRESSED"},
+      {"id": "M12_BREAK_NATIVE_SQRT_CONTROL", "classification": "Violated", "reason_code": "NATIVE_SQRT_CONTROL_REGRESSED"},
+      {"id": "M13_ALTER_FIELD_CALLEE", "classification": "Violated", "reason_code": "FIELD_SCOPE_EXPANDED"},
+      {"id": "M14_ALTER_NAMESPACED_MATH_CALL", "classification": "Violated", "reason_code": "NAMESPACED_SCOPE_EXPANDED"},
+      {"id": "M15_PROMOTE_UNKNOWN_TO_PRESERVED", "classification": "Violated", "reason_code": "UNKNOWN_OR_NOT_OBSERVED_PROMOTED"}
+    ],
+    "excluded_mutation": {
+      "id": "M05_DOUBLE_EVALUATE_LOCAL_FUNC_ARGS",
+      "classification": "NotObserved",
+      "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+      "included_in_denominator": false,
+      "score_credit": 0,
+      "treated_as_success": false
+    }
+  },
+  "unknown_policy_gate": {
+    "unknown_reasons_preserved_without_credit": ["INPUT_IDENTITY_MISMATCH", "PARSE_OR_BUILD_INCONCLUSIVE", "TIMEOUT", "OOM", "SWAP_OBSERVED", "OUTPUT_MISSING", "ORDER_DISAGREEMENT"],
+    "not_observed_reason_preserved_without_credit": "INSUFFICIENT_PUBLIC_EVIDENCE",
+    "promotion_to_preserved_rejected": true,
+    "unexpected_unknown_in_required_gate": 0
+  },
+  "execution_safety": {
+    "builds_run_by_this_verifier": 0,
+    "typst_binary_processes_run_by_this_verifier": 0,
+    "mutants_compiled": 0,
+    "mutants_executed": 0,
+    "memory_risk_added": false
+  },
+  "seal": {
+    "verdict": "SEALED_FOR_CANDIDATE_VERIFICATION",
+    "mutation_score": 1.0,
+    "required_unknown_count": 0,
+    "required_unknown_count_observed": 0,
+    "protected_inputs_become_read_only": true,
+    "candidate_results_before_this_reseal_receive_credit": false,
+    "candidate_may_now_be_verified_without_adapting_inputs": true,
+    "invalidation_rule": "Qualquer alteracao dos hashes R6 selados invalida este selo e reinicia a cadeia na primeira fase afetada.",
+    "claim_limit": "Este selo cobre somente o fragmento R6: precedencia lexical bare, morfologia nao-Func capturada, primary/repair-hint, controles nativos e politica fail-closed. Nao atesta o candidato, avaliacao unica, annotation span, equivalencia diagnostica integral, paridade math geral ou equivalencia funcional geral."
+  }
+}

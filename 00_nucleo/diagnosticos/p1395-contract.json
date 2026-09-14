@@ -1,0 +1,618 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1395,
+  "status": "r7-execution-amendment-no-semantic-invalidation",
+  "regime": {
+    "kind": "full",
+    "reason": "Correção semântica de precedência lexical com contrato, oráculos, ataques e veredito segregados.",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "final_verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "head": "dd33334ca36e2d7abf79d16b200f07691d950c59",
+    "working_tree_before_p1395": {
+      "git_status_short": "",
+      "git_diff_head_stat": ""
+    }
+  },
+  "revision": {
+    "id": "R1",
+    "recorded_at": "2026-09-14T14:36:48-03:00",
+    "cause": "Independent oracle tests were authored before any candidate, but rustc exhausted the first two declared virtual-memory ceilings before executing the tests; no semantic RED exists yet.",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r0_step_sha256": "750770e2f6e346f46835573a5e7323cd05f6b00ff4285765225d84d6a2f8750f",
+    "r0_contract_sha256": "50a0c39ed667c016908ff445637159d31b828a0025053172b6a89cb7ecd602d5",
+    "resource_attempts": [
+      {
+        "ordinal": 1,
+        "virtual_memory_limit_kib": 524288,
+        "timeout_seconds": 120,
+        "stage": "rustc before test execution",
+        "result": "RESOURCE_ABORT",
+        "semantic_red": false,
+        "max_rss_kib": 153388,
+        "swap": 0
+      },
+      {
+        "ordinal": 2,
+        "virtual_memory_limit_kib": 1048576,
+        "timeout_seconds": 120,
+        "stage": "rustc before test execution",
+        "result": "RESOURCE_ABORT",
+        "allocation_request_bytes": 122973653,
+        "semantic_red": false,
+        "max_rss_kib": 220020,
+        "swap": 0
+      }
+    ],
+    "semantic_contract_changed": false,
+    "final_oracle_receipt_sha256": null,
+    "final_oracle_tests_sha256": null,
+    "pending_revision": "R2 must freeze both final oracle hashes before seal."
+  },
+  "revision_r2": {
+    "id": "R2",
+    "cause": "The RLIMIT_AS design did not yield semantic RED and transient cgroup controls are unavailable. A new probe proves RLIMIT_DATA constrains anonymous heap without constraining file-backed mmap.",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r1_step_sha256": "159709927aff1ee5209df88523443bb0e5bc0d2519810c2059891f5d281839ae",
+    "r1_contract_sha256": "1db49c77343fec51e4c48eac296d685cb23de0855a8761f1a95e4c85c6bd61ae",
+    "discarded_cgroup": {
+      "subtree_control": "EBUSY",
+      "memory_max": "Permission denied",
+      "usable_as_memory_proof": false
+    },
+    "rlimit_data_probe": {
+      "command": "bash -lc 'ulimit -d 65536; exec /usr/bin/time -v python3 -c \"bytearray(128*1024*1024)\"'",
+      "requested_bytes": 134217728,
+      "result": "MemoryError",
+      "exit": 1,
+      "max_rss_kib": 30496,
+      "swap": 0,
+      "inference": "RLIMIT_DATA is effective for heap and anonymous data on this host without imposing RLIMIT_AS on file-backed mmap."
+    },
+    "mechanism_changed": true,
+    "ceiling_increased": false,
+    "semantic_contract_changed": false,
+    "final_oracle_receipt_sha256": "f510559e47844968089b72c1e8dd4184e18d0630748b043c265899fa2977ece2",
+    "final_oracle_tests_sha256": "38392faf4849fabd4691ee79c29de151e54f19fc178425476bb55b62686ec4f9",
+    "final_mutants_sha256": "e7b0b32efeca08c3c51a96ecd17f1c650bb3ecefcffbe36cc1522e0b9dc4bd4d",
+    "pending_revision": null
+  },
+  "revision_r3": {
+    "id": "R3",
+    "authority": "Explicit user authorization to redesign the memory-hungry test.",
+    "cause": "Cargo applies the p1395_ filter only after compiling the monolithic lib-test. eval/tests.rs exceeds 20000 lines; rustc approaches 1.6 GiB and executes zero tests. This is compilation pressure, not a loop, recursion or giant fixture.",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r2_step_sha256": "900e736fb6da0a4f2b5c5ce2766e2022859610cc323f8d89ac5fce981e6fb339",
+    "r2_contract_sha256": "a5e1168225f768f50eff6e6fe52835c33370bdf2c81f8d63b06a899c456aad44",
+    "invalidates_r2_oracles": [
+      "01_core/src/compiler/eval/tests.rs@38392faf4849fabd4691ee79c29de151e54f19fc178425476bb55b62686ec4f9",
+      "00_nucleo/diagnosticos/p1395-oracles.json@f510559e47844968089b72c1e8dd4184e18d0630748b043c265899fa2977ece2",
+      "00_nucleo/diagnosticos/p1395-mutants.json@e7b0b32efeca08c3c51a96ecd17f1c650bb3ecefcffbe36cc1522e0b9dc4bd4d"
+    ],
+    "restored_test_prompt_sha256": "5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33",
+    "required_restored_tests_sha256": "95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730",
+    "product_prompt_changed": false,
+    "semantic_contract_changed": false,
+    "new_oracle_kind": "standard-library Python CLI black-box",
+    "new_oracle_path": "lab/parity/p1395_math_callee.py",
+    "new_oracle_sha256": null,
+    "new_oracle_receipt_sha256": null,
+    "new_mutants_sha256": null,
+    "pending_revision": "Freeze the R3 script, receipt and adversarial catalog hashes before seal."
+  },
+  "revision_r4": {
+    "id": "R4",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r3_step_sha256": "7a90a89c0d191ed66c82c84f98189327a3d5e6f74c4384db38d20fe8b98fbde9",
+    "r3_contract_sha256": "278bb45eb10b8dcf2e3e0bc060dfef1889ae82d0a4a92252956dcc37531b2078",
+    "measurement": {
+      "kind": "R3 CLI RED",
+      "elapsed_seconds": 2.28,
+      "max_rss_kib": 39364,
+      "swap": 0,
+      "vector": {"Difference": 6, "Preserved": 1, "Unknown": 0},
+      "stable": true
+    },
+    "dominant_reason": "pdftotext -layout tokenizes the preserved native square root as '√ 1', while the instrumental expected was '√1'.",
+    "classification": "extractor mechanics in an adjacent preserved control, not a product difference",
+    "hypothesis": "Changing only native-sqrt-control expected from '√1' to '√ 1' will preserve the radical/radicand witness and change only that control from Difference to Preserved.",
+    "authorized_delta": {
+      "path": "lab/parity/p1395_math_callee.py",
+      "case": "native-sqrt-control",
+      "field": "expected",
+      "before": "√1",
+      "after": "√ 1",
+      "receipt_update": true
+    },
+    "expected_vector_after": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+    "other_changes_authorized": false,
+    "single_focal_reexecution_authorized": true,
+    "final_oracle_script_sha256": null,
+    "final_oracle_receipt_sha256": null,
+    "pending_revision": "R5 must freeze the calibrated script and receipt hashes before seal."
+  },
+  "revision_r5": {
+    "id": "R5",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r4_step_sha256": "14a0a6311aa0aedb940a64c9ce503e070fab502fa306afa506c7ed51d1ae9eea",
+    "r4_contract_sha256": "f51542d60939cf829d4dc19769b41c60f57cf747290aef22f01957d5c7c0af92",
+    "red_r4": {
+      "vector": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+      "max_rss_kib": 39328,
+      "swap": 0,
+      "expected_delta_observed": true,
+      "only_changed_case": "native-sqrt-control"
+    },
+    "single_evaluation": {
+      "state": "NotObserved",
+      "reason": "No sufficient public CLI witness in the fixed corpus without expanding the exercised language.",
+      "included_in_applicable_mutation_denominator": false,
+      "credit": false
+    },
+    "mutation_gate": {
+      "applicable": 14,
+      "rejected": 14,
+      "score": 1.0,
+      "passes_required_score": true
+    },
+    "protected_final_hashes": {
+      "script": "268e9e52c4d14c97dca3a4b3ae95e655ec3353a0c9fd17138f267f6252a01c78",
+      "oracle_receipt": "9a8c05c27f528c7c19cc879e507211f1c86b7e21adbab9bd5ea31bd358477e5c",
+      "mutants": "3d454633a7a0ae99844acdcc0bf421ef86bac699cfb2ed4f58bee09423bf256c",
+      "tests_rs_baseline": "95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730",
+      "tests_l0_baseline": "5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33",
+      "math_l0": "0f40bd06cc6913d9bdcd374d137ad232b23c09843dfcd12b3db237c5a717f14f"
+    },
+    "contract_ready_for_independent_seal": true,
+    "seal_emitted": false,
+    "verdict_emitted": false
+  },
+  "revision_r6": {
+    "id": "R6",
+    "cause": "A mandatory direct run against the ratified vanila refuted three instrumental expectations after the candidate already existed.",
+    "candidate_implementation_existed": true,
+    "candidate_implementation_read": false,
+    "r5_step_sha256": "f7a854a5cca72300e616b83eb7fdefb268166cc44dcf756392835bde53794d2c",
+    "r5_contract_sha256": "68401a1f55f49e55115f22a0a868304675ec43047885b3a4632d709a6b2d22ae",
+    "direct_vanilla_measurement": {
+      "revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "receipt_path": "/tmp/p1395-vanila-r4.json",
+      "receipt_sha256": "145f6974f70b85a992ba02e43d3e36e1cc937b43304314af0e1bcbc5bf8adc22",
+      "elapsed_seconds": 4.55,
+      "max_rss_kib": 32288,
+      "swap": 0
+    },
+    "refutations": [
+      {
+        "case": "local-abs-non-func-positional",
+        "old_expected": "7(1, x)",
+        "measured_expected": "7(1, 𝑥)",
+        "axis": "math morphology"
+      },
+      {
+        "case": "local-abs-non-func-named",
+        "old_expected_included": "hint: `abs` is not a function",
+        "measured_public_diagnostics": ["error: named-argument syntax can only be used with functions", "hint: to render the colon as text, escape it: `foo\\: 1`"]
+      },
+      {
+        "case": "local-abs-non-func-spread",
+        "old_expected_included": "hint: `abs` is not a function",
+        "measured_public_diagnostics": ["error: spread-argument syntax can only be used with functions", "hint: to render the dots as text, add a space: `.. xs`"]
+      }
+    ],
+    "unrepresentable_observable": {
+      "text": "abs is not a function",
+      "kind": "span annotation without hint prefix",
+      "captured_by_public_diagnostics": false,
+      "representable_by_simplified_source_diagnostic": false,
+      "classification": "explicit debt and scope-out; no integral diagnostic MATCH claim"
+    },
+    "updated_math_l0_sha256": "6e25eefa26e0cf55410866bb4633bb325c5f728458c7039ab1dcce613e5e4d65",
+    "r5_preseal_valid": false,
+    "candidate_credit_before_reseal": false,
+    "closure_and_native_obligations_changed": false,
+    "final_oracle_script_sha256": null,
+    "final_oracle_receipt_sha256": null,
+    "final_mutants_sha256": null,
+    "pending_revision": "After the three authorized oracle expectation edits and optional baseline RED, independently reseal the new inputs before candidate verification."
+  },
+  "revision_r7": {
+    "id": "R7",
+    "kind": "execution-only timeout amendment",
+    "candidate_implementation_existed": true,
+    "candidate_implementation_read": false,
+    "r6_step_sha256": "634493d61eb86fe4248d84693978bee94e135a0d6e845f3056ff9b6d32f137b7",
+    "r6_contract_sha256": "8c693a3ffab0690e3d0ca2bea11b91bed2884f27bdba5852bff7dc108fa22e1e",
+    "failed_build_attempt": {
+      "kind": "incremental release build after final R6 adjustment",
+      "external_timeout_seconds": 240,
+      "exit": 124,
+      "last_stage": "downstream typst-infra after typst-core compiled",
+      "oom_signal_observed": false,
+      "max_rss_kib": null,
+      "swap": null,
+      "unknown_reason": "External timeout terminated /usr/bin/time before final resource statistics were reportable."
+    },
+    "semantic_inputs_changed": false,
+    "semantic_contract_changed": false,
+    "memory_limit_changed": false,
+    "cargo_jobs_changed": false,
+    "timeout_changed": {"before_seconds": 240, "after_seconds": 360},
+    "r6_content_seal_invalidated": false,
+    "seal_creation_claimed": false,
+    "single_resume_authorized": true,
+    "on_resume_failure": "Block P1395 and require a new human decision."
+  },
+  "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "scope": "Callee MathIdent consulta binding lexical local antes de qualquer despacho nativo/hardcoded; Func local sombreia abs e sqrt; ausência local preserva as natives; local não-Func segue display/argumentos/diagnósticos ratificados.",
+  "protected_inputs": [
+    {
+      "path": "01_core/src/compiler/eval/math.rs",
+      "sha256": "16a75031fae22b4d2d5bb8631473ed8b71d536b1c8f7214c67f215a0290a146d",
+      "bytes": 79649,
+      "role": "productive_baseline"
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730",
+      "bytes": 822575,
+      "role": "test_baseline"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "6e25eefa26e0cf55410866bb4633bb325c5f728458c7039ab1dcce613e5e4d65",
+      "bytes": 17252,
+      "role": "updated_product_prompt_l0"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33",
+      "role": "restored_unchanged_test_prompt_l0"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1393-paridade-gaps.json",
+      "sha256": "f291ede92173e40b6a621c279735e67c8a059ca35bfc0753cb7fad53305614f7",
+      "role": "prioritized_gap"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1393-paridade-relatorio.md",
+      "sha256": "ac3e1654c6095654a0c477e4ab4e41ca03623ead063a0e14e903d6d9efcab1e5",
+      "role": "bilateral_measurement"
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/call.rs",
+      "sha256": "cb2fa9dfa313b60d39aae320d90f161685fe9bdfbc5ac7aa71419b36447f2862",
+      "lines": ["93-109", "147-162", "551-604"]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/math.rs",
+      "sha256": "4aad95925fbc3542fc5709ca4e053895e6aac4c6620195a305a07dab6a24bf7f",
+      "lines": ["45-54"]
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/scope.rs",
+      "sha256": "40ac6d7dec44dcc0fba584cfb85e7d84db422d2a082283ea02ef06b6c5ea37d6",
+      "lines": ["80-92"]
+    }
+  ],
+  "binary_identities": {
+    "vanilla": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "bytes": 52149176
+    },
+    "crystalline_baseline": {
+      "path": "target/release/typst",
+      "sha256": "9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "bytes": 49150488
+    }
+  },
+  "measurements": {
+    "valid": [
+      {
+        "id": "MATH-LOCAL-ABS",
+        "fixture_sha256": "8a2f9a49115901ac783a2764b121d04ea0442e010220a1cd26dc0a93bffcef2d",
+        "vanilla_text": "LOCAL-ABS",
+        "crystalline_text": "|1|",
+        "vanilla_max_rss_kib": 31636,
+        "crystalline_max_rss_kib": 39104,
+        "vanilla_seconds": 0.61,
+        "crystalline_seconds": 0.26,
+        "swap": 0
+      },
+      {
+        "id": "MATH-LOCAL-SQRT",
+        "fixture_sha256": "856ac0ad5ba024adcdf1cd160161550c62e0aa9d63cfb224b2caf3267e6c9b63",
+        "vanilla_text": "LOCAL-SQRT",
+        "crystalline_text": "native sqrt of 1",
+        "vanilla_max_rss_kib": 31428,
+        "crystalline_max_rss_kib": 39272,
+        "vanilla_seconds": 0.41,
+        "crystalline_seconds": 0.09,
+        "swap": 0
+      }
+    ],
+    "discarded": {
+      "reason": "Invalid vanila CLI ordering placed --color after compile.",
+      "exit": 2,
+      "max_rss_kib": 10080,
+      "used_for_decision": false
+    }
+  },
+  "authorized_delta": [
+    {
+      "path": "01_core/src/compiler/eval/math.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/math.md",
+      "obligation": "Before native/hardcoded dispatch of a bare MathIdent callee, inspect Scopes::get_local. Apply local Func with canonical math Args; render local non-Func plus positional math parentheses or emit ratified named/spread diagnostics; preserve no-local behavior.",
+      "forbidden": ["public signature change", "parser or AST change", "Scopes change", "pipeline phase change", "layout or stdlib change", "field/namespaced call change"]
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "obligation": "Ressel only the math L0 to its productive consumer after math.rs is frozen."
+    },
+    {
+      "authority": "oracle_author_before_reseal_only",
+      "path": "lab/parity/p1395_math_callee.py",
+      "allowed_changes": [
+        {"case": "local-abs-non-func-positional", "field": "expected", "before": "7(1, x)", "after": "7(1, 𝑥)"},
+        {"case": "local-abs-non-func-named", "field": "expected", "operation": "remove exactly the `hint: `abs` is not a function` entry; keep primary and repair hint byte-for-byte"},
+        {"case": "local-abs-non-func-spread", "field": "expected", "operation": "remove exactly the `hint: `abs` is not a function` entry; keep primary and repair hint byte-for-byte"}
+      ],
+      "receipt_update": "00_nucleo/diagnosticos/p1395-oracles.json only",
+      "all_other_changes_authorized": false
+    }
+  ],
+  "mandatory_observables": [
+    "LOCAL-ABS replaces native abs morphology under local Func",
+    "LOCAL-SQRT replaces native sqrt morphology under local Func",
+    "local non-Func value and positional-parenthesis morphology",
+    "named non-Func diagnostic and function hint",
+    "spread non-Func diagnostic and function hint",
+    "native abs and sqrt morphology without local binding",
+    "single argument evaluation only when publicly observable; otherwise NotObserved without credit",
+    "exit, elapsed time, max RSS and swap",
+    "direct, repeated and reverse-order agreement"
+  ],
+  "unknown_policy": {
+    "default": "Unknown never counts as Preserved or success.",
+    "reasons": ["INPUT_IDENTITY_MISMATCH", "PARSE_OR_BUILD_INCONCLUSIVE", "TIMEOUT", "OOM", "SWAP_OBSERVED", "OUTPUT_MISSING", "ORDER_DISAGREEMENT", "INSUFFICIENT_PUBLIC_EVIDENCE"]
+  },
+  "oracle_requirements": {
+    "positive": ["local Func shadows abs", "local Func shadows sqrt", "no-local native controls remain"],
+    "negative": ["local non-Func does not invoke native", "named/spread non-Func are not silently accepted", "arguments are not evaluated twice"],
+    "opaque": ["identity mismatch", "timeout or resource exhaustion", "unreadable or absent output"],
+    "mutation_score_required": 1.0,
+    "repeat_and_reorder_must_agree": true,
+    "original_cli_oracle_preceded_candidate": true,
+    "r6_reseal_required_before_candidate_credit": true,
+    "r3_interface": {
+      "path": "lab/parity/p1395_math_callee.py",
+      "runtime": "Python standard library only",
+      "arguments": ["--binary PATH", "--output PATH"],
+      "temporary_storage": "tempfile.TemporaryDirectory, cleaned by the script",
+      "execution": "serial subprocesses with internal timeout",
+      "text_extractor": "pdftotext",
+      "cases": ["local abs closure", "local sqrt closure", "local non-Func positional", "local non-Func named diagnostic", "local non-Func spread diagnostic", "native abs control", "native sqrt control", "single evaluation when observable by CLI"],
+      "exit_policy": "0 only when every contracted case is Preserved; Unknown and Difference are nonzero",
+      "receipt_fields": ["binary identity", "fixture identity", "expected", "actual", "process exit", "stderr", "elapsed", "reason_code"]
+    },
+    "r3_final_hashes": {
+      "script": "268e9e52c4d14c97dca3a4b3ae95e655ec3353a0c9fd17138f267f6252a01c78",
+      "receipt": "9a8c05c27f528c7c19cc879e507211f1c86b7e21adbab9bd5ea31bd358477e5c",
+      "mutants": "3d454633a7a0ae99844acdcc0bf421ef86bac699cfb2ed4f58bee09423bf256c",
+      "state": "invalidated by direct ratified-vanila measurement R6"
+    },
+    "r6_calibration": {
+      "only_authorized_expectation_changes": 3,
+      "positional_expected": "7(1, 𝑥)",
+      "named_public_diagnostics": ["error: named-argument syntax can only be used with functions", "hint: to render the colon as text, escape it: `foo\\: 1`"],
+      "spread_public_diagnostics": ["error: spread-argument syntax can only be used with functions", "hint: to render the dots as text, add a space: `.. xs`"],
+      "span_annotation": "Recorded as unrepresentable debt; excluded from diagnostic equivalence claim.",
+      "closures_and_native_controls_unchanged": true,
+      "final_hashes": {"script": null, "receipt": null, "mutants": null},
+      "state": "pending independent reseal"
+    }
+  },
+  "mutation_classes": [
+    "lookup after hardcoded dispatch",
+    "special-case abs but not sqrt",
+    "global get instead of get_local",
+    "evaluate arguments twice",
+    "fall through to native for local non-Func",
+    "drop non-Func positional arguments",
+    "silently accept named non-Func",
+    "silently accept spread non-Func",
+    "break no-local native control",
+    "change field or namespaced calls"
+  ],
+  "memory_policy": {
+    "parallelism": 1,
+    "focal_test_initial_virtual_memory_limit_kib": 524288,
+    "focal_test_timeout_seconds": 120,
+    "single_resource_retry_limit_kib": 1048576,
+    "absolute_virtual_memory_limit_kib": 2097152,
+    "third_and_final_focal_attempt": {
+      "authorized": false,
+      "virtual_memory_limit_kib": 2097152,
+      "timeout_seconds": 180,
+      "parallelism": 1,
+      "test_filter": "p1395_",
+      "command": "bash -lc 'ulimit -v 2097152; exec timeout 180s /usr/bin/time -v cargo test -p typst-core p1395_ -- --nocapture --test-threads=1'",
+      "semantic_expectations_changed": false,
+      "further_retry_authorized": false,
+      "on_failure": "Stop execution and reopen the design; do not raise the ceiling."
+    },
+    "r2_single_red_attempt": {
+      "authorized": false,
+      "mechanism": "RLIMIT_DATA only; RLIMIT_AS forbidden",
+      "data_limit_kib": 2097152,
+      "timeout_seconds": 180,
+      "cargo_build_jobs": 1,
+      "test_threads": 1,
+      "test_filter": "p1395_",
+      "command": "bash -lc 'ulimit -d 2097152; export CARGO_BUILD_JOBS=1; exec timeout 180s /usr/bin/time -v cargo test -p typst-core p1395_ -- --nocapture --test-threads=1'",
+      "rss_abort_threshold_kib": 1782579,
+      "swap_allowed": false,
+      "semantic_expectations_changed": false,
+      "further_retry_authorized": false,
+      "on_failure": "Block P1395 and request a new human decision; no further mechanism or ceiling change is authorized."
+    },
+    "r3_oracle_red": {
+      "authorized": false,
+      "compiles_rust": false,
+      "virtual_memory_limit_kib": 524288,
+      "external_timeout_seconds": 60,
+      "internal_process_timeout_required": true,
+      "parallelism": 1,
+      "binary": "target/release/typst@9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red.json'"
+    },
+    "r3_incremental_release_build": {
+      "authorized": false,
+      "data_limit_kib": 2097152,
+      "timeout_seconds": 240,
+      "cargo_build_jobs": 1,
+      "command": "bash -lc 'ulimit -d 2097152; export CARGO_BUILD_JOBS=1; exec timeout 240s /usr/bin/time -v cargo build --release --bin typst'",
+      "rss_abort_threshold_kib": 1782579,
+      "swap_allowed": false,
+      "full_rebuild_authorized": false,
+      "consumed_result": {
+        "exit": 124,
+        "last_stage": "typst-infra after typst-core compiled",
+        "max_rss_kib": null,
+        "swap": null,
+        "reason_code": "EXTERNAL_TIMEOUT_RESOURCE_STATS_UNAVAILABLE"
+      }
+    },
+    "r3_oracle_green": {
+      "authorized": true,
+      "same_script_and_contract_as_red": true,
+      "virtual_memory_limit_kib": 524288,
+      "external_timeout_seconds": 60,
+      "parallelism": 1,
+      "binary": "incrementally rebuilt target/release/typst",
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-green.json'"
+    },
+    "r4_single_focal_reexecution": {
+      "authorized": false,
+      "virtual_memory_limit_kib": 524288,
+      "external_timeout_seconds": 60,
+      "parallelism": 1,
+      "binary": "target/release/typst@9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red-r4.json'",
+      "expected_vector": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+      "only_allowed_classification_change": "native-sqrt-control Difference -> Preserved",
+      "further_calibration_authorized": false,
+      "consumed_result": {
+        "vector": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+        "max_rss_kib": 39328,
+        "swap": 0
+      }
+    },
+    "r6_optional_single_baseline_red": {
+      "authorized": true,
+      "precondition_binary_sha256": "9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "on_identity_mismatch": "Do not substitute the candidate; record Unknown/INPUT_IDENTITY_MISMATCH and reopen preparation.",
+      "virtual_memory_limit_kib": 524288,
+      "external_timeout_seconds": 60,
+      "parallelism": 1,
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red-r6.json'",
+      "further_oracle_changes_authorized": false
+    },
+    "r7_single_incremental_resume": {
+      "authorized": true,
+      "incremental_only": true,
+      "data_limit_kib": 2097152,
+      "timeout_seconds": 360,
+      "cargo_build_jobs": 1,
+      "command": "bash -lc 'ulimit -d 2097152; export CARGO_BUILD_JOBS=1; exec timeout 360s /usr/bin/time -v cargo build --release --bin typst'",
+      "rss_abort_threshold_kib": 1782579,
+      "swap_allowed": false,
+      "memory_or_job_increase": false,
+      "semantic_scope_changed": false,
+      "further_resume_authorized": false,
+      "on_failure": "Block P1395 and require a new human decision."
+    },
+    "bilateral_virtual_memory_limit_kib": 524288,
+    "bilateral_timeout_seconds_per_process": 60,
+    "check_timeout_seconds": 180,
+    "lint_timeout_seconds": 120,
+    "abort_rss_fraction": 0.85,
+    "swap_allowed": false,
+    "workspace_test_authorized": false,
+    "release_rebuild_authorized": "incremental only under r3_incremental_release_build",
+    "on_unproven_ceiling": "Do not execute; classify Unknown with MEMORY_CEILING_UNPROVEN."
+  },
+  "acceptance": [
+    "The independently R6-calibrated CLI oracle and receipt are frozen in a new seal; when the exact protected baseline binary is available, its single authorized RED runs without cargo or rustc.",
+    "eval/tests.rs and its L0 equal the baseline hashes; only authorized math code, lab oracle artifacts and math lineage change.",
+    "Local abs and sqrt closures produce contracted language morphology.",
+    "Local non-Func positional morphology and captured primary plus repair-hint match the directly measured ratified fragment; the span annotation remains explicit debt outside integral diagnostic equivalence.",
+    "No-local native controls and unrelated call paths remain preserved.",
+    "All mutations applicable to the R6 fragment are rejected after calibration; mutation score is 1.0.",
+    "The incremental release build, the same CLI oracle GREEN and crystalline-lint pass serially under declared ceilings with zero swap.",
+    "Protected hashes remain unchanged after seal and no general parity claim is made."
+  ],
+  "excluded": [
+    "public API or default changes",
+    "parser, AST, Scopes, Args, layout or stdlib changes",
+    "field or qualified call changes",
+    "non-Content Func return parity expansion",
+    "full parity matrix",
+    "workspace tests",
+    "full release rebuild or lib-test compilation",
+    "any edit to 01_core/src/compiler/eval/tests.rs or its L0",
+    "claim of integral diagnostic equivalence while the vanila span annotation is unrepresentable",
+    "general functional equivalence",
+    "final verdict by contract author"
+  ],
+  "capabilities": {
+    "contract_and_intent_author": {
+      "executor": "/root/contrato_p1395",
+      "inputs": ["AGENTS and segregated-materialization skill", "ADRs 0107/0108/0127/0129", "P1393 gap evidence", "updated L0s", "protected baseline", "ratified vanila source"],
+      "write_allowlist": ["00_nucleo/materialization/typst-passo-1395.md", "00_nucleo/diagnosticos/p1395-contract.json", "00_nucleo/prompts/compiler/eval/math.md", "00_nucleo/prompts/compiler/eval/tests.md"],
+      "forbidden": ["candidate implementation", "test implementation", "oracle receipt", "mutants", "seal", "final verdict"],
+      "candidate_read": false
+    },
+    "oracle_author": {
+      "inputs": ["updated prompts", "this contract", "protected baseline"],
+      "write_allowlist": ["the three R6 expected entries in lab/parity/p1395_math_callee.py", "00_nucleo/diagnosticos/p1395-oracles.json receipt only"],
+      "forbidden": ["candidate patch", "any other script field", "contract edits"]
+    },
+    "adversary": {
+      "inputs": ["updated prompts", "this contract", "protected baseline", "frozen oracles"],
+      "forbidden": ["solution correction", "contract edits"]
+    },
+    "implementer": {
+      "inputs": ["sealed prompts, contract and oracles"],
+      "write_allowlist": ["01_core/src/compiler/eval/math.rs", "lineage metadata required by the sealed contract"],
+      "forbidden": ["contract edits", "oracle/test edits", "baseline or mutant edits"]
+    },
+    "verifier": {
+      "inputs": ["sealed artifacts", "candidate outputs"],
+      "forbidden": ["editing any judged artifact"]
+    }
+  },
+  "calibration_budget": {
+    "max_oracle_revisions": 6,
+    "max_full_corpus_runs": 0,
+    "focal_oracle": "lab/parity/p1395_math_callee.py",
+    "lib_test_runs_authorized": 0,
+    "stop_condition": "Any delta beyond the three R6 expectations, failed identity precondition or inconclusive R6 baseline RED reopens the design; no lib-test retry is authorized."
+  },
+  "prompt_paths": ["00_nucleo/prompts/compiler/eval/math.md"],
+  "owners": ["01_core/src/compiler/eval/math.rs"],
+  "contract_path": "00_nucleo/diagnosticos/p1395-contract.json",
+  "seal": null,
+  "certificate": null
+}

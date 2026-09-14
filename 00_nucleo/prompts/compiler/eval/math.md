@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: fcd396d9
+Hash do Código: 60a4f5cc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -7,7 +7,7 @@ Núcleos Tekt:
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/eval/math.rs`
-**Vanilla ratificado:** `a51e02804`
+**Vanila ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
 
 ## Medição e contrato
 
@@ -198,3 +198,124 @@ Usar o helper renomeado `transport_native_call_span` do owner call_dispatch.
 Seu conjunto fechado passa a incluir panic além dos três encoders. Não
 duplicar identidade/seleção, alterar builders ou habilitar Spread. Chamadas
 específicas de elementos e retorno Content-only conservam seus contratos.
+
+## P1395 — precedência lexical do callee bare em math
+
+### Medição anterior à decisão
+
+No vanila ratificado, `typst-eval/src/call.rs:93-109` avalia primeiro todo
+callee `MathIdent` e só depois o classifica como função ou não-função;
+`typst-eval/src/math.rs:45-54` encaminha essa avaliação para
+`Scopes::get_in_math`; e `typst-library/src/foundations/scope.rs:80-92`
+consulta `top` e os escopos lexicais internos antes do módulo math da base.
+Quando o valor lexical é função, `call.rs:147-152` aplica essa função. Quando
+não é função, `call.rs:159-162,551-604` exibe o valor e preserva os argumentos
+como conteúdo matemático delimitado; named e spread nesse caso produzem seus
+diagnósticos próprios em vez de coerção ou chamada.
+
+No baseline cristalino P1395,
+`01_core/src/compiler/eval/math.rs:514-600` converte imediatamente o callee
+`MathIdent` em nome e entra no despacho nativo/hardcoded. O lookup de função
+em `math.rs:1282-1337` só ocorre no fallback posterior, portanto nomes já
+interceptados como `abs` e `sqrt` nunca consultam binding lexical. Isto
+contrasta com a precedência local já aplicada ao identificador standalone em
+`math.rs:382-418` e prometida pelo próprio módulo em `math.rs:290-314`.
+
+As sondas bilaterais P1393/P1395, no baseline HEAD
+`dd33334ca36e2d7abf79d16b200f07691d950c59`, observaram:
+
+- `#let abs(x) = [LOCAL-ABS]\n$abs(1)$\n`, SHA-256
+  `8a2f9a49115901ac783a2764b121d04ea0442e010220a1cd26dc0a93bffcef2d`:
+  vanila `LOCAL-ABS`; cristalino `|1|`;
+- `#let sqrt(x) = [LOCAL-SQRT]\n$sqrt(1)$\n`, SHA-256
+  `856ac0ad5ba024adcdf1cd160161550c62e0aa9d63cfb224b2caf3267e6c9b63`:
+  vanila `LOCAL-SQRT`; cristalino preserva a raiz nativa de `1`.
+
+Os quatro processos válidos terminaram com exit 0 e zero swap. Picos desta
+reprodução: 31.636/39.104 KiB para vanila/cristalino em `abs` e
+31.428/39.272 KiB em `sqrt`. Uma tentativa instrumental que colocou
+`--color` depois de `compile` no vanila terminou com exit 2 e foi descartada;
+ela não sustenta a decisão.
+
+### Classificação e decisão
+
+A prioridade lexical e o conteúdo/diagnóstico resultantes são semântica e
+morfologia públicas da língua, não estrutura Rust, bytes de PDF ou ordem
+interna de branches. A cadeia explícita `MathIdent.eval -> get_in_math` e o
+tratamento intencional de `NonFunc` na fonte ratificada mostram intenção, não
+apenas coincidência de saída. A inferência é que todo callee bare
+`MathIdent` deve respeitar o binding lexical antes do namespace math; seria
+refutada por fonte posterior no mesmo pin que introduzisse exceção nominal
+para `abs`, `sqrt` ou outra native, ou por sondas bilaterais que distinguissem
+esses nomes.
+
+Antes de qualquer despacho nativo/hardcoded de um callee `MathIdent`, consultar
+o binding lexical com a mesma ordem de `Scopes::get_local`. Se houver
+`Value::Func`, avaliar os argumentos uma vez pelo builder math canónico e
+aplicar essa função; assim closures locais sombreiam ao menos `abs` e `sqrt`.
+O resultado Content mantém sua morfologia. A obrigação não amplia neste passo
+o contrato histórico de retorno Content-only das chamadas funcionais math.
+
+Se houver binding lexical não-função, não chamar nem reinterpretar o valor
+como native: exibi-lo pela conversão pública já vigente e concatenar os
+argumentos posicionais como conteúdo math delimitado, preservando sua ordem,
+pontuação e morfologia math. Named ou spread usados com esse valor seguem o
+fragmento diagnóstico medido em P1395-R6 abaixo; `Unknown`, descarte silencioso
+ou coerção inventada não satisfazem o contrato.
+
+Sem binding lexical, `abs`, `sqrt` e os demais caminhos nativos/hardcoded
+permanecem inalterados. Não mudar parser, AST, `Scopes`, `Args`, assinaturas
+públicas, defaults, fase eval/layout, field access, namespaces qualificados ou
+layout. É correção interna de paridade em fluxo contínuo conforme ADR-0127.
+
+Aceitação no nível da língua: os dois witnesses locais produzem exclusivamente
+`LOCAL-ABS` e `LOCAL-SQRT`; um valor local não-função conserva sua forma seguida
+dos argumentos entre parênteses, e named/spread conservam os diagnósticos
+medidos; os controles sem binding continuam com a morfologia nativa de valor
+absoluto e raiz. Comparação de bytes ou de variantes Rust não concede crédito.
+
+### P1395-R6 — medição direta do fragmento não-função
+
+#### Medição anterior à decisão
+
+Depois do candidato existir, mas sem o autor deste L0 o ler, o mesmo oráculo
+CLI foi executado diretamente contra o vanila ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`. O recibo temporário
+`/tmp/p1395-vanila-r4.json`, SHA-256
+`145f6974f70b85a992ba02e43d3e36e1cc937b43304314af0e1bcbc5bf8adc22`,
+terminou em 4,55 s, RSS máximo 32.288 KiB e zero swap sob 512 MiB/60 s.
+Ele refutou três expected instrumentais anteriores:
+
+- o posicional é extraído como `7(1, 𝑥)`, não `7(1, x)`; `𝑥` preserva a
+  morfologia matemática do argumento;
+- named tem como linhas capturáveis o primary
+  `error: named-argument syntax can only be used with functions` e apenas o
+  hint público de reparo
+  ``hint: to render the colon as text, escape it: `foo\: 1```;
+- spread tem como linhas capturáveis o primary
+  `error: spread-argument syntax can only be used with functions` e apenas o
+  hint público de reparo
+  ``hint: to render the dots as text, add a space: `.. xs```.
+
+Nos dois erros, o CLI vanila também apresenta uma anotação ancorada no span,
+`abs is not a function`, sem o prefixo `hint:`. O adaptador
+`public_diagnostics` do oráculo captura somente linhas públicas `error:` e
+`hint:`. O `SourceDiagnostic` simplificado do cristalino não representa essa
+anotação como categoria distinta.
+
+#### Classificação e decisão
+
+A forma `𝑥` é morfologia da língua e substitui o expected ASCII anterior. As
+duas mensagens primary e os dois hints de reparo são o fragmento diagnóstico
+público materializável neste owner. A anotação de span é observável no vanila,
+mas não é representável no contrato diagnóstico simplificado atual; fica como
+dívida explícita/scope-out, nunca como `MATCH` diagnóstico integral. Essa
+limitação seria refutada por introdução, em owner próprio e gate público, de
+carrier capaz de representar a anotação.
+
+Assim, para P1395, o não-função posicional aceita exatamente a morfologia
+`7(1, 𝑥)` no witness medido. Named e spread devem preservar o primary e o único
+hint de reparo capturados acima. Não fabricar um segundo hint dizendo que
+`abs` não é função; não apagar nem reivindicar equivalência da anotação de span.
+As cláusulas principais de precedência das closures locais e os controles
+nativos permanecem inalterados.

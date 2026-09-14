@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash a0d249c3
+//! @prompt-hash d5da2e3c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -512,6 +512,95 @@ fn eval_math_expr(
 
         // frac() e outras funções nativas de math (Passo 38)
         Expr::FuncCall(call) => {
+            // P1395 — um callee bare consulta primeiro o scope lexical. O
+            // namespace math só participa quando nenhum binding local o
+            // sombreia, inclusive para nomes interceptados abaixo como
+            // `abs` e `sqrt`.
+            if let Expr::MathIdent(ident) = call.callee() {
+                let local = scopes.get_local(ident.get()).cloned();
+                if let Some(value) = local {
+                    if let Value::Func(func) = value {
+                        let mut args =
+                            eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                        super::call_dispatch::transport_native_call_span(
+                            &func,
+                            &mut args,
+                            call.span(),
+                        );
+                        return match apply_func(func, args, scopes, ctx, engine)? {
+                            Value::Content(content) => Ok(content),
+                            other => Err(vec![SourceDiagnostic::error(
+                                call.span(),
+                                format!(
+                                    "{}() em modo math deve devolver content, recebeu {}",
+                                    ident.get(),
+                                    other.type_name()
+                                ),
+                            )]),
+                        };
+                    }
+
+                    let mut arguments = Vec::new();
+                    let mut diagnostics = Vec::new();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(expr) => {
+                                if !arguments.is_empty() {
+                                    arguments.push(Content::MathText(", ".into()));
+                                }
+                                arguments
+                                    .push(eval_math_expr(scopes, ctx, engine, expr)?);
+                            }
+                            Arg::Named(named) => {
+                                let fixed = named
+                                    .to_untyped()
+                                    .clone()
+                                    .into_text()
+                                    .to_string()
+                                    .replacen(':', "\\:", 1);
+                                diagnostics.push(
+                                    SourceDiagnostic::error(
+                                        named.span(),
+                                        "named-argument syntax can only be used with functions",
+                                    )
+                                    .with_hint(format!(
+                                        "to render the colon as text, escape it: `{fixed}`"
+                                    )),
+                                );
+                            }
+                            Arg::Spread(spread) => {
+                                let fixed = spread
+                                    .to_untyped()
+                                    .clone()
+                                    .into_text()
+                                    .to_string()
+                                    .replacen("..", ".. ", 1);
+                                diagnostics.push(
+                                    SourceDiagnostic::error(
+                                        spread.span(),
+                                        "spread-argument syntax can only be used with functions",
+                                    )
+                                    .with_hint(format!(
+                                        "to render the dots as text, add a space: `{fixed}`"
+                                    )),
+                                );
+                            }
+                        }
+                    }
+                    if !diagnostics.is_empty() {
+                        return Err(diagnostics);
+                    }
+
+                    let base =
+                        super::value_to_display_content(value).unwrap_or(Content::Empty);
+                    let body = Content::MathSequence(std::sync::Arc::from(arguments));
+                    let parens = Content::math_delimited('(', body, ')');
+                    return Ok(Content::MathSequence(std::sync::Arc::from(vec![
+                        base, parens,
+                    ])));
+                }
+            }
+
             let name = match call.callee() {
                 Expr::MathIdent(ident) => ident.get().to_string(),
                 // **P899** — `dot.double(x)`: caso especial ANTES do

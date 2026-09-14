@@ -1,0 +1,548 @@
+{
+  "schema": "tekt-mutant-suite/v1",
+  "step": "P1395",
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1395-mutants.json",
+    "kind": "negative_mutation_catalog",
+    "status": "R6_CLI_CATALOG_CANDIDATE_UNEXECUTED",
+    "created_at": "2026-09-14T14:34:18-03:00",
+    "revised_at": "2026-09-14T15:20:08-03:00",
+    "revision": "R6 direct-vanila expectation calibration",
+    "mutation_execution_performed": false,
+    "candidate_implementation_read": false,
+    "verdict_issued": false
+  },
+  "authority": {
+    "regime": "protocolo completo, fase adversarial",
+    "role": "adversario",
+    "executor": "/root/adversario_p1395",
+    "environment": "agente delegado no working tree compartilhado typst-crystalline",
+    "context_inherited": "all",
+    "repository_head_at_authoring": "dd33334ca36e2d7abf79d16b200f07691d950c59",
+    "isolation_claim": "executado sem atestacao de isolamento",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1395-mutants.json"
+    ],
+    "explicitly_denied_writes": [
+      "01_core/src/compiler/eval/math.rs",
+      "01_core/src/compiler/eval/tests.rs",
+      "00_nucleo/prompts/compiler/eval/math.md",
+      "00_nucleo/prompts/compiler/eval/tests.md",
+      "00_nucleo/diagnosticos/p1395-contract.json",
+      "00_nucleo/materialization/typst-passo-1395.md"
+    ]
+  },
+  "frozen_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1395.md",
+      "sha256": "634493d61eb86fe4248d84693978bee94e135a0d6e845f3056ff9b6d32f137b7"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1395-contract.json",
+      "sha256": "8c693a3ffab0690e3d0ca2bea11b91bed2884f27bdba5852bff7dc108fa22e1e",
+      "role": "R6_contract"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "6e25eefa26e0cf55410866bb4633bb325c5f728458c7039ab1dcce613e5e4d65"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33"
+    },
+    {
+      "path": "01_core/src/compiler/eval/math.rs",
+      "sha256": "16a75031fae22b4d2d5bb8631473ed8b71d536b1c8f7214c67f215a0290a146d",
+      "role": "productive_baseline"
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730",
+      "role": "test_baseline_before_independent_oracles"
+    },
+    {
+      "path": "01_core/src/compiler/eval/tests.rs",
+      "sha256": "38392faf4849fabd4691ee79c29de151e54f19fc178425476bb55b62686ec4f9",
+      "role": "superseded_lib_test_oracle_R0_R2; not an R6 protected oracle"
+    },
+    {
+      "path": "lab/parity/p1395_math_callee.py",
+      "sha256": "883ea48d230e95c56d6eaec44a0dc4cd73976793fefa8bb4089d1c09fe041b29",
+      "role": "R6_frozen_independent_CLI_oracle"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1395-oracles.json",
+      "sha256": "e7b0f32a1240fa6b10e20f9003eec4fc02f814fd62892c70c4b4161ce4311d8b",
+      "role": "R6_frozen_oracle_receipt"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/call.rs",
+      "sha256": "cb2fa9dfa313b60d39aae320d90f161685fe9bdfbc5ac7aa71419b36447f2862"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-eval/src/math.rs",
+      "sha256": "4aad95925fbc3542fc5709ca4e053895e6aac4c6620195a305a07dab6a24bf7f"
+    },
+    {
+      "path": "lab/typst-original/crates/typst-library/src/foundations/scope.rs",
+      "sha256": "40ac6d7dec44dcc0fba584cfb85e7d84db422d2a082283ea02ef06b6c5ea37d6"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    }
+  ],
+  "frozen_intent": {
+    "callee_boundary": "somente Expr::FuncCall cujo callee e MathIdent bare consulta get_local antes do despacho hardcoded",
+    "local_func": "Value::Func local sombreia qualquer nome hardcoded; avaliacao unica continua obrigacao sem witness publico no fragmento CLI R6",
+    "local_non_func": "binding local nao-Func nunca cai na native; mostra o valor e os posicionais dentro da pontuacao math original",
+    "invalid_non_func_args": "named e spread produzem mensagem primaria e repair-hint publicos; a annotation span do callee e NotObserved e fica fora do fragmento R6",
+    "no_local": "ausencia de binding local preserva integralmente abs, sqrt e demais caminhos nativos",
+    "unaffected": "field access e chamadas qualificadas permanecem no despacho preexistente",
+    "unknown_policy": "Unknown nunca equivale a Preserved, sucesso ou mutante morto",
+    "claim_limit": "somente precedencia lexical do callee MathIdent bare em math; nenhuma paridade geral"
+  },
+  "safe_execution_policy": {
+    "catalog_only": true,
+    "application": "Cada mutante e aplicado apenas como transformacao textual/AST em memoria sobre copia limpa da candidata, ou como resultado sintetico para a politica de Unknown.",
+    "compile_mutants": false,
+    "run_mutants": false,
+    "workspace_tests": false,
+    "parallelism": 1,
+    "rule": "O gate discrimina por inspecao estatica e execucao dos oraculos somente contra baseline/candidata legitimos; nunca persiste, compila ou executa fonte mutada.",
+    "memory_rule": "Qualquer teste legitimo posterior segue os tetos do contrato; esta fase adversarial nao inicia cargo, rustc, linker nem binario Typst."
+  },
+  "mutation_protocol": {
+    "application_model": "Aplicar exatamente uma transformacao deterministica a uma copia limpa em memoria, preservando todo o restante.",
+    "validity_rule": "A transformacao viola uma obrigacao observavel congelada ou a politica fail-closed, e possui witness publico independente da estrutura Rust escolhida.",
+    "expected_for_every_valid_applicable_mutant": "Violated",
+    "non_applicable_policy": "Mutante ou observavel semanticamente relevante sem witness no fragmento publico R6 recebe NotObserved, fica fora do denominador e nao recebe sucesso ou credito.",
+    "applicability_default": "Todo mutante valid=true e aplicavel, exceto quando applicable_to_r4_cli_fragment=false estiver declarado explicitamente.",
+    "required_mutation_score": 1.0,
+    "unexpected_unknown": "fail_closed",
+    "execution_status": "catalogado; nao injetado, compilado ou executado"
+  },
+  "mutants": [
+    {
+      "id": "M01_LOOKUP_AFTER_HARDCODE",
+      "ordinal": 1,
+      "category": "dispatch_order",
+      "mutation": "Mover o lookup lexical para depois do match hardcoded.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "Expr::FuncCall/MathIdent dispatch",
+        "operation": "relocate_local_lookup_after_native_match"
+      },
+      "witness": {
+        "public_input": "#let abs(x) = [LOCAL-ABS]\n#let sqrt(x) = [LOCAL-SQRT]\n$abs(1) sqrt(1)$",
+        "required_observable": ["LOCAL-ABS", "LOCAL-SQRT"],
+        "forbidden_observable": ["native absolute-value morphology", "native radical morphology"],
+        "reason": "ambos os nomes seriam interceptados antes do lookup"
+      }
+    },
+    {
+      "id": "M02_SPECIAL_CASE_ABS_ONLY",
+      "ordinal": 2,
+      "category": "name_completeness",
+      "mutation": "Consultar binding local somente quando name == abs.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local precedence guard",
+        "operation": "restrict_name_set",
+        "value": ["abs"]
+      },
+      "witness": {
+        "public_input": "#let sqrt(x) = [LOCAL-SQRT]\n$sqrt(1)$",
+        "required_observable": "LOCAL-SQRT",
+        "forbidden_observable": "native radical morphology"
+      }
+    },
+    {
+      "id": "M03_SPECIAL_CASE_SQRT_ONLY",
+      "ordinal": 3,
+      "category": "name_completeness",
+      "mutation": "Consultar binding local somente quando name == sqrt.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local precedence guard",
+        "operation": "restrict_name_set",
+        "value": ["sqrt"]
+      },
+      "witness": {
+        "public_input": "#let abs(x) = [LOCAL-ABS]\n$abs(1)$",
+        "required_observable": "LOCAL-ABS",
+        "forbidden_observable": "native absolute-value morphology"
+      }
+    },
+    {
+      "id": "M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL",
+      "ordinal": 4,
+      "category": "lookup_domain",
+      "mutation": "Substituir Scopes::get_local pelo lookup Scopes::get que inclui base.global.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "pre-native lexical lookup method",
+        "operation": "replace_exact_call",
+        "from": "get_local",
+        "to": "get"
+      },
+      "witness": {
+        "public_inputs": ["$abs(1)$", "$sqrt(1)$"],
+        "required_observable": ["native absolute-value morphology", "native radical morphology"],
+        "forbidden_observable": "base.global function applied through the local-precedence branch",
+        "structural_guard": "the pre-native lookup selector is exactly get_local"
+      }
+    },
+    {
+      "id": "M05_DOUBLE_EVALUATE_LOCAL_FUNC_ARGS",
+      "ordinal": 5,
+      "category": "evaluation_cardinality",
+      "mutation": "Avaliar os argumentos uma vez para sondagem e novamente para aplicar a Func local.",
+      "valid": true,
+      "applicable_to_r4_cli_fragment": false,
+      "expected": "NotObserved",
+      "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+      "score_credit": 0,
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "Value::Func local branch",
+        "operation": "duplicate_canonical_args_builder_call"
+      },
+      "witness": null,
+      "r4_classification": {
+        "classification": "NotObserved",
+        "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+        "basis": "O CLI/PDF limitado nao expoe contador deterministico e seguro para uma avaliacao cujo valor e descartado pela closure.",
+        "required_for_score": false,
+        "counts_as_success": false,
+        "future_reentry": "Volta ao conjunto aplicavel somente se um witness publico binding-free e seguro for congelado em nova revisao."
+      }
+    },
+    {
+      "id": "M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE",
+      "ordinal": 6,
+      "category": "non_func_dispatch",
+      "mutation": "Tratar binding local nao-Func como miss e continuar no branch native homonimo.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "Some(local_value) where !Value::Func",
+        "operation": "replace_non_func_return_with_native_fallthrough"
+      },
+      "witness": {
+        "public_input": "#let abs = 7\n$abs(1, x)$",
+        "required_observable": "7(1, 𝑥)",
+        "forbidden_observable": "resultado ou diagnostico da native abs"
+      }
+    },
+    {
+      "id": "M07_DROP_NON_FUNC_POSITIONAL_ARGS",
+      "ordinal": 7,
+      "category": "non_func_payload",
+      "mutation": "Exibir somente o valor local nao-Func e descartar os posicionais.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local non-Func unparse result",
+        "operation": "delete_positional_argument_content"
+      },
+      "witness": {
+        "public_input": "#let abs = 7\n$abs(1, x)$",
+        "required_observable": ["7", "1", "𝑥"],
+        "forbidden_observable": "output contendo apenas 7"
+      }
+    },
+    {
+      "id": "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION",
+      "ordinal": 8,
+      "category": "non_func_morphology",
+      "mutation": "Descartar parenteses/virgula ou reordenar a pontuacao ao exibir argumentos de nao-Func.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local non-Func math-argument sequence",
+        "operation": "delete_or_reorder_tokens",
+        "tokens": ["(", ",", ")"]
+      },
+      "witness": {
+        "public_input": "#let abs = 7\n$abs(1, x)$",
+        "required_observable": "7(1, 𝑥)",
+        "forbidden_observable": ["7 1 𝑥", "7(𝑥, 1)", "7(1 𝑥)"]
+      }
+    },
+    {
+      "id": "M09_ACCEPT_NAMED_ON_NON_FUNC",
+      "ordinal": 9,
+      "category": "non_func_diagnostic",
+      "mutation": "Converter named de nao-Func em conteudo ou descarta-lo silenciosamente.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local non-Func Arg::Named branch",
+        "operation": "replace_error_with_success"
+      },
+      "witness": {
+        "public_input": "#let abs = 7\n$abs(foo: 1)$",
+        "required_diagnostic": "named-argument syntax can only be used with functions",
+        "required_repair_hint": "to render the colon as text, escape it: `foo\\: 1`",
+        "callee_annotation_span": "NotObserved; divida explicitamente fora do fragmento R6",
+        "forbidden_observable": "successful evaluation"
+      }
+    },
+    {
+      "id": "M10_ACCEPT_SPREAD_ON_NON_FUNC",
+      "ordinal": 10,
+      "category": "non_func_diagnostic",
+      "mutation": "Expandir ou descartar spread de nao-Func em vez de diagnosticar.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "local non-Func Arg::Spread branch",
+        "operation": "replace_error_with_success"
+      },
+      "witness": {
+        "public_input": "#let abs = 7\n#let xs = (1,)\n$abs(..xs)$",
+        "required_diagnostic": "spread-argument syntax can only be used with functions",
+        "required_repair_hint": "to render the dots as text, add a space: `.. xs`",
+        "callee_annotation_span": "NotObserved; divida explicitamente fora do fragmento R6",
+        "forbidden_observable": "successful evaluation"
+      }
+    },
+    {
+      "id": "M11_BREAK_NATIVE_ABS_CONTROL",
+      "ordinal": 11,
+      "category": "no_local_preservation",
+      "mutation": "Quando nao existe binding local abs, produzir literal/falha em vez de continuar no branch native existente.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "pre-native lookup miss for abs",
+        "operation": "replace_fallthrough_with_early_non_native_return"
+      },
+      "witness": {
+        "public_input": "$abs(-1)$",
+        "required_observable": "morfologia nativa de valor absoluto de -1",
+        "forbidden_observable": ["abs literal", "unknown", "LOCAL-ABS"]
+      }
+    },
+    {
+      "id": "M12_BREAK_NATIVE_SQRT_CONTROL",
+      "ordinal": 12,
+      "category": "no_local_preservation",
+      "mutation": "Quando nao existe binding local sqrt, produzir literal/falha em vez de continuar no branch native existente.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "pre-native lookup miss for sqrt",
+        "operation": "replace_fallthrough_with_early_non_native_return"
+      },
+      "witness": {
+        "public_input": "$sqrt(1)$",
+        "required_observable": "morfologia nativa de raiz sem indice",
+        "forbidden_observable": ["sqrt literal", "unknown", "LOCAL-SQRT"]
+      }
+    },
+    {
+      "id": "M13_ALTER_FIELD_CALLEE",
+      "ordinal": 13,
+      "category": "scope_containment",
+      "mutation": "Aplicar a nova precedencia bare ao callee FieldAccess e contornar seu dispatcher vigente.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "Expr::FuncCall callee classification",
+        "operation": "expand_bare_lookup_to_field_access"
+      },
+      "witness": {
+        "public_input": "#let holder = (f: x => [FIELD-CALL])\n$#holder.f(1)$",
+        "required_observable": "FIELD-CALL pelo dispatcher de field vigente",
+        "forbidden_observable": ["lookup bare pelo nome f", "native dispatch", "diagnostico de callee alterado"],
+        "structural_guard": "o delta nao modifica o branch other_callee/FieldAccess"
+      }
+    },
+    {
+      "id": "M14_ALTER_NAMESPACED_MATH_CALL",
+      "ordinal": 14,
+      "category": "scope_containment",
+      "mutation": "Permitir que binding bare local sqrt intercepte math.sqrt qualificado.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "static_in_memory_only",
+      "deterministic_injection": {
+        "target": "qualified math.sqrt callee",
+        "operation": "strip_namespace_then_apply_local_lookup"
+      },
+      "witness": {
+        "public_input": "#let sqrt(x) = [LOCAL-SQRT]\n$math.sqrt(1)$",
+        "required_observable": "morfologia nativa qualificada de raiz",
+        "forbidden_observable": "LOCAL-SQRT",
+        "structural_guard": "o delta nao modifica a resolucao namespaced"
+      }
+    },
+    {
+      "id": "M15_PROMOTE_UNKNOWN_TO_PRESERVED",
+      "ordinal": 15,
+      "category": "unknown_policy",
+      "mutation": "Converter Unknown ou NotObserved em Preserved.",
+      "valid": true,
+      "expected": "Violated",
+      "execution_mode": "synthetic_result_only",
+      "deterministic_injection": {
+        "target": "verification classification boundary",
+        "operation": "replace_unknown_mapping",
+        "from": ["Unknown", "NotObserved"],
+        "to": "Preserved"
+      },
+      "witness": {
+        "synthetic_inputs": {
+          "Unknown": ["INPUT_IDENTITY_MISMATCH", "PARSE_OR_BUILD_INCONCLUSIVE", "TIMEOUT", "OOM", "SWAP_OBSERVED", "OUTPUT_MISSING", "ORDER_DISAGREEMENT"],
+          "NotObserved": ["INSUFFICIENT_PUBLIC_EVIDENCE"]
+        },
+        "required_observable": "Unknown ou NotObserved conforme a classe, sempre sem credito",
+        "forbidden_observable": "Preserved ou credito no mutation score"
+      }
+    }
+  ],
+  "discriminatory_gate": {
+    "precondition": "Hashes de contrato, L0s, baseline e oraculos congelados coincidem; qualquer mismatch produz Unknown e bloqueia o gate.",
+    "application": "Para cada mutante aplicavel, criar copia limpa em memoria; aplicar a transformacao declarada; inspecionar a delta estatica e confrontar a saida sintetica/esperada com o witness publico CLI ou guard de escopo. Nao escrever, compilar ou executar o mutante.",
+    "positive_control": "A candidata nao mutada deve satisfazer todos os witnesses funcionais focalizados.",
+    "negative_requirement": "Cada mutante valido e aplicavel deve resultar Violated com reason_code e witness especificos; Unknown inesperado e sobrevivente bloqueiam o selo. M05 permanece NotObserved fora do score.",
+    "score_formula": "applicable_valid_mutants_classified_violated / applicable_valid_mutants",
+    "required_score": 1.0,
+    "required_count": "14/14 applicable",
+    "excluded_from_score": ["M05_DOUBLE_EVALUATE_LOCAL_FUNC_ARGS"],
+    "normal_order": ["M01_LOOKUP_AFTER_HARDCODE", "M02_SPECIAL_CASE_ABS_ONLY", "M03_SPECIAL_CASE_SQRT_ONLY", "M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL", "M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE", "M07_DROP_NON_FUNC_POSITIONAL_ARGS", "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION", "M09_ACCEPT_NAMED_ON_NON_FUNC", "M10_ACCEPT_SPREAD_ON_NON_FUNC", "M11_BREAK_NATIVE_ABS_CONTROL", "M12_BREAK_NATIVE_SQRT_CONTROL", "M13_ALTER_FIELD_CALLEE", "M14_ALTER_NAMESPACED_MATH_CALL", "M15_PROMOTE_UNKNOWN_TO_PRESERVED"],
+    "reverse_order": ["M15_PROMOTE_UNKNOWN_TO_PRESERVED", "M14_ALTER_NAMESPACED_MATH_CALL", "M13_ALTER_FIELD_CALLEE", "M12_BREAK_NATIVE_SQRT_CONTROL", "M11_BREAK_NATIVE_ABS_CONTROL", "M10_ACCEPT_SPREAD_ON_NON_FUNC", "M09_ACCEPT_NAMED_ON_NON_FUNC", "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION", "M07_DROP_NON_FUNC_POSITIONAL_ARGS", "M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE", "M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL", "M03_SPECIAL_CASE_SQRT_ONLY", "M02_SPECIAL_CASE_ABS_ONLY", "M01_LOOKUP_AFTER_HARDCODE"],
+    "repeat_each_order": 2,
+    "determinism_requirement": "As quatro passagens produzem a mesma validade, classificacao Violated, reason_code e witness por id.",
+    "isolation_rule": "Nenhuma mutacao persiste para a seguinte; toda aplicacao parte da mesma copia conforme.",
+    "resource_requirement": "zero compilacoes e zero processos Typst para mutantes"
+  },
+  "coverage": [
+    {
+      "attack": "precedencia depois do hardcode ou implementacao nominal parcial",
+      "mutants": ["M01_LOOKUP_AFTER_HARDCODE", "M02_SPECIAL_CASE_ABS_ONLY", "M03_SPECIAL_CASE_SQRT_ONLY"]
+    },
+    {
+      "attack": "dominio de lookup incorreto",
+      "mutants": ["M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL"]
+    },
+    {
+      "attack": "queda em native, perda de payload/pontuacao e aceite named/spread no nao-Func",
+      "mutants": ["M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE", "M07_DROP_NON_FUNC_POSITIONAL_ARGS", "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION", "M09_ACCEPT_NAMED_ON_NON_FUNC", "M10_ACCEPT_SPREAD_ON_NON_FUNC"]
+    },
+    {
+      "attack": "regressao dos controles nativos e expansao indevida a field/namespaced",
+      "mutants": ["M11_BREAK_NATIVE_ABS_CONTROL", "M12_BREAK_NATIVE_SQRT_CONTROL", "M13_ALTER_FIELD_CALLEE", "M14_ALTER_NAMESPACED_MATH_CALL"]
+    },
+    {
+      "attack": "promocao fail-open de Unknown",
+      "mutants": ["M15_PROMOTE_UNKNOWN_TO_PRESERVED"]
+    }
+  ],
+  "non_applicable_mutations": [
+    {
+      "id": "M05_DOUBLE_EVALUATE_LOCAL_FUNC_ARGS",
+      "classification": "NotObserved",
+      "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+      "score_credit": 0,
+      "not_a_success": true
+    }
+  ],
+  "frozen_oracle_map": {
+    "kind": "R6_CLI_black_box",
+    "script_path": "lab/parity/p1395_math_callee.py",
+    "script_sha256": "883ea48d230e95c56d6eaec44a0dc4cd73976793fefa8bb4089d1c09fe041b29",
+    "receipt_path": "00_nucleo/diagnosticos/p1395-oracles.json",
+    "receipt_sha256": "e7b0f32a1240fa6b10e20f9003eec4fc02f814fd62892c70c4b4161ce4311d8b",
+    "cases": [
+      "local-abs-closure",
+      "local-sqrt-closure",
+      "local-abs-non-func-positional",
+      "local-abs-non-func-named",
+      "local-abs-non-func-spread",
+      "native-abs-control",
+      "native-sqrt-control"
+    ],
+    "direct_dynamic_coverage": {
+      "local-abs-closure": ["M01_LOOKUP_AFTER_HARDCODE", "M03_SPECIAL_CASE_SQRT_ONLY"],
+      "local-sqrt-closure": ["M01_LOOKUP_AFTER_HARDCODE", "M02_SPECIAL_CASE_ABS_ONLY"],
+      "local-abs-non-func-positional": ["M06_NON_FUNC_FALLS_THROUGH_TO_NATIVE", "M07_DROP_NON_FUNC_POSITIONAL_ARGS", "M08_DROP_OR_REORDER_NON_FUNC_PUNCTUATION"],
+      "local-abs-non-func-named": ["M09_ACCEPT_NAMED_ON_NON_FUNC"],
+      "local-abs-non-func-spread": ["M10_ACCEPT_SPREAD_ON_NON_FUNC"],
+      "native-abs-control": ["M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL", "M11_BREAK_NATIVE_ABS_CONTROL"],
+      "native-sqrt-control": ["M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL", "M12_BREAK_NATIVE_SQRT_CONTROL"]
+    },
+    "required_static_scope_guards": {
+      "M04_GLOBAL_GET_INSTEAD_OF_GET_LOCAL": "o lookup pre-native usa exatamente get_local; os controles CLI nao substituem esta prova de fronteira",
+      "M13_ALTER_FIELD_CALLEE": "diff candidata nao toca o branch FieldAccess/other_callee",
+      "M14_ALTER_NAMESPACED_MATH_CALL": "diff candidata nao toca ou desqualifica callees namespaced",
+      "M15_PROMOTE_UNKNOWN_TO_PRESERVED": "recibo preserva Unknown e NotObserved sem credito",
+      "M05_DOUBLE_EVALUATE_LOCAL_FUNC_ARGS": "NotObserved e excluido do denominador, sem sucesso"
+    },
+    "non_observed_public_debt": {
+      "callee_annotation_span_for_named_and_spread": {
+        "classification": "NotObserved",
+        "reason_code": "INSUFFICIENT_PUBLIC_EVIDENCE",
+        "score_credit": 0,
+        "outside_r6_integral_diagnostic_equivalence": true
+      }
+    },
+    "red_execution_status_at_adversarial_R6_freeze": {
+      "classification": "Difference",
+      "counts": {"Difference": 5, "Preserved": 2, "Unknown": 0},
+      "order_agreement": true,
+      "single_evaluation": "NotObserved",
+      "annotation_span": "NotObserved",
+      "credit_as_semantic_red": true,
+      "execution_basis": "R4 execution with R6 static carry-forward against ratified vanila expectations"
+    }
+  },
+  "calibration_budget": {
+    "full_catalog_runs_before_seal_max": 2,
+    "revision_attempts_per_failure_class_max": 2,
+    "compiled_mutants": 0,
+    "executed_mutants": 0,
+    "stop_rule": "qualquer sobrevivente ou Unknown inesperado bloqueia o selo; duas revisoes sem ganho exigem redesenho"
+  },
+  "summary": {
+    "semantic_mutants_cataloged": 15,
+    "valid_applicable_mutants": 14,
+    "not_observed_mutants": 1,
+    "required_rejections": 14,
+    "required_mutation_score": 1.0,
+    "unknown_credit": 0,
+    "compiled_mutants": 0,
+    "executed_mutants": 0
+  },
+  "claim_limit": "O catalogo cobre somente a precedencia lexical de callees MathIdent bare, o branch nao-Func, controles adjacentes e a politica fail-closed do P1395. Nao emite selo, certificado, veredito final ou alegacao de paridade geral."
+}
