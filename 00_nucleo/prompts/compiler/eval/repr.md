@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 3147d24c
+Hash do Código: ba7715e7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -600,3 +600,99 @@ timeout de 60 s. Build/check/lint rodam serialmente, uma job, sob `RLIMIT_DATA`
 de 2 GiB; swap deve ser zero e RSS acima de 1.782.579 KiB interrompe a
 sequência. É proibido executar `cargo test` amplo ou compilar o lib-test
 monolítico para P1397.
+
+## P1399 — opacidade morfológica de blocos contextuais
+
+### Medição anterior à decisão
+
+O estado causal é o HEAD limpo
+`bdec21bf935cbf7f61070756cd0f218e441b7e07`, observado em
+`2026-09-14T17:54:52-03:00`: este L0 tinha SHA-256
+`cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24`
+e seu único consumer produtivo tinha SHA-256
+`c31e786562cbbcd7d874c91ef3b8884fa802cb64ca7c84f421b761bb5ee9cc52`.
+O binário vanila ratificado, commit
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, tinha SHA-256
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+o cristalino baseline recém-construído tinha SHA-256
+`3ff85cea7a721adcc9be76807e04d8aeeb03e8290d60f796b850632575b7b2b4`.
+A construção serial sob `RLIMIT_DATA` de 2 GiB terminou em 8,84 s, com RSS
+máximo de 319.792 KiB e swap zero.
+
+Entre `2026-09-14T17:54:52-03:00` e
+`2026-09-14T17:55:08-03:00`, sondas bilaterais seriais sob `RLIMIT_AS` de
+512 MiB mediram:
+
+- `repr(context [x])`, `repr(context [different])`,
+  `repr(context {1 + 2})` e `repr(context text.lang)` produziram
+  `context()` no vanila e `context(...)` no cristalino baseline;
+- `repr((x) => x + 1)` produziu `(..) => ..` nos dois lados;
+- `repr([x])` produziu `[x]` nos dois lados.
+
+Na fonte ratificada,
+`lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:626-640`
+delega a representação de um elemento à representação específica do handle
+ou aos seus fields públicos; o arquivo tem SHA-256
+`a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245`.
+Em
+`lab/typst-original/crates/typst-library/src/foundations/context.rs:65-83`,
+o único field de `ContextElem` é `func`, marcado interno; o arquivo tem
+SHA-256
+`259527ad0d9bea23790dd96df3d163ad39199adbe6aff68e1d5cd8bf10d7cd98`.
+Assim, nenhum field integra sua forma pública e a representação resultante é
+o constructor vazio `context()`. No cristalino baseline,
+`01_core/src/compiler/eval/repr.rs:1016` codifica `context(...)` para o braço
+`Content::ContextBlock`.
+
+### Classificação e decisão
+
+O texto retornado por `repr` é morfologia pública da linguagem (ADR-0107),
+não a estrutura Rust do bloco, a identidade da closure, a avaliação do corpo,
+os passos de layout ou bytes de export. A fonte declara a intenção por
+visibilidade de field e pela regra geral de representação de elementos; a
+decisão não é inferida somente das saídas medidas.
+
+Para todo `Content::ContextBlock`, sem exceção, `repr` deve produzir exatamente
+`context()`. A forma é independente do corpo encapsulado, da closure interna,
+de identidade, span, origem sintática e conteúdo avaliado. É proibido emitir
+reticências, inspecionar ou representar o corpo, reconhecer nominalmente as
+quatro testemunhas, ou decidir a forma por igualdade, hash, endereço, id ou
+origem.
+
+A representação genérica de funções permanece `(..) => ..` e a representação
+de conteúdo textual comum permanece sob seu owner, inclusive `[x]` para o
+controle medido. Nenhum helper geral de constructor, função ou conteúdo muda
+por P1399. A fachada pública de `repr` e todas as assinaturas permanecem
+inalteradas.
+
+Trata-se de correção interna de paridade morfológica em um braço privado do
+consumer existente, sem nova API, entidade, default de produto, mudança de
+fase ou quebra deliberada. Segue fluxo contínuo ADR-0127: L0 primeiro, RED,
+candidato, GREEN, resselo e revalidação. A hipótese é refutada se a fonte
+ratificada expuser field público de `ContextElem`, se uma sonda bilateral
+válida de qualquer `ContextBlock` produzir forma pública distinta de
+`context()`, ou se a correção exigir alterar entidade, eval, layout, closure
+ou helper geral.
+
+### Limites, política de desconhecido e aceitação
+
+P1399 autoriza somente o braço `Content::ContextBlock` em
+`01_core/src/compiler/eval/repr.rs`, expectativas test-only diretamente
+contraditórias e metadata de linhagem. Não autoriza alterar entidades,
+construção, parser, eval, layout, representação de closure, representação de
+outras variantes nem helpers gerais.
+
+Identidade ambígua, falha de parse, build ou execução, timeout, OOM, swap,
+stream truncado ou ilegível e budget esgotado produzem `Unknown` fail-closed.
+`Unknown` em caso obrigatório bloqueia e nunca conta como sucesso. Aceitação
+exige a regra geral para corpos textuais distintos, corpo de código e acesso
+contextual; preservação dos dois controles; repetição e ordem inversa
+estáveis; e rejeição de toda mutação negativa válida.
+
+Oráculos rodam serialmente, um processo por vez, com `RLIMIT_AS` de 512 MiB,
+timeout interno de 10 s, timeout externo de 60 s e teto de 64 KiB para cada
+stream. Build, check e lint rodam sequencialmente, uma job, sob `RLIMIT_DATA`
+de 2 GiB. É proibido executar `cargo test` ou compilar o lib-test monolítico.
+Swap não zero ou RSS acima de 1.782.579 KiB interrompe a sequência. Duas
+revisões consecutivas sem ganho discriminatório pela mesma causa reabrem o
+desenho; o budget nunca autoriza relaxar `Unknown` ou o contrato.

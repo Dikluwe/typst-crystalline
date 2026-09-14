@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash e924f223
+//! @prompt-hash 615b778a
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1013,7 +1013,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::StateUpdate(_) => "state.update".to_string(),
         Content::StateDisplay(_) => "state.display".to_string(),
         Content::CounterDisplayCallback(_) => "counter.display.callback".to_string(),
-        Content::ContextBlock(_) => "context(...)".to_string(),
+        Content::ContextBlock(_) => "context()".to_string(),
         Content::Dynamic(_) => "dynamic".to_string(),
         Content::SetPage { .. } => "setpage".to_string(),
         Content::Document { title, .. } => {
@@ -1202,6 +1202,24 @@ mod tests {
     use crate::entities::label::Label;
     use crate::entities::selector::Selector;
     use crate::entities::value::Value;
+
+    #[test]
+    fn p1399_context_block_repr_e_opaca_e_sem_argumentos() {
+        use crate::entities::elements::context_block::ContextBlockElem;
+
+        let closure = crate::entities::func::Func::native(
+            "p1399-context",
+            |_ctx, _args, _world, _file| Ok(Value::Content(Content::text("hidden"))),
+        );
+
+        for id in [1, u64::MAX] {
+            let contextual = Content::ContextBlock(Arc::new(ContextBlockElem {
+                id,
+                closure: closure.clone(),
+            }));
+            assert_eq!(repr_content(&contextual), "context()");
+        }
+    }
 
     #[test]
     fn p1339_element_repr_preserves_empty_and_ordered_group() {
