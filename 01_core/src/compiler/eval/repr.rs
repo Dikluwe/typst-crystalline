@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash ea5a44cc
+//! @prompt-hash e924f223
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -811,11 +811,16 @@ pub fn repr_content(c: &Content) -> String {
             ));
             format!("vec{}", pretty_array_like(&fields, false))
         }
-        Content::MathClassOverride(c) => format!(
-            "class(\"{}\", {})",
-            crate::entities::math_class::math_class_name(c.class),
-            repr_content(&c.body)
-        ),
+        Content::MathClassOverride(c) => {
+            let fields = [
+                format!(
+                    "class: {:?}",
+                    crate::entities::math_class::math_class_name(c.class)
+                ),
+                format!("body: {}", repr_content(&c.body)),
+            ];
+            format!("class{}", pretty_array_like(&fields, false))
+        }
         Content::MathLimitsOverride(o) => {
             if o.limits {
                 format!("limits({}, inline: {})", repr_content(&o.body), o.inline)
@@ -840,19 +845,17 @@ pub fn repr_content(c: &Content) -> String {
             ];
             format!("op{}", pretty_array_like(&fields, false))
         }
-        Content::MathStyled(s)
-            if s.bold.is_none()
-                && s.italic.is_none()
-                && ((s.kind
-                    == Some(crate::entities::math_style::MathStyleKind::Monospace)
-                    && s.cramped.is_none())
-                    || (s.kind
-                        == Some(crate::entities::math_style::MathStyleKind::Script)
-                        && s.cramped.is_some())) =>
-        {
-            format!("styled(child: {}, ..)", repr_p1293_math_field(&s.body))
+        Content::MathStyled(s) => {
+            if s.kind.is_some()
+                || s.bold.is_some()
+                || s.italic.is_some()
+                || s.cramped.is_some()
+            {
+                format!("styled(child: {}, ..)", repr_p1293_math_field(&s.body))
+            } else {
+                repr_content(&s.body)
+            }
         }
-        Content::MathStyled(s) => repr_content(&s.body),
         Content::Label(l) if l.auto => format!("label(\"{}\")", l.name),
         Content::Label(l) => format!("label(\"{}\", {})", l.name, repr_content(&l.body)),
         Content::Ref(r) => format!("ref(<{}>)", r.name),
@@ -2144,6 +2147,66 @@ mod tests {
         );
         assert_eq!(repr_content(&mono), "styled(child: [x], ..)");
         assert_eq!(repr_content(&script), "styled(child: [x], ..)");
+    }
+
+    #[test]
+    fn p1397_class_e_todos_os_eixos_styled_preservam_morfologia() {
+        use crate::entities::math_class::MathClass;
+        use crate::entities::math_style::MathStyleKind;
+
+        let styled = [
+            Content::math_styled(
+                Some(MathStyleKind::DoubleStruck),
+                None,
+                None,
+                Content::MathIdent("x".into()),
+                None,
+            ),
+            Content::math_styled(
+                None,
+                Some(true),
+                None,
+                Content::MathIdent("x".into()),
+                None,
+            ),
+            Content::math_styled(
+                None,
+                None,
+                Some(false),
+                Content::MathText("d".into()),
+                None,
+            ),
+            Content::math_styled(
+                None,
+                None,
+                None,
+                Content::MathIdent("x".into()),
+                Some(false),
+            ),
+        ];
+        for value in styled {
+            let expected = if value.plain_text() == "d" {
+                "styled(child: [d], ..)"
+            } else {
+                "styled(child: [x], ..)"
+            };
+            assert_eq!(repr_content(&value), expected);
+        }
+
+        let class = Content::math_class_override(
+            MathClass::Unary,
+            Content::math_styled(
+                None,
+                None,
+                Some(false),
+                Content::MathText("d".into()),
+                None,
+            ),
+        );
+        assert_eq!(
+            repr_content(&class),
+            "class(class: \"unary\", body: styled(child: [d], ..))"
+        );
     }
 
     #[test]

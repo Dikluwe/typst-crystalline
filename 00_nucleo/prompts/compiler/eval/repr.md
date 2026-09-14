@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: c4032d3b
+Hash do Código: 3147d24c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -68,7 +68,7 @@ esta string. A fachada pública de repr conserva assinatura.
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/eval/repr.rs`
-**Vanilla ratificado:** `a51e02804`
+**Vanila ratificado vigente:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
 
 ## Contrato
 
@@ -496,3 +496,107 @@ Aceitação: vazio, campo único, ordem oposta, spread com sobrescrita, alias,
 filhos multiline, valores escapados e projeção em Counter/fallback. Refuta a
 decisão qualquer perda de grupo, ordem ou valor, ou alteração do repr de
 variantes anteriores. Morfologia é linguagem; escolher um helper é mecânica.
+
+## P1397 — projeção canônica de classe e estilo matemáticos
+
+### Medição anterior à decisão
+
+O estado causal é o HEAD limpo
+`c5af9f2af02bd830ec223f777a8d144356b03597`, observado em
+`2026-09-14T16:55:44-03:00`: este L0 tinha SHA-256
+`8ea0603d3de6efd00a231921754edce7f97169e7057a7851c36439e282fe942e`
+e seu consumer tinha SHA-256
+`ec9b82070b73b5a3cb4e3dd711f6236a94f6fec449934cf3f0934939ac8362ce`.
+O binário vanila ratificado tinha SHA-256
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+o cristalino baseline, SHA-256
+`f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474`.
+
+Sob limite de endereço virtual de 512 MiB, timeout de 60 s, execução serial e
+swap zero, as sondas `eval --format raw` mediram:
+
+- `repr(math.dif)`: o vanila produziu a sequência multiline com
+  `class(class: "unary", body: styled(child: [d], ..))`; o cristalino produziu
+  `sequence(h(amount: 0.17em, weak: true), class("unary", "d"))`;
+- `repr(math.Dif)`: a mesma diferença, com `[D]` no vanila e `"D"` no
+  cristalino;
+- `repr(math.class("unary", [x]))`: o vanila produziu
+  `class(class: "unary", body: [x])`; o cristalino,
+  `class("unary", [x])`;
+- `math.bb`, `math.frak`, `math.serif` e `math.inline` aplicados a `[x]`
+  produzem `styled(child: [x], ..)` no vanila, enquanto o cristalino baseline
+  os achata para `[x]`; `math.mono` e `math.script` já preservam o wrapper nos
+  dois lados e são controles positivos da forma;
+- `repr(math.lim)` já coincide como `op(text: [lim], limits: true)` e é controle
+  negativo de escopo.
+
+As execuções válidas locais de `dif`, `Dif`, `class`, `bb` e `lim` no vanila
+usaram no máximo 18.036 KiB de RSS; as correspondentes válidas no cristalino,
+33.036 KiB. `math.upright` no cristalino terminou exit 1 porque o binding não
+existe nesse módulo e foi descartado: não sustenta decisão nem aceitação.
+
+A intenção não é inferida apenas dessas saídas. Na fonte ratificada,
+`lab/typst-original/crates/typst-library/src/math/op.rs:49-54` constrói `dif` e
+`Dif` como espaço fino fraco seguido de `ClassElem(Unary, upright(...))`;
+`math/mod.rs:141-149` declara os campos públicos obrigatórios `class` e `body`;
+`foundations/content/mod.rs:626-640` representa elementos pelos nomes e campos
+declarados, enquanto `:759-788` dá a todo `StyledElem` a forma explícita
+`styled(child: ..., ..)`. Os arquivos têm, respectivamente, SHA-256
+`8b4ee3ebcb085a4810b164d03f1eb0fbb4f2ce9b01224cd32ef4352d3631a1d3`,
+`a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957`
+e `a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245`.
+
+### Classificação e decisão
+
+Essas strings são morfologia pública de `repr` (ADR-0107), não igualdade,
+estrutura Rust, passos de layout ou bytes exportados. Para todo
+`Content::MathClassOverride`, representar sempre
+`class(class: <repr da classe string>, body: <repr do corpo>)`, nessa ordem.
+Ambos os campos são obrigatórios e nunca posicionais; o formatter canônico
+decide forma curta ou multiline sem especialização nominal de `dif`, `Dif`,
+`unary` ou de qualquer testemunha.
+
+Para todo `Content::MathStyled` que transporta qualquer eixo matemático
+explícito, preservar o wrapper `styled(child: <repr do corpo>, ..)`. Isso inclui
+variante tipográfica, tamanho, `cramped`, `bold` e `italic`, inclusive valor
+igual ao default e variante Plain. Não projetar o kind como chamada nominal,
+não achatar para o filho e não reconhecer glifos ou nomes. O corpo usa sua
+representação canônica recursiva; a estrutura de estilo permanece opaca pelos
+três pontos, como no vanila.
+
+`math.dif` e `math.Dif` são testemunhas compostas obrigatórias; `math.class`
+prova a regra geral do primeiro wrapper; `bb`, `frak`, `serif` e `inline`
+provam eixos antes achatados; `mono` e `script` comprovam preservação; `lim`
+comprova ausência de deriva em `MathOp`. A sequência exterior usa o formatter
+canônico vigente, portanto quebra em múltiplas linhas quando as peças corrigidas
+assim exigirem. É proibido codificar a quebra ou as letras das testemunhas.
+
+Trata-se de correção interna de paridade no owner de representação, sem nova
+API, novo default de produto, troca de fase ou quebra deliberada; segue fluxo
+contínuo ADR-0127: L0 primeiro, RED, candidato, GREEN, resselo e revalidação.
+A hipótese é refutada se a revisão ratificada não transportar os campos acima,
+se uma sonda bilateral válida produzir outra forma para qualquer caso fechado,
+ou se preservar o wrapper mudar payload, igualdade, hash, eval ou layout.
+
+### Limites e aceitação
+
+P1397 autoriza somente os braços `MathClassOverride` e `MathStyled` deste
+consumer, expectativas test-only diretamente contraditórias e metadata de
+linhagem. Não autoriza alterar entidades, construção de `dif`/`Dif`, stdlib,
+parser, eval de conteúdo, layout, export, `MathOp`, outros braços de `repr` ou
+helpers genéricos fora do necessário para essas duas projeções.
+
+Ficam fora de escopo: criar o binding cristalino `math.upright`, corrigir
+outras ausências da stdlib, provar paridade geral de matemática, inspecionar
+styles internos no texto público, ou fazer o wrapper depender da origem
+sintática. Casos não medidos permanecem `Unknown`. Identidade ambígua, falha
+de parse/build/execução, timeout, OOM, swap, saída ausente ou ilegível também
+são `Unknown`; `Unknown` obrigatório bloqueia e nunca conta como sucesso.
+
+Aceitação exige todas as testemunhas e controles acima, repetição e ordem
+inversa estáveis, mutação discriminatória integral e zero regressão observada
+fora dos dois braços. Sondas CLI rodam uma por vez sob `RLIMIT_AS` de 512 MiB e
+timeout de 60 s. Build/check/lint rodam serialmente, uma job, sob `RLIMIT_DATA`
+de 2 GiB; swap deve ser zero e RSS acima de 1.782.579 KiB interrompe a
+sequência. É proibido executar `cargo test` amplo ou compilar o lib-test
+monolítico para P1397.

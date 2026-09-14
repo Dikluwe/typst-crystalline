@@ -1,0 +1,298 @@
+{
+  "schema": "tekt-preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1397,
+  "revision": "R2",
+  "status": "SEALED_R2_LINEAGE_METADATA",
+  "sealed_at": "2026-09-14T17:12:24-03:00",
+  "supersedes": {
+    "revision": "R1",
+    "sha256": "ba75abae7b270537a8d1cb914c27521cd75860a27ee7bf3227205364b9d44df2",
+    "reason": "The authorized post-candidate lineage resell changed only the L0 Hash do Código header; R2 protects the resulting full-file identity without changing the semantic contract."
+  },
+  "authority": {
+    "role": "pre_candidate_input_sealer",
+    "executor": "/root/preseal_p1397",
+    "environment": "shared workspace",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "candidate_implementation_read": false,
+    "candidate_implementation_present": "not inspected during R2 metadata audit",
+    "candidate_verdict_emitted": false,
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1397-preseal.json"
+    ],
+    "judged_inputs_edited": false,
+    "context_inherited": "Full task context was inherited; capability restriction and causal ordering, not physical filesystem isolation, govern this audit."
+  },
+  "causal_predecessor": {
+    "head": "c5af9f2af02bd830ec223f777a8d144356b03597",
+    "working_tree_before_candidate": {
+      "git_diff_head_stat": "00_nucleo/prompts/compiler/eval/repr.md | 106 +++++++++++++++++++++++++++++++-; 1 file changed, 105 insertions(+), 1 deletion(-)",
+      "untracked_contract_artifacts": [
+        "00_nucleo/diagnosticos/p1397-contract.json",
+        "00_nucleo/diagnosticos/p1397-mutants.json",
+        "00_nucleo/diagnosticos/p1397-oracles.json",
+        "00_nucleo/materialization/typst-passo-1397.md",
+        "lab/parity/p1397_math_differential_repr.py"
+      ],
+      "productive_candidate_present": false
+    },
+    "productive_baseline_sha256": "ec9b82070b73b5a3cb4e3dd711f6236a94f6fec449934cf3f0934939ac8362ce"
+  },
+  "protected_inputs": [
+    {
+      "path": "AGENTS.md",
+      "role": "repository authority",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "role": "segregated protocol",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "role": "role and capability rules",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "role": "artifact and gate rules",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "role": "semantic L0 before candidate plus authorized post-candidate lineage metadata",
+      "baseline_sha256": "8ea0603d3de6efd00a231921754edce7f97169e7057a7851c36439e282fe942e",
+      "semantic_pre_candidate_sha256": "d7f2dadb6b854b41e871073d0bfa46f0adcf3e8780b3fba08cc36a22b1e39f35",
+      "post_lineage_full_sha256": "cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24"
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "role": "productive baseline",
+      "sha256": "ec9b82070b73b5a3cb4e3dd711f6236a94f6fec449934cf3f0934939ac8362ce"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1397.md",
+      "role": "execution step",
+      "sha256": "23ea09186ea561457685dc594b8e5276301a2378f8a76d5d2103d119e889af44"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1397-contract.json",
+      "role": "candidate contract and manifesto",
+      "sha256": "2a381fbf2c9e69e8d26526c174b7252a796d8fe0778b535555588d8ed405e0ef"
+    },
+    {
+      "path": "lab/parity/p1397_math_differential_repr.py",
+      "role": "independent exact-output oracle",
+      "sha256": "70357b440857f1f6b0f50b8cd1c3d7c2fdeef653291495dd13b5955d1ef99f9e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1397-oracles.json",
+      "role": "independent oracle receipt R1",
+      "sha256": "3d4f42165ce35f5f6621e5e3bd16ef95922909bd0ebb6f9b2fe993c9b0fa23bc"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1397-mutants.json",
+      "role": "adversarial catalog R0 reconciled against final contract",
+      "sha256": "8e91a1fd58a537f1c71b85c025acf283eb263938e591d6f86330650ac2466fe6"
+    },
+    {
+      "path": "target/release/typst",
+      "role": "frozen crystalline baseline executable",
+      "sha256": "f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474",
+      "bytes": 49136696
+    },
+    {
+      "path": "lab/typst-original/target/release/typst",
+      "role": "ratified vanila executable",
+      "revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "bytes": 52149176
+    }
+  ],
+  "dynamic_evidence": {
+    "red": {
+      "receipt": "/tmp/p1397-red-r1.json",
+      "sha256": "9a2705f2e7044408c85bd571870393e457082728884989c94f67bd0ff897bb06",
+      "classification": "Difference",
+      "counts": {
+        "Difference": 8,
+        "Preserved": 3,
+        "Unknown": 0
+      },
+      "case_count": 11,
+      "binary_identity_accepted": true,
+      "direct_repeat_reverse_agree": true,
+      "max_rss_kib": 33176,
+      "rlimit_as_kib": 524288,
+      "swap": 0,
+      "discriminatory": true
+    },
+    "vanila_positive": {
+      "receipt": "/tmp/p1397-vanila-r1.json",
+      "sha256": "68f25ed047d6e011c69d118e5fcf700ac1e23aedc8400652c9b6dc5131b3219e",
+      "classification": "Preserved",
+      "counts": {
+        "Difference": 0,
+        "Preserved": 11,
+        "Unknown": 0
+      },
+      "case_count": 11,
+      "binary_identity_accepted": true,
+      "direct_repeat_reverse_agree": true,
+      "max_rss_kib": 21644,
+      "rlimit_as_kib": 524288,
+      "swap": 0
+    },
+    "fail_closed_control": {
+      "receipt": "/tmp/p1397-unknown-r1.json",
+      "sha256": "ce431f054cb6fb5c677daf94a4a994566062fc666baa4b8bafde6eeb18ac19b0",
+      "stimulus": "deliberately wrong expected binary SHA-256",
+      "exit": 2,
+      "overall": "Unknown",
+      "counts": {
+        "Difference": 0,
+        "Preserved": 0,
+        "Unknown": 11
+      },
+      "success_credit": false,
+      "reason_code": "BINARY_IDENTITY_MISMATCH"
+    }
+  },
+  "lineage_metadata_receipt": {
+    "audit_kind": "authorized post-candidate metadata-only reseal",
+    "candidate_code_read": false,
+    "changed_path": "00_nucleo/prompts/compiler/eval/repr.md",
+    "old_header": "Hash do Código: c4032d3b",
+    "new_header": "Hash do Código: 3147d24c",
+    "new_full_sha256": "cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24",
+    "proof_command": "sed 's/^Hash do Código: 3147d24c$/Hash do Código: c4032d3b/' 00_nucleo/prompts/compiler/eval/repr.md | sha256sum",
+    "reconstructed_pre_candidate_sha256": "d7f2dadb6b854b41e871073d0bfa46f0adcf3e8780b3fba08cc36a22b1e39f35",
+    "matches_frozen_pre_candidate_sha256": true,
+    "semantic_content_changed": false,
+    "contract_sha256_unchanged": "2a381fbf2c9e69e8d26526c174b7252a796d8fe0778b535555588d8ed405e0ef",
+    "oracle_receipt_sha256_unchanged": "3d4f42165ce35f5f6621e5e3bd16ef95922909bd0ebb6f9b2fe993c9b0fa23bc",
+    "oracle_suite_sha256_unchanged": "70357b440857f1f6b0f50b8cd1c3d7c2fdeef653291495dd13b5955d1ef99f9e",
+    "mutant_catalog_sha256_unchanged": "8e91a1fd58a537f1c71b85c025acf283eb263938e591d6f86330650ac2466fe6",
+    "obligations_changed": false,
+    "oracle_observables_changed": false,
+    "rerun_required": false,
+    "rerun_reason": "The semantic bytes recover exactly when the single authorized lineage header is restored; contract, oracle, receipt and mutant identities are unchanged."
+  },
+  "adversarial_reconciliation": {
+    "catalog_authored_before_final_contract": true,
+    "literal_case_id_match_required": false,
+    "semantic_reconciliation_required": true,
+    "valid_applicable_mutants": 16,
+    "rejected": 16,
+    "unknown": 0,
+    "survived": 0,
+    "catalogued_mutation_score": 1.0,
+    "required_mutation_score": 1.0,
+    "passed": true,
+    "witnesses": [
+      {
+        "mutants": ["M01_SPECIAL_CASE_DIF_LITERAL"],
+        "killed_by": ["Dif-canonical-sequence", "class-unary-named-fields"]
+      },
+      {
+        "mutants": ["M02_SPECIAL_CASE_DIF_AND_DIF_UPPER"],
+        "killed_by": ["class-relation-named-fields", "styled-bb-preserved", "styled-frak-preserved"]
+      },
+      {
+        "mutants": ["M03_NAMED_CLASS_COLLAPSED_BODY"],
+        "killed_by": ["dif-canonical-sequence", "Dif-canonical-sequence"]
+      },
+      {
+        "mutants": ["M04_STYLED_ONLY_ITALIC_FALSE"],
+        "killed_by": ["styled-bb-preserved", "styled-frak-preserved", "styled-serif-preserved", "styled-inline-preserved"]
+      },
+      {
+        "mutants": ["M05_STYLED_ONLY_DIFFERENTIAL_BODY"],
+        "killed_by": ["styled-bb-preserved", "styled-frak-preserved", "styled-serif-preserved", "styled-inline-preserved", "styled-mono-preserved", "styled-script-preserved"]
+      },
+      {
+        "mutants": ["M06_GENERALIZE_STYLED_BUT_BREAK_MONO_SCRIPT"],
+        "killed_by": ["styled-mono-preserved", "styled-script-preserved"]
+      },
+      {
+        "mutants": ["M07_LOWERCASE_ONLY"],
+        "killed_by": ["Dif-canonical-sequence"]
+      },
+      {
+        "mutants": ["M08_UPPERCASE_ONLY"],
+        "killed_by": ["dif-canonical-sequence"]
+      },
+      {
+        "mutants": ["M09_SEQUENCE_WHITESPACE_HARDCODE"],
+        "killed_by": ["authorized-delta static gate", "dif-canonical-sequence", "Dif-canonical-sequence"],
+        "note": "A special branch in Content::Sequence is outside the two authorized productive branches; exact differential bytes additionally reject any non-identical formatting."
+      },
+      {
+        "mutants": ["M10_CLASS_FIELDS_POSITIONAL_OR_REORDERED"],
+        "killed_by": ["class-relation-named-fields", "class-unary-named-fields", "dif-canonical-sequence"]
+      },
+      {
+        "mutants": ["M11_FORCE_UNARY_CLASS_NAME"],
+        "killed_by": ["class-relation-named-fields"],
+        "note": "The final relation witness is semantically sufficient; the pre-contract desired binary alias is not required separately."
+      },
+      {
+        "mutants": ["M12_DROP_OR_CHANGE_WEAK_HSPACE"],
+        "killed_by": ["dif-canonical-sequence", "Dif-canonical-sequence", "authorized-delta static gate"]
+      },
+      {
+        "mutants": ["M13_OVERWRAP_PLAIN_CONTENT"],
+        "killed_by": ["class-relation-named-fields", "class-unary-named-fields"],
+        "note": "Both exact class controls require an unwrapped plain body [x]."
+      },
+      {
+        "mutants": ["M14_NORMALIZE_FORMATTING"],
+        "killed_by": ["oracle exact UTF-8 bytes and code points", "direct-repeat-reverse agreement"]
+      },
+      {
+        "mutants": ["M15_RENAME_STYLED_OR_OMIT_ELLIPSIS"],
+        "killed_by": ["dif-canonical-sequence", "styled-bb-preserved", "styled-mono-preserved"]
+      },
+      {
+        "mutants": ["M16_UNKNOWN_ACCEPTED_AS_SUCCESS"],
+        "killed_by": ["executed wrong-identity fail-closed control", "oracle timeout/nonzero/missing-output branches"],
+        "note": "The executed identity failure yields Unknown with exit 2 and zero credit; static audit confirms the other public failure modes also map to Unknown."
+      }
+    ],
+    "reconciliation_conclusion": "All sixteen valid applicable catalogued mutants have an executable or structural public death witness under the final contract. Pre-contract desired aliases absent from the final suite do not leave a semantic survivor."
+  },
+  "resource_gate": {
+    "new_processes_run_by_presealer": 0,
+    "cargo_test_run": false,
+    "monolithic_lib_test_compiled": false,
+    "oracle_rerun_by_presealer": false,
+    "reason": "Final R1 receipts, binary identities and output hashes were available and internally consistent; rerun was unnecessary.",
+    "parallelism_of_recorded_oracles": 1,
+    "max_observed_rss_kib": 33176,
+    "swap": 0,
+    "future_dynamic_gate": "serial exact-output oracle under RLIMIT_AS 512 MiB and 60-second outer timeout",
+    "future_build_check_lint": "serial, one job, RLIMIT_DATA 2 GiB, abort above 1782579 KiB RSS, zero swap"
+  },
+  "seal": {
+    "kind": "P1397 protected-input preseal",
+    "ready_for_candidate": true,
+    "protected_hashes_complete": true,
+    "unknown_policy": "fail-closed",
+    "mandatory_unknown_blocks": true,
+    "candidate_verdict": null,
+    "final_certificate": null,
+    "invalidated_if": [
+      "any protected input hash changes other than the exact L0 lineage transition recorded by R2",
+      "the productive candidate exists before this seal",
+      "the candidate edits contract, oracle, oracle receipt or mutant catalog",
+      "the candidate changes a productive branch other than Content::MathClassOverride or Content::MathStyled, except directly contradictory tests and lineage metadata",
+      "a mandatory observable becomes Unknown",
+      "a valid applicable mutant survives",
+      "swap becomes nonzero or a declared resource ceiling is exceeded"
+    ]
+  },
+  "claim_limit": "This preseal establishes discriminatory readiness only for the P1397 exact repr morphology of math.dif/math.Dif, general named class fields, the six measured math-style controls, and the unchanged MathOp control. It is not a candidate verdict and does not establish general math or Typst parity. Executado sem atestação de isolamento."
+}
