@@ -1,0 +1,196 @@
+{
+  "schema": "tekt-verification/v1",
+  "step": 1394,
+  "verified_at": "2026-09-14T14:11:51-03:00",
+  "verdict": "PASS",
+  "attestation": "executado sem atestacao de isolamento",
+  "claim_scope": "Somente a correcao do observador PNG P1394: PPI 144 explicito no argv vanila de P1137-X-003 e P1138-X-002, sem mudanca do produto ou alegacao de paridade PNG geral.",
+  "authority": {
+    "role": "verificador independente final",
+    "executor": "/root/verificador_p1394",
+    "environment": "working tree compartilhado de typst-crystalline",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1394-verification.json",
+      "00_nucleo/diagnosticos/p1394-report.md"
+    ],
+    "judged_artifacts_edited": false,
+    "isolation_attestation": false
+  },
+  "baseline": {
+    "head": "06e136d19fdc6d5f83fbbe44414b8b91e4dfd658",
+    "state": "working tree not committed",
+    "productive_diff_stat": "lab/parity/matrix/manifest.yaml | 4 +-, lab/parity/matrix/runner.py | 49 insertions(+), lab/parity/matrix/test_runner.py | 124 insertions(+); total 3 files, 175 insertions(+), 2 deletions(-)"
+  },
+  "seal": {
+    "path": "00_nucleo/diagnosticos/p1394-preseal.json",
+    "sha256": "84b577341a5b71b0a7be2c67482d1ff1c212018e9421b4e985a014976764ce91",
+    "protected_hashes_match": true,
+    "protected": {
+      "00_nucleo/materialization/typst-passo-1394.md": "a5b760c226b5d54e54c47d7f4f979448a64f45a89863d5838fe3641e553fce1f",
+      "00_nucleo/diagnosticos/p1394-contract.json": "3501e21daf1846e05fc4823059133c1f40a3832b7d52a77ee96843a627290f2b",
+      "00_nucleo/diagnosticos/p1394-oracles.json": "7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782",
+      "00_nucleo/diagnosticos/p1394-mutants.json": "6748406886a02ccc791085f9cb4a0530fb419691d53282d87b676bf4c0a76ef4",
+      "lab/parity/matrix/test_runner.py": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+      "baseline:lab/parity/matrix/runner.py": "9998b3d0f0c3dd8ea35c3e1f4e578ad769239cfaff42bd86bba10e504990cc03",
+      "baseline:lab/parity/matrix/manifest.yaml": "8f443c60e426d814f931ec4c9097406275e4c8b83ec70a2c8b793edd344f127d"
+    }
+  },
+  "candidate": {
+    "lab/parity/matrix/runner.py": "721fea50c7fa2b8bef3fa671f3181e79676250fe8cab235ae965ada512d3de97",
+    "lab/parity/matrix/manifest.yaml": "2abd78ab3afdaf4c6ac1327b6036df9bb7a3e0f7023b8de822c7c78ba6272fb1",
+    "lab/parity/matrix/test_runner.py": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+    "manifest_exact_delta_matches_contract": true,
+    "runner_changed_top_level_definitions": [
+      "validate_manifest"
+    ],
+    "runner_ast_outside_validate_manifest_matches_baseline": true,
+    "product_or_l0_changed": false,
+    "fixture_changed": false,
+    "comparator_or_expected_state_changed": false
+  },
+  "binary_identities": {
+    "vanila": {
+      "revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "bytes": 52149176
+    },
+    "cristalino": {
+      "sha256": "9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "bytes": 49150488
+    }
+  },
+  "gates": {
+    "independent_unit_suite": {
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 45s /usr/bin/time -v python3 -m unittest lab/parity/matrix/test_runner.py'",
+      "tests": 50,
+      "passed": 50,
+      "exit_code": 0,
+      "elapsed_seconds": 0.13,
+      "max_rss_kib": 25972,
+      "swaps": 0,
+      "typst_binaries_executed": false
+    },
+    "validate_only": {
+      "command": "bash -lc 'ulimit -v 524288; exec timeout 30s /usr/bin/time -v python3 lab/parity/matrix/runner.py --validate-only'",
+      "cases": 20,
+      "exit_code": 0,
+      "elapsed_seconds": 0.06,
+      "max_rss_kib": 21452,
+      "swaps": 0,
+      "typst_binaries_executed": false
+    },
+    "focal_runs_from_executor": {
+      "schedule": "serial",
+      "maximum_concurrent_png_processes": 1,
+      "virtual_memory_limit_kib": 2097152,
+      "external_timeout_seconds": 60,
+      "P1137-X-003": {
+        "result_path": "/tmp/p1394-p1137-x-003.json",
+        "result_sha256": "091661775462ca87e072e5a0a27a6bb76a86fcff1affb7e975dd391779b9250b",
+        "exit_code": 0,
+        "state": "MATCH",
+        "expectation_met": true,
+        "order_identical": true,
+        "oracle_exit_code": 0,
+        "crystalline_exit_code": 0,
+        "png_size": [1191, 1684],
+        "elapsed_seconds": 0.95,
+        "max_rss_kib": 51744,
+        "swaps": 0
+      },
+      "P1138-X-002": {
+        "result_path": "/tmp/p1394-p1138-x-002.json",
+        "result_sha256": "f7546265d7dc8becb526f8c198c3e1266cdcf5a05a56b29a71b330d90a480022",
+        "exit_code": 0,
+        "state": "DIFFERENCE",
+        "expectation_met": true,
+        "order_identical": true,
+        "oracle_exit_code": 0,
+        "crystalline_exit_code": 0,
+        "png_size": [1191, 1684],
+        "different_pixels": 11,
+        "max_channel_delta": 1,
+        "elapsed_seconds": 26.15,
+        "max_rss_kib": 388944,
+        "swaps": 0
+      },
+      "artifact_inspection": {
+        "all_four_forward_reverse_pairs_readable": true,
+        "all_dimensions": [1191, 1684],
+        "forward_reverse_binary_hashes_identical_per_side": true,
+        "oracle_png_sha256": "b6c64e93391ebac390ff2d85563801e434526b2629b9a0288a83731036cdfe22",
+        "crystalline_png_sha256": "761a98a9833afefab204b18660677011f92587d1f03b41af07f88146f6aed281"
+      }
+    },
+    "architecture": {
+      "command": "bash -lc 'ulimit -v 2097152; exec timeout 60s /usr/bin/time -v crystalline-lint .'",
+      "exit_code": 0,
+      "violations": 0,
+      "warnings_present": true,
+      "elapsed_seconds": 7.42,
+      "max_rss_kib": 213980,
+      "swaps": 0
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  },
+  "mutation_gate": {
+    "catalog": "00_nucleo/diagnosticos/p1394-mutants.json",
+    "valid_mutants": 21,
+    "violated": 21,
+    "survived": 0,
+    "unexpected_unknown": 0,
+    "mutation_score": 1.0,
+    "real_vanila_processes_for_mutants": 0,
+    "execution_modes": [
+      "in-memory manifest copies",
+      "static exact-scope comparison",
+      "pure classifier mocks",
+      "receipt inspection"
+    ],
+    "repeat_each": 2,
+    "orders": [
+      "M01..M21",
+      "M21..M01"
+    ],
+    "canonical_vector_sha256": "83ea46bc0a84b064e7f673bf738ffccbf71ece119293e8cab39e217de062e725",
+    "repeat_and_reorder_agree": true,
+    "results": [
+      {"id": "M01_OMIT_PPI_P1137", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M02_OMIT_PPI_P1138", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M03_OMIT_PPI_BOTH", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M04_WRONG_PPI_P1137", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M05_WRONG_PPI_P1138", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M06_DUPLICATE_PPI", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M07_PPI_ON_CRYSTALLINE_P1137", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M08_PPI_ON_CRYSTALLINE_BOTH", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M09_PPI_ON_NON_PNG_SVG", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M10_PPI_ON_NON_PNG_PDF", "classification": "Violated", "gate": "validate_manifest"},
+      {"id": "M11_ALTER_OUTPUT_SUFFIX", "classification": "Violated", "gate": "exact_scope"},
+      {"id": "M12_ALTER_FORMAT_VALUE", "classification": "Violated", "gate": "exact_scope"},
+      {"id": "M13_ALTER_COMPARISON", "classification": "Violated", "gate": "exact_scope"},
+      {"id": "M14_ALTER_EXPECTED_P1137", "classification": "Violated", "gate": "exact_scope"},
+      {"id": "M15_ALTER_EXPECTED_P1138", "classification": "Violated", "gate": "exact_scope"},
+      {"id": "M16_ACCEPT_BASELINE_ABORT_AS_MATCH", "classification": "Violated", "gate": "classifier_mock", "witness": ["ERROR", "BASELINE_DEFECT"]},
+      {"id": "M17_ACCEPT_BASELINE_HARNESS_ERROR_AS_MATCH", "classification": "Violated", "gate": "classifier_mock", "witness": ["ERROR", "HARNESS_DEFECT"]},
+      {"id": "M18_NORMALIZE_UNKNOWN_TO_MATCH", "classification": "Violated", "gate": "pure_lattice", "witness": ["UNKNOWN", "UNKNOWN", "UNKNOWN"]},
+      {"id": "M19_UNKNOWN_EXPECTATION_AUTO_PASSES", "classification": "Violated", "gate": "expectation_predicate", "witness": false},
+      {"id": "M20_REMOVE_REAL_RUN_MEMORY_CEILING", "classification": "Violated", "gate": "receipt_schema"},
+      {"id": "M21_PARALLELIZE_PNG_RUNS", "classification": "Violated", "gate": "receipt_schema"}
+    ]
+  },
+  "observed_semantics": {
+    "P1137-X-003": "O caso de capacidade publica volta a produzir artefatos bilaterais e permanece MATCH.",
+    "P1138-X-002": "A medicao raster e executavel e permanece DIFFERENCE: mesmas dimensoes, 11 de 2005644 pixels diferentes, delta maximo de canal 1.",
+    "interpretation": "O P1394 corrige o observador e preserva a divergencia raster observada; nao implementa a opcao publica --ppi no cristalino."
+  },
+  "limitations": [
+    "O workspace foi compartilhado; hashes provam identidade e ordem, nao isolamento fisico ou ausencia de leitura cruzada.",
+    "As medicoes de RSS, swap e tempo dos dois processos focais foram fornecidas pelo executor e correlacionadas com os JSONs e artefatos persistidos; o verificador nao repetiu os binarios.",
+    "Os warnings preexistentes do crystalline-lint nao sao violations e nao pertencem ao escopo P1394.",
+    "Nenhuma matriz completa, workspace test, rebuild ou mutante perigoso foi executado.",
+    "Este certificado nao prova equivalencia funcional geral nem paridade raster."
+  ]
+}

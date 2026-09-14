@@ -129,6 +129,26 @@ def with_profile_features(
 
 def validate_manifest(data: dict) -> list[str]:
     errors: list[str] = []
+    png_ppi_cases = {"P1137-X-003", "P1138-X-002"}
+
+    def has_ppi(args: list[str]) -> bool:
+        return any(arg == "--ppi" or arg.startswith("--ppi=") for arg in args)
+
+    def is_png_case(case: dict) -> bool:
+        oracle_args = case.get("oraculo", {}).get("args", [])
+        crystal_args = case.get("cristalino", {}).get("args", [])
+        args = [
+            arg
+            for arg in (*oracle_args, *crystal_args)
+            if isinstance(arg, str)
+        ] if isinstance(oracle_args, list) and isinstance(crystal_args, list) else []
+        feature = case.get("feature")
+        return (
+            case.get("comparison") == "raster"
+            or (isinstance(feature, str) and "png" in feature.split("/"))
+            or any(".png" in arg for arg in args)
+        )
+
     if data.get("schema_version") != 1:
         errors.append("schema_version must be 1")
     if data.get("vanilla_revision") != "586e1bd43":
@@ -144,6 +164,12 @@ def validate_manifest(data: dict) -> list[str]:
         return errors + ["cases must be an array"]
     required = {"id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison", "expected_state"}
     seen: set[str] = set()
+    actual_png_cases = {
+        case.get("id") for case in cases
+        if isinstance(case, dict) and is_png_case(case)
+    }
+    if actual_png_cases != png_ppi_cases:
+        errors.append("PNG cases must be exactly P1137-X-003 and P1138-X-002")
     for index, case in enumerate(cases):
         prefix = f"cases[{index}]"
         missing = required - set(case)
@@ -180,6 +206,29 @@ def validate_manifest(data: dict) -> list[str]:
                 for key, value in side_env.items()
             ):
                 errors.append(f"{prefix}: {side}.env must be a string map")
+        oracle_args = case.get("oraculo", {}).get("args", [])
+        crystal_args = case.get("cristalino", {}).get("args", [])
+        if isinstance(oracle_args, list) and isinstance(crystal_args, list):
+            if case_id in png_ppi_cases:
+                ppi_positions = [
+                    position for position, arg in enumerate(oracle_args)
+                    if arg == "--ppi"
+                ]
+                if (
+                    len(ppi_positions) != 1
+                    or oracle_args[-2:] != ["--ppi", "144"]
+                    or any(
+                        isinstance(arg, str) and arg.startswith("--ppi=")
+                        for arg in oracle_args
+                    )
+                ):
+                    errors.append(
+                        f"{prefix}: oraculo.args must end with exactly one --ppi 144 pair"
+                    )
+                if has_ppi(crystal_args):
+                    errors.append(f"{prefix}: cristalino.args must not contain --ppi")
+            elif has_ppi(oracle_args) or has_ppi(crystal_args):
+                errors.append(f"{prefix}: --ppi is forbidden outside P1394 PNG cases")
         oracle_features = feature_flags(case.get("oraculo", {}).get("args", []))
         crystal_features = feature_flags(case.get("cristalino", {}).get("args", []))
         required_features = case.get("required_features", [])

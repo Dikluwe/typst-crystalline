@@ -12,8 +12,132 @@ SPEC.loader.exec_module(runner)
 
 
 class SchemaTests(unittest.TestCase):
+    PNG_PPI_CASES = {"P1137-X-003", "P1138-X-002"}
+
+    @staticmethod
+    def _is_png_case(case):
+        args = case["oraculo"]["args"] + case["cristalino"]["args"]
+        return (
+            case["comparison"] == "raster"
+            or "png" in case["feature"].split("/")
+            or any(".png" in arg for arg in args)
+        )
+
+    @staticmethod
+    def _ppi_positions(args):
+        return [index for index, arg in enumerate(args) if arg == "--ppi"]
+
+    def _manifest_with_png_ppi_policy(self):
+        """Build the intended contract without depending on the candidate manifest."""
+        manifest = copy.deepcopy(runner.load_manifest(HERE / "manifest.yaml"))
+        for case in manifest["cases"]:
+            for side in ("oraculo", "cristalino"):
+                args = case[side]["args"]
+                normalized = []
+                index = 0
+                while index < len(args):
+                    if args[index] == "--ppi":
+                        index += 2
+                        continue
+                    if args[index].startswith("--ppi="):
+                        index += 1
+                        continue
+                    normalized.append(args[index])
+                    index += 1
+                case[side]["args"] = normalized
+            if case["id"] in self.PNG_PPI_CASES:
+                case["oraculo"]["args"].extend(["--ppi", "144"])
+        return manifest
+
+    def assert_exact_ppi_pair(self, args):
+        positions = self._ppi_positions(args)
+        self.assertEqual(len(positions), 1)
+        self.assertLess(positions[0] + 1, len(args))
+        self.assertEqual(args[positions[0] + 1], "144")
+        self.assertFalse(any(arg.startswith("--ppi=") for arg in args))
+
     def test_manifest_is_valid(self):
         self.assertEqual(runner.validate_manifest(runner.load_manifest(HERE / "manifest.yaml")), [])
+
+    def test_p1394_exactly_two_png_cases_receive_vanilla_ppi_144_only(self):
+        manifest = runner.load_manifest(HERE / "manifest.yaml")
+        png_cases = {
+            case["id"]: case
+            for case in manifest["cases"]
+            if self._is_png_case(case)
+        }
+        self.assertEqual(set(png_cases), self.PNG_PPI_CASES)
+        for case in png_cases.values():
+            self.assert_exact_ppi_pair(case["oraculo"]["args"])
+            self.assertNotIn("--ppi", case["cristalino"]["args"])
+            self.assertFalse(
+                any(arg.startswith("--ppi=") for arg in case["cristalino"]["args"])
+            )
+
+    def test_p1394_non_png_cases_never_receive_ppi(self):
+        manifest = runner.load_manifest(HERE / "manifest.yaml")
+        other_cases = [
+            case for case in manifest["cases"] if case["id"] not in self.PNG_PPI_CASES
+        ]
+        self.assertEqual(len(other_cases), len(manifest["cases"]) - 2)
+        for case in other_cases:
+            for side in ("oraculo", "cristalino"):
+                self.assertFalse(
+                    any(
+                        arg == "--ppi" or arg.startswith("--ppi=")
+                        for arg in case[side]["args"]
+                    ),
+                    f"{case['id']} unexpectedly received --ppi on {side}",
+                )
+
+    def test_p1394_intended_png_policy_is_schema_valid(self):
+        self.assertEqual(
+            runner.validate_manifest(self._manifest_with_png_ppi_policy()), []
+        )
+
+    def test_p1394_validation_fails_closed_when_ppi_is_omitted(self):
+        for case_id in self.PNG_PPI_CASES:
+            with self.subTest(case_id=case_id):
+                manifest = self._manifest_with_png_ppi_policy()
+                case = next(case for case in manifest["cases"] if case["id"] == case_id)
+                del case["oraculo"]["args"][-2:]
+                self.assertTrue(runner.validate_manifest(manifest))
+
+    def test_p1394_validation_fails_closed_when_ppi_is_duplicated(self):
+        for case_id in self.PNG_PPI_CASES:
+            with self.subTest(case_id=case_id):
+                manifest = self._manifest_with_png_ppi_policy()
+                case = next(case for case in manifest["cases"] if case["id"] == case_id)
+                case["oraculo"]["args"].extend(["--ppi", "144"])
+                self.assertTrue(runner.validate_manifest(manifest))
+
+    def test_p1394_validation_fails_closed_when_ppi_value_differs(self):
+        for case_id in self.PNG_PPI_CASES:
+            with self.subTest(case_id=case_id):
+                manifest = self._manifest_with_png_ppi_policy()
+                case = next(case for case in manifest["cases"] if case["id"] == case_id)
+                case["oraculo"]["args"][-1] = "145"
+                self.assertTrue(runner.validate_manifest(manifest))
+
+    def test_p1394_validation_fails_closed_when_ppi_is_on_crystalline_side(self):
+        for case_id in self.PNG_PPI_CASES:
+            with self.subTest(case_id=case_id):
+                manifest = self._manifest_with_png_ppi_policy()
+                case = next(case for case in manifest["cases"] if case["id"] == case_id)
+                case["cristalino"]["args"].extend(["--ppi", "144"])
+                self.assertTrue(runner.validate_manifest(manifest))
+
+    def test_p1394_validation_rejects_combined_ppi_spelling(self):
+        manifest = self._manifest_with_png_ppi_policy()
+        case = next(case for case in manifest["cases"] if case["id"] == "P1137-X-003")
+        case["oraculo"]["args"][-2:] = ["--ppi=144"]
+        self.assertTrue(runner.validate_manifest(manifest))
+
+    def test_p1394_validation_fails_closed_when_non_png_receives_ppi(self):
+        manifest = self._manifest_with_png_ppi_policy()
+        case = next(case for case in manifest["cases"] if case["id"] == "P1137-X-001")
+        case["oraculo"]["args"].extend(["--ppi", "144"])
+        self.assertTrue(runner.validate_manifest(manifest))
 
     def test_invalid_manifest_is_red(self):
         manifest = runner.load_manifest(HERE / "manifest.yaml")

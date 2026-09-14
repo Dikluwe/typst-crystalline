@@ -1,0 +1,27 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": 1394,
+  "sealed_at": "2026-09-14T14:06:42-03:00",
+  "status": "SEALED_FOR_IMPLEMENTATION",
+  "isolation_attestation": false,
+  "baseline_head": "06e136d19fdc6d5f83fbbe44414b8b91e4dfd658",
+  "protected": {
+    "00_nucleo/materialization/typst-passo-1394.md": "a5b760c226b5d54e54c47d7f4f979448a64f45a89863d5838fe3641e553fce1f",
+    "00_nucleo/diagnosticos/p1394-contract.json": "3501e21daf1846e05fc4823059133c1f40a3832b7d52a77ee96843a627290f2b",
+    "00_nucleo/diagnosticos/p1394-oracles.json": "7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782",
+    "00_nucleo/diagnosticos/p1394-mutants.json": "6748406886a02ccc791085f9cb4a0530fb419691d53282d87b676bf4c0a76ef4",
+    "lab/parity/matrix/test_runner.py": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+    "lab/parity/matrix/runner.py": "9998b3d0f0c3dd8ea35c3e1f4e578ad769239cfaff42bd86bba10e504990cc03",
+    "lab/parity/matrix/manifest.yaml": "8f443c60e426d814f931ec4c9097406275e4c8b83ec70a2c8b793edd344f127d"
+  },
+  "red": {
+    "command": "bash -lc 'ulimit -v 524288; exec timeout 45s /usr/bin/time -v python3 -m unittest lab/parity/matrix/test_runner.py'",
+    "tests_run": 50,
+    "expected_failures": 11,
+    "unexpected_errors": 0,
+    "max_rss_kib": 25960,
+    "swaps": 0,
+    "typst_binaries_executed": false
+  },
+  "unsafe_mutation_policy": "static_or_mock_only; never execute vanila PNG without exactly one separate --ppi 144 pair and an external memory ceiling"
+}

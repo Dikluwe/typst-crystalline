@@ -1,0 +1,295 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1394,
+  "status": "candidate-unsealed-r1",
+  "regime": {
+    "kind": "full",
+    "reason": "A correção altera o observador que classifica paridade e precisa de contrato, oráculos, ataques e verificação independentes.",
+    "isolation_attestation": false,
+    "final_verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "captured_at": "2026-09-14T14:00:31-03:00",
+    "head": "06e136d19fdc6d5f83fbbe44414b8b91e4dfd658",
+    "working_tree_before_p1394": {
+      "git_status_short": "",
+      "git_diff_head_stat": ""
+    }
+  },
+  "revision": {
+    "id": "R1",
+    "recorded_at": "2026-09-14T14:04:22-03:00",
+    "cause": "Frozen independent RED proved that a manifest-only patch leaves validate_manifest fail-open for the P1394 PPI policy.",
+    "candidate_implementation_existed": false,
+    "candidate_implementation_read": false,
+    "r0_step_sha256": "afc6c2fcedf52cf7c76c47810ebed9406ac93b7e4fc886fb9b772060a9a6079a",
+    "r0_contract_sha256": "6d3c3fc31bd48639914bd8c4c36226debb7785119802662a1d23c3459cba7328",
+    "oracle_receipt_sha256": "7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782",
+    "oracle_tests_sha256": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+    "red": {
+      "tests_run": 20,
+      "failures": 11,
+      "unexpected_errors": 0,
+      "max_rss_kib": 22472,
+      "swaps": 0,
+      "typst_binaries_executed": false
+    }
+  },
+  "scope": "Explicitar PPI 144 apenas nos argv vanila de P1137-X-003 e P1138-X-002, preservar os argv cristalinos e impedir execução perigosa sem teto comprovado.",
+  "protected_inputs": [
+    {
+      "path": "lab/parity/matrix/manifest.yaml",
+      "sha256": "8f443c60e426d814f931ec4c9097406275e4c8b83ec70a2c8b793edd344f127d",
+      "bytes": 17090,
+      "role": "baseline_manifest"
+    },
+    {
+      "path": "lab/parity/matrix/runner.py",
+      "sha256": "9998b3d0f0c3dd8ea35c3e1f4e578ad769239cfaff42bd86bba10e504990cc03",
+      "bytes": 32850,
+      "role": "baseline_runner_before_authorized_validate_manifest_delta"
+    },
+    {
+      "path": "lab/parity/matrix/fixtures/plain.typ",
+      "sha256": "9c168a60de075abeab24b85db0fe39259670378fafb3bc586fd7ae23efc335ae",
+      "bytes": 15,
+      "role": "protected_fixture"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1393-paridade-relatorio.md",
+      "sha256": "ac3e1654c6095654a0c477e4ab4e41ca03623ead063a0e14e903d6d9efcab1e5",
+      "role": "measurement"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1393-paridade-gaps.md",
+      "sha256": "f5747b54d354ae27219bcc08bcc26b66fc9296d94386ac4095b43adbf8737602",
+      "role": "intent"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1393-paridade-matriz.json",
+      "sha256": "7b40f551b80a7dd41bfe25535d192db9c804800084bd2826edfa1fa78e729b2f",
+      "role": "baseline_results"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1394-oracles.json",
+      "sha256": "7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782",
+      "bytes": 4616,
+      "role": "protected_oracle_receipt"
+    },
+    {
+      "path": "lab/parity/matrix/test_runner.py",
+      "sha256": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+      "bytes": 23796,
+      "role": "protected_oracle_tests"
+    }
+  ],
+  "binary_identities": {
+    "vanilla": {
+      "revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "bytes": 52149176
+    },
+    "crystalline": {
+      "path": "target/release/typst",
+      "sha256": "9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479",
+      "bytes": 49150488
+    }
+  },
+  "authorized_delta": [
+    {
+      "case_id": "P1137-X-003",
+      "json_path": "cases[id=P1137-X-003].oraculo.args",
+      "before": ["--color=never", "compile", "{source}", "{output}.png", "--format", "png"],
+      "after": ["--color=never", "compile", "{source}", "{output}.png", "--format", "png", "--ppi", "144"]
+    },
+    {
+      "case_id": "P1138-X-002",
+      "json_path": "cases[id=P1138-X-002].oraculo.args",
+      "before": ["--color=never", "compile", "{source}", "{output}.png", "--format", "png"],
+      "after": ["--color=never", "compile", "{source}", "{output}.png", "--format", "png", "--ppi", "144"]
+    },
+    {
+      "owner": "lab-only",
+      "path": "lab/parity/matrix/runner.py",
+      "symbol": "validate_manifest",
+      "before_sha256": "9998b3d0f0c3dd8ea35c3e1f4e578ad769239cfaff42bd86bba10e504990cc03",
+      "obligation": "Fail closed before execution unless exactly P1137-X-003 and P1138-X-002 have exactly one separate-token --ppi 144 pair on oraculo only, with no --ppi or --ppi= spelling on crystalline or any non-PNG case.",
+      "allowed_extent": "Only the body of validate_manifest; no invocation, comparator, classifier, payload, timeout, fixture, profile or product behavior may change."
+    }
+  ],
+  "protected_crystalline_argv": {
+    "P1137-X-003": ["{source}", "{output}.png", "--format", "png", "--color=never"],
+    "P1138-X-002": ["compile", "{source}", "{output}.png", "--format", "png", "--color=never"]
+  },
+  "mandatory_observables": [
+    "exact structural manifest delta",
+    "expanded bilateral argv for both cases",
+    "manifest validation result",
+    "fail-closed rejection of omission, duplication, wrong value, combined spelling, crystalline-side and non-PNG injection",
+    "forward/reverse agreement",
+    "process exit and readable PNG artifact",
+    "PNG dimensions",
+    "max RSS and swap under an effective memory ceiling",
+    "classification emitted by the unchanged comparator"
+  ],
+  "unknown_policy": {
+    "default": "Unknown is never success and is never converted implicitly to MATCH or DIFFERENCE.",
+    "schema_violation": "Malformed PPI policy is a validation error before execution, not Unknown and not success.",
+    "reasons": [
+      "INPUT_IDENTITY_MISMATCH",
+      "MEMORY_CEILING_UNPROVEN",
+      "TIMEOUT",
+      "OOM",
+      "SWAP_OBSERVED",
+      "ARTIFACT_MISSING_OR_UNREADABLE",
+      "HARNESS_ERROR",
+      "FORWARD_REVERSE_DISAGREEMENT",
+      "INSUFFICIENT_PUBLIC_EVIDENCE"
+    ]
+  },
+  "memory_policy": {
+    "parallelism": 1,
+    "virtual_memory_limit_kib": 2097152,
+    "external_timeout_seconds_per_focal_command": 60,
+    "runner_internal_timeout_seconds_per_process": 30,
+    "abort_rss_fraction": 0.85,
+    "swap_allowed": false,
+    "unsafe_mutants_execution_allowed": false,
+    "unsafe_definition": "Any vanila PNG invocation for the two scoped cases without exactly one --ppi 144, or any scoped execution without a proven external ceiling.",
+    "on_unproven_ceiling": "Do not execute; classify Unknown with MEMORY_CEILING_UNPROVEN.",
+    "full_corpus_authorized": false,
+    "workspace_test_authorized": false,
+    "rebuild_authorized": false
+  },
+  "oracle_requirements": {
+    "positive": [
+      "Both scoped vanilla argv contain exactly one terminal pair --ppi,144.",
+      "Both crystalline argv equal the protected baseline values.",
+      "All manifest content outside the two authorized arrays is semantically identical to baseline.",
+      "The candidate manifest passes validate-only."
+    ],
+    "opaque": [
+      "Input identity mismatch remains Unknown.",
+      "Missing proof of memory ceiling remains Unknown and blocks execution.",
+      "Interrupted or inconclusive execution remains Unknown."
+    ],
+    "negative_mutations": [
+      "omit --ppi 144 from one or both vanilla argv",
+      "use a PPI value other than 144",
+      "duplicate --ppi",
+      "add --ppi 144 to either crystalline argv",
+      "add --ppi 144 to another case or inject it globally",
+      "change any other manifest field or protected input",
+      "credit artifact presence without checking contracted argv"
+    ],
+    "mutation_score_required": 1.0,
+    "unsafe_mutations_must_be_rejected_statically": true,
+    "frozen_oracle_receipt": {
+      "path": "00_nucleo/diagnosticos/p1394-oracles.json",
+      "sha256": "7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782"
+    },
+    "frozen_oracle_tests": {
+      "path": "lab/parity/matrix/test_runner.py",
+      "sha256": "b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0",
+      "p1394_test_methods": 9
+    },
+    "repeat_and_reorder_must_agree": true
+  },
+  "acceptance": [
+    "The candidate starts from the frozen manifest hash.",
+    "Only the two authorized oracle argument arrays change to their exact after values.",
+    "No crystalline argv or unrelated case receives PPI.",
+    "Runner starts at the protected before hash and changes only inside validate_manifest; fixture, binaries and P1393 evidence retain their hashes.",
+    "Frozen oracle receipt and test_runner.py retain their R1 hashes.",
+    "Validation passes and both focal cases run serially under 2 GiB and 60 seconds with no OOM or swap.",
+    "Forward and reverse agree and produce readable PNG artifacts with recorded dimensions.",
+    "All valid negative mutations are rejected and opaque cases remain Unknown.",
+    "crystalline-lint reports zero violations under the declared ceiling.",
+    "No product, L0, fixture, comparator or expected state changes.",
+    "No general PNG or functional equivalence is claimed."
+  ],
+  "excluded": [
+    "adding --ppi support to crystalline",
+    "changing rasterization, PNG decoding or comparison policy",
+    "changing runner.py outside validate_manifest",
+    "changing fixtures, profiles, expected states or any unrelated case",
+    "running the known unsafe implicit-PPI command",
+    "rebuilding binaries",
+    "running the full matrix or workspace tests",
+    "closing the separate public CLI gap",
+    "emitting a final parity verdict"
+  ],
+  "capabilities": {
+    "contract_author": {
+      "read_allowlist": [
+        "AGENTS.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+        "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+        "00_nucleo/materialization/typst-passo-1393.md",
+        "00_nucleo/diagnosticos/p1393-paridade-relatorio.md",
+        "00_nucleo/diagnosticos/p1393-paridade-gaps.md",
+        "00_nucleo/diagnosticos/p1393-paridade-inventario-atualizado.md",
+        "00_nucleo/diagnosticos/p1393-paridade-matriz.json",
+        "lab/parity/matrix/manifest.yaml",
+        "lab/parity/matrix/runner.py",
+        "00_nucleo/materialization/typst-passo-1394.md",
+        "00_nucleo/diagnosticos/p1394-contract.json",
+        "00_nucleo/diagnosticos/p1394-oracles.json",
+        "lab/parity/matrix/test_runner.py"
+      ],
+      "write_allowlist": [
+        "00_nucleo/materialization/typst-passo-1394.md",
+        "00_nucleo/diagnosticos/p1394-contract.json"
+      ],
+      "forbidden": [
+        "candidate implementation",
+        "tests and oracles",
+        "manifest edits",
+        "code edits",
+        "seal",
+        "final verdict"
+      ],
+      "inherited_context": "P1394 request, P1393 results and frozen independent R1 RED; no candidate implementation.",
+      "revision_r1_read_scope": [
+        "00_nucleo/materialization/typst-passo-1394.md",
+        "00_nucleo/diagnosticos/p1394-contract.json",
+        "00_nucleo/diagnosticos/p1394-oracles.json",
+        "lab/parity/matrix/test_runner.py"
+      ]
+    },
+    "oracle_author": {
+      "inputs": ["this contract", "frozen baseline", "required observables"],
+      "forbidden": ["candidate patch before oracle freeze", "contract edits"]
+    },
+    "adversary": {
+      "inputs": ["sealed contract", "frozen baseline", "sealed oracles"],
+      "forbidden": ["solution correction", "execution of unsafe mutants"]
+    },
+    "implementer": {
+      "inputs": ["sealed contract", "sealed oracles"],
+      "write_allowlist": [
+        "lab/parity/matrix/manifest.yaml: two authorized oraculo.args arrays only",
+        "lab/parity/matrix/runner.py: validate_manifest body only"
+      ],
+      "forbidden": ["contract edits", "P1393 baseline edits", "oracle edits", "runner edits outside validate_manifest"]
+    },
+    "verifier": {
+      "inputs": ["sealed artifacts", "candidate output"],
+      "forbidden": ["editing any judged artifact"]
+    }
+  },
+  "calibration_budget": {
+    "max_oracle_revisions": 2,
+    "max_full_corpus_runs": 0,
+    "focal_cases": ["P1137-X-003", "P1138-X-002"],
+    "stop_condition": "Two consecutive revisions with the same classification vector and dominant reason require reopening the design."
+  },
+  "contract_path": "00_nucleo/diagnosticos/p1394-contract.json",
+  "prompt": null,
+  "owners": [],
+  "seal": null,
+  "certificate": null
+}
