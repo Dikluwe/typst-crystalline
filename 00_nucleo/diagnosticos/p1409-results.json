@@ -1,0 +1,2106 @@
+{
+  "attestation": "executado sem atestação de isolamento",
+  "binary_identities": {
+    "crystalline": {
+      "path": "/repos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "21edbc26682f290db91d85455ce96bb6b372edcb1f9edcac4bf8d38fad38059d"
+    },
+    "vanila": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  },
+  "finished_at": "2026-09-15T17:15:51.012496+00:00",
+  "head": "6bd6aeed8ac24526747bf21d37d4de39652e5466",
+  "input_hashes": {
+    "oracles": "75ff90569ca462b819024c186f1705bdd41619c71edb521345549f32fcf1ceb2",
+    "p1400_results": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542"
+  },
+  "max_rss_kib": 68676,
+  "max_swap_kib": 0,
+  "order_invariant": true,
+  "orders": [
+    "direct",
+    "direct-repeat",
+    "reverse"
+  ],
+  "process_count": 84,
+  "resource_failure": true,
+  "resource_policy": {
+    "parallelism": 1,
+    "raw_directory": "/tmp/p1409-reprobe-official-r5",
+    "rayon_threads": 1,
+    "rlimit_as_kib": 524288,
+    "stream_limit_bytes": 65536,
+    "timeout_seconds": 15
+  },
+  "routes": [
+    {
+      "classifications": {
+        "direct": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "direct-repeat": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "reverse": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ]
+      },
+      "id": "P1400-ELEM-007",
+      "order_invariant": true,
+      "path": "outline.entry.indented",
+      "reason_code": "OOM",
+      "reason_phase": "ROUTE_CONSTRUCTION_EXECUTION",
+      "receipts": {
+        "direct": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00004-direct-P1400-ELEM-007-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 506.141,
+              "exit_code": -6,
+              "max_rss_kib": 68292,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00004-direct-P1400-ELEM-007-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00004-direct-P1400-ELEM-007-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00003-direct-P1400-ELEM-007-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 263.432,
+              "exit_code": 0,
+              "max_rss_kib": 28056,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00003-direct-P1400-ELEM-007-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00003-direct-P1400-ELEM-007-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00006-direct-P1400-ELEM-007-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00006-direct-P1400-ELEM-007-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 97.241,
+              "exit_code": 0,
+              "max_rss_kib": 40148,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00006-direct-P1400-ELEM-007-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00006-direct-P1400-ELEM-007-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "faed31d7e0f4f1b57da3341e81600250849507795a2ef0922fab695c602b60da",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00005-direct-P1400-ELEM-007-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00005-direct-P1400-ELEM-007-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 268.641,
+              "exit_code": 0,
+              "max_rss_kib": 30216,
+              "projection_sha256": "d4d50ef073ad2795e189deab916130ad80ad2a04baa8b727277e4149358bfea7",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00005-direct-P1400-ELEM-007-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00005-direct-P1400-ELEM-007-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 91.628,
+              "exit_code": 0,
+              "max_rss_kib": 33432,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00002-direct-P1400-ELEM-007-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00002-direct-P1400-ELEM-007-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 8.458,
+              "exit_code": 0,
+              "max_rss_kib": 24768,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00001-direct-P1400-ELEM-007-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00001-direct-P1400-ELEM-007-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00032-direct-repeat-P1400-ELEM-007-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 398.414,
+              "exit_code": -6,
+              "max_rss_kib": 68656,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00032-direct-repeat-P1400-ELEM-007-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00032-direct-repeat-P1400-ELEM-007-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00031-direct-repeat-P1400-ELEM-007-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 263.179,
+              "exit_code": 0,
+              "max_rss_kib": 27628,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00031-direct-repeat-P1400-ELEM-007-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00031-direct-repeat-P1400-ELEM-007-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00034-direct-repeat-P1400-ELEM-007-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00034-direct-repeat-P1400-ELEM-007-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 96.049,
+              "exit_code": 0,
+              "max_rss_kib": 40252,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00034-direct-repeat-P1400-ELEM-007-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00034-direct-repeat-P1400-ELEM-007-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "006439b963081f26bd7839366ba97da2e8815f3d8381f2c19e92ef03a6e460e5",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00033-direct-repeat-P1400-ELEM-007-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00033-direct-repeat-P1400-ELEM-007-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 268.193,
+              "exit_code": 0,
+              "max_rss_kib": 31124,
+              "projection_sha256": "d4d50ef073ad2795e189deab916130ad80ad2a04baa8b727277e4149358bfea7",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00033-direct-repeat-P1400-ELEM-007-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00033-direct-repeat-P1400-ELEM-007-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 89.641,
+              "exit_code": 0,
+              "max_rss_kib": 33720,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00030-direct-repeat-P1400-ELEM-007-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00030-direct-repeat-P1400-ELEM-007-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 8.06,
+              "exit_code": 0,
+              "max_rss_kib": 24796,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00029-direct-repeat-P1400-ELEM-007-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00029-direct-repeat-P1400-ELEM-007-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00082-reverse-P1400-ELEM-007-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 388.73,
+              "exit_code": -6,
+              "max_rss_kib": 68316,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00082-reverse-P1400-ELEM-007-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00082-reverse-P1400-ELEM-007-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00081-reverse-P1400-ELEM-007-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 262.301,
+              "exit_code": 0,
+              "max_rss_kib": 27764,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00081-reverse-P1400-ELEM-007-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00081-reverse-P1400-ELEM-007-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00084-reverse-P1400-ELEM-007-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00084-reverse-P1400-ELEM-007-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.678,
+              "exit_code": 0,
+              "max_rss_kib": 39940,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00084-reverse-P1400-ELEM-007-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00084-reverse-P1400-ELEM-007-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "8bd1501fddf7edfd1f339f6f526a7acb43a0ad197cb4278b0d906d556deb7ea8",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00083-reverse-P1400-ELEM-007-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00083-reverse-P1400-ELEM-007-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 270.375,
+              "exit_code": 0,
+              "max_rss_kib": 31356,
+              "projection_sha256": "d4d50ef073ad2795e189deab916130ad80ad2a04baa8b727277e4149358bfea7",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00083-reverse-P1400-ELEM-007-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00083-reverse-P1400-ELEM-007-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 91.904,
+              "exit_code": 0,
+              "max_rss_kib": 33444,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00080-reverse-P1400-ELEM-007-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00080-reverse-P1400-ELEM-007-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.indented)"
+              ],
+              "duration_ms": 8.057,
+              "exit_code": 0,
+              "max_rss_kib": 24808,
+              "projection_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00079-reverse-P1400-ELEM-007-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00079-reverse-P1400-ELEM-007-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "a258f543b0a6d2a4676f8bbbeeba22987cf78355586a1c78528441f09bdf5271",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "UNKNOWN"
+    },
+    {
+      "classifications": {
+        "direct": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "direct-repeat": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "reverse": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ]
+      },
+      "id": "P1400-ELEM-008",
+      "order_invariant": true,
+      "path": "outline.entry.inner",
+      "reason_code": "OOM",
+      "reason_phase": "ROUTE_CONSTRUCTION_EXECUTION",
+      "receipts": {
+        "direct": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00010-direct-P1400-ELEM-008-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 406.693,
+              "exit_code": -6,
+              "max_rss_kib": 68080,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00010-direct-P1400-ELEM-008-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00010-direct-P1400-ELEM-008-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00009-direct-P1400-ELEM-008-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 267.528,
+              "exit_code": 0,
+              "max_rss_kib": 27864,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00009-direct-P1400-ELEM-008-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00009-direct-P1400-ELEM-008-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00012-direct-P1400-ELEM-008-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00012-direct-P1400-ELEM-008-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 96.798,
+              "exit_code": 0,
+              "max_rss_kib": 39652,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00012-direct-P1400-ELEM-008-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00012-direct-P1400-ELEM-008-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "488c219a4fe46ea893a2ce0ac3eed2f9d8a2d541ecd739a68b6b07ccfe026423",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00011-direct-P1400-ELEM-008-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00011-direct-P1400-ELEM-008-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 264.922,
+              "exit_code": 0,
+              "max_rss_kib": 31236,
+              "projection_sha256": "1ea73b8f074be1d62bee47b4d44682d531d587cd7d30b4a6608c80e84c65eaae",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00011-direct-P1400-ELEM-008-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00011-direct-P1400-ELEM-008-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 90.312,
+              "exit_code": 0,
+              "max_rss_kib": 33680,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00008-direct-P1400-ELEM-008-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00008-direct-P1400-ELEM-008-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 7.496,
+              "exit_code": 0,
+              "max_rss_kib": 24784,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00007-direct-P1400-ELEM-008-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00007-direct-P1400-ELEM-008-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00038-direct-repeat-P1400-ELEM-008-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 410.381,
+              "exit_code": -6,
+              "max_rss_kib": 68576,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00038-direct-repeat-P1400-ELEM-008-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00038-direct-repeat-P1400-ELEM-008-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00037-direct-repeat-P1400-ELEM-008-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 259.21,
+              "exit_code": 0,
+              "max_rss_kib": 27648,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00037-direct-repeat-P1400-ELEM-008-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00037-direct-repeat-P1400-ELEM-008-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00040-direct-repeat-P1400-ELEM-008-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00040-direct-repeat-P1400-ELEM-008-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.28,
+              "exit_code": 0,
+              "max_rss_kib": 40120,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00040-direct-repeat-P1400-ELEM-008-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00040-direct-repeat-P1400-ELEM-008-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "7f89f1a28d23eaa2fbf7cff238248e8e93092b5302eecc73d4c19897e2579588",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00039-direct-repeat-P1400-ELEM-008-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00039-direct-repeat-P1400-ELEM-008-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 264.278,
+              "exit_code": 0,
+              "max_rss_kib": 30716,
+              "projection_sha256": "1ea73b8f074be1d62bee47b4d44682d531d587cd7d30b4a6608c80e84c65eaae",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00039-direct-repeat-P1400-ELEM-008-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00039-direct-repeat-P1400-ELEM-008-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 92.98,
+              "exit_code": 0,
+              "max_rss_kib": 33428,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00036-direct-repeat-P1400-ELEM-008-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00036-direct-repeat-P1400-ELEM-008-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 7.711,
+              "exit_code": 0,
+              "max_rss_kib": 24796,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00035-direct-repeat-P1400-ELEM-008-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00035-direct-repeat-P1400-ELEM-008-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00076-reverse-P1400-ELEM-008-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 400.19,
+              "exit_code": -6,
+              "max_rss_kib": 68544,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00076-reverse-P1400-ELEM-008-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00076-reverse-P1400-ELEM-008-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00075-reverse-P1400-ELEM-008-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 264.728,
+              "exit_code": 0,
+              "max_rss_kib": 28064,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00075-reverse-P1400-ELEM-008-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00075-reverse-P1400-ELEM-008-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00078-reverse-P1400-ELEM-008-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00078-reverse-P1400-ELEM-008-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 96.447,
+              "exit_code": 0,
+              "max_rss_kib": 40248,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00078-reverse-P1400-ELEM-008-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00078-reverse-P1400-ELEM-008-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "4050f05329c4a01f13414392e2bdd3ab44b786a38b700f8fcfea329e9b707fc1",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00077-reverse-P1400-ELEM-008-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00077-reverse-P1400-ELEM-008-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 264.12,
+              "exit_code": 0,
+              "max_rss_kib": 31276,
+              "projection_sha256": "1ea73b8f074be1d62bee47b4d44682d531d587cd7d30b4a6608c80e84c65eaae",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00077-reverse-P1400-ELEM-008-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00077-reverse-P1400-ELEM-008-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 90.696,
+              "exit_code": 0,
+              "max_rss_kib": 33400,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00074-reverse-P1400-ELEM-008-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00074-reverse-P1400-ELEM-008-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.inner)"
+              ],
+              "duration_ms": 7.823,
+              "exit_code": 0,
+              "max_rss_kib": 24808,
+              "projection_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00073-reverse-P1400-ELEM-008-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00073-reverse-P1400-ELEM-008-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "33bf6fbd7cd8379785a21e233d8e09f824e7bab459168a96312c1c882c1d7e1f",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "UNKNOWN"
+    },
+    {
+      "classifications": {
+        "direct": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "direct-repeat": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "reverse": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ]
+      },
+      "id": "P1400-ELEM-009",
+      "order_invariant": true,
+      "path": "outline.entry.page",
+      "reason_code": "OOM",
+      "reason_phase": "ROUTE_CONSTRUCTION_EXECUTION",
+      "receipts": {
+        "direct": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00016-direct-P1400-ELEM-009-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 399.625,
+              "exit_code": -6,
+              "max_rss_kib": 68652,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00016-direct-P1400-ELEM-009-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00016-direct-P1400-ELEM-009-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00015-direct-P1400-ELEM-009-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 260.424,
+              "exit_code": 0,
+              "max_rss_kib": 27712,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00015-direct-P1400-ELEM-009-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00015-direct-P1400-ELEM-009-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00018-direct-P1400-ELEM-009-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00018-direct-P1400-ELEM-009-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.41,
+              "exit_code": 0,
+              "max_rss_kib": 39592,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00018-direct-P1400-ELEM-009-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00018-direct-P1400-ELEM-009-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00017-direct-P1400-ELEM-009-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00017-direct-P1400-ELEM-009-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 271.942,
+              "exit_code": 0,
+              "max_rss_kib": 31204,
+              "projection_sha256": "4ba00b386a64bc9641b7ff529f8ce0bb9af04148d301471ebf704240778f39ba",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00017-direct-P1400-ELEM-009-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00017-direct-P1400-ELEM-009-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 92.084,
+              "exit_code": 0,
+              "max_rss_kib": 33840,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00014-direct-P1400-ELEM-009-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00014-direct-P1400-ELEM-009-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 8.131,
+              "exit_code": 0,
+              "max_rss_kib": 24784,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00013-direct-P1400-ELEM-009-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00013-direct-P1400-ELEM-009-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00044-direct-repeat-P1400-ELEM-009-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 400.029,
+              "exit_code": -6,
+              "max_rss_kib": 68628,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00044-direct-repeat-P1400-ELEM-009-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00044-direct-repeat-P1400-ELEM-009-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00043-direct-repeat-P1400-ELEM-009-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 264.932,
+              "exit_code": 0,
+              "max_rss_kib": 27824,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00043-direct-repeat-P1400-ELEM-009-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00043-direct-repeat-P1400-ELEM-009-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00046-direct-repeat-P1400-ELEM-009-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00046-direct-repeat-P1400-ELEM-009-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 99.961,
+              "exit_code": 0,
+              "max_rss_kib": 40076,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00046-direct-repeat-P1400-ELEM-009-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00046-direct-repeat-P1400-ELEM-009-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00045-direct-repeat-P1400-ELEM-009-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00045-direct-repeat-P1400-ELEM-009-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 266.816,
+              "exit_code": 0,
+              "max_rss_kib": 31228,
+              "projection_sha256": "4ba00b386a64bc9641b7ff529f8ce0bb9af04148d301471ebf704240778f39ba",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00045-direct-repeat-P1400-ELEM-009-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00045-direct-repeat-P1400-ELEM-009-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 92.385,
+              "exit_code": 0,
+              "max_rss_kib": 33660,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00042-direct-repeat-P1400-ELEM-009-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00042-direct-repeat-P1400-ELEM-009-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 7.807,
+              "exit_code": 0,
+              "max_rss_kib": 24804,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00041-direct-repeat-P1400-ELEM-009-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00041-direct-repeat-P1400-ELEM-009-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00070-reverse-P1400-ELEM-009-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 414.827,
+              "exit_code": -6,
+              "max_rss_kib": 68604,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00070-reverse-P1400-ELEM-009-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00070-reverse-P1400-ELEM-009-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00069-reverse-P1400-ELEM-009-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 261.816,
+              "exit_code": 0,
+              "max_rss_kib": 27804,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00069-reverse-P1400-ELEM-009-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00069-reverse-P1400-ELEM-009-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00072-reverse-P1400-ELEM-009-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00072-reverse-P1400-ELEM-009-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 96.253,
+              "exit_code": 0,
+              "max_rss_kib": 39652,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00072-reverse-P1400-ELEM-009-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00072-reverse-P1400-ELEM-009-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00071-reverse-P1400-ELEM-009-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00071-reverse-P1400-ELEM-009-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 265.093,
+              "exit_code": 0,
+              "max_rss_kib": 31356,
+              "projection_sha256": "4ba00b386a64bc9641b7ff529f8ce0bb9af04148d301471ebf704240778f39ba",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00071-reverse-P1400-ELEM-009-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00071-reverse-P1400-ELEM-009-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 92.137,
+              "exit_code": 0,
+              "max_rss_kib": 33560,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00068-reverse-P1400-ELEM-009-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00068-reverse-P1400-ELEM-009-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.page)"
+              ],
+              "duration_ms": 7.697,
+              "exit_code": 0,
+              "max_rss_kib": 24804,
+              "projection_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00067-reverse-P1400-ELEM-009-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00067-reverse-P1400-ELEM-009-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "UNKNOWN"
+    },
+    {
+      "classifications": {
+        "direct": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "direct-repeat": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ],
+        "reverse": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_CONSTRUCTION_EXECUTION"
+        ]
+      },
+      "id": "P1400-ELEM-010",
+      "order_invariant": true,
+      "path": "outline.entry.prefix",
+      "reason_code": "OOM",
+      "reason_phase": "ROUTE_CONSTRUCTION_EXECUTION",
+      "receipts": {
+        "direct": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00022-direct-P1400-ELEM-010-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 405.267,
+              "exit_code": -6,
+              "max_rss_kib": 68336,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00022-direct-P1400-ELEM-010-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00022-direct-P1400-ELEM-010-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "5187443641110a2416992a07b0bed1261f586932cd48a670c4dbdb14cd2917d3",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00021-direct-P1400-ELEM-010-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 262.348,
+              "exit_code": 0,
+              "max_rss_kib": 28076,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00021-direct-P1400-ELEM-010-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00021-direct-P1400-ELEM-010-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00024-direct-P1400-ELEM-010-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00024-direct-P1400-ELEM-010-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.293,
+              "exit_code": 0,
+              "max_rss_kib": 40132,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00024-direct-P1400-ELEM-010-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00024-direct-P1400-ELEM-010-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00023-direct-P1400-ELEM-010-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00023-direct-P1400-ELEM-010-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 269.801,
+              "exit_code": 0,
+              "max_rss_kib": 31456,
+              "projection_sha256": "e14da130fda4483aeba69272f7a92c5e55cbc4ab6143585b1767bfb872843714",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00023-direct-P1400-ELEM-010-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00023-direct-P1400-ELEM-010-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 91.471,
+              "exit_code": 0,
+              "max_rss_kib": 33496,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00020-direct-P1400-ELEM-010-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00020-direct-P1400-ELEM-010-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 8.276,
+              "exit_code": 0,
+              "max_rss_kib": 24784,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00019-direct-P1400-ELEM-010-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00019-direct-P1400-ELEM-010-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00050-direct-repeat-P1400-ELEM-010-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 403.782,
+              "exit_code": -6,
+              "max_rss_kib": 68580,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00050-direct-repeat-P1400-ELEM-010-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00050-direct-repeat-P1400-ELEM-010-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "1e7556c34a448f248802e8fab0597d758e618efdf2584a3f7ca9ee0c579ecae9",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00049-direct-repeat-P1400-ELEM-010-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 270.468,
+              "exit_code": 0,
+              "max_rss_kib": 28020,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00049-direct-repeat-P1400-ELEM-010-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00049-direct-repeat-P1400-ELEM-010-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00052-direct-repeat-P1400-ELEM-010-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00052-direct-repeat-P1400-ELEM-010-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.11,
+              "exit_code": 0,
+              "max_rss_kib": 39604,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00052-direct-repeat-P1400-ELEM-010-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00052-direct-repeat-P1400-ELEM-010-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00051-direct-repeat-P1400-ELEM-010-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00051-direct-repeat-P1400-ELEM-010-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 265.478,
+              "exit_code": 0,
+              "max_rss_kib": 30696,
+              "projection_sha256": "e14da130fda4483aeba69272f7a92c5e55cbc4ab6143585b1767bfb872843714",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00051-direct-repeat-P1400-ELEM-010-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00051-direct-repeat-P1400-ELEM-010-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 94.688,
+              "exit_code": 0,
+              "max_rss_kib": 33320,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00048-direct-repeat-P1400-ELEM-010-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00048-direct-repeat-P1400-ELEM-010-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 8.588,
+              "exit_code": 0,
+              "max_rss_kib": 24804,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00047-direct-repeat-P1400-ELEM-010-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00047-direct-repeat-P1400-ELEM-010-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "construction": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00064-reverse-P1400-ELEM-010-CTOR-crystalline/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 392.063,
+              "exit_code": -6,
+              "max_rss_kib": 68676,
+              "projection_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00064-reverse-P1400-ELEM-010-CTOR-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00064-reverse-P1400-ELEM-010-CTOR-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "0c4f288672727c487af3335480e58323c50b9bc9770379d858fda788faf22fd3",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "--in",
+                "/tmp/p1409-reprobe-official-r5/work/00063-reverse-P1400-ELEM-010-CTOR-vanila/fixture.typ",
+                "repr(query(outline.entry).first())"
+              ],
+              "duration_ms": 261.063,
+              "exit_code": 0,
+              "max_rss_kib": 27936,
+              "projection_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00063-reverse-P1400-ELEM-010-CTOR-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00063-reverse-P1400-ELEM-010-CTOR-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "78600d3af685691341a64d835abaa04e3fa4d07de56e542b5aef6217a9e630eb",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "invocation": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00066-reverse-P1400-ELEM-010-CALL-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00066-reverse-P1400-ELEM-010-CALL-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 95.214,
+              "exit_code": 0,
+              "max_rss_kib": 39544,
+              "projection_sha256": "aef7af2ae3daae6a70aedf4d0b5575369e5c221823072b6576cf2d67c99f45b6",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00066-reverse-P1400-ELEM-010-CALL-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00066-reverse-P1400-ELEM-010-CALL-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00065-reverse-P1400-ELEM-010-CALL-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00065-reverse-P1400-ELEM-010-CALL-vanila/artifact.pdf"
+              ],
+              "duration_ms": 270.021,
+              "exit_code": 0,
+              "max_rss_kib": 31140,
+              "projection_sha256": "e14da130fda4483aeba69272f7a92c5e55cbc4ab6143585b1767bfb872843714",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00065-reverse-P1400-ELEM-010-CALL-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00065-reverse-P1400-ELEM-010-CALL-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          },
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 92.401,
+              "exit_code": 0,
+              "max_rss_kib": 33412,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00062-reverse-P1400-ELEM-010-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00062-reverse-P1400-ELEM-010-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "eval",
+                "--format",
+                "raw",
+                "repr(outline.entry.prefix)"
+              ],
+              "duration_ms": 8.685,
+              "exit_code": 0,
+              "max_rss_kib": 24804,
+              "projection_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00061-reverse-P1400-ELEM-010-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00061-reverse-P1400-ELEM-010-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "UNKNOWN"
+    },
+    {
+      "classifications": {
+        "direct": [
+          "ABSENT",
+          "QUALIFIED_PUBLIC_FORM_ABSENT",
+          "ROUTE_QUALIFIED_DIAGNOSTIC"
+        ],
+        "direct-repeat": [
+          "ABSENT",
+          "QUALIFIED_PUBLIC_FORM_ABSENT",
+          "ROUTE_QUALIFIED_DIAGNOSTIC"
+        ],
+        "reverse": [
+          "ABSENT",
+          "QUALIFIED_PUBLIC_FORM_ABSENT",
+          "ROUTE_QUALIFIED_DIAGNOSTIC"
+        ]
+      },
+      "id": "P1400-ELEM-011",
+      "order_invariant": true,
+      "path": "par.line",
+      "reason_code": "QUALIFIED_PUBLIC_FORM_ABSENT",
+      "reason_phase": "ROUTE_QUALIFIED_DIAGNOSTIC",
+      "receipts": {
+        "direct": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00026-direct-P1400-ELEM-011-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00026-direct-P1400-ELEM-011-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 93.261,
+              "exit_code": 1,
+              "max_rss_kib": 33852,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00026-direct-P1400-ELEM-011-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00026-direct-P1400-ELEM-011-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "10278ad48352c4f2557ddf00da5ffb8a3a5dedd48e112c162544c427ee6e2f12",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00025-direct-P1400-ELEM-011-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00025-direct-P1400-ELEM-011-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 265.981,
+              "exit_code": 0,
+              "max_rss_kib": 30528,
+              "projection_sha256": "81b03da1d9f033cd64cddce091d91c8457ed650e4073891fd1b173b7384cd8a8",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00025-direct-P1400-ELEM-011-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00025-direct-P1400-ELEM-011-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00054-direct-repeat-P1400-ELEM-011-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00054-direct-repeat-P1400-ELEM-011-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 93.614,
+              "exit_code": 1,
+              "max_rss_kib": 34008,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00054-direct-repeat-P1400-ELEM-011-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00054-direct-repeat-P1400-ELEM-011-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "64888ad72cbb4b8bdfeefd68f4ccefe261c51158a289a227125b1200425e5dfb",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00053-direct-repeat-P1400-ELEM-011-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00053-direct-repeat-P1400-ELEM-011-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 264.14,
+              "exit_code": 0,
+              "max_rss_kib": 31056,
+              "projection_sha256": "81b03da1d9f033cd64cddce091d91c8457ed650e4073891fd1b173b7384cd8a8",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00053-direct-repeat-P1400-ELEM-011-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00053-direct-repeat-P1400-ELEM-011-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00060-reverse-P1400-ELEM-011-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00060-reverse-P1400-ELEM-011-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 92.701,
+              "exit_code": 1,
+              "max_rss_kib": 33812,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00060-reverse-P1400-ELEM-011-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00060-reverse-P1400-ELEM-011-Q-crystalline.stdout",
+              "reason_code": null,
+              "stderr_sha256": "60e4d15716b773501d4c72d1934f09effe1e79898f035a0d998a753dcef28aca",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00059-reverse-P1400-ELEM-011-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00059-reverse-P1400-ELEM-011-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 266.527,
+              "exit_code": 0,
+              "max_rss_kib": 31052,
+              "projection_sha256": "81b03da1d9f033cd64cddce091d91c8457ed650e4073891fd1b173b7384cd8a8",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00059-reverse-P1400-ELEM-011-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00059-reverse-P1400-ELEM-011-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "ABSENT"
+    },
+    {
+      "classifications": {
+        "direct": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_QUALIFIED_EXECUTION"
+        ],
+        "direct-repeat": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_QUALIFIED_EXECUTION"
+        ],
+        "reverse": [
+          "UNKNOWN",
+          "OOM",
+          "ROUTE_QUALIFIED_EXECUTION"
+        ]
+      },
+      "id": "P1400-ELEM-013",
+      "order_invariant": true,
+      "path": "raw.line",
+      "reason_code": "OOM",
+      "reason_phase": "ROUTE_QUALIFIED_EXECUTION",
+      "receipts": {
+        "direct": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00028-direct-P1400-ELEM-013-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00028-direct-P1400-ELEM-013-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 408.0,
+              "exit_code": -6,
+              "max_rss_kib": 62172,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00028-direct-P1400-ELEM-013-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00028-direct-P1400-ELEM-013-Q-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "f3285bf4c0826062dfc2f78bb08a6ddf16d2c6912729f0e7a1b8863f3766d6c8",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00027-direct-P1400-ELEM-013-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00027-direct-P1400-ELEM-013-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 260.633,
+              "exit_code": 0,
+              "max_rss_kib": 31456,
+              "projection_sha256": "ac7c8a72328d118ac8b804ec85507a8337c3949673a7f553fc8491af8b9a9074",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00027-direct-P1400-ELEM-013-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00027-direct-P1400-ELEM-013-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "direct-repeat": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00056-direct-repeat-P1400-ELEM-013-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00056-direct-repeat-P1400-ELEM-013-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 395.225,
+              "exit_code": -6,
+              "max_rss_kib": 62100,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00056-direct-repeat-P1400-ELEM-013-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00056-direct-repeat-P1400-ELEM-013-Q-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "f3285bf4c0826062dfc2f78bb08a6ddf16d2c6912729f0e7a1b8863f3766d6c8",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00055-direct-repeat-P1400-ELEM-013-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00055-direct-repeat-P1400-ELEM-013-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 265.994,
+              "exit_code": 0,
+              "max_rss_kib": 30608,
+              "projection_sha256": "ac7c8a72328d118ac8b804ec85507a8337c3949673a7f553fc8491af8b9a9074",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00055-direct-repeat-P1400-ELEM-013-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00055-direct-repeat-P1400-ELEM-013-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        },
+        "reverse": {
+          "qualified": {
+            "crystalline": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00058-reverse-P1400-ELEM-013-Q-crystalline/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00058-reverse-P1400-ELEM-013-Q-crystalline/artifact.pdf"
+              ],
+              "duration_ms": 408.995,
+              "exit_code": -6,
+              "max_rss_kib": 62248,
+              "projection_sha256": null,
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00058-reverse-P1400-ELEM-013-Q-crystalline.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00058-reverse-P1400-ELEM-013-Q-crystalline.stdout",
+              "reason_code": "OOM",
+              "stderr_sha256": "5ac8420498ebe07b1774c491343b5f56d79df1026f6277f4848ff847db5b980e",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            },
+            "vanila": {
+              "argv": [
+                "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+                "compile",
+                "/tmp/p1409-reprobe-official-r5/work/00057-reverse-P1400-ELEM-013-Q-vanila/fixture.typ",
+                "/tmp/p1409-reprobe-official-r5/work/00057-reverse-P1400-ELEM-013-Q-vanila/artifact.pdf"
+              ],
+              "duration_ms": 265.412,
+              "exit_code": 0,
+              "max_rss_kib": 31600,
+              "projection_sha256": "ac7c8a72328d118ac8b804ec85507a8337c3949673a7f553fc8491af8b9a9074",
+              "raw_stderr": "/tmp/p1409-reprobe-official-r5/streams/00057-reverse-P1400-ELEM-013-Q-vanila.stderr",
+              "raw_stdout": "/tmp/p1409-reprobe-official-r5/streams/00057-reverse-P1400-ELEM-013-Q-vanila.stdout",
+              "reason_code": null,
+              "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "swap_kib": 0,
+              "timeout": false,
+              "truncated": false
+            }
+          }
+        }
+      },
+      "state": "UNKNOWN"
+    }
+  ],
+  "runner_result": "PASS",
+  "schema": "p1409-reprobe-compiled-elements/v1",
+  "source_p1400_verdict": "INCONCLUSIVE",
+  "started_at": "2026-09-15T17:15:30.965480+00:00",
+  "state_counts": {
+    "ABSENT": 1,
+    "UNKNOWN": 5
+  },
+  "working_tree": "working tree não commitado"
+}
