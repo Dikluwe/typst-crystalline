@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash b345d1ac
+//! @prompt-hash 020886c0
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -40,7 +40,7 @@ use typst_core::compiler::eval::{
     apply_func, eval_expression, eval_expression_with_features,
     eval_expression_with_features_and_introspector, eval_with_full_error,
     eval_with_full_error_and_target, eval_with_full_error_target_and_features,
-    EvalContext, EvalTarget,
+    realize_outlines, EvalContext, EvalTarget,
 };
 use typst_core::compiler::introspect::introspect_with_introspector;
 use typst_core::compiler::layout::layout_with_introspector_and_metrics_and_math_callbacks;
@@ -340,6 +340,66 @@ fn introspect_with_runtime_for_pipeline(
         )
     };
     (result, sink.into_diagnostics())
+}
+
+/// P1406 — realiza outlines com Engine em L3, mantendo toda a decisão
+/// semântica em L1. Um segundo passe focal só ocorre quando os carriers de
+/// prefixo revelam máximos novos.
+fn realize_outlines_for_pipeline(
+    content: &Content,
+    introspector: &typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> (
+    SourceResult<(Content, typst_core::entities::introspector::TagIntrospector)>,
+    Vec<SourceDiagnostic>,
+) {
+    let run_once = |input: &typst_core::entities::introspector::TagIntrospector| {
+        let font_metrics = FallbackFontMetrics::new(world);
+        let mut ctx = EvalContext::new();
+        ctx.in_context = true;
+        ctx.introspector = input.clone();
+        let mut styles = StyleChain::default_chain();
+        let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut active_guards = Vec::new();
+        let mut sink = TypstSink::new();
+        let route = Route::root().with_id(source.id());
+        let result = {
+            let mut tracked_sink = sink.track_mut();
+            let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+            let mut engine = Engine {
+                world,
+                font_metrics: &font_metrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut show_rules,
+                active_guards: &mut active_guards,
+                current_file: source.id(),
+                sink: &mut local_sink,
+            };
+            realize_outlines(content.clone(), input, &mut ctx, &mut engine)
+        };
+        (result, sink.into_diagnostics())
+    };
+
+    let (first, mut warnings) = run_once(introspector);
+    let first = match first {
+        Ok(content) => content,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let observed = introspect_with_introspector(&first).outline_prefix_widths;
+    let mut stabilized = introspector.clone();
+    if observed != stabilized.outline_prefix_widths {
+        stabilized.outline_prefix_widths = observed;
+        let (second, second_warnings) = run_once(&stabilized);
+        warnings.extend(second_warnings);
+        match second {
+            Ok(content) => (Ok((content, stabilized)), warnings),
+            Err(errors) => (Err(errors), warnings),
+        }
+    } else {
+        (Ok((first, stabilized)), warnings)
+    }
 }
 
 /// **P1037** — recolhe **todos** os `ContextBlock` da árvore, cada um com a
@@ -741,8 +801,16 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             .unwrap_or(1);
         let mut intr_for_positions = intr.clone();
         let mut layout_intr = intr;
+        let (realized, realization_warnings) =
+            realize_outlines_for_pipeline(&content, &layout_intr, world, source);
+        warnings.extend(realization_warnings);
+        let (realized_content, realized_intr) = match realized {
+            Ok(pair) => pair,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        layout_intr = realized_intr;
         let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
-            &content,
+            &realized_content,
             layout_intr.clone(),
             world,
             source,
@@ -795,8 +863,16 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             expanded_intr.inject_pages(store);
             content = expanded;
             layout_intr = expanded_intr;
+            let (realized, realization_warnings) =
+                realize_outlines_for_pipeline(&content, &layout_intr, world, source);
+            warnings.extend(realization_warnings);
+            let (realized_content, realized_intr) = match realized {
+                Ok(pair) => pair,
+                Err(errors) => return (Err(errors), warnings),
+            };
+            layout_intr = realized_intr;
             let (next, callback_warnings) = match layout_with_realized_math_callbacks(
-                &content,
+                &realized_content,
                 layout_intr.clone(),
                 world,
                 source,
@@ -2061,6 +2137,153 @@ mod tests {
             .unwrap_err()
             .iter()
             .any(|error| error.message.contains("independent")));
+    }
+
+    #[test]
+    fn p1406_show_outline_entry_direto_realiza_entries() {
+        let world = mock_world(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "#show outline.entry: it => [CUSTOM #(it.level): #it.body()]\n",
+            "#outline(title: none)\n\n= Alpha\n== Beta\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("P1406 deve aceitar o seletor direto").plain_text();
+        assert!(text.contains("CUSTOM 1") && text.contains("Alpha"), "{text:?}");
+        assert!(text.contains("CUSTOM 2") && text.contains("Beta"), "{text:?}");
+        assert!(!text.contains("Contents"), "title: none deve omitir título: {text:?}");
+    }
+
+    #[test]
+    fn p1406_where_filtra_level_da_entry_gerada() {
+        let world = mock_world(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "#show outline.entry.where(level: 2): it => [SECOND: #it.body()]\n",
+            "#outline(title: none)\n\n= Alpha\n== Beta\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("P1406 where deve compilar").plain_text();
+        assert_eq!(text.matches("SECOND").count(), 1, "{text:?}");
+        assert!(text.contains("SECOND") && text.contains("Beta"), "{text:?}");
+    }
+
+    #[test]
+    fn p1406_snapshot_de_show_e_lexical_por_outline() {
+        let world = mock_world(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "#outline(title: none)\n",
+            "#show outline.entry: it => [CUSTOM: #it.body()]\n",
+            "#outline(title: none)\n\n= Alpha\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("P1406 lexical deve compilar").plain_text();
+        assert_eq!(text.matches("CUSTOM").count(), 1, "{text:?}");
+    }
+
+    #[test]
+    fn p1406_parent_existe_somente_durante_realizacao() {
+        let world = mock_world(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "#show outline.entry: it => it.indented(it.prefix(), it.body())\n",
+            "#outline(title: none, indent: 2em)\n\n= Alpha\n== Beta\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("parent P1406 deve existir durante show").plain_text();
+        assert!(text.contains("Alpha") && text.contains("Beta"), "{text:?}");
+    }
+
+    #[test]
+    fn p1406_alias_preserva_identidade_do_seletor() {
+        let world = mock_world(concat!(
+            "#let entry-kind = outline.entry\n",
+            "#show entry-kind: it => [ALIAS #it.body()]\n",
+            "#outline(title: none)\n\n= Alpha\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("alias deve conservar identidade nativa").plain_text();
+        assert_eq!(text.matches("ALIAS").count(), 1, "{text:?}");
+    }
+
+    #[test]
+    fn p1406_query_nao_duplica_e_contexto_nao_pula_realizacao() {
+        let world = mock_world(concat!(
+            "#show outline.entry: it => [ENTRY #it.body()]\n",
+            "#outline(title: none)\n\n= Alpha\n",
+            "#context assert.eq(query(outline.entry).len(), 1)\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("query deve manter uma entry").plain_text();
+        assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
+    }
+
+    #[test]
+    fn p1406_default_emite_link_interno() {
+        let world = mock_world("#outline(title: none)\n\n= Alpha\n");
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let doc = result.expect("outline default deve compilar");
+        assert!(format!("{:?}", doc.pages).contains("Destination"));
+    }
+
+    #[test]
+    fn p1406_depth_e_outlined_filtram_entries_realizadas() {
+        let world = mock_world(concat!(
+            "#show outline.entry: it => [ENTRY #(it.level): #it.body()]\n",
+            "#outline(title: none, depth: 1)\n",
+            "#heading(outlined: false)[Hidden]\n",
+            "= Visible\n",
+            "== Deep\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("filtros P1406 devem compilar").plain_text();
+        assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
+        assert!(text.contains("ENTRY 1") && text.contains("Visible"), "{text:?}");
     }
 
     #[test]

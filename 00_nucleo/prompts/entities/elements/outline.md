@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: 6e8349ef
+Hash do Código: 485357aa
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).
@@ -126,3 +126,20 @@ figuras/tabelas: `depth = 1` e `indent = OutlineIndent::Bool(false)`
 
 `#[derive(PartialEq)]` — comparação estrutural dos quatro campos (delegada ao
 `PartialEq` de `Content` para `title`, `Copy` para `target`).
+
+## P1406 — presença explícita de `title` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `fe3209458`, título omitido e `title: none` colapsam no mesmo
+`Option<Content>` e ambos geram `Contents`. No vanila ratificado, o omitido usa o
+default localizado e o `none` explícito omite o título.
+
+### Contrato proposto
+
+`OutlineElem` preserva privadamente se o argumento `title` foi fornecido, sem
+criar campo consultável Typst. Omitido resolve o título default do target;
+fornecido como `none` não produz título; Content fornecido é preservado. Clone,
+hash, igualdade e `map_content` preservam o estado de presença. Construtores
+internos declaram explicitamente qual das três formas criam. Confirmação humana
+explícita recebida em 2026-09-15; a correção está autorizada pelo gate ADR-0127.

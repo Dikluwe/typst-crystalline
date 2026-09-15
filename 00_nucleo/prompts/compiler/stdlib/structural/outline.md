@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: 09546059
+Hash do Código: 2a486b2f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -314,3 +314,31 @@ O marker `prefix-info` é um `Content::Styled` vazio com propriedade custom
 privada, portanto não cria texto nem superfície pública. O prefixo marcado para
 PDF usa igualmente um carrier `Styled` privado; o layout converte este carrier
 em `SemanticKind::Label`, preservando o Content visual dentro do envelope.
+
+## P1406 — seletor de show e snapshot lexical (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `fe3209458abaa9177f41bbf4795755916c277ae8`, a declaração direta
+`#show outline.entry` é rejeitada e a forma `outline.entry.where(level: 2)` é
+aceita sem efeito. No vanila ratificado `586e1bd43`, ambas alcançam as entries
+geradas. Uma regra colocada entre dois outlines transforma somente o segundo.
+A fonte medida em `model/outline.rs:272-318,397-407` gera entries após
+introspecção e injeta o parent durante a realização.
+
+### Contrato proposto
+
+`native_outline` captura, em carrier privado, o snapshot lexical necessário
+para realizar as show rules vigentes naquela ocorrência. `outline.entry` passa
+a ser aceito como seletor nativo direto, equivalente à base de
+`outline.entry.where(...)`. O carrier nunca é campo público Typst e não torna
+regra posterior retroativa. A realização fornece temporariamente
+`outline.parent.indent` e `outline.parent.key`; não armazena parent na entry.
+
+O default para headings compõe, como Content, o link à Location causal ao redor
+de `entry.indented(entry.prefix(), entry.inner())`. A closure nunca é executada
+no layouter. Figuras, tabelas, equações e wording exato do alt PDF permanecem
+fora deste passo.
+
+Confirmação humana explícita recebida em 2026-09-15; esta ampliação pública e a
+mudança de fase estão autorizadas para código produtivo e resselo.

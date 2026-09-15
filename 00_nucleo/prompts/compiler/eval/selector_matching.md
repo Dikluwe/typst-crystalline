@@ -233,3 +233,20 @@ confirmação ADR-0127.
 O matcher de elementos reconhece `Content::OutlineEntry` somente contra o
 ponteiro nativo de `native_outline_entry`. Não confundir com `outline` nem com o
 heading guardado em `element`.
+
+## P1406 — conversão do seletor direto (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`outline.entry.where(...)` já converte a base em `NativeElement`, mas a forma
+direta chega a `eval_show_rule` como `Value::Func` e é rejeitada. O vanila
+ratificado aceita ambas e aplica o filtro `level` somente às entries geradas.
+
+### Contrato proposto
+
+A conversão direta reconhece o ponteiro nativo de `native_outline_entry` e gera
+o mesmo `NativeElement` usado pela base de `where`. Não reconhecer por nome, não
+criar identidade paralela e não ampliar outros funcs nativos. Matching continua
+sobre `Content::OutlineEntry`; filtros leem seus campos linguísticos antes da
+receita. Confirmação humana explícita recebida em 2026-09-15; a superfície está
+autorizada pelo gate ADR-0127.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash ba4217d4
+//! @prompt-hash c10d4a4d
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -2408,6 +2408,21 @@ pub(crate) fn walk(
         }
 
         Content::Outline(outline) => {
+            // P1406: o corpo realizado é privado e só aparece no candidato
+            // pós-introspecção. Descer nele permite recolher `prefix-info`;
+            // a store consultável final continua vindo do documento original.
+            if let Some(body) = outline.realized_body() {
+                walk(
+                    body,
+                    locator,
+                    tags,
+                    intr,
+                    auto_label_counter,
+                    lang,
+                    chain,
+                    label_from_parent,
+                );
+            }
             // P189B (M5): walk puro para Outline.
             // Mutação `state.has_outline = true` removida; flag obtida
             // via `intr.kind_index.contains_key(&ElementKind::Outline)`
@@ -2429,11 +2444,13 @@ pub(crate) fn walk(
             // título → layout_outline listaria o próprio título como
             // entrada na TOC (auto-referência). ADR-0108 §6: intenção
             // = count parity; comportamento = registo sintético.
-            let title_loc = locator.next();
-            intr.kind_index
-                .entry(ElementKind::Heading)
-                .or_default()
-                .push(title_loc);
+            if !outline.title_was_set() || outline.title.is_some() {
+                let title_loc = locator.next();
+                intr.kind_index
+                    .entry(ElementKind::Heading)
+                    .or_default()
+                    .push(title_loc);
+            }
             intr.outline_elements.push((**outline).clone());
         }
 

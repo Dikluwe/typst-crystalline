@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash 564ef623
+//! @prompt-hash fcfd182e
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -13,8 +13,53 @@
 use crate::entities::content::Content;
 use crate::entities::elements::outline::{OutlineElem, OutlineTarget};
 use crate::entities::introspector::Introspector;
+use crate::entities::label::Label;
+use crate::entities::layout_types::{FrameItem, LinkTarget};
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+/// P1406 — realiza o carrier privado do show default como link interno sem
+/// alargar o constructor público `link()`.
+pub(super) fn layout_destination_link<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    label: Label,
+) {
+    let items_before = layouter.regions.current.current_items.len();
+    let line_before = layouter.regions.current.current_line.len();
+    layouter.layout_content(body);
+    let new_line = if line_before <= layouter.regions.current.current_line.len() {
+        layouter
+            .regions
+            .current
+            .current_line
+            .drain(line_before..)
+            .collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
+    let new_items = layouter
+        .regions
+        .current
+        .current_items
+        .drain(items_before..)
+        .collect::<Vec<_>>();
+    let block_flow = !new_items.is_empty();
+    let mut items = new_line;
+    items.extend(new_items);
+    let (pos, size) = super::link::link_bbox(&items, &layouter.metrics);
+    let link = FrameItem::Link {
+        target: LinkTarget::Destination(label),
+        items,
+        pos,
+        size,
+    };
+    if block_flow {
+        layouter.regions.current.current_items.push(link);
+    } else {
+        layouter.regions.current.current_line.push(link);
+    }
+}
 
 /// Gera a Tabela de Conteúdos visual.
 ///
@@ -41,6 +86,10 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
             return;
         }
         OutlineTarget::Headings => {}
+    }
+    if let Some(body) = e.realized_body() {
+        layouter.layout_content(body);
+        return;
     }
     // P200B (M5 universal completo) — caminho Introspector activo via
     // Tag::HeadingForToc pós-recursão (3ª Tag emitida pelo walk arm

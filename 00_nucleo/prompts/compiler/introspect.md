@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: d3d56e89
+Hash do Código: cd1e0dc3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1737,3 +1737,22 @@ Ao atravessar um `Content::Styled` que carregue a propriedade privada
 inset por nível e chave, sem criar Location, elemento consultável ou texto.
 Repetição e ordem não alteram o máximo. O carrier continua transparente e a
 travessia normal do body permanece. Parent de entry não é sintetizado aqui.
+
+# P1406 — projeção para realização, sem duplicar query (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `fe3209458`, `materialize_outline_entries` já cria uma entry
+consultável por heading e por outline, porém somente na store `elements`; o
+conteúdo renderizado não recebe essa sequência. O vanila gera a sequência após
+introspecção e antes do show default (`model/outline.rs:272-318`).
+
+### Contrato proposto
+
+Além da store consultável vigente, a síntese expõe a L1 uma projeção ordenada e
+causal para realizar o corpo de cada outline. Essa projeção reutiliza snapshots,
+Locations, depth e filtro `outlined` já decididos; não insere nova ocorrência em
+`elements`. Página e máximos de `prefix-info` observados por helpers integram o
+fixpoint limitado: candidato alterado é refeito a partir da entrada não
+transformada, e atingir o teto não é sucesso. Confirmação humana explícita
+recebida em 2026-09-15; o transporte está autorizado pelo gate ADR-0127.

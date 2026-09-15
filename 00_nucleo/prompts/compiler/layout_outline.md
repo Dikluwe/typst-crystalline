@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 8e18a02c
+Hash do Código: 31af8b51
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`
@@ -172,3 +172,22 @@ em `pt`, divergia do vanilla (que diz `Sumário`). Passa a
 `lang::outline_title::outline_title_for_lang(layouter.chain.lang().as_ref())`, com tabela
 medida e fallback `en` = `Contents` — ver `compiler/lang.md` §P1034, que é o dono da tabela e
 da decisão sobre **onde** o default de língua vive.
+
+## P1406 — consumer de outline realizado (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`layout_outline` no baseline `fe3209458` lê `headings_for_toc` e fabrica linhas
+textuais; assim ignora show rules, helpers de entry, link e `title: none`. A
+fonte vanila realiza o conteúdo default antes de chegar ao layout
+(`typst-layout/src/rules.rs:413-455`).
+
+### Contrato proposto
+
+Para target headings, o layouter recebe o corpo já realizado pelo estágio
+pós-introspecção e apenas o dispõe. Não sintetiza nova entry, não chama closure,
+não concatena prefixo/corpo/página em string e não duplica ocorrência
+consultável. LoF/LoT legados continuam fora deste caminho até medição própria.
+Se o carrier realizado estiver ausente num caminho que o exige, falhar de modo
+diagnosticado; não regressar silenciosamente ao texto legado. Confirmação humana
+explícita recebida em 2026-09-15; a mudança está autorizada pelo gate ADR-0127.

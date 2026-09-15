@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash eff42850
+//! @prompt-hash 9b50d31c
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -519,12 +519,13 @@ pub fn native_outline(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    let title_set = args.named.contains_key("title") || !args.items.is_empty();
     // Título: named `title` tem prioridade; fallback para primeiro argumento
     // posicional (vanilla aceita `outline([Título])`).
     let title_named = args.named.get("title").and_then(|v| match v {
         Value::Content(c) => Some(Ok(Some(c.clone()))),
         Value::Str(s) => Some(Ok(Some(Content::text(s.as_str())))),
-        Value::None => None,
+        Value::None => Some(Ok(None)),
         other => Some(Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!(
@@ -540,6 +541,7 @@ pub fn native_outline(
         match args.items.first() {
             Some(Value::Content(c)) => Some(Ok(Some(c.clone()))),
             Some(Value::Str(s)) => Some(Ok(Some(Content::text(s.as_str())))),
+            Some(Value::None) => Some(Ok(None)),
             Some(other) => Some(Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!(
@@ -620,9 +622,11 @@ pub fn native_outline(
         )]),
     };
 
-    Ok(Value::Content(Content::Outline(std::sync::Arc::new(OutlineElem::with_target(
-        title, depth, indent, target,
-    )))))
+    Ok(Value::Content(Content::Outline(std::sync::Arc::new(
+        OutlineElem::with_target_and_title_presence(
+            title, title_set, depth, indent, target,
+        ),
+    ))))
 }
 
 /// **P472** — `lof(title:?)` — emite `Content::Outline` com `target = Figures`.

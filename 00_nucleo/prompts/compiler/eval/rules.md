@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: ed0454b1
+Hash do Código: 4081bbaf
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -92,3 +92,26 @@ nenhum dos dois selectors passa a viajar pelo matcher de elementos.
 Aceitação: literal repetido/parcial, regex repetida, distinção literal `.` vs
 regex `.`, no-match e fronteira entre nós coincidem semanticamente com
 `a51e02804`.
+
+## P1406 — realização lexical de entries (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `fe3209458`, a aplicação normal de show rules termina antes de
+`compiler::introspect` sintetizar `OutlineEntry`; por isso não existe nó
+renderizável a transformar. No vanila `586e1bd43`, regra direta, filtro por nível
+e parent contextual são observáveis, e uma regra declarada entre dois outlines
+afeta somente o segundo.
+
+### Contrato proposto
+
+O owner fornece uma operação L1 de realização pós-introspecção que recebe a
+entry gerada, o snapshot lexical causal e estilos privados do parent. Ela aplica
+matching, precedência, revogação, guardas e teto uma única vez segundo o contrato
+vigente. Sem substituição transformacional, aplica o show default composto por
+helpers da entry e link causal. Reiterações do fixpoint podem refazer um
+candidato, mas não acumulam transformações sobre o candidato anterior.
+
+Não executar callback no layout, não usar uma pilha global final e não inserir a
+entry realizada como nova ocorrência consultável. Confirmação humana explícita
+recebida em 2026-09-15; a nova fronteira está autorizada pelo gate ADR-0127.

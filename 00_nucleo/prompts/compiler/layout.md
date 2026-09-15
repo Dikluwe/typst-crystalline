@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 73212c12
+Hash do Código: b978d4b9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -326,3 +326,17 @@ sub-frame inline, conservar o avanço do cursor e recolocar os items produzidos
 num `FrameItem::Semantic { kind: Label, placement: Inline }`. Outros Styled
 seguem o push/pop vigente sem branch semântico. O carrier é visualmente
 transparente e não altera medição.
+# P1406 — delegação de link interno de outline (PROPOSTO; gate autorizado)
+
+Medição anterior à decisão: `Content::Link` cristalino representa somente URL,
+mas o show default de `outline.entry` no vanila ratificado liga o corpo à
+Location causal. `FrameItem::Link` já suporta `LinkTarget::Destination` e o
+layout de referências já o emite.
+
+O arm central de `Content::Styled` reconhece somente o carrier privado e tipado
+de destino produzido pela realização P1406 e delega a captura visual ao módulo
+`layout/outline.rs`. Não interpreta a regra do outline, não generaliza
+`link()` e não reconhece texto por convenção fora da chave privada. O módulo da
+feature envolve os itens dispostos em `LinkTarget::Destination`; todo outro
+Styled conserva o caminho vigente. Confirmação humana explícita recebida em
+2026-09-15.

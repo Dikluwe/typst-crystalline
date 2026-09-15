@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: a2d03669
+Hash do Código: f247d1e1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -470,3 +470,16 @@ fechada contendo entry, prefix, inner e gap; o replay usa os mesmos estilos e o
 novo candidato do introspector, permitindo que máximos `prefix-info` atinjam
 fixpoint. Sem parent, o erro ocorre antes do registro. O diagnóstico de
 não-convergência não reclassifica esta leitura como counter ou state.
+# P1406 — snapshot causal de outline (PROPOSTO; gate autorizado)
+
+Medição anterior à decisão: no baseline `fe3209458`, o intercept eager conhece
+a pilha lexical no instante em que `outline()` devolve Content, enquanto a
+síntese de `OutlineEntry` só ocorre depois na introspecção. O vanila ratificado
+prova por dois outlines que a pilha final não pode substituir esse instante.
+
+No passe renderizável, `intercept_content` anexa ao `OutlineElem` snapshots
+privados e imutáveis das show rules e estilos correntes antes de aplicar regras
+ao próprio outline. O passe original de introspecção não inventa snapshots.
+Identidade/observação do outline preserva a presença explícita do título e a
+causalidade das regras; o carrier não é campo da linguagem. Confirmação humana
+explícita recebida em 2026-09-15.

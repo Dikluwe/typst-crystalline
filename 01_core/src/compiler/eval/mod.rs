@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash e14eaf13
+//! @prompt-hash f8c5972e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -76,6 +76,16 @@ mod markup;
 mod modules;
 pub(crate) mod repr;
 pub(crate) mod table;
+
+/// P1406 — entrypoint L1 para a fase pós-introspecção de outlines.
+pub fn realize_outlines(
+    content: Content,
+    introspector: &crate::entities::introspector::TagIntrospector,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    rules::realize_outlines(content, introspector, ctx, engine)
+}
 
 /// Representação morfológica pública e estreita de `Stroke` para consumidores
 /// que possuem uma branch nominal do tipo. Não é fallback genérico de `Value`.
@@ -3864,12 +3874,12 @@ impl ObservationEq for crate::entities::dir::Dir {
 }
 impl ObservationEq for crate::entities::elements::outline::OutlineElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { title: _, depth: _, indent: _, target: _ } = self;
         ObservationRelation::Same
             .and(self.title.observation_relation(&other.title))
             .and(self.depth.observation_relation(&other.depth))
             .and(self.indent.observation_relation(&other.indent))
             .and(self.target.observation_relation(&other.target))
+            .and(self.title_was_set().observation_relation(&other.title_was_set()))
     }
 }
 impl ObservationEq for crate::entities::elements::outline::OutlineTarget {

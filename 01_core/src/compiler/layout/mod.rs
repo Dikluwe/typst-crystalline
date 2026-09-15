@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 2e3e7dde
+//! @prompt-hash 737be1dd
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -1921,7 +1921,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     key.as_str() == "pdf.marker.tag"
                         && matches!(value, Value::Str(tag) if tag.as_str() == "label")
                 });
-                if pdf_label {
+                let outline_destination =
+                    styles.delta().custom.iter().rev().find_map(|(key, value)| {
+                        match (key.as_str(), value) {
+                            ("outline.link.destination", Value::Str(label)) => {
+                                Some(crate::entities::label::Label(label.to_string()))
+                            }
+                            _ => None,
+                        }
+                    });
+                if let Some(label) = outline_destination {
+                    outline::layout_destination_link(self, body, label);
+                } else if pdf_label {
                     let (_, items) = self.layout_sub_frame_inline(
                         body,
                         sub_frame::SubLayoutRegion {

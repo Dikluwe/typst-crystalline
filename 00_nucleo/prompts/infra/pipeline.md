@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: b999a401
+Hash do Código: a5817540
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -723,3 +723,26 @@ realizado de `layout_intr` para `intr_for_positions`. Não executar novo layout,
 não recalcular numbering e não alterar o caminho seletivo, que já devolve a
 candidate paginada. Posições finais continuam sendo injetadas depois do
 shaping. Esta é correção interna de perda de snapshot em paridade contínua.
+
+## P1406 — realização pós-introspecção de outline (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `fe3209458`, eval produz conteúdo e show rules antes de a
+introspecção sintetizar `OutlineEntry`; o layout depois fabrica texto próprio.
+No vanila ratificado, a sequência de entries é realizada sob o escopo lexical
+do outline entre introspecção e layout. A fixture com dois outlines prova que a
+pilha final/global não representa esse observável.
+
+### Decisão proposta
+
+No caminho paginado, L3 orquestra
+`eval → introspecção → realização L1 de outlines → layout`. Cada ocorrência usa
+seu snapshot lexical causal; L3 não interpreta selector, parent, entry ou show
+default. Se páginas ou `prefix-info` mudarem, o candidato volta ao ciclo
+limitado já contratado, sempre reconstruído da entrada não transformada. Só um
+candidato convergido alcança shaping/export. HTML e LoF/LoT não atravessam esta
+fase neste passo.
+
+Confirmação humana explícita recebida em 2026-09-15; esta alteração da fronteira
+eval/introspecção/layout está autorizada pelo gate ADR-0127.
