@@ -6827,7 +6827,7 @@ fn eval_expr_inner(
         Expr::Strong(s) => markup::eval_strong(s, scopes, ctx, engine),
         Expr::Emph(e) => markup::eval_emph(e, scopes, ctx, engine),
         Expr::Heading(h) => markup::eval_heading(h, scopes, ctx, engine),
-        Expr::Raw(r) => markup::eval_raw(r),
+        Expr::Raw(r) => markup::eval_raw(r, scopes, ctx, engine),
         Expr::Link(l) => markup::eval_link(l, &*engine.styles),
         Expr::ListItem(i) => markup::eval_list_item(i, scopes, ctx, engine),
         Expr::EnumItem(i) => markup::eval_enum_item(i, scopes, ctx, engine),
@@ -7509,7 +7509,24 @@ fn make_stdlib_with_features(
     scope.define("lot", Value::Func(Func::native("lot", native_lot)));
     scope.define("strong", Value::Func(Func::native("strong", native_strong)));
     scope.define("emph", Value::Func(Func::native("emph", native_emph)));
-    scope.define("raw", Value::Func(Func::native("raw", native_raw)));
+    {
+        let mut raw_namespace = Scope::new();
+        raw_namespace.define(
+            "line",
+            Value::Func(Func::element(
+                "raw.line",
+                Arc::new(crate::entities::elements::raw::RawLineElem::construct),
+            )),
+        );
+        scope.define(
+            "raw",
+            Value::Func(Func::native_with_namespace(
+                "raw",
+                native_raw,
+                Arc::new(raw_namespace),
+            )),
+        );
+    }
     // P284 (ADR-0054 graded): text decoration — underline / strike /
     // overline. Cosméticos `stroke`/`offset`/`extent` opcionais; `evade`
     // e `background` scope-out per diagnóstico §A.1.

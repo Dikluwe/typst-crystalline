@@ -250,3 +250,24 @@ criar identidade paralela e não ampliar outros funcs nativos. Matching continua
 sobre `Content::OutlineEntry`; filtros leem seus campos linguísticos antes da
 receita. Confirmação humana explícita recebida em 2026-09-15; a superfície está
 autorizada pelo gate ADR-0127.
+
+## P1413 — conversão filtrada de `raw.line`
+
+### Medição anterior à decisão
+
+Depois de `value_methods` reconhecer os quatro campos do builtin, o selector
+`raw.line.where(number: 2)` passou a ser construído, mas não casou nenhuma
+instância. A conversão vigente transforma todo `QuerySelector::Element` em
+`NativeElement`; essa base exige ponteiro de função nativa, enquanto
+`raw.line` é deliberadamente um `FuncRepr::Element` cujo conteúdo usa a
+identidade dinâmica estável `raw.line`.
+
+### Decisão
+
+Na conversão de `QuerySelector::Element`, reconhecer exclusivamente a função
+de elemento builtin `raw.line` e usar `DynKind("raw.line")` como base dos
+filtros. Os filtros continuam `Where`, leem `Content::get_field` e comparam no
+nível semântico já vigente. Não promover outros elementos por nome, não mudar
+o matcher de identidades nativas e não criar uma segunda implementação de
+campos. A forma direta e a filtrada passam a convergir na mesma identidade
+dinâmica sem alterar fase, precedência ou guardas.

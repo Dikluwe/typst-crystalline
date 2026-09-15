@@ -276,6 +276,24 @@ uma chamada com perda de span/ocorrência; não inventar campos públicos para
 reparar isso incidentalmente. A cláusula P1284 que não autorizava mudança
 pública continua valendo fora da extensão explicitamente submetida aqui.
 
+### P1413 — metadados tipados de `raw.line`
+
+Medição anterior à decisão: no primeiro candidato P1413, `#show raw.line`
+casou pela identidade dinâmica e o constructor funcionou, mas
+`raw.line.where(number: 2)` falhou com ``where() can only be called on element
+functions``. A causa é que `raw.line` é um builtin representado por
+`FuncRepr::Element`, enquanto a tabela vigente reconhece apenas builtins
+nativos por ponteiro e exclui corretamente elementos arbitrários de
+utilizador.
+
+Decisão: reconhecer exclusivamente a identidade tipada `raw.line` entre as
+funções `Element` e declarar os campos linguísticos `number`, `count`, `text` e
+`body`, sem generalizar o reconhecimento por nome para plugins ou elementos de
+utilizador. O grupo produzido continua `Selector::Element`; valores não sofrem
+cast e campos desconhecidos mantêm o diagnóstico comum. Esta entrada completa
+o filtro público já autorizado pelo contrato P1413 e não altera a semântica
+dos demais elementos.
+
 ### Integração de locatability e despacho de counter P1339
 
 Medição: query/counter exigem LocatableSelector no vanilla

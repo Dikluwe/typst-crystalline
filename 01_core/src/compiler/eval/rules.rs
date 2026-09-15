@@ -976,6 +976,50 @@ pub(crate) fn intercept_content(
         return Ok(content);
     }
 
+    if let Content::Raw(raw) = &content {
+        let texts: Vec<&str> = raw.text.split('\n').collect();
+        let count = texts.len() as i64;
+        let lines: Vec<Content> = texts
+            .iter()
+            .enumerate()
+            .map(|(index, text)| {
+                let text_content = Content::text(*text);
+                let body = if text.is_empty() {
+                    Content::Empty
+                } else if texts.len() > 1 && index == 0 {
+                    Content::sequence(vec![text_content, Content::Empty])
+                } else if texts.len() > 1 && index + 1 == texts.len() {
+                    Content::sequence(vec![Content::Empty, text_content])
+                } else {
+                    text_content
+                };
+                Content::dynamic(crate::entities::elements::raw::RawLineElem::new(
+                    index as i64 + 1,
+                    count,
+                    (*text).into(),
+                    body,
+                ))
+            })
+            .collect();
+        let has_raw_line_rule = engine.show_rules.iter().any(|rule| {
+            lines
+                .iter()
+                .any(|line| selector_matching::selector_matches(line, &rule.selector))
+        });
+        if has_raw_line_rule {
+            let rules = Arc::clone(&*engine.show_rules);
+            let mut realized = Vec::with_capacity(lines.len().saturating_mul(2));
+            let line_count = lines.len();
+            for (index, line) in lines.into_iter().enumerate() {
+                realized.push(apply_show_rules(line, &rules, ctx, engine)?);
+                if index + 1 < line_count {
+                    realized.push(Content::linebreak());
+                }
+            }
+            return Ok(Content::sequence(realized));
+        }
+    }
+
     // P1406 — o outline é realizado somente depois de a introspecção conhecer
     // as entries. Conservar aqui o snapshot lexical evita que uma regra
     // declarada mais tarde aja retroativamente sobre esta ocorrência.

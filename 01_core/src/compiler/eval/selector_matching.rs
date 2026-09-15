@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 2c900fdf
+//! @prompt-hash 3ca9b9cd
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -46,7 +46,11 @@ pub(crate) fn query_selector_to_show_selector(
 
     match sel {
         QuerySelector::Element { function, fields } => {
-            let mut selector = Selector::NativeElement(function);
+            let mut selector = if function.element_name() == Some("raw.line") {
+                Selector::DynKind("raw.line".to_string())
+            } else {
+                Selector::NativeElement(function)
+            };
             for (field, value) in fields {
                 selector = Selector::Where {
                     base: Box::new(selector),

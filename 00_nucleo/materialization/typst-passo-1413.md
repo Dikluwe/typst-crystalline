@@ -79,3 +79,58 @@ As quatro fixtures devem coincidir bilateralmente com o vanila em texto
 extraído, exit e stderr. A matriz P1409 deve terminar `PASS` com
 `{ABSENT: 1, MATCH: 5}`, promovendo somente `raw.line`; `par.line` permanece
 `ABSENT`. Build, formatação, diff-check e linter devem passar nos limites.
+
+## Materialização confirmada e executada
+
+A confirmação humana explícita foi recebida em 2026-09-15 depois do commit de
+contrato `ed595a305dd6cdd651faf06d91292538a78d95cf`. A implementação adicionou
+o carrier `RawLineElem`, o namespace/constructor público, a síntese
+interceptável das linhas e a conversão filtrada para a identidade dinâmica.
+
+O primeiro GREEN focal passou nas quatro fixtures seladas. Um ataque posterior
+mostrou que `raw.line.where(number: 2)` ainda era rejeitado; a tabela tipada de
+campos recebeu a entrada estreita `raw.line`. A repetição construiu o selector,
+mas revelou que a conversão ainda escolhia `NativeElement`; o L0 do matcher foi
+atualizado antes de converter exclusivamente esse builtin para
+`DynKind("raw.line")`. A segunda repetição coincidiu com o vanila:
+
+```text
+x
+SECOND=y
+```
+
+Os outros ataques confirmaram que ausência de regra preserva o `RawElem`
+cristalino anterior e que cardinalidade inválida do constructor é erro nos
+dois produtos. Não houve uma terceira revisão da mesma causa. Como este foi um
+rehearsal na mesma autoridade e não uma campanha formal de mutantes,
+`mutation_score` não é alegado.
+
+## Recibo final
+
+Estado medido às `2026-09-15T19:40:36-03:00`: working tree não commitado sobre
+`ed595a305dd6cdd651faf06d91292538a78d95cf`. Alterados exatamente os oito
+arquivos listados por `git diff HEAD --stat` — os dois prompts de
+`value_methods`/`selector_matching` e seus consumers, `eval/markup.rs`,
+`eval/mod.rs`, `eval/rules.rs` e `elements/raw.rs` — além dos novos
+`00_nucleo/diagnosticos/p1413-reprobe.json` e dois ataques em
+`lab/parity/attacks/p1413/`.
+
+- binário cristalino final: SHA-256
+  `a11998f4bc84edc669b560e37aa6e1fa6f436e1f02770eef91e2c547c3bc3f74`;
+- vanila ratificado: SHA-256
+  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+- focal final: quatro de quatro fixtures com exit zero, stderr vazio e texto
+  extraído idêntico; pico cristalino 41.072 KiB;
+- matriz `p1413-reprobe.json`: `PASS`, 84 processos,
+  `{ABSENT: 1, MATCH: 5}`, pico 42.956 KiB, swap zero e nenhuma falha de
+  recurso; `P1400-ELEM-013` tornou-se `MATCH` e somente
+  `P1400-ELEM-011 par.line` permaneceu `ABSENT`;
+- builds release limitados a 2 GiB/um job concluíram sem OOM; nenhum teste
+  guloso de biblioteca foi executado;
+- `cargo fmt --all -- --check`, `git diff --check` e `crystalline-lint .`
+  concluíram com exit zero; o linter não encontrou violations (os warnings
+  graduados preexistentes permanecem informativos).
+
+Regime e limitação: protocolo Tekt completo em rehearsal, **executado sem
+atestação de isolamento**. O veredito cobre somente o fragmento observável
+P1413/P1409; não afirma equivalência funcional geral.

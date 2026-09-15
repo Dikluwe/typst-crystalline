@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash 146339d5
+//! @prompt-hash 91b1cbeb
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -734,6 +734,9 @@ pub(crate) fn native_element_fields(
     function: &crate::entities::func::Func,
 ) -> Option<(&'static str, &'static [&'static str], bool)> {
     use crate::compiler::stdlib::*;
+    if function.element_name() == Some("raw.line") {
+        return Some(("raw.line", &["number", "count", "text", "body"], false));
+    }
     if let crate::entities::func::FuncRepr::NativeWithEngine(native) = function.repr() {
         if std::ptr::fn_addr_eq(native.call, native_page as fn(_, _, _, _, _, _) -> _) {
             return Some((

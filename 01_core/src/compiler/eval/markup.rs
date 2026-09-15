@@ -113,14 +113,20 @@ pub(super) fn eval_heading(
     Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
 }
 
-pub(super) fn eval_raw(raw: markup::Raw<'_>) -> SourceResult<Value> {
+pub(super) fn eval_raw(
+    raw: markup::Raw<'_>,
+    _scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
     // Raw não tem método text() — raw.lines() itera nós Text (SyntaxKind::Text)
     // tanto para inline como para block. RawTrimmed são apenas whitespace/newlines.
     let text: EcoString =
         raw.lines().map(|l| l.get()).collect::<Vec<_>>().join("\n").into();
     let lang = raw.lang().map(|l| EcoString::from(l.get()));
     let block = raw.block();
-    Ok(Value::Content(Content::raw(text, lang, block)))
+    let content = Content::raw(text, lang, block);
+    Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
 }
 
 pub(super) fn eval_link(
