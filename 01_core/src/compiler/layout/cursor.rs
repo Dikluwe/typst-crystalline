@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 76122964
+//! @prompt-hash 068eb708
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -402,7 +402,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// fr partilham na razão dos valores; sem restante positivo, fr = 0).
     /// Chamado por `flush_line` e por `finish` antes do drain da linha.
     pub(super) fn expand_fr_spacings(&mut self) {
-        if self.regions.current.pending_fr.is_empty() {
+        if self.regions.current.pending_fr.is_empty() && self.pending_repeats.is_empty() {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin.right;
@@ -410,6 +410,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // não expandem (limpar pending sem alterar posições).
         if !right_margin.is_finite() {
             self.regions.current.pending_fr.clear();
+            self.pending_repeats.clear();
             return;
         }
         let content_right = {
@@ -418,17 +419,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.metrics.line_content_right(&line_refs)
         };
         let remaining = (right_margin - content_right).max(0.0);
-        let pending = std::mem::take(&mut self.regions.current.pending_fr);
-        if remaining > 0.0 {
-            let total_fr: f64 = pending.iter().map(|(_, fr)| fr).sum();
+        let mut pending = std::mem::take(&mut self.regions.current.pending_fr);
+        let total_fr: f64 = pending.iter().map(|(_, fr)| fr).sum();
+        let distributes = remaining > 0.0 && total_fr.is_finite() && total_fr > 0.0;
+        if distributes {
             // Ordenado por índice de inserção. Cada fr translada os items
             // à sua direita APENAS pelo seu próprio share — os shares dos
             // fr anteriores já foram aplicados nas iterações anteriores
             // (o item à direita de dois fr recebe a soma dos dois shares,
             // uma parcela por iteração).
-            let mut sorted = pending;
-            sorted.sort_by_key(|(idx, _)| *idx);
-            for (idx, fr) in sorted {
+            pending.sort_by_key(|(idx, _)| *idx);
+            for &(idx, fr) in &pending {
                 let share = remaining * fr / total_fr;
                 let line = std::mem::take(&mut self.regions.current.current_line);
                 self.regions.current.current_line = line
@@ -448,8 +449,49 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     })
                     .collect();
             }
-            // O cursor reflete a linha já expandida (decorações e medidas
-            // subsequentes vêem o fim real da linha).
+        }
+
+        // P1407 — após os suffixes já estarem nas posições definitivas, a
+        // distância até o primeiro item à direita é a largura finita do
+        // repeat. Ordem descendente conserva os índices das faixas anteriores.
+        let mut repeats = std::mem::take(&mut self.pending_repeats);
+        repeats.sort_by_key(|repeat| std::cmp::Reverse(repeat.end));
+        for repeat in repeats {
+            if repeat.start >= repeat.end
+                || repeat.end > self.regions.current.current_line.len()
+            {
+                continue;
+            }
+            let piece_start = self.regions.current.current_line[repeat.start..repeat.end]
+                .iter()
+                .map(super::helpers::item_pos)
+                .map(|(x, _)| x)
+                .fold(f64::INFINITY, f64::min);
+            let fill_end = self
+                .regions
+                .current
+                .current_line
+                .get(repeat.end)
+                .map(super::helpers::item_pos)
+                .map(|(x, _)| x)
+                .unwrap_or(right_margin);
+            let fractional_fill = distributes.then(|| {
+                pending
+                    .iter()
+                    .find(|(index, _)| *index == repeat.end)
+                    .map(|(_, fraction)| repeat.width + remaining * *fraction / total_fr)
+            });
+            let fill = fractional_fill.flatten().unwrap_or(fill_end - piece_start);
+            super::repeat::expand_pending(
+                &mut self.regions.current.current_line,
+                &repeat,
+                fill,
+            );
+        }
+
+        // O cursor reflete a linha já expandida (decorações e medidas
+        // subsequentes vêem o fim real da linha).
+        if distributes {
             self.regions.current.cursor_x = Pt(right_margin);
         }
     }

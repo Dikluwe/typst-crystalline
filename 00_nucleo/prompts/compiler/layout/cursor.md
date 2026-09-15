@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: e8f83712
+Hash do Código: 02d877df
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -428,3 +428,26 @@ O arm one-shot P1391 também pode ser emitido pelo certificado P1392 na ordem
 maior→menor; Cursor apenas o consome e não reconhece Content. Os quatro pares
 P1392 coincidem com o vanila; P1391, P1390, P1389, singletons ordinários e
 deltas compostos permanecem controles.
+
+### Amendment-17 — expansão horizontal adiada de `repeat` P1407
+
+#### Medição anterior à decisão
+
+No baseline `ed7340ada`, a parcela de uma caixa `1fr` só existe em
+`expand_fr_spacings`; `repeat.rs` já dispôs uma única peça e o suffix ainda não
+foi deslocado. A sonda de 100 pt produziu 1 ponto contra 23 no vanila pinado.
+
+#### Decisão interna
+
+Ao consumir as parcelas fracionárias de uma linha finita, Cursor associa uma
+parcela somente ao `repeat` privado cuja faixa termina na fronteira daquele
+`fr`. Delega ao owner `repeat.rs` a multiplicação e não interpreta body, gap ou
+justify. Primeiro desloca o suffix uma vez pela parcela; depois insere as
+cópias antes dele, mantendo índices posteriores corrigidos pelo número real de
+itens inseridos. Estado órfão ou largura infinita é limpo sem loop.
+
+#### Aceitação
+
+Uma linha com `A + box(1fr, repeat[.]) + B` mantém A/B únicos e preenche a
+caixa; duas fronteiras não deslocam suffix duas vezes; o teto de 1000 pertence
+ao owner de repeat e não ao Cursor.

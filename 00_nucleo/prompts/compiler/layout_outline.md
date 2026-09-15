@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 31af8b51
+Hash do Código: c48c58b7
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`
@@ -191,3 +191,20 @@ consultável. LoF/LoT legados continuam fora deste caminho até medição própr
 Se o carrier realizado estiver ausente num caminho que o exige, falhar de modo
 diagnosticado; não regressar silenciosamente ao texto legado. Confirmação humana
 explícita recebida em 2026-09-15; a mudança está autorizada pelo gate ADR-0127.
+
+## P1407 — resolução do fill antes do selo do link
+
+### Medição anterior à decisão
+
+No baseline `ed7340ada`, o link interno drena e envolve os filhos antes de
+`flush_line` resolver `1fr`; por isso o repeat default permanece uma única
+cópia dentro do link. Em 240 pt, a sonda bilateral observou 8 pontos no PDF
+cristalino inteiro contra 76 no vanila pinado.
+
+### Contrato
+
+O consumer de destino interno pede ao Cursor que resolva os spacings
+fracionários e repeats pendentes antes de drenar a faixa do body. Todas as
+cópias resultantes permanecem filhos do mesmo `FrameItem::Link`, e o número de
+página/suffix é deslocado uma única vez. A função não calcula quantidade, gap
+ou justify: essas decisões pertencem ao owner `layout/repeat.rs`.

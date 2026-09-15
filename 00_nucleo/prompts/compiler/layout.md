@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: b978d4b9
+Hash do Código: ed818929
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -340,3 +340,17 @@ de destino produzido pela realização P1406 e delega a captura visual ao módul
 feature envolve os itens dispostos em `LinkTarget::Destination`; todo outro
 Styled conserva o caminho vigente. Confirmação humana explícita recebida em
 2026-09-15.
+
+## P1407 — carrier privado para expansão adiada de `repeat`
+
+Medição anterior à decisão: no baseline `ed7340ada`, `Repeat` é disposto antes
+de uma caixa `width: 1fr` registrar sua parcela, e a largura correta só aparece
+no fechamento da linha. A sonda limitada de 100 pt rendeu 1 cópia no cristalino
+contra 23 no vanila ratificado.
+
+Layouter conserva uma lista privada e finita de peças repetíveis pendentes. O
+registro contém somente faixa de itens, origem, largura resolvida, gap e
+justify; não expõe API nem altera `Region`. Checkpoint/rollback trunca a lista
+pela cauda e a inicialização começa vazia. O owner `repeat.rs` decide a fórmula
+e o teto; Cursor fornece a parcela, e consumidores que selam containers devem
+resolver os pendentes antes de drenar os itens da linha.

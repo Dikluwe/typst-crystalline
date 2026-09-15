@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 020886c0
+//! @prompt-hash ea211516
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -2284,6 +2284,178 @@ mod tests {
         let text = result.expect("filtros P1406 devem compilar").plain_text();
         assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
         assert!(text.contains("ENTRY 1") && text.contains("Visible"), "{text:?}");
+    }
+
+    #[test]
+    fn p1407_repeat_em_box_fr_multiplica_sem_duplicar_siblings() {
+        let world = mock_world(concat!(
+            "#set page(width: 180pt, height: auto, margin: 20pt)\n",
+            "A#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let text = result.expect("repeat P1407 deve compilar").plain_text();
+        assert_eq!(text.matches('A').count(), 1, "{text:?}");
+        assert_eq!(text.matches('B').count(), 1, "{text:?}");
+        assert!(text.matches('.').count() > 10, "{text:?}");
+    }
+
+    #[test]
+    fn p1407_repeat_responde_a_largura_finita() {
+        let compile = |width: usize| {
+            let world = mock_world(&format!(
+                "#set page(width: 300pt, height: auto, margin: 20pt)\nA#box(width: {width}pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+            ));
+            let mut timings = Timings::default();
+            compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            )
+            .0
+            .expect("largura P1407 deve compilar")
+            .plain_text()
+            .matches('.')
+            .count()
+        };
+        let narrow = compile(120);
+        let wide = compile(240);
+        assert!(narrow > 1 && wide > narrow, "narrow={narrow}, wide={wide}");
+    }
+
+    fn p1407_destination_dot_count(items: &[FrameItem]) -> usize {
+        items
+            .iter()
+            .map(|item| match item {
+                FrameItem::Link { target, items, .. }
+                    if matches!(
+                        target,
+                        typst_core::entities::layout_types::LinkTarget::Destination(_)
+                    ) =>
+                {
+                    frame_items_text(items).matches('.').count()
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
+                FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => 0,
+            })
+            .sum()
+    }
+
+    #[test]
+    fn p1407_outline_expande_fill_dentro_do_link() {
+        let world = mock_world(concat!(
+            "#set page(width: 240pt, height: auto, margin: 20pt)\n",
+            "#set heading(numbering: \"1.\")\n",
+            "#outline(title: none)\n\n= Alpha\n",
+        ));
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let doc = result.expect("outline P1407 deve compilar");
+        let dots: usize = doc
+            .pages
+            .iter()
+            .map(|page| p1407_destination_dot_count(&page.items))
+            .sum();
+        assert!(dots > 10, "fill dentro do link tem somente {dots} pontos");
+    }
+
+    #[test]
+    fn p1407_repeat_degenerado_e_extremo_permanecem_limitados() {
+        let compile = |source: &str| {
+            let world = mock_world(source);
+            let mut timings = Timings::default();
+            compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            )
+            .0
+            .expect("caso limitado P1407 deve compilar")
+            .plain_text()
+        };
+        let oversized = compile(concat!(
+            "#set page(width: 100pt, height: auto, margin: 10pt)\n",
+            "A#box(width: 1pt, repeat(\"LONG\", justify: true))B\n",
+        ));
+        assert_eq!(oversized.matches("LONG").count(), 1, "{oversized:?}");
+
+        let capped = compile(concat!(
+            "#set page(width: 100100pt, height: auto, margin: 10pt)\n",
+            "A#box(width: 100000pt, repeat(\".\", gap: 0pt, justify: false))B\n",
+        ));
+        assert_eq!(capped.matches('.').count(), 1000);
+    }
+
+    fn p1407_dot_positions(items: &[FrameItem], positions: &mut Vec<f64>) {
+        for item in items {
+            match item {
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. } => {
+                    if text.as_str() == "." {
+                        positions.push(pos.x.0);
+                    }
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. } => {
+                    p1407_dot_positions(items, positions)
+                }
+                FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
+            }
+        }
+    }
+
+    #[test]
+    fn p1407_justify_distribui_residuo_sem_criar_copia() {
+        let compile = |justify: bool| {
+            let world = mock_world(&format!(
+                "#set page(width: 180pt, height: auto, margin: 20pt)\nA#box(width: 101pt, repeat(\".\", gap: 7pt, justify: {justify}))B\n"
+            ));
+            let mut timings = Timings::default();
+            let doc = compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            )
+            .0
+            .expect("justify P1407 deve compilar");
+            let mut positions = Vec::new();
+            for page in &doc.pages {
+                p1407_dot_positions(&page.items, &mut positions);
+            }
+            positions
+        };
+        let fixed = compile(false);
+        let justified = compile(true);
+        assert_eq!(fixed.len(), justified.len());
+        assert!(fixed.len() > 1);
+        assert!(
+            justified.last().unwrap() > fixed.last().unwrap(),
+            "fixed={fixed:?}, justified={justified:?}"
+        );
     }
 
     #[test]

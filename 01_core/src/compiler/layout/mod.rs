@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 737be1dd
+//! @prompt-hash 5d0801fd
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -589,6 +589,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// usado nesses items)`. **P908** — `path: Vec<usize>` (era
     /// `start_idx: usize`), mesma semântica de `pending_align_centering`.
     pub(super) pending_align_v_centering: Vec<PendingAlignYEntry>,
+    /// P1407 — peças de `repeat` inline aguardando a largura finita que só
+    /// fica disponível ao resolver spacings fracionários/fechar a linha.
+    pub(super) pending_repeats: Vec<repeat::PendingRepeat>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -694,6 +697,7 @@ pub(super) struct FlowSuffixCheckpoint {
     pending_equation_numbering_len: usize,
     pending_align_centering_len: usize,
     pending_align_v_centering_len: usize,
+    pending_repeats_len: usize,
     layout_warnings_len: usize,
     layout_errors_len: usize,
     page_run_boundary_empty: bool,
@@ -1002,6 +1006,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_equation_numbering: Vec::new(),
             pending_align_centering: Vec::new(),
             pending_align_v_centering: Vec::new(),
+            pending_repeats: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
@@ -1087,6 +1092,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_equation_numbering_len: self.pending_equation_numbering.len(),
             pending_align_centering_len: self.pending_align_centering.len(),
             pending_align_v_centering_len: self.pending_align_v_centering.len(),
+            pending_repeats_len: self.pending_repeats.len(),
             layout_warnings_len: self.layout_warnings.len(),
             layout_errors_len: self.layout_errors.len(),
             page_run_boundary_empty: self.page_run_boundary_empty,
@@ -1198,6 +1204,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             .truncate(checkpoint.pending_align_centering_len);
         self.pending_align_v_centering
             .truncate(checkpoint.pending_align_v_centering_len);
+        self.pending_repeats.truncate(checkpoint.pending_repeats_len);
         self.layout_warnings.truncate(checkpoint.layout_warnings_len);
         self.layout_errors.truncate(checkpoint.layout_errors_len);
         self.page_run_boundary_empty = checkpoint.page_run_boundary_empty;

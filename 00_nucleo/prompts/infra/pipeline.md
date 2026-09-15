@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: a5817540
+Hash do Código: f87137a4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -746,3 +746,11 @@ fase neste passo.
 
 Confirmação humana explícita recebida em 2026-09-15; esta alteração da fronteira
 eval/introspecção/layout está autorizada pelo gate ADR-0127.
+
+## P1407 — oráculos focais do fill realizado
+
+O pipeline não ganha fase nem regra de negócio. Seus testes paginados verificam
+o fragmento público P1407: uma caixa `1fr` repete mais de uma vez, a largura
+maior produz estritamente mais cópias que a menor e as cópias do fill default
+permanecem dentro do mesmo link de destino. Esses oráculos não inspecionam o
+estado privado nem fixam estrutura Rust.

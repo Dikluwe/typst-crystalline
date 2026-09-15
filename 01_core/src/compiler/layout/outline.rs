@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash fcfd182e
+//! @prompt-hash aaf88ed7
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -28,6 +28,9 @@ pub(super) fn layout_destination_link<M: FontMetrics, S: ImageSizer>(
     let items_before = layouter.regions.current.current_items.len();
     let line_before = layouter.regions.current.current_line.len();
     layouter.layout_content(body);
+    // P1407 — o link deve capturar a morfologia já expandida. Depois do
+    // drain, os índices privados de `repeat` deixariam de apontar à linha.
+    layouter.expand_fr_spacings();
     let new_line = if line_before <= layouter.regions.current.current_line.len() {
         layouter
             .regions
