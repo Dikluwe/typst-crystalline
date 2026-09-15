@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/equality.md
-//! @prompt-hash cf5891ba
+//! @prompt-hash 9ce93a0d
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -145,6 +145,12 @@ pub(crate) fn selector_contains_element(selector: &Selector) -> bool {
         Selector::Within { base, ancestor } => {
             selector_contains_element(base) || selector_contains_element(ancestor)
         }
+        Selector::Before { base, end, .. } => {
+            selector_contains_element(base) || selector_contains_element(end)
+        }
+        Selector::After { base, start, .. } => {
+            selector_contains_element(base) || selector_contains_element(start)
+        }
         Selector::Kind(_)
         | Selector::Label(_)
         | Selector::Location(_)
@@ -181,6 +187,14 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
             Selector::Within { base: a, ancestor: aa },
             Selector::Within { base: b, ancestor: ba },
         ) => selectors_eq(a, b) && selectors_eq(aa, ba),
+        (
+            Selector::Before { base: a, end: ae, inclusive: ai },
+            Selector::Before { base: b, end: be, inclusive: bi },
+        ) => ai == bi && selectors_eq(a, b) && selectors_eq(ae, be),
+        (
+            Selector::After { base: a, start: as_, inclusive: ai },
+            Selector::After { base: b, start: bs, inclusive: bi },
+        ) => ai == bi && selectors_eq(a, b) && selectors_eq(as_, bs),
         _ => false,
     }
 }

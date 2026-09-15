@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: cdbdb24f
+Hash do Código: ced0c71a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -115,3 +115,16 @@ Cada correção focal conserva controles positivos e negativos adjacentes:
 
 Todos os testes passam nos perfis aplicáveis e continuam a distinguir as
 mudanças negativas descritas por suas testemunhas.
+
+## P1401 — provas de construção contextual
+
+### Medição anterior à decisão
+
+Antes de P1401 não há teste que construa `selector.before/after` pela linguagem.
+
+### Aceitação
+
+Testes focais avaliam as duas formas vinculadas, o default inclusive e
+`inclusive: false`, distinguindo método ausente, named ignorado e árvore
+incorreta. O teste contextual com introspector é propriedade de
+`compiler/introspect.md`; este owner cobre somente a construção por eval.

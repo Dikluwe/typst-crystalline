@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 178a108f
+//! @prompt-hash 340f87e3
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -684,6 +684,12 @@ pub(crate) fn p1284_type_field(t: Type, field: &str) -> Option<Value> {
         (Type::Selector, "within") => {
             Func::native_with_engine("within", selector_within_static)
         }
+        (Type::Selector, "before") => {
+            Func::native_with_engine("before", selector_before_static)
+        }
+        (Type::Selector, "after") => {
+            Func::native_with_engine("after", selector_after_static)
+        }
         (Type::State, "at") => Func::native_with_engine("at", state_at_static),
         (Type::State, "final") => Func::native_with_engine("final", state_final_static),
         (Type::State, "get") => Func::native_with_engine("get", state_get_static),
@@ -839,6 +845,8 @@ p1284_static!(length_to_absolute_static, "to-absolute");
 p1284_static!(selector_and_static, "and");
 p1284_static!(selector_or_static, "or");
 p1284_static!(selector_within_static, "within");
+p1284_static!(selector_before_static, "before");
+p1284_static!(selector_after_static, "after");
 p1284_static!(state_at_static, "at");
 p1284_static!(state_final_static, "final");
 p1284_static!(state_get_static, "get");
@@ -1037,6 +1045,9 @@ fn dispatch_p1284_value_method(
             }))
         }
         Value::Selector(base) => {
+            if method == "before" || method == "after" {
+                return selector_before_after(base, method, args).map(Value::Selector);
+            }
             if !args.named.is_empty() {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -1141,6 +1152,55 @@ fn dispatch_p1284_value_method(
             format!("type {} has no method `{method}`", other.type_name()),
         )]),
     }
+}
+
+pub(in crate::compiler::eval) fn selector_before_after(
+    base: crate::entities::selector::Selector,
+    method: &str,
+    mut args: Args,
+) -> SourceResult<crate::entities::selector::Selector> {
+    let inclusive = match args.remove_named("inclusive") {
+        None => true,
+        Some(Value::Bool(value)) => value,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected boolean, found {}", other.type_name()),
+            )])
+        }
+    };
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let [boundary] = args.items.as_slice() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("{method} requires one selector"),
+        )]);
+    };
+    let boundary = bindings::value_to_query_selector(boundary).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            args.span,
+            format!("expected selector, found {}", boundary.type_name()),
+        )]
+    })?;
+    let selector = if method == "before" {
+        crate::entities::selector::Selector::Before {
+            base: Box::new(base),
+            end: Box::new(boundary),
+            inclusive,
+        }
+    } else {
+        crate::entities::selector::Selector::After {
+            base: Box::new(base),
+            start: Box::new(boundary),
+            inclusive,
+        }
+    };
+    Ok(selector)
 }
 
 fn trace_call(
@@ -1297,6 +1357,23 @@ pub(super) fn eval_func_call(
                     engine,
                 )? {
                     return Ok(Value::Selector(selector));
+                }
+            }
+        }
+
+        // **P1401** — Intercepção de seletores contextuais.
+        if let Expr::FieldAccess(access) = call.callee() {
+            let method = access.field().as_str();
+            if method == "before" || method == "after" {
+                if let Some(value) = bindings::eval_selector_before_after(
+                    access.target(),
+                    method,
+                    call.args(),
+                    scopes,
+                    ctx,
+                    engine,
+                )? {
+                    return Ok(Value::Selector(value));
                 }
             }
         }

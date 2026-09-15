@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings` — hub de bindings, acesso e métodos
-Hash do Código: 01d35778
+Hash do Código: bdbe27fb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/mod.rs`
@@ -99,3 +99,16 @@ Teste de compilação e equivalência estática/instância verificam o transport
 - `bindings/mod.rs` — só `mod` + re-exportações.
 - Cinco nós, cada um com L0 próprio e `@prompt` próprio (V15).
 - Zero mudança de comportamento; suite do eval inalterada.
+
+## P1401 — rota do método contextual
+
+### Medição anterior à decisão
+
+O hub exporta explicitamente cada interceptor de `value_methods`; antes de
+P1401 não há símbolo para `before/after`.
+
+### Decisão
+
+Reexportar somente o interceptor P1401 para o dispatcher irmão. O hub não
+interpreta argumentos, não constrói selector e não amplia visibilidade além de
+`compiler::eval`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 615b778a
+//! @prompt-hash 2bd56ee0
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1076,6 +1076,14 @@ pub fn repr_selector(sel: &Selector) -> String {
         }
         Selector::Within { base, ancestor } => {
             format!("{}.within({})", repr_selector(base), repr_selector(ancestor))
+        }
+        Selector::Before { base, end, inclusive } => {
+            let suffix = if *inclusive { "" } else { ", inclusive: false" };
+            format!("{}.before({}{suffix})", repr_selector(base), repr_selector(end))
+        }
+        Selector::After { base, start, inclusive } => {
+            let suffix = if *inclusive { "" } else { ", inclusive: false" };
+            format!("{}.after({}{suffix})", repr_selector(base), repr_selector(start))
         }
     }
 }
@@ -2261,5 +2269,26 @@ mod tests {
                 "noncanonical envelope must keep the generic representation"
             );
         }
+    }
+
+    #[test]
+    fn p1401_repr_before_after_omite_default_inclusive() {
+        let heading = Selector::Kind(crate::entities::element_kind::ElementKind::Heading);
+        assert_eq!(
+            repr_selector(&Selector::Before {
+                base: Box::new(heading.clone()),
+                end: Box::new(heading.clone()),
+                inclusive: true,
+            }),
+            "heading.before(heading)"
+        );
+        assert_eq!(
+            repr_selector(&Selector::After {
+                base: Box::new(heading.clone()),
+                start: Box::new(heading),
+                inclusive: false,
+            }),
+            "heading.after(heading, inclusive: false)"
+        );
     }
 }

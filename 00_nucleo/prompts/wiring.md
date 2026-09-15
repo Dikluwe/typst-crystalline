@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 98e9c075
+Hash do Código: 1ba0c63a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9

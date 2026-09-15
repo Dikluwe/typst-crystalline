@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/selector.md
-//! @prompt-hash e1346264
+//! @prompt-hash 56f74762
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -60,6 +60,10 @@ pub enum Selector {
     /// **P504** — Selector de ancestral: matches elementos de `base`
     /// que estão contidos num elemento que match `ancestor`.
     Within { base: Box<Selector>, ancestor: Box<Selector> },
+    /// **P1401** — ocorrências de `base` anteriores à primeira de `end`.
+    Before { base: Box<Selector>, end: Box<Selector>, inclusive: bool },
+    /// **P1401** — ocorrências de `base` posteriores à primeira de `start`.
+    After { base: Box<Selector>, start: Box<Selector>, inclusive: bool },
 }
 
 #[cfg(test)]
@@ -303,5 +307,24 @@ mod tests {
         a.hash(&mut h1);
         a.hash(&mut h2);
         assert_eq!(h1.finish(), h2.finish());
+    }
+
+    #[test]
+    fn p1401_before_after_preservam_fronteira_e_inclusive() {
+        let heading = Selector::Kind(ElementKind::Heading);
+        let figure = Selector::Kind(ElementKind::Figure);
+        let before = Selector::Before {
+            base: Box::new(heading.clone()),
+            end: Box::new(figure.clone()),
+            inclusive: true,
+        };
+        let after = Selector::After {
+            base: Box::new(heading),
+            start: Box::new(figure),
+            inclusive: false,
+        };
+        assert_ne!(before, after);
+        assert_eq!(before, before.clone());
+        assert_eq!(after, after.clone());
     }
 }

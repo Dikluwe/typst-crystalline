@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 200c3b9d
+//! @prompt-hash 242998df
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -20658,6 +20658,25 @@ mod tests {
                 );
                 assert!(matches!(world.source(world.main()), Err(FileError::NotFound)));
             }
+        }
+    }
+
+    #[test]
+    fn p1401_eval_constroi_before_after_com_inclusive() {
+        let world = MockWorld::new("");
+        for (expression, expected) in [
+            (
+                "repr(selector(heading).before(selector(heading)))",
+                "heading.before(heading)",
+            ),
+            (
+                "repr(selector(heading).after(selector(heading), inclusive: false))",
+                "heading.after(heading, inclusive: false)",
+            ),
+        ] {
+            let (result, warnings) = eval_expression(&world, expression);
+            assert!(warnings.is_empty(), "{warnings:?}");
+            assert_eq!(result.expect(expression), Value::Str(expected.into()));
         }
     }
 }

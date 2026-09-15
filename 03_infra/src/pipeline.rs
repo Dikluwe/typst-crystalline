@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash aff3b4d0
+//! @prompt-hash b5770b0f
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -37,7 +37,8 @@ use crate::font_variant::{
     variable_font_instancer_available,
 };
 use typst_core::compiler::eval::{
-    apply_func, eval_expression, eval_expression_with_features, eval_with_full_error,
+    apply_func, eval_expression, eval_expression_with_features,
+    eval_expression_with_features_and_introspector, eval_with_full_error,
     eval_with_full_error_and_target, eval_with_full_error_target_and_features,
     EvalContext, EvalTarget,
 };
@@ -85,6 +86,36 @@ pub fn eval_expression_with_sink_features(
     features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     eval_expression_with_features(world, expression, features)
+}
+
+/// Compila um documento paginado e avalia uma expressão contra seu contexto.
+pub fn eval_expression_with_document_features(
+    world: &dyn World,
+    source: &Source,
+    expression: &str,
+    features: typst_core::entities::compiler_features::Features,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    let (compiled, mut warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            world,
+            source,
+            false,
+            features,
+            &mut timings,
+        );
+    let (_, introspector) = match compiled {
+        Ok(pair) => pair,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let (result, expression_warnings) = eval_expression_with_features_and_introspector(
+        world,
+        expression,
+        features,
+        &introspector,
+    );
+    warnings.extend(expression_warnings);
+    (result, warnings)
 }
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
@@ -593,6 +624,26 @@ fn compile_to_paged_document_full_error_and_features(
     features: typst_core::entities::compiler_features::Features,
     timings: &mut Timings,
 ) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (result, warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            world, source, full_error, features, timings,
+        );
+    (result.map(|(document, _)| document), warnings)
+}
+
+fn compile_to_paged_document_full_error_and_features_with_introspector(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    timings: &mut Timings,
+) -> (
+    Result<
+        (PagedDocument, typst_core::entities::introspector::TagIntrospector),
+        Vec<SourceDiagnostic>,
+    >,
+    Vec<SourceDiagnostic>,
+) {
     let t0 = Instant::now();
     let (eval_result, mut warnings) = eval_to_module_with_sink_target_features(
         world,
@@ -615,7 +666,13 @@ fn compile_to_paged_document_full_error_and_features(
         Some(c) => c,
         None => {
             timings.total_ms = timings.eval_ms;
-            return (Ok(PagedDocument::new(vec![])), warnings);
+            return (
+                Ok((
+                    PagedDocument::new(vec![]),
+                    typst_core::entities::introspector::TagIntrospector::empty(),
+                )),
+                warnings,
+            );
         }
     };
     let intr_content = module.introspection_content().unwrap_or(content).clone();
@@ -655,7 +712,7 @@ fn compile_to_paged_document_full_error_and_features(
     let mut content = prepared.content;
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
-    let (mut doc, intr_for_positions, extracted_headings) = if let Some((intr, doc)) =
+    let (mut doc, mut intr_for_positions, extracted_headings) = if let Some((intr, doc)) =
         prepared.settled
     {
         let headings = intr.headings_for_bookmarks().to_vec();
@@ -802,7 +859,8 @@ fn compile_to_paged_document_full_error_and_features(
         return (Err(vec![SourceDiagnostic::error(Span::detached(), msg)]), warnings);
     }
 
-    (Ok(doc), warnings)
+    intr_for_positions.inject_positions(doc.extracted_positions.clone());
+    (Ok((doc, intr_for_positions)), warnings)
 }
 
 /// Runs the pure L1 transcript until a complete document is produced. Every

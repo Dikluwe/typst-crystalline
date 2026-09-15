@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 60ec5d32
+//! @prompt-hash 1754dc5e
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -439,6 +439,9 @@ pub enum QueryFormat {
 struct EvalArgs {
     /// The piece of Typst code to evaluate.
     expression: String,
+    /// Evaluate with context from this input document (`-` reads stdin).
+    #[arg(long = "in", value_name = "INPUT")]
+    input: Option<PathBuf>,
     /// Output serialization format.
     #[arg(long, default_value = "json")]
     format: EvalFormat,
@@ -510,6 +513,7 @@ pub struct CompileIntent {
 #[derive(Debug)]
 pub struct EvalIntent {
     pub expression: String,
+    pub input: Option<PathBuf>,
     pub format: EvalFormat,
     pub pretty: bool,
     pub colored: bool,
@@ -599,6 +603,7 @@ pub fn parse() -> RunIntent {
         Command::Eval(eval) => RunIntent::Eval(EvalIntent {
             features: resolve_features(&eval.features),
             expression: eval.expression,
+            input: eval.input,
             format: eval.format,
             pretty: eval.pretty,
             colored,
@@ -2178,5 +2183,23 @@ mod tests {
             serialize_query(&[], None, true, false).unwrap_err(),
             "expected exactly one element, found 0"
         );
+    }
+
+    #[test]
+    fn p1401_eval_in_transporta_path_e_hifen() {
+        for input in ["doc.typ", "-"] {
+            let parsed = Args::try_parse_from([
+                "typst",
+                "eval",
+                "query(heading).len()",
+                "--in",
+                input,
+            ])
+            .expect("eval --in deve parsear");
+            let Command::Eval(eval) = parsed.command else {
+                panic!("eval esperado");
+            };
+            assert_eq!(eval.input.as_deref(), Some(Path::new(input)));
+        }
     }
 }

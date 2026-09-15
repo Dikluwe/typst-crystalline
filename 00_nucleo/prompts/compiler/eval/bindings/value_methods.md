@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: 0e9227bb
+Hash do Código: a4431527
 
 ## P1339 — adapter ligado de version.at sem parser duplicado
 

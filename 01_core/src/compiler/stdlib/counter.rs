@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 232ee7e3
+//! @prompt-hash 76c8ac42
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -119,6 +119,10 @@ fn selector_to_key(selector: &Selector) -> SourceResult<CounterKey> {
         }
         Selector::Within { base, .. } => selector_to_key(base),
         Selector::Where { base, .. } => selector_to_key(base),
+        Selector::Before { base, .. } | Selector::After { base, .. } => {
+            selector_to_key(base)?;
+            Ok(CounterKey::Selector(selector.clone()))
+        }
     }
 }
 

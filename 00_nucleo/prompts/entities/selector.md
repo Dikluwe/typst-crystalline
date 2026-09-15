@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/selector`
-Hash do Código: 65ca5013
+Hash do Código: 1d80887c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/selector.rs`

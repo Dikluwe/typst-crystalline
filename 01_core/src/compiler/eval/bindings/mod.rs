@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings.md
-//! @prompt-hash 89d311cd
+//! @prompt-hash 861d4c73
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -33,8 +33,8 @@ pub(super) use field_access::{
 pub(super) use method_dispatch::{is_mutating_method, try_eval_mutating_method};
 pub(super) use value_methods::{
     eval_color_method, eval_counter_method_value, eval_counter_static_method_value,
-    eval_selector_or_and, eval_selector_within, eval_state_method,
-    eval_version_method_value, value_to_query_selector,
+    eval_selector_before_after, eval_selector_or_and, eval_selector_within,
+    eval_state_method, eval_version_method_value, value_to_query_selector,
 };
 pub(crate) use value_methods::{
     eval_element_where, native_element_fields, native_function_where,

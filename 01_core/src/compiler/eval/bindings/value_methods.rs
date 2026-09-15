@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash cde578e8
+//! @prompt-hash 2927dc08
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -1170,6 +1170,14 @@ pub(crate) fn validate_element_locatability(
             validate_element_locatability(base, span)?;
             validate_element_locatability(ancestor, span)?;
         }
+        Selector::Before { base, end, .. } => {
+            validate_element_locatability(base, span)?;
+            validate_element_locatability(end, span)?;
+        }
+        Selector::After { base, start, .. } => {
+            validate_element_locatability(base, span)?;
+            validate_element_locatability(start, span)?;
+        }
         _ => {}
     }
     Ok(())
@@ -1283,6 +1291,25 @@ pub(in crate::compiler::eval) fn eval_selector_within<'a>(
     };
 
     Ok(Some(Selector::Within { base: Box::new(base), ancestor: Box::new(ancestor) }))
+}
+
+/// **P1401** — Intercepta os métodos contextuais de selector.
+pub(in crate::compiler::eval) fn eval_selector_before_after<'a>(
+    target_expr: Expr<'_>,
+    method: &str,
+    args_node: crate::entities::ast::expr::Args<'a>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Option<Selector>> {
+    let target = eval_expr(target_expr, scopes, ctx, engine)?;
+    let Some(base) = value_to_query_selector(&target) else {
+        return Ok(None);
+    };
+    let args =
+        crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
+    crate::compiler::eval::call_dispatch::selector_before_after(base, method, args)
+        .map(Some)
 }
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────

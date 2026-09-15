@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash be95fae7
+//! @prompt-hash f6e0f997
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -442,6 +442,32 @@ impl Introspector for TagIntrospector {
                             }
                         }
                         false
+                    })
+                    .collect()
+            }
+            Selector::Before { base, end, inclusive } => {
+                let base_matches = self.query(base);
+                let Some(boundary) = self.query(end).into_iter().next() else {
+                    return base_matches;
+                };
+                base_matches
+                    .into_iter()
+                    .filter(|location| {
+                        location.as_u128() < boundary.as_u128()
+                            || (*inclusive && location == &boundary)
+                    })
+                    .collect()
+            }
+            Selector::After { base, start, inclusive } => {
+                let base_matches = self.query(base);
+                let Some(boundary) = self.query(start).into_iter().next() else {
+                    return base_matches;
+                };
+                base_matches
+                    .into_iter()
+                    .filter(|location| {
+                        location.as_u128() > boundary.as_u128()
+                            || (*inclusive && location == &boundary)
                     })
                     .collect()
             }
@@ -5366,6 +5392,32 @@ mod tests {
         };
         let locations = intr.query(&within);
         assert_eq!(locations.len(), 1, "só o heading dentro da figure deve match");
+    }
+
+    #[test]
+    fn p1401_before_after_usam_primeira_fronteira() {
+        use crate::entities::selector::Selector;
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("A")),
+                Content::figure(Content::text("F"), None, None, None),
+                Content::heading(1, Content::text("B")),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let before = Selector::Before {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            end: Box::new(Selector::Kind(ElementKind::Figure)),
+            inclusive: true,
+        };
+        let after = Selector::After {
+            base: Box::new(Selector::Kind(ElementKind::Heading)),
+            start: Box::new(Selector::Kind(ElementKind::Figure)),
+            inclusive: true,
+        };
+        assert_eq!(intr.query(&before).len(), 1);
+        assert_eq!(intr.query(&after).len(), 1);
     }
 
     #[test]

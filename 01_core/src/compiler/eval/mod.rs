@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 4f74d1f1
+//! @prompt-hash 498eeb77
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2672,6 +2672,24 @@ impl ObservationEq for crate::entities::selector::Selector {
                 Self::Within { base: b0, ancestor: b1 } => ObservationRelation::Same
                     .and(a0.observation_relation(b0))
                     .and(a1.observation_relation(b1)),
+                _ => ObservationRelation::Different,
+            },
+            Self::Before { base: a0, end: a1, inclusive: a2 } => match other {
+                Self::Before { base: b0, end: b1, inclusive: b2 } => {
+                    ObservationRelation::Same
+                        .and(a0.observation_relation(b0))
+                        .and(a1.observation_relation(b1))
+                        .and(a2.observation_relation(b2))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::After { base: a0, start: a1, inclusive: a2 } => match other {
+                Self::After { base: b0, start: b1, inclusive: b2 } => {
+                    ObservationRelation::Same
+                        .and(a0.observation_relation(b0))
+                        .and(a1.observation_relation(b1))
+                        .and(a2.observation_relation(b2))
+                }
                 _ => ObservationRelation::Different,
             },
             Self::Element { function: a0, fields: a1 } => match other {
@@ -5398,6 +5416,12 @@ impl EvalContext {
                 Selector::Within { base, ancestor } => {
                     contains_element(base) || contains_element(ancestor)
                 }
+                Selector::Before { base, end, .. } => {
+                    contains_element(base) || contains_element(end)
+                }
+                Selector::After { base, start, .. } => {
+                    contains_element(base) || contains_element(start)
+                }
                 Selector::Kind(_)
                 | Selector::Label(_)
                 | Selector::Location(_)
@@ -5954,6 +5978,21 @@ pub fn eval_expression_with_features(
     expression: &str,
     features: crate::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    eval_expression_with_features_and_introspector(
+        world,
+        expression,
+        features,
+        &crate::entities::introspector::TagIntrospector::empty(),
+    )
+}
+
+/// Avalia uma expressão com o snapshot contextual de um documento compilado.
+pub fn eval_expression_with_features_and_introspector(
+    world: &dyn World,
+    expression: &str,
+    features: crate::entities::compiler_features::Features,
+    introspector: &crate::entities::introspector::TagIntrospector,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
     let mut global = Scope::new();
     let stdlib = make_stdlib_with_features(&inputs, features);
@@ -5972,6 +6011,7 @@ pub fn eval_expression_with_features(
     let mut scopes = Scopes::new(Some(&library));
     let mut ctx = EvalContext::new();
     ctx.features = features;
+    ctx.introspector = introspector.clone();
     let mut styles = StyleChain::default_chain();
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards = Vec::new();
