@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 4081bbaf
+Hash do Código: e43df297
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -145,3 +145,28 @@ neutro com `outline.parent.indent` e `outline.parent.key`. Assim, qualquer
 `ContextBlock` criado pela transformação e expandido posteriormente conserva o
 parent causal exato. O carrier não muda matching, ordem, fase nem conteúdo
 consultável.
+
+## P1413 — síntese interceptável de `raw.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `e7b2ddd44`, show rules recebem `RawElem` como folha; não há
+instâncias de linha. No vanila ratificado, raw inline e bloco sintetizam uma
+linha por segmento, preservam vazio, índice baseado em 1, total e body, e
+aplicam `#show raw.line` em ordem.
+
+### Decisão proposta
+
+Ao interceptar `RawElem`, detectar por matching tipado se alguma regra vigente
+é aplicável a instâncias `raw.line`. Somente nesse caso, dividir o texto por
+newline preservando vazios, construir os carriers dinâmicos com
+`number/count/text/body`, aplicar o motor normal de show a cada instância e
+recompor em ordem com fronteiras de linha. Se nenhuma regra casa, devolver o
+`RawElem` intacto; não substituir highlighting/default por aproximação.
+
+O constructor manual viaja pelo mesmo `Content::Dynamic` e motor normal.
+Filtros `where` leem os campos do carrier. Guardas, precedência, teto e
+revogação não ganham um segundo algoritmo.
+
+Esta ampliação de contrato público aguarda confirmação humana explícita antes
+de L1.

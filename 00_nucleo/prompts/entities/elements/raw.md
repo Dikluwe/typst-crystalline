@@ -36,3 +36,23 @@ Construtor ergonómico preservado: `Content::raw(text, lang, block)`.
 ## `eq`
 
 `#[derive(PartialEq)]` compara `text + lang + block` (paridade `content.rs:1857`).
+
+## P1413 — `RawLineElem` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `e7b2ddd44`, o cristalino não possui `raw.line`. No vanila
+ratificado, cada raw inline/bloco sintetiza uma instância por linha, inclusive
+linhas vazias, e o constructor público aceita quatro argumentos requeridos.
+
+### Contrato proposto
+
+O mesmo owner declara `RawLineElem { number: i64, count: i64, text: EcoString,
+body: Content }`. `plain_text` devolve `text`; `map_content` e `map_text`
+atravessam `body`; `get_field` expõe exatamente `number`, `count`, `text` e
+`body`. A identidade dinâmica estável é `raw.line`, reutilizando
+`Content::Dynamic` sem ampliar o enum fechado `Content`. Igualdade e hash são
+estruturais. O constructor rejeita cardinalidade ou tipos incompatíveis.
+
+Esta ampliação de contrato público aguarda confirmação humana explícita antes
+de L1.

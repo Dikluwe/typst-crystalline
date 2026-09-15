@@ -483,3 +483,22 @@ ao próprio outline. O passe original de introspecção não inventa snapshots.
 Identidade/observação do outline preserva a presença explícita do título e a
 causalidade das regras; o carrier não é campo da linguagem. Confirmação humana
 explícita recebida em 2026-09-15.
+
+# P1413 — namespace público `raw.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `e7b2ddd44`, `raw` é uma função nativa sem namespace. O vanila
+expõe `raw.line`, cujo `repr` é `line`, como constructor e seletor de elemento.
+
+### Decisão proposta
+
+O binding global `raw` usa namespace nativo contendo `line`. `line` é uma
+`Func::element` de identidade `raw.line`; seu constructor recebe
+`number, count, text, body` posicionais, valida tipos/cardinalidade e produz o
+carrier dinâmico proprietário de `entities/elements/raw.md`. A maquinaria
+existente converte a função em `Selector::DynKind`, sem matching por nome
+textual improvisado e sem nova variante `NodeKind`.
+
+Esta ampliação de contrato público aguarda confirmação humana explícita antes
+de L1.
