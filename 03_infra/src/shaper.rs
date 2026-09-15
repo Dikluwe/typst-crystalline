@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 1efea42a
+//! @prompt-hash dc7f2db2
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -962,11 +962,15 @@ fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun
 
     while pos < text.len() {
         let c = text[pos..].chars().next().unwrap();
-        // P1404 — controles de formato que participam da análise bidi/quebra,
-        // mas nunca precisam de fonte ou glifo no pós-processamento visual.
-        // Evita varrer a cobertura global para codepoints deliberadamente
-        // invisíveis e mantém os caracteres comuns no pipeline normal.
+        // P1404/P1412 — controles de formato não consultam cobertura global.
+        // Conservá-los no sub-run permite ao shaper/ToUnicode preservar o
+        // codepoint invisível sem reabrir a alocação causada pelo slot global.
         if is_p1404_format_control(c) {
+            if let Some(ref mut cur) = current {
+                cur.text.push(c);
+            } else {
+                current = Some(SubRun { text: c.to_string(), candidate_idx: 0 });
+            }
             pos += c.len_utf8();
             continue;
         }

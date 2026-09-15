@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash d7fae279
+//! @prompt-hash 5abb8118
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -815,8 +815,7 @@ fn realize_heading_outline(
     let previous_context = ctx.in_context;
     let previous_intr = std::mem::replace(&mut ctx.introspector, introspector.clone());
 
-    *engine.styles = StyleChain::default_chain()
-        .push_styles(outline.captured_styles())
+    let parent_styles = Styles::new()
         .push_custom(
             "outline.parent.indent",
             match &outline.indent {
@@ -833,6 +832,9 @@ fn realize_heading_outline(
             },
         )
         .push_custom("outline.parent.key", Value::Int(outline.parent_key()));
+    *engine.styles = StyleChain::default_chain()
+        .push_styles(outline.captured_styles())
+        .push_styles(&parent_styles);
     *engine.show_rules = Arc::from(outline.show_rules().to_vec());
     ctx.in_context = true;
 
@@ -861,12 +863,20 @@ fn realize_heading_outline(
             if *level > outline.depth {
                 continue;
             }
-            let fill = Content::repeat(Content::text("."), Some(Length::em(0.15)), true);
+            let fill = match engine.styles.custom("outline.entry.fill") {
+                Some(Value::Content(content)) => Some(content.clone()),
+                Some(Value::None) => None,
+                _ => Some(Content::repeat(
+                    Content::text("."),
+                    Some(Length::em(0.15)),
+                    true,
+                )),
+            };
             let prefix = number.as_ref().map(|value| Content::text(value.as_str()));
             let entry = Content::realized_outline_entry(
                 *level,
                 source.content().clone(),
-                Some(fill),
+                fill,
                 prefix,
                 *source_location,
             );
@@ -935,7 +945,7 @@ fn realize_heading_outline(
                     Content::Styled(Box::new(linked), Styles::from_delta(delta))
                 }
             };
-            parts.push(realized);
+            parts.push(Content::Styled(Box::new(realized), parent_styles.clone()));
         }
         Ok(Content::Outline(Arc::new(
             outline.with_realized_body(Content::sequence(parts)),
@@ -970,11 +980,46 @@ pub(crate) fn intercept_content(
     // as entries. Conservar aqui o snapshot lexical evita que uma regra
     // declarada mais tarde aja retroativamente sobre esta ocorrência.
     if let Content::Outline(elem) = &content {
+        let elem = if elem.indent_was_set() {
+            elem.as_ref().clone()
+        } else {
+            let inherited = engine.styles.custom("outline.indent").and_then(|value| {
+                use crate::entities::elements::outline::OutlineIndent;
+                match value {
+                    Value::Auto => Some(OutlineIndent::Auto),
+                    Value::Bool(value) => Some(OutlineIndent::Bool(*value)),
+                    Value::Length(value) => Some(OutlineIndent::Length(*value)),
+                    Value::Func(value) => Some(OutlineIndent::Function(value.clone())),
+                    _ => None,
+                }
+            });
+            inherited.map_or_else(
+                || elem.as_ref().clone(),
+                |indent| elem.with_resolved_indent(indent),
+            )
+        };
         let captured = elem.with_realization_context(
             Arc::clone(&*engine.show_rules),
             Styles::from_delta(engine.styles.collapse()),
         );
         content = Content::Outline(Arc::new(captured));
+    }
+
+    if let Content::OutlineEntry(elem) = &content {
+        if !elem.fill_set {
+            let inherited = match engine.styles.custom("outline.entry.fill") {
+                Some(Value::Content(fill)) => Some(Some(fill.clone())),
+                Some(Value::None) => Some(None),
+                _ => None,
+            };
+            if let Some(fill) = inherited {
+                content = Content::OutlineEntry(Arc::new(elem.remapped(
+                    elem.element.clone(),
+                    fill,
+                    elem.prefix(),
+                )));
+            }
+        }
     }
 
     if engine.show_rules.is_empty() {
@@ -1148,6 +1193,37 @@ pub(super) fn eval_set_rule(
     let target = set.target().to_untyped().text_str().to_owned();
     let target_span = set.target().to_untyped().span();
 
+    if target == "outline" {
+        for arg in set.args().items() {
+            let Arg::Named(named) = arg else {
+                return Err(vec![SourceDiagnostic::error(
+                    target_span,
+                    "unexpected argument",
+                )]);
+            };
+            let key = named.name().as_str();
+            if key != "indent" {
+                return Err(vec![SourceDiagnostic::error(
+                    named.name().to_untyped().span(),
+                    format!("unexpected argument: {key}"),
+                )]);
+            }
+            let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+            if !matches!(
+                value,
+                Value::Length(_) | Value::Func(_) | Value::Auto | Value::Bool(_)
+            ) {
+                return Err(vec![type_mismatch(
+                    "length, function, auto, or bool",
+                    &value,
+                    named.expr().span(),
+                )]);
+            }
+            *engine.styles = engine.styles.push_custom("outline.indent", value);
+        }
+        return Ok(Value::None);
+    }
+
     if target == "heading" {
         // #set heading(numbering: "1.1") — activa numeração automática.
         // Outros argumentos de heading ignorados por agora (DEBT-10).
@@ -1190,6 +1266,35 @@ pub(super) fn eval_set_rule(
     // P456: guarda o pattern string (não Bool) para formatar via format_counter,
     // análogo a figure.numbering (P454) e heading.numbering.pattern (P451).
     if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "outline"
+            && fa.field().to_untyped().text_str() == "entry"
+        {
+            for arg in set.args().items() {
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        target_span,
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                if key != "fill" {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {key}"),
+                    )]);
+                }
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                if !matches!(value, Value::Content(_) | Value::None) {
+                    return Err(vec![type_mismatch(
+                        "content or none",
+                        &value,
+                        named.expr().span(),
+                    )]);
+                }
+                *engine.styles = engine.styles.push_custom("outline.entry.fill", value);
+            }
+            return Ok(Value::None);
+        }
         if fa.target().to_untyped().text_str() == "math"
             && fa.field().to_untyped().text_str() == "equation"
         {

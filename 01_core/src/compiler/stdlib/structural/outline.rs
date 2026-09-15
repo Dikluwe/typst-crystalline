@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 9b50d31c
+//! @prompt-hash 55fa1c26
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -625,7 +625,8 @@ pub fn native_outline(
     Ok(Value::Content(Content::Outline(std::sync::Arc::new(
         OutlineElem::with_target_and_title_presence(
             title, title_set, depth, indent, target,
-        ),
+        )
+        .with_indent_presence(args.named.contains_key("indent")),
     ))))
 }
 

@@ -50,12 +50,15 @@ finito e não causa alocação proporcional ao maior índice do catálogo.
 
 Os controles de formatação usados por `outline.entry.inner` — WORD JOINER
 U+2060, RIGHT-TO-LEFT EMBEDDING U+202B e POP DIRECTIONAL FORMATTING U+202C —
-permanecem no Content e chegam à análise bidi/quebra, mas são removidos apenas
-dos sub-runs visuais antes de seleção de fonte: não consultam cobertura e não
-emitem glifo. Texto latino, seleção/scoring de fontes e caracteres invisíveis
-alheios a essa lista permanecem controles. Os testes focais exigem idempotência
-do interner, tamanho linear no número de slots distintos e reconhecimento
-exato dos três controles.
+permanecem no Content e chegam à análise bidi/quebra. Eles não consultam
+cobertura: entram no sub-run corrente ou, quando isolados, no primeiro
+candidato primário, sem percorrer o catálogo. Assim o shaper pode emitir o
+glifo invisível e preservar o codepoint no `ToUnicode`/texto extraível sem
+reabrir a alocação proporcional ao índice global que causou o OOM. Texto
+latino, seleção/scoring de fontes e caracteres invisíveis alheios a essa lista
+permanecem controles. Os testes focais exigem idempotência do interner, tamanho
+linear no número de slots distintos, reconhecimento exato dos três controles e
+preservação de U+2060 em extração PDF sob o teto de memória.
 
 ## P1133 — decisões semânticas partilhadas
 

@@ -115,3 +115,33 @@ candidato, mas não acumulam transformações sobre o candidato anterior.
 Não executar callback no layout, não usar uma pilha global final e não inserir a
 entry realizada como nova ocorrência consultável. Confirmação humana explícita
 recebida em 2026-09-15; a nova fronteira está autorizada pelo gate ADR-0127.
+
+## P1412 — regras de estilo do outline
+
+### Medição anterior à decisão
+
+No baseline `2ff1a23d4`, `eval_set_rule` não reconhece o alvo simples
+`outline` nem o alvo pontuado `outline.entry`; a realização fabrica sempre o
+fill pontilhado. Além disso, uma transformação de entry que devolve conteúdo
+contextual perde os estilos privados do parent antes da expansão pós-realização,
+embora esses estilos estejam presentes durante a chamada da transformação.
+
+### Decisão
+
+`#set outline(indent:)` captura `length | function | auto` e o `bool` mantido
+por compatibilidade cristalina em `outline.indent`. `#set outline.entry(fill:)`
+captura `content | none` em `outline.entry.fill`. Campos desconhecidos são erro
+`unexpected argument`; valores incompatíveis são erro de tipo. A chain é
+léxica e argumento explícito no constructor vence o valor herdado.
+
+Antes de capturar um outline para realização e introspecção, materializar nele
+o `indent` herdado somente quando o argumento foi omitido. Antes de aplicar show
+rules a uma entry construída diretamente, materializar do mesmo modo o `fill`
+herdado somente quando `fill` foi omitido. Entries sintetizadas pela realização
+recebem o fill efetivo já resolvido.
+
+O resultado realizado de cada entry é embrulhado por um carrier visualmente
+neutro com `outline.parent.indent` e `outline.parent.key`. Assim, qualquer
+`ContextBlock` criado pela transformação e expandido posteriormente conserva o
+parent causal exato. O carrier não muda matching, ordem, fase nem conteúdo
+consultável.

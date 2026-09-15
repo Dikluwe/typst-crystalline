@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/outline.md
-//! @prompt-hash 6aa40f8a
+//! @prompt-hash b324c9cc
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -74,6 +74,7 @@ pub struct OutlineElem {
     /// **P472** — alvo do índice. Default `Headings` (TOC normal).
     pub target: OutlineTarget,
     title_set: bool,
+    indent_set: bool,
     show_rules: Arc<[ShowRule]>,
     captured_styles: Styles,
     parent_key: i64,
@@ -87,6 +88,7 @@ impl PartialEq for OutlineElem {
             && self.indent == other.indent
             && self.target == other.target
             && self.title_set == other.title_set
+            && self.indent_set == other.indent_set
             && self.captured_styles == other.captured_styles
             && self
                 .show_rules
@@ -104,6 +106,7 @@ impl std::hash::Hash for OutlineElem {
         self.indent.hash(state);
         self.target.hash(state);
         self.title_set.hash(state);
+        self.indent_set.hash(state);
         format!("{:?}", self.captured_styles).hash(state);
         for rule in self.show_rules.iter() {
             rule.id.hash(state);
@@ -121,6 +124,7 @@ impl OutlineElem {
             indent,
             target: OutlineTarget::Headings,
             title_set: false,
+            indent_set: false,
             show_rules: Arc::from([]),
             captured_styles: Styles::new(),
             parent_key: 0,
@@ -141,6 +145,7 @@ impl OutlineElem {
             indent,
             target,
             title_set: false,
+            indent_set: false,
             show_rules: Arc::from([]),
             captured_styles: Styles::new(),
             parent_key: 0,
@@ -176,6 +181,7 @@ impl OutlineElem {
         elem.indent.hash(&mut hasher);
         elem.target.hash(&mut hasher);
         elem.title_set.hash(&mut hasher);
+        elem.indent_set.hash(&mut hasher);
         format!("{:?}", elem.captured_styles).hash(&mut hasher);
         for rule in elem.show_rules.iter() {
             rule.id.hash(&mut hasher);
@@ -186,6 +192,22 @@ impl OutlineElem {
 
     pub fn title_was_set(&self) -> bool {
         self.title_set
+    }
+
+    pub(crate) fn with_indent_presence(mut self, indent_set: bool) -> Self {
+        self.indent_set = indent_set;
+        self
+    }
+
+    pub(crate) fn indent_was_set(&self) -> bool {
+        self.indent_set
+    }
+
+    pub(crate) fn with_resolved_indent(&self, indent: OutlineIndent) -> Self {
+        let mut elem = self.clone();
+        elem.indent = indent;
+        elem.indent_set = true;
+        elem
     }
 
     pub fn show_rules(&self) -> &[ShowRule] {
@@ -226,6 +248,7 @@ impl Element for OutlineElem {
             indent: self.indent.clone(),
             target: self.target,
             title_set: self.title_set,
+            indent_set: self.indent_set,
             show_rules: self.show_rules.clone(),
             captured_styles: self.captured_styles.clone(),
             parent_key: self.parent_key,
@@ -247,6 +270,7 @@ impl Element for OutlineElem {
             indent: self.indent.clone(),
             target: self.target,
             title_set: self.title_set,
+            indent_set: self.indent_set,
             show_rules: self.show_rules.clone(),
             captured_styles: self.captured_styles.clone(),
             parent_key: self.parent_key,

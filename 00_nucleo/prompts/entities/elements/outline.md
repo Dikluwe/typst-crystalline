@@ -143,3 +143,20 @@ fornecido como `none` não produz título; Content fornecido é preservado. Clon
 hash, igualdade e `map_content` preservam o estado de presença. Construtores
 internos declaram explicitamente qual das três formas criam. Confirmação humana
 explícita recebida em 2026-09-15; a correção está autorizada pelo gate ADR-0127.
+
+## P1412 — presença explícita de `indent`
+
+### Medição anterior à decisão
+
+No baseline `2ff1a23d4`, `OutlineElem` armazena o valor de `indent`, mas não
+distingue o default `auto` de um `indent: auto` explícito. Essa distinção é
+necessária para aplicar uma set rule somente ao argumento omitido.
+
+### Decisão
+
+`OutlineElem` preserva privadamente se `indent` foi fornecido pelo constructor.
+O bit não é campo consultável Typst nem altera a assinatura pública existente.
+Clone, hash, igualdade, `map_content`, `map_text` e a identidade causal de
+realização preservam o bit. Uma operação interna pode substituir o valor
+omitido pelo style herdado e marcá-lo como resolvido; um argumento explícito,
+inclusive `auto`, nunca é substituído.

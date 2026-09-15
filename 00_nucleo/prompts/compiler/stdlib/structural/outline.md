@@ -342,3 +342,19 @@ fora deste passo.
 
 Confirmação humana explícita recebida em 2026-09-15; esta ampliação pública e a
 mudança de fase estão autorizadas para código produtivo e resselo.
+
+## P1412 — presença do argumento `indent`
+
+### Medição anterior à decisão
+
+No baseline `2ff1a23d4`, `native_outline` conhece pelo mapa de argumentos se
+`indent` foi omitido, mas descartava essa informação ao construir
+`OutlineElem`. Sem ela, `auto` default e `auto` explícito são indistinguíveis e
+uma set rule não pode respeitar precedência.
+
+### Decisão
+
+`native_outline` passa ao carrier privado do elemento a presença exata do
+argumento named `indent`. O parsing, os tipos aceitos e a assinatura pública
+Typst permanecem inalterados. Aliases `lof`/`lot` mantêm seus defaults próprios
+e não participam da regra `#set outline` deste passo.
