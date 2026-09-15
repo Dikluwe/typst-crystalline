@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: f87137a4
+Hash do Código: 789202f5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -15,6 +15,18 @@ Núcleos Tekt:
 Orquestra o pipeline completo de compilação em L3. Esconde o
 boilerplate `comemo` (Routines, Traced, Sink, Route) e expõe
 APIs alto-nível à L4 (04_wiring) e aos testes.
+
+## P1408 — provas de largura fracionária pública de `box`
+
+O pipeline prova a morfologia integrada de `box(width: Nfr)` numa linha
+finita: uma caixa `1fr` leva o suffix à margem, duas caixas positivas repartem
+o restante segundo a razão dos pesos, `0fr` não recebe restante e `-1fr`
+isolado recebe o restante conforme a regra `Fr::share` medida no vanila.
+
+Os testes percorrem somente os itens do documento produzido e não serializam
+ou acumulam dumps. Casos focais usam uma página pequena; o controle com
+`repeat` conserva o teto de 1000 cópias. Soma zero e razão não finita devem
+terminar sem deslocamento, loop ou alocação dependente da magnitude do peso.
 
 Materializado no Passo 113 (ADR-0046) a partir de helpers
 test-only em `integration_tests.rs`.

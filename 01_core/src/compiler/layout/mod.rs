@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 5d0801fd
+//! @prompt-hash 458c69ff
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -592,6 +592,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1407 — peças de `repeat` inline aguardando a largura finita que só
     /// fica disponível ao resolver spacings fracionários/fechar a linha.
     pub(super) pending_repeats: Vec<repeat::PendingRepeat>,
+    /// P1408 — largura natural já ocupada por cada fronteira `pending_fr`,
+    /// na mesma ordem. `h(Nfr)` registra zero; `box(width: Nfr)` registra a
+    /// largura exterior que será substituída pela parcela fracionária.
+    pub(super) pending_fr_natural_widths: Vec<f64>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -698,6 +702,7 @@ pub(super) struct FlowSuffixCheckpoint {
     pending_align_centering_len: usize,
     pending_align_v_centering_len: usize,
     pending_repeats_len: usize,
+    pending_fr_natural_widths_len: usize,
     layout_warnings_len: usize,
     layout_errors_len: usize,
     page_run_boundary_empty: bool,
@@ -1007,6 +1012,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_align_centering: Vec::new(),
             pending_align_v_centering: Vec::new(),
             pending_repeats: Vec::new(),
+            pending_fr_natural_widths: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
@@ -1093,6 +1099,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_align_centering_len: self.pending_align_centering.len(),
             pending_align_v_centering_len: self.pending_align_v_centering.len(),
             pending_repeats_len: self.pending_repeats.len(),
+            pending_fr_natural_widths_len: self.pending_fr_natural_widths.len(),
             layout_warnings_len: self.layout_warnings.len(),
             layout_errors_len: self.layout_errors.len(),
             page_run_boundary_empty: self.page_run_boundary_empty,
@@ -1205,6 +1212,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.pending_align_v_centering
             .truncate(checkpoint.pending_align_v_centering_len);
         self.pending_repeats.truncate(checkpoint.pending_repeats_len);
+        self.pending_fr_natural_widths
+            .truncate(checkpoint.pending_fr_natural_widths_len);
         self.layout_warnings.truncate(checkpoint.layout_warnings_len);
         self.layout_errors.truncate(checkpoint.layout_errors_len);
         self.page_run_boundary_empty = checkpoint.page_run_boundary_empty;

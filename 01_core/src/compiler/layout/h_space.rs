@@ -31,6 +31,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         crate::entities::elements::h_space::Spacing::Fractional(fr) => {
             let insert_at = layouter.regions.current.current_line.len();
             layouter.regions.current.pending_fr.push((insert_at, fr));
+            layouter.pending_fr_natural_widths.push(0.0);
         }
     }
 }

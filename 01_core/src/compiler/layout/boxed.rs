@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash fb586817
+//! @prompt-hash 9a89a987
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -159,10 +159,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         },
     );
     layouter.regions.current.current_line.extend(body_items);
-    if let Some(fr) = width_fraction {
-        let insert_at = layouter.regions.current.current_line.len();
-        layouter.regions.current.pending_fr.push((insert_at, *fr));
-    }
+    let fraction_insert_at =
+        width_fraction.map(|_| layouter.regions.current.current_line.len());
 
     // P273.7 — restore parent_bbox (LIFO). Shape emit do
     // próprio Boxed (linha ~1485) usa parent_bbox outer
@@ -179,6 +177,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_x.0 - start_x + inset_right + outset_right
     };
     layouter.regions.current.cursor_x = Pt(start_x + outer_w);
+    if let (Some(fr), Some(insert_at)) = (width_fraction, fraction_insert_at) {
+        layouter.regions.current.pending_fr.push((insert_at, *fr));
+        layouter.pending_fr_natural_widths.push(outer_w);
+    }
 
     // **P1120** — ascent do body: o vanilla coloca o body no topo da caixa e
     // a baseline da caixa é a do body, logo o ascent da caixa é o do body e o

@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 02d877df
+Hash do Código: ba057688
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -451,3 +451,29 @@ itens inseridos. Estado órfão ou largura infinita é limpo sem loop.
 Uma linha com `A + box(1fr, repeat[.]) + B` mantém A/B únicos e preenche a
 caixa; duas fronteiras não deslocam suffix duas vezes; o teto de 1000 pertence
 ao owner de repeat e não ao Cursor.
+
+### Amendment-18 — parcelas fracionárias gerais de `box` P1408
+
+#### Medição anterior à decisão
+
+O vanila ratificado aceita `box(width:)` com pesos positivos, zero e negativos.
+`Fr::share` calcula cada parcela como
+`max(weight / total * remaining, 0)` quando a razão e o restante são finitos;
+caso contrário devolve zero. O Cursor cristalino exige hoje soma estritamente
+positiva, portanto não reproduz um `-1fr` isolado mesmo que o carrier seja
+injetado.
+
+#### Decisão
+
+Numa linha finita, Cursor soma os pesos sem normalizá-los e recompõe o espaço
+distribuível adicionando ao restante as larguras naturais privadas das caixas
+fracionárias. Para cada fronteira, aplica exatamente a regra de parcela medida
+acima; não exige peso nem soma positivos. O deslocamento é
+`parcela - largura_natural`, substituindo a ocupação provisória; `h(Nfr)` tem
+largura natural zero. A parcela alimenta o repeat associado, se houver. Soma
+zero, razão não finita ou restante não finito dão parcela zero e limpam o
+estado sem loop. O custo é linear nas fronteiras e nos itens, independente da
+magnitude dos pesos.
+
+Esta regra acompanha a ampliação pública de P1408. O gate ADR-0127 foi
+confirmado pelo humano em 2026-09-15 antes da alteração do código.

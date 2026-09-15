@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 8e73fe1f
+//! @prompt-hash fa8824ab
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -896,6 +896,15 @@ fn extract_block_height(
     match val {
         Value::Fraction(value) => Some(BlockHeight::Fractional(*value)),
         _ => extract_block_width(val).map(BlockHeight::Relative),
+    }
+}
+
+/// P1408 — preserva a alternativa entre largura absoluta/relativa histórica
+/// e peso fracionário até à construção de `BoxedElem`.
+fn extract_box_width(val: &Value) -> Option<(Option<Length>, Option<f64>)> {
+    match val {
+        Value::Fraction(weight) => Some((None, Some(*weight))),
+        _ => extract_length(val).map(|width| (Some(width), None)),
     }
 }
 
@@ -1849,6 +1858,7 @@ pub fn native_box(
     };
 
     let mut width: Option<Length> = None;
+    let mut width_fraction: Option<f64> = None;
     let mut height: Option<Length> = None;
     let mut inset_val: Option<&Value> = None;
     let mut baseline: Length = Length::ZERO;
@@ -1856,10 +1866,17 @@ pub fn native_box(
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "width" => {
-                width = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("box(width:) espera length, recebeu {}", value.type_name()),
-                )])?);
+                let (absolute, fractional) = extract_box_width(value).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "box(width:) espera length ou fraction, recebeu {}",
+                            value.type_name()
+                        ),
+                    )]
+                })?;
+                width = absolute;
+                width_fraction = fractional;
             }
             "height" => {
                 height = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
@@ -1954,7 +1971,7 @@ pub fn native_box(
         crate::entities::elements::boxed::BoxedElem {
             body,
             width,
-            width_fraction: None,
+            width_fraction,
             height,
             inset,
             baseline,

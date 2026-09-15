@@ -51,10 +51,12 @@ de campo-completo (materialize, testes) usam **Arc-wrap** (regra C2):
 
 `#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1904`).
 
-## P1404 — carrier fracionário interno
+## P1408 — carrier fracionário de largura
 
 Para representar a morfologia devolvida por `outline.entry.inner`, a unidade
 acrescenta `width_fraction: Option<f64>`. Constructors públicos históricos e
-struct literals usam `None`; somente o constructor interno owner-local de
-P1404 usa `Some(1.0)`. Walkers, igualdade e hash preservam o campo. A presença
-desse carrier não autoriza a stdlib geral a aceitar `box(width: 1fr)`.
+struct literals anteriores a P1408 usam `None`; o constructor interno
+owner-local de P1404 e, após o gate público de P1408, `native_box(width: Nfr)`
+podem usar `Some(weight)`. Walkers, igualdade e hash preservam o campo sem
+normalizar sinal ou magnitude. `width` e `width_fraction` são mutuamente
+exclusivos em construções públicas válidas.

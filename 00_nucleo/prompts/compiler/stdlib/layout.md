@@ -1,10 +1,26 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 615b687f
+Hash do Código: 5f2477fc
 
-## P1404 — neutralidade do constructor público `box`
+## P1408 — largura fracionária pública de `box`
 
-O struct literal de `native_box` inicializa o carrier fracionário interno com
-`None`. `box(width: 1fr)` continua rejeitado; P1404 não amplia esta API.
+### Medição anterior à decisão
+
+No HEAD `363883a89`, `native_box` aceita somente comprimento e sempre grava
+`width_fraction: None`. As sondas `1fr`, `1fr:2fr`, `0fr` e `-1fr` são aceitas
+pelo vanila ratificado e rejeitadas pelo cristalino. A fonte ratificada tipa a
+largura como `Sizing`, adia `Fr` no coletor inline e resolve a parcela no
+fechamento da linha.
+
+### Decisão
+
+`box(width:)` aceita `Value::Fraction(weight)` além dos comprimentos históricos.
+Fração preenche exclusivamente `width_fraction`; comprimento preenche
+exclusivamente `width`. O peso é transportado sem normalização ou rejeição por
+sinal: `0fr` e pesos negativos são valores válidos. `height: Nfr` permanece
+fora deste contrato.
+
+Esta decisão substitui a neutralidade pública de P1404. O gate ADR-0127 foi
+confirmado pelo humano em 2026-09-15 antes da alteração do código.
 
 ## P1140.20.2 — canvas preparatório
 

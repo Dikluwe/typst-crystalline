@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash ea211516
+//! @prompt-hash 72382ca3
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -2456,6 +2456,121 @@ mod tests {
             justified.last().unwrap() > fixed.last().unwrap(),
             "fixed={fixed:?}, justified={justified:?}"
         );
+    }
+
+    #[allow(deprecated)]
+    fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
+        for item in items {
+            match item {
+                FrameItem::Text { pos, text, .. } if text.as_str().contains(needle) => {
+                    return Some(pos.x.0);
+                }
+                FrameItem::TextShaped { pos, text, .. }
+                    if text.as_str().contains(needle) =>
+                {
+                    return Some(pos.x.0);
+                }
+                FrameItem::Group { items, .. } => {
+                    if let Some(x) = p1408_text_x(items, needle) {
+                        return Some(x);
+                    }
+                }
+                FrameItem::Link { items, .. } => {
+                    if let Some(x) = p1408_text_x(items, needle) {
+                        return Some(x);
+                    }
+                }
+                FrameItem::Semantic { items, .. } => {
+                    if let Some(x) = p1408_text_x(items, needle) {
+                        return Some(x);
+                    }
+                }
+                FrameItem::Text { .. } => {}
+                FrameItem::TextShaped { .. } => {}
+                FrameItem::Line { .. } => {}
+                FrameItem::Glyph { .. } => {}
+                FrameItem::Image { .. } => {}
+                FrameItem::Shape { .. } => {}
+            }
+        }
+        None
+    }
+
+    fn p1408_compile_positions(source: &str) -> (f64, Option<f64>) {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        let doc = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        )
+        .0
+        .expect("box fracionária P1408 deve compilar");
+        let items = &doc.pages[0].items;
+        (
+            p1408_text_x(items, "B").expect("suffix B deve existir"),
+            p1408_text_x(items, "Y"),
+        )
+    }
+
+    #[test]
+    fn p1408_um_fr_e_fr_negativo_isolado_ocupam_restante() {
+        let prefix = "#set page(width: 180pt, height: auto, margin: 10pt)\n";
+        let (one_b, _) =
+            p1408_compile_positions(&format!("{prefix}A#box(width: 1fr)[X]B\n"));
+        let (negative_b, _) =
+            p1408_compile_positions(&format!("{prefix}A#box(width: -1fr)[X]B\n"));
+        assert!(one_b > 150.0, "one_b={one_b}");
+        assert!((one_b - negative_b).abs() < 0.01, "one={one_b}, negative={negative_b}");
+    }
+
+    #[test]
+    fn p1408_zero_fr_nao_recebe_restante() {
+        let (suffix, _) = p1408_compile_positions(concat!(
+            "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+            "A#box(width: 0fr)[X]B\n",
+        ));
+        assert!(suffix < 40.0, "suffix={suffix}");
+    }
+
+    #[test]
+    fn p1408_duas_caixas_preservam_razao_um_para_dois() {
+        let (suffix, middle) = p1408_compile_positions(concat!(
+            "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+            "A#box(width: 1fr)[X]#box(width: 2fr)[Y]B\n",
+        ));
+        let middle = middle.expect("body Y deve existir");
+        assert!(
+            (middle - 65.533).abs() < 0.05,
+            "middle={middle}, esperado interno=65.533 (PDF vanila=66.274)"
+        );
+        assert!(suffix > 150.0, "suffix={suffix}");
+    }
+
+    #[test]
+    fn p1408_soma_zero_termina_sem_distribuicao() {
+        let (suffix, _) = p1408_compile_positions(concat!(
+            "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+            "A#box(width: 1fr)[X]#box(width: -1fr)[Y]B\n",
+        ));
+        assert!(suffix < 50.0, "suffix={suffix}");
+    }
+
+    #[test]
+    fn p1408_height_fracionaria_permanece_rejeitada() {
+        let world = mock_world("#box(height: 1fr)[X]\n");
+        let mut timings = Timings::default();
+        let result = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        )
+        .0;
+        let errors =
+            result.expect_err("height fracionária deve continuar fora do contrato");
+        assert!(errors[0].message.contains("box(height:) espera length"));
     }
 
     #[test]

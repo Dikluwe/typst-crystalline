@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 068eb708
+//! @prompt-hash edb3eac5
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -410,6 +410,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // não expandem (limpar pending sem alterar posições).
         if !right_margin.is_finite() {
             self.regions.current.pending_fr.clear();
+            self.pending_fr_natural_widths.clear();
             self.pending_repeats.clear();
             return;
         }
@@ -419,18 +420,47 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.metrics.line_content_right(&line_refs)
         };
         let remaining = (right_margin - content_right).max(0.0);
-        let mut pending = std::mem::take(&mut self.regions.current.pending_fr);
-        let total_fr: f64 = pending.iter().map(|(_, fr)| fr).sum();
-        let distributes = remaining > 0.0 && total_fr.is_finite() && total_fr > 0.0;
-        if distributes {
+        let pending_raw = std::mem::take(&mut self.regions.current.pending_fr);
+        let natural_widths = std::mem::take(&mut self.pending_fr_natural_widths);
+        let mut pending: Vec<(usize, f64, f64)> = pending_raw
+            .into_iter()
+            .enumerate()
+            .map(|(ordinal, (index, weight))| {
+                (index, weight, natural_widths.get(ordinal).copied().unwrap_or(0.0))
+            })
+            .collect();
+        let total_fr: f64 = pending.iter().map(|(_, fr, _)| fr).sum();
+        let distributable =
+            remaining + pending.iter().map(|(_, _, width)| width).sum::<f64>();
+        let share = |weight: f64| {
+            let ratio = weight / total_fr;
+            if ratio.is_finite() && distributable.is_finite() {
+                (ratio * distributable).max(0.0)
+            } else {
+                0.0
+            }
+        };
+        let total_delta = distributable
+            .is_finite()
+            .then(|| {
+                pending
+                    .iter()
+                    .map(|(_, weight, natural_width)| share(*weight) - natural_width)
+                    .sum::<f64>()
+            })
+            .unwrap_or(0.0);
+        if distributable.is_finite() {
             // Ordenado por índice de inserção. Cada fr translada os items
             // à sua direita APENAS pelo seu próprio share — os shares dos
             // fr anteriores já foram aplicados nas iterações anteriores
             // (o item à direita de dois fr recebe a soma dos dois shares,
             // uma parcela por iteração).
-            pending.sort_by_key(|(idx, _)| *idx);
-            for &(idx, fr) in &pending {
-                let share = remaining * fr / total_fr;
+            pending.sort_by_key(|(idx, _, _)| *idx);
+            for &(idx, fr, natural_width) in &pending {
+                let delta = share(fr) - natural_width;
+                if delta == 0.0 {
+                    continue;
+                }
                 let line = std::mem::take(&mut self.regions.current.current_line);
                 self.regions.current.current_line = line
                     .into_iter()
@@ -440,7 +470,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             let (ix, iy) = super::helpers::item_pos(&item);
                             super::helpers::translate_frame_item(
                                 item,
-                                Pt(ix + share),
+                                Pt(ix + delta),
                                 Pt(iy),
                             )
                         } else {
@@ -475,13 +505,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 .map(super::helpers::item_pos)
                 .map(|(x, _)| x)
                 .unwrap_or(right_margin);
-            let fractional_fill = distributes.then(|| {
-                pending
-                    .iter()
-                    .find(|(index, _)| *index == repeat.end)
-                    .map(|(_, fraction)| repeat.width + remaining * *fraction / total_fr)
-            });
-            let fill = fractional_fill.flatten().unwrap_or(fill_end - piece_start);
+            let fractional_fill = pending
+                .iter()
+                .find(|(index, _, _)| *index == repeat.end)
+                .map(|(_, fraction, _)| share(*fraction));
+            let fill = fractional_fill.unwrap_or(fill_end - piece_start);
             super::repeat::expand_pending(
                 &mut self.regions.current.current_line,
                 &repeat,
@@ -491,9 +519,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // O cursor reflete a linha já expandida (decorações e medidas
         // subsequentes vêem o fim real da linha).
-        if distributes {
-            self.regions.current.cursor_x = Pt(right_margin);
-        }
+        self.regions.current.cursor_x += Pt(total_delta);
     }
 
     /// P1140.11 — distribui dinamicamente o espaço restante pelos espaços

@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: ed818929
+Hash do Código: 5da1722f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -354,3 +354,18 @@ justify; não expõe API nem altera `Region`. Checkpoint/rollback trunca a lista
 pela cauda e a inicialização começa vazia. O owner `repeat.rs` decide a fórmula
 e o teto; Cursor fornece a parcela, e consumidores que selam containers devem
 resolver os pendentes antes de drenar os itens da linha.
+
+## P1408 — largura natural privada de caixas fracionárias
+
+A prova bilateral `1fr:2fr` mostrou que descontar previamente a largura
+natural dos bodies desloca a segunda caixa 2,73 pt para a direita. O vanila
+atribui a cada caixa uma parcela do espaço total disponível e dispõe o body
+dentro dela.
+
+Layouter conserva, em lista privada alinhada às fronteiras `pending_fr`, a
+largura natural já ocupada por cada entrada: zero para `h(Nfr)` e a largura
+exterior natural para `box(width: Nfr)`. Cursor soma essas larguras ao restante
+antes de calcular parcelas e subtrai a largura natural da parcela ao deslocar
+o suffix. Checkpoint/rollback trunca a lista pela cauda, e fechamento ou região
+infinita a limpa junto com `pending_fr`. Nenhum campo de `Region`, assinatura
+pública ou quantidade de itens proporcional ao peso é introduzido.
