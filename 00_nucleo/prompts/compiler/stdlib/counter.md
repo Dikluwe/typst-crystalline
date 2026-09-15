@@ -451,3 +451,19 @@ O carrier é ignorado por Eq/Hash/Debug/repr e preservado por clone. Nenhum
 callback é chamado para observar e nenhum erro ou valor muda. Sem o cfg, a API
 e o código efetivo continuam o caminho anterior. P1342 não instrumenta Set,
 Step ou leituras alheias à fixture e não substitui a semântica P1339/P1340.
+
+## P1401 — counter com árvores `before/after` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, análises de `CounterKey::Selector` atravessam os compósitos
+vigentes, mas não podem preservar variants ainda ausentes.
+
+### Decisão proposta
+
+Counter conserva a árvore contextual completa como chave, inclusive o limite e
+o booleano. Onde a análise precisa descobrir a família elementar ou a
+locatabilidade, percorre recursivamente o `base`; o limite não substitui a
+identidade da chave. Não normaliza `Before`/`After` para base e não consulta o
+documento por conta própria. O suporte acompanha o enum público e aguarda o
+gate ADR-0127.

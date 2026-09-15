@@ -684,3 +684,23 @@ O pipeline produtivo preserva avaliação, introspecção, preparação contextu
 layout, shaping e exportação nas mesmas fases e com os mesmos defaults. Não
 executar callback adicional nem fabricar observações de fronteira. Qualquer
 instrumentação futura exige nova medição, atualização L0 e `cfg` formalizado.
+
+## P1401 — avaliação contra documento compilado (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, `eval_expression_with_sink_features` delega diretamente à
+avaliação isolada L1; já `compile_to_paged_document_full_error_and_features`
+constrói o snapshot de introspecção do documento, mas não o disponibiliza ao
+comando eval. A fonte vanila pinada compila o input antes de avaliar a expressão
+com o introspector resultante.
+
+### Decisão proposta
+
+L3 expõe uma operação contextual paginada que recebe `World`, `Source`,
+expressão e `Features`, executa as mesmas fases estabilizadas da compilação
+paginada vigente e avalia a expressão com o `TagIntrospector` final coerente
+com o documento. O retorno preserva `SourceResult<Value>` e warnings; não
+exporta PDF nem conserva o `PagedDocument` além da chamada. O caminho isolado
+permanece intacto. P1401 não adiciona target HTML, não reordena eval/layout e
+não cria segunda implementação de introspecção. A nova API L3 aguarda o gate.

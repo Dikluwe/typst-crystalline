@@ -1689,3 +1689,21 @@ nome e não cria carrier no consumidor.
 O hook observa a travessia existente; tags, Locator, stores, ordem, clones e
 resultados não mudam. Sem o cfg ele inexiste. Esta seção sucede a âncora P1341
 no fragmento P1342 e não afirma lifecycle, retenção, invalidação ou NT01–NT06.
+
+## P1401 — consulta posicional `before`/`after` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, `TagIntrospector::query` possui arms até `Within`. A fonte
+vanila pinada consulta base e limite, usa a primeira ocorrência do limite na
+ordem documental e aplica `inclusive` à coincidência de fronteira.
+
+### Decisão proposta
+
+`Before` retorna, dentre `query(base)`, ocorrências anteriores à primeira de
+`query(end)`, incluindo a fronteira somente se ela também pertence ao base e
+`inclusive` é true. `After` é simétrico a partir da primeira ocorrência de
+`query(start)`. Se o seletor-limite não tem ocorrência, o resultado é todo o
+base. A ordem é documental e a deduplicação já contratada continua. Não se
+comparam índices de vetores independentes: a relação usa a ordem canônica das
+Locations. Esta semântica pública aguarda confirmação ADR-0127.

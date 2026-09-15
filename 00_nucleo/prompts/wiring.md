@@ -608,3 +608,21 @@ L4 move a capacidade, mas não calcula fingerprints, não faz polling e não
 executa I/O de watch diretamente. Helpers crus de commit/discard não são sua
 interface. Publicação atômica, cleanup de staging e renovação das dependências
 permanecem obrigatórios.
+
+## P1401 — composição de `eval --in` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, `04_wiring/src/main.rs::run_eval` fixa raiz `.` e constrói
+`SystemWorld::for_eval`, portanto nunca oferece documento contextual; o vanila
+ratificado aceita o mesmo ensaio com `--in`.
+
+### Decisão proposta
+
+L4 preserva esse ramo quando `EvalIntent.input` é `None`. Quando há input,
+compõe o `SystemWorld` físico correspondente — ou uma fonte única recebida de
+stdin para `-` — e chama a operação contextual de L3. A expressão continua a
+ser serializada e diagnosticada pelo fluxo vigente. L4 não implementa query,
+não inspeciona seletores e não duplica fases do compilador. Falha de leitura ou
+compilação retorna exit 1 pelos diagnósticos normais; erro de parsing CLI segue
+exit 2 em L2. O fio público aguarda confirmação ADR-0127.

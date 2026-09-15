@@ -205,3 +205,18 @@ reflexivo nem bucket de hash estrutural para excluir pares int/float iguais.
 Não mudar Eq/Hash públicos de Counter, CounterKey, Value ou Selector e não
 normalizar a ordem dos fields. A mudança é interna de paridade, subordinada
 aos gates P1339, sem nova entidade ou assinatura pública.
+
+## P1401 — igualdade de seletores contextuais (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, a igualdade exaustiva só conhece os variants anteriores a
+`Before`/`After`; o novo contrato da entidade exige identidade estrutural.
+
+### Decisão proposta
+
+Dois `Before` são iguais somente quando base, end e inclusive são iguais; dois
+`After`, quando base, start e inclusive são iguais. Variants diferentes são
+desiguais. A comparação é recursiva, não consulta o documento e não reduz o
+selector ao resultado corrente. O observável acompanha a entidade proposta e
+aguarda confirmação ADR-0127.

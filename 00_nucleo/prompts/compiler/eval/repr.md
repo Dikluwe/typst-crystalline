@@ -696,3 +696,18 @@ de 2 GiB. É proibido executar `cargo test` ou compilar o lib-test monolítico.
 Swap não zero ou RSS acima de 1.782.579 KiB interrompe a sequência. Duas
 revisões consecutivas sem ganho discriminatório pela mesma causa reabrem o
 desenho; o budget nunca autoriza relaxar `Unknown` ou o contrato.
+
+## P1401 — representação de seletores contextuais (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O baseline P1401 não possui arms de repr para `Before` ou `After`. O vanila
+pinado mede `heading.before(heading)` e `heading.after(heading)` no default, e
+expõe `inclusive: false` somente quando explicitamente falso.
+
+### Decisão proposta
+
+Repr produz `<base>.before(<end>)` e `<base>.after(<start>)` quando inclusive é
+true; quando false, acrescenta `, inclusive: false`. Base e limite usam o repr
+recursivo público, sem Debug nem detalhes de Box. O texto é observável da
+linguagem e aguarda confirmação ADR-0127.

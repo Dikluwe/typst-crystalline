@@ -212,3 +212,18 @@ func, reconstruir defaults no caller ou exigir um novo campo em entidade.
 O helper não transforma a entrada nem depende de Location para igualdade.
 Teste independente deve distinguir duas árvores iguais com snapshots
 realizados diferentes, e a ausência de campo de Value::None explícito.
+
+## P1401 — rejeição em show rules (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, o matcher de show rules é exaustivo sem os variants novos.
+A fonte vanila pinada trata `Before` e `After` como seletores contextuais de
+query, não como predicados aplicáveis a uma ocorrência isolada.
+
+### Decisão proposta
+
+`selector_matches` devolve false para `Before` e `After` em show rules, sem
+consultar introspector, escolher fronteira ou reduzir ao base. A funcionalidade
+fica exclusivamente em `Introspector::query`. Esta distinção observável aguarda
+confirmação ADR-0127.

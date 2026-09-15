@@ -423,3 +423,21 @@ opaca ou para leitura alheia.
 
 Não há neste owner obrigação de ledger, DTO, JSON, hook ou harness de
 instrumentação. Observação adicional exige owner próprio.
+
+## P1401 — expressão com introspector injetado (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, `eval_expression_with_features` cria `EvalContext::new()`;
+este inicializa `introspector` vazio. Assim `query`, `counter` e state não veem
+o documento de `--in`, embora o contexto já possua o campo apropriado.
+
+### Decisão proposta
+
+L1 oferece um sibling público de avaliação de expressão que recebe
+`&TagIntrospector`, instala um clone no `EvalContext` antes de avaliar e mantém
+scope, parser, route, sink, diagnósticos, features e limites vigentes. O
+entrypoint atual delega ao mesmo núcleo com `TagIntrospector::empty()`, de modo
+que ausência de `--in` não muda. As varreduras recursivas de `Selector` deste
+owner atravessam também `Before.base/end` e `After.base/start`; não colapsam a
+árvore. Assinatura pública nova aguarda confirmação ADR-0127.

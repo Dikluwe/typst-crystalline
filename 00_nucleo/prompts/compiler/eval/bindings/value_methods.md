@@ -341,3 +341,18 @@ vigente. A forma estática faz captura equivalente no owner, que já recebe
 Não inferir origem do Func, valor ou output nem procurar por nome. Sem o cfg,
 a chamada e assinatura normal permanecem atuais. O recorte cobre o callback
 focal P1342, não step/set, todos os métodos de counter ou a matriz P1340.
+
+## P1401 — carriers vinculados de selector (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, os carriers de método vinculam operações existentes de
+selector, sem formas para `before` e `after`; a fonte vanila pinada permite as
+duas chamadas sobre uma instância.
+
+### Decisão proposta
+
+Os carriers vinculados preservam exatamente o `Selector` receptor e distinguem
+`before` de `after` até o dispatcher. Não avaliam limites, não escolhem o
+default e não consultam introspecção. Clone do carrier conserva a árvore sem
+normalização. A extensão pública da família de métodos aguarda o gate.

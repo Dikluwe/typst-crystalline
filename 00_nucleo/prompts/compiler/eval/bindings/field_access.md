@@ -1170,3 +1170,19 @@ ligada e preservação dos demais lookups. Refutam a suficiência outra
 identidade que ganhe campo ou necessidade de novo carrier público.
 Correção de namespace em fluxo contínuo ADR-0127. Este recorte não completa
 os contratos das demais rotas.
+
+## P1401 — descoberta de `selector.before/after` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, o acesso de campo de `Value::Selector` reconhece os métodos
+vigentes, mas não `before` ou `after`; por isso a chamada falha antes do
+dispatcher, enquanto o vanila pinado expõe ambos.
+
+### Decisão proposta
+
+Instâncias de selector expõem campos chamáveis `before` e `after`; a descoberta
+por tipo também os reconhece como métodos não estáticos. Este owner apenas
+resolve o nome e vincula o receptor, sem construir variants nem consultar o
+documento. Outros nomes e mensagens de campo ausente permanecem iguais. A nova
+superfície pública aguarda confirmação ADR-0127.

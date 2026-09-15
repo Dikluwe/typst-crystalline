@@ -845,3 +845,21 @@ Não reconhecer nome, repr ou output; não reavaliar callee/Args nem criar um Fu
 para o body. Merge, recursão, trace, estilos e resultados permanecem vigentes.
 Sem o cfg, nenhum evento ou branch existe. Esta seção substitui P1341 apenas na
 cadeia focal P1342 e não cobre callbacks alheios.
+
+## P1401 — chamadas `selector.before/after` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, o dispatcher não possui chamadas vinculadas ou não
+vinculadas para esses nomes. A fonte vanila pinada exige um selector-limite e
+aceita o named `inclusive`, booleano com default true.
+
+### Decisão proposta
+
+As formas vinculadas `base.before(end, inclusive: true)` e
+`base.after(start, inclusive: true)` constroem os variants P1401. As formas de
+função descobertas pelo tipo recebem o base explicitamente e delegam ao mesmo
+helper semântico. Base e limite passam pela conversão pública para Selector;
+argumento ausente, excedente, named desconhecido ou inclusive não booleano usa
+os diagnósticos normais de argumentos. Não executam query nesta fase. A nova
+chamada pública aguarda confirmação ADR-0127.

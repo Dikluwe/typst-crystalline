@@ -307,3 +307,20 @@ owners de repr, query/introspector e counter para consumir a nova variante;
 não aceitar wildcard silencioso, novo retorno vazio incondicional ou perda
 de filtro. O inventário desses consumidores fica em diagnósticos. A aprovação
 da entidade não autoriza escrever consumers cujo L0 ainda esteja pendente.
+
+## P1401 — seletores contextuais `before` e `after` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1401, `Selector` termina em `Within`; P1400 mede que a construção
+base existe bilateralmente, mas o cristalino rejeita os métodos. Na fonte
+vanila pinada, as variantes guardam seletor base, limite e `inclusive`, cujo
+default público é `true`.
+
+### Contrato público proposto
+
+O enum ganha `Before { base: Box<Selector>, end: Box<Selector>, inclusive:
+bool }` e `After { base: Box<Selector>, start: Box<Selector>, inclusive: bool
+}`. Os campos participam integralmente de clone, igualdade e hash estruturais;
+ordem e aninhamento nunca são normalizados. Box é mecânica interna, sem efeito
+na linguagem. Os novos variants são públicos e aguardam confirmação ADR-0127.

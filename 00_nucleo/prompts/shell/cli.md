@@ -1067,3 +1067,22 @@ entre default e flag explícita, seleção distinta de `vanilla`, rejeição de 
 alheio e ausência da flag nos outros comandos. Refutam este owner qualquer
 necessidade de lógica de escaping em L2, efeito fora de HTML ou alteração do
 eixo feature/target.
+
+## P1401 — entrada contextual de `eval` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `4c1d7bb5ca13a0a40e2f423a7de9c00089da4c20`,
+`02_shell/src/cli.rs` declara `EvalArgs` e `EvalIntent` sem caminho de entrada;
+P1400 registra que o vanila ratificado `586e1bd43` aceita `eval --in`, enquanto
+o cristalino termina no parser com argumento inesperado.
+
+### Contrato público proposto
+
+`EvalArgs` aceita `--in INPUT` uma vez e `EvalIntent` transporta
+`pub input: Option<PathBuf>`. Ausência preserva a avaliação isolada vigente.
+`--in -` significa um documento lido uma única vez de stdin; outro valor é um
+caminho de documento. A opção pertence somente a `eval`, não altera formato,
+pretty, features ou CA, e não introduz `--target`: P1401 usa target paginado.
+L2 apenas parseia e transporta. Help, rejeição de repetição e transporte são a
+aceitação deste owner. Flag e campo públicos aguardam confirmação explícita.
