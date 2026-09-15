@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 80f77efc
+//! @prompt-hash 683baf80
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -5020,6 +5020,9 @@ pub(crate) enum ContextReadRequest {
     LocationPageNumbering {
         location: crate::entities::location::Location,
     },
+    OutlineEntryPage {
+        location: crate::entities::location::Location,
+    },
 }
 
 #[derive(Clone)]
@@ -5571,6 +5574,16 @@ impl EvalContext {
                 &mut ctx,
                 read.span,
             ),
+            OutlineEntryPage { location } => {
+                let mut scopes = crate::compiler::scopes::Scopes::new(None);
+                crate::compiler::stdlib::realize_outline_entry_page(
+                    *location,
+                    read.span,
+                    &mut scopes,
+                    &mut ctx,
+                    &mut transaction,
+                )
+            }
         };
         result
     }
@@ -5645,7 +5658,8 @@ impl EvalContext {
                 | ContextReadRequest::Here
                 | ContextReadRequest::LocationPage { .. }
                 | ContextReadRequest::LocationPosition { .. }
-                | ContextReadRequest::LocationPageNumbering { .. } => continue,
+                | ContextReadRequest::LocationPageNumbering { .. }
+                | ContextReadRequest::OutlineEntryPage { .. } => continue,
             };
             let projections: Vec<_> = history
                 .iter()
@@ -7282,6 +7296,8 @@ fn make_stdlib_with_features(
         native_outline,
         native_outline_entry,
         native_outline_entry_body,
+        native_outline_entry_page,
+        native_outline_entry_prefix,
         native_overline,
         native_pad,
         native_page,
@@ -7401,6 +7417,20 @@ fn make_stdlib_with_features(
         entry_namespace.define(
             "body",
             Value::Func(Func::native("outline.entry.body", native_outline_entry_body)),
+        );
+        entry_namespace.define(
+            "prefix",
+            Value::Func(Func::native(
+                "outline.entry.prefix",
+                native_outline_entry_prefix,
+            )),
+        );
+        entry_namespace.define(
+            "page",
+            Value::Func(Func::native_with_engine(
+                "outline.entry.page",
+                native_outline_entry_page,
+            )),
         );
         let entry = Func::native_with_namespace(
             "outline.entry",

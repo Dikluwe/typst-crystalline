@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/outline_entry.md
-//! @prompt-hash af09bd6f
+//! @prompt-hash ecdf19ae
 //! @layer L1
 //! @updated 2026-09-14
 
@@ -9,6 +9,7 @@ use std::sync::Arc;
 use super::Element;
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
+use crate::entities::location::Location;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
@@ -19,6 +20,8 @@ pub struct OutlineEntryElem {
     pub element: Content,
     pub fill: Option<Content>,
     pub fill_set: bool,
+    prefix: Option<Content>,
+    element_location: Option<Location>,
 }
 
 impl OutlineEntryElem {
@@ -28,7 +31,32 @@ impl OutlineEntryElem {
         fill: Option<Content>,
         fill_set: bool,
     ) -> Self {
-        Self { level: level.max(1), element, fill, fill_set }
+        Self {
+            level: level.max(1),
+            element,
+            fill,
+            fill_set,
+            prefix: None,
+            element_location: None,
+        }
+    }
+
+    pub fn realized(
+        level: usize,
+        element: Content,
+        fill: Option<Content>,
+        fill_set: bool,
+        prefix: Option<Content>,
+        element_location: Location,
+    ) -> Self {
+        Self {
+            level: level.max(1),
+            element,
+            fill,
+            fill_set,
+            prefix,
+            element_location: Some(element_location),
+        }
     }
 
     pub fn body(&self) -> Result<Content, String> {
@@ -36,6 +64,14 @@ impl OutlineEntryElem {
             Content::Heading(heading) => Ok(heading.body.clone()),
             other => Err(format!("cannot outline {}", other.elem_name())),
         }
+    }
+
+    pub fn prefix(&self) -> Option<Content> {
+        self.prefix.clone()
+    }
+
+    pub fn element_location(&self) -> Option<Location> {
+        self.element_location
     }
 }
 
@@ -61,6 +97,8 @@ impl Element for OutlineEntryElem {
             element: self.element.map_content(transform)?,
             fill: self.fill.as_ref().map(|c| c.map_content(transform)).transpose()?,
             fill_set: self.fill_set,
+            prefix: self.prefix.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            element_location: self.element_location,
         })))
     }
 
@@ -73,6 +111,8 @@ impl Element for OutlineEntryElem {
             element: self.element.map_text(transform),
             fill: self.fill.as_ref().map(|c| c.map_text(transform)),
             fill_set: self.fill_set,
+            prefix: self.prefix.as_ref().map(|c| c.map_text(transform)),
+            element_location: self.element_location,
         }))
     }
 
@@ -106,5 +146,28 @@ mod tests {
         let entry =
             OutlineEntryElem::new(1, Content::strong(Content::text("H")), None, false);
         assert_eq!(entry.body().unwrap_err(), "cannot outline strong");
+    }
+
+    #[test]
+    fn p1403_entry_realizada_preserva_prefixo_e_location() {
+        let location = Location::from_raw(7);
+        let entry = OutlineEntryElem::realized(
+            2,
+            Content::heading(2, Content::text("H")),
+            None,
+            true,
+            Some(Content::text("1.2.")),
+            location,
+        );
+        assert_eq!(entry.prefix(), Some(Content::text("1.2.")));
+        assert_eq!(entry.element_location(), Some(location));
+    }
+
+    #[test]
+    fn p1403_entry_direta_nao_inventa_contexto() {
+        let entry =
+            OutlineEntryElem::new(1, Content::heading(1, Content::text("H")), None, true);
+        assert_eq!(entry.prefix(), None);
+        assert_eq!(entry.element_location(), None);
     }
 }

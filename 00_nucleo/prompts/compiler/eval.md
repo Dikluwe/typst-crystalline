@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 02f58a30
+Hash do Código: dc087712
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -447,3 +447,11 @@ owner atravessam também `Before.base/end` e `After.base/start`; não colapsam a
 O binding global `outline` usa namespace nativo contendo `entry`; `entry` usa
 namespace contendo `body`. As identidades são funções nativas estáticas e
 continuam selecionáveis por endereço, não por nome textual.
+
+# P1403 — identidades de helpers da entry
+
+O namespace nativo de `outline.entry` contém também `prefix` e `page`.
+`prefix` é nativa comum; `page` é nativa com acesso a Engine/Scopes para
+realizar numberings funcionais. `page` registra uma leitura causal fechada por
+Location, reexecutável contra candidatos do fixpoint; não depende só da leitura
+de `query`. Ambas preservam nome e identidade estáticos.

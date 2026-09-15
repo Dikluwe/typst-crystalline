@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: f6bb3bc6
+Hash do Código: deb40ee8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -2985,3 +2985,9 @@ Medição anterior e contrato público: `compiler/stdlib/structural/outline.md`
 §P1402. O enum fechado recebe `OutlineEntry(Arc<OutlineEntryElem>)`, com despacho
 estático nos hubs. A lógica da unidade fica em `entities/elements/outline_entry`;
 o hub só reembrulha, compara e delega. Não usar `Content::Dynamic`.
+
+# P1403 — construção interna da entry realizada
+
+Além do constructor público P1402, o hub oferece constructor interno que
+recebe prefixo semântico opcional e Location causal. Ele apenas encaminha à
+unidade `OutlineEntryElem`; não calcula contador, página ou numbering.

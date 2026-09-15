@@ -1,0 +1,21 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "step": "P1403",
+  "verified_at": "2026-09-14T23:12:11-03:00",
+  "verdict": "PASS_FRAGMENT",
+  "attestation": "executado sem atestação de isolamento",
+  "claim_boundary": "Somente outline.entry.prefix(), page(), retenção causal e PageStore necessário ao --in; não prova inner, indented, show rules ou paridade geral.",
+  "gates": {
+    "bounded_binary_build": "pass: 2 GiB, one job, incremental off, 512 codegen units",
+    "monolithic_core_test": "not run: known memory-unsafe for this host; no credit",
+    "bilateral_oracles": "6 preserved, 0 different, 0 unknown",
+    "additional_bounded_probes": "5 pass",
+    "mutation_score": 1.0,
+    "cargo_fmt": "pass",
+    "git_diff_check": "pass",
+    "crystalline_lint": "exit 0, zero violations"
+  },
+  "candidate_binary_sha256": "9f19d7e449d8adffe2b15dce81839c7de8d6d6ddd9c360e4512c3ca64c58dbfe",
+  "vanila_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+  "decision": "PASS_FRAGMENT"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash b5770b0f
+//! @prompt-hash b345d1ac
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -739,7 +739,7 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             .counter_final_values(&typst_core::entities::counter::CounterKey::Page)
             .and_then(|values| values.first().copied())
             .unwrap_or(1);
-        let intr_for_positions = intr.clone();
+        let mut intr_for_positions = intr.clone();
         let mut layout_intr = intr;
         let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
             &content,
@@ -811,6 +811,7 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
                 break;
             }
         }
+        intr_for_positions.inject_pages(layout_intr.page_store.clone());
         (doc, intr_for_positions, extracted_headings)
     };
     for warning in doc.layout_warnings.drain(..) {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 0cf0de16
+//! @prompt-hash 3391036f
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -16,6 +16,8 @@ use crate::entities::content::Content;
 use crate::entities::elements::outline::OutlineElem;
 use crate::entities::elements::outline::OutlineTarget;
 use crate::entities::file_id::FileId;
+use crate::entities::introspector::Introspector;
+use crate::entities::numbering::Numbering;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -107,6 +109,93 @@ pub fn native_outline_entry_body(
         .body()
         .map(Value::Content)
         .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])
+}
+
+fn outline_entry_receiver<'a>(
+    args: &'a Args,
+) -> SourceResult<&'a crate::entities::elements::outline_entry::OutlineEntryElem> {
+    let Some(first) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
+    };
+    if args.items.len() != 1 || !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    let content = match first {
+        Value::Content(content) => content,
+        Value::LocatedContent(content, _) => content.content(),
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "expected outline entry",
+            )])
+        }
+    };
+    let Content::OutlineEntry(entry) = content else {
+        return Err(vec![SourceDiagnostic::error(args.span, "expected outline entry")]);
+    };
+    Ok(entry)
+}
+
+/// Função qualificada `outline.entry.prefix(entry)`.
+pub fn native_outline_entry_prefix(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    Ok(outline_entry_receiver(args)?
+        .prefix()
+        .map(Value::Content)
+        .unwrap_or(Value::None))
+}
+
+/// Função contextual qualificada `outline.entry.page(entry)`.
+pub fn native_outline_entry_page(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+    scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    engine: &mut crate::entities::engine::Engine<'_>,
+) -> SourceResult<Value> {
+    let entry = outline_entry_receiver(args)?;
+    let Some(location) = entry.element_location() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("{} must have a location", entry.element.elem_name()),
+        )
+        .with_hint("try customizing `outline.entry` with a show rule")]);
+    };
+    let result = realize_outline_entry_page(location, args.span, scopes, ctx, engine)?;
+    ctx.observe_context_read(
+        crate::compiler::eval::ContextReadRequest::OutlineEntryPage { location },
+        args.span,
+        Ok(result),
+    )
+}
+
+pub(crate) fn realize_outline_entry_page(
+    location: crate::entities::location::Location,
+    span: Span,
+    scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut crate::entities::engine::Engine<'_>,
+) -> SourceResult<Value> {
+    let page = ctx.introspector.page(location).map(|page| page.get()).unwrap_or(1);
+    let numbering = ctx
+        .introspector
+        .page_numbering(location)
+        .cloned()
+        .unwrap_or_else(|| Numbering::Pattern("1".into()));
+    let content = crate::compiler::stdlib::numbering::realize_numbering(
+        &numbering,
+        &[page],
+        span,
+        scopes,
+        ctx,
+        engine,
+    )?;
+    Ok(Value::Content(content))
 }
 
 /// `outline(title: content?, depth: int?, indent: bool?)` — emite

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: e3606b66
+Hash do Código: 92c4db89
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1284,3 +1284,8 @@ e removidos, junto com as suas excepções de órfão no `crystalline.toml`.
 
 O hub estrutural encaminha os dois símbolos nativos de `outline.entry` para o
 hub da stdlib, sem duplicar contrato, validação ou síntese introspectiva.
+
+## P1403 — reexportação dos helpers contextuais
+
+O hub encaminha também `native_outline_entry_prefix` e
+`native_outline_entry_page`; não formata prefixos nem páginas.

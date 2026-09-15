@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 2a634f53
+Hash do Código: 2a4b608d
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -231,3 +231,8 @@ restrita à ligação do novo owner `primitives-constructors/array.md`.
 O hub reexporta, em visibilidade interna, os símbolos nativos `outline.entry`
 e `outline.entry.body` definidos pelo owner
 `compiler/stdlib/structural/outline.md`. Não contém validação nem construção.
+
+## P1403 — reexportação de `prefix` e `page`
+
+A fachada encaminha internamente as duas nativas do owner de outline, sem
+duplicar parsing, acesso ao introspector ou realização de numbering.

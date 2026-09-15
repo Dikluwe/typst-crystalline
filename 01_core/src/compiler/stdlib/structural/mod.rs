@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash ba6a888d
+//! @prompt-hash 3eb9dbb3
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -50,9 +50,10 @@ pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,
     native_underover,
 };
+pub(crate) use outline::realize_outline_entry_page;
 pub use outline::{
     native_lof, native_lot, native_outline, native_outline_entry,
-    native_outline_entry_body,
+    native_outline_entry_body, native_outline_entry_page, native_outline_entry_prefix,
 };
 pub use par::{native_par, native_parbreak};
 pub use quote::native_quote;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 022d71fa
+//! @prompt-hash 30217e7e
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -112,7 +112,7 @@ pub use crate::compiler::stdlib::state::{
 };
 pub(crate) use crate::compiler::stdlib::structural::{
     equation_alt, equation_content, equation_number_align, equation_supplement,
-    sqrt_content,
+    realize_outline_entry_page, sqrt_content,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
@@ -120,10 +120,10 @@ pub use crate::compiler::stdlib::structural::{
     native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
     native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
     native_lof, native_lot, native_op, native_outline, native_outline_entry,
-    native_outline_entry_body, native_par, native_parbreak, native_quote, native_raw,
-    native_strong, native_table, native_table_cell, native_table_footer,
-    native_table_header, native_table_hline, native_table_vline, native_terms,
-    native_title, native_underover,
+    native_outline_entry_body, native_outline_entry_page, native_outline_entry_prefix,
+    native_par, native_parbreak, native_quote, native_raw, native_strong, native_table,
+    native_table_cell, native_table_footer, native_table_header, native_table_hline,
+    native_table_vline, native_terms, native_title, native_underover,
 };
 pub use crate::compiler::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_replace,

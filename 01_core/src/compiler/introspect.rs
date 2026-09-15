@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 886a4ea2
+//! @prompt-hash 4def3a00
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -820,7 +820,7 @@ fn materialize_outline_entries(locator: &mut Locator, intr: &mut TagIntrospector
         if outline.target != OutlineTarget::Headings {
             continue;
         }
-        for ((_label, _number, _body, level), source_location) in
+        for ((_label, number, _body, level), source_location) in
             headings.iter().zip(&heading_locations)
         {
             if *level > outline.depth {
@@ -831,7 +831,14 @@ fn materialize_outline_entries(locator: &mut Locator, intr: &mut TagIntrospector
             };
             let element = source.content().clone();
             let fill = Content::repeat(Content::text("."), Some(Length::em(0.15)), true);
-            let entry = Content::outline_entry(*level, element, Some(fill.clone()));
+            let prefix = number.as_ref().map(|number| Content::text(number.as_str()));
+            let entry = Content::realized_outline_entry(
+                *level,
+                element,
+                Some(fill.clone()),
+                prefix,
+                *source_location,
+            );
             let mut fields = indexmap::IndexMap::default();
             fields.insert("level".into(), Value::Int(*level as i64));
             fields.insert(

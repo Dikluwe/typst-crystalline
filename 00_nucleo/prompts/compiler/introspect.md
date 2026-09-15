@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 72bb066f
+Hash do Código: c6152e08
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1717,3 +1717,10 @@ do heading e recuperar seu snapshot realizado, criar Location nova e inserir
 `elements`. A multiplicidade é por outline: zero outline produz zero entries e
 dois outlines produzem duas por heading. Não incluir headings `outlined:false`,
 pois eles não entram em `headings_for_toc`.
+
+# P1403 — retenção do prefixo e da Location causal
+
+Na mesma síntese P1402, conservar o segundo item de `headings_for_toc` como
+Content de prefixo opcional e a Location emparelhada do heading como dado
+causal privado da entry. Não recalcular contador nem página nesta fase e não
+publicar os dois como campos consultáveis.

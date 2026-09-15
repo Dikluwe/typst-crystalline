@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: dc65383e
+Hash do Código: b999a401
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -704,3 +704,22 @@ com o documento. O retorno preserva `SourceResult<Value>` e warnings; não
 exporta PDF nem conserva o `PagedDocument` além da chamada. O caminho isolado
 permanece intacto. P1401 não adiciona target HTML, não reordena eval/layout e
 não cria segunda implementação de introspecção. A nova API L3 aguarda o gate.
+
+## P1403 — preservar PageStore no introspector devolvido
+
+### Medição anterior à decisão
+
+Com documento sem blocos `context`, `#set page(numbering: "I")` seguido de
+avaliação por `--in` devolve página `1`, mas `location.page-numbering()` devolve
+`none`. O loop legado realiza e injeta corretamente o `PageStore` em
+`layout_intr`, porém devolve o clone pré-layout `intr_for_positions`, no qual
+só injeta posições ao final. Assim o consumer contextual de P1403 não consegue
+observar o numbering que o próprio pipeline já realizou.
+
+### Obrigação
+
+Antes de devolver o caminho legado estabilizado, copiar o `PageStore` já
+realizado de `layout_intr` para `intr_for_positions`. Não executar novo layout,
+não recalcular numbering e não alterar o caminho seletivo, que já devolve a
+candidate paginada. Posições finais continuam sendo injetadas depois do
+shaping. Esta é correção interna de perda de snapshot em paridade contínua.

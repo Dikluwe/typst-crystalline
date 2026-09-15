@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: c99d3855
+Hash do Código: 49002fed
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -870,3 +870,11 @@ Antes do erro genérico de callee, chamadas `body()` cujo receiver seja
 `Content::OutlineEntry` ou conteúdo localizado equivalente devolvem o body do
 heading e rejeitam argumentos. Elementos não outlinable produzem diagnóstico
 explícito; os demais Contents não são interceptados.
+
+# P1403 — métodos `entry.prefix()` e `entry.page()`
+
+No mesmo ponto anterior ao fallback genérico, receivers
+`Content::OutlineEntry`, localizados ou não, ligam `prefix()` e `page()` às
+nativas qualificadas correspondentes. O receiver é avaliado uma vez e
+anteposto aos argumentos; a nativa conserva a validação única. Outros Contents
+não são interceptados. `page()` recebe o contexto e a Engine atuais.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: 3b987776
+Hash do Código: c5e563ee
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -171,3 +171,44 @@ afetados antes de código.
 Esta proposta substitui o bloqueio de P1284 somente após confirmação humana
 explícita, conforme ADR-0127. Até a confirmação, o consumer permanece inalterado
 e este texto é especificação proposta, não autorização para L1–L4.
+
+## P1403 — proposta pública `prefix()` e `page()`
+
+### Medição antes da decisão
+
+No baseline cristalino limpo
+`b7804e4daa9d3dd823dba5d1b828e60c845cc515`, medido em
+`2026-09-14T22:50:19-03:00`, o vanila ratificado expõe as identidades
+`outline.entry.prefix` e `outline.entry.page`. Sobre a entry consultada do
+documento P1402 numerado, elas devolvem respectivamente `[1.]` e `[1]`. Um
+heading sem numbering devolve `none` em `prefix`; page numbering `"I"` produz
+`[I]`. Fonte: `model/outline.rs:629-667,676-693`. O cristalino não contém as
+duas identidades. A rejeição atual de `#show outline.entry` acontece antes da
+chamada e permanece lacuna separada.
+
+### Contrato público proposto
+
+O scope de `outline.entry` ganha as funções contextuais estáticas `prefix` e
+`page`, ambas sem argumentos:
+
+- `prefix()` resolve a capacidade outlinable do `element`; sem numbering
+  retorna `none`; com numbering e Location preservada, formata o contador do
+  elemento nessa Location e devolve Content, mantendo o prefixo específico do
+  tipo;
+- `page()` exige a Location do `element`, consulta a página e seu numbering no
+  introspector contextual, usa padrão decimal `"1"` quando não há numbering e
+  devolve Content formatado;
+- Location ausente produz erro explícito e dica de customização por show rule;
+- nenhum caminho usa página corrente, contador flat, texto pré-assado ou
+  coerção de Content para string.
+
+Esta materialização continua incompleta de forma declarada: P1404 completa
+`inner`, P1405 completa `indented` e P1406 faz `#show outline.entry` alcançar
+as entries geradas. P1403 não autoriza essas três parcelas nem muda a fase de
+realização do outline.
+
+### Gate
+
+As duas funções ampliam o contrato público. Confirmação humana explícita
+recebida em 2026-09-14; o contrato acima está autorizado para L1–L4 conforme
+ADR-0127.

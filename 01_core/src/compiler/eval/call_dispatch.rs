@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 92e7392f
+//! @prompt-hash 95567694
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -28,6 +28,8 @@ use crate::compiler::stdlib::{
     native_label,
     native_layout,
     native_measure,
+    native_outline_entry_page,
+    native_outline_entry_prefix,
     native_path,
     native_regex,
     native_selector,
@@ -1831,9 +1833,10 @@ pub(super) fn eval_func_call(
             }
         }
 
-        // P1402 — método não contextual próprio da entry.
+        // P1402/P1403 — métodos próprios da entry.
         if let Expr::FieldAccess(access) = call.callee() {
-            if access.field().as_str() == "body" {
+            let method = access.field().as_str();
+            if matches!(method, "body" | "prefix" | "page") {
                 let target = eval_expr(access.target(), scopes, ctx, engine)?;
                 let content = match &target {
                     Value::Content(content) => Some(content),
@@ -1844,12 +1847,30 @@ pub(super) fn eval_func_call(
                     content @ crate::entities::content::Content::OutlineEntry(_),
                 ) = content
                 {
-                    let args = eval_args(call.args(), scopes, ctx, engine)?;
-                    return bindings::eval_outline_entry_body_method(
-                        content,
-                        args,
-                        call.span(),
-                    );
+                    let mut args = eval_args(call.args(), scopes, ctx, engine)?;
+                    if method == "body" {
+                        return bindings::eval_outline_entry_body_method(
+                            content,
+                            args,
+                            call.span(),
+                        );
+                    }
+                    args.items.insert(0, Value::Content(content.clone()));
+                    args.occurrences = None;
+                    let world = engine.world;
+                    let current_file = engine.current_file;
+                    return if method == "prefix" {
+                        native_outline_entry_prefix(ctx, &args, world, current_file)
+                    } else {
+                        native_outline_entry_page(
+                            ctx,
+                            &args,
+                            world,
+                            current_file,
+                            scopes,
+                            engine,
+                        )
+                    };
                 }
             }
         }

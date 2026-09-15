@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 9ac2981b
+//! @prompt-hash 25f00c3e
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -2503,6 +2503,23 @@ impl Content {
     ) -> Self {
         Self::OutlineEntry(Arc::new(OutlineEntryElem::new(
             level, element, fill, fill_set,
+        )))
+    }
+
+    pub fn realized_outline_entry(
+        level: usize,
+        element: Content,
+        fill: Option<Content>,
+        prefix: Option<Content>,
+        element_location: crate::entities::location::Location,
+    ) -> Self {
+        Self::OutlineEntry(Arc::new(OutlineEntryElem::realized(
+            level,
+            element,
+            fill,
+            true,
+            prefix,
+            element_location,
         )))
     }
 

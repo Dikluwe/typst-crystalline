@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline_entry` — `OutlineEntryElem`
-Hash do Código: da6bdf9d
+Hash do Código: 8077e570
 
 **Camada:** L1 · **Alvo:** `01_core/src/entities/elements/outline_entry.rs`
 
@@ -29,3 +29,14 @@ Como elemento locatável, `element_kind()` devolve
 tipo em função dinâmica.
 
 Não implementar `indented`, `inner`, `page` ou `prefix` em P1402.
+
+## P1403 — dados causais privados para `prefix()` e `page()`
+
+Após a confirmação humana do contrato em
+`compiler/stdlib/structural/outline.md` §P1403, a unidade guarda também, sem os
+expor em `get_field`, o prefixo semântico já realizado do elemento fonte e sua
+`Location` causal. Entries construídas diretamente inicializam ambos como
+ausentes; entries sintetizadas pelo introspector recebem os dois. `prefix()`
+devolve o Content preservado ou `none`; `page()` pertence ao consumer de
+stdlib, que usa a Location. Walkers preservam esses metadados e só transformam
+o Content do prefixo. P1403 não implementa `inner` nem `indented`.
