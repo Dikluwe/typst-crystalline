@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: c48c58b7
+Hash do Código: 4a907550
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`
@@ -208,3 +208,23 @@ fracionários e repeats pendentes antes de drenar a faixa do body. Todas as
 cópias resultantes permanecem filhos do mesmo `FrameItem::Link`, e o número de
 página/suffix é deslocado uma única vez. A função não calcula quantidade, gap
 ou justify: essas decisões pertencem ao owner `layout/repeat.rs`.
+
+## P1411 — fechamento do corpo realizado
+
+### Medição anterior à decisão
+
+Depois de P1411 expandir um callback contextual de `outline.entry` para texto
+inline, o corpo realizado termina com uma linha pendente. `layout_outline`
+retorna sem fechá-la; o heading seguinte reposiciona o cursor como bloco antes
+de a linha ser drenada. O PDF cristalino coloca então o heading seguinte acima
+do resultado do outline, enquanto o vanila mantém a ordem outline → heading.
+
+### Obrigação
+
+Antes de dispor um `realized_body`, `layout_outline` fecha e rearma uma linha
+inline exterior que esteja pendente. Depois do body, fecha a linha realizada e
+rearma novamente a fronteira de bloco antes de retornar. Assim o título e o
+próximo bloco consomem as baselines já calculadas, sem coordenada ou espaçamento
+fabricado. `flush_line` vazio continua neutro; o consumer não inspeciona o
+callback. A aceitação observa a ordem morfológica e visual do resultado
+`show outline.entry`, inclusive entre contexto exterior e heading subsequente.

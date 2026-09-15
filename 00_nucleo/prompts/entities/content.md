@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 4c5e0347
+Hash do Código: 7862be52
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -2998,3 +2998,23 @@ O hub oferece constructor interno de `BoxedElem` com
 `width_fraction: Some(fr)` e defaults neutros dos demais cosméticos. Ele só
 embrulha body e carrier; parsing público e distribuição de linha pertencem a
 seus owners.
+
+# P1411 — travessia do corpo realizado de `Outline`
+
+## Medição anterior à decisão
+
+O contrato geral de `map_content` já classifica `Outline` como container, mas
+o consumer vigente o mantém no grupo terminal. A tentativa P1411 demonstrou
+que delegar ao walker da unidade não basta enquanto a expansão ocorre antes da
+realização; também demonstrou que a delegação é necessária para a expansão
+pós-realização descobrir os `ContextBlock` no `realized_body`.
+
+## Obrigação
+
+`Content::map_content` delega `Content::Outline` a
+`OutlineElem::map_content`, que preserva os campos não-conteúdo e percorre
+`title` e `realized_body`. O hub não interpreta callbacks nem resolve contexto;
+a nova posição da expansão pertence ao owner L3 `infra/pipeline.md` P1411.
+
+Esta correção interna do walker integra a mudança de fase P1411 confirmada em
+2026-09-15 e não adiciona API pública.

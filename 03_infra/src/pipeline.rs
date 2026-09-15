@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 72382ca3
+//! @prompt-hash eb3208d4
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -400,6 +400,37 @@ fn realize_outlines_for_pipeline(
     } else {
         (Ok((first, stabilized)), warnings)
     }
+}
+
+/// P1411 — expande blocos contextuais que só passam a existir durante a
+/// realização pós-introspecção de outlines. A topologia realizada fornece
+/// apenas as Locations desses produtores; páginas, posições e demais stores
+/// continuam vindo do snapshot paginado causal recebido.
+fn expand_realized_outline_contexts(
+    content: Content,
+    input: &Content,
+    introspector: &typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<Content> {
+    let mut existing = Vec::new();
+    let _ = input.map_content(&mut |node| {
+        if let Content::ContextBlock(elem) = node {
+            existing.push(elem.clone());
+        }
+        Ok(None)
+    });
+    let content = content.map_content(&mut |node| {
+        let Content::ContextBlock(elem) = node else { return Ok(None) };
+        Ok(existing
+            .iter()
+            .any(|old| Arc::ptr_eq(old, elem))
+            .then_some(Content::Empty))
+    })?;
+    let realized_topology = introspect_with_introspector(&content);
+    let mut contextual_intr = introspector.clone();
+    contextual_intr.context_block_locations = realized_topology.context_block_locations;
+    context_stabilization::expand_legacy(content, &contextual_intr, world, source)
 }
 
 /// **P1037** — recolhe **todos** os `ContextBlock` da árvore, cada um com a
@@ -809,6 +840,16 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             Err(errors) => return (Err(errors), warnings),
         };
         layout_intr = realized_intr;
+        let realized_content = match expand_realized_outline_contexts(
+            realized_content,
+            &content,
+            &layout_intr,
+            world,
+            source,
+        ) {
+            Ok(content) => content,
+            Err(errors) => return (Err(errors), warnings),
+        };
         let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
             &realized_content,
             layout_intr.clone(),
@@ -871,6 +912,16 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
                 Err(errors) => return (Err(errors), warnings),
             };
             layout_intr = realized_intr;
+            let realized_content = match expand_realized_outline_contexts(
+                realized_content,
+                &content,
+                &layout_intr,
+                world,
+                source,
+            ) {
+                Ok(content) => content,
+                Err(errors) => return (Err(errors), warnings),
+            };
             let (next, callback_warnings) = match layout_with_realized_math_callbacks(
                 &realized_content,
                 layout_intr.clone(),

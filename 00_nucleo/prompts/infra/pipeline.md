@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 789202f5
+Hash do Código: 378ad377
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -766,3 +766,43 @@ o fragmento público P1407: uma caixa `1fr` repete mais de uma vez, a largura
 maior produz estritamente mais cópias que a menor e as cópias do fill default
 permanecem dentro do mesmo link de destino. Esses oráculos não inspecionam o
 estado privado nem fixam estrutura Rust.
+
+## P1411 — contexto produzido pela realização de outline
+
+### Medição anterior à decisão
+
+No baseline `82e210bd1826ccbf0cd2378cddc605fb2546cf34`, os callbacks
+`show outline.entry` que devolvem `context [#it.page()]` ou
+`context [#it.prefix()]` são executados somente pela realização P1406, depois
+da expansão contextual original. O layout ignora o `ContextBlock` ainda não
+expandido e o texto desaparece. O vanila ratificado produz respectivamente
+`1` e `1.`. A tentativa falsificadora P1411 de fazer
+`Content::map_content` descer em `Outline.realized_body` não altera o resultado:
+o corpo ainda não existe quando a expansão original percorre a árvore.
+
+### Decisão proposta
+
+No ciclo paginado, depois de cada realização de outlines e antes do layout do
+candidato, L3 deve descobrir os `ContextBlock` recém-produzidos na árvore
+realizada, atribuir-lhes Locations causais por introspecção dessa árvore e
+expandir seus callbacks com o snapshot corrente de páginas/posições. O conteúdo
+expandido, nunca o candidato com blocos pendentes, segue para layout.
+
+Produtores que já existiam na entrada da realização já foram expandidos pela
+fase contextual original. A passagem pós-realização identifica esses mesmos
+objetos causais e remove somente seus marcadores da vista temporária antes de
+descobrir produtores novos; seus resultados irmãos permanecem intactos. Não
+reexecutar um produtor antigo, não comparar apenas id numérico e não duplicar
+sua contribuição ou seus warnings.
+
+A repetição usa o orçamento de convergência já limitado da compilação e sempre
+reconstrói o candidato a partir da entrada não transformada; não acumula bodies,
+callbacks, warnings ou eventos de introspecção. O primeiro layout pode fornecer
+o snapshot provisório necessário a `page()`, mas somente um candidato estável
+alcança shaping/export. HTML continua fora da realização P1406. Matching e
+execução de `outline.entry` permanecem em L1; L3 somente ordena as fases e usa
+as fachadas existentes de introspecção e expansão contextual.
+
+Esta inclusão executa callbacks contextuais após a realização P1406 e altera a
+fronteira introspecção/realização/contexto/layout. Confirmação humana explícita
+recebida em 2026-09-15; a mudança de fase está autorizada conforme ADR-0127.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash aaf88ed7
+//! @prompt-hash 41db69fb
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -91,7 +91,15 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
         OutlineTarget::Headings => {}
     }
     if let Some(body) = e.realized_body() {
+        if !layouter.regions.current.current_line.is_empty() {
+            layouter.flush_line();
+            layouter.block_chain_active = true;
+        }
         layouter.layout_content(body);
+        // P1411 — o outline é bloco: texto inline produzido por um callback
+        // contextual não pode vazar pendente para o bloco seguinte.
+        layouter.flush_line();
+        layouter.block_chain_active = true;
         return;
     }
     // P200B (M5 universal completo) — caminho Introspector activo via

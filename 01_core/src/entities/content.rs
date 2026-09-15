@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 74c26ea4
+//! @prompt-hash a33af1d2
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -3760,6 +3760,7 @@ impl Content {
 
             // Modelo D (Lote 8 P323): Columns container delega ao elemento.
             Content::Columns(e) => e.map_content(transform)?,
+            Content::Outline(e) => e.map_content(transform)?,
             Content::OutlineEntry(e) => e.map_content(transform)?,
 
             // ── Terminais: clonar directamente ──────────────────────────────
@@ -3772,7 +3773,6 @@ impl Content {
             | Content::Parbreak
             | Content::Empty
             | Content::Linebreak(_)
-            | Content::Outline(_)
             | Content::Raw(_)
             | Content::Ref(_)
             | Content::SetPage { .. }
