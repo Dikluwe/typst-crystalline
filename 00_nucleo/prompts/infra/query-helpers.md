@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 913886fe
+Hash do Código: e36defe8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -410,3 +410,11 @@ vanilla como IR math/sentinela de fluxo. Seria refutada se B/C/D ganhassem
 texto interno de um elemento math por este helper aproximado, ou se flush
 adquirisse body/texto. Até essa refutação, recursão que conte filhos internos
 seria um falso positivo de query.
+
+## P1402 — travessia aproximada de `OutlineEntry`
+
+Medição: a entrada pública preserva um elemento estrutural e seu `body()` pode
+conter texto; ela também é selecionável por identidade própria antes da
+descida. Decisão: `has_any_text` consulta o `element`; `count_variant` desce no
+`element` e no `fill` somente depois do pre-check da própria entrada. Assim a
+superfície aproximada não perde morfologia nem duplica o match da entry.

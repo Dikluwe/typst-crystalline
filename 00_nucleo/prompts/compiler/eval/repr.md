@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: c0bdb1ad
+Hash do Código: 489806ef
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -711,3 +711,9 @@ Repr produz `<base>.before(<end>)` e `<base>.after(<start>)` quando inclusive é
 true; quando false, acrescenta `, inclusive: false`. Base e limite usam o repr
 recursivo público, sem Debug nem detalhes de Box. O texto é observável da
 linguagem e aguarda confirmação ADR-0127.
+
+# P1402 — repr de entry
+
+`Content::OutlineEntry` usa nome `entry` e lista somente campos assentes na
+morfologia corrente. Ocorrências consultadas usam o snapshot realizado e
+imprimem `level`, `element` e `fill` nessa ordem.

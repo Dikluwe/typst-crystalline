@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash f5ea9f0b
+//! @prompt-hash 883b4ab7
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -1786,6 +1786,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Passo 61/P457 — TOC: delegado a outline.rs.
             Content::Outline(e) => outline::layout_outline(self, e),
+
+            Content::OutlineEntry(e) => {
+                if let Ok(body) = e.body() {
+                    self.layout_content(&body);
+                }
+            }
 
             // Atomizado (ADR-0109, P377) → layout/shape.rs.
             Content::Shape(e) => shape::layout(self, e),

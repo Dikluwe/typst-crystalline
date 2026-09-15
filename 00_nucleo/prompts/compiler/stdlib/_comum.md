@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: f2a05c3a
+Hash do Código: 2a634f53
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -225,3 +225,9 @@ A autorização `diagnosticos/p1339-array-authorization.md` permite reexportar
 Sem wrapper, validação, conversão, registro de Func ou API Rust externa.
 Esta exceção à proibição de ampliar constructors da seção version.at fica
 restrita à ligação do novo owner `primitives-constructors/array.md`.
+
+## P1402 — reexportação do owner de `outline.entry`
+
+O hub reexporta, em visibilidade interna, os símbolos nativos `outline.entry`
+e `outline.entry.body` definidos pelo owner
+`compiler/stdlib/structural/outline.md`. Não contém validação nem construção.

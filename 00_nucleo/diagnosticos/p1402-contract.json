@@ -1,0 +1,27 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1402,
+  "status": "sealed-after-human-confirmation",
+  "attestation": "executado sem atestação de isolamento",
+  "human_confirmation": "2026-09-14: confirmo",
+  "baseline_head": "be15d0ab73af089860d03db390508edf21a4bdac",
+  "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+  "obligations": [
+    "outline.entry and outline.entry.body are public static native identities",
+    "outline.entry constructs level, element and optional fill and rejects level below one",
+    "query(outline.entry) exposes one entry per included heading per realized outline",
+    "entry.element preserves the realized heading and entry.body preserves content morphology",
+    "the default fill is repeat(body: [.], gap: 0.15em)",
+    "depth and outlined:false constrain materialized entries"
+  ],
+  "scope_out": ["indented", "inner", "page", "prefix", "non-heading outline targets", "general Typst parity"],
+  "resource_policy": {
+    "probe_rlimit_as_kib": 524288,
+    "build_rlimit_as_kib": 2097152,
+    "jobs": 1,
+    "incremental": false,
+    "codegen_units": 512,
+    "automatic_limit_increase": false
+  }
+}

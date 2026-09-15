@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 907ee000
+Hash do Código: 669a1130
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -423,3 +423,9 @@ floats mudasse o espaçamento visível. A herança de underline seria refutada s
 um body de classe explícita perdesse essa classe; a regra de vec seria refutada
 se uma borda ausente assumisse `Opening`/`Closing` ou uma borda presente não a
 expusesse.
+
+## P1402 — neutralidade de `OutlineEntry`
+
+Se uma entrada alcançar a classificação matemática, ela recebe classe
+`Normal`; não introduz espaçamento especializado. A forma pública continua a
+ser conteúdo estrutural, não um átomo matemático novo.

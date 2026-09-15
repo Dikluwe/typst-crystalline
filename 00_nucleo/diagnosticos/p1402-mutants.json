@@ -1,0 +1,22 @@
+{
+  "schema": "tekt-mutants/v1",
+  "step": "P1402",
+  "attestation": "executado sem atestação de isolamento",
+  "required_score": 1.0,
+  "mutants": [
+    {"id": "M01", "mutation": "outline.entry remains a common function and is not selectable", "killed_by": "query(outline.entry) succeeds and returns one"},
+    {"id": "M02", "mutation": "entries exist without an outline", "killed_by": "no-outline fixture returns zero"},
+    {"id": "M03", "mutation": "one entry is shared by all outlines", "killed_by": "two-outline fixture returns two"},
+    {"id": "M04", "mutation": "depth is ignored", "killed_by": "depth-one fixture excludes the level-two heading"},
+    {"id": "M05", "mutation": "outlined:false still materializes", "killed_by": "excluded-heading fixture returns zero"},
+    {"id": "M06", "mutation": "body flattens semantic content to text", "killed_by": "strong body retains strong(body: [H])"},
+    {"id": "M07", "mutation": "default fill is none or has the wrong gap", "killed_by": "field oracle returns repeat(body: [.], gap: 0.15em)"},
+    {"id": "M08", "mutation": "level zero is accepted", "killed_by": "constructor exits one with level must be at least 1"},
+    {"id": "M09", "mutation": "body accepts arbitrary content", "killed_by": "strong direct entry exits one with cannot outline strong"},
+    {"id": "M10", "mutation": "body accepts positional arguments", "killed_by": "body(1) exits one with unexpected argument"}
+  ],
+  "killed": 10,
+  "survived": 0,
+  "unknown": 0,
+  "mutation_score": 1.0
+}

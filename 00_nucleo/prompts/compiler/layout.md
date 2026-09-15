@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 4d61ad98
+Hash do Código: d028eb4c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -311,3 +311,9 @@ certificar a forma P1392 completa. Inicialização, consumo, checkpoint e
 isolamento permanecem idênticos a P1391; não se adiciona campo, API ou fase.
 Formas não certificadas nunca armam o estado. P1391 e os controles de replay
 continuam invariantes.
+
+# P1402 — fallback de layout para entry
+
+Uma `OutlineEntry` construída diretamente é transparente ao layout nesta fatia:
+desce no corpo outlinable. A geração visual completa e os helpers contextuais
+permanecem fora do escopo; isso não altera o layout vigente de `outline()`.

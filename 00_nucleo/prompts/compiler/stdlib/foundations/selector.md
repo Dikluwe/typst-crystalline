@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
-Hash do Código: 5479f91a
+Hash do Código: 57456261
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  
@@ -104,3 +104,10 @@ Aceitação: clone/transporte de grupo vazio e não vazio, alias, ordem e
 identidade; text permanece construível. Filtros descartados ou rejeição
 antecipada de text refutam o contrato. Não confundir preservação dos dados
 com implementação de query/counter, que pertence aos seus próprios owners.
+
+## P1402 — `outline.entry` como selector
+
+Medição: `query(outline.entry)` é aceito pelo vanila e seleciona as entradas
+realizadas. Decisão: a conversão por endereço reconhece
+`native_outline_entry` como `ElementKind::OutlineEntry`; não reconhece
+`outline.entry.body`, nem usa comparação textual do nome.

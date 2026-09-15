@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash 2927dc08
+//! @prompt-hash 146339d5
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -925,6 +925,7 @@ pub(crate) fn native_element_fields(
         ["tight", "separator", "indent", "hanging-indent", "spacing", "children"]
     );
     element!(native_outline, "outline", true, ["title", "target", "depth", "indent"]);
+    element!(native_outline_entry, "entry", true, ["level", "element", "fill"]);
     element!(native_metadata, "metadata", true, ["value"]);
     element!(native_cite, "cite", true, ["key", "supplement", "form", "style"]);
     element!(

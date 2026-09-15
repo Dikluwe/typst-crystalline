@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
-//! @prompt-hash b9d735c6
+//! @prompt-hash cc63ba59
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -9,7 +9,7 @@ use std::ptr::fn_addr_eq;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::stdlib::{
     expect_no_named, native_figure, native_heading,
-    native_metadata as native_metadata_func, native_table,
+    native_metadata as native_metadata_func, native_outline_entry, native_table,
 };
 use crate::entities::args::Args;
 use crate::entities::element_kind::ElementKind;
@@ -276,6 +276,8 @@ fn element_kind_of_native_func(f: &crate::entities::func::Func) -> Option<Elemen
         Some(ElementKind::Table)
     } else if fn_addr_eq(addr, native_metadata_func as fn(_, _, _, _) -> _) {
         Some(ElementKind::Metadata)
+    } else if fn_addr_eq(addr, native_outline_entry as fn(_, _, _, _) -> _) {
+        Some(ElementKind::OutlineEntry)
     } else {
         None
     }

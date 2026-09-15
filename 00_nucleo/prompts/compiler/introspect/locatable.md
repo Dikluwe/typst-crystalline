@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: d1f8068c
+Hash do Código: 8acdb1d8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -172,3 +172,4 @@ não deduzida apenas de dois testes unitários verdes.
 | 2026-05-02 | P182C: `Content::SetHeadingNumbering` move de não-locatable para locatable; emite `StateUpdate { key: "numbering_active:heading", update: Set(Bool(active)) }` em `extract_payload`. Suporte ao plano P182 (lacuna #4). | `locatable.rs`, `locatable.md` |
 | 2026-05-03 | P186D: `Content::Equation` move de não-locatable para locatable. Combinado com arm em `extract_payload` (P186C, ordem invertida pragmaticamente para evitar janela de invariante quebrada — embora a inversão tenha apenas invertido o sentido da quebra, vide P186C `.A.6` empírico). Repõe invariante `is_locatable ↔ extract_payload.is_some()` para Equation; sincronização Locator Layouter ↔ walk reposta. Cobertura `build_minimal_for_each_variant` em test de invariante estendida (lacuna pré-existente fechada). Suporte ao plano P186 (eixo 2 do bloqueio P183C C2). | `locatable.rs`, `locatable.md` |
 | 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo, `false` (mesmo tratamento das restantes variantes da família math: `MathAccent`, `MathCancel`, `MathClassOverride`, `MathOp`, etc.). Contagem "56 variants"/"46 não-locatable" desta secção já estava desactualizada antes deste passo (múltiplas variantes math adicionadas em passos anteriores sem actualização do total) — não recontada aqui, fora de escopo. | `locatable.rs`, `locatable.md` |
+| 2026-09-14 | P1402: `Content::OutlineEntry` é locatable porque `query(outline.entry)` devolve entradas públicas com identidade própria; o campo `element` preserva a identidade causal do heading. | `locatable.rs`, `locatable.md` |

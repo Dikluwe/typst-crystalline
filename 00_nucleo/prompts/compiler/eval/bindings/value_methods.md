@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: a4431527
+Hash do Código: a82fad65
 
 ## P1339 — adapter ligado de version.at sem parser duplicado
 
@@ -356,3 +356,8 @@ Os carriers vinculados preservam exatamente o `Selector` receptor e distinguem
 `before` de `after` até o dispatcher. Não avaliam limites, não escolhem o
 default e não consultam introspecção. Clone do carrier conserva a árvore sem
 normalização. A extensão pública da família de métodos aguarda o gate.
+
+## P1402 — campos nativos de `outline.entry`
+
+A tabela de campos de elemento reconhece `entry` com `level`, `element` e
+`fill`. Esta unidade não calcula o corpo nem sintetiza entradas.

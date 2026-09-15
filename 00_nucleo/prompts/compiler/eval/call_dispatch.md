@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 4bfe0082
+Hash do Código: c99d3855
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -863,3 +863,10 @@ helper semântico. Base e limite passam pela conversão pública para Selector;
 argumento ausente, excedente, named desconhecido ou inclusive não booleano usa
 os diagnósticos normais de argumentos. Não executam query nesta fase. A nova
 chamada pública aguarda confirmação ADR-0127.
+
+# P1402 — método `entry.body()`
+
+Antes do erro genérico de callee, chamadas `body()` cujo receiver seja
+`Content::OutlineEntry` ou conteúdo localizado equivalente devolvem o body do
+heading e rejeitam argumentos. Elementos não outlinable produzem diagnóstico
+explícito; os demais Contents não são interceptados.

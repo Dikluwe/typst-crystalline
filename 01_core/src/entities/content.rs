@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash e2feb2d0
+//! @prompt-hash 9ac2981b
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -109,6 +109,7 @@ use crate::entities::elements::grid_vline::GridVLineElem;
 use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
 use crate::entities::elements::outline::OutlineElem;
+use crate::entities::elements::outline_entry::OutlineEntryElem;
 use crate::entities::elements::pad::PadElem;
 use crate::entities::elements::pdf_artifact::PdfArtifactElem;
 use crate::entities::elements::pdf_attach::PdfAttachElem;
@@ -424,6 +425,9 @@ pub enum Content {
     /// **Modelo D (Lote 8 P323)**: `entities::elements::outline::OutlineElem`
     /// (locatável; unit struct — campos do vanilla pendentes de cobertura).
     Outline(Arc<OutlineElem>),
+
+    /// **P1402** — entrada pública realizada por `outline()`.
+    OutlineEntry(Arc<OutlineEntryElem>),
 
     /// Elemento com numeração própria e legenda opcional (Passo 62, DEBT-15 Passo 75).
     /// `kind` discrimina o contador: "image", "table", "raw", etc.
@@ -1238,6 +1242,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::CounterDisplay(_) => write!(f, "counter.display"),
         Content::CounterUpdate(_) => write!(f, "counter.update"),
         Content::Outline(o) => write!(f, "outline({:?})", o),
+        Content::OutlineEntry(e) => write!(f, "entry({:?})", e),
         Content::Figure(fig) => write!(f, "figure({:?})", fig),
         Content::Image(i) => write!(f, "image({:?})", i),
         Content::Shape(_) => write!(f, "shape"),
@@ -1360,6 +1365,7 @@ impl Content {
             Self::CounterDisplay(_) => "counter.display",
             Self::CounterUpdate(_) => "counter.update",
             Self::Outline(_) => "outline",
+            Self::OutlineEntry(_) => "entry",
             Self::Figure(_) => "figure",
             Self::Image(_) => "image",
             Self::Shape(_) => "shape",
@@ -2485,6 +2491,21 @@ impl Content {
         Self::outline_with(None, 3, OutlineIndent::Auto)
     }
 
+    pub fn outline_entry(level: usize, element: Content, fill: Option<Content>) -> Self {
+        Self::outline_entry_with_fill_state(level, element, fill, true)
+    }
+
+    pub fn outline_entry_with_fill_state(
+        level: usize,
+        element: Content,
+        fill: Option<Content>,
+        fill_set: bool,
+    ) -> Self {
+        Self::OutlineEntry(Arc::new(OutlineEntryElem::new(
+            level, element, fill, fill_set,
+        )))
+    }
+
     pub fn outline_with(
         title: Option<Content>,
         depth: usize,
@@ -2872,6 +2893,7 @@ impl Content {
             | Self::CounterDisplay(_)
             | Self::CounterUpdate(_)
             | Self::Outline(_)
+            | Self::OutlineEntry(_)
             | Self::Figure(_)
             | Self::Image(_)
             | Self::Shape(_)
@@ -3195,6 +3217,7 @@ impl Content {
             Self::CounterDisplay(e) => e.plain_text(),
             Self::CounterUpdate(e) => e.plain_text(),
             Self::Outline(e) => e.plain_text(),
+            Self::OutlineEntry(e) => e.plain_text(),
             Self::Figure(e) => e.plain_text(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
@@ -3338,6 +3361,7 @@ impl PartialEq for Content {
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
             (Self::CounterUpdate(a), Self::CounterUpdate(b)) => a == b,
             (Self::Outline(a), Self::Outline(b)) => a == b,
+            (Self::OutlineEntry(a), Self::OutlineEntry(b)) => a == b,
             // Modelo D (Lote 13 P328): Figure delega ao `Arc<…Elem>`.
             (Self::Figure(a), Self::Figure(b)) => a == b,
             // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
@@ -3528,6 +3552,7 @@ impl Content {
         match (self, field) {
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
+            (Content::OutlineEntry(e), f) => e.get_field(f),
             // P765a: Title delega ao elemento.
             (Content::Title(t), f) => t.get_field(f),
             // F-5b fatia 1 (P371): strong/emph delegam (ex.: `it.body`).
@@ -3701,6 +3726,7 @@ impl Content {
 
             // Modelo D (Lote 8 P323): Columns container delega ao elemento.
             Content::Columns(e) => e.map_content(transform)?,
+            Content::OutlineEntry(e) => e.map_content(transform)?,
 
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
@@ -3941,6 +3967,7 @@ impl Content {
 
             // Modelo D (Lote 8 P323): Columns container delega ao elemento.
             Content::Columns(e) => e.map_text(transform),
+            Content::OutlineEntry(e) => e.map_text(transform),
 
             // ── Terminais — clonar directamente ──────────────────────────
             // Nós matemáticos e estruturais sem markup Text — não contêm

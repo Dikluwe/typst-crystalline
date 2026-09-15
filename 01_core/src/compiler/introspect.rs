@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash f6e0f997
+//! @prompt-hash 886a4ea2
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -765,6 +765,7 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
         &root_chain,
         None,
     );
+    materialize_outline_entries(&mut locator, &mut intr);
     intr.parent_locations = build_parent_index(&tags);
     intr
 }
@@ -793,6 +794,7 @@ pub fn introspect_with_runtime(
         &root_chain,
         None,
     );
+    materialize_outline_entries(&mut locator, &mut intr);
     intr.parent_locations = build_parent_index(&tags);
     from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_counter_funcs(&tags, &mut intr, engine, ctx)?;
@@ -802,6 +804,52 @@ pub fn introspect_with_runtime(
     from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
     from_tags::realize_equation_elements(&tags, &mut intr);
     Ok(intr)
+}
+
+/// P1402 — projeta as entradas públicas depois que o walk conhece todos os
+/// headings. A Location da entry é própria; o campo `element` retém a Location
+/// causal do heading.
+fn materialize_outline_entries(locator: &mut Locator, intr: &mut TagIntrospector) {
+    use crate::entities::elements::outline::OutlineTarget;
+    use crate::entities::layout_types::Length;
+
+    let outlines = intr.outline_elements.clone();
+    let headings = intr.headings_for_toc.clone();
+    let heading_locations = intr.outlined_heading_locations.clone();
+    for outline in outlines {
+        if outline.target != OutlineTarget::Headings {
+            continue;
+        }
+        for ((_label, _number, _body, level), source_location) in
+            headings.iter().zip(&heading_locations)
+        {
+            if *level > outline.depth {
+                continue;
+            }
+            let Some(source) = intr.elements.get(source_location).cloned() else {
+                continue;
+            };
+            let element = source.content().clone();
+            let fill = Content::repeat(Content::text("."), Some(Length::em(0.15)), true);
+            let entry = Content::outline_entry(*level, element, Some(fill.clone()));
+            let mut fields = indexmap::IndexMap::default();
+            fields.insert("level".into(), Value::Int(*level as i64));
+            fields.insert(
+                "element".into(),
+                Value::LocatedContent(source, *source_location),
+            );
+            fields.insert("fill".into(), Value::Content(fill));
+            let entry_location = locator.next();
+            intr.elements.insert(
+                entry_location,
+                crate::entities::value::IntrospectedContent::new(entry, Some(fields)),
+            );
+            intr.kind_index
+                .entry(ElementKind::OutlineEntry)
+                .or_default()
+                .push(entry_location);
+        }
+    }
 }
 
 /// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
@@ -1135,6 +1183,13 @@ fn materialize_time(
         // P506: ContextBlock é terminal em materialize_time (o conteúdo real
         // só existe após expansão pós-introspecção).
         Content::ContextBlock(_) => content.clone(),
+
+        Content::OutlineEntry(e) => Content::outline_entry_with_fill_state(
+            e.level,
+            materialize_time(&e.element, intr, location),
+            e.fill.as_ref().map(|fill| materialize_time(fill, intr, location)),
+            e.fill_set,
+        ),
 
         // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
         // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
@@ -1645,7 +1700,8 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::Dynamic(_)
         | Content::PdfAttach(_)
         | Content::PdfArtifact(_)
-        | Content::HtmlElem(_) => UnreferencableKind::Text,
+        | Content::HtmlElem(_)
+        | Content::OutlineEntry(_) => UnreferencableKind::Text,
     }
 }
 
@@ -1960,6 +2016,7 @@ pub(crate) fn walk(
                     numbering_active,
                 ) {
                     if h.outlined {
+                        intr.outlined_heading_locations.push(loc);
                         let info = ElementInfo::new(ElementPayload::HeadingForToc {
                             label: label.clone(),
                             number: number.clone(),
@@ -2326,7 +2383,7 @@ pub(crate) fn walk(
             walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent);
         }
 
-        Content::Outline(_) => {
+        Content::Outline(outline) => {
             // P189B (M5): walk puro para Outline.
             // Mutação `state.has_outline = true` removida; flag obtida
             // via `intr.kind_index.contains_key(&ElementKind::Outline)`
@@ -2353,7 +2410,10 @@ pub(crate) fn walk(
                 .entry(ElementKind::Heading)
                 .or_default()
                 .push(title_loc);
+            intr.outline_elements.push((**outline).clone());
         }
+
+        Content::OutlineEntry(_) => {}
 
         // P506 — ContextBlock é terminal no walk (a tag já foi emitida no
         // topo via extract_payload; o corpo é uma closure avaliada na

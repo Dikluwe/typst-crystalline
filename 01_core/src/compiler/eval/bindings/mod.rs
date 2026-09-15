@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings.md
-//! @prompt-hash 861d4c73
+//! @prompt-hash 524ff6ba
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -26,6 +26,7 @@ pub(super) use binding::{
 };
 pub(crate) use field_access::{
     eval_content_method, eval_content_method_at, eval_introspected_content_method_at,
+    eval_outline_entry_body_method,
 };
 pub(super) use field_access::{
     eval_field_access, eval_value_field_access, field_callee_error,

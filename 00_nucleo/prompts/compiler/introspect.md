@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 59aa1bd3
+Hash do Código: 72bb066f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1707,3 +1707,13 @@ ordem documental e aplica `inclusive` à coincidência de fronteira.
 base. A ordem é documental e a deduplicação já contratada continua. Não se
 comparam índices de vetores independentes: a relação usa a ordem canônica das
 Locations. Esta semântica pública aguarda confirmação ADR-0127.
+
+# P1402 — materialização consultável de `outline.entry`
+
+Depois do walk completo, para cada outline de headings registrado e para cada
+tuple de `headings_for_toc` dentro de `depth`, emparelhar a Location registrada
+do heading e recuperar seu snapshot realizado, criar Location nova e inserir
+`Content::OutlineEntry` com snapshot completo (`level`, `element`, `fill`) em
+`elements`. A multiplicidade é por outline: zero outline produz zero entries e
+dois outlines produzem duas por heading. Não incluir headings `outlined:false`,
+pois eles não entram em `headings_for_toc`.

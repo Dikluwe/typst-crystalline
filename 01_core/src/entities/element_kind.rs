@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash 5dd94c0a
+//! @prompt-hash 786f05d6
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -28,6 +28,8 @@ pub enum ElementKind {
     /// `query("outline")` retornar count correcto. Fecha lacuna #7
     /// (`has_outline`).
     Outline,
+    /// **P1402** — entrada pública sintetizada por cada outline para headings.
+    OutlineEntry,
     /// **P181C** — `Content::Bibliography` promovido a locatable em
     /// P181D (decisão P181A cláusula 4 — Opção β walk puro). `from_tags`
     /// arm Bibliography (P181E) popula `BibStore`. Suporta plano
@@ -105,6 +107,7 @@ impl ElementKind {
             ElementKind::State => "state",
             ElementKind::StateUpdate => "state_update",
             ElementKind::Outline => "outline",
+            ElementKind::OutlineEntry => "entry",
             ElementKind::Bibliography => "bibliography",
             ElementKind::Equation => "equation",
             ElementKind::CounterUpdate => "counter_update",
@@ -134,6 +137,7 @@ impl ElementKind {
             "state" => Some(ElementKind::State),
             "state_update" => Some(ElementKind::StateUpdate),
             "outline" => Some(ElementKind::Outline),
+            "entry" => Some(ElementKind::OutlineEntry),
             "bibliography" => Some(ElementKind::Bibliography),
             "equation" => Some(ElementKind::Equation),
             "counter_update" => Some(ElementKind::CounterUpdate),

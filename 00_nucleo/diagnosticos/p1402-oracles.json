@@ -1,0 +1,24 @@
+{
+  "schema": "tekt-oracles/v1",
+  "step": "P1402",
+  "attestation": "executado sem atestação de isolamento",
+  "limits": {"rlimit_as_kib": 524288, "timeout_seconds": 15, "max_stream_bytes": 65536},
+  "primary_fixture_sha256": "8203d182c1a5fbbda3fc7d04217b5725455107ef8314d1750431063e7c891bed",
+  "bilateral_cases": [
+    {"expression": "repr(outline.entry)", "crystalline": "entry", "vanila": "entry", "exit_both": 0},
+    {"expression": "repr(outline.entry.body)", "crystalline": "body", "vanila": "body", "exit_both": 0},
+    {"expression": "query(outline.entry).len()", "crystalline": 1, "vanila": 1, "exit_both": 0},
+    {"expression": "query(outline.entry).first().body()", "crystalline": "[H]", "vanila": "[H]", "exit_both": 0},
+    {"expression": "query(outline.entry).first().level", "crystalline": 1, "vanila": 1, "exit_both": 0},
+    {"expression": "query(outline.entry).first().fill", "crystalline": "repeat(body: [.], gap: 0.15em)", "vanila": "repeat(body: [.], gap: 0.15em)", "exit_both": 0}
+  ],
+  "crystalline_additional_cases": [
+    {"case": "no-outline", "output": 0, "exit": 0},
+    {"case": "two-outlines", "output": 2, "exit": 0},
+    {"case": "depth-one", "output": 1, "exit": 0},
+    {"case": "outlined-false", "output": 0, "exit": 0},
+    {"case": "strong-body-morphology", "output": "strong(body: [H])", "exit": 0},
+    {"case": "strong-direct-body-rejected", "diagnostic": "cannot outline strong", "exit": 1}
+  ],
+  "classification": "Preserved"
+}

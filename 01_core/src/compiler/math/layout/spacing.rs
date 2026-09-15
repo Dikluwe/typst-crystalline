@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash 5d8c4acb
+//! @prompt-hash 88e84e78
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -119,6 +119,7 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::CounterDisplay(_)
         | Content::CounterUpdate(_)
         | Content::Outline(_)
+        | Content::OutlineEntry(_)
         | Content::Figure(_)
         | Content::Image(_)
         | Content::Shape(_)

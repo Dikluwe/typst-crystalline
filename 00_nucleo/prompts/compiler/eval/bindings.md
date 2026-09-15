@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings` — hub de bindings, acesso e métodos
-Hash do Código: bdbe27fb
+Hash do Código: 5d064ec6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/mod.rs`
@@ -112,3 +112,8 @@ P1401 não há símbolo para `before/after`.
 Reexportar somente o interceptor P1401 para o dispatcher irmão. O hub não
 interpreta argumentos, não constrói selector e não amplia visibilidade além de
 `compiler::eval`.
+
+## P1402 — exportação interna do interceptor
+
+O hub reexporta somente o interceptor de `outline.entry.body` para o dispatcher
+irmão. Não interpreta o receptor nem os argumentos.

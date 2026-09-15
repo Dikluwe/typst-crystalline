@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 4ad5913a
+Hash do Código: 02f58a30
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -441,3 +441,9 @@ entrypoint atual delega ao mesmo núcleo com `TagIntrospector::empty()`, de modo
 que ausência de `--in` não muda. As varreduras recursivas de `Selector` deste
 owner atravessam também `Before.base/end` e `After.base/start`; não colapsam a
 árvore. Assinatura pública nova aguarda confirmação ADR-0127.
+
+# P1402 — scope público de `outline`
+
+O binding global `outline` usa namespace nativo contendo `entry`; `entry` usa
+namespace contendo `body`. As identidades são funções nativas estáticas e
+continuam selecionáveis por endereço, não por nome textual.

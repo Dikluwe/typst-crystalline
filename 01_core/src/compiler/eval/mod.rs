@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 498eeb77
+//! @prompt-hash 80f77efc
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -849,6 +849,10 @@ impl ObservationEq for crate::entities::content::Content {
                 Self::ContextBlock(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
+                _ => ObservationRelation::Different,
+            },
+            Self::OutlineEntry(a0) => match other {
+                Self::OutlineEntry(b0) if a0 == b0 => ObservationRelation::Same,
                 _ => ObservationRelation::Different,
             },
             Self::Dynamic(a0) => match other {
@@ -2791,6 +2795,10 @@ impl ObservationEq for crate::entities::element_kind::ElementKind {
             },
             Self::Outline => match other {
                 Self::Outline => ObservationRelation::Same,
+                _ => ObservationRelation::Different,
+            },
+            Self::OutlineEntry => match other {
+                Self::OutlineEntry => ObservationRelation::Same,
                 _ => ObservationRelation::Different,
             },
             Self::Bibliography => match other {
@@ -7272,6 +7280,8 @@ fn make_stdlib_with_features(
         native_oklch,
         native_op,
         native_outline,
+        native_outline_entry,
+        native_outline_entry_body,
         native_overline,
         native_pad,
         native_page,
@@ -7386,7 +7396,28 @@ fn make_stdlib_with_features(
     scope.define("version", Value::Type(Type::Version));
     scope.define("heading", Value::Func(Func::native("heading", native_heading)));
     scope.define("title", Value::Func(Func::native("title", native_title)));
-    scope.define("outline", Value::Func(Func::native("outline", native_outline)));
+    {
+        let mut entry_namespace = Scope::new();
+        entry_namespace.define(
+            "body",
+            Value::Func(Func::native("outline.entry.body", native_outline_entry_body)),
+        );
+        let entry = Func::native_with_namespace(
+            "outline.entry",
+            native_outline_entry,
+            Arc::new(entry_namespace),
+        );
+        let mut outline_namespace = Scope::new();
+        outline_namespace.define("entry", Value::Func(entry));
+        scope.define(
+            "outline",
+            Value::Func(Func::native_with_namespace(
+                "outline",
+                native_outline,
+                Arc::new(outline_namespace),
+            )),
+        );
+    }
     // P806 — `par` invocável (achado #12 de P798; ver `stdlib/structural.md`
     // §`native_par` para o scope do body-devolvido-directamente).
     scope.define("par", Value::Func(Func::native("par", native_par)));

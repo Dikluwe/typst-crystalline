@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: 01b891e9
+Hash do Código: 3b987776
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -112,3 +112,62 @@ Alterar `outline` para `target:heading`, `depth:none` ou qualquer default
 medido no residual também exige decisão humana por comportamento default e
 compatibilidade. Até esse gate, P1284 preserva integralmente as assinaturas e
 defaults vigentes deste owner.
+
+## P1402 — proposta pública `outline.entry` e `body()` (gate ADR-0127 pendente)
+
+### Medição antes da decisão
+
+No baseline `be15d0ab73af089860d03db390508edf21a4bdac`, working tree limpa,
+medido em `2026-09-14T22:02:33-03:00`, a sonda limitada descrita no Passo 1402
+removeu a antiga incerteza de construção de P1400/P1284. Com uma fixture que
+contém `#outline()` e um heading, o vanila ratificado `586e1bd43` expõe:
+
+- `repr(outline.entry)` → `entry`;
+- `repr(outline.entry.body)` → `body`;
+- `query(outline.entry).first()` → uma ocorrência `entry` com `level`,
+  `element` e `fill` realizados;
+- `query(outline.entry).first().body()` → o Content do heading;
+- `outline.entry(1, heading[H])` → construção pública válida.
+
+Sem outline a consulta retorna zero; dois outlines sobre o mesmo heading geram
+duas ocorrências. `outline.entry(1, strong[H]).body()` falha com `cannot outline
+strong`. A fonte ratificada declara o scope em `model/outline.rs:246-250`, os
+campos em `:468-522` e o método em `:668-674`. No consumer cristalino não existe
+scope, construtor ou entry. Esta medição refuta `Unknown(blocked_by_ancestor)` e
+classifica a mudança como contrato público novo.
+
+### Contrato público proposto
+
+O scope público de `outline` passa a conter a função-elemento `entry`. Ela é
+selecionável por `query(outline.entry)`, tem nome/repr público `entry` e aceita:
+
+```typ
+outline.entry(level, element, fill: repeat(body: [.], gap: 0.15em))
+```
+
+- `level` é inteiro posicional obrigatório, 1-based e maior que zero;
+- `element` é Content posicional obrigatório;
+- `fill` é Content opcional ou `none`; quando omitido, usa o preenchimento
+  linguístico equivalente a `repeat(body: [.], gap: 0.15em)`;
+- os campos públicos observáveis da ocorrência são `level`, `element` e `fill`;
+- a função pública `outline.entry.body` é chamável como método `entry.body()` e
+  devolve o corpo semântico do elemento outlinable;
+- elemento que não implementa a capacidade linguística outlinable produz erro
+  explícito `cannot outline {nome}`, sem coerção para texto ou vazio.
+
+Cada realização de `outline()` com target headings produz uma ocorrência por
+elemento incluído, depois dos filtros `depth` e `outlined`, na ordem documental.
+Sem outline não há ocorrência; dois outlines podem produzir duas entries para o
+mesmo elemento fonte. O `element` preserva sua localização e campos realizados.
+
+Esta cláusula não autoriza `indented`, `inner`, `page` ou `prefix`, nem altera os
+defaults ou assinaturas existentes de `outline`, `lof` e `lot`. Também não
+autoriza mover a geração para outra fase do pipeline: a materialização deve usar
+o ponto de realização já vigente do outline e ser nucleada nos owners internos
+afetados antes de código.
+
+### Gate
+
+Esta proposta substitui o bloqueio de P1284 somente após confirmação humana
+explícita, conforme ADR-0127. Até a confirmação, o consumer permanece inalterado
+e este texto é especificação proposta, não autorização para L1–L4.

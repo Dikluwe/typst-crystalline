@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: 06c60a65
+Hash do Código: ef487f03
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`
@@ -227,3 +227,9 @@ query, não como predicados aplicáveis a uma ocorrência isolada.
 consultar introspector, escolher fronteira ou reduzir ao base. A funcionalidade
 fica exclusivamente em `Introspector::query`. Esta distinção observável aguarda
 confirmação ADR-0127.
+
+# P1402 — identidade de `outline.entry`
+
+O matcher de elementos reconhece `Content::OutlineEntry` somente contra o
+ponteiro nativo de `native_outline_entry`. Não confundir com `outline` nem com o
+heading guardado em `element`.

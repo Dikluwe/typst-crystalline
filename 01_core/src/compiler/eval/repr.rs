@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 2bd56ee0
+//! @prompt-hash e955e8b9
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -862,6 +862,19 @@ pub fn repr_content(c: &Content) -> String {
         Content::CounterDisplay(_) => "counter.display".to_string(),
         Content::CounterUpdate(_) => "counter.update".to_string(),
         Content::Outline(_) => "outline".to_string(),
+        Content::OutlineEntry(e) => {
+            let mut fields = vec![
+                format!("level: {}", e.level),
+                format!("element: {}", repr_content(&e.element)),
+            ];
+            if e.fill_set {
+                fields.push(format!(
+                    "fill: {}",
+                    e.fill.as_ref().map(repr_content).unwrap_or_else(|| "none".into())
+                ));
+            }
+            format!("entry{}", pretty_array_like(&fields, false))
+        }
         Content::Figure(f) => format!("figure[{}]", repr_content(&f.body)),
         Content::Image(i) => format!("image(\"{}\")", i.path),
         Content::Shape(_) => "shape".to_string(),
@@ -1006,7 +1019,16 @@ pub fn repr_content(c: &Content) -> String {
         Content::TableHLine(_) => "table.hline".to_string(),
         Content::TableVLine(_) => "table.vline".to_string(),
         Content::Table(_) => "table".to_string(),
-        Content::Repeat(_) => "repeat".to_string(),
+        Content::Repeat(repeat) => {
+            let mut fields = vec![format!("body: {}", repr_content(&repeat.body))];
+            if let Some(gap) = repeat.gap {
+                fields.push(format!("gap: {}", repr_length(&gap)));
+            }
+            if !repeat.justify {
+                fields.push("justify: false".into());
+            }
+            format!("repeat{}", pretty_array_like(&fields, false))
+        }
         Content::Columns(_) => "columns".to_string(),
         Content::Metadata(_) => "metadata".to_string(),
         Content::State(_) => "state".to_string(),

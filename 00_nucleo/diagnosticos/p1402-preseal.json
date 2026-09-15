@@ -1,0 +1,17 @@
+{
+  "schema": "tekt-preseal/v1",
+  "step": "P1402",
+  "revision": "R1",
+  "status": "SEALED_LINEAGE_METADATA",
+  "sealed_at": "2026-09-14T22:35:46-03:00",
+  "attestation": "executado sem atestação de isolamento",
+  "lineage": {"fix_hashes_exit": 0, "remaining_drift_warnings": 0, "crystalline_lint_exit": 0, "violations": 0},
+  "mutation_gate": {"score": 1.0, "required": 1.0, "survivors": 0},
+  "resource_gate": {
+    "automatic_limit_increase": false,
+    "bounded_attempts": true,
+    "first_build_attempt": "aborted at fixed 2 GiB ceiling",
+    "successful_build": "2 GiB ceiling, one job, incremental off, 512 codegen units"
+  },
+  "ready_for_candidate": true
+}

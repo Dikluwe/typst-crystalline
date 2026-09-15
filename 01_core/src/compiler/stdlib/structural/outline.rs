@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 39789383
+//! @prompt-hash 0cf0de16
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -19,6 +19,95 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+
+/// `outline.entry(level, element, fill:?)` — construtor público P1402.
+pub fn native_outline_entry(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let Some(Value::Int(level)) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "outline.entry(): missing or invalid positional argument `level`",
+        )]);
+    };
+    if *level < 1 {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "outline.entry(): level must be at least 1",
+        )]);
+    }
+    let Some(Value::Content(element)) = args.items.get(1) else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "outline.entry(): missing or invalid positional argument `element`",
+        )]);
+    };
+    if args.items.len() != 2 {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    if args.named.keys().any(|name| name.as_str() != "fill") {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    let (fill, fill_set) = match args.named.get("fill") {
+        Some(Value::Content(fill)) => (Some(fill.clone()), true),
+        Some(Value::None) => (None, true),
+        Some(_) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "outline.entry(fill:): expected content or none",
+            )])
+        }
+        None => (
+            Some(Content::repeat(
+                Content::text("."),
+                Some(crate::entities::layout_types::Length::em(0.15)),
+                true,
+            )),
+            false,
+        ),
+    };
+    Ok(Value::Content(Content::outline_entry_with_fill_state(
+        *level as usize,
+        element.clone(),
+        fill,
+        fill_set,
+    )))
+}
+
+/// Função qualificada `outline.entry.body(entry)`.
+pub fn native_outline_entry_body(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let Some(first) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
+    };
+    if args.items.len() != 1 || !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    let content = match first {
+        Value::Content(content) => content,
+        Value::LocatedContent(content, _) => content.content(),
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "expected outline entry",
+            )])
+        }
+    };
+    let Content::OutlineEntry(entry) = content else {
+        return Err(vec![SourceDiagnostic::error(args.span, "expected outline entry")]);
+    };
+    entry
+        .body()
+        .map(Value::Content)
+        .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])
+}
 
 /// `outline(title: content?, depth: int?, indent: bool?)` — emite
 /// `Content::Outline(OutlineElem { title, depth, indent })`.

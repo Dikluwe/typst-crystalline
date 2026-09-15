@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 340f87e3
+//! @prompt-hash 92e7392f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1824,6 +1824,29 @@ pub(super) fn eval_func_call(
                         &c,
                         loc,
                         method,
+                        args,
+                        call.span(),
+                    );
+                }
+            }
+        }
+
+        // P1402 — método não contextual próprio da entry.
+        if let Expr::FieldAccess(access) = call.callee() {
+            if access.field().as_str() == "body" {
+                let target = eval_expr(access.target(), scopes, ctx, engine)?;
+                let content = match &target {
+                    Value::Content(content) => Some(content),
+                    Value::LocatedContent(content, _) => Some(content.content()),
+                    _ => None,
+                };
+                if let Some(
+                    content @ crate::entities::content::Content::OutlineEntry(_),
+                ) = content
+                {
+                    let args = eval_args(call.args(), scopes, ctx, engine)?;
+                    return bindings::eval_outline_entry_body_method(
+                        content,
                         args,
                         call.span(),
                     );

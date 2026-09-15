@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 4477c7e5
+//! @prompt-hash 1d187886
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -82,6 +82,7 @@ pub mod repeat;
 // Lote 8 P323 — por largura (4 variantes element-shaped).
 pub mod columns;
 pub mod outline;
+pub mod outline_entry;
 pub mod quote;
 pub mod r#ref;
 // Lote 9 P324 — por largura (5 variantes element-shaped).

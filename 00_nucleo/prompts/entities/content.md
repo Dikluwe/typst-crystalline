@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d7909352
+Hash do Código: f6bb3bc6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -2978,3 +2978,10 @@ O armazenamento e o writer continuam pertencendo ao carrier privado de
 `entities/func.md`; esta unidade apenas faz a projeção read-only necessária ao
 seu próprio enum. Isso não é API pública nem mudança de comportamento por
 defeito conforme ADR-0127.
+
+# P1402 — `Content::OutlineEntry`
+
+Medição anterior e contrato público: `compiler/stdlib/structural/outline.md`
+§P1402. O enum fechado recebe `OutlineEntry(Arc<OutlineEntryElem>)`, com despacho
+estático nos hubs. A lógica da unidade fica em `entities/elements/outline_entry`;
+o hub só reembrulha, compara e delega. Não usar `Content::Dynamic`.

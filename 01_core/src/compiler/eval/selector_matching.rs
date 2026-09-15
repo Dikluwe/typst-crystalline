@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash ebdd1052
+//! @prompt-hash 36758a3a
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -259,6 +259,7 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::Metadata(_) => native!(native_metadata),
         Content::Terms(_) => native!(native_terms),
         Content::Outline(_) => native!(native_outline),
+        Content::OutlineEntry(_) => native!(native_outline_entry),
         Content::Cite(_) => native!(native_cite),
         Content::Bibliography(_) => native!(native_bibliography),
         Content::Ref(_) => native!(native_ref),

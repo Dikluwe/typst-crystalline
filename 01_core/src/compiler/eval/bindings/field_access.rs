@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 900a78f5
+//! @prompt-hash 51f70845
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1170,9 +1170,25 @@ fn content_elem_func(c: &crate::entities::content::Content) -> Value {
         Content::Link(_) => crate::compiler::stdlib::native_link,
         Content::SmallCaps { .. } => crate::compiler::stdlib::native_smallcaps,
         Content::Linebreak(_) => crate::compiler::stdlib::native_linebreak,
+        Content::OutlineEntry(_) => crate::compiler::stdlib::native_outline_entry,
         _ => content_func_not_callable,
     };
     Value::Func(Func::native(c.elem_name(), call))
+}
+
+pub(crate) fn eval_outline_entry_body_method(
+    content: &crate::entities::content::Content,
+    args: Args,
+    span: Span,
+) -> SourceResult<Value> {
+    finish_args(&args, span)?;
+    let crate::entities::content::Content::OutlineEntry(entry) = content else {
+        unreachable!("receiver validated as outline entry")
+    };
+    entry
+        .body()
+        .map(Value::Content)
+        .map_err(|message| vec![SourceDiagnostic::error(span, message)])
 }
 
 /// **P829** — mirror dos métodos do `#[scope]` de `Content` do vanilla

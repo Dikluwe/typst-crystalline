@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: fc23c3ef
+Hash do Código: 801e509a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -527,3 +527,11 @@ trait não pode continuar `Option<&EcoString>`.
 adicionais devolvem `Option<&Content>` para as vistas visível e de referência
 realizadas por página. Nenhum método executa callback. Esta alteração de trait
 público exige gate ADR-0127; mocks e implementações L3 só mudam em P1158.
+
+# P1402 — configurações de outline para materialização de entries
+
+O store concreto conserva, em ordem de ocorrência, clones dos `OutlineElem`
+vistos pelo walk. É dado privado de construção para gerar uma entry por outline
+realizado e por heading incluído; não altera o trait público `Introspector`.
+O store conserva também as Locations dos headings efetivamente `outlined`, na
+mesma ordem de `headings_for_toc`, evitando inferir Location por auto-label.

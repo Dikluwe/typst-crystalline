@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash 001988af
+//! @prompt-hash 22542f51
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -54,6 +54,7 @@ pub fn is_locatable(content: &Content) -> bool {
 
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline(_) => true,
+        Content::OutlineEntry(_) => true,
 
         // ── Locatable em P181D — Bibliography (decisão P181A
         // cláusula 4 = Opção β walk puro). `from_tags` arm popula

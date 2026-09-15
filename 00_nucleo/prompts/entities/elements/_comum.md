@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements` — trait `Element` (modelo D, lote piloto)
-Hash do Código: 54eb3956
+Hash do Código: bad80f63
 
 **Camada**: L1 · **Módulo**: `01_core/src/entities/elements/`
 **Decisão de origem**: ADR-0105 (modelo D incremental; F como destino) +
@@ -219,3 +219,8 @@ migrarem. O hub encolhe lote a lote.
 - `Content::Nome(a) == Content::Nome(b)` ⟺ campos iguais (estrutural via Arc).
 - `plain_text`/`map_content`/`map_text`/`get_field` produzem o mesmo que os
   braços inline anteriores.
+
+## P1402 — registro da unidade `outline_entry`
+
+O hub declara o módulo proprietário `outline_entry`. O tipo, os campos e a
+lógica de `body` permanecem no arquivo da unidade; o hub não os replica.

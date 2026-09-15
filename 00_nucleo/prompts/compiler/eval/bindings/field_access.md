@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: f204b94e
+Hash do Código: 5938f01e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1186,3 +1186,10 @@ por tipo também os reconhece como métodos não estáticos. Este owner apenas
 resolve o nome e vincula o receptor, sem construir variants nem consultar o
 documento. Outros nomes e mensagens de campo ausente permanecem iguais. A nova
 superfície pública aguarda confirmação ADR-0127.
+
+## P1402 — método de `outline.entry`
+
+Quando o receptor é `Content::OutlineEntry` (direto ou localizado), o campo
+`body` vincula o receptor ao interceptor dedicado. Os campos materiais
+`level`, `element` e `fill` continuam a ser lidos pelo caminho comum de
+`Content`; nenhum outro conteúdo ganha esse método.

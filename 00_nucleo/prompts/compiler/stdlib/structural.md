@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 0718ad63
+Hash do Código: e3606b66
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1279,3 +1279,8 @@ manter o nome do grupo reafirmaria o agrupamento que a medição refutou.
 Os quatro prompts órfãos do Passo 512 (`grid_hline.md`, `grid_vline.md`,
 `table_hline.md`, `table_vline.md`) foram **absorvidos** por `structural/table_lines.md`
 e removidos, junto com as suas excepções de órfão no `crystalline.toml`.
+
+## P1402 — reexportação estrutural
+
+O hub estrutural encaminha os dois símbolos nativos de `outline.entry` para o
+hub da stdlib, sem duplicar contrato, validação ou síntese introspectiva.

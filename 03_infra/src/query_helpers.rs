@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 8fa8252c
+//! @prompt-hash 0cd004da
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -321,6 +321,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::Bibliography(bib) => bib.title.as_ref().map_or(false, has_any_text),
         Content::Label(label) => has_any_text(&label.body),
         Content::PdfArtifact(artifact) => has_any_text(&artifact.body),
+        Content::OutlineEntry(entry) => has_any_text(&entry.element),
         Content::Heading(_)
         | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_)
         | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)
@@ -404,6 +405,13 @@ where
         Content::Bibliography(bib) => bib.title.as_ref().map_or(0, |t| count_variant(t, predicate)),
         Content::Label(label) => count_variant(&label.body, predicate),
         Content::PdfArtifact(artifact) => count_variant(&artifact.body, predicate),
+        Content::OutlineEntry(entry) => {
+            count_variant(&entry.element, predicate)
+                + entry
+                    .fill
+                    .as_ref()
+                    .map_or(0, |fill| count_variant(fill, predicate))
+        }
         Content::Heading(_) | Content::Link(_) | Content::Raw(_) | Content::Metadata(_)
         | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_) | Content::CounterDisplay(_)

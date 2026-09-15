@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: 1afd0480
+Hash do Código: 83b33b44
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -169,3 +169,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | 2026-05-01 | P181C: variant `Bibliography` adicionada; suporte ao plano P181 (lacuna #6); `from_name("bibliography")` round-trip | `element_kind.rs`, `element_kind.md` |
 | 2026-05-03 | P186B: variant `Equation` adicionada; suporte ao plano P186 (eixo 2 do bloqueio P183C — C2 equation counter); `from_name("equation")` round-trip; `from_tags` arm Equation populará `kind_index` em P186E. Dormente em produção até `Content::SetEquationNumbering` materializar (passo dedicado fora da série P186-P188). | `element_kind.rs`, `element_kind.md` |
 | 2026-06-29 | P494: adicionadas variants `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote` para paridade de selectores de documento. Kinds `List`/`Enum`/`Par` mapeiam para estruturas implícitas de `Content` (`Sequence` de itens / texto); contagem em L3 `query_helpers.rs`. Kinds `Link`/`Raw`/`Quote`/`Footnote` mapeiam para variantes existentes de `Content`. | `element_kind.rs`, `element_kind.md`, `selector.rs`, `query_helpers.rs`, `foundations.rs` |
+| 2026-09-14 | P1402: variant `OutlineEntry`, forma textual `entry`, para a identidade selecionável `outline.entry` e o índice das entradas sintetizadas. | `element_kind.rs`, `element_kind.md` |

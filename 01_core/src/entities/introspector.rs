@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 12f6d2eb
+//! @prompt-hash cc583356
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -442,6 +442,12 @@ pub struct TagIntrospector {
     /// orgânico em M6.
     pub headings_for_toc:
         Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
+    /// **P1402** — outlines encontrados, em ordem, para materializar uma
+    /// ocorrência pública `outline.entry` por item incluído.
+    pub outline_elements: Vec<crate::entities::elements::outline::OutlineElem>,
+    /// **P1402** — Locations dos headings que alimentam `headings_for_toc`,
+    /// preservadas na mesma ordem para ligar `entry.element` ao snapshot.
+    pub outlined_heading_locations: Vec<Location>,
     /// **P606** — sub-store dedicado a bookmarks PDF (`/Outlines`).
     /// Populada por `ElementPayload::HeadingForBookmarks`. Partilha a
     /// mesma forma de `headings_for_toc` mas filtra pelo valor efectivo
