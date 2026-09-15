@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: a5fe5133
+Hash do Código: 09546059
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -249,3 +249,68 @@ parcelas nem sobre paridade geral.
 
 `inner` amplia o contrato público. Confirmação humana explícita recebida em
 2026-09-14; o contrato acima está autorizado para L1–L4 conforme ADR-0127.
+
+## P1405 — proposta pública `indented()`
+
+### Medição antes da decisão
+
+No baseline cristalino limpo
+`a159b5f18ad42eab12393b4dd101c0d6f9c1b542`, medido a partir de
+`2026-09-14T23:46:34-03:00`, o vanila ratificado expõe
+`outline.entry.indented(prefix, inner, gap: 0.5em)`. A medição limitada de dois
+níveis confirmou: auto alinha máximos de prefixo entre entries e usa fallback
+`1.2em`; indent fixo multiplica `level − 1`; callback recebe `level − 1`;
+prefixo ausente elimina o hanging; RTL usa o lado lógico direito. O body com
+prefixo preserva marker semântico PDF e, somente em auto, informação interna
+para a introspecção dos máximos. Fonte:
+`model/outline.rs:524-628,798-833`. O cristalino não possui a identidade nem o
+método; `#show outline.entry` continua bloqueado separadamente até P1406.
+
+### Contrato público proposto
+
+O scope de `outline.entry` ganha a função contextual estática `indented`,
+chamável como:
+
+```typ
+entry.indented(prefix, inner, gap: 0.5em)
+```
+
+- `prefix` é Content ou `none`; `inner` é Content; `gap` é Length;
+- contexto desconhecido falha antes da execução; contexto sem parent outline
+  falha com `must be called within the context of an outline`;
+- a largura do prefixo é medida com métricas/estilos efetivos e somada a gap;
+- indent fixo usa `(level − 1) × indent`; função é chamada uma vez com
+  `level − 1`; por compatibilidade cristalina, `true` equivale a auto e
+  `false` a zero fixo;
+- auto soma máximos por nível anterior, com fallback `1.2em`, e alinha o
+  hanging atual ao máximo do nível;
+- com prefixo, o body contém informação de alinhamento apenas em auto,
+  `h(-hanging)`, prefixo marcado como label PDF,
+  `h(hanging-prefix_width)` e inner; sem prefixo contém somente inner;
+- o Block resultante aplica `base + hanging` ao lado lógico inicial: esquerda
+  em LTR, direita em RTL;
+- prefixo e inner permanecem Content e medidas observadas não são assadas.
+
+P1406 continua sendo o único passo autorizado a aceitar `outline.entry` como
+selector de show rule, transportar o parent e integrar o show default. P1405
+não altera o layout legado do outline nem a fase do pipeline.
+
+### Gate
+
+`indented` amplia o contrato público e introduz novo comportamento contextual.
+Confirmação humana explícita recebida em 2026-09-15; o contrato acima está
+autorizado para L1–L4 conforme ADR-0127.
+
+### Transporte interno autorizado
+
+O parent não é dado da entry: uma entry direta ou recuperada por `query`
+continua sem parent e deve falhar. P1406 fornecerá `OutlineIndent` e uma chave
+opaca do outline por propriedades privadas na cadeia de estilos durante a
+realização do show rule. P1405 pode consumir essas propriedades, mas não as
+fabricar. O cálculo auto lê somente `prefix-info` introspectado com a mesma
+chave e mede o prefixo atual com a `FontMetrics` injetada.
+
+O marker `prefix-info` é um `Content::Styled` vazio com propriedade custom
+privada, portanto não cria texto nem superfície pública. O prefixo marcado para
+PDF usa igualmente um carrier `Styled` privado; o layout converte este carrier
+em `SemanticKind::Label`, preservando o Content visual dentro do envelope.

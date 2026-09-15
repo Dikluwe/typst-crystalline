@@ -73,6 +73,22 @@ impl OutlineEntryElem {
     pub fn element_location(&self) -> Option<Location> {
         self.element_location
     }
+
+    pub(crate) fn remapped(
+        &self,
+        element: Content,
+        fill: Option<Content>,
+        prefix: Option<Content>,
+    ) -> Self {
+        Self {
+            level: self.level,
+            element,
+            fill,
+            fill_set: self.fill_set,
+            prefix,
+            element_location: self.element_location,
+        }
+    }
 }
 
 impl Element for OutlineEntryElem {

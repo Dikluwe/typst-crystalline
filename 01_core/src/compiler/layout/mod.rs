@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 883b4ab7
+//! @prompt-hash 2e3e7dde
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -24,12 +24,13 @@ use crate::entities::{
     label::Label,
     layout_types::{
         Align2D, FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt,
-        TextStyle, VAlign,
+        SemanticKind, SemanticPlacement, TextStyle, VAlign,
     },
     location::Location,
     locator::Locator,
     source_result::{SourceDiagnostic, SourceResult},
     style_chain::StyleChain,
+    value::Value,
 };
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
@@ -1916,7 +1917,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let prev_style = self.style.clone();
                 self.chain = self.chain.push_styles(styles);
                 self.style = TextStyle::from(&self.chain);
-                self.layout_content(body);
+                let pdf_label = styles.delta().custom.iter().rev().any(|(key, value)| {
+                    key.as_str() == "pdf.marker.tag"
+                        && matches!(value, Value::Str(tag) if tag.as_str() == "label")
+                });
+                if pdf_label {
+                    let (_, items) = self.layout_sub_frame_inline(
+                        body,
+                        sub_frame::SubLayoutRegion {
+                            origin_x: 0.0,
+                            width: 0.0,
+                            height: None,
+                            align_rtl: false,
+                            unconstrained_height: true,
+                        },
+                    );
+                    self.regions.current.current_line.push(FrameItem::Semantic {
+                        kind: SemanticKind::Label,
+                        placement: SemanticPlacement::Inline,
+                        alt: None,
+                        items,
+                    });
+                } else {
+                    self.layout_content(body);
+                }
                 self.chain = prev_chain;
                 self.style = prev_style;
             }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 1567db11
+//! @prompt-hash 718fb503
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -28,6 +28,7 @@ use crate::compiler::stdlib::{
     native_label,
     native_layout,
     native_measure,
+    native_outline_entry_indented,
     native_outline_entry_inner,
     native_outline_entry_page,
     native_outline_entry_prefix,
@@ -1837,7 +1838,7 @@ pub(super) fn eval_func_call(
         // P1402/P1403 — métodos próprios da entry.
         if let Expr::FieldAccess(access) = call.callee() {
             let method = access.field().as_str();
-            if matches!(method, "body" | "prefix" | "page" | "inner") {
+            if matches!(method, "body" | "prefix" | "page" | "inner" | "indented") {
                 let target = eval_expr(access.target(), scopes, ctx, engine)?;
                 let content = match &target {
                     Value::Content(content) => Some(content),
@@ -1873,6 +1874,14 @@ pub(super) fn eval_func_call(
                             engine,
                         ),
                         "inner" => native_outline_entry_inner(
+                            ctx,
+                            &args,
+                            world,
+                            current_file,
+                            scopes,
+                            engine,
+                        ),
+                        "indented" => native_outline_entry_indented(
                             ctx,
                             &args,
                             world,

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: d2084747
+Hash do Código: 4bdde5a2
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -521,3 +521,11 @@ transparentes e nenhum BMC/BDC/EMC/MCID é emitido. Verbose/Compact não muda a
 semântica. O stream não decide ParentTree, header IDs nem summary; entrega os
 MCIDs ao builder pela mesma pré-passagem determinística. A estrutura medida
 não promete comportamento de AT, reflow nem conformidade PDF/UA.
+
+## P1405 — marked content `/Lbl`
+
+Com `PdfTags::Enabled`, `SemanticKind::Label` abre `/Lbl << /MCID n >> BDC`,
+emite recursivamente seus items e fecha com `EMC`; o MCID vem da tabela
+precomputada pelo builder. Com tags desabilitadas, o envelope não emite
+operadores mas os items internos continuam desenhados. StreamMode não altera
+essa semântica.

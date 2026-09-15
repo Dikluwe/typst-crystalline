@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 93434660
+//! @prompt-hash ba4217d4
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1191,12 +1191,11 @@ fn materialize_time(
         // só existe após expansão pós-introspecção).
         Content::ContextBlock(_) => content.clone(),
 
-        Content::OutlineEntry(e) => Content::outline_entry_with_fill_state(
-            e.level,
+        Content::OutlineEntry(e) => Content::OutlineEntry(Arc::new(e.remapped(
             materialize_time(&e.element, intr, location),
             e.fill.as_ref().map(|fill| materialize_time(fill, intr, location)),
-            e.fill_set,
-        ),
+            e.prefix().map(|prefix| materialize_time(&prefix, intr, location)),
+        ))),
 
         // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
         // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
@@ -2386,6 +2385,24 @@ pub(crate) fn walk(
         // gate `X.numbering` na chain. Escopado à subárvore (o `pushed` só vale na
         // recursão do `body`).
         Content::Styled(body, styles) => {
+            for (key, value) in &styles.delta().custom {
+                if key.as_str() != "outline.prefix-info" {
+                    continue;
+                }
+                let Value::Array(parts) = value else { continue };
+                let [Value::Int(parent_key), Value::Int(level), Value::Length(inset)] =
+                    parts.as_slice()
+                else {
+                    continue;
+                };
+                if let Ok(level) = usize::try_from(*level) {
+                    intr.record_outline_prefix_width(
+                        *parent_key,
+                        level,
+                        inset.resolve_pt(0.0),
+                    );
+                }
+            }
             let pushed = chain.push_styles(styles);
             walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent);
         }

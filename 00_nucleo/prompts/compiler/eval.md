@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 34dd8750
+Hash do Código: a2d03669
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -461,3 +461,12 @@ de `query`. Ambas preservam nome e identidade estáticos.
 O namespace da entry contém `inner` como nativa com Engine/Scopes. A nativa
 reusa a leitura causal de `page`; não cria vocabulário paralelo. A comparação
 observacional de `BoxedElem` inclui o carrier fracionário P1404.
+
+# P1405 — identidade e leitura causal de `outline.entry.indented`
+
+O namespace da entry contém `indented` como nativa com Engine/Scopes. Quando o
+parent privado está presente na StyleChain, a nativa registra leitura causal
+fechada contendo entry, prefix, inner e gap; o replay usa os mesmos estilos e o
+novo candidato do introspector, permitindo que máximos `prefix-info` atinjam
+fixpoint. Sem parent, o erro ocorre antes do registro. O diagnóstico de
+não-convergência não reclassifica esta leitura como counter ou state.

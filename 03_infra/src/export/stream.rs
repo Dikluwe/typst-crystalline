@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 3e6a7e01
+//! @prompt-hash 20439e24
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -153,6 +153,7 @@ impl<'a> PageContext<'a> {
                         let owns_mcid = matches!(
                             kind,
                             typst_core::entities::layout_types::SemanticKind::Formula
+                                | typst_core::entities::layout_types::SemanticKind::Label
                                 | typst_core::entities::layout_types::SemanticKind::TableHeaderCell { .. }
                                 | typst_core::entities::layout_types::SemanticKind::TableDataCell { .. }
                         );
@@ -1214,6 +1215,10 @@ fn semantic_opening(
                 .get(&key)
                 .map(|mcid| format!("/Formula << /MCID {mcid} >> BDC\n"))
         }
+        SemanticKind::Label => ctx
+            .semantic_mcids
+            .get(&(item as *const FrameItem as usize))
+            .map(|mcid| format!("/Lbl << /MCID {mcid} >> BDC\n")),
         SemanticKind::Artifact(ArtifactKind::Header) => Some(
             "/Artifact << /Attached [/Top] /Subtype /Header /Type /Pagination >> BDC\n"
                 .into(),

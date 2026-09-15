@@ -1,0 +1,21 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "step": "P1405",
+  "verified_at": "2026-09-15T00:24:07-03:00",
+  "verdict": "PASS_FRAGMENT",
+  "attestation": "executado sem atestação de isolamento",
+  "claim_boundary": "Somente identidade e helper outline.entry.indented, store automático, replay contextual e carrier PDF /Lbl; o caminho positivo por show rule permanece Unknown até P1406.",
+  "gates": {
+    "bounded_binary_build": "pass: 2 GiB, one job, incremental off, 512 codegen units",
+    "monolithic_core_test": "not run: known memory-unsafe for this host; no credit",
+    "bilateral_oracles": "2 preserved, 0 different, 0 unclassified",
+    "bounded_targeted_tests": "9 passed, 0 failed",
+    "mutation_score": 1.0,
+    "cargo_fmt": "pass",
+    "git_diff_check": "pass",
+    "crystalline_lint": "exit 0, zero violations"
+  },
+  "candidate_binary_sha256": "5b2bb9d2492228f9ea77893dcf911aec799b5895e8f9970e829921f8a6f1148b",
+  "vanila_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+  "decision": "PASS_FRAGMENT"
+}

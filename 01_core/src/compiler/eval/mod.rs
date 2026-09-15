@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 0c7f64e2
+//! @prompt-hash e14eaf13
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -5025,6 +5025,12 @@ pub(crate) enum ContextReadRequest {
     OutlineEntryPage {
         location: crate::entities::location::Location,
     },
+    OutlineEntryIndented {
+        entry: crate::entities::content::Content,
+        prefix: Value,
+        inner: Value,
+        gap: crate::entities::layout_types::Length,
+    },
 }
 
 #[derive(Clone)]
@@ -5586,6 +5592,24 @@ impl EvalContext {
                     &mut transaction,
                 )
             }
+            OutlineEntryIndented { entry, prefix, inner, gap } => {
+                let mut scopes = crate::compiler::scopes::Scopes::new(None);
+                let mut named = indexmap::IndexMap::default();
+                named.insert("gap".into(), Value::Length(*gap));
+                let args = crate::entities::args::Args::from_parts(
+                    vec![Value::Content(entry.clone()), prefix.clone(), inner.clone()],
+                    named,
+                    read.span,
+                );
+                crate::compiler::stdlib::native_outline_entry_indented(
+                    &mut ctx,
+                    &args,
+                    transaction.world,
+                    transaction.current_file,
+                    &mut scopes,
+                    &mut transaction,
+                )
+            }
         };
         result
     }
@@ -5662,6 +5686,7 @@ impl EvalContext {
                 | ContextReadRequest::LocationPosition { .. }
                 | ContextReadRequest::LocationPageNumbering { .. }
                 | ContextReadRequest::OutlineEntryPage { .. } => continue,
+                ContextReadRequest::OutlineEntryIndented { .. } => continue,
             };
             let projections: Vec<_> = history
                 .iter()
@@ -7298,6 +7323,7 @@ fn make_stdlib_with_features(
         native_outline,
         native_outline_entry,
         native_outline_entry_body,
+        native_outline_entry_indented,
         native_outline_entry_inner,
         native_outline_entry_page,
         native_outline_entry_prefix,
@@ -7426,6 +7452,13 @@ fn make_stdlib_with_features(
             Value::Func(Func::native(
                 "outline.entry.prefix",
                 native_outline_entry_prefix,
+            )),
+        );
+        entry_namespace.define(
+            "indented",
+            Value::Func(Func::native_with_engine(
+                "outline.entry.indented",
+                native_outline_entry_indented,
             )),
         );
         entry_namespace.define(

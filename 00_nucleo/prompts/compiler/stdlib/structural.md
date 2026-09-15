@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 1bf5b58b
+Hash do Código: 0a1be210
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1293,3 +1293,8 @@ O hub encaminha também `native_outline_entry_prefix` e
 ## P1404 — reexportação de `inner`
 
 O hub encaminha `native_outline_entry_inner`, sem construir sua sequência.
+
+## P1405 — reexportação de `indented`
+
+O hub encaminha `native_outline_entry_indented`; toda semântica permanece no
+owner `structural/outline`.

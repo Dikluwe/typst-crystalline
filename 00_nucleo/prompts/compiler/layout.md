@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: d028eb4c
+Hash do Código: 73212c12
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -317,3 +317,12 @@ continuam invariantes.
 Uma `OutlineEntry` construída diretamente é transparente ao layout nesta fatia:
 desce no corpo outlinable. A geração visual completa e os helpers contextuais
 permanecem fora do escopo; isso não altera o layout vigente de `outline()`.
+
+# P1405 — consumo do carrier PDF label
+
+Ao encontrar `Content::Styled` cuja propriedade custom privada
+`pdf.marker.tag` seja a string `label`, layoutar o body uma única vez em
+sub-frame inline, conservar o avanço do cursor e recolocar os items produzidos
+num `FrameItem::Semantic { kind: Label, placement: Inline }`. Outros Styled
+seguem o push/pop vigente sem branch semântico. O carrier é visualmente
+transparente e não altera medição.

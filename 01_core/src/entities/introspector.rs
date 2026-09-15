@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash cc583356
+//! @prompt-hash d08b75ac
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -448,6 +448,9 @@ pub struct TagIntrospector {
     /// **P1402** — Locations dos headings que alimentam `headings_for_toc`,
     /// preservadas na mesma ordem para ligar `entry.element` ao snapshot.
     pub outlined_heading_locations: Vec<Location>,
+    /// **P1405** — máximos absolutos de `prefix_inset` por chave de outline
+    /// e nível 1-based, extraídos dos carriers privados `prefix-info`.
+    pub outline_prefix_widths: HashMap<i64, Vec<Option<f64>>>,
     /// **P606** — sub-store dedicado a bookmarks PDF (`/Outlines`).
     /// Populada por `ElementPayload::HeadingForBookmarks`. Partilha a
     /// mesma forma de `headings_for_toc` mas filtra pelo valor efectivo
@@ -515,6 +518,27 @@ impl TagIntrospector {
     /// Construtor vazio. Equivalente a `Default::default()`.
     pub fn empty() -> Self {
         Self::default()
+    }
+
+    pub(crate) fn record_outline_prefix_width(
+        &mut self,
+        key: i64,
+        level: usize,
+        inset: f64,
+    ) {
+        if level == 0 || !inset.is_finite() {
+            return;
+        }
+        let widths = self.outline_prefix_widths.entry(key).or_default();
+        if widths.len() < level {
+            widths.resize(level, None);
+        }
+        let slot = &mut widths[level - 1];
+        *slot = Some(slot.map_or(inset, |current| current.max(inset)));
+    }
+
+    pub(crate) fn outline_prefix_widths(&self, key: i64) -> &[Option<f64>] {
+        self.outline_prefix_widths.get(&key).map(Vec::as_slice).unwrap_or(&[])
     }
 
     /// **P205C (F3)** — Injecta sub-store sealed
@@ -588,6 +612,18 @@ mod tests {
         assert_eq!(i.query_first(ElementKind::Heading), None);
         assert_eq!(i.query_unique(ElementKind::Heading), None);
         assert_eq!(i.position_of(loc(1)), None);
+    }
+
+    #[test]
+    fn p1405_prefix_width_store_e_maximo_estavel() {
+        let mut i = TagIntrospector::empty();
+        i.record_outline_prefix_width(7, 2, 11.0);
+        i.record_outline_prefix_width(7, 2, 9.0);
+        i.record_outline_prefix_width(7, 2, 13.0);
+        i.record_outline_prefix_width(8, 1, 5.0);
+        assert_eq!(i.outline_prefix_widths(7), &[None, Some(13.0)]);
+        assert_eq!(i.outline_prefix_widths(8), &[Some(5.0)]);
+        assert!(i.outline_prefix_widths(9).is_empty());
     }
 
     // ── P204B (M8) — Sentinel tests ──────────────────────────────────────

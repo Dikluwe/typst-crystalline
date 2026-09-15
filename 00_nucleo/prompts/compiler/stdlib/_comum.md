@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 33302ee9
+Hash do Código: 688275fc
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -240,3 +240,8 @@ duplicar parsing, acesso ao introspector ou realização de numbering.
 ## P1404 — reexportação de `inner`
 
 A fachada encaminha a nativa contextual do owner de outline, sem lógica.
+
+## P1405 — reexportação de `indented`
+
+A fachada encaminha a nativa contextual do owner de outline, sem parsing,
+medição ou composição próprios.

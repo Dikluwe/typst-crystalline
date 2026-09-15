@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: f66bee92
+Hash do Código: 5680c9a5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -884,3 +884,11 @@ não são interceptados. `page()` recebe o contexto e a Engine atuais.
 O mesmo dispatch restrito a `Content::OutlineEntry` liga `inner()` à nativa
 qualificada com contexto, Scopes e Engine atuais. Receiver é avaliado uma vez;
 argumentos são validados exclusivamente no owner de outline.
+
+# P1405 — método `entry.indented()`
+
+O mesmo dispatch restrito a `Content::OutlineEntry` liga `indented(prefix,
+inner, gap:)` à nativa qualificada com contexto, Scopes e Engine atuais. O
+receiver é avaliado uma vez e anteposto aos argumentos; toda validação e toda
+composição permanecem no owner de outline. Outros Contents não são
+interceptados e o fallback geral permanece inalterado.

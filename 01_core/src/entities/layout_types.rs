@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash acb3f7b9
+//! @prompt-hash 985fb88d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -307,6 +307,8 @@ pub use crate::entities::shaped_glyph::ShapedGlyph;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticKind {
     Formula,
+    /// P1405 — prefixo de entry de outline na structure tree PDF (`/Lbl`).
+    Label,
     Artifact(ArtifactKind),
     Table {
         id: u64,

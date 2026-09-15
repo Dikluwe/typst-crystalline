@@ -1,0 +1,18 @@
+{
+  "schema": "tekt-oracles/v1",
+  "step": "P1405",
+  "attestation": "executado sem atestação de isolamento",
+  "limits": {"rlimit_as_kib": 524288, "timeout_seconds": 15, "max_stream_bytes": 65536},
+  "bilateral_cases": [
+    {"case": "static-identity", "crystalline": "indented", "vanila": "indented", "exit_both": 0},
+    {"case": "queried-entry-without-parent", "crystalline": "must be called within the context of an outline", "vanila": "must be called within the context of an outline", "exit_both": 1}
+  ],
+  "bounded_harnesses": [
+    {"target": "typst-core::p1405_outline_indented", "passed": 8, "failed": 0},
+    {"target": "typst-infra::p1405_pdf_label", "passed": 1, "failed": 0}
+  ],
+  "unknown_cases": [
+    {"case": "positive-show-rule-path", "reason": "parent injection and selector integration belong to P1406"}
+  ],
+  "classification": "PreservedWithinFragment"
+}

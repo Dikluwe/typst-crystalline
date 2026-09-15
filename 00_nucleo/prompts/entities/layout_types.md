@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 29f025ff
+Hash do Código: a9292b4f
 
 ## P1339 — causa existente das conversões de Angle
 
@@ -702,3 +702,11 @@ Quando `math_text_item=true`:
 
 Quando `false`, IC e `.st/.sts` permanecem ativas nas rotas matemáticas que
 as definem. Não criar outro campo, heurística nominal ou lista de caracteres.
+
+## P1405 — label semântica de prefixo de outline
+
+`SemanticKind` ganha `Label`, carrier fechado da função interna equivalente a
+`PdfMarkerTag::Label` do vanila. É um envelope inline visualmente transparente:
+preserva os items do prefixo e não cria texto, medida ou Location. Seu único
+consumer produtivo é o pipeline PDF tagueado; não confundir com `LabelElem`
+(destino nomeado) nem com `Artifact`, que remove conteúdo da structure tree.

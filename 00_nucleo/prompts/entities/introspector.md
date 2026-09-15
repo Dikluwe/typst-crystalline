@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 801e509a
+Hash do Código: 3360e776
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -535,3 +535,11 @@ vistos pelo walk. É dado privado de construção para gerar uma entry por outli
 realizado e por heading incluído; não altera o trait público `Introspector`.
 O store conserva também as Locations dos headings efetivamente `outlined`, na
 mesma ordem de `headings_for_toc`, evitando inferir Location por auto-label.
+
+# P1405 — máximos privados de prefixo
+
+O store concreto conserva `outline_prefix_widths`, indexado pela chave opaca
+do outline e pelo nível 1-based, com o maior inset absoluto observado em
+carriers `outline.prefix-info`. A leitura é emprestada e interna ao crate; não
+altera o trait público `Introspector`, não cria resultados de query e não
+executa callbacks. Nível zero e payloads malformados são ignorados.

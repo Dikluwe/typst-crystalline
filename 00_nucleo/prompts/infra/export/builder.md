@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 7d431140
+Hash do Código: d56a8f73
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -839,3 +839,11 @@ Com tags disabled, omitir `/StructTreeRoot`, `/MarkInfo` e toda a estrutura
 Table/TR/TH/TD/ParentTree associada, preservando texto, páginas, boxes e
 geometria. Não declarar PDF/UA, AT real, reflow ou acessibilidade geral; esses
 resultados permanecem Unknown e não são inferidos da estrutura positiva.
+
+## P1405 — nó `/Lbl` para prefixo de outline
+
+Com tags habilitadas, cada `SemanticKind::Label` recebe MCID determinístico e
+um nó folha `/Lbl` na ordem estrutural da página. O node não recebe alt,
+summary ou atributos de tabela. Com tags desabilitadas não cria nó nem MCID;
+seus items visuais continuam presentes. Esta fatia não afirma estrutura
+completa de listas ou do outline, reservada a passos próprios.

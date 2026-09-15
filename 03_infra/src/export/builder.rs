@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 33db64be
+//! @prompt-hash 0bff5562
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -2714,6 +2714,21 @@ impl PdfBuilder {
                         page_index: Some(page_index),
                         mcid: Some(mcid),
                         alt: alt.as_ref().map(ToString::to_string),
+                        summary: None,
+                        attrs: TagAttrs::None,
+                        children: vec![],
+                    })
+                }
+                SemanticKind::Label => {
+                    let mcid = *next;
+                    *next += 1;
+                    Some(TagNode {
+                        role: "Lbl",
+                        object_id: 0,
+                        table_id: None,
+                        page_index: Some(page_index),
+                        mcid: Some(mcid),
+                        alt: None,
                         summary: None,
                         attrs: TagAttrs::None,
                         children: vec![],

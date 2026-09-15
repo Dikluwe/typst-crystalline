@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 864b6c4a
+//! @prompt-hash eff42850
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -18,8 +18,10 @@ use crate::entities::elements::outline::OutlineTarget;
 use crate::entities::file_id::FileId;
 use crate::entities::introspector::Introspector;
 use crate::entities::numbering::Numbering;
+use crate::entities::sides::Sides;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 /// `outline.entry(level, element, fill:?)` — construtor público P1402.
@@ -273,6 +275,239 @@ fn compose_outline_entry_inner(
     Content::sequence(parts)
 }
 
+fn content_arg(
+    value: Option<&Value>,
+    name: &str,
+    optional: bool,
+    span: Span,
+) -> SourceResult<Option<Content>> {
+    match value {
+        Some(Value::Content(content)) => Ok(Some(content.clone())),
+        Some(Value::LocatedContent(content, _)) => Ok(Some(content.content().clone())),
+        Some(Value::None) if optional => Ok(None),
+        Some(value) => Err(vec![SourceDiagnostic::error(
+            span,
+            if optional {
+                format!("expected content or none, found {}", value.type_name())
+            } else {
+                format!("expected content, found {}", value.type_name())
+            },
+        )]),
+        None => {
+            Err(vec![SourceDiagnostic::error(span, format!("missing argument: {name}"))])
+        }
+    }
+}
+
+fn outline_prefix_widths(ctx: &EvalContext, parent_key: i64) -> Vec<Option<f64>> {
+    ctx.introspector.outline_prefix_widths(parent_key).to_vec()
+}
+
+fn compute_auto_indents(
+    widths: &[Option<f64>],
+    level: usize,
+    prefix_inset: Option<f64>,
+    fallback: f64,
+) -> (f64, Option<f64>) {
+    let index = level.saturating_sub(1);
+    let at = |i: usize| widths.get(i).and_then(|value| *value).unwrap_or(fallback);
+    let base = (0..index).map(at).sum();
+    let hanging = prefix_inset.map(|inset| inset.max(at(index)));
+    (base, hanging)
+}
+
+fn marked_prefix(prefix: Content) -> Content {
+    Content::Styled(
+        Box::new(prefix),
+        Styles::new().push_custom("pdf.marker.tag", Value::Str("label".into())),
+    )
+}
+
+fn prefix_info(parent_key: i64, level: usize, inset: f64) -> Content {
+    Content::Styled(
+        Box::new(Content::Empty),
+        Styles::new().push_custom(
+            "outline.prefix-info",
+            Value::Array(vec![
+                Value::Int(parent_key),
+                Value::Int(level as i64),
+                Value::Length(crate::entities::layout_types::Length::pt(inset)),
+            ]),
+        ),
+    )
+}
+
+fn compose_outline_entry_indented(
+    prefix: Option<Content>,
+    inner: Content,
+    prefix_width_pt: Option<f64>,
+    base: crate::entities::layout_types::Length,
+    hanging_pt: Option<f64>,
+    auto: bool,
+    parent_key: i64,
+    level: usize,
+    rtl: bool,
+) -> Content {
+    use crate::entities::layout_types::Length;
+
+    let body = match (prefix, prefix_width_pt, hanging_pt) {
+        (Some(prefix), Some(prefix_width), Some(hanging)) => {
+            let mut parts = Vec::with_capacity(if auto { 5 } else { 4 });
+            if auto {
+                parts.push(prefix_info(parent_key, level, hanging));
+            }
+            parts.push(Content::h_space(Length::pt(-hanging), false));
+            parts.push(marked_prefix(prefix));
+            parts.push(Content::h_space(Length::pt(hanging - prefix_width), false));
+            parts.push(inner);
+            Content::sequence(parts)
+        }
+        _ => inner,
+    };
+    let inset = base + Length::pt(hanging_pt.unwrap_or(0.0));
+    let sides = if rtl {
+        Sides::new(Length::ZERO, Length::ZERO, inset, Length::ZERO)
+    } else {
+        Sides::new(inset, Length::ZERO, Length::ZERO, Length::ZERO)
+    };
+    Content::block(body, None, None, sides, true)
+}
+
+/// Função contextual qualificada `outline.entry.indented(entry, prefix, inner, gap:)`.
+pub fn native_outline_entry_indented(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+    scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    engine: &mut crate::entities::engine::Engine<'_>,
+) -> SourceResult<Value> {
+    if args.items.len() > 3 || args.named.keys().any(|name| name.as_str() != "gap") {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    let entry = outline_entry_receiver(&Args {
+        items: args.items.get(..1).unwrap_or(&[]).to_vec(),
+        named: indexmap::IndexMap::default(),
+        span: args.span,
+        occurrences: None,
+    })?
+    .clone();
+    let prefix = content_arg(args.items.get(1), "prefix", true, args.span)?;
+    let inner = content_arg(args.items.get(2), "inner", false, args.span)?
+        .expect("inner content is never none");
+    let gap = match args.named.get("gap") {
+        Some(Value::Length(length)) => *length,
+        Some(value) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected length, found {}", value.type_name()),
+            )])
+        }
+        None => crate::entities::layout_types::Length::em(0.5),
+    };
+    if !ctx.in_context {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "can only be used when context is known",
+        )]);
+    }
+    let Some(indent) = engine.styles.custom("outline.parent.indent").and_then(|value| {
+        use crate::entities::elements::outline::OutlineIndent;
+        match value {
+            Value::Auto => Some(OutlineIndent::Auto),
+            Value::Bool(value) => Some(OutlineIndent::Bool(*value)),
+            Value::Length(value) => Some(OutlineIndent::Length(*value)),
+            Value::Func(value) => Some(OutlineIndent::Function(value.clone())),
+            _ => None,
+        }
+    }) else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "must be called within the context of an outline",
+        )]);
+    };
+    let Some(Value::Int(parent_key)) = engine.styles.custom("outline.parent.key") else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "must be called within the context of an outline",
+        )]);
+    };
+    let parent_key = *parent_key;
+    let font_size = engine.styles.size();
+    let gap_pt = gap.resolve_pt(font_size);
+    let prefix_width_pt = prefix.as_ref().map(|content| {
+        crate::compiler::layout::measure_content_real(
+            content,
+            engine.styles,
+            engine.font_metrics,
+        )
+        .0
+    });
+    let prefix_inset = prefix_width_pt.map(|width| width + gap_pt);
+
+    use crate::entities::elements::outline::OutlineIndent;
+    use crate::entities::layout_types::Length;
+    let (base, hanging_pt, auto) = match indent {
+        OutlineIndent::Auto | OutlineIndent::Bool(true) => {
+            let mut widths = outline_prefix_widths(ctx, parent_key);
+            let index = entry.level.saturating_sub(1);
+            if widths.len() <= index {
+                widths.resize(index + 1, None);
+            }
+            if let Some(inset) = prefix_inset {
+                widths[index] = Some(widths[index].map_or(inset, |old| old.max(inset)));
+            }
+            let fallback = 1.2 * font_size;
+            let (base_pt, hanging) =
+                compute_auto_indents(&widths, entry.level, prefix_inset, fallback);
+            (Length::pt(base_pt), hanging, true)
+        }
+        OutlineIndent::Length(amount) => {
+            (amount * entry.level.saturating_sub(1) as f64, prefix_inset, false)
+        }
+        OutlineIndent::Bool(false) => (Length::ZERO, prefix_inset, false),
+        OutlineIndent::Function(function) => {
+            let call_args =
+                Args::positional(vec![Value::Int(entry.level.saturating_sub(1) as i64)]);
+            let value = crate::compiler::eval::call_dispatch::apply_func(
+                function, call_args, scopes, ctx, engine,
+            )?;
+            let Value::Length(amount) = value else {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("expected length, found {}", value.type_name()),
+                )]);
+            };
+            (amount, prefix_inset, false)
+        }
+    };
+    let rtl = matches!(
+        engine.styles.custom("text.dir"),
+        Some(Value::Dir(crate::entities::dir::Dir::RTL))
+    );
+    let result = Value::Content(compose_outline_entry_indented(
+        prefix,
+        inner,
+        prefix_width_pt,
+        base,
+        hanging_pt,
+        auto,
+        parent_key,
+        entry.level,
+        rtl,
+    ));
+    ctx.observe_context_read(
+        crate::compiler::eval::ContextReadRequest::OutlineEntryIndented {
+            entry: Content::OutlineEntry(std::sync::Arc::new(entry)),
+            prefix: args.items.get(1).cloned().unwrap_or(Value::None),
+            inner: args.items.get(2).cloned().unwrap_or(Value::None),
+            gap,
+        },
+        args.span,
+        Ok(result),
+    )
+}
+
 /// `outline(title: content?, depth: int?, indent: bool?)` — emite
 /// `Content::Outline(OutlineElem { title, depth, indent })`.
 ///
@@ -495,5 +730,59 @@ mod tests {
             Content::text("II"),
         ]);
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn p1405_indented_fixo_preserva_content_e_inset_logico() {
+        let actual = compose_outline_entry_indented(
+            Some(Content::strong(Content::text("P"))),
+            Content::emph(Content::text("I")),
+            Some(6.0),
+            Length::em(2.0),
+            Some(11.5),
+            false,
+            0,
+            2,
+            false,
+        );
+        let Content::Block(block) = actual else { panic!("esperado Block") };
+        assert_eq!(block.inset.left, Length::em(2.0) + Length::pt(11.5));
+        assert_eq!(block.inset.right, Length::ZERO);
+        let Content::Sequence(parts) = &block.body else { panic!("esperada sequência") };
+        assert_eq!(parts.len(), 4);
+        assert!(
+            matches!(&parts[1], Content::Styled(body, _) if matches!(body.as_ref(), Content::Strong(_)))
+        );
+        assert_eq!(parts[3], Content::emph(Content::text("I")));
+    }
+
+    #[test]
+    fn p1405_indented_sem_prefix_mantem_inner_e_rtl() {
+        let inner = Content::strong(Content::text("I"));
+        let actual = compose_outline_entry_indented(
+            None,
+            inner.clone(),
+            None,
+            Length::pt(13.2),
+            None,
+            true,
+            9,
+            2,
+            true,
+        );
+        let Content::Block(block) = actual else { panic!("esperado Block") };
+        assert_eq!(block.inset.left, Length::ZERO);
+        assert_eq!(block.inset.right, Length::pt(13.2));
+        assert_eq!(block.body, inner);
+    }
+
+    #[test]
+    fn p1405_auto_soma_niveis_anteriores_e_alinha_maximo_atual() {
+        let widths = vec![Some(13.2), Some(26.4)];
+        assert_eq!(
+            compute_auto_indents(&widths, 2, Some(11.0), 13.2),
+            (13.2, Some(26.4))
+        );
+        assert_eq!(compute_auto_indents(&[], 2, None, 13.2), (13.2, None));
     }
 }

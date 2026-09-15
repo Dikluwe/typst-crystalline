@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: c6152e08
+Hash do Código: d3d56e89
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1729,3 +1729,11 @@ publicar os dois como campos consultáveis.
 
 Reconstruções de `BoxedElem` preservam `width_fraction`; P1404 não cria nem
 interpreta o carrier durante introspecção.
+
+# P1405 — store privado de `prefix-info`
+
+Ao atravessar um `Content::Styled` que carregue a propriedade privada
+`outline.prefix-info = (key, level, inset)`, registrar no introspector o maior
+inset por nível e chave, sem criar Location, elemento consultável ou texto.
+Repetição e ordem não alteram o máximo. O carrier continua transparente e a
+travessia normal do body permanece. Parent de entry não é sintetizado aqui.
