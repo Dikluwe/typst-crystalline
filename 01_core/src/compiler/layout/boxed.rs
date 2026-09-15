@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 33a38b20
+//! @prompt-hash fb586817
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -38,9 +38,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) = (
+    let (
+        body,
+        width,
+        width_fraction,
+        height,
+        inset,
+        baseline,
+        outset,
+        radius,
+        clip,
+        fill,
+        stroke,
+    ) = (
         &e.body,
         &e.width,
+        &e.width_fraction,
         &e.height,
         &e.inset,
         &e.baseline,
@@ -146,6 +159,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         },
     );
     layouter.regions.current.current_line.extend(body_items);
+    if let Some(fr) = width_fraction {
+        let insert_at = layouter.regions.current.current_line.len();
+        layouter.regions.current.pending_fr.push((insert_at, *fr));
+    }
 
     // P273.7 — restore parent_bbox (LIFO). Shape emit do
     // próprio Boxed (linha ~1485) usa parent_bbox outer

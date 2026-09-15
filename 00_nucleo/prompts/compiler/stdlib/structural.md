@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 92c4db89
+Hash do Código: 1bf5b58b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1289,3 +1289,7 @@ hub da stdlib, sem duplicar contrato, validação ou síntese introspectiva.
 
 O hub encaminha também `native_outline_entry_prefix` e
 `native_outline_entry_page`; não formata prefixos nem páginas.
+
+## P1404 — reexportação de `inner`
+
+O hub encaminha `native_outline_entry_inner`, sem construir sua sequência.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: c5e563ee
+Hash do Código: a5fe5133
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -212,3 +212,40 @@ realização do outline.
 As duas funções ampliam o contrato público. Confirmação humana explícita
 recebida em 2026-09-14; o contrato acima está autorizado para L1–L4 conforme
 ADR-0127.
+
+## P1404 — proposta pública `inner()`
+
+### Medição antes da decisão
+
+No baseline cristalino limpo
+`efd82c1eb08bf40c4849df53bdca8c763cecdaa4`, medido em
+`2026-09-14T23:18:11-03:00`, o vanila ratificado expõe
+`outline.entry.inner` e, para a entry numerada P1402, devolve Content com a
+morfologia `body, space, box(width: 1fr, fill), space, U+2060, page`. Com
+`fill:none`, o trecho central é `h(1fr)` sem espaços laterais. Body forte e
+fill customizado permanecem Content. Fonte:
+`model/outline.rs:629-746`. O cristalino rejeita `inner` como método ausente.
+
+### Contrato público proposto
+
+O scope de `outline.entry` ganha a função contextual estática `inner`, sem
+argumentos e chamável como `entry.inner()`:
+
+- resolve `body()` e `page()` pelos helpers já proprietários; erros de elemento
+  não outlinable e Location ausente são preservados;
+- com fill, devolve sequência de body, espaço, caixa inline `1fr` contendo o
+  fill, espaço, word joiner U+2060 e página;
+- sem fill, devolve body, espaço horizontal `1fr`, U+2060 e página;
+- em direção RTL efetiva, isola somente o body com U+202B/U+202C;
+- body, fill e página permanecem Content, nunca string pré-assada;
+- o suporte de largura fracionária necessário à caixa é carrier interno desta
+  construção e não autoriza aceitar `box(width: 1fr)` na função pública geral.
+
+P1404 permanece incompleto por desenho: P1405 completa `indented` e P1406 faz
+`#show outline.entry` alcançar as entries geradas. Não há alegação sobre essas
+parcelas nem sobre paridade geral.
+
+### Gate
+
+`inner` amplia o contrato público. Confirmação humana explícita recebida em
+2026-09-14; o contrato acima está autorizado para L1–L4 conforme ADR-0127.

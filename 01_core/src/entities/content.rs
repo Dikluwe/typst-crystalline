@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 25f00c3e
+//! @prompt-hash 74c26ea4
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -2368,6 +2368,7 @@ impl Content {
         Self::Boxed(Arc::new(BoxedElem {
             body,
             width,
+            width_fraction: None,
             height,
             inset,
             baseline,
@@ -2381,6 +2382,22 @@ impl Content {
             radius: crate::entities::corners::Corners::uniform(Length::ZERO),
             clip: false,
             // P247 — fill/stroke default `None` paralelo Block.
+            fill: None,
+            stroke: None,
+        }))
+    }
+
+    pub fn boxed_fractional(body: Content, width_fraction: f64) -> Self {
+        Self::Boxed(Arc::new(BoxedElem {
+            body,
+            width: None,
+            width_fraction: Some(width_fraction),
+            height: None,
+            inset: Sides::uniform(Length::ZERO),
+            baseline: Length::ZERO,
+            outset: Sides::uniform(Length::ZERO),
+            radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+            clip: false,
             fill: None,
             stroke: None,
         }))
@@ -6414,6 +6431,7 @@ mod tests {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("body"),
                 width: None,
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -6549,6 +6567,7 @@ mod tests {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p247"),
                 width: None,
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),

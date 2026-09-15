@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: dc087712
+Hash do Código: 34dd8750
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -455,3 +455,9 @@ O namespace nativo de `outline.entry` contém também `prefix` e `page`.
 realizar numberings funcionais. `page` registra uma leitura causal fechada por
 Location, reexecutável contra candidatos do fixpoint; não depende só da leitura
 de `query`. Ambas preservam nome e identidade estáticos.
+
+# P1404 — identidade de `outline.entry.inner`
+
+O namespace da entry contém `inner` como nativa com Engine/Scopes. A nativa
+reusa a leitura causal de `page`; não cria vocabulário paralelo. A comparação
+observacional de `BoxedElem` inclui o carrier fracionário P1404.

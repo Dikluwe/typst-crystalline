@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 49002fed
+Hash do Código: f66bee92
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -878,3 +878,9 @@ No mesmo ponto anterior ao fallback genérico, receivers
 nativas qualificadas correspondentes. O receiver é avaliado uma vez e
 anteposto aos argumentos; a nativa conserva a validação única. Outros Contents
 não são interceptados. `page()` recebe o contexto e a Engine atuais.
+
+# P1404 — método `entry.inner()`
+
+O mesmo dispatch restrito a `Content::OutlineEntry` liga `inner()` à nativa
+qualificada com contexto, Scopes e Engine atuais. Receiver é avaliado uma vez;
+argumentos são validados exclusivamente no owner de outline.

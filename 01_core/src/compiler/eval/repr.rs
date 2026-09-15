@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash e955e8b9
+//! @prompt-hash 8b731ff5
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1005,7 +1005,14 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
         Content::Stack(_) => "stack".to_string(),
-        Content::Boxed(b) => format!("box[{}]", repr_content(&b.body)),
+        Content::Boxed(b) => match b.width_fraction {
+            Some(fr) => format!(
+                "box(width: {}, body: {})",
+                format_float_with_unit(fr, "fr"),
+                repr_content(&b.body)
+            ),
+            None => format!("box[{}]", repr_content(&b.body)),
+        },
         Content::Block(b) => format!("block[{}]", repr_content(&b.body)),
         Content::TableCell(_) => "table.cell".to_string(),
         Content::Bibliography(b) => {

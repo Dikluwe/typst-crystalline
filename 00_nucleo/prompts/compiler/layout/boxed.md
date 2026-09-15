@@ -1,5 +1,5 @@
 # Prompt L0 — `boxed`
-Hash do Código: 6c94d33d
+Hash do Código: 2b38e78f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -7,6 +7,14 @@ Núcleos Tekt:
 **Camada:** L1 render
 **Ficheiro alvo:** `01_core/src/compiler/layout/boxed.rs`
 **ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+
+## P1404 — largura fracionária interna
+
+Quando `BoxedElem.width_fraction` existe, o layout registra no mecanismo
+`pending_fr` uma fronteira imediatamente depois dos itens do body, para que os
+itens seguintes consumam o restante proporcional da linha. O caminho de
+largura absoluta e todos os cosméticos permanecem intactos. Não analisar nem
+repetir conteúdo ilimitadamente e não ampliar o parser público de `box`.
 
 ## Medição e contrato
 

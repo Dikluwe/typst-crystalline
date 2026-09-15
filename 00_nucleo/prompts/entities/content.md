@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: deb40ee8
+Hash do Código: 4c5e0347
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -2991,3 +2991,10 @@ o hub só reembrulha, compara e delega. Não usar `Content::Dynamic`.
 Além do constructor público P1402, o hub oferece constructor interno que
 recebe prefixo semântico opcional e Location causal. Ele apenas encaminha à
 unidade `OutlineEntryElem`; não calcula contador, página ou numbering.
+
+# P1404 — caixa fracionária de `inner`
+
+O hub oferece constructor interno de `BoxedElem` com
+`width_fraction: Some(fr)` e defaults neutros dos demais cosméticos. Ele só
+embrulha body e carrier; parsing público e distribuição de linha pertencem a
+seus owners.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 3391036f
+//! @prompt-hash 864b6c4a
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -41,11 +41,17 @@ pub fn native_outline_entry(
             "outline.entry(): level must be at least 1",
         )]);
     }
-    let Some(Value::Content(element)) = args.items.get(1) else {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "outline.entry(): missing or invalid positional argument `element`",
-        )]);
+    let (element, element_location) = match args.items.get(1) {
+        Some(Value::Content(element)) => (element.clone(), None),
+        Some(Value::LocatedContent(element, location)) => {
+            (element.content().clone(), Some(*location))
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "outline.entry(): missing or invalid positional argument `element`",
+            )])
+        }
     };
     if args.items.len() != 2 {
         return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
@@ -71,12 +77,22 @@ pub fn native_outline_entry(
             false,
         ),
     };
-    Ok(Value::Content(Content::outline_entry_with_fill_state(
-        *level as usize,
-        element.clone(),
-        fill,
-        fill_set,
-    )))
+    let entry = match element_location {
+        Some(location) => Content::realized_outline_entry(
+            *level as usize,
+            element,
+            fill,
+            None,
+            location,
+        ),
+        None => Content::outline_entry_with_fill_state(
+            *level as usize,
+            element,
+            fill,
+            fill_set,
+        ),
+    };
+    Ok(Value::Content(entry))
 }
 
 /// Função qualificada `outline.entry.body(entry)`.
@@ -196,6 +212,65 @@ pub(crate) fn realize_outline_entry_page(
         engine,
     )?;
     Ok(Value::Content(content))
+}
+
+/// Função contextual qualificada `outline.entry.inner(entry)`.
+pub fn native_outline_entry_inner(
+    ctx: &mut EvalContext,
+    args: &Args,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+    scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    engine: &mut crate::entities::engine::Engine<'_>,
+) -> SourceResult<Value> {
+    let entry = outline_entry_receiver(args)?;
+    let body = entry
+        .body()
+        .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])?;
+    let page = match native_outline_entry_page(
+        ctx,
+        args,
+        world,
+        current_file,
+        scopes,
+        engine,
+    )? {
+        Value::Content(page) => page,
+        _ => unreachable!("outline.entry.page always returns content"),
+    };
+
+    let rtl = matches!(
+        engine.styles.custom("text.dir"),
+        Some(Value::Dir(crate::entities::dir::Dir::RTL))
+    );
+    Ok(Value::Content(compose_outline_entry_inner(entry, body, page, rtl)))
+}
+
+fn compose_outline_entry_inner(
+    entry: &crate::entities::elements::outline_entry::OutlineEntryElem,
+    body: Content,
+    page: Content,
+    rtl: bool,
+) -> Content {
+    let mut parts = Vec::with_capacity(if entry.fill.is_some() { 8 } else { 6 });
+    if rtl {
+        parts.push(Content::text("\u{202b}"));
+    }
+    parts.push(body);
+    if rtl {
+        parts.push(Content::text("\u{202c}"));
+    }
+    match &entry.fill {
+        Some(fill) => {
+            parts.push(Content::Space);
+            parts.push(Content::boxed_fractional(fill.clone(), 1.0));
+            parts.push(Content::Space);
+        }
+        None => parts.push(Content::h_space_fraction(1.0, false)),
+    }
+    parts.push(Content::text("\u{2060}"));
+    parts.push(page);
+    Content::sequence(parts)
 }
 
 /// `outline(title: content?, depth: int?, indent: bool?)` — emite
@@ -363,4 +438,62 @@ pub fn native_lot(
         }
     };
     Ok(Value::Content(Content::lot(title)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::elements::outline_entry::OutlineEntryElem;
+    use crate::entities::layout_types::Length;
+
+    #[test]
+    fn p1404_inner_default_preserva_morfologia() {
+        let fill = Content::repeat(Content::text("."), Some(Length::em(0.15)), true);
+        let entry = OutlineEntryElem::new(
+            1,
+            Content::heading(1, Content::text("H")),
+            Some(fill.clone()),
+            false,
+        );
+        let actual = compose_outline_entry_inner(
+            &entry,
+            Content::text("H"),
+            Content::text("1"),
+            false,
+        );
+        let expected = Content::sequence(vec![
+            Content::text("H"),
+            Content::Space,
+            Content::boxed_fractional(fill, 1.0),
+            Content::Space,
+            Content::text("\u{2060}"),
+            Content::text("1"),
+        ]);
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn p1404_inner_none_e_rtl_preservam_controles() {
+        let entry = OutlineEntryElem::new(
+            1,
+            Content::heading(1, Content::strong(Content::text("H"))),
+            None,
+            true,
+        );
+        let actual = compose_outline_entry_inner(
+            &entry,
+            Content::strong(Content::text("H")),
+            Content::text("II"),
+            true,
+        );
+        let expected = Content::sequence(vec![
+            Content::text("\u{202b}"),
+            Content::strong(Content::text("H")),
+            Content::text("\u{202c}"),
+            Content::h_space_fraction(1.0, false),
+            Content::text("\u{2060}"),
+            Content::text("II"),
+        ]);
+        assert_eq!(actual, expected);
+    }
 }

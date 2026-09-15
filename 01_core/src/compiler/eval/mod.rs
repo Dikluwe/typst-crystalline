@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 683baf80
+//! @prompt-hash 0c7f64e2
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -3993,6 +3993,7 @@ impl ObservationEq for crate::entities::elements::boxed::BoxedElem {
         let Self {
             body: _,
             width: _,
+            width_fraction: _,
             height: _,
             inset: _,
             baseline: _,
@@ -4005,6 +4006,7 @@ impl ObservationEq for crate::entities::elements::boxed::BoxedElem {
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.width.observation_relation(&other.width))
+            .and(self.width_fraction.observation_relation(&other.width_fraction))
             .and(self.height.observation_relation(&other.height))
             .and(self.inset.observation_relation(&other.inset))
             .and(self.baseline.observation_relation(&other.baseline))
@@ -7296,6 +7298,7 @@ fn make_stdlib_with_features(
         native_outline,
         native_outline_entry,
         native_outline_entry_body,
+        native_outline_entry_inner,
         native_outline_entry_page,
         native_outline_entry_prefix,
         native_overline,
@@ -7423,6 +7426,13 @@ fn make_stdlib_with_features(
             Value::Func(Func::native(
                 "outline.entry.prefix",
                 native_outline_entry_prefix,
+            )),
+        );
+        entry_namespace.define(
+            "inner",
+            Value::Func(Func::native_with_engine(
+                "outline.entry.inner",
+                native_outline_entry_inner,
             )),
         );
         entry_namespace.define(

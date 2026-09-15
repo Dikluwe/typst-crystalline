@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 8b1fa1f7
+//! @prompt-hash 1efea42a
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -784,16 +784,12 @@ impl<'a> CandidateSet<'a> {
                 continue;
             }
 
-            let fb_idx = slot_idx.saturating_sub(self.primary.len());
-            while fb_idx >= self.fallback.len() {
-                let next_slot = self.primary.len() + self.fallback.len();
-                let fallback = self.load_fallback(next_slot);
-                self.fallback.push(fallback);
-            }
-            if let Some(slot) = self.fallback[fb_idx] {
+            let fallback = self.load_fallback(slot_idx);
+            let fb_idx = intern_fallback_slot(&mut self.fallback, fallback);
+            if self.fallback[fb_idx].is_some() {
                 // Protótipo P932 — confiamos no filtro de `Coverage` já pago
                 // por `World::candidates_for_char`; não reabrimos a face aqui.
-                result.push(slot);
+                result.push(self.primary.len() + fb_idx);
             }
         }
         result
@@ -917,6 +913,17 @@ impl<'a> CandidateSet<'a> {
     }
 }
 
+/// Interna um slot global numa posição local densa. O valor numérico do slot
+/// não pode determinar o tamanho do vetor (P1404, controle U+2060).
+fn intern_fallback_slot(fallback: &mut Vec<Option<usize>>, slot: Option<usize>) -> usize {
+    if let Some(position) = fallback.iter().position(|candidate| *candidate == slot) {
+        position
+    } else {
+        fallback.push(slot);
+        fallback.len() - 1
+    }
+}
+
 fn face_covers_char(
     world: &dyn World,
     face_cache: &mut FaceCache,
@@ -955,6 +962,14 @@ fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun
 
     while pos < text.len() {
         let c = text[pos..].chars().next().unwrap();
+        // P1404 — controles de formato que participam da análise bidi/quebra,
+        // mas nunca precisam de fonte ou glifo no pós-processamento visual.
+        // Evita varrer a cobertura global para codepoints deliberadamente
+        // invisíveis e mantém os caracteres comuns no pipeline normal.
+        if is_p1404_format_control(c) {
+            pos += c.len_utf8();
+            continue;
+        }
         let script = effective_script(c.script(), current_script);
         let script_changed = pos > 0 && !is_compatible(script, current_script);
 
@@ -997,6 +1012,10 @@ fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun
     }
 
     result
+}
+
+fn is_p1404_format_control(c: char) -> bool {
+    matches!(c, '\u{2060}' | '\u{202b}' | '\u{202c}')
 }
 
 /// Script efectivo de `c` dado o script do segmento actual: scripts genéricos
@@ -1120,6 +1139,25 @@ mod tests {
     use typst_core::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
+
+    #[test]
+    fn p1404_fallback_interner_e_esparso_e_idempotente() {
+        let mut fallback = Vec::new();
+        assert_eq!(intern_fallback_slot(&mut fallback, Some(65_535)), 0);
+        assert_eq!(fallback, vec![Some(65_535)]);
+        assert_eq!(intern_fallback_slot(&mut fallback, Some(7)), 1);
+        assert_eq!(intern_fallback_slot(&mut fallback, Some(65_535)), 0);
+        assert_eq!(fallback, vec![Some(65_535), Some(7)]);
+    }
+
+    #[test]
+    fn p1404_controles_de_formato_nao_pedem_glifo() {
+        assert!(is_p1404_format_control('\u{2060}'));
+        assert!(is_p1404_format_control('\u{202b}'));
+        assert!(is_p1404_format_control('\u{202c}'));
+        assert!(!is_p1404_format_control('\u{200b}'));
+        assert!(!is_p1404_format_control('a'));
+    }
 
     struct MockWorld {
         book: FontBook,

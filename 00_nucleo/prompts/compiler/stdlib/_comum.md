@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 2a4b608d
+Hash do Código: 33302ee9
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -236,3 +236,7 @@ e `outline.entry.body` definidos pelo owner
 
 A fachada encaminha internamente as duas nativas do owner de outline, sem
 duplicar parsing, acesso ao introspector ou realização de numbering.
+
+## P1404 — reexportação de `inner`
+
+A fachada encaminha a nativa contextual do owner de outline, sem lógica.

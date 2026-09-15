@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/boxed.md
-//! @prompt-hash 5b0601bf
+//! @prompt-hash 353ebece
 //! @layer L1
 //! @updated 2026-06-12
 //!
@@ -22,6 +22,7 @@ use crate::entities::source_result::SourceResult;
 pub struct BoxedElem {
     pub body: Content,
     pub width: Option<Length>,
+    pub width_fraction: Option<f64>,
     pub height: Option<Length>,
     pub inset: Sides<Length>,
     pub baseline: Length,
@@ -56,6 +57,7 @@ impl Element for BoxedElem {
         Ok(Content::Boxed(Arc::new(BoxedElem {
             body: self.body.map_content(transform)?,
             width: self.width,
+            width_fraction: self.width_fraction,
             height: self.height,
             inset: self.inset,
             baseline: self.baseline,
@@ -74,6 +76,7 @@ impl Element for BoxedElem {
         Content::Boxed(Arc::new(BoxedElem {
             body: self.body.map_text(transform),
             width: self.width,
+            width_fraction: self.width_fraction,
             height: self.height,
             inset: self.inset,
             baseline: self.baseline,
@@ -96,6 +99,7 @@ mod tests {
         BoxedElem {
             body: Content::text("a"),
             width: None,
+            width_fraction: None,
             height: None,
             inset: Sides::uniform(Length::pt(0.0)),
             baseline: Length::pt(0.0),

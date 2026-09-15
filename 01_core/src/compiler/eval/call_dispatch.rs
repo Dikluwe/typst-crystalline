@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 95567694
+//! @prompt-hash 1567db11
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -28,6 +28,7 @@ use crate::compiler::stdlib::{
     native_label,
     native_layout,
     native_measure,
+    native_outline_entry_inner,
     native_outline_entry_page,
     native_outline_entry_prefix,
     native_path,
@@ -1836,7 +1837,7 @@ pub(super) fn eval_func_call(
         // P1402/P1403 — métodos próprios da entry.
         if let Expr::FieldAccess(access) = call.callee() {
             let method = access.field().as_str();
-            if matches!(method, "body" | "prefix" | "page") {
+            if matches!(method, "body" | "prefix" | "page" | "inner") {
                 let target = eval_expr(access.target(), scopes, ctx, engine)?;
                 let content = match &target {
                     Value::Content(content) => Some(content),
@@ -1859,17 +1860,27 @@ pub(super) fn eval_func_call(
                     args.occurrences = None;
                     let world = engine.world;
                     let current_file = engine.current_file;
-                    return if method == "prefix" {
-                        native_outline_entry_prefix(ctx, &args, world, current_file)
-                    } else {
-                        native_outline_entry_page(
+                    return match method {
+                        "prefix" => {
+                            native_outline_entry_prefix(ctx, &args, world, current_file)
+                        }
+                        "page" => native_outline_entry_page(
                             ctx,
                             &args,
                             world,
                             current_file,
                             scopes,
                             engine,
-                        )
+                        ),
+                        "inner" => native_outline_entry_inner(
+                            ctx,
+                            &args,
+                            world,
+                            current_file,
+                            scopes,
+                            engine,
+                        ),
+                        _ => unreachable!("outline entry method already checked"),
                     };
                 }
             }

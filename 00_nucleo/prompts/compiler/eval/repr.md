@@ -1,9 +1,15 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 489806ef
+Hash do Código: 795b078d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1404 — repr da caixa fracionária interna
+
+`Content::Boxed` com `width_fraction: Some(fr)` representa-se como
+`box(width: {fr}fr, body: {body})`, preservando a morfologia pública de
+`outline.entry.inner`. Caixas sem esse carrier conservam o repr histórico.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 

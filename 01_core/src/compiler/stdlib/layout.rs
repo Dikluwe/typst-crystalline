@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 4462e2ee
+//! @prompt-hash 8e73fe1f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1954,6 +1954,7 @@ pub fn native_box(
         crate::entities::elements::boxed::BoxedElem {
             body,
             width,
+            width_fraction: None,
             height,
             inset,
             baseline,

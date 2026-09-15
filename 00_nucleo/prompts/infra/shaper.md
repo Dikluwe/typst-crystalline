@@ -1,5 +1,5 @@
 ---
-Hash do Código: f90a6a90
+Hash do Código: a6ca7a06
 prompt: infra/shaper
 layer: L3
 created: 2026-06-27
@@ -32,6 +32,30 @@ Converte todos os `FrameItem::Text` de um `PagedDocument` em
 
 Itens sem fonte resolvida (`style.font == None` ou lookup falha) são
 preservados como `FrameItem::Text` (fallback Helvetica).
+
+## P1404 — fallback esparso para controles sem glifo
+
+Medição focal no estado não commitado de P1404 mostrou que o texto mínimo
+`a\u{2060}b` esgotava o teto virtual de 512 MiB, enquanto `ab` terminava. A
+causa é interna: `CandidateSet::covering_all` confundia o índice absoluto do
+slot no `FontBook` com a posição densa do vetor local `fallback`, preenchendo
+todos os índices intermediários quando um caractere sem cobertura (como WORD
+JOINER) só aparecia num slot distante.
+
+O vetor local é um interner esparso: cada slot global não primário ocupa
+exatamente uma posição local, reutilizada quando repetido. O índice devolvido
+continua no namespace `primary.len() + posição_local`; jamais depende da
+grandeza numérica do slot global. Um controle sem glifo avança pelo fallback
+finito e não causa alocação proporcional ao maior índice do catálogo.
+
+Os controles de formatação usados por `outline.entry.inner` — WORD JOINER
+U+2060, RIGHT-TO-LEFT EMBEDDING U+202B e POP DIRECTIONAL FORMATTING U+202C —
+permanecem no Content e chegam à análise bidi/quebra, mas são removidos apenas
+dos sub-runs visuais antes de seleção de fonte: não consultam cobertura e não
+emitem glifo. Texto latino, seleção/scoring de fontes e caracteres invisíveis
+alheios a essa lista permanecem controles. Os testes focais exigem idempotência
+do interner, tamanho linear no número de slots distintos e reconhecimento
+exato dos três controles.
 
 ## P1133 — decisões semânticas partilhadas
 

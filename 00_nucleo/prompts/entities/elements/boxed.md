@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/boxed` — `BoxedElem`
-Hash do Código: dd0edfc0
+Hash do Código: fcbe6703
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/boxed.rs`
 **Origem**: modelo D (ADR-0105), **Lote 14 P329** (reclassificado da triagem
@@ -50,3 +50,11 @@ de campo-completo (materialize, testes) usam **Arc-wrap** (regra C2):
 ## `eq`
 
 `#[derive(PartialEq)]` compara os 10 campos (paridade `content.rs:1904`).
+
+## P1404 — carrier fracionário interno
+
+Para representar a morfologia devolvida por `outline.entry.inner`, a unidade
+acrescenta `width_fraction: Option<f64>`. Constructors públicos históricos e
+struct literals usam `None`; somente o constructor interno owner-local de
+P1404 usa `Some(1.0)`. Walkers, igualdade e hash preservam o campo. A presença
+desse carrier não autoriza a stdlib geral a aceitar `box(width: 1fr)`.

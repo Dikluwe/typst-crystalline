@@ -1724,3 +1724,8 @@ Na mesma síntese P1402, conservar o segundo item de `headings_for_toc` como
 Content de prefixo opcional e a Location emparelhada do heading como dado
 causal privado da entry. Não recalcular contador nem página nesta fase e não
 publicar os dois como campos consultáveis.
+
+# P1404 — preservação mecânica de caixas
+
+Reconstruções de `BoxedElem` preservam `width_fraction`; P1404 não cria nem
+interpreta o carrier durante introspecção.

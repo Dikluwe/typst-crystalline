@@ -9655,6 +9655,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p231boxed"),
                 width: None,
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
                 baseline: crate::entities::layout_types::Length::pt(0.0),
@@ -9894,6 +9895,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p243boxed"),
                 width: Some(Length::pt(80.0)), // Boxed.width efectivo P243.
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -9933,6 +9935,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("a"),
                 width: Some(Length::pt(40.0)),
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(3.0)),
                 baseline: Length::pt(0.0),
@@ -9983,6 +9986,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("a"),
                 width: None,
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(3.0)),
                 baseline: Length::pt(0.0),
@@ -10300,6 +10304,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p247boxfill"),
                 width: Some(Length::pt(30.0)),
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -10538,6 +10543,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p248bxnone"),
                 width: None,
+                width_fraction: None,
                 height: None,
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -10575,6 +10581,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p248bxovf"),
                 width: Some(Length::pt(50.0)),
+                width_fraction: None,
                 height: Some(Length::pt(5.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -10616,6 +10623,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p248bxnoc"),
                 width: Some(Length::pt(50.0)),
+                width_fraction: None,
                 height: Some(Length::pt(5.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -10660,6 +10668,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("x"), // texto curto < height
                 width: Some(Length::pt(50.0)),
+                width_fraction: None,
                 height: Some(Length::pt(100.0)), // muito maior que body natural
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -11037,6 +11046,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p248cross"),
                 width: Some(Length::pt(40.0)),
+                width_fraction: None,
                 height: Some(Length::pt(8.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -11210,6 +11220,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("inset"),
                 width: Some(Length::pt(40.0)),
+                width_fraction: None,
                 height: Some(Length::pt(6.0)),
                 inset: Sides::uniform(Length::pt(2.0)),
                 baseline: Length::pt(0.0),
@@ -11291,6 +11302,7 @@ mod tests_show_rule_integration {
                 crate::entities::elements::boxed::BoxedElem {
                     body: Content::text("diff"),
                     width: Some(Length::pt(40.0)),
+                    width_fraction: None,
                     height: Some(Length::pt(4.0)), // line_height > 4pt
                     inset: Sides::uniform(Length::pt(0.0)),
                     baseline: Length::pt(0.0),
@@ -12578,6 +12590,7 @@ mod tests_show_rule_integration {
             crate::entities::elements::boxed::BoxedElem {
                 body: Content::text("p252box"),
                 width: Some(Length::pt(40.0)),
+                width_fraction: None,
                 height: Some(Length::pt(20.0)),
                 inset: Sides::uniform(Length::pt(0.0)),
                 baseline: Length::pt(0.0),
@@ -17110,6 +17123,7 @@ mod p273_7_boxed_parent_bbox {
         Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem {
             body,
             width: Some(Length { abs: Abs(w_pt), em: 0.0 }),
+            width_fraction: None,
             height: Some(Length { abs: Abs(h_pt), em: 0.0 }),
             inset: Sides::uniform(Length::ZERO),
             baseline: Length::ZERO,
@@ -17125,6 +17139,7 @@ mod p273_7_boxed_parent_bbox {
         Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem {
             body,
             width: None,
+            width_fraction: None,
             height: None,
             inset: Sides::uniform(Length::ZERO),
             baseline: Length::ZERO,
@@ -17267,6 +17282,7 @@ mod p273_7_boxed_parent_bbox {
             crate::entities::elements::boxed::BoxedElem {
                 body,
                 width: Some(Length { abs: Abs(150.0), em: 0.0 }),
+                width_fraction: None,
                 height: Some(Length { abs: Abs(40.0), em: 0.0 }),
                 inset: Sides::uniform(Length::ZERO),
                 baseline: Length::ZERO,

@@ -1,5 +1,10 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 9bae54f3
+Hash do Código: 615b687f
+
+## P1404 — neutralidade do constructor público `box`
+
+O struct literal de `native_box` inicializa o carrier fracionário interno com
+`None`. `box(width: 1fr)` continua rejeitado; P1404 não amplia esta API.
 
 ## P1140.20.2 — canvas preparatório
 
