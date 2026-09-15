@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: a82fad65
+Hash do Código: d42c7a49
 
 ## P1339 — adapter ligado de version.at sem parser duplicado
 
@@ -293,6 +293,18 @@ utilizador. O grupo produzido continua `Selector::Element`; valores não sofrem
 cast e campos desconhecidos mantêm o diagnóstico comum. Esta entrada completa
 o filtro público já autorizado pelo contrato P1413 e não altera a semântica
 dos demais elementos.
+
+### P1414 — campos tipados de `par.line` (PROPOSTO; gate ADR-0127)
+
+Medição anterior à decisão: `par.line` é função de elemento set-only no vanila,
+mas não produz ocorrência consultável. O baseline cristalino não possui a
+função nem metadados.
+
+Decisão: reconhecer exclusivamente o ponteiro de `native_par_line`, com os
+campos `numbering`, `number-align`, `number-margin`, `number-clearance` e
+`numbering-scope`, marcado locatável como a declaração vanila. Isto permite
+formar `where` sem inventar ocorrência ou matching positivo. Outros natives e
+elementos de utilizador permanecem inalterados. Gate público pendente.
 
 ### Integração de locatability e despacho de counter P1339
 

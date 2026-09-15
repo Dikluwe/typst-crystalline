@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: f247d1e1
+Hash do Código: 121d11b5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -502,3 +502,19 @@ textual improvisado e sem nova variante `NodeKind`.
 
 Esta ampliação de contrato público aguarda confirmação humana explícita antes
 de L1.
+
+# P1414 — namespace público `par.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `df196b35b`, `par` usa `Func::native` sem namespace e field access
+falha. No vanila ratificado, o parent permanece chamável, `repr(par.line)` é
+`"line"` e o membro rejeita construção manual.
+
+### Decisão proposta
+
+Registrar `par` por `Func::native_with_namespace`, preservando `native_par` e
+anexando somente `line`, ligado a `structural/par.md::native_par_line` com nome
+público curto. Não transferir argumentos de `par.with(...)`, não criar alias
+flat e não mudar a identidade do parent. A ampliação aguarda confirmação
+humana explícita.

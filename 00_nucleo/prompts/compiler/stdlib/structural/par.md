@@ -98,3 +98,23 @@ parbreak(1)            → Err "unexpected argument"
 parbreak(foo: true)    → Err "unexpected argument: foo"
 parbreak(); parbreak() → mesmo colapso semântico de duas linhas vazias
 ```
+
+## P1414 — função namespaced `par.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `df196b35b`, `par` é uma nativa sem namespace. No vanila ratificado,
+`repr(par.line)` é `"line"`; `ParLine` é exclusivamente configurável por set
+rules e sua chamada falha com `cannot be constructed manually`.
+
+### Decisão proposta
+
+O owner fornece `native_par_line`, sem construção de conteúdo: qualquer chamada
+devolve o diagnóstico literal `cannot be constructed manually`. O binding
+principal `par` continua chamável e recebe namespace fechado contendo `line`
+com nome público curto. Nenhum `ParLineElem`, marker consultável ou variante de
+`Content` é criado.
+
+Os campos públicos da função são `numbering`, `number-align`, `number-margin`,
+`number-clearance` e `numbering-scope`. Sua semântica de set/layout pertence aos
+owners eval e Cursor. A adição pública aguarda confirmação humana explícita.

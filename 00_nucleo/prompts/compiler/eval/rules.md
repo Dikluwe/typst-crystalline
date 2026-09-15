@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: e43df297
+Hash do Código: 2193c3cd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -170,3 +170,24 @@ revogação não ganham um segundo algoritmo.
 
 Esta ampliação de contrato público aguarda confirmação humana explícita antes
 de L1.
+
+## P1414 — captura lexical de `#set par.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O target pontuado chega como `Expr::FieldAccess`; `text_str()` produz vazio e o
+fallback vigente apenas avisa. O vanila aceita cinco campos e a numeração
+alcança linebreaks explícitos e wraps automáticos.
+
+### Decisão proposta
+
+Reconhecer exclusivamente `par.line` no branch tipado de FieldAccess. Named
+aceites: `numbering: string | none`, `number-align: horizontal alignment |
+auto`, `number-margin: left | right | start | end`, `number-clearance: length |
+auto` e `numbering-scope: "document" | "page"`. Cada valor validado entra na
+StyleChain por chave `par.line.*`; omitido não altera a chain, desconhecido é
+erro e nenhuma avaliação é descartada.
+
+`numbering: function` fica explicitamente para P1415 porque callback não pode
+ser executado no layout puro. P1414 não o aceita nem o converte em string. A
+ampliação pública aguarda confirmação humana explícita.

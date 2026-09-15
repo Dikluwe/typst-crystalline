@@ -477,3 +477,31 @@ magnitude dos pesos.
 
 Esta regra acompanha a ampliação pública de P1408. O gate ADR-0127 foi
 confirmado pelo humano em 2026-09-15 antes da alteração do código.
+
+## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `df196b35b`, `flush_line_with_outer_singleton` conhece o conjunto
+final de items, baseline, página e StyleChain depois de fitting. A prova vanila
+numera tanto linebreak explícito quanto wrap automático; síntese em eval seria
+semanticamente incorreta.
+
+### Decisão proposta
+
+Depois da eventual migração e correção de baseline, mas antes de drenar a linha,
+o fechamento consulta `par.line.numbering`. Para pattern string, avança o estado
+privado uma vez, formata pelo formatter canônico e insere `FrameItem::Text` na
+margem externa, alinhado à baseline. `none`/ausente não emite nem incrementa.
+Scope `page` reinicia quando a página causal muda; `document` preserva.
+
+`number-margin` resolve left/start para a margem inicial e right/end para a
+final neste recorte LTR. `number-align` governa o alinhamento horizontal do
+número; `auto` cresce para fora do texto. `number-clearance` usa length ou
+default proporcional ao font-size. Linhas sem items, flushes de segurança e
+avanços hipotéticos não contam.
+
+Ao sair do carrier Styled que introduziu `par.line.*`, uma linha terminal ainda
+pendente é fechada antes do pop para não perder a configuração; isso não cria
+linebreak adicional nem muda o conteúdo. Callbacks e coordenação de última
+coluna ficam explicitamente para P1415. Gate público pendente.

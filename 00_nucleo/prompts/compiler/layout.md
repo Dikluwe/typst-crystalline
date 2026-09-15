@@ -369,3 +369,17 @@ antes de calcular parcelas e subtrai a largura natural da parcela ao deslocar
 o suffix. Checkpoint/rollback trunca a lista pela cauda, e fechamento ou região
 infinita a limpa junto com `pending_fr`. Nenhum campo de `Region`, assinatura
 pública ou quantidade de itens proporcional ao peso é introduzido.
+
+## P1414 — estado privado da numeração de linhas (PROPOSTO; gate ADR-0127)
+
+Medição anterior à decisão: o Cursor já fecha linhas físicas depois do wrap e
+da eventual migração de página, mas Layouter não conserva progresso de
+`par.line`. O vanila reinicia por página quando pedido e mantém progresso no
+documento caso contrário.
+
+Layouter acrescenta somente estado privado para o próximo número documental e
+a página causal da última linha numerada. Inicializa em zero/ausente, integra
+checkpoint/rollback e sublayouts sem vazar contagem especulativa. Cursor é o
+único consumer e incrementa apenas depois de estabilizar uma linha com itens.
+Não criar counter público, marker em Content, segunda passagem ou estado
+global. A ampliação de comportamento padrão aguarda confirmação humana.
