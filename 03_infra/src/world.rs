@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash e107606a
+//! @prompt-hash d131b631
 //! @layer L3
-//! @updated 2026-07-31
+//! @updated 2026-09-15
 //!
 //! **P515** — Adicionado `SystemWorld::with_system_fonts` e
 //! `with_fonts_and_system` para descoberta automática de fontes do sistema
@@ -680,25 +680,30 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
-    /// **P938** — cobertura Unicode exacta lazy por slot.
+    /// **P938/P1410** — cobertura Unicode exacta híbrida por slot.
     ///
-    /// Para cada slot do `FontBook`, computa `Coverage` a partir dos bytes da
-    /// fonte apenas na primeira consulta e guarda em cache. Devolve os índices
-    /// cuja coverage exacta contém o caractere.
+    /// Fontes do sistema chegam com coverage materializada pelo `fontdb`;
+    /// somente slots ainda vazios abrem seus bytes e usam o cache lazy. Isso
+    /// impede que uma consulta mapeie todos os ficheiros de fontes instaladas.
     fn candidates_for_char(&self, c: char) -> Vec<usize> {
         let codepoint = c as u32;
         let mut cache = self.coverage_cache.lock().unwrap();
         let mut result = Vec::new();
         for (idx, slot) in self.font_slots.iter().enumerate() {
-            let coverage = cache.entry(idx).or_insert_with(|| {
-                slot.source_bytes()
-                    .map(|data| {
-                        ttf_parser::Face::parse(&data, slot.index)
-                            .map(|face| crate::fonts::extract_coverage(&face))
-                            .unwrap_or_else(|_| Coverage::new())
-                    })
-                    .unwrap_or_else(Coverage::new)
-            });
+            let precomputed = &self.font_book.infos()[idx].coverage;
+            let coverage = if precomputed.is_empty() {
+                cache.entry(idx).or_insert_with(|| {
+                    slot.source_bytes()
+                        .map(|data| {
+                            ttf_parser::Face::parse(&data, slot.index)
+                                .map(|face| crate::fonts::extract_coverage(&face))
+                                .unwrap_or_else(|_| Coverage::new())
+                        })
+                        .unwrap_or_else(Coverage::new)
+                })
+            } else {
+                precomputed
+            };
             if coverage.contains(codepoint) {
                 result.push(idx);
             }

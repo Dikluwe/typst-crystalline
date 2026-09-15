@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb.md
-//! @prompt-hash 6fcb3340
+//! @prompt-hash b52042d4
 //! @layer L3
-//! @updated 2026-07-31
+//! @updated 2026-09-15
 //!
 //! **P515** — Descoberta automática de fontes do sistema via `fontdb`.
 //! Ativação da ADR-0020. L3 puro.
@@ -11,7 +11,20 @@ use std::path::{Path, PathBuf};
 
 use typst_core::entities::font_book::FontBook;
 
-use crate::fonts::{font_info_from_bytes, FontSlot};
+use crate::fonts::{extract_coverage, font_info_from_bytes, FontSlot};
+
+/// P1410 — extrai metadados e cobertura enquanto o `fontdb` ainda fornece os
+/// bytes da fonte. O `SystemWorld` pode então consultar candidatos sem mapear
+/// todos os ficheiros do catálogo na primeira ocorrência de fallback.
+fn font_info_with_coverage(
+    data: &[u8],
+    index: u32,
+) -> Option<typst_core::entities::font_book::FontInfo> {
+    let mut info = font_info_from_bytes(data, index)?;
+    let face = ttf_parser::Face::parse(data, index).ok()?;
+    info.coverage = extract_coverage(&face);
+    Some(info)
+}
 
 /// Carrega as fontes instaladas no sistema operativo.
 ///
@@ -46,9 +59,7 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
 
         // P674 — reutiliza os bytes já carregados pelo fontdb em vez de reler
         // o ficheiro do disco. Isto corta pela metade o I/O de arranque.
-        let info = db
-            .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
-            .flatten();
+        let info = db.with_face_data(face.id, font_info_with_coverage).flatten();
 
         // P839 — slot e entrada no book são inseridos juntos (índices
         // alinhados); faces sem info extraível são descartadas de ambos.
@@ -82,9 +93,7 @@ pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) 
             fontdb::Source::Binary(_) => continue,
         };
 
-        let info = db
-            .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
-            .flatten();
+        let info = db.with_face_data(face.id, font_info_with_coverage).flatten();
 
         // P839 — slot e entrada no book são inseridos juntos (índices
         // alinhados); faces sem info extraível são descartadas de ambos.
@@ -123,6 +132,15 @@ mod tests {
         assert!(slots.is_empty());
         assert!(book.is_empty());
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn p1410_info_de_sistema_conserva_coverage_exacta() {
+        let data = include_bytes!("../fixtures/fonts/NotoSans-Regular.ttf");
+        let info =
+            font_info_with_coverage(data, 0).expect("fixture deve ser fonte válida");
+        assert!(info.coverage.contains('A' as u32));
+        assert!(!info.coverage.is_empty());
     }
 
     #[test]

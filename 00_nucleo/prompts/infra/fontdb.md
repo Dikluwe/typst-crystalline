@@ -1,9 +1,9 @@
 # Prompt L0 — `infra/fontdb` — Descoberta automática de fontes do sistema
-Hash do Código: ffffffff
+Hash do Código: e08b934b
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
-**Atualizado em**: 2026-07-31 (P937 — coverage exacta eager + `FontSlot` mmap-backed)  
+**Atualizado em**: 2026-09-15 (P1410 — coverage exacta das fontes do sistema no catálogo)
 **Arquivos gerados**: `03_infra/src/fontdb.rs`, alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
 **ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108, ADR-0123  
 
@@ -16,6 +16,13 @@ O `SystemWorld` actual carrega fontes apenas via paths explícitos (`with_fonts(
 A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta automática sem `--font-path`. O Passo 515 (Trilha 5) activa essa condição.
 
 A partir de P937, a extração de metadados de fontes do sistema passa a ser **eager** e a cobertura Unicode passa a ser **exacta** (runs de codepoints, ver `entities/font_book.md`). O `fontdb` é usado apenas como mecanismo de descoberta de paths e de acesso temporário aos bytes durante o arranque; cada `FontSlot` passa a possuir o seu próprio `mmap` lazy, pelo que o `fontdb::Database` pode ser descartado após a construção do catálogo.
+
+P1410 torna essa obrigação efetiva: dentro de `with_face_data`, depois de
+`font_info_from_bytes`, a face é parseada no índice recebido e
+`extract_coverage` preenche `FontInfo.coverage`. O loader não pode devolver
+uma fonte de sistema válida com coverage vazia quando sua `cmap` Unicode é
+legível. Assim uma consulta posterior de fallback não precisa mapear todo o
+catálogo de ficheiros apenas para descobrir candidatos.
 
 ## Restrições Estruturais
 
@@ -42,7 +49,10 @@ A partir de P937, a extração de metadados de fontes do sistema passa a ser **e
      - Extrai `FontInfo` + coverage exacta via `font_info_from_bytes` reutilizando os bytes já carregados pelo `fontdb`:
        ```rust
        let info = db.with_face_data(face.id, |data, index| {
-           font_info_from_bytes(data, index)
+           let mut info = font_info_from_bytes(data, index)?;
+           let face = ttf_parser::Face::parse(data, index).ok()?;
+           info.coverage = extract_coverage(&face);
+           Some(info)
        });
        ```
      - Se `info` for `Some`, insere o slot e a info (slot no `Vec<FontSlot>`, info no `FontBook`).
@@ -93,6 +103,11 @@ Então slots e book estão vazios (não panic)
 Dado um SystemWorld construído com with_system_fonts
 Quando candidates_for_char('你') é chamado
 Então devolve apenas índices cuja coverage exacta contém U+4F60
+
+Dado um catálogo de fontes do sistema com `cmap` Unicode legível
+Quando `load_system_fonts` termina e o `fontdb::Database` é descartado
+Então cada `FontInfo` válido conserva sua coverage exacta e a primeira consulta
+de candidatos não abre um mmap por fonte do sistema
 ```
 
 ## Resultado Esperado
@@ -111,3 +126,4 @@ Então devolve apenas índices cuja coverage exacta contém U+4F60
 | 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |
 | 2026-07-22 | P839 — revoga o "faces sem info mantidas como slots": slot e entrada no book inseridos juntos (índices alinhados), replicando o `filter_map` do vanilla; latente registado por P838, achado #28/I4 de P831 | `fontdb.md`, `03_infra/src/fontdb.rs` |
 | 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) e `FontSlot` mmap-backed; `Database` descartável após arranque | `fontdb.md`, `03_infra/src/fontdb.rs`, `03_infra/src/world.rs` |
+| 2026-09-15 | P1410 — materializa coverage das fontes do sistema com os bytes temporários do `fontdb`, evitando mapear todo o catálogo na primeira consulta | `fontdb.md`, `03_infra/src/fontdb.rs` |

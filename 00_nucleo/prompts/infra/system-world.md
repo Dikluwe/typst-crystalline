@@ -1,12 +1,12 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 7baffcc9
+Hash do Código: 81892945
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
-**Atualizado em**: 2026-07-31 (P937 — coverage exacta eager; remove P880/P927)
+**Atualizado em**: 2026-09-15 (P1410 — coverage híbrida sem mmap integral do catálogo)
 **ADRs relevantes**: ADR-0001 (comemo/TrackedWorld), ADR-0005 (World trait), ADR-0017 (stubs)
 
 ## Contexto
@@ -54,9 +54,8 @@ impl World for SystemWorld {
     fn source(&self, id: FileId) -> FileResult<Source>;
     fn file(&self, id: FileId)   -> FileResult<Bytes>;
     fn font(&self, index: usize) -> Option<Font>;
-    /// **P938** — garante que a coverage de cada `FontInfo` consultado esteja
-    /// preenchida (lazy + cache por índice), depois delega a
-    /// `FontBook::candidates_for_char` (coverage exacta).
+    /// **P1410** — usa primeiro a coverage já materializada no FontBook;
+    /// somente slots sem coverage válida recorrem à extração lazy e cache.
     fn candidates_for_char(&self, c: char) -> Vec<usize>;
     fn today(&self, offset: Option<Duration>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
@@ -227,13 +226,14 @@ quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.r
 
 ---
 
-## Cobertura Unicode exacta lazy — P938
+## Cobertura Unicode exacta híbrida — P938/P1410
 
-A partir de P938, `SystemWorld` mantém a `Coverage` exacta (runs de
-codepoints) de forma **lazy**: cada `FontInfo` no `FontBook` começa com
-`coverage` vazio, e a coverage só é extraída — uma vez — quando esse índice é
-consultado por `candidates_for_char`. O resultado é cacheado por índice para
-evitar re-extrair a mesma fonte.
+A partir de P1410, fontes do sistema chegam de `load_system_fonts` com
+`Coverage` exacta já materializada enquanto o `fontdb` fornece seus bytes.
+Fontes embutidas, de projeto ou casos sem `cmap` legível podem conservar
+coverage vazia; somente esses slots usam a extração lazy de P938, cacheada por
+índice. `candidates_for_char` nunca deve chamar `source_bytes` para um
+`FontInfo` cuja coverage não está vazia.
 
 ### Algoritmo de `candidates_for_char`
 
@@ -243,15 +243,12 @@ fn candidates_for_char(&self, c: char) -> Vec<usize> {
     let mut cache = self.coverage_cache.lock().unwrap();
     let mut result = Vec::new();
     for (idx, slot) in self.font_slots.iter().enumerate() {
-        let coverage = cache.entry(idx).or_insert_with(|| {
-            slot.source_bytes()
-                .map(|data| {
-                    ttf_parser::Face::parse(&data, slot.index)
-                        .map(|face| crate::fonts::extract_coverage(&face))
-                        .unwrap_or_else(|_| Coverage::new())
-                })
-                .unwrap_or_else(Coverage::new)
-        });
+        let precomputed = &self.font_book.infos()[idx].coverage;
+        let coverage = if precomputed.is_empty() {
+            cache.entry(idx).or_insert_with(|| extract_slot_coverage(slot))
+        } else {
+            precomputed
+        };
         if coverage.contains(codepoint) {
             result.push(idx);
         }
@@ -264,9 +261,12 @@ fn candidates_for_char(&self, c: char) -> Vec<usize> {
 
 - **Exacta:** devolve apenas índices cujo `coverage` contém o codepoint;
   sem falsos positivos do bitmap por bloco de 256.
-- **Lazy:** coverage só é extraída para fontes de facto consultadas.
+- **Híbrida:** fontes do sistema usam coverage do catálogo; apenas slots sem
+  coverage pré-calculada são extraídos lazy.
 - **Cache por índice:** uma vez extraída, a `Coverage` é reutilizada para
   todos os caracteres subsequentes no mesmo `SystemWorld`.
+- **Memória virtual limitada pelo uso:** uma consulta não mapeia os ficheiros
+  de todas as fontes do sistema.
 
 ## Pré-carregamento condicional de coverage — P927/P938
 
@@ -353,6 +353,7 @@ procura são mecânica de L3.
 | 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 | 2026-07-31 | P937 — coverage exacta eager; remove P880/P927 (`coverage_cache`, `preload_coverage_if_needed`, `embedded_coverage_union`, `source_text_nodes`); delega `candidates_for_char` a `FontBook` | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 | 2026-07-31 | P938 — coverage exacta lazy: `coverage_cache` por índice, `preload_coverage_if_needed` condicional, `embedded_coverage_union` e `source_text_nodes` restaurados; `candidates_for_char` preenche lazy | `system-world.md`, `fonts.md`, `wiring.md`, `03_infra/src/world.rs`, `03_infra/src/fonts.rs`, `04_wiring/src/main.rs` |
+| 2026-09-15 | P1410 — prefere coverage já materializada pelo catálogo do sistema e reserva extração lazy aos slots vazios; uma consulta deixa de mapear todas as fontes instaladas | `system-world.md`, `fontdb.md`, `03_infra/src/world.rs`, `03_infra/src/fontdb.rs` |
 | 2026-08-23 | P1137-CERT — builder lazy para CA customizada do downloader | `system-world.md`, `package_downloader.md`, `03_infra/src/world.rs` |
 ## P1137-WATCH — inventário de dependências
 
