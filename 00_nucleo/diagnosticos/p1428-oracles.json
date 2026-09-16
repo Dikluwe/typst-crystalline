@@ -1,0 +1,166 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1428,
+  "status": "candidate-oracles-unsealed",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1428_contract",
+    "roles": ["contract_author", "oracle_designer", "mutation_intent_author"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "candidate_executed": false,
+    "productive_code_read": false,
+    "productive_code_written": false,
+    "test_code_written": false,
+    "verdict_emitted": false,
+    "causal_productive_baseline": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1428-manifest.json",
+      "00_nucleo/diagnosticos/p1428-contract.json",
+      "00_nucleo/diagnosticos/p1428-oracles.json"
+    ]
+  },
+  "inputs": [
+    {"path": "00_nucleo/diagnosticos/p1428-manifest.json", "sha256": "0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b"},
+    {"path": "00_nucleo/diagnosticos/p1428-contract.json", "sha256": "d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313"},
+    {"path": "00_nucleo/materialization/typst-passo-1428.md", "sha256": "e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a"},
+    {"path": "00_nucleo/diagnosticos/p1427-verification.json", "sha256": "6e806664fd8ceca5718f1b3f91dd70f5d1eef19a4e25b0d9dd1a1b7fa742764d"},
+    {"path": "00_nucleo/diagnosticos/p1427-oracles.json", "sha256": "4081c8ddc409aa7703108e52bc641d609a6bf2478e21946953f99020329e5253"}
+  ],
+  "oracles": [
+    {
+      "id": "O1-decoded-html-repr",
+      "expected": "Preserved",
+      "cases": ["P01-html-repr-vertical", "P02-html-repr-skewed", "P03-html-repr-horizontal"],
+      "required_test": "03_infra/tests/p1428_math_frac.rs#p1428_repr_compara_texto_html_decodificado",
+      "assertion": "Compile the three explicit-style repr documents through the public HTML route, extract text nodes from attributable markup, decode references exactly once from the original byte stream, and require the canonical quoted style fragment in decoded text. Raw serialized HTML is not a witness."
+    },
+    {
+      "id": "O2-html-decoder-boundaries",
+      "expected": "Preserved",
+      "cases": ["C05-html-decoding-boundary", "U02-html-unknown-entity", "U03-html-missing-or-ambiguous-markup"],
+      "required_test": "03_infra/tests/p1428_math_frac.rs#p1428_decoder_html_e_fail_closed",
+      "assertion": "The strict extractor maps &quot; to a quote, maps &amp;quot; to literal &quot; without a second pass, accepts decimal/hex Unicode quotes, and classifies unknown entities, plain text and malformed or ambiguous markup as Unknown with the named reason."
+    },
+    {
+      "id": "O3-unique-module-frac-bit-vector",
+      "expected": "Preserved",
+      "cases": ["P04-module-bits-00", "P05-module-bits-10", "P06-module-bits-01", "P07-module-bits-11", "U04-module-zero-carriers", "U05-module-multiple-carriers"],
+      "required_test": "03_infra/tests/p1428_math_frac.rs#p1428_modulo_expoe_frac_unica_e_quatro_bits",
+      "assertion": "Evaluate F00, F10, F01 and F11 through eval_to_module_with_sink, exhaustively walk reachable Module content, require exactly one MathFrac with line=true and style=None, and read the bit pairs as 00, 10, 01 and 11. Zero/multiple carriers or an unprovably exhaustive traversal are Unknown. SVG and source-text inference are forbidden."
+    },
+    {
+      "id": "O4-bit-layout-conjunction",
+      "expected": "Preserved",
+      "cases": ["P08-horizontal-composition"],
+      "required_tests": [
+        "03_infra/tests/p1428_math_frac.rs#p1428_modulo_expoe_frac_unica_e_quatro_bits",
+        "01_core/src/compiler/math/layout/p1427_tests.rs#p1427_horizontal_restaura_protecao_causal"
+      ],
+      "assertion": "Classify P13/P14/P15/P21 as Preserved only when O3 establishes the exact public-source carrier vector and frozen P1427 O11 establishes matching horizontal protection morphology. Conjunction is three-valued: Violated dominates, otherwise any Unknown yields Unknown."
+    },
+    {
+      "id": "O5-preserved-public-controls",
+      "expected": "Preserved",
+      "cases": ["C01-route-control", "C02-diagnostic-control", "C03-opentype-control", "C04-binom-control"],
+      "required_test": "03_infra/tests/p1428_math_frac.rs#p1428_controles_rotas_diagnosticos_constantes_e_binom",
+      "assertion": "The new suite retains the already-green public controls: qualified/bare/slash routes; N01-N16 diagnostic fragments; productive NewCMMath 96/350 extraction with independent present-zero controls; and binom isolation before/after frac style. No control may be removed to make the observer repair pass."
+    },
+    {
+      "id": "O6-global-fail-closed",
+      "expected": "Unknown",
+      "cases": ["U01-identity-mismatch", "U06-execution-or-budget"],
+      "required_test_or_harness": "P1428 verifier harness",
+      "assertion": "Protected identity drift, unreadable/truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown and receives no acceptance or mutation credit."
+    }
+  ],
+  "expected_case_vector": {
+    "Preserved": [
+      "P01-html-repr-vertical",
+      "P02-html-repr-skewed",
+      "P03-html-repr-horizontal",
+      "P04-module-bits-00",
+      "P05-module-bits-10",
+      "P06-module-bits-01",
+      "P07-module-bits-11",
+      "P08-horizontal-composition",
+      "C01-route-control",
+      "C02-diagnostic-control",
+      "C03-opentype-control",
+      "C04-binom-control",
+      "C05-html-decoding-boundary"
+    ],
+    "Violated": [],
+    "Unknown": [
+      "U01-identity-mismatch",
+      "U02-html-unknown-entity",
+      "U03-html-missing-or-ambiguous-markup",
+      "U04-module-zero-carriers",
+      "U05-module-multiple-carriers",
+      "U06-execution-or-budget"
+    ]
+  },
+  "classification": {
+    "Preserved": "all required P1428 observations and named conjuncts have attributable witnesses",
+    "Violated": "one or more required assertions mismatch with a named witness",
+    "Unknown": "identity, execution, parsing, extraction, dependency, opacity, cardinality or budget prevents a sound decision",
+    "unknown_never_success": true,
+    "unknown_never_kills_mutation": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "score_formula": "valid mutations classified Violated / 12 valid mutations",
+    "valid_mutations": [
+      "M01-compare-raw-html",
+      "M02-unsafe-sequential-entity-decoding",
+      "M03-accept-missing-markup",
+      "M04-accept-unknown-entity",
+      "M05-reuse-empty-svg",
+      "M06-accept-zero-carriers",
+      "M07-accept-multiple-carriers",
+      "M08-swap-deparenthesization-bits",
+      "M09-force-or-infer-bits",
+      "M10-drop-layout-conjunct",
+      "M11-drop-preserved-controls",
+      "M12-credit-unknown"
+    ],
+    "all_valid_mutations_must_be_violated": true,
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "orders_require_identical_case_and_mutation_vectors": true,
+    "candidate_not_run_by_oracle_designer": true,
+    "status": "required-not-yet-executed"
+  },
+  "opaque_cases": [
+    {"id": "U01-identity-mismatch", "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"},
+    {"id": "U02-html-unknown-entity", "expected": "Unknown(UNKNOWN_HTML_ENTITY)"},
+    {"id": "U03-html-missing-or-ambiguous-markup", "expected": "Unknown(UNKNOWN_HTML_MARKUP)"},
+    {"id": "U04-module-zero-carriers", "expected": "Unknown(UNKNOWN_MATHFRAC_CARDINALITY)"},
+    {"id": "U05-module-multiple-carriers", "expected": "Unknown(UNKNOWN_MATHFRAC_CARDINALITY)"},
+    {"id": "U06-execution-or-budget", "expected": "Unknown(UNKNOWN_EXECUTION_OR_BUDGET)"}
+  ],
+  "calibration_budget": {
+    "wall_clock_minutes": 60,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 12,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 180,
+    "stop_rule": "Two consecutive revisions with the same classification vector and dominant cause, or no discriminatory gain, require architectural review; score 1.0 ends local oracle adjustment."
+  },
+  "test_materialization": {
+    "status": "required-but-not-written-by-this-authority",
+    "artifact": {
+      "test": "03_infra/tests/p1428_math_frac.rs",
+      "l0": "00_nucleo/prompts/infra/tests/p1428-tests.md"
+    },
+    "red_requirement": "Before sealing, reproduce the P1427 raw-HTML and empty-SVG observer failures as predecessor RED, then demonstrate that each of the twelve observer mutations is rejected by the focused P1428 oracle slice. A product failure unrelated to the two observer defects is not an acceptable substitute."
+  },
+  "commands_for_verifier": [
+    "cargo test -p typst-infra --test p1428_math_frac -- --nocapture",
+    "cargo test -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture",
+    "repeat both commands in fresh processes",
+    "run the same two commands in reverse suite order in fresh processes"
+  ],
+  "claim_boundary": "These oracle designs cover only P1428 observer recalibration for the frozen P1427 math.frac fragment. They do not classify a candidate, emit a seal or verdict, prove general math parity, validate SVG correctness, authorize productive changes or attest isolation."
+}

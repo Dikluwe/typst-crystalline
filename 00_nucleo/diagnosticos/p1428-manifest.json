@@ -1,0 +1,144 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "authored_at": "2026-09-16T19:11:11-03:00",
+  "protocol": {
+    "version": "tekt-materializacao-segregada/1",
+    "regime": "full",
+    "attestation": "executed_without_isolation_attestation",
+    "predecessor_step": 1427,
+    "invalidation": "Any byte change to a protected input, the P1427 productive baseline, the observer contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the chain from the first affected phase."
+  },
+  "artifacts": {
+    "manifest": "00_nucleo/diagnosticos/p1428-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1428-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1428-oracles.json",
+    "mutations": "00_nucleo/diagnosticos/p1428-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1428-seal.json"
+  },
+  "authoring_state": {
+    "head": "e01ae99c56069c6279266a0eb06dc6371999d437",
+    "tree": "ec1311648c449a391ba41d5611fd0ff7f0f40ae0",
+    "working_tree": "clean before P1428 contract artifacts",
+    "measured_at": "2026-09-16T19:11:11-03:00"
+  },
+  "baseline": {
+    "productive_commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "productive_tree": "24a1bda05d4e19e54a05d121f77ef3f3345c3811",
+    "identity_source": "00_nucleo/materialization/typst-passo-1428.md",
+    "productive_files": [
+      {"path": "01_core/src/compiler/stdlib/structural/math.rs", "sha256": "85aaed3f51fdac91562a1641a79a02118eb349ebfa0ddc416dccf7912f166e42"},
+      {"path": "01_core/src/compiler/eval/math.rs", "sha256": "12540b330e0d4c385f4420d23df62e92297fc0e027a92cf75708c04f51fffb61"},
+      {"path": "01_core/src/compiler/eval/repr.rs", "sha256": "a6d2dbca9a98f06a1b34393b5979521ab071f57ac3c20cc98692521bde35c3ba"},
+      {"path": "01_core/src/entities/elements/math_frac.rs", "sha256": "6200fff57cb46ed4e1ef1c707d97a2455a292406b1e0d88e28d3ed1489786d9c"},
+      {"path": "01_core/src/entities/content.rs", "sha256": "f3c96280958528706089f4c91c82b2a7f18840557c68a3e75efb2b3b6f5b139d"},
+      {"path": "01_core/src/compiler/eval/mod.rs", "sha256": "a5c7f75896fd06f00f3e2687d1cfa76f172ec6d38aca8e624f8170f9a6abfd05"},
+      {"path": "01_core/src/compiler/math/layout/mod.rs", "sha256": "263dd5e1f0459954b326eec2a55c7a9d33e18cd13b1259f8b44fd7abe9e3a5fd"},
+      {"path": "01_core/src/compiler/math/layout/frac.rs", "sha256": "e7ad69489bcdd9146efe0bb47228c39bb7334511c228dca197e33b62729faca7"},
+      {"path": "01_core/src/compiler/eval/rules.rs", "sha256": "2ce6863fca9510260362a26ef0f03d94d81a7ca98887d6e2093ccd8ea9ac7b04"},
+      {"path": "01_core/src/compiler/math/layout/tests.rs", "sha256": "5eff8aac50cdfafaea6ec795e0032892d4f282e8f7d5bd43a234cb82188724a8"},
+      {"path": "01_core/src/entities/math_constants.rs", "sha256": "f8758e5dff6faca4a341f44207bf56e79a99bce29149f29e2c2030e535e257d9"},
+      {"path": "03_infra/src/font_metrics.rs", "sha256": "764f221ad3f034e839c26ebc79608f71e2c67477401fd2580b50b87ee83eeb6e"}
+    ],
+    "frozen_p1427_public_test": {
+      "path": "03_infra/tests/p1427_math_frac.rs",
+      "sha256": "708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7"
+    }
+  },
+  "protected_inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1428.md", "sha256": "e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a"},
+    {"path": "00_nucleo/diagnosticos/p1427-report.md", "sha256": "70086f4d7ae3247b700e863e9cb4c2f95ff833367433071f5b7587df96b9b44e"},
+    {"path": "00_nucleo/diagnosticos/p1427-verification.json", "sha256": "6e806664fd8ceca5718f1b3f91dd70f5d1eef19a4e25b0d9dd1a1b7fa742764d"},
+    {"path": "00_nucleo/diagnosticos/p1427-manifest.json", "sha256": "76ad02886b04b7001ab476cb416b8615400b288143da6e02220c1b0ae6b782e3"},
+    {"path": "00_nucleo/diagnosticos/p1427-contract.json", "sha256": "9d356661c39d7ee70a092a2b17819d28e612fbb6073536518f74bdbbff177055"},
+    {"path": "00_nucleo/diagnosticos/p1427-oracles.json", "sha256": "4081c8ddc409aa7703108e52bc641d609a6bf2478e21946953f99020329e5253"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1427-tests.md", "sha256": "ceb33c24e182d721b0ba17ffd0119be978bddc2fc809de23b54d5682bf9ab719"},
+    {"path": "00_nucleo/prompts/compiler/eval/p1427-tests.md", "sha256": "320de003405bd89fad4142a9bc3ceef0d0867420bb9d119e7cc47ce773d7fdc3"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/p1427-tests.md", "sha256": "6c89d9548708bc507b3cdfdec0ebbd9968c0f56b3de4282c5433ec86559f0043"},
+    {"path": "00_nucleo/prompts/infra/tests/p1427-tests.md", "sha256": "fecdbce0a62a01d85343e54ff244b6bb50d5874a03bd69e5fe333b77bb92a8c6"}
+  ],
+  "change_allowlist": {
+    "productive_changes": [],
+    "contract_phase_writes": [
+      "00_nucleo/diagnosticos/p1428-manifest.json",
+      "00_nucleo/diagnosticos/p1428-contract.json",
+      "00_nucleo/diagnosticos/p1428-oracles.json"
+    ],
+    "later_materialization_writes": [
+      "00_nucleo/diagnosticos/p1428-mutants.json",
+      "00_nucleo/prompts/infra/tests/p1428-tests.md",
+      "03_infra/tests/p1428_math_frac.rs",
+      "00_nucleo/diagnosticos/p1428-red.json",
+      "00_nucleo/diagnosticos/p1428-seal.json",
+      "00_nucleo/diagnosticos/p1428-mutation-results.json",
+      "00_nucleo/diagnosticos/p1428-results.json",
+      "00_nucleo/diagnosticos/p1428-verification.json",
+      "00_nucleo/diagnosticos/p1428-report.md"
+    ],
+    "rule": "No productive file and no protected P1427 artifact may change. Any additional path is fail-closed until obligation authority expands and re-freezes this manifest."
+  },
+  "observables": [
+    "O-HTML-DECODED-TEXT",
+    "O-REPR-SEMANTIC-TEXT",
+    "O-MODULE-UNIQUE-MATHFRAC",
+    "O-DEPARENTHESIZATION-BIT-VECTOR",
+    "O-HORIZONTAL-MORPHOLOGY-COMPOSITION",
+    "O-PRESERVED-CONTROLS",
+    "O-FAIL-CLOSED"
+  ],
+  "execution_orders": [
+    {"id": "forward", "order": "P1428 contract case order in a fresh process"},
+    {"id": "forward_repeat", "order": "the same P1428 case order in a second fresh process"},
+    {"id": "reverse", "order": "exact reverse of P1428 contract case order in a third fresh process"}
+  ],
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "rule": "Identity mismatch; missing or ambiguous HTML markup; malformed, unknown or unsupported character reference; absent or multiple reachable MathFrac carriers; non-exhaustive or unsupported Module traversal; unreadable or truncated output; timeout; crash; OOM; swap; missing dependency; or exhausted budget is Unknown. Unknown never counts as Preserved, never rejects a mutation, never increases mutation score, and blocks every mandatory case."
+  },
+  "budgets": {
+    "wall_clock_minutes": 60,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 12,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 180,
+    "stop_after_consecutive_revisions_without_discriminatory_gain": 2
+  },
+  "authorities": [
+    {
+      "role": "contract_oracle_and_mutation_intent_author",
+      "executor": "agent:/root/p1428_contract",
+      "environment": "shared workspace; procedural capabilities, no isolation attestation",
+      "read_allowlist": ["P1428 step", "P1427 report, verification, manifest, contract and oracles", "the four P1427 test L0s", "hash-only baseline measurements named in this manifest"],
+      "forbidden_reads": ["productive source contents", "candidate test contents", "candidate implementation diffs", "private adversary or verifier outputs"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1428-manifest.json", "00_nucleo/diagnosticos/p1428-contract.json", "00_nucleo/diagnosticos/p1428-oracles.json"]
+    },
+    {
+      "role": "adversary_and_independent_test_materializer",
+      "executor": "unassigned downstream authority",
+      "environment": "shared workspace; procedural separation required",
+      "read_allowlist": ["frozen P1428 manifest, contract and oracles", "protected inputs", "hash-only baseline identities"],
+      "forbidden_reads": ["candidate productive diffs", "verifier private outputs"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1428-mutants.json", "00_nucleo/prompts/infra/tests/p1428-tests.md", "03_infra/tests/p1428_math_frac.rs", "00_nucleo/diagnosticos/p1428-red.json"]
+    },
+    {
+      "role": "implementer",
+      "executor": "agent:/root",
+      "environment": "shared workspace; procedural separation required",
+      "read_allowlist": ["sealed public P1428 artifacts", "approved P1428 test L0", "baseline identities"],
+      "forbidden_writes": ["productive files", "protected P1427 artifacts", "manifest", "contract", "sealed oracles", "sealed mutations", "independent test assertions"],
+      "write_allowlist": []
+    },
+    {
+      "role": "verifier",
+      "executor": "unassigned downstream authority",
+      "environment": "shared workspace; procedural separation required",
+      "read_allowlist": ["sealed artifacts", "independent P1428 test and commands", "hash-only productive baseline"],
+      "forbidden_writes": ["artifacts under verification", "productive files", "independent tests"],
+      "write_allowlist": ["P1428 mutation results, results, verification, report and verdict receipts"]
+    }
+  ],
+  "claim_boundary": {
+    "attests": "Only the P1428 recalibration of the P1427 public math.frac fragment: semantic repr text after one-pass HTML character-reference decoding, unique reachable MathFrac extraction from Module for four slash-parenthesis fixtures, conjunction with the frozen P1427 horizontal-layout oracle, and preservation of route, diagnostic, OpenType-constant and binom controls.",
+    "does_not_attest": ["general math parity", "SVG correctness", "render-byte equality", "productive changes", "more than one MathFrac per Module", "HTML outside the strict extractor domain", "isolation of the shared workspace"]
+  }
+}

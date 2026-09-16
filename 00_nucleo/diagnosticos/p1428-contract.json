@@ -1,0 +1,121 @@
+{
+  "schema": "tekt.materialization.contract/v1",
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1428-manifest.json",
+    "sha256": "0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b"
+  },
+  "predecessor": {
+    "step": 1427,
+    "verification_path": "00_nucleo/diagnosticos/p1427-verification.json",
+    "verification_sha256": "6e806664fd8ceca5718f1b3f91dd70f5d1eef19a4e25b0d9dd1a1b7fa742764d",
+    "verdict": "BLOCKED",
+    "adopted_evidence": "P1427 direct L1 oracles passed 15/15 in all three orders; P1428 does not alter or reinterpret those results and replaces only the two opaque public observers identified by B01 and B02."
+  },
+  "baseline": {
+    "commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "tree": "24a1bda05d4e19e54a05d121f77ef3f3345c3811",
+    "productive_change_allowlist": [],
+    "productive_files_must_match_manifest_hashes": true,
+    "p1427_public_test_must_remain_byte_identical": true
+  },
+  "classification": {
+    "Preserved": "Every required P1428 observation is established by an attributable witness and every conjunct named by the case is Preserved.",
+    "Violated": "At least one required observation differs, with a witness naming the observable and actual result.",
+    "Unknown": "Identity, execution, parsing, extraction, dependency, opacity, cardinality or budget prevents a sound decision. Unknown is fail-closed and cannot satisfy a mandatory case or reject a mutation."
+  },
+  "observables": {
+    "O-HTML-DECODED-TEXT": "The public HTML serialization is parsed as markup and its text nodes are concatenated in document order after exactly one character-reference decoding pass. The extractor accepts named amp, lt, gt, quot and apos plus valid Unicode decimal or hexadecimal numeric references. Decoding is driven from the original byte stream, never by ordered global replacements: &amp;quot; becomes the literal text &quot;, not a quote. Malformed or unknown references, ambiguous markup, missing markup, unsupported text-bearing constructs or non-Unicode scalar references are Unknown.",
+    "O-REPR-SEMANTIC-TEXT": "The decoded public text for explicit vertical, skewed and horizontal fractions contains the canonical repr fragments style: \"vertical\", style: \"skewed\" and style: \"horizontal\" respectively. Matching occurs only on decoded text nodes, never on raw serialized HTML, tag names or attribute bytes.",
+    "O-MODULE-UNIQUE-MATHFRAC": "Each declared source is evaluated through eval_to_module_with_sink. Starting at the Module content root, a canonical recursive content walk visits every reachable child exactly once and collects MathFrac carriers. Exactly one reachable MathFrac is required. Zero, more than one, an unsupported variant, a non-exhaustive walk or inability to prove reachability is Unknown; SVG is not consulted.",
+    "O-DEPARENTHESIZATION-BIT-VECTOR": "For the four exact slash sources, the unique carrier has line=true, style=None and the ordered pair (num_deparenthesized, denom_deparenthesized) is respectively (false,false), (true,false), (false,true), (true,true). Bits are read from the carrier and are neither inferred from source text nor normalized.",
+    "O-HORIZONTAL-MORPHOLOGY-COMPOSITION": "The carrier-bit witness is conjoined with the frozen P1427 layout oracle O11-horizontal-layout-protection from p1427-oracles SHA-256 4081c8ddc409aa7703108e52bc641d609a6bf2478e21946953f99020329e5253. P13, P14, P15 and P21 are Preserved only when both the P1428 exact-bit vector and the unchanged P1427 horizontal morphology oracle are Preserved; either Unknown makes the conjunction Unknown.",
+    "O-PRESERVED-CONTROLS": "The new public suite retains attributable controls for qualified, bare and slash routes; all sixteen frozen signature/style diagnostic negatives; independent productive NewCMMath vertical/horizontal gap extraction including present zero; and binom remaining parenthesized, vertical, barless, slash-free and unaffected by frac style. These controls remain obligations even though they were not the cause of P1427 opacity.",
+    "O-FAIL-CLOSED": "Identity mismatch, malformed or ambiguous HTML, unknown character reference, missing markup, absent or multiple MathFrac carriers, unsupported or non-exhaustive Module traversal, unreadable output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown. Unknown blocks every mandatory case and contributes zero mutation credit."
+  },
+  "html_extractor_contract": {
+    "input": "UTF-8 public HTML string returned by the existing compilation helper",
+    "algorithm": [
+      "Require syntactically attributable markup with at least one start tag and matching end tag; plain text is not silently accepted as HTML.",
+      "Tokenize markup and collect only text-node bytes in document order; do not search tags or attributes for repr.",
+      "Decode each character reference exactly once while consuming the original text-node byte stream.",
+      "Accept only amp, lt, gt, quot, apos and valid Unicode decimal/hexadecimal numeric references; any other named reference or malformed reference is Unknown.",
+      "Return the concatenated decoded text with no second decoding or global replacement pass."
+    ],
+    "required_boundary_controls": [
+      {"serialized": "<p>style: &quot;vertical&quot;</p>", "decoded": "style: \"vertical\""},
+      {"serialized": "<p>&amp;quot;</p>", "decoded": "&quot;"},
+      {"serialized": "<p>&#34;&#x22;</p>", "decoded": "\"\""},
+      {"serialized": "<p>&bogus;</p>", "classification": "Unknown(UNKNOWN_HTML_ENTITY)"},
+      {"serialized": "style: &quot;vertical&quot;", "classification": "Unknown(UNKNOWN_HTML_MARKUP)"}
+    ]
+  },
+  "module_extractor_contract": {
+    "entrypoint": "eval_to_module_with_sink",
+    "root": "Module content",
+    "selection": "all reachable MathFrac carriers under a canonical exhaustive content walk",
+    "cardinality": "exactly one",
+    "forbidden_observers": ["compile_to_svg_string", "SVG bytes", "source-text inference of carrier bits"],
+    "fixtures": [
+      {"id": "F00", "source": "#set math.frac(style: \"horizontal\")\n$a / b$", "expected_bits": [false, false]},
+      {"id": "F10", "source": "#set math.frac(style: \"horizontal\")\n$(a) / b$", "expected_bits": [true, false]},
+      {"id": "F01", "source": "#set math.frac(style: \"horizontal\")\n$a / (b)$", "expected_bits": [false, true]},
+      {"id": "F11", "source": "#set math.frac(style: \"horizontal\")\n$(a) / (b)$", "expected_bits": [true, true]}
+    ]
+  },
+  "cases": [
+    {"id": "P01-html-repr-vertical", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-HTML-DECODED-TEXT", "O-REPR-SEMANTIC-TEXT"], "fixture": "public compilation of repr(math.frac([a], [b], style: \"vertical\"))", "witness": "Decoded text, not raw HTML, contains style: \"vertical\"."},
+    {"id": "P02-html-repr-skewed", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-HTML-DECODED-TEXT", "O-REPR-SEMANTIC-TEXT"], "fixture": "public compilation of repr(math.frac([a], [b], style: \"skewed\"))", "witness": "Decoded text contains style: \"skewed\"."},
+    {"id": "P03-html-repr-horizontal", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-HTML-DECODED-TEXT", "O-REPR-SEMANTIC-TEXT"], "fixture": "public compilation of repr(math.frac([a], [b], style: \"horizontal\"))", "witness": "Decoded text contains style: \"horizontal\"."},
+    {"id": "P04-module-bits-00", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-DEPARENTHESIZATION-BIT-VECTOR"], "fixture": "F00", "witness": "Exactly one reachable line=true style=None MathFrac with bits (false,false)."},
+    {"id": "P05-module-bits-10", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-DEPARENTHESIZATION-BIT-VECTOR"], "fixture": "F10", "witness": "Exactly one reachable line=true style=None MathFrac with bits (true,false)."},
+    {"id": "P06-module-bits-01", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-DEPARENTHESIZATION-BIT-VECTOR"], "fixture": "F01", "witness": "Exactly one reachable line=true style=None MathFrac with bits (false,true)."},
+    {"id": "P07-module-bits-11", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-DEPARENTHESIZATION-BIT-VECTOR"], "fixture": "F11", "witness": "Exactly one reachable line=true style=None MathFrac with bits (true,true)."},
+    {"id": "P08-horizontal-composition", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-HORIZONTAL-MORPHOLOGY-COMPOSITION"], "fixture": "P04-P07 plus frozen P1427 O11", "witness": "The exact four-bit vector and the unchanged four-combination horizontal morphology oracle are both Preserved."},
+    {"id": "C01-route-control", "category": "control", "mandatory": true, "expected": "Preserved", "requires": ["O-PRESERVED-CONTROLS"], "fixture": "qualified math.frac, bare frac and slash", "witness": "All three public routes remain attributable and convergent subject only to slash provenance."},
+    {"id": "C02-diagnostic-control", "category": "control", "mandatory": true, "expected": "Preserved", "requires": ["O-PRESERVED-CONTROLS"], "fixture": "P1427 N01-N16", "witness": "All sixteen invalid calls/set rules are rejected with their frozen attributable fragments."},
+    {"id": "C03-opentype-control", "category": "control", "mandatory": true, "expected": "Preserved", "requires": ["O-PRESERVED-CONTROLS"], "fixture": "productive FontBookMetrics extraction from frozen NewCMMath plus independent present-zero controls", "witness": "Vertical gap is 96du, horizontal gap is 350du, and present zero remains zero independently for each entry."},
+    {"id": "C04-binom-control", "category": "control", "mandatory": true, "expected": "Preserved", "requires": ["O-PRESERVED-CONTROLS"], "fixture": "math.binom([n], [k]) before and after cascaded frac style", "witness": "Binom remains parenthesized, vertical, line=false, barless, slash-free and style-isolated."},
+    {"id": "C05-html-decoding-boundary", "category": "control", "mandatory": true, "expected": "Preserved", "requires": ["O-HTML-DECODED-TEXT"], "fixture": "the five required HTML boundary controls", "witness": "Named/numeric references decode once, &amp;quot; remains literal &quot;, and unknown entities or absent markup remain Unknown."},
+    {"id": "U01-identity-mismatch", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "a protected input or productive baseline hash differs", "witness": "UNKNOWN_IDENTITY_MISMATCH"},
+    {"id": "U02-html-unknown-entity", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-HTML-DECODED-TEXT", "O-FAIL-CLOSED"], "fixture": "<p>&bogus;</p>", "witness": "UNKNOWN_HTML_ENTITY"},
+    {"id": "U03-html-missing-or-ambiguous-markup", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-HTML-DECODED-TEXT", "O-FAIL-CLOSED"], "fixture": "plain text or malformed/unbalanced markup", "witness": "UNKNOWN_HTML_MARKUP"},
+    {"id": "U04-module-zero-carriers", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-FAIL-CLOSED"], "fixture": "a Module walk with zero reachable MathFrac", "witness": "UNKNOWN_MATHFRAC_CARDINALITY"},
+    {"id": "U05-module-multiple-carriers", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-MODULE-UNIQUE-MATHFRAC", "O-FAIL-CLOSED"], "fixture": "a Module walk with two reachable MathFrac carriers", "witness": "UNKNOWN_MATHFRAC_CARDINALITY"},
+    {"id": "U06-execution-or-budget", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "unreadable/truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget", "witness": "UNKNOWN_EXECUTION_OR_BUDGET"}
+  ],
+  "mutations": [
+    {"id": "M01-compare-raw-html", "mutation": "Search raw serialized HTML for quoted repr without decoding text nodes.", "must_be_rejected_by": ["P01-html-repr-vertical", "P02-html-repr-skewed", "P03-html-repr-horizontal"]},
+    {"id": "M02-unsafe-sequential-entity-decoding", "mutation": "Decode with ordered global replacements so &amp;quot; is decoded twice into a quote.", "must_be_rejected_by": ["C05-html-decoding-boundary"]},
+    {"id": "M03-accept-missing-markup", "mutation": "Treat plain text or malformed markup as successfully extracted HTML text.", "must_be_rejected_by": ["U03-html-missing-or-ambiguous-markup"]},
+    {"id": "M04-accept-unknown-entity", "mutation": "Preserve, drop or guess an unknown or malformed character reference instead of returning Unknown.", "must_be_rejected_by": ["U02-html-unknown-entity"]},
+    {"id": "M05-reuse-empty-svg", "mutation": "Use compile_to_svg_string or SVG bytes as the carrier/bit observer.", "must_be_rejected_by": ["P04-module-bits-00", "P05-module-bits-10", "P06-module-bits-01", "P07-module-bits-11"]},
+    {"id": "M06-accept-zero-carriers", "mutation": "Default absent MathFrac to false/false or otherwise classify zero carriers as Preserved.", "must_be_rejected_by": ["U04-module-zero-carriers"]},
+    {"id": "M07-accept-multiple-carriers", "mutation": "Select the first/last MathFrac or merge carriers when cardinality exceeds one.", "must_be_rejected_by": ["U05-module-multiple-carriers"]},
+    {"id": "M08-swap-deparenthesization-bits", "mutation": "Read numerator and denominator bits in reversed order.", "must_be_rejected_by": ["P05-module-bits-10", "P06-module-bits-01"]},
+    {"id": "M09-force-or-infer-bits", "mutation": "Force both bits to a constant or infer them from fixture source text instead of reading the unique carrier.", "must_be_rejected_by": ["P04-module-bits-00", "P05-module-bits-10", "P06-module-bits-01", "P07-module-bits-11", "U04-module-zero-carriers"]},
+    {"id": "M10-drop-layout-conjunct", "mutation": "Grant P13/P14/P15/P21 from carrier bits without requiring the frozen P1427 horizontal morphology oracle.", "must_be_rejected_by": ["P08-horizontal-composition"]},
+    {"id": "M11-drop-preserved-controls", "mutation": "Remove or weaken route, diagnostic, OpenType-gap or binom controls while fixing the two observers.", "must_be_rejected_by": ["C01-route-control", "C02-diagnostic-control", "C03-opentype-control", "C04-binom-control"]},
+    {"id": "M12-credit-unknown", "mutation": "Count Unknown as Preserved or as a killed mutation.", "must_be_rejected_by": ["U01-identity-mismatch", "U02-html-unknown-entity", "U03-html-missing-or-ambiguous-markup", "U04-module-zero-carriers", "U05-module-multiple-carriers", "U06-execution-or-budget"]}
+  ],
+  "required_new_test": {
+    "path": "03_infra/tests/p1428_math_frac.rs",
+    "test_only_l0": "00_nucleo/prompts/infra/tests/p1428-tests.md",
+    "covers": ["P01-P08", "C01-C05", "U02-U05"],
+    "status": "not written by contract authority"
+  },
+  "execution_orders": ["forward", "forward_repeat", "reverse"],
+  "gates": {
+    "preseal": "Manifest, contract, oracle suite, mutation suite, executor bindings, hashes and three execution orders are frozen before candidate admission.",
+    "discriminatory": {
+      "mutation_score_required": 1.0,
+      "score_formula": "valid observer mutations classified Violated / all valid observer mutations",
+      "valid_mutations_must_be_violated": true,
+      "opaque_cases_must_be_unknown": true,
+      "mandatory_unknown_allowed": false,
+      "unknown_receives_credit": false,
+      "orders_must_have_identical_vectors": true
+    },
+    "architecture": ["cargo fmt --all -- --check", "focused P1428 public tests", "unchanged frozen P1427 direct layout oracle", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15 and V26 remain clear", "all twelve productive baseline hashes remain exact"]
+  },
+  "claim_boundary": "This contract discriminates only the P1428 observer recalibration for the already-approved P1427 math.frac fragment. It does not classify a candidate, establish general math parity, validate empty SVG output, authorize productive changes or grant credit for render-byte equality."
+}
