@@ -1,0 +1,24 @@
+{
+  "schema": "tekt-preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1423,
+  "revision": "R2",
+  "status": "SEALED",
+  "verdict": "SEALED",
+  "attestation": "executado sem atestação de isolamento",
+  "supersedes": {
+    "path": "00_nucleo/diagnosticos/p1423-preseal-r1.json",
+    "sha256": "455bcc6e686d9b3abb7915a347bb57c72a89a49f3524a2403460d99b3db05c88",
+    "reason": "V1/V2 exigiram cabeçalho causal e cfg(test) no arquivo A/B; somente o envelope mecânico foi acrescentado, sem alterar imports, fixtures, chamadas ou asserções."
+  },
+  "mechanically_resealed_inputs": {
+    "html_l0_after_code_hash_refresh": {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "846a8a40872b3f7e21d91143a61f9ca9d0cdce929e39cf440e70f33f8ab55dac"},
+    "independent_tests_with_lineage_envelope": {"path": "01_core/src/compiler/stdlib/html/p1423_tests.rs", "sha256": "1743e41a23fbf64a038cf10c2511b10c504901d8e5edf8f8a24de7b0d42f306e"}
+  },
+  "semantic_change_from_r1": false,
+  "write_capability_after_seal": {
+    "implementer": ["01_core/src/compiler/stdlib/html.rs", "03_infra/src/export/html.rs"],
+    "forbidden": ["corpo semântico dos testes independentes", "contrato/oráculos/mutantes", "L2/L4", "html.frame"]
+  },
+  "claim_boundary": "R2 ressela apenas metadados mecânicos exigidos pelo linter; mantém o contrato e os ataques de R0/R1."
+}

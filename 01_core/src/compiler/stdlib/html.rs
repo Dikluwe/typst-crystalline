@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 960311ad
+//! @prompt-hash 99bb2653
 //! @layer L1
 
 use std::sync::Arc;
@@ -14,12 +14,18 @@ use crate::entities::content::Content;
 use crate::entities::dir::Dir;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
+#[cfg(test)]
+use crate::entities::html::{Feature, Features};
 use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+
+#[cfg(test)]
+#[path = "html/p1423_tests.rs"]
+mod p1423_tests;
 
 pub fn make_html_module() -> Module {
     let mut scope = Scope::new();
@@ -59,6 +65,32 @@ macro_rules! typed_tag_with_attrs {
             _current_file: FileId,
         ) -> SourceResult<Value> {
             native_typed_html($tag, $attrs, args)
+        }
+    };
+}
+
+macro_rules! typed_void_tag_with_attrs {
+    ($fn_name:ident, $tag:literal, $attrs:ident) => {
+        fn $fn_name(
+            _ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: FileId,
+        ) -> SourceResult<Value> {
+            native_typed_html_void($tag, $attrs, args)
+        }
+    };
+}
+
+macro_rules! typed_raw_tag_with_attrs {
+    ($fn_name:ident, $tag:literal, $attrs:ident) => {
+        fn $fn_name(
+            _ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: FileId,
+        ) -> SourceResult<Value> {
+            native_typed_html_raw($tag, $attrs, args)
         }
     };
 }
@@ -126,6 +158,49 @@ typed_tag_with_attrs!(native_html_iframe, "iframe", IFRAME_ATTRS);
 typed_tag_with_attrs!(native_html_select, "select", SELECT_ATTRS);
 typed_tag_with_attrs!(native_html_template, "template", TEMPLATE_ATTRS);
 typed_tag_with_attrs!(native_html_video, "video", VIDEO_ATTRS);
+typed_void_tag_with_attrs!(native_html_area, "area", AREA_ATTRS);
+typed_tag_with_attrs!(native_html_audio, "audio", AUDIO_ATTRS);
+typed_void_tag_with_attrs!(native_html_base, "base", BASE_ATTRS);
+typed_tag_with_attrs!(native_html_blockquote, "blockquote", CITE_ATTRS);
+typed_tag_with_attrs!(native_html_canvas, "canvas", CANVAS_ATTRS);
+typed_tag!(native_html_caption, "caption");
+typed_tag_with_attrs!(native_html_colgroup, "colgroup", COLGROUP_ATTRS);
+typed_tag_with_attrs!(native_html_data, "data", DATA_ATTRS);
+typed_tag_with_attrs!(native_html_del, "del", DEL_INS_ATTRS);
+typed_tag_with_attrs!(native_html_details, "details", DETAILS_ATTRS);
+typed_tag_with_attrs!(native_html_dialog, "dialog", DIALOG_ATTRS);
+typed_void_tag_with_attrs!(native_html_embed, "embed", EMBED_ATTRS);
+typed_tag_with_attrs!(native_html_fieldset, "fieldset", FIELDSET_ATTRS);
+typed_tag_with_attrs!(native_html_form, "form", FORM_ATTRS);
+typed_void_tag_with_attrs!(native_html_hr, "hr", NO_ATTRS);
+typed_void_tag_with_attrs!(native_html_img, "img", IMG_ATTRS);
+typed_void_tag_with_attrs!(native_html_input, "input", INPUT_ATTRS);
+typed_tag_with_attrs!(native_html_ins, "ins", DEL_INS_ATTRS);
+typed_tag_with_attrs!(native_html_label, "label", LABEL_ATTRS);
+typed_void_tag_with_attrs!(native_html_link, "link", LINK_ATTRS);
+typed_tag_with_attrs!(native_html_map, "map", NAME_ATTRS);
+typed_void_tag_with_attrs!(native_html_meta, "meta", META_ATTRS);
+typed_tag_with_attrs!(native_html_meter, "meter", METER_ATTRS);
+typed_tag_with_attrs!(native_html_object, "object", OBJECT_ATTRS);
+typed_tag_with_attrs!(native_html_optgroup, "optgroup", OPTGROUP_ATTRS);
+typed_tag_with_attrs!(native_html_option, "option", OPTION_ATTRS);
+typed_tag_with_attrs!(native_html_output, "output", OUTPUT_ATTRS);
+typed_tag_with_attrs!(native_html_progress, "progress", PROGRESS_ATTRS);
+typed_tag_with_attrs!(native_html_q, "q", CITE_ATTRS);
+typed_raw_tag_with_attrs!(native_html_script, "script", SCRIPT_ATTRS);
+typed_tag_with_attrs!(native_html_slot, "slot", NAME_ATTRS);
+typed_void_tag_with_attrs!(native_html_source, "source", SOURCE_ATTRS);
+typed_raw_tag_with_attrs!(native_html_style, "style", STYLE_ATTRS);
+typed_tag!(native_html_table, "table");
+typed_tag!(native_html_tbody, "tbody");
+typed_tag_with_attrs!(native_html_td, "td", TD_ATTRS);
+typed_tag_with_attrs!(native_html_textarea, "textarea", TEXTAREA_ATTRS);
+typed_tag!(native_html_tfoot, "tfoot");
+typed_tag_with_attrs!(native_html_th, "th", TH_ATTRS);
+typed_tag!(native_html_thead, "thead");
+typed_tag_with_attrs!(native_html_time, "time", TIME_ATTRS);
+typed_tag!(native_html_tr, "tr");
+typed_void_tag_with_attrs!(native_html_track, "track", TRACK_ATTRS);
 
 fn native_html_ol(
     _ctx: &mut EvalContext,
@@ -251,6 +326,49 @@ const TYPED_TAGS: &[(&str, NativeHtmlFunc)] = &[
     ("template", native_html_template),
     ("video", native_html_video),
     ("wbr", native_html_wbr),
+    ("area", native_html_area),
+    ("audio", native_html_audio),
+    ("base", native_html_base),
+    ("blockquote", native_html_blockquote),
+    ("canvas", native_html_canvas),
+    ("caption", native_html_caption),
+    ("colgroup", native_html_colgroup),
+    ("data", native_html_data),
+    ("del", native_html_del),
+    ("details", native_html_details),
+    ("dialog", native_html_dialog),
+    ("embed", native_html_embed),
+    ("fieldset", native_html_fieldset),
+    ("form", native_html_form),
+    ("hr", native_html_hr),
+    ("img", native_html_img),
+    ("input", native_html_input),
+    ("ins", native_html_ins),
+    ("label", native_html_label),
+    ("link", native_html_link),
+    ("map", native_html_map),
+    ("meta", native_html_meta),
+    ("meter", native_html_meter),
+    ("object", native_html_object),
+    ("optgroup", native_html_optgroup),
+    ("option", native_html_option),
+    ("output", native_html_output),
+    ("progress", native_html_progress),
+    ("q", native_html_q),
+    ("script", native_html_script),
+    ("slot", native_html_slot),
+    ("source", native_html_source),
+    ("style", native_html_style),
+    ("table", native_html_table),
+    ("tbody", native_html_tbody),
+    ("td", native_html_td),
+    ("textarea", native_html_textarea),
+    ("tfoot", native_html_tfoot),
+    ("th", native_html_th),
+    ("thead", native_html_thead),
+    ("time", native_html_time),
+    ("tr", native_html_tr),
+    ("track", native_html_track),
 ];
 
 #[derive(Clone, Copy)]
@@ -281,6 +399,17 @@ enum AttrKind {
     Preload,
     NoneOrRole,
     YesNo,
+    Datetime,
+    DurationOrDatetime,
+    Color,
+    FloatListComma,
+    StrListComma,
+    StrFloatDatetime,
+    PositiveFloatOr(&'static [&'static str]),
+    InputValue,
+    SourceSizeList,
+    ImageCandidateList,
+    IconSizeList,
 }
 
 struct AttrSpec {
@@ -556,6 +685,425 @@ const VIDEO_ATTRS: &[AttrSpec] = &[
 
 const WBR_ATTRS: &[AttrSpec] = &[];
 
+const NO_ATTRS: &[AttrSpec] = &[];
+const CROSS_ORIGIN: &[&str] = &["anonymous", "use-credentials"];
+const FETCH_PRIORITY: &[&str] = &["auto", "high", "low"];
+const FORM_ENCTYPES: &[&str] =
+    &["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"];
+const FORM_METHODS: &[&str] = &["GET", "POST", "dialog"];
+const BLOCKING: &[&str] = &["blocking"];
+
+const AREA_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "alt", kind: AttrKind::Str },
+    AttrSpec { name: "coords", kind: AttrKind::FloatListComma },
+    AttrSpec { name: "download", kind: AttrKind::Str },
+    AttrSpec { name: "href", kind: AttrKind::Str },
+    AttrSpec { name: "ping", kind: AttrKind::ListStr },
+    AttrSpec {
+        name: "referrerpolicy",
+        kind: AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+    },
+    AttrSpec { name: "rel", kind: AttrKind::EnumList(REL_TYPES) },
+    AttrSpec {
+        name: "shape",
+        kind: AttrKind::Enum(&["circle", "default", "poly", "rect"]),
+    },
+    AttrSpec {
+        name: "target",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+];
+const AUDIO_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "autoplay", kind: AttrKind::Presence },
+    AttrSpec { name: "controls", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "crossorigin",
+        kind: AttrKind::Enum(CROSS_ORIGIN),
+    },
+    AttrSpec { name: "loop", kind: AttrKind::Presence },
+    AttrSpec { name: "muted", kind: AttrKind::Presence },
+    AttrSpec { name: "preload", kind: AttrKind::Preload },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+];
+const BASE_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "href", kind: AttrKind::Str },
+    AttrSpec {
+        name: "target",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+];
+const CITE_ATTRS: &[AttrSpec] = &[AttrSpec { name: "cite", kind: AttrKind::Str }];
+const CANVAS_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const COLGROUP_ATTRS: &[AttrSpec] =
+    &[AttrSpec { name: "span", kind: AttrKind::PositiveInt }];
+const DATA_ATTRS: &[AttrSpec] = &[AttrSpec { name: "value", kind: AttrKind::Str }];
+const DEL_INS_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "cite", kind: AttrKind::Str },
+    AttrSpec { name: "datetime", kind: AttrKind::Datetime },
+];
+const DETAILS_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "open", kind: AttrKind::Presence },
+];
+const DIALOG_ATTRS: &[AttrSpec] = &[AttrSpec { name: "open", kind: AttrKind::Presence }];
+const EMBED_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "type", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const FIELDSET_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+];
+const FORM_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "accept-charset",
+        kind: AttrKind::Enum(&["utf-8"]),
+    },
+    AttrSpec { name: "action", kind: AttrKind::Str },
+    AttrSpec { name: "autocomplete", kind: AttrKind::OnOff },
+    AttrSpec {
+        name: "enctype",
+        kind: AttrKind::Enum(FORM_ENCTYPES),
+    },
+    AttrSpec { name: "method", kind: AttrKind::Enum(FORM_METHODS) },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "novalidate", kind: AttrKind::Presence },
+    AttrSpec { name: "rel", kind: AttrKind::EnumList(REL_TYPES) },
+    AttrSpec {
+        name: "target",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+];
+const IMG_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "alt", kind: AttrKind::Str },
+    AttrSpec {
+        name: "crossorigin",
+        kind: AttrKind::Enum(CROSS_ORIGIN),
+    },
+    AttrSpec {
+        name: "decoding",
+        kind: AttrKind::Enum(&["auto", "sync", "async"]),
+    },
+    AttrSpec {
+        name: "fetchpriority",
+        kind: AttrKind::Enum(FETCH_PRIORITY),
+    },
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "ismap", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "loading",
+        kind: AttrKind::Enum(&["lazy", "eager"]),
+    },
+    AttrSpec {
+        name: "referrerpolicy",
+        kind: AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+    },
+    AttrSpec { name: "sizes", kind: AttrKind::SourceSizeList },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "srcset", kind: AttrKind::ImageCandidateList },
+    AttrSpec { name: "usemap", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const INPUT_TYPES: &[&str] = &[
+    "hidden",
+    "text",
+    "search",
+    "tel",
+    "url",
+    "email",
+    "password",
+    "date",
+    "month",
+    "week",
+    "time",
+    "datetime-local",
+    "number",
+    "range",
+    "color",
+    "checkbox",
+    "radio",
+    "file",
+    "submit",
+    "image",
+    "reset",
+    "button",
+];
+const INPUT_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "accept", kind: AttrKind::StrListComma },
+    AttrSpec { name: "alpha", kind: AttrKind::Presence },
+    AttrSpec { name: "alt", kind: AttrKind::Str },
+    AttrSpec {
+        name: "autocomplete",
+        kind: AttrKind::EnumList(AUTOCOMPLETE),
+    },
+    AttrSpec { name: "checked", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "colorspace",
+        kind: AttrKind::Enum(&["limited-srgb", "display-p3"]),
+    },
+    AttrSpec { name: "dirname", kind: AttrKind::Str },
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "formaction", kind: AttrKind::Str },
+    AttrSpec {
+        name: "formenctype",
+        kind: AttrKind::Enum(FORM_ENCTYPES),
+    },
+    AttrSpec {
+        name: "formmethod",
+        kind: AttrKind::Enum(FORM_METHODS),
+    },
+    AttrSpec { name: "formnovalidate", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "formtarget",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "list", kind: AttrKind::Str },
+    AttrSpec { name: "max", kind: AttrKind::StrFloatDatetime },
+    AttrSpec { name: "maxlength", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "min", kind: AttrKind::StrFloatDatetime },
+    AttrSpec { name: "minlength", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "multiple", kind: AttrKind::Presence },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "pattern", kind: AttrKind::Str },
+    AttrSpec { name: "placeholder", kind: AttrKind::Str },
+    AttrSpec { name: "popovertarget", kind: AttrKind::Str },
+    AttrSpec {
+        name: "popovertargetaction",
+        kind: AttrKind::Enum(POPOVER_TARGET_ACTIONS),
+    },
+    AttrSpec { name: "readonly", kind: AttrKind::Presence },
+    AttrSpec { name: "required", kind: AttrKind::Presence },
+    AttrSpec { name: "size", kind: AttrKind::PositiveInt },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec {
+        name: "step",
+        kind: AttrKind::PositiveFloatOr(&["any"]),
+    },
+    AttrSpec { name: "type", kind: AttrKind::Enum(INPUT_TYPES) },
+    AttrSpec { name: "value", kind: AttrKind::InputValue },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const LABEL_ATTRS: &[AttrSpec] = &[AttrSpec { name: "for", kind: AttrKind::Str }];
+const LINK_AS: &[&str] = &[
+    "audio",
+    "audioworklet",
+    "document",
+    "embed",
+    "font",
+    "frame",
+    "iframe",
+    "image",
+    "json",
+    "manifest",
+    "object",
+    "paintworklet",
+    "report",
+    "script",
+    "serviceworker",
+    "sharedworker",
+    "style",
+    "track",
+    "video",
+    "webidentity",
+    "worker",
+    "xslt",
+];
+const LINK_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "as", kind: AttrKind::Enum(LINK_AS) },
+    AttrSpec {
+        name: "blocking",
+        kind: AttrKind::EnumList(BLOCKING),
+    },
+    AttrSpec { name: "color", kind: AttrKind::Color },
+    AttrSpec {
+        name: "crossorigin",
+        kind: AttrKind::Enum(CROSS_ORIGIN),
+    },
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "fetchpriority",
+        kind: AttrKind::Enum(FETCH_PRIORITY),
+    },
+    AttrSpec { name: "href", kind: AttrKind::Str },
+    AttrSpec { name: "hreflang", kind: AttrKind::Str },
+    AttrSpec { name: "imagesizes", kind: AttrKind::SourceSizeList },
+    AttrSpec {
+        name: "imagesrcset",
+        kind: AttrKind::ImageCandidateList,
+    },
+    AttrSpec { name: "integrity", kind: AttrKind::Str },
+    AttrSpec { name: "media", kind: AttrKind::Str },
+    AttrSpec {
+        name: "referrerpolicy",
+        kind: AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+    },
+    AttrSpec { name: "rel", kind: AttrKind::EnumList(REL_TYPES) },
+    AttrSpec { name: "sizes", kind: AttrKind::IconSizeList },
+    AttrSpec { name: "type", kind: AttrKind::Str },
+];
+const NAME_ATTRS: &[AttrSpec] = &[AttrSpec { name: "name", kind: AttrKind::Str }];
+const META_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "charset", kind: AttrKind::Enum(&["utf-8"]) },
+    AttrSpec { name: "content", kind: AttrKind::Str },
+    AttrSpec {
+        name: "http-equiv",
+        kind: AttrKind::Enum(&[
+            "content-type",
+            "default-style",
+            "refresh",
+            "x-ua-compatible",
+            "content-security-policy",
+        ]),
+    },
+    AttrSpec { name: "media", kind: AttrKind::Str },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+];
+const METER_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "high", kind: AttrKind::Float },
+    AttrSpec { name: "low", kind: AttrKind::Float },
+    AttrSpec { name: "max", kind: AttrKind::Float },
+    AttrSpec { name: "min", kind: AttrKind::Float },
+    AttrSpec { name: "optimum", kind: AttrKind::Float },
+    AttrSpec { name: "value", kind: AttrKind::Float },
+];
+const OBJECT_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "data", kind: AttrKind::Str },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec {
+        name: "name",
+        kind: AttrKind::EnumOrStr(TARGET_TYPES),
+    },
+    AttrSpec { name: "type", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const OPTGROUP_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "label", kind: AttrKind::Str },
+];
+const OPTION_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "label", kind: AttrKind::Str },
+    AttrSpec { name: "selected", kind: AttrKind::Presence },
+    AttrSpec { name: "value", kind: AttrKind::Str },
+];
+const OUTPUT_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "for", kind: AttrKind::ListStr },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+];
+const PROGRESS_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "max", kind: AttrKind::Float },
+    AttrSpec { name: "value", kind: AttrKind::Float },
+];
+const SCRIPT_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "async", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "blocking",
+        kind: AttrKind::EnumList(BLOCKING),
+    },
+    AttrSpec {
+        name: "crossorigin",
+        kind: AttrKind::Enum(CROSS_ORIGIN),
+    },
+    AttrSpec { name: "defer", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "fetchpriority",
+        kind: AttrKind::Enum(FETCH_PRIORITY),
+    },
+    AttrSpec { name: "integrity", kind: AttrKind::Str },
+    AttrSpec { name: "nomodule", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "referrerpolicy",
+        kind: AttrKind::NoneEmptyOrEnum(REFERRER_POLICIES),
+    },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec {
+        name: "type",
+        kind: AttrKind::EnumOrStr(&["module"]),
+    },
+];
+const SOURCE_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "height", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "media", kind: AttrKind::Str },
+    AttrSpec { name: "sizes", kind: AttrKind::SourceSizeList },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "srcset", kind: AttrKind::ImageCandidateList },
+    AttrSpec { name: "type", kind: AttrKind::Str },
+    AttrSpec { name: "width", kind: AttrKind::NonNegativeInt },
+];
+const STYLE_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "blocking",
+        kind: AttrKind::EnumList(BLOCKING),
+    },
+    AttrSpec { name: "media", kind: AttrKind::Str },
+];
+const TD_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "colspan", kind: AttrKind::PositiveInt },
+    AttrSpec { name: "headers", kind: AttrKind::ListStr },
+    AttrSpec { name: "rowspan", kind: AttrKind::NonNegativeInt },
+];
+const TEXTAREA_ATTRS: &[AttrSpec] = &[
+    AttrSpec {
+        name: "autocomplete",
+        kind: AttrKind::EnumList(AUTOCOMPLETE),
+    },
+    AttrSpec { name: "cols", kind: AttrKind::PositiveInt },
+    AttrSpec { name: "dirname", kind: AttrKind::Str },
+    AttrSpec { name: "disabled", kind: AttrKind::Presence },
+    AttrSpec { name: "form", kind: AttrKind::Str },
+    AttrSpec { name: "maxlength", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "minlength", kind: AttrKind::NonNegativeInt },
+    AttrSpec { name: "name", kind: AttrKind::Str },
+    AttrSpec { name: "placeholder", kind: AttrKind::Str },
+    AttrSpec { name: "readonly", kind: AttrKind::Presence },
+    AttrSpec { name: "required", kind: AttrKind::Presence },
+    AttrSpec { name: "rows", kind: AttrKind::PositiveInt },
+    AttrSpec {
+        name: "wrap",
+        kind: AttrKind::Enum(&["soft", "hard"]),
+    },
+];
+const TH_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "abbr", kind: AttrKind::Str },
+    AttrSpec { name: "colspan", kind: AttrKind::PositiveInt },
+    AttrSpec { name: "headers", kind: AttrKind::ListStr },
+    AttrSpec { name: "rowspan", kind: AttrKind::NonNegativeInt },
+    AttrSpec {
+        name: "scope",
+        kind: AttrKind::Enum(&["row", "col", "rowgroup", "colgroup"]),
+    },
+];
+const TIME_ATTRS: &[AttrSpec] = &[AttrSpec {
+    name: "datetime",
+    kind: AttrKind::DurationOrDatetime,
+}];
+const TRACK_ATTRS: &[AttrSpec] = &[
+    AttrSpec { name: "default", kind: AttrKind::Presence },
+    AttrSpec {
+        name: "kind",
+        kind: AttrKind::Enum(&[
+            "subtitles",
+            "captions",
+            "descriptions",
+            "chapters",
+            "metadata",
+        ]),
+    },
+    AttrSpec { name: "label", kind: AttrKind::Str },
+    AttrSpec { name: "src", kind: AttrKind::Str },
+    AttrSpec { name: "srclang", kind: AttrKind::Str },
+];
+
 const MIXED: &[&str] = &["mixed"];
 const AUTOCAPITALIZE: &[&str] = &["sentences", "words", "characters"];
 const ENTERKEYHINT: &[&str] =
@@ -809,6 +1357,27 @@ fn native_typed_html_void(
     native_typed_html_impl(tag, specific_attrs, args, false)
 }
 
+fn native_typed_html_raw(
+    tag: &str,
+    specific_attrs: &[AttrSpec],
+    args: &Args,
+) -> SourceResult<Value> {
+    let body = match args.items.as_slice() {
+        [] => None,
+        [Value::Str(body)] => Some(Content::text(body.clone())),
+        [other] => return type_error(args.span, "string", other),
+        [_, ..] => {
+            return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")])
+        }
+    };
+    let attrs = collect_typed_attrs(specific_attrs, args)?;
+    Ok(Value::Content(Content::HtmlElem(Arc::new(HtmlElem::new(
+        tag.into(),
+        (!attrs.is_empty()).then_some(attrs),
+        body.map_or(HtmlBody::None, |body| HtmlBody::Content(Box::new(body))),
+    )))))
+}
+
 fn native_typed_html_impl(
     tag: &str,
     specific_attrs: &[AttrSpec],
@@ -827,6 +1396,23 @@ fn native_typed_html_impl(
         }
     };
 
+    let attrs = collect_typed_attrs(specific_attrs, args)?;
+
+    Ok(Value::Content(Content::HtmlElem(Arc::new(HtmlElem::new(
+        tag.into(),
+        (!attrs.is_empty()).then_some(attrs),
+        if accepts_body {
+            body.map_or(HtmlBody::None, |body| HtmlBody::Content(Box::new(body)))
+        } else {
+            HtmlBody::Unset
+        },
+    )))))
+}
+
+fn collect_typed_attrs(
+    specific_attrs: &[AttrSpec],
+    args: &Args,
+) -> SourceResult<HtmlAttrs> {
     let mut attrs = HtmlAttrs::default();
     for (name, value) in &args.named {
         let Some(spec) = specific_attrs
@@ -843,16 +1429,7 @@ fn native_typed_html_impl(
             attrs.insert(name.clone(), value);
         }
     }
-
-    Ok(Value::Content(Content::HtmlElem(Arc::new(HtmlElem::new(
-        tag.into(),
-        (!attrs.is_empty()).then_some(attrs),
-        if accepts_body {
-            body.map_or(HtmlBody::None, |body| HtmlBody::Content(Box::new(body)))
-        } else {
-            HtmlBody::Unset
-        },
-    )))))
+    Ok(attrs)
 }
 
 fn cast_attr(
@@ -1005,6 +1582,55 @@ fn cast_attr(
             _ => require_enum(value, span, ROLES)?.into(),
         },
         AttrKind::YesNo => bool_string(value, span, "yes", "no")?.into(),
+        AttrKind::Datetime => cast_datetime(value, span)?,
+        AttrKind::DurationOrDatetime => match value {
+            Value::Duration(value) => cast_duration(*value)?.into(),
+            Value::Datetime(_) => cast_datetime(value, span)?,
+            other => return union_error(span, "duration or datetime", other),
+        },
+        AttrKind::Color => match value {
+            Value::Color(value) => value.to_hex().into(),
+            other => return type_error(span, "color", other),
+        },
+        AttrKind::FloatListComma => cast_float_list(value, span, false)?.into(),
+        AttrKind::StrListComma => cast_string_list(value, span, ",", true)?.into(),
+        AttrKind::StrFloatDatetime => match value {
+            Value::Str(value) => value.clone(),
+            Value::Float(value) => value.to_string().into(),
+            Value::Int(value) => value.to_string().into(),
+            Value::Datetime(_) => cast_datetime(value, span)?,
+            other => return union_error(span, "string, float, or datetime", other),
+        },
+        AttrKind::PositiveFloatOr(values) => match value {
+            Value::Float(_) | Value::Int(_) => {
+                cast_positive_float(value, span)?.to_string().into()
+            }
+            _ => require_enum(value, span, values)?.into(),
+        },
+        AttrKind::InputValue => match value {
+            Value::Str(value) => value.clone(),
+            Value::Float(value) => value.to_string().into(),
+            Value::Int(value) => value.to_string().into(),
+            Value::Datetime(_) => cast_datetime(value, span)?,
+            Value::Color(value) => value.to_hex().into(),
+            Value::Array(_) => cast_string_list(value, span, ",", false)?.into(),
+            other => {
+                return union_error(
+                    span,
+                    "string, float, datetime, color, or array",
+                    other,
+                )
+            }
+        },
+        AttrKind::SourceSizeList => {
+            cast_complex_list(value, span, cast_source_size, ",")?.into()
+        }
+        AttrKind::ImageCandidateList => {
+            cast_complex_list(value, span, cast_image_candidate, ",")?.into()
+        }
+        AttrKind::IconSizeList => {
+            cast_complex_list(value, span, cast_icon_size, " ")?.into()
+        }
     };
     Ok(Some(string))
 }
@@ -1077,6 +1703,7 @@ fn cast_list(
     allowed: Option<&'static [&'static str]>,
     chars: bool,
 ) -> SourceResult<String> {
+    let is_array = matches!(value, Value::Array(_));
     let items: &[Value] = match value {
         Value::Array(items) => items,
         value => std::slice::from_ref(value),
@@ -1095,9 +1722,247 @@ fn cast_list(
                 return Err(vec![SourceDiagnostic::error(span, expected_enum(allowed))]);
             }
         }
+        if is_array && item.contains(' ') {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                "array item may not contain a space",
+            )]);
+        }
         out.push(item);
     }
     Ok(out.join(" "))
+}
+
+fn cast_positive_float(value: &Value, span: Span) -> SourceResult<f64> {
+    let number = match value {
+        Value::Float(value) => *value,
+        Value::Int(value) => *value as f64,
+        other => return type_error(span, "float", other),
+    };
+    if number > 0.0 {
+        Ok(number)
+    } else {
+        Err(vec![SourceDiagnostic::error(span, "number must be positive")])
+    }
+}
+
+fn cast_datetime(value: &Value, span: Span) -> SourceResult<EcoString> {
+    let Value::Datetime(value) = value else {
+        return type_error(span, "datetime", value);
+    };
+    let date = match (value.year(), value.month(), value.day()) {
+        (Some(year), Some(month), Some(day)) => {
+            Some(format!("{year:04}-{month:02}-{day:02}"))
+        }
+        _ => None,
+    };
+    let time = match (value.hour(), value.minute(), value.second()) {
+        (Some(hour), Some(minute), Some(0)) => Some(format!("{hour:02}:{minute:02}")),
+        (Some(hour), Some(minute), Some(second)) => {
+            Some(format!("{hour:02}:{minute:02}:{second:02}"))
+        }
+        _ => None,
+    };
+    match (date, time) {
+        (Some(date), Some(time)) => Ok(format!("{date}T{time}").into()),
+        (Some(date), None) => Ok(date.into()),
+        (None, Some(time)) => Ok(time.into()),
+        (None, None) => Err(vec![SourceDiagnostic::error(span, "invalid datetime")]),
+    }
+}
+
+fn cast_duration(value: crate::entities::duration::Duration) -> SourceResult<String> {
+    const SECOND: i128 = 1_000_000_000;
+    const MINUTE: i128 = 60 * SECOND;
+    const HOUR: i128 = 60 * MINUTE;
+    const DAY: i128 = 24 * HOUR;
+    const WEEK: i128 = 7 * DAY;
+
+    let negative = value.nanos < 0;
+    let mut remaining = value.nanos.abs();
+    let weeks = remaining / WEEK;
+    remaining %= WEEK;
+    let days = remaining / DAY;
+    remaining %= DAY;
+    let hours = remaining / HOUR;
+    remaining %= HOUR;
+    let minutes = remaining / MINUTE;
+    remaining %= MINUTE;
+    let seconds = remaining as f64 / SECOND as f64;
+    let mut parts = Vec::new();
+    if weeks > 0 {
+        parts.push(format!("{weeks}w"));
+    }
+    if days > 0 {
+        parts.push(format!("{days}d"));
+    }
+    if hours > 0 {
+        parts.push(format!("{hours}h"));
+    }
+    if minutes > 0 {
+        parts.push(format!("{minutes}m"));
+    }
+    if seconds > 0.0 || parts.is_empty() {
+        parts.push(format!("{seconds}s"));
+    }
+    let rendered = parts.join(" ");
+    Ok(if negative { format!("-{rendered}") } else { rendered })
+}
+
+fn cast_float_list(value: &Value, span: Span, shorthand: bool) -> SourceResult<String> {
+    let items: &[Value] = match value {
+        Value::Array(items) => items,
+        value if shorthand => std::slice::from_ref(value),
+        other => return type_error(span, "array", other),
+    };
+    items
+        .iter()
+        .map(|item| match item {
+            Value::Float(value) => Ok(value.to_string()),
+            Value::Int(value) => Ok(value.to_string()),
+            other => type_error(span, "float", other),
+        })
+        .collect::<SourceResult<Vec<_>>>()
+        .map(|items| items.join(", "))
+}
+
+fn cast_string_list(
+    value: &Value,
+    span: Span,
+    separator: &str,
+    shorthand: bool,
+) -> SourceResult<String> {
+    let items: &[Value] = match value {
+        Value::Array(items) => items,
+        value if shorthand => std::slice::from_ref(value),
+        other => return type_error(span, "array", other),
+    };
+    let items = items
+        .iter()
+        .map(|item| require_str(item, span).map(str::to_owned))
+        .collect::<SourceResult<Vec<_>>>()?;
+    if matches!(value, Value::Array(_))
+        && items.iter().any(|item| item.contains(separator))
+    {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            if separator == "," {
+                "array item may not contain a comma"
+            } else {
+                "array item may not contain a space"
+            },
+        )]);
+    }
+    Ok(items.join(if separator == "," { ", " } else { separator }))
+}
+
+fn cast_complex_list(
+    value: &Value,
+    span: Span,
+    cast: fn(&Value, Span) -> SourceResult<String>,
+    separator: &str,
+) -> SourceResult<String> {
+    let Value::Array(items) = value else {
+        return type_error(span, "array", value);
+    };
+    let items = items
+        .iter()
+        .map(|item| cast(item, span))
+        .collect::<SourceResult<Vec<_>>>()?;
+    if items.iter().any(|item| item.contains(separator)) {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            if separator == "," {
+                "array item may not contain a comma"
+            } else {
+                "array item may not contain a space"
+            },
+        )]);
+    }
+    Ok(items.join(if separator == "," { ", " } else { separator }))
+}
+
+fn cast_icon_size(value: &Value, span: Span) -> SourceResult<String> {
+    let Value::Array(items) = value else {
+        return type_error(span, "array", value);
+    };
+    let [Value::Int(width), Value::Int(height)] = items.as_slice() else {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "expected an array of two integers",
+        )]);
+    };
+    if *width < 0 || *height < 0 {
+        return Err(vec![SourceDiagnostic::error(span, "number must be at least zero")]);
+    }
+    Ok(format!("{width}x{height}"))
+}
+
+fn cast_image_candidate(value: &Value, span: Span) -> SourceResult<String> {
+    let Value::Dict(dict) = value else {
+        return type_error(span, "dictionary", value);
+    };
+    if dict
+        .keys()
+        .any(|key| !matches!(key.as_str(), "src" | "width" | "density"))
+    {
+        return Err(vec![SourceDiagnostic::error(span, "unexpected key in dictionary")]);
+    }
+    let Some(Value::Str(src)) = dict.get("src") else {
+        return Err(vec![SourceDiagnostic::error(span, "expected string at key `src`")]);
+    };
+    if src.is_empty() {
+        return Err(vec![SourceDiagnostic::error(span, "`src` must not be empty")]);
+    }
+    if src.starts_with(',') || src.ends_with(',') {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "`src` must not start or end with a comma",
+        )]);
+    }
+    let width = match dict.get("width") {
+        Some(Value::Int(value)) if *value > 0 => Some(*value),
+        Some(Value::Int(_)) => {
+            return Err(vec![SourceDiagnostic::error(span, "number must be positive")])
+        }
+        Some(other) => return type_error(span, "integer", other),
+        None => None,
+    };
+    let density = match dict.get("density") {
+        Some(value) => Some(cast_positive_float(value, span)?),
+        None => None,
+    };
+    match (width, density) {
+        (Some(_), Some(_)) => Err(vec![SourceDiagnostic::error(
+            span,
+            "cannot specify both `width` and `density`",
+        )]),
+        (Some(width), None) => Ok(format!("{src} {width}w")),
+        (None, Some(density)) => Ok(format!("{src} {density}d")),
+        (None, None) => Ok(src.to_string()),
+    }
+}
+
+fn cast_source_size(value: &Value, span: Span) -> SourceResult<String> {
+    let Value::Dict(dict) = value else {
+        return type_error(span, "dictionary", value);
+    };
+    if dict.keys().any(|key| !matches!(key.as_str(), "condition" | "size")) {
+        return Err(vec![SourceDiagnostic::error(span, "unexpected key in dictionary")]);
+    }
+    let Some(Value::Str(condition)) = dict.get("condition") else {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "expected string at key `condition`",
+        )]);
+    };
+    let Some(Value::Length(size)) = dict.get("size") else {
+        return Err(vec![SourceDiagnostic::error(span, "expected length at key `size`")]);
+    };
+    Ok(format!(
+        "({condition}) {}",
+        crate::compiler::stdlib::foundations::str::format_length(size)
+    ))
 }
 
 fn type_error<T>(span: Span, expected: &str, found: &Value) -> SourceResult<T> {

@@ -1,0 +1,30 @@
+{
+  "schema": "tekt-preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1423,
+  "revision": "R1",
+  "status": "SEALED",
+  "verdict": "SEALED",
+  "attestation": "executado sem atestação de isolamento",
+  "supersedes": {
+    "path": "00_nucleo/diagnosticos/p1423-preseal.json",
+    "sha256": "81312d3d2c44d529980b6da48299120dff1a635eb770baf6725bc45c323e66ab",
+    "reason": "A sonda DOM raw selada revelou que a obrigação já vigente do owner L3 também precisa de materialização; a allowlist R0 cobria apenas L1."
+  },
+  "causal_baseline": {
+    "head": "019d7e78503ff4981c333b0cf1c8a1449653039b",
+    "tree": "7dee920fb57b24df1582c97d497bb6b15a3dc35d",
+    "observed_difference": "script cristalino escapava < e &, vanilla preservava raw text",
+    "vanilla_script_sha256": "38f6ae56b98a4bb28057b22ef1b87f45ac0ee737c6d6dcf94fd8d75855310d22",
+    "crystalline_script_before_sha256": "5eeccfb606853b7fdc1863cb4e62956746d0fcc9dfb827e1c207a47763baf00a"
+  },
+  "additional_sealed_input": {
+    "html_export_l0": {"path": "00_nucleo/prompts/infra/export/html.md", "sha256": "890dbf55d8aa757aaee30816e69876215c25843e0aa2f4497cad599021ed66d1"},
+    "html_export_consumer_before": {"path": "03_infra/src/export/html.rs", "sha256": "e8b1f1cf61b98f9a98c73142d3a64c929ce5f3aeccdbe514971b2db46ae39ee9"}
+  },
+  "write_capability_after_seal": {
+    "implementer": ["01_core/src/compiler/stdlib/html.rs", "03_infra/src/export/html.rs"],
+    "forbidden": ["sealed contract/oracles/mutants/tests", "L2/L4", "html.frame"]
+  },
+  "claim_boundary": "R1 amplia somente a capacidade necessária para cumprir raw script/style já exigido pelo L0 L3; não amplia a superfície pública."
+}

@@ -1,3 +1,9 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/compiler/stdlib/html/p1423-tests.md
+//! @prompt-hash 62a67b0e
+//! @layer L1
+#![cfg(test)]
+//!
 //! Teste A/B independente do P1423.
 //!
 //! Este módulo é incluído pelo implementador somente depois de materializar o

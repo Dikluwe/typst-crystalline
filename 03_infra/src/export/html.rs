@@ -16,6 +16,8 @@ const VOID_TAGS: &[&str] = &[
     "track", "wbr",
 ];
 
+const RAW_TEXT_TAGS: &[&str] = &["script", "style"];
+
 const GROUPABLE_PHRASING_TAGS: &[&str] = &[
     "a", "abbr", "audio", "b", "bdi", "bdo", "br", "button", "canvas", "cite", "code",
     "data", "del", "dfn", "em", "embed", "i", "iframe", "img", "input", "ins", "kbd",
@@ -498,6 +500,8 @@ fn inline(
             if let Some(body) = elem.body.content() {
                 if elem.tag == "title" {
                     out.push_str(&title_text(body)?);
+                } else if RAW_TEXT_TAGS.contains(&elem.tag.as_str()) {
+                    out.push_str(&raw_text(body)?);
                 } else {
                     out.push_str(&inline_html_body(elem.tag.as_str(), body, mode)?);
                 }
@@ -511,6 +515,25 @@ fn inline(
             return Err(SourceDiagnostic::error(
                 Span::detached(),
                 "HTML export does not yet support this content",
+            ))
+        }
+    })
+}
+
+fn raw_text(content: &Content) -> Result<String, SourceDiagnostic> {
+    Ok(match content {
+        Content::Empty => String::new(),
+        Content::Text(text) => text.to_string(),
+        Content::Space => " ".into(),
+        Content::Linebreak(_) => "\n".into(),
+        Content::Sequence(items) => {
+            items.iter().map(raw_text).collect::<Result<Vec<_>, _>>()?.concat()
+        }
+        Content::Styled(body, _) => raw_text(body)?,
+        _ => {
+            return Err(SourceDiagnostic::error(
+                Span::detached(),
+                "HTML raw text element cannot have non-text children",
             ))
         }
     })
@@ -1135,5 +1158,24 @@ mod tests {
             export_html(&invalid).unwrap_err().message,
             "HTML raw text element cannot have non-text children"
         );
+    }
+
+    #[test]
+    fn p1423_script_e_style_preservam_raw_text() {
+        for (tag, text) in
+            [("script", "if (a < b) x &= 1;"), ("style", "a > b { content: \"<&\"; }")]
+        {
+            let elem = Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::Content(Box::new(Content::text(
+                    text,
+                ))),
+            )));
+            let html =
+                export_html_with_serialization(&elem, HtmlSerializationMode::Vanilla)
+                    .expect("raw text HTML");
+            assert!(html.contains(&format!("<{tag}>{text}</{tag}>")));
+        }
     }
 }
