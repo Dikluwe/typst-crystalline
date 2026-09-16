@@ -2845,10 +2845,10 @@ inline, inline_explicit)`. Ver `entities/elements/math_limits_override.md`
 para o struct e
 o contrato do trait `Element`.
 
-P1425 propõe ampliar a assinatura pública do constructor com
+P1425 amplia a assinatura pública do constructor com
 `inline_explicit: bool`. O hub somente transporta o bit; não decide presença
-por valor, não muda enum, layout ou representação. Esta alteração aguarda o
-gate ADR-0127 do passo antes de código.
+por valor, não muda enum, layout ou representação. A alteração foi confirmada
+pelo dono no gate ADR-0127 do passo em 2026-09-16.
 
 Despacho no hub, mesmo padrão de `MathClassOverride` (P772y): Debug/Display,
 constructor, `plain_text`, `PartialEq`, `map_content` (recursivo),

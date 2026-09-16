@@ -38,7 +38,7 @@ inteiro (`compiler/math/layout/`); este nó só constrói o conteúdo.
 funções, operadores, espaçamentos e símbolos math. A tabela é construída uma
 vez; não há lookup dinâmico por registry.
 
-## P1425 — binding qualificado `math.limits` (PROPOSTO; gate ADR-0127)
+## P1425 — binding qualificado `math.limits` (APROVADO no gate ADR-0127)
 
 ### Medição anterior à decisão
 
@@ -68,8 +68,8 @@ named. Não executa layout, não mede body e não duplica o runtime de attach.
 `scripts` permanece a função já materializada com `limits:false` e presença
 falsa. As outras 21 rotas residuais P1422 ficam fora de escopo.
 
-Esta secção altera contrato público e só autoriza candidato após confirmação
-explícita do dono no gate P1425.
+Esta secção foi confirmada explicitamente pelo dono no gate P1425 em
+2026-09-16 e autoriza somente o candidato delimitado acima.
 
 ## Instrução
 

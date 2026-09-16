@@ -98,7 +98,7 @@ medição específica. Symbols multi-codepoint preservam todos os scalar values,
 incluindo variation selectors e ZWJ, sem conversão para `char`, normalização ou
 substituição pelo nome canônico.
 
-## P1425 — `repr` de `math.limits` por presença (PROPOSTO; gate ADR-0127)
+## P1425 — `repr` de `math.limits` por presença (APROVADO no gate ADR-0127)
 
 Para `MathLimitsOverride` com `limits:true`, emitir sempre primeiro
 `body: <repr>`. Emitir `inline: <bool>` somente quando
@@ -109,8 +109,8 @@ mecânico de `inline` e o bit, que por contrato é falso.
 
 Não inferir presença comparando `inline` com `true`, nem pela origem sintática.
 O carrier é a fonte única. A regra cobre chamada qualificada e sintaxe bare;
-outros elementos math ficam fora de escopo. Esta mudança depende da
-confirmação P1425.
+outros elementos math ficam fora de escopo. Esta mudança foi confirmada pelo
+dono no gate P1425 em 2026-09-16.
 
 ## P1292 — morfologia de cancel/underline/vec/flush
 

@@ -119,3 +119,8 @@ walkers, repr, sintaxe bare e layout já vigente. Mutation score exigido: 1.0.
 - `cargo fmt --all -- --check`, testes focais, `cargo build`,
   `crystalline-lint .` e `git diff --check`.
 
+## Confirmação do gate
+
+**Confirmado explicitamente pelo dono em 2026-09-16.** A materialização fica
+autorizada somente dentro do recorte `math.limits` e dos L0 proprietários
+acima; as outras 21 rotas math permanecem fora de escopo.

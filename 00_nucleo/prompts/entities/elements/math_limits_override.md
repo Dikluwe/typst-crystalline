@@ -87,7 +87,7 @@ pub struct MathLimitsOverrideElem {
 Construtor ergonómico: `Content::math_limits_override(body: Content, limits:
 bool, inline: bool, inline_explicit: bool)`.
 
-### P1425 — presença morfológica de `inline` (PROPOSTO; gate ADR-0127)
+### P1425 — presença morfológica de `inline` (APROVADO no gate ADR-0127)
 
 `inline_explicit` distingue omissão do named de presença explícita, inclusive
 quando o valor fornecido é igual ao default `true`. A sintaxe bare e
@@ -99,8 +99,8 @@ O bit não altera geometria, classe, vazio ou texto. Walkers, igualdade e toda
 reconstrução preservam-no. A `repr` usa-o exclusivamente para decidir se emite
 `inline: <bool>`. Não inferir presença comparando o valor com o default.
 
-Este campo público e a assinatura do constructor aguardam confirmação P1425
-antes de qualquer código.
+Este campo público e a assinatura do constructor foram confirmados pelo dono
+no gate P1425 em 2026-09-16.
 
 ## `impl Element for MathLimitsOverrideElem`
 

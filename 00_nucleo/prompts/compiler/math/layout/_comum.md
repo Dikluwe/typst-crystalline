@@ -1051,10 +1051,11 @@ override de facto actua.
 **Critério**: `limits(A)^alpha_beta`/`scripts(A)^alpha_beta` — "A" continua
 itálico (𝐴); `is_empty`/`plain_text`/`map_content` transparentes ao body.
 
-P1425 propõe que esta reconstrução preserve também `inline_explicit`. O bit é
+P1425 determina que esta reconstrução preserve também `inline_explicit`. O bit é
 morfológico e não participa da geometria; perdê-lo durante
 `apply_math_default` faria a `repr` depender de a passagem ter ocorrido. A
-mudança de assinatura pública aguarda o gate P1425.
+mudança de assinatura pública foi confirmada pelo dono no gate P1425 em
+2026-09-16.
 
 ## P994 — `layout_external`: o catch-all de `layout_node` delega ao `Layouter` normal (Opção β)
 
