@@ -645,3 +645,209 @@ este owner e segue fluxo contínuo ADR-0127; spans pertencem ao owner
 fase. Refutam esta decisão qualquer aceitação das strings `"none"`/`"auto"`,
 rejeição dos valores `none`/`auto`, mudança de `"metadata"` ou efeito fora dos
 constructors P1293.
+
+## P1423 — 43 constructors tipados residuais (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O P1422 mediu 44 rotas `html.*` como `PARTIAL`: a forma qualificada está
+ausente no cristalino, enquanto a alternativa local é bilateralmente igual.
+A classificação automática agrupou as 44 como bindings tipados, mas a fonte
+ratificada distingue duas APIs.
+
+No `typst-assets` pinado
+`94dcb990edb36311ef85162baa26e4a8205e0bf0`, `files/html/data.rs` contém 112
+`ElemInfo`; a interseção literal com as 44 rotas P1422 tem 43 nomes. Em
+`typst-html/src/typed.rs:31-114`, cada `ElemInfo` gera uma função que aceita os
+atributos específicos concatenados aos 76 globais, mais body quando a tag não
+é void. `typst-html/src/tag.rs:123-158` separa void e raw.
+
+`html.frame` não pertence a `data::ELEMS`: é função separada. A sonda P1420
+mediu `html.frame([x])` como SVG renderizado, enquanto `html.elem("frame")`
+produz a tag literal `<frame>`. Tratar `frame` como constructor tipado apagaria
+essa diferença pública. Por isso P1423 materializa 43 constructors; P1424 fica
+responsável por medir e especificar `html.frame` separadamente.
+
+### Superfície exata
+
+Sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.area html.audio html.base html.blockquote html.canvas html.caption
+html.colgroup html.data html.del html.details html.dialog html.embed
+html.fieldset html.form html.hr html.img html.input html.ins html.label
+html.link html.map html.meta html.meter html.object html.optgroup html.option
+html.output html.progress html.q html.script html.slot html.source html.style
+html.table html.tbody html.td html.textarea html.tfoot html.th html.thead
+html.time html.tr html.track
+```
+
+Todos aceitam os 76 atributos globais P1168, com os mesmos casts, omissões,
+ordem e diagnósticos já materializados. Além deles, cada tag aceita somente os
+atributos específicos desta secção. Named desconhecido, `data-*` e específico
+de outra tag são `unexpected argument`.
+
+### Body, void e raw
+
+- Void, sem positional e com `HtmlBody::Unset`: `area`, `base`, `embed`, `hr`,
+  `img`, `input`, `link`, `meta`, `source`, `track`.
+- Raw: `script` e `style` aceitam no máximo uma string posicional opcional;
+  omitida preserva body none e fornecida é texto raw, não Content avaliado.
+- As outras 31 funções aceitam no máximo um Content posicional opcional;
+  omissão produz `HtmlBody::None` e fornecimento `HtmlBody::Content`.
+
+Void rejeita qualquer positional. As demais rejeitam segundo positional e body
+named. Não há validação de parent, content model, obrigatoriedade HTML ou
+target durante a construção.
+
+### Tipos de atributos reutilizados
+
+- `str`, `int`, `float`, inteiros positivos/não negativos, Presence,
+  enum/união e listas preservam o contrato P1168/P1169/P1293.
+- Lista usa o separador declarado e preserva ordem. Shorthand escalar só é
+  aceito onde indicado; lista não faz deduplicação.
+- `datetime` serializa data como `AAAA-MM-DD`, hora como `HH:MM[:SS]` e ambos
+  como `AAAA-MM-DDTHH:MM[:SS]`.
+- `duration` serializa partes não zero, em ordem, como `Nw Nd Nh Nm Ns`; zero
+  é `0s`.
+- `color` usa a serialização CSS pública vigente.
+- `icon-size` é um par de inteiros não negativos e serializa `LxA`.
+- `image-candidate` é dictionary com `src: str` obrigatório e exatamente um
+  opcional entre `width: int positivo` e `density: float positivo`; serializa
+  `SRC`, `SRC Nw` ou `SRC Nd`. `src` vazio ou começando/terminando em vírgula
+  é inválido.
+- `source-size` é dictionary `(condition: str, size: length)` e serializa
+  `(CONDITION) TAMANHO-CSS`.
+
+### Específicos por tag — grupo simples
+
+| Tag | Atributos específicos |
+|---|---|
+| `base` | `href: str`; `target: _blank|_self|_parent|_top|str` |
+| `blockquote`, `q` | `cite: str` |
+| `canvas` | `height`, `width`: int não negativo |
+| `caption`, `hr`, `table`, `tbody`, `tfoot`, `thead`, `tr` | nenhum |
+| `colgroup` | `span: int positivo` |
+| `data` | `value: str` |
+| `del`, `ins` | `cite: str`; `datetime: datetime` |
+| `details` | `name: str`; `open: Presence` |
+| `dialog` | `open: Presence` |
+| `embed` | `height`, `width`: int não negativo; `src`, `type`: str |
+| `fieldset` | `disabled: Presence`; `form`, `name`: str |
+| `label` | `for: str` |
+| `map`, `slot` | `name: str` |
+| `meter` | `high`, `low`, `max`, `min`, `optimum`, `value`: float |
+| `optgroup` | `disabled: Presence`; `label: str` |
+| `option` | `disabled`, `selected`: Presence; `label`, `value`: str |
+| `output` | `for: str|array<str>` separado por espaço; `form`, `name`: str |
+| `progress` | `max`, `value`: float |
+| `td` | `colspan: int positivo`; `headers: str|array<str>` separado por espaço; `rowspan: int não negativo` |
+| `th` | `abbr: str`; `colspan: int positivo`; `headers: str|array<str>` separado por espaço; `rowspan: int não negativo`; `scope: row|col|rowgroup|colgroup` |
+| `time` | `datetime: duration|datetime` |
+| `track` | `default: Presence`; `kind: subtitles|captions|descriptions|chapters|metadata`; `label`, `src`, `srclang`: str |
+
+### Específicos por tag — navegação e mídia
+
+`area` aceita: `alt`, `download`, `href`: str; `coords`: lista de float
+separada por vírgula sem shorthand; `ping`: str ou lista de str separada por
+espaço; `referrerpolicy`: none→vazio ou o conjunto P1170; `rel`: conjunto
+P1170 escalar/lista; `shape: circle|default|poly|rect`; `target`: conjunto
+P1170 ou string livre.
+
+`audio` aceita: `autoplay`, `controls`, `loop`, `muted`: Presence;
+`crossorigin: anonymous|use-credentials`; `preload`: none, auto ou
+`"metadata"` segundo P1293; `src: str`.
+
+`form` aceita: `accept-charset: utf-8`; `action`, `name`: str;
+`autocomplete: bool` serializado `on|off`; `enctype:
+application/x-www-form-urlencoded|multipart/form-data|text/plain`; `method:
+GET|POST|dialog`; `novalidate: Presence`; `rel`: conjunto P1170; `target`:
+conjunto P1170 ou string livre.
+
+`object` aceita: `data`, `form`, `type`: str; `height`, `width`: int não
+negativo; `name`: `_blank|_self|_parent|_top` ou string livre.
+
+### Específicos por tag — imagens e recursos
+
+`img` aceita: `alt`, `src`, `usemap`: str; `crossorigin:
+anonymous|use-credentials`; `decoding: auto|sync|async`; `fetchpriority:
+auto|high|low`; `height`, `width`: int não negativo; `ismap: Presence`;
+`loading: lazy|eager`; `referrerpolicy`: none→vazio ou conjunto P1170;
+`sizes`: lista de `source-size` por vírgula sem shorthand; `srcset`: lista de
+`image-candidate` por vírgula sem shorthand.
+
+`link` aceita: `as` no conjunto fechado `audio|audioworklet|document|embed|
+font|frame|iframe|image|json|manifest|object|paintworklet|report|script|
+serviceworker|sharedworker|style|track|video|webidentity|worker|xslt`;
+`blocking`: lista do token `blocking`; `color: color`; `crossorigin` como
+acima; `disabled: Presence`; `fetchpriority: auto|high|low`; `href`,
+`hreflang`, `integrity`, `media`, `type`: str; `imagesizes`: lista de
+`source-size`; `imagesrcset`: lista de `image-candidate`; `referrerpolicy` e
+`rel` como P1170; `sizes`: lista de `icon-size` separada por espaço.
+
+`source` aceita: `height`, `width`: int não negativo; `media`, `src`, `type`:
+str; `sizes`: lista de `source-size`; `srcset`: lista de `image-candidate`.
+
+### Específicos por tag — formulários e metadata
+
+`input` aceita exatamente:
+
+- `accept`: str ou lista de str por vírgula; `alpha`, `checked`, `disabled`,
+  `formnovalidate`, `multiple`, `readonly`, `required`: Presence;
+- `alt`, `dirname`, `form`, `formaction`, `list`, `name`, `pattern`,
+  `placeholder`, `popovertarget`, `src`: str;
+- `autocomplete`: conjunto fechado P1293 escalar/lista;
+  `colorspace: limited-srgb|display-p3`;
+- `formenctype`: os três valores de `form.enctype`; `formmethod: GET|POST|
+  dialog`; `formtarget`: conjunto P1170 ou string livre;
+- `height`, `maxlength`, `minlength`, `width`: int não negativo; `size`: int
+  positivo;
+- `max`, `min`: str|float|datetime; `step`: float positivo ou `any`;
+- `popovertargetaction: toggle|show|hide`;
+- `type: hidden|text|search|tel|url|email|password|date|month|week|time|
+  datetime-local|number|range|color|checkbox|radio|file|submit|image|reset|
+  button`;
+- `value`: str|float|datetime|color|lista de str separada por vírgula.
+
+`meta` aceita: `charset: utf-8`; `content`, `media`, `name`: str;
+`http-equiv: content-type|default-style|refresh|x-ua-compatible|
+content-security-policy`.
+
+`textarea` aceita: `autocomplete`: conjunto P1293 escalar/lista; `cols`,
+`rows`: int positivo; `maxlength`, `minlength`: int não negativo;
+`disabled`, `readonly`, `required`: Presence; `dirname`, `form`, `name`,
+`placeholder`: str; `wrap: soft|hard`.
+
+### Raw
+
+`script` aceita: `async`, `defer`, `nomodule`: Presence; `blocking`: lista do
+token `blocking`; `crossorigin: anonymous|use-credentials`; `fetchpriority:
+auto|high|low`; `integrity`, `src`: str; `referrerpolicy`: none→vazio ou
+conjunto P1170; `type`: `module` ou string livre. Seu body é string raw.
+
+`style` aceita `blocking`: lista do token `blocking` e `media: str`. Seu body
+é string raw.
+
+### Ordem, entidade, feature e export
+
+Os específicos precedem os globais na assinatura refletida, mas a ordem em
+`HtmlAttrs`/repr/DOM segue a ordem efetiva dos argumentos após omissões. Nenhum
+atributo omitido cria par. Presence true produz valor vazio e false omite.
+
+Feature e target continuam ortogonais: feature off rejeita o acesso; feature
+on disponibiliza as funções em target paged e HTML. Construção não depende do
+target. O resultado reutiliza `HtmlElem`; o exporter genérico preserva tag,
+attrs, escaping e body, e mantém a tabela void única. Não criar lógica por tag
+no exporter.
+
+### Divisão explícita e gate
+
+P1423 materializa somente estes 43 constructors. `html.frame` permanece
+ausente e será P1424; MathML, CSS, browser/network behavior e qualquer tag fora
+da tabela continuam fora.
+
+Esta secção é proposta de contrato público. Pelo ADR-0127, nenhuma alteração
+em L1, testes candidatos ou headers de linhagem pode ocorrer antes da
+confirmação explícita do dono. Após aprovação, o estado desta secção deve ser
+registrado como aprovado, selado pelo protocolo segregado e só então
+materializado.
