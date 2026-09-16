@@ -51,12 +51,12 @@ stdlib math e não a esta entidade: `MathRootElem` continua sendo dado puro,
 sem dependência inversa para avaliação (ADR-0109, forma B). `calc.sqrt` é uma
 função numérica distinta.
 
-## P1426 — presença causal do índice (PROPOSTA; gate ADR-0127 pendente)
+## P1426 — presença causal do índice (APROVADO no gate ADR-0127)
 
 O índice tem três estados públicos: ausente (`None/false`, caso `sqrt`),
 explicitamente `none` (`None/true`) e conteúdo presente (`Some(_)/true`, que
 inclui conteúdo vazio). O bit não altera `plain_text` nem geometria, mas é
 morfologia causal e deve sobreviver a clone, hash, igualdade e walkers.
 
-A implementação desta secção exige confirmação explícita do dono por alterar
-campo e assinatura públicos.
+A implementação desta secção foi confirmada explicitamente pelo dono em
+2026-09-16.

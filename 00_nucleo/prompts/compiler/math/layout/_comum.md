@@ -400,13 +400,13 @@ vanilla) porque o default de `italic` nas folhas de 1 carácter é
 `unwrap_or(is_math_italic_default)`; `upright(x)` continua plain
 (Some(false) explícito).
 
-### P1426 — transporte opaco da presença de índice (PROPOSTA)
+### P1426 — transporte opaco da presença de índice (APROVADO)
 
 As reconstruções de `MathRootElem` em `apply_math_default` e
 `apply_math_style` preservam `index_explicit` nominalmente. O bit não entra em
 nenhuma fórmula, dispatch ou decisão geométrica; `layout_node` e `root.rs`
 continuam a consumir somente índice e radicando. A mudança de aridade do
-constructor depende da confirmação ADR-0127.
+constructor foi confirmada explicitamente pelo dono em 2026-09-16.
 
 ## Espaçamento automático por `MathClass` (P772y — ver `spacing.md`)
 

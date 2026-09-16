@@ -440,13 +440,13 @@ owners já declarados de eval math, stdlib math, layout comum e aos testes
 existentes cuja aridade requer reparo mecânico. Esta expansão do consumer foi
 aprovada como revisão fail-closed R1 do contrato P1425.
 
-### P1426 — presença do índice na relação observacional (PROPOSTA)
+### P1426 — presença do índice na relação observacional (APROVADO)
 
 `ObservationEq` para `MathRootElem` deve desestruturar e comparar
 `index_explicit` além de `index` e `radicand`. Ausência e presença explícita de
 `none` são morfologias causalmente distintas e portanto `Different`; não se
-pode inferir o bit do valor nem devolvê-lo como `Unproven`. A mudança depende
-da confirmação ADR-0127 do novo campo público.
+pode inferir o bit do valor nem devolvê-lo como `Unproven`. A mudança do novo
+campo público foi confirmada explicitamente pelo dono em 2026-09-16.
 
 ### Não convergência
 

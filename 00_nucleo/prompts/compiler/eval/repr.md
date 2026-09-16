@@ -97,13 +97,15 @@ abaixo. Symbols multi-codepoint preservam todos os scalar values,
 incluindo variation selectors e ZWJ, sem conversão para `char`, normalização ou
 substituição pelo nome canônico.
 
-## P1426 — `repr` de raiz por presença (PROPOSTA; gate ADR-0127 pendente)
+## P1426 — `repr` de raiz por presença (APROVADO no gate ADR-0127)
 
 `MathRootElem` com `index_explicit:false` representa
 `root(radicand: <repr>)`. Com presença verdadeira, `Some(index)` representa
 `root(index: <repr>, radicand: <repr>)` e `None` representa
 `root(index: none, radicand: <repr>)`. O formatter usa o bit causal; não infere
 presença pelo valor e não altera escaping ou multiline dos filhos.
+
+Esta materialização foi confirmada explicitamente pelo dono em 2026-09-16.
 
 ## P1425 — `repr` de `math.limits` por presença (APROVADO no gate ADR-0127)
 

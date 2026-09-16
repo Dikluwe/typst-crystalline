@@ -36,7 +36,7 @@ falso. Named desconhecido, cast, avaliação única e spans permanecem vigentes.
 A sintaxe não chama o binding qualificado nem executa layout; ambos convergem
 somente no carrier. Esta alteração foi confirmada pelo dono em 2026-09-16.
 
-## P1426 — presença do índice na sintaxe bare (PROPOSTA; gate pendente)
+## P1426 — presença do índice na sintaxe bare (APROVADO no gate ADR-0127)
 
 O braço sintático `root` continua a exigir os dois slots da sua forma: índice
 e radicando. Um índice vazio é `Some(Content::Empty)` e presença verdadeira;
@@ -44,8 +44,8 @@ um valor `none` avaliado é `None` e presença verdadeira. A sintaxe `sqrt`
 constrói `None` com presença falsa. Ambos usam o constructor canónico, sem
 executar layout nem converter índice vazio em ausência.
 
-Esta secção altera o carrier público e só pode ser implementada após
-confirmação explícita do dono pelo gate ADR-0127.
+Esta alteração do carrier público foi confirmada explicitamente pelo dono em
+2026-09-16.
 
 ## Aceitação
 

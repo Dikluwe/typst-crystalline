@@ -112,5 +112,6 @@ walkers, repr, sintaxe bare e não-regressão geométrica. Mutation score exigid
 
 ## Confirmação do gate
 
-**PENDENTE.** Nenhuma implementação L1 está autorizada por esta proposta até
-confirmação explícita do dono.
+**Confirmado explicitamente pelo dono em 2026-09-16.** A materialização fica
+autorizada somente dentro do recorte `math.root` e dos oito L0 proprietários
+acima; as outras 20 rotas math permanecem fora de escopo.

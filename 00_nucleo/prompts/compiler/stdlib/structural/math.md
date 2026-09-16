@@ -253,9 +253,9 @@ símbolos. A nativa aceita exatamente um `Content`, rejeita named args e emite
 sobrescreve funções já registradas. `calc.sqrt` permanece numérico e separado.
 
 `math.root` era `MISSING_MEMBER`, não `WRONG_KIND`, em P1140.3-A; P1426 abaixo
-propõe o passo próprio que o classifica, ainda dependente do gate ADR-0127.
+define o passo próprio que o classifica, aprovado no gate ADR-0127.
 
-### P1426 — `math.root` qualificado (PROPOSTA; gate ADR-0127 pendente)
+### P1426 — `math.root` qualificado (APROVADO no gate ADR-0127)
 
 Medição no vanilla ratificado `586e1bd43` identifica `math.root` como função
 com exatamente dois argumentos posicionais para chamadas bem-sucedidas. O
@@ -267,6 +267,8 @@ O módulo registra uma nativa que constrói `Content::math_root`. Presença do
 primeiro argumento é sempre verdadeira na chamada qualificada, inclusive
 quando seu valor é `none`; a nativa não executa layout. `math.sqrt` continua a
 mesma função pública de um argumento e constrói presença falsa.
+
+Esta materialização foi confirmada explicitamente pelo dono em 2026-09-16.
 
 ### P1140.3-B — primeira fase pública de `math.equation`
 
