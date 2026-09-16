@@ -1,11 +1,11 @@
 {
   "schema": "tekt.materialization.mutants/v1",
   "authored_at": "2026-09-16T14:12:57-03:00",
-  "revised_at": "2026-09-16T14:44:34-03:00",
+  "revised_at": "2026-09-16T15:09:42-03:00",
   "protocol": {
     "regime": "full",
     "attestation": "executado sem atestação de isolamento",
-    "status": "frozen_pre_candidate_r3",
+    "status": "frozen_pre_candidate_r4",
     "mutation_score_required": 1.0,
     "mutation_score_formula": "valid_mutations_classified_Violated / valid_mutations",
     "unknown_policy": "Unknown nunca recebe crédito, não rejeita mutação válida, bloqueia caso positivo obrigatório e só é o resultado correto dos controles opacos U01-U04.",
@@ -41,11 +41,11 @@
   "inputs": {
     "manifest": {
       "path": "00_nucleo/diagnosticos/p1424-manifest.json",
-      "sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3"
+      "sha256": "ba1a9909d196c4e6d388343328863074a67d618664719b5b04f7cc96bcb705a0"
     },
     "contract": {
       "path": "00_nucleo/diagnosticos/p1424-contract.json",
-      "sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea"
+      "sha256": "f80e212bae5acad63f0cca396231468979dc183eeca7be289d545ad1afe29d21"
     },
     "exhaustive_audit": {
       "path": "00_nucleo/diagnosticos/p1424-r3-exhaustive-audit.json",
@@ -266,8 +266,14 @@
       "valid": true,
       "mutation": "Convert unsupported layout/SVG content, crash, timeout, unresolved occurrence, or render error into successful empty output, omitted occurrence, bare text, or literal frame tag.",
       "must_be_rejected_by": ["P13-unsupported-fails"],
+      "witness_oracle": "O7",
       "expected": "Violated",
-      "witness": "The unsupported fixture exits successfully with an empty/omitted/fallback node instead of returning the underlying error or explicit Unknown; witness O-FAIL-CLOSED with status and fallback observed."
+      "witness": "Through the public HTML pipeline, #html.frame([#html.elem(\"span\", [x])]) has a body composed exclusively of html.elem content and must return Err with a non-empty public diagnostic. Success with an empty SVG/island or node, omission, bare text, or literal frame tag violates P13/O7 and rejects M20.",
+      "r3_failure_cause": {
+        "classification": "FAIL",
+        "verification_sha256": "322354294aa00064442741a09fd218089ecd1c85e800555e6c50963f6c4cd9f6",
+        "observed": "M20 survived P13/O7 in all three orders because an exclusively html.elem frame body became a successful empty SVG island."
+      }
     },
     {
       "id": "M21-unresolved-exporter-silently-accepts",
@@ -321,11 +327,11 @@
     "unknown_valid_mutation_blocks_seal": true
   },
   "revision": {
-    "id": "R3",
-    "previous_mutants_sha256": "90290cb354b8e0112c53ed0f303bba2146afd868ce867578dd802cdab6c973fb",
-    "previous_manifest_sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1",
-    "previous_contract_sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d",
-    "reason": "Rebinds the unchanged mutation set, claims, execution orders and Unknown policy to the workspace-wide fail-closed R3 audit, adding only the query_helpers exhaustive-wiring obligation.",
+    "id": "R4",
+    "previous_mutants_sha256": "b43787f18f8dc905cdc366afd704deeafc8ebbd0307bf1ff3919661489cec0b1",
+    "previous_manifest_sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3",
+    "previous_contract_sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea",
+    "reason": "Rebinds the unchanged 21-mutation set, claims, execution orders and Unknown policy to R4 and strengthens only the public P13/O7 rejection witness for M20 after the recorded R3 verification failure.",
     "mutation_set_changed": false,
     "claims_changed": false,
     "execution_orders_changed": false,

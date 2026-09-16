@@ -115,12 +115,12 @@
     },
     {
       "expected": "Preserved",
-      "fixture": "a frame body rejected by the supported crystalline layout or SVG subset",
+      "fixture": "#html.frame([#html.elem(\"span\", [x])]) through the public HTML pipeline, plus any frame body rejected by the supported crystalline layout or SVG subset",
       "id": "P13-unsupported-fails",
       "mandatory": true,
       "profiles": ["feature-html+html"],
       "requires": ["O-FAIL-CLOSED"],
-      "witness": "Compilation returns the underlying error or explicit Unknown classification and never succeeds with an empty node, bare text fallback, literal frame tag, or omitted occurrence."
+      "witness": "A body composed exclusively of html.elem content returns Err with a non-empty public diagnostic. Every other unsupported body returns the underlying error or explicit Unknown classification. No such case may succeed with an empty SVG/island or node, bare text fallback, literal frame tag, or omitted occurrence."
     },
     {
       "expected": "Unknown",
@@ -209,7 +209,7 @@
   },
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1424-manifest.json",
-    "sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3"
+    "sha256": "ba1a9909d196c4e6d388343328863074a67d618664719b5b04f7cc96bcb705a0"
   },
   "mutations": [
     {"id": "M01-html-elem-alias", "must_be_rejected_by": ["P03-carrier", "P08-html-text-svg", "P11-literal-frame-tag"], "mutation": "Implement frame as HtmlElem with tag frame or another sentinel tag."},
@@ -239,16 +239,25 @@
   },
   "protected_prompt": {
     "path": "00_nucleo/prompts/compiler/layout/html_frame.md",
-    "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"
+    "sha256": "a9494c81f4642fab294441745ce59e7ca6039cae91af683246fb1eac580c4216"
   },
   "reference_vanilla": {
     "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
     "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
   },
   "revision": {
-    "id": "R3",
-    "previous_contract_sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d",
-    "reason": "Adds query_helpers as the sole cross-crate exhaustive consumer omitted by R2. The two-phase workspace audit reaches L4 with no further consumer after audit-only neutralization; public claims, cases, mutation expectations, Unknown policy and claim boundary remain unchanged."
+    "id": "R4",
+    "previous_contract_sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea",
+    "r3_failure": {
+      "affected_case": "P13-unsupported-fails",
+      "affected_mutation": "M20",
+      "affected_oracle": "O7",
+      "required_orders": ["forward", "forward_repeat", "reverse"],
+      "required_score": 1.0,
+      "verification_path": "00_nucleo/diagnosticos/p1424-verification.json",
+      "verification_sha256": "322354294aa00064442741a09fd218089ecd1c85e800555e6c50963f6c4cd9f6"
+    },
+    "reason": "R3 scored 20/21 because M20 converted a frame whose body was exclusively html.elem content into successful empty output. R4 preserves every R3 claim, consumer and allowlist while strengthening P13/O7 with an executable public HTML-pipeline witness requiring Err and a non-empty diagnostic for that exact unsupported body."
   },
   "schema": "tekt.materialization.contract/v1",
   "unknown_policy": "Fail closed exactly as frozen in the manifest. Unknown is acceptable only as the expected result of U01-U04; it blocks P01-P13, contributes neither numerator nor rejection credit, and prevents sealing when produced by a required positive or a valid mutation."

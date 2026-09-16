@@ -3,9 +3,13 @@
     "contract": "00_nucleo/diagnosticos/p1424-contract.json",
     "exhaustive_audit": "00_nucleo/diagnosticos/p1424-r3-exhaustive-audit.json",
     "manifest": "00_nucleo/diagnosticos/p1424-manifest.json",
+    "r3_fail_verdict": "00_nucleo/diagnosticos/p1424-verification.json",
+    "r3_mutation_results": "00_nucleo/diagnosticos/p1424-mutation-results.json",
+    "r3_report": "00_nucleo/diagnosticos/p1424-report.md",
+    "r3_results": "00_nucleo/diagnosticos/p1424-results.json",
     "seal": "00_nucleo/diagnosticos/p1424-seal.json"
   },
-  "authored_at": "2026-09-16T14:08:08-03:00",
+  "authored_at": "2026-09-16T15:08:21-03:00",
   "authorities": [
     {
       "capabilities": {
@@ -194,20 +198,20 @@
   ],
   "protected_inputs": [
     {"path": "00_nucleo/materialization/typst-passo-1424.md", "sha256": "7bfdbc758e3c1a922957626ba8c707b548bb0e7e2caf22153448bf18a851f95e"},
-    {"path": "00_nucleo/prompts/compiler/layout.md", "sha256": "acea6c98a50bb02ad01374d08a12282d02282526553d005867441a20c85662f3"},
-    {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"},
-    {"path": "00_nucleo/prompts/compiler/eval.md", "sha256": "b3a4b12be834baeb02f318a856efadbf91de20d5fe3c446b5c394cf6d6d98182"},
-    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "79540d6f86fa7f378eb7c3599af2a24cf9d3db7c7b6de1be3bdb73ec8bf6a4c6"},
-    {"path": "00_nucleo/prompts/compiler/introspect.md", "sha256": "8666f0ff492eb093c7d14e2fc962de17cf46cb279e70601a8d3b77163ebdd399"},
-    {"path": "00_nucleo/prompts/compiler/introspect/locatable.md", "sha256": "02b43c4d39747dc88fe7b8bd008582d8f0c6ff50a1f7073d642b8d5e584d1aa1"},
-    {"path": "00_nucleo/prompts/compiler/math/layout/spacing.md", "sha256": "19ba70105084baeb34f87a0ae0349c02fb4fbc239a095f634882bf127d45c1c8"},
-    {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "873f7255aa5f12ef16b4b41d9707a9f027c6bacd4582a6f6f7b6e114e250845c"},
-    {"path": "00_nucleo/prompts/entities/content.md", "sha256": "e022edcbca589415827210788f1a8a441bd1461c768046f4f18845c830d4c1a9"},
-    {"path": "00_nucleo/prompts/entities/html.md", "sha256": "c84544bb67689592968c220a9a257e02ea378ac7304a566fa02e29bf18a4e39d"},
-    {"path": "00_nucleo/prompts/infra/export/html.md", "sha256": "8fa5e17fa3daa6c9a8cdf183c9b2da8f1df66338501b76ac99ad6215651c8aa9"},
-    {"path": "00_nucleo/prompts/infra/export/svg.md", "sha256": "045d38d1a30630592fa5e748dd00336e88da4f905029910b3b78836a82396ae0"},
-    {"path": "00_nucleo/prompts/infra/pipeline.md", "sha256": "d30ad32f2b77a169f986e1369f75ff4124f5fd840c9b411603cdb63aebaa21ff"},
-    {"path": "00_nucleo/prompts/infra/query-helpers.md", "sha256": "5e85bac874fd7958a96c42d32ecec7032db98a1924462c35b2fdb2fe06ef802b"}
+    {"path": "00_nucleo/prompts/compiler/layout.md", "sha256": "2e559704278f3ed1cb5fff98499e78cfe74d1431c1048c61917a4bc51dc6edc9"},
+    {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "a9494c81f4642fab294441745ce59e7ca6039cae91af683246fb1eac580c4216"},
+    {"path": "00_nucleo/prompts/compiler/eval.md", "sha256": "cfd05cab53e2e29798650ab334a621228fa3968cfcc2711e052e6d84902383b5"},
+    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "c55ad24ea7f620d82da7eb961380b85f20e00699cfbde04764cf5357d0300ee1"},
+    {"path": "00_nucleo/prompts/compiler/introspect.md", "sha256": "6f336d0d19fb2f3394f6b5da3ae1c91478425d4f330945a4794af45f58f54ac4"},
+    {"path": "00_nucleo/prompts/compiler/introspect/locatable.md", "sha256": "a44816c8b4145aaac5cfda14a11509b88172c67255d26b256df22d5b06f081cd"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/spacing.md", "sha256": "d4826227ef34d2ddae273204e39e0b96192813f22b215ecae2cc5db2660c7d8a"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "776010097f81bb45e9bb80a56e2732988fce5c827a517e96ceaf8287ac29f00a"},
+    {"path": "00_nucleo/prompts/entities/content.md", "sha256": "cd82707654e409be09b15963c206b9a2dc984f34067762a160d612d191d4ddae"},
+    {"path": "00_nucleo/prompts/entities/html.md", "sha256": "b645b3d644f20a463a4f1346c2e3035bd1cbb49cafb04d1f1e38fadccabd6479"},
+    {"path": "00_nucleo/prompts/infra/export/html.md", "sha256": "97cc8a61eefee05a7c84949da39f27d5e1e907e84ac5249ebb0ee41b619ff545"},
+    {"path": "00_nucleo/prompts/infra/export/svg.md", "sha256": "3775eb0bd4d243cfda43284016fbeeb7b9eff89b8034ca5f6bbb88ab65361d79"},
+    {"path": "00_nucleo/prompts/infra/pipeline.md", "sha256": "858c45c334a933f9758e45722c722738ee6d95e89dec56de7c2c8658cf9347df"},
+    {"path": "00_nucleo/prompts/infra/query-helpers.md", "sha256": "1043b1f203aa258c6e2df2b717655bad9025ba29c24a3608e9ae3384ec8fa227"}
   ],
   "protocol": {
     "attestation": "executed_without_isolation_attestation",
@@ -230,9 +234,17 @@
     "audit_baseline_commit": "328133c00386aac2a7ef5e3fa95711b4b370cc99",
     "audit_baseline_tree": "b25c2f8f0e6a107114165d1140c91593153d48f2",
     "exhaustive_audit_sha256": "7a14009642105eb29ed145f3fd35beb57baea1a84cca6815c8b27604fbb417cb",
-    "id": "R3",
-    "previous_manifest_sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1",
-    "reason": "Workspace-wide fail-closed audit found the 14 R2 intra-crate matches plus two cross-crate matches in query_helpers; after neutralizing those sites only in the audit copy, cargo check --workspace reached L4 and exited zero, proving no further closed consumers."
+    "id": "R4",
+    "previous_manifest_sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3",
+    "r3_failure": {
+      "mutation_results_sha256": "9c4dc5bb4d86154fa324162981b8677453aff53232eb05ee33b8634a2e428fc5",
+      "report_sha256": "bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91",
+      "results_sha256": "872e9d643fadcbb3ab00d53e1c33b1a82af6f41c013107880a1ac0eed1ac5f6b",
+      "score": "20/21",
+      "survivor": "M20",
+      "verification_sha256": "322354294aa00064442741a09fd218089ecd1c85e800555e6c50963f6c4cd9f6"
+    },
+    "reason": "R3 failed because M20 survived P13/O7 in all three orders: an HTML-only frame body could become a successful empty SVG island. R4 preserves the R3 scope and allowlist and requires an executable public-pipeline witness that classifies that outcome as an explicit non-empty diagnostic, never success or omission."
   },
   "schema": "tekt.materialization.manifest/v1",
   "unknown_policy": {

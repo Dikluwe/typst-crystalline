@@ -1,6 +1,6 @@
 # Prompt L0 — integração HTML `html.frame` P1424
 
-Hash do Código: 6e81ca73
+Hash do Código: 30273a3c
 
 **Camada:** L3 (testes)  
 **Ficheiro alvo exclusivo:** `03_infra/tests/p1424_html_frame.rs`  
@@ -22,8 +22,11 @@ provar no nível da linguagem:
   simples;
 - `html.elem("frame")` permanece tag literal e a rota sem frames preserva o
   DOM existente;
-- um carrier não resolvido entregue diretamente ao exporter falha fechado, sem
-  omissão, fallback textual ou tag literal.
+- a própria fachada/pipeline rejeita explicitamente um `html.frame` cujo body
+  é exclusivamente HTML e portanto não é suportado pela ilha paginada; não
+  pode convertê-lo em página/SVG vazio bem-sucedido;
+- um carrier não resolvido entregue diretamente ao exporter também falha
+  fechado, sem omissão, fallback textual ou tag literal.
 
 IDs, ordem de atributos, paths e igualdade de bytes SVG não são aceitação. O
 teste não lê nem adapta expectativas à implementação candidata.
@@ -34,3 +37,7 @@ Manifesto SHA-256 `e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2d
 contrato SHA-256 `d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31`.
 Baseline `79c7a6d60a29bcf53a3b06f15d800dcf286381a6`. Execução:
 **executado sem atestação de isolamento**.
+
+R4 acrescenta somente o witness executável de P13/M20 exigido pelo relatório
+independente P1424 (SHA-256 `bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91`)
+e pela verificação FAIL correspondente; os demais casos permanecem intactos.

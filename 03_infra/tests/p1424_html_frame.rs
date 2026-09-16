@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1424-tests.md
-//! @prompt-hash 48506c64
+//! @prompt-hash 835170aa
 //! @layer L3
 //!
 //! Testes A/B independentes da integração HTML P1424.
@@ -162,6 +162,15 @@ fn p1424_html_literal_sem_frame_e_unresolved_fail_closed() {
     let plain = html("sentinela");
     assert!(plain.contains("<body><p>sentinela</p></body>"));
     assert!(!plain.contains("<svg"));
+
+    let unsupported = compile("#html.frame([#html.elem(\"div\")[x]])", Features::html())
+        .expect_err(
+        "body exclusivamente HTML dentro de html.frame deve falhar, não virar ilha vazia",
+    );
+    assert!(
+        !unsupported.trim().is_empty(),
+        "a falha do body não suportado deve trazer diagnóstico explícito"
+    );
 
     let unresolved =
         Content::HtmlFrame(Arc::new(HtmlFrameElem { body: Content::text("x") }));
