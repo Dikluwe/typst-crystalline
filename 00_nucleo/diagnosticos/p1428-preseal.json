@@ -1,0 +1,127 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "step": 1428,
+  "status": "FAIL",
+  "verdict": "DO_NOT_SEAL",
+  "attestation": "executed_without_isolation_attestation",
+  "measured_at": "2026-09-16T19:26:29-03:00",
+  "verifier": {
+    "authority": "agent:/root/p1428_preseal",
+    "role": "preseal_verifier",
+    "workspace": "shared",
+    "isolation_attested": false,
+    "writes": [
+      "00_nucleo/diagnosticos/p1428-preseal.json"
+    ],
+    "forbidden_writes_respected": true
+  },
+  "state": {
+    "head": "07dd9c7852030813f00fc6d0be2d091d7b27a1ce",
+    "tree": "785bcfd5a96c4d60239649df89b865fa1513a0da",
+    "working_tree_before_receipt": "Only the four declared P1428 downstream artifacts were untracked; no tracked diff was present.",
+    "untracked_before_receipt": [
+      "00_nucleo/diagnosticos/p1428-mutants.json",
+      "00_nucleo/diagnosticos/p1428-red.json",
+      "00_nucleo/prompts/infra/tests/p1428-tests.md",
+      "03_infra/tests/p1428_math_frac.rs"
+    ]
+  },
+  "inputs": [
+    {"path":"00_nucleo/materialization/typst-passo-1428.md","sha256":"e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a","identity":"MATCH"},
+    {"path":"00_nucleo/diagnosticos/p1428-manifest.json","sha256":"0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b","identity":"MATCH"},
+    {"path":"00_nucleo/diagnosticos/p1428-contract.json","sha256":"d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313","identity":"MATCH"},
+    {"path":"00_nucleo/diagnosticos/p1428-oracles.json","sha256":"539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a","identity":"MATCH"},
+    {"path":"00_nucleo/diagnosticos/p1428-mutants.json","sha256":"9e5c235290ebcfad69be2ffa99aa24398370fbfeb5100cefdc757c9557355c81","identity":"MATCH"},
+    {"path":"00_nucleo/diagnosticos/p1428-red.json","sha256":"416daecd2c6e93756d4c57d886367c094f1d0ef8a60fa9e45564e53d55d08a96","identity":"MATCH"},
+    {"path":"00_nucleo/prompts/infra/tests/p1428-tests.md","sha256":"a1f9eb45d3053490127f6c321c4f5e8f23db6284ebad19d968a27052097eec46","identity":"MATCH"},
+    {"path":"03_infra/tests/p1428_math_frac.rs","sha256":"d98131d98b09f36d593d976936f0ce7833d4e85541d7b4db8bb2445d4c6bfaf5","identity":"MATCH","lineage_prompt_hash_prefix":"a1f9eb45"}
+  ],
+  "identity_and_allowlist_gate": {
+    "result": "PASS",
+    "productive_baseline_commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "productive_baseline_tree": "24a1bda05d4e19e54a05d121f77ef3f3345c3811",
+    "productive_files_checked": 12,
+    "productive_files_matching_manifest_and_baseline_git_objects": 12,
+    "protected_inputs_checked": 10,
+    "protected_inputs_matching": 10,
+    "frozen_p1427_public_test_sha256": "708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7",
+    "unexpected_changed_paths": [],
+    "git_diff_check": "PASS"
+  },
+  "functional_runs": [
+    {
+      "order": "forward",
+      "commands": [
+        "cargo test -p typst-infra --test p1428_math_frac -- --nocapture",
+        "cargo test -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture"
+      ],
+      "p1428": {"passed":4,"failed":0,"exit_code":0},
+      "p1427_layout_conjunct": {"passed":1,"failed":0,"exit_code":0}
+    },
+    {
+      "order": "forward_repeat",
+      "commands": [
+        "cargo test -q -p typst-infra --test p1428_math_frac -- --nocapture",
+        "cargo test -q -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture"
+      ],
+      "p1428": {"passed":4,"failed":0,"exit_code":0},
+      "p1427_layout_conjunct": {"passed":1,"failed":0,"exit_code":0}
+    },
+    {
+      "order": "reverse_suite_order",
+      "commands": [
+        "cargo test -q -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture",
+        "cargo test -q -p typst-infra --test p1428_math_frac -- --nocapture"
+      ],
+      "p1427_layout_conjunct": {"passed":1,"failed":0,"exit_code":0},
+      "p1428": {"passed":4,"failed":0,"exit_code":0}
+    }
+  ],
+  "order_limitation": "The available test artifacts can reverse only suite command order. Contract cases are embedded in fixed Rust test bodies and loops; no harness exposes exact forward/reverse case vectors.",
+  "mutation_gate": {
+    "result": "FAIL",
+    "required_score": 1.0,
+    "valid_mutations": 12,
+    "violated_with_executed_mutant_witness": 0,
+    "unknown": 12,
+    "survived": null,
+    "score_calculable": false,
+    "score": null,
+    "score_rule": "Unknown receives no credit; because no mutant was executed, no numeric mutation score is claimed.",
+    "reason": "p1428-mutants.json is a mutation-design matrix whose expected_gate.status is not_executed. It provides no executable mutant patches, switches, runner, per-mutant commands, outputs or receipts. Normal candidate tests do not constitute mutation execution.",
+    "classifications": [
+      {"id":"M01","classification":"Unknown","reason":"No raw-HTML mutant was applied or executed."},
+      {"id":"M02","classification":"Unknown","reason":"No sequential-decoder mutant was applied or executed."},
+      {"id":"M03","classification":"Unknown","reason":"No missing-markup acceptance mutant was applied or executed."},
+      {"id":"M04","classification":"Unknown","reason":"No unknown-entity acceptance mutant was applied or executed."},
+      {"id":"M05","classification":"Unknown","reason":"No SVG-observer mutant was applied or executed; absence of SVG from the candidate is not an executed kill."},
+      {"id":"M06","classification":"Unknown","reason":"No zero-carrier default mutant was applied or executed."},
+      {"id":"M07","classification":"Unknown","reason":"No multiple-carrier selection mutant was applied or executed."},
+      {"id":"M08","classification":"Unknown","reason":"No swapped-bit mutant was applied or executed."},
+      {"id":"M09","classification":"Unknown","reason":"No force/infer mutant was applied. Structurally, source-text inference can reproduce 00/10/01/11 for the same fixtures, so the present assertions alone do not prove rejection of this operator."},
+      {"id":"M10","classification":"Unknown","reason":"Both conjunct tests pass, but no executable three-valued conjunction classifier or drop-conjunct mutant demonstrates that omission is rejected."},
+      {"id":"M11","classification":"Unknown","reason":"Controls pass when present, but no meta-gate or executed removal mutant demonstrates that deleting or weakening the control test is rejected."},
+      {"id":"M12","classification":"Unknown","reason":"No verifier harness executes U01/U06 or mutation-score policy under a credit-Unknown mutant."}
+    ]
+  },
+  "red_receipt_gate": {
+    "result": "PASS_FOR_PREDECESSOR_RED_ONLY",
+    "receipt_sha256": "416daecd2c6e93756d4c57d886367c094f1d0ef8a60fa9e45564e53d55d08a96",
+    "limitation": "The receipt explicitly records mutation_gate NOT_EXECUTED and therefore cannot support preseal score 1.0. It reproduces the raw-HTML predecessor RED but does not include the second empty-SVG predecessor RED requested by the oracle design."
+  },
+  "blocking_gaps": [
+    "Materialize M01-M12 as executable, immutable mutant variants or a deterministic switch-based runner and preserve per-mutant commands, outputs and witnesses.",
+    "Add a runner that emits case and mutation classification vectors in exact forward, repeated-forward and reverse case order.",
+    "Strengthen M09 so source-text inference cannot pass the same fixed fixtures, for example by opaque carrier fixtures not recoverable from the expected source spelling.",
+    "Execute an actual drop-layout-conjunct mutant for M10 and fail it through an executable conjunction classifier.",
+    "Execute removal/weakening attacks for M11 through a manifest-to-test coverage gate rather than treating presence of the candidate test as a kill.",
+    "Execute U01 and U06 policy paths and a credit-Unknown mutant for M12.",
+    "Complete the empty-SVG predecessor RED required by p1428-oracles.json or formally narrow that requirement before re-freezing inputs."
+  ],
+  "seal": {
+    "emitted": false,
+    "path": "00_nucleo/diagnosticos/p1428-seal.json",
+    "reason": "mutation_score is not 1.0 and required executable discrimination evidence is absent"
+  },
+  "claim_boundary": "This is a preseal rejection of the P1428 observer contract. Passing candidate tests establish only the current candidate behavior; they do not establish mutation discrimination, general math parity, SVG correctness or isolation."
+}

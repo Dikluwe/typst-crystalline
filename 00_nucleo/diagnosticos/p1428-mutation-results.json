@@ -1,0 +1,77 @@
+{
+  "schema":"tekt.materialization.mutation-results/v1",
+  "step":1428,
+  "revision":3,
+  "status":"mutation_gate_passed_unsealed",
+  "attestation":"executed_without_isolation_attestation",
+  "measured_at":"2026-09-16T19:42:00-03:00",
+  "state": {
+    "head":"07dd9c7852030813f00fc6d0be2d091d7b27a1ce",
+    "working_tree":"noncommitted; P1428 downstream artifacts untracked",
+    "fresh_process_rule":"Each row was executed by a distinct cargo test command with exactly one P1428_MUTANT value. Environment activation ended with that process."
+  },
+  "inputs":[
+    {"path":"00_nucleo/diagnosticos/p1428-preseal.json","sha256":"0e30c899c11f927cda5a53f9a75cd7c5223701351ae4013c43bb1959ee015196"},
+    {"path":"00_nucleo/diagnosticos/p1428-mutants.json","sha256":"4b4dd37d5f60e857859f2a23180976c96b73031eb6a13041dd6bac0facca92e1"},
+    {"path":"00_nucleo/prompts/infra/tests/p1428-tests.md","sha256":"a8451345662a76fed89966dd0efa4f9919c1256f0a3cf3a8b333fcfcdc8cc50f"},
+    {"path":"03_infra/tests/p1428_math_frac.rs","sha256":"d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f"},
+    {"path":"00_nucleo/diagnosticos/p1428-red.json","sha256":"e3220d6e817f6b8875c836f5de4eeaada06892641669a8633a5c60edbc4df7ec"}
+  ],
+  "normal_candidate": {
+    "command":"env P1428_ORDER=forward cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+    "environment":"P1428_MUTANT absent; P1428_ORDER=forward",
+    "exit_code":0,
+    "passed":1,
+    "failed":0,
+    "filtered_out":5,
+    "duration_seconds":0.40
+  },
+  "results":[
+    {"id":"M01","command":"env P1428_MUTANT=M01 cargo test -q -p typst-infra --test p1428_math_frac p1428_repr_compara_texto_html_decodificado -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_repr_compara_texto_html_decodificado","witness":"raw vertical repr retained &quot; and lacked literal quoted style"},
+    {"id":"M02","command":"env P1428_MUTANT=M02 cargo test -q -p typst-infra --test p1428_math_frac p1428_decoder_html_e_fail_closed -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_decoder_html_e_fail_closed","witness":"left Ok(\"\\\"\") versus right Ok(\"&quot;\")"},
+    {"id":"M03","command":"env P1428_MUTANT=M03 cargo test -q -p typst-infra --test p1428_math_frac p1428_decoder_html_e_fail_closed -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_decoder_html_e_fail_closed","witness":"plain text returned Ok instead of Err(HtmlMarkup)"},
+    {"id":"M04","command":"env P1428_MUTANT=M04 cargo test -q -p typst-infra --test p1428_math_frac p1428_decoder_html_e_fail_closed -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_decoder_html_e_fail_closed","witness":"unknown entity returned Ok('?') instead of Err(HtmlEntity)"},
+    {"id":"M05","command":"env P1428_MUTANT=M05 cargo test -q -p typst-infra --test p1428_math_frac p1428_modulo_expoe_frac_unica_e_quatro_bits -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","witness":"F10 observed Ok(00) from SVG instead of Ok(10)"},
+    {"id":"M06","command":"env P1428_MUTANT=M06 cargo test -q -p typst-infra --test p1428_math_frac p1428_modulo_expoe_frac_unica_e_quatro_bits -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","witness":"zero carriers returned Ok(00) instead of Err(MathFracCardinality)"},
+    {"id":"M07","command":"env P1428_MUTANT=M07 cargo test -q -p typst-infra --test p1428_math_frac p1428_modulo_expoe_frac_unica_e_quatro_bits -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","witness":"two carriers returned first Ok(00) instead of Err(MathFracCardinality)"},
+    {"id":"M08","command":"env P1428_MUTANT=M08 cargo test -q -p typst-infra --test p1428_math_frac p1428_modulo_expoe_frac_unica_e_quatro_bits -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","witness":"F10 became Ok(01) instead of Ok(10)"},
+    {"id":"M09","command":"env P1428_MUTANT=M09 cargo test -q -p typst-infra --test p1428_math_frac p1428_modulo_expoe_frac_unica_e_quatro_bits -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","witness":"indirect identical main source inferred Ok(00), while evaluated included carrier was Ok(11)"},
+    {"id":"M10","command":"env P1428_MUTANT=M10 cargo test -q -p typst-infra --test p1428_math_frac p1428_classificadores_conjuntivo_score_e_meta_gate -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_classificadores_conjuntivo_score_e_meta_gate","witness":"Preserved bits plus Unknown layout returned Preserved instead of Unknown"},
+    {"id":"M11","command":"env P1428_MUTANT=M11 cargo test -q -p typst-infra --test p1428_math_frac p1428_controles_rotas_diagnosticos_constantes_e_binom -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_controles_rotas_diagnosticos_constantes_e_binom","witness":"C01-C04 meta-gate observed mask 13 instead of mandatory 15"},
+    {"id":"M12","command":"env P1428_MUTANT=M12 cargo test -q -p typst-infra --test p1428_math_frac p1428_classificadores_conjuntivo_score_e_meta_gate -- --exact --nocapture","exit_code":101,"classification":"Violated","test":"p1428_classificadores_conjuntivo_score_e_meta_gate","witness":"U01 and U06 Unknown were both executed and received aggregate credit 2 instead of 0"}
+  ],
+  "calibration": {
+    "revision_1":"M01-M08 and M10-M12 produced attributable RED. The first M09 hook failed earlier at U04, so it did not yet prove the source-inference boundary.",
+    "revision_2_hypothesis":"Preserve real carrier cardinality in M09 and mutate only bit observation; this lets zero/multiple controls pass and forces the indirect include boundary to discriminate.",
+    "revision_2_result":"M09 reached the indirect boundary and failed with inferred 00 versus carrier 11; no other classification regressed.",
+    "calibration_processes":15,
+    "r2_final_gate_processes":12,
+    "r3_final_gate_processes_after_final_hash":12,
+    "total_fresh_mutant_processes":39,
+    "full_corpus_runs":0,
+    "dominant_reason_code":"NONE_AFTER_R2"
+  },
+  "gate": {
+    "valid_mutations":12,
+    "violated":12,
+    "unknown":0,
+    "survived":0,
+    "mutation_score":1.0,
+    "formula":"12 valid mutations classified Violated / 12 valid mutations",
+    "unknown_credit":0,
+    "result":"PASS"
+  },
+  "predecessor_reds": {
+    "raw_html":"REPRODUCED",
+    "empty_svg":"REPRODUCED",
+    "receipt":"00_nucleo/diagnosticos/p1428-red.json"
+  },
+  "gates": {
+    "cargo_fmt_all_check":"PASS",
+    "git_diff_check":"PASS"
+  },
+  "limitations":[
+    "The mutation score covers only the twelve frozen P1428 observer/classifier attacks.",
+    "No corpus-order rerun, seal, productive-candidate verdict, general parity claim or isolation attestation is emitted by this authority."
+  ]
+}

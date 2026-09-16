@@ -1,0 +1,64 @@
+{
+  "schema": "tekt.materialization.red-receipt/v1",
+  "step": 1428,
+  "status": "predecessor_observer_reds_reproduced",
+  "attestation": "executed_without_isolation_attestation",
+  "measured_at": "2026-09-16T19:23:49-03:00",
+  "state": {
+    "head": "07dd9c7852030813f00fc6d0be2d091d7b27a1ce",
+    "working_tree": "noncommitted; before writing this receipt the three P1428 outputs were untracked",
+    "git_diff_head_stat": "empty because the three outputs were untracked",
+    "git_status_short_scoped": [
+      "?? 00_nucleo/diagnosticos/p1428-mutants.json",
+      "?? 00_nucleo/prompts/infra/tests/p1428-tests.md",
+      "?? 03_infra/tests/p1428_math_frac.rs"
+    ]
+  },
+  "inputs": [
+    {"path":"03_infra/tests/p1427_math_frac.rs","sha256":"708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7"},
+    {"path":"00_nucleo/diagnosticos/p1428-manifest.json","sha256":"0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b"},
+    {"path":"00_nucleo/diagnosticos/p1428-contract.json","sha256":"d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313"},
+    {"path":"00_nucleo/diagnosticos/p1428-oracles.json","sha256":"539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a"}
+  ],
+  "command": "cargo test -p typst-infra --test p1427_math_frac p1427_reprs_preservam_estilo_explicito_e_omissao -- --nocapture",
+  "exit_code": 101,
+  "result": {"passed":0,"failed":1,"ignored":0,"filtered_out":5,"duration_seconds":0.03},
+  "attributable_failure": {
+    "fixture": "#repr(math.frac([a], [b], style: \"vertical\"))",
+    "serialized_witness": "style: &quot;vertical&quot;",
+    "cause": "The frozen P1427 observer searches raw serialized HTML for literal quotes; the public HTML correctly carries the quote as a character reference.",
+    "classification": "RED_OBSERVER_RAW_HTML"
+  },
+  "empty_svg_predecessor_red": {
+    "measured_at": "2026-09-16T19:31:02-03:00",
+    "command": "cargo test -q -p typst-infra --test p1427_math_frac p1427_parenteses_causais_so_aparecem_no_horizontal -- --exact --nocapture",
+    "exit_code": 101,
+    "result": {"passed":0,"failed":1,"ignored":0,"filtered_out":5,"duration_seconds":0.06},
+    "fixture_pair":"$(a) / b$ versus $a / b$ under horizontal frac style",
+    "witness":"Both public SVG strings are byte-identical empty transformed groups.",
+    "classification":"RED_OBSERVER_EMPTY_SVG"
+  },
+  "p1428_focused_result": {
+    "command": "cargo test -p typst-infra --test p1428_math_frac -- --nocapture",
+    "passed":5,
+    "failed":0,
+    "duration_seconds":0.27,
+    "test_sha256":"d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f"
+  },
+  "p1427_layout_conjunct": {
+    "command": "cargo test -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture",
+    "passed":1,
+    "failed":0
+  },
+  "gates": {
+    "cargo_fmt_all_check": "PASS",
+    "git_diff_check": "PASS",
+    "mutation_gate": "EXECUTED_IN_R2; SEE p1428-mutation-results.json",
+    "three_orders": "DEFERRED_TO_PRESEAL_OR_FINAL_VERIFIER",
+    "certificate": "NOT_EMITTED"
+  },
+  "limitations": [
+    "This receipt reproduces the predecessor raw-HTML and empty-SVG REDs and records the focused P1428 GREEN slice.",
+    "It does not seal artifacts, classify the productive candidate, attest isolation or emit a final verdict."
+  ]
+}

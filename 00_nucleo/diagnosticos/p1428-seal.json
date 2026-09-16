@@ -1,0 +1,94 @@
+{
+  "schema": "tekt.materialization.seal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1428,
+  "revision": 3,
+  "sealed_at": "2026-09-16T19:46:00-03:00",
+  "status": "sealed",
+  "verdict": "PASS",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "executor": "agent:/root/p1428_preseal_r3",
+    "role": "independent_preseal_verifier",
+    "workspace": "shared",
+    "isolation_attested": false,
+    "productive_source_written": false,
+    "verified_inputs_edited": false,
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1428-preseal-r3.json",
+      "00_nucleo/diagnosticos/p1428-seal.json"
+    ]
+  },
+  "baseline": {
+    "productive_commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "productive_tree": "24a1bda05d4e19e54a05d121f77ef3f3345c3811",
+    "verification_head": "07dd9c7852030813f00fc6d0be2d091d7b27a1ce",
+    "verification_tree": "785bcfd5a96c4d60239649df89b865fa1513a0da"
+  },
+  "preseal": {
+    "path": "00_nucleo/diagnosticos/p1428-preseal-r3.json",
+    "sha256": "f77b7bb77f97eefe1f69e2d46b40faa69689628b91e93182a8f65f192f94b0d3",
+    "status": "PASS",
+    "verdict": "SEAL"
+  },
+  "protected_inputs": [
+    {"kind":"step","path":"00_nucleo/materialization/typst-passo-1428.md","sha256":"e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a"},
+    {"kind":"manifest","path":"00_nucleo/diagnosticos/p1428-manifest.json","sha256":"0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b"},
+    {"kind":"contract","path":"00_nucleo/diagnosticos/p1428-contract.json","sha256":"d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313"},
+    {"kind":"oracles","path":"00_nucleo/diagnosticos/p1428-oracles.json","sha256":"539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a"},
+    {"kind":"mutations","path":"00_nucleo/diagnosticos/p1428-mutants.json","sha256":"4b4dd37d5f60e857859f2a23180976c96b73031eb6a13041dd6bac0facca92e1"},
+    {"kind":"mutation_results","path":"00_nucleo/diagnosticos/p1428-mutation-results.json","sha256":"61669be1f48ed973f3afa01a83bb577e1182975e1856b7432280a1eee083a65c"},
+    {"kind":"order_results","path":"00_nucleo/diagnosticos/p1428-order-results.json","sha256":"6f2b6fc0e51f47420b73f7e9d553488890df630a741b502dd280d782aba8b6ea"},
+    {"kind":"red_receipt","path":"00_nucleo/diagnosticos/p1428-red.json","sha256":"e3220d6e817f6b8875c836f5de4eeaada06892641669a8633a5c60edbc4df7ec"},
+    {"kind":"test_l0","path":"00_nucleo/prompts/infra/tests/p1428-tests.md","sha256":"a8451345662a76fed89966dd0efa4f9919c1256f0a3cf3a8b333fcfcdc8cc50f"},
+    {"kind":"independent_test","path":"03_infra/tests/p1428_math_frac.rs","sha256":"d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f"},
+    {"kind":"preseal_receipt","path":"00_nucleo/diagnosticos/p1428-preseal-r3.json","sha256":"f77b7bb77f97eefe1f69e2d46b40faa69689628b91e93182a8f65f192f94b0d3"}
+  ],
+  "discriminatory_gate": {
+    "valid_mutations": 12,
+    "mutations_with_attributable_rejection": 12,
+    "survivors": 0,
+    "unknown": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "unknown_credit": 0,
+    "result": "PASS"
+  },
+  "execution_orders": [
+    {"id":"forward","fresh_process":true,"cases":17,"result":"PASS"},
+    {"id":"forward_repeat","fresh_process":true,"cases":17,"result":"PASS"},
+    {"id":"reverse","fresh_process":true,"cases":17,"exact_inverse":true,"result":"PASS"}
+  ],
+  "classification_vector": {
+    "mandatory_preserved": 13,
+    "mandatory_unknown": 0,
+    "opaque_unknown": 4,
+    "vector_equal_by_id_across_orders": true,
+    "p1427_layout_conjunct": "PASS"
+  },
+  "identity_gate": {
+    "productive_files_matching_p1427_baseline": 12,
+    "protected_inputs_matching": 11,
+    "frozen_p1427_public_test_matching": true,
+    "p1428_lineage_matching": true,
+    "result": "PASS"
+  },
+  "mechanical_gates": {
+    "json_syntax": "PASS",
+    "cargo_fmt_all_check": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "unknown_policy": "Unknown never counts as Preserved or as a mutation rejection, contributes zero score and blocks every mandatory case. Only the four declared opaque cases U02-U05 require Unknown.",
+  "invalidation": "Any byte change to the step, manifest, contract, oracles, mutations, mutation results, order results, RED receipt, P1428 test L0, independent test, P1427 productive baseline, protected P1427 inputs, capability assignment, Unknown policy or execution-order definition invalidates this seal from the first affected phase.",
+  "admission": {
+    "productive_change_authorized": false,
+    "p1428_observer_contract_sealed": true,
+    "final_certificate_still_required": true,
+    "forbidden_writes": [
+      "all twelve P1427 productive files",
+      "all protected P1427 inputs",
+      "P1428 manifest, contract, oracles, mutations, mutation results, order results, RED receipt, test L0, independent test, preseal and seal"
+    ]
+  },
+  "claim_boundary": "This seal freezes only the P1428 observable recalibration of the P1427 math.frac fragment and its exact executable evidence. It does not attest workspace isolation, general math parity, SVG correctness, render-byte equality or a productive change."
+}

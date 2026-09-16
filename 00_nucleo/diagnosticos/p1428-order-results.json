@@ -1,0 +1,85 @@
+{
+  "schema":"tekt.materialization.order-results/v1",
+  "step":1428,
+  "revision":3,
+  "status":"exact_case_order_gate_passed_unsealed",
+  "attestation":"executed_without_isolation_attestation",
+  "measured_at":"2026-09-16T19:42:00-03:00",
+  "state": {
+    "head":"07dd9c7852030813f00fc6d0be2d091d7b27a1ce",
+    "working_tree":"noncommitted P1428 downstream artifacts",
+    "runner":"03_infra/tests/p1428_math_frac.rs#p1428_runner_ordem_contrato"
+  },
+  "inputs":[
+    {"path":"00_nucleo/diagnosticos/p1428-manifest.json","sha256":"0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b"},
+    {"path":"00_nucleo/diagnosticos/p1428-contract.json","sha256":"d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313"},
+    {"path":"00_nucleo/diagnosticos/p1428-oracles.json","sha256":"539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a"},
+    {"path":"00_nucleo/prompts/infra/tests/p1428-tests.md","sha256":"a8451345662a76fed89966dd0efa4f9919c1256f0a3cf3a8b333fcfcdc8cc50f"},
+    {"path":"03_infra/tests/p1428_math_frac.rs","sha256":"d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f"},
+    {"path":"00_nucleo/diagnosticos/p1428-mutants.json","sha256":"4b4dd37d5f60e857859f2a23180976c96b73031eb6a13041dd6bac0facca92e1"},
+    {"path":"00_nucleo/diagnosticos/p1428-mutation-results.json","sha256":"61669be1f48ed973f3afa01a83bb577e1182975e1856b7432280a1eee083a65c"},
+    {"path":"00_nucleo/diagnosticos/p1428-red.json","sha256":"e3220d6e817f6b8875c836f5de4eeaada06892641669a8633a5c60edbc4df7ec"}
+  ],
+  "required_forward_order":[
+    "P01","P02","P03","P04","P05","P06","P07","P08",
+    "C01","C02","C03","C04","C05","U02","U03","U04","U05"
+  ],
+  "required_reverse_order":[
+    "U05","U04","U03","U02","C05","C04","C03","C02","C01",
+    "P08","P07","P06","P05","P04","P03","P02","P01"
+  ],
+  "classification_by_id": {
+    "P01":"Preserved","P02":"Preserved","P03":"Preserved","P04":"Preserved",
+    "P05":"Preserved","P06":"Preserved","P07":"Preserved","P08":"Preserved",
+    "C01":"Preserved","C02":"Preserved","C03":"Preserved","C04":"Preserved",
+    "C05":"Preserved","U02":"Unknown","U03":"Unknown","U04":"Unknown","U05":"Unknown"
+  },
+  "runs":[
+    {
+      "id":"forward",
+      "command":"env P1428_ORDER=forward cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+      "exit_code":0,
+      "passed":1,
+      "failed":0,
+      "duration_seconds":0.40,
+      "emitted_order":["P01","P02","P03","P04","P05","P06","P07","P08","C01","C02","C03","C04","C05","U02","U03","U04","U05"]
+    },
+    {
+      "id":"forward_repeat",
+      "command":"env P1428_ORDER=forward cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+      "exit_code":0,
+      "passed":1,
+      "failed":0,
+      "duration_seconds":0.49,
+      "emitted_order":["P01","P02","P03","P04","P05","P06","P07","P08","C01","C02","C03","C04","C05","U02","U03","U04","U05"]
+    },
+    {
+      "id":"reverse",
+      "command":"env P1428_ORDER=reverse cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+      "exit_code":0,
+      "passed":1,
+      "failed":0,
+      "duration_seconds":0.41,
+      "emitted_order":["U05","U04","U03","U02","C05","C04","C03","C02","C01","P08","P07","P06","P05","P04","P03","P02","P01"]
+    }
+  ],
+  "audit": {
+    "dispatches_execute_case_assertions":true,
+    "forward_matches_required_order":true,
+    "forward_repeat_matches_required_order":true,
+    "reverse_is_exact_inverse":true,
+    "classification_vectors_equal_by_id":true,
+    "unknown_remained_fail_closed":true,
+    "result":"PASS"
+  },
+  "mutation_recheck": {
+    "executed_after_final_test_hash":true,
+    "fresh_processes":12,
+    "exit_codes":{"M01":101,"M02":101,"M03":101,"M04":101,"M05":101,"M06":101,"M07":101,"M08":101,"M09":101,"M10":101,"M11":101,"M12":101},
+    "score":1.0
+  },
+  "limitations":[
+    "This receipt covers the exact P1428 case-order runner and the frozen twelve mutations only.",
+    "It does not seal inputs, emit a productive-candidate verdict, claim general parity or attest workspace isolation."
+  ]
+}
