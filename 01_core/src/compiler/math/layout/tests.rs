@@ -8500,7 +8500,12 @@ mod p992_tests {
     fn p992_limits_em_base_normal_empilha_em_modo_bloco() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let attach = Content::math_attach_scripts(
-            Content::math_limits_override(Content::MathIdent("A".into()), true, true),
+            Content::math_limits_override(
+                Content::MathIdent("A".into()),
+                true,
+                true,
+                false,
+            ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
             MathAttachSlot::Present(Content::MathText("b".into())),
@@ -8527,6 +8532,7 @@ mod p992_tests {
                 Content::MathIdent("A".into()),
                 true,
                 true, // inline: true — força mesmo fora de bloco
+                false,
             ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
@@ -8552,6 +8558,7 @@ mod p992_tests {
                 Content::MathIdent("A".into()),
                 true,
                 false, // inline: false — só em modo bloco
+                true,
             ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
@@ -8575,7 +8582,12 @@ mod p992_tests {
     fn p992_scripts_em_operador_grande_nao_empilha_em_modo_bloco() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style()); // block=true
         let attach = Content::math_attach_scripts(
-            Content::math_limits_override(Content::MathText("∑".into()), false, true),
+            Content::math_limits_override(
+                Content::MathText("∑".into()),
+                false,
+                true,
+                false,
+            ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
             MathAttachSlot::Present(Content::MathText("1".into())),
@@ -8624,7 +8636,12 @@ mod p992_tests {
         let style = default_style();
         let ml = MathLayouter::new(&FixedMetrics, true, &style);
         let body = Content::MathSequence(Arc::from(vec![Content::math_attach_scripts(
-            Content::math_limits_override(Content::MathIdent("A".into()), true, true),
+            Content::math_limits_override(
+                Content::MathIdent("A".into()),
+                true,
+                true,
+                false,
+            ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
             MathAttachSlot::Present(Content::MathText("1".into())),
@@ -8646,8 +8663,12 @@ mod p992_tests {
     #[test]
     fn p992_scripts_nao_muda_classe_do_body() {
         use super::super::spacing::node_math_class;
-        let wrapped =
-            Content::math_limits_override(Content::MathText("∑".into()), false, true);
+        let wrapped = Content::math_limits_override(
+            Content::MathText("∑".into()),
+            false,
+            true,
+            false,
+        );
         let (lclass, rclass) = node_math_class(&wrapped);
         assert_eq!(lclass, crate::entities::math_class::MathClass::Large);
         assert_eq!(rclass, crate::entities::math_class::MathClass::Large);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_limits_override.md
-//! @prompt-hash ae4ac12e
+//! @prompt-hash bcfe9dd2
 //! @layer L1
 //! @updated 2026-08-10
 //!
@@ -22,6 +22,9 @@ pub struct MathLimitsOverrideElem {
     pub body: Content,
     pub limits: bool,
     pub inline: bool,
+    /// Whether `inline` was causally present in the source constructor.
+    /// This is morphology only and never participates in layout policy.
+    pub inline_explicit: bool,
 }
 
 impl Element for MathLimitsOverrideElem {
@@ -41,6 +44,7 @@ impl Element for MathLimitsOverrideElem {
             body: self.body.map_content(transform)?,
             limits: self.limits,
             inline: self.inline,
+            inline_explicit: self.inline_explicit,
         })))
     }
 
@@ -62,6 +66,7 @@ mod tests {
             body: Content::text("A"),
             limits: true,
             inline: true,
+            inline_explicit: false,
         }
     }
 
@@ -79,6 +84,9 @@ mod tests {
         let mut other2 = ex();
         other2.inline = false;
         assert_ne!(ex(), other2);
+        let mut other3 = ex();
+        other3.inline_explicit = true;
+        assert_ne!(ex(), other3);
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash b8860cd6
+//! @prompt-hash 46e59dc2
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2053,11 +2053,12 @@ impl ObservationEq
     for crate::entities::elements::math_limits_override::MathLimitsOverrideElem
 {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { body: _, limits: _, inline: _ } = self;
+        let Self { body: _, limits: _, inline: _, inline_explicit: _ } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.limits.observation_relation(&other.limits))
             .and(self.inline.observation_relation(&other.inline))
+            .and(self.inline_explicit.observation_relation(&other.inline_explicit))
     }
 }
 impl ObservationEq for crate::entities::elements::r#ref::RefElem {
@@ -8031,6 +8032,9 @@ fn make_stdlib_with_features(
 
 // ── Auxiliares para intercepção de counter(...).method() ──────────────────
 
+#[cfg(test)]
+#[path = "p1425_tests.rs"]
+mod p1425_tests;
 /// Extrai o nome do contador de uma expressão `counter(key)`.
 // extract_counter_key e eval_counter_method extraídos para eval/bindings.rs (Passo 96.1).
 

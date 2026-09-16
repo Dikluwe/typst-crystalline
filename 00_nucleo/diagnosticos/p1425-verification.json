@@ -1,0 +1,83 @@
+{
+  "schema": "p1425-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1425,
+  "revision": "R1",
+  "verdict": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "verifier": "/root/p1425_verifier",
+  "independence": {
+    "candidate_repaired": false,
+    "sealed_inputs_edited": false,
+    "tests_edited_by_verifier": false,
+    "allowed_outputs_only": true,
+    "environment": "shared workspace; procedural capabilities, no isolation attestation"
+  },
+  "causal_state": {
+    "head": "c080cbd77f1c4455f5230e2793df7592eb110641",
+    "tree": "a18af534f5949e42f67e2f2be5b4e7380d9b3d59",
+    "measured_at": "2026-09-16T16:31:03-03:00",
+    "working_tree": "uncommitted 15-path candidate plus four verifier receipts"
+  },
+  "sealed_chain": {
+    "manifest_sha256": "4545e3b98aca3fc84d1230651537396cb59f5768d815af5b295f37be1c5ff14e",
+    "contract_sha256": "1cc4febbd6788ef573f701331ac2885952c488f713a2149a60591fc3c86cedb6",
+    "oracles_sha256": "e2158b8d177cd7a5a78aa8cfb090dc44bca506bb37ffdb0430011e6c855e3baa",
+    "mutants_sha256": "aac01398ded93abb2686d0b016f6bcb15f543aadee9978b2981e3cf6fb1fe672",
+    "allowlist_audit_sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0",
+    "seal_sha256": "4a2c4ad5f799186d4e53a26ef7adbc714b2644a9941a82aee9eaf18bd706e191",
+    "byte_integrity": "PASS",
+    "allowed_lineage_rebind": "PASS; only Hash do Código metadata changed in the seven declared owner L0 paths"
+  },
+  "ownership_and_allowlist": {
+    "productive_consumers": 7,
+    "owner_l0s": 7,
+    "one_to_one": true,
+    "observation_eq_consumer": "01_core/src/compiler/eval/mod.rs",
+    "mechanical_repair": "PASS; the six legacy P992 constructor callsites gained only the fourth argument plus rustfmt expansion",
+    "candidate_paths": 15,
+    "candidate_paths_allowed": true
+  },
+  "execution": {
+    "commands": [
+      "cargo test -p typst-core p1425_ -- --nocapture",
+      "cargo test -p typst-infra --test p1425_math_limits -- --nocapture",
+      "the same two commands repeated in fresh processes",
+      "the same two commands in reverse suite order in fresh processes",
+      "cargo test -p typst-core p992_ -- --nocapture",
+      "cargo test -p typst-core scripts_ -- --nocapture",
+      "cargo fmt --all -- --check",
+      "cargo build",
+      "crystalline-lint .",
+      "git diff --check HEAD"
+    ],
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "order_vectors_identical": true
+  },
+  "evidence": {
+    "core_focal": "10 passed, 0 failed in each order",
+    "infra_focal": "3 passed, 0 failed in each order",
+    "mandatory_cases": "P01-P12 and N01-N05: 17/17 Preserved",
+    "opaque_cases": "U01-U04: 4/4 Unknown with zero credit",
+    "p992_regression": "22 passed, 0 failed",
+    "scripts_regression": "17 passed, 0 failed",
+    "mutations": "21/21 Violated in all three orders; no survivor",
+    "m21": "PASS: the sealed ObservationEq witness returns Different for omission versus explicit true and Same for identical complete carriers",
+    "mutation_score": 1.0,
+    "required_mutation_score": 1.0,
+    "unknown_never_success": true,
+    "cargo_build": "PASS",
+    "cargo_fmt_check": "PASS",
+    "crystalline_lint": "PASS (exit 0; warnings only; V5/V15/V26 clear)",
+    "git_diff_check": "PASS",
+    "candidate_allowlist": "PASS",
+    "lineage": "PASS according to crystalline-lint"
+  },
+  "blocking_findings": [],
+  "output_hashes": {
+    "p1425-mutation-results.json": "a85647d4c6ab501478e250415b73ab6286f08d300090289077de862a8bbbd850",
+    "p1425-results.json": "6ea2f642becdff53f9ef7afd5d2bafe40a82c1d3cb666ff0f7e95af3e07ec29a",
+    "p1425-report.md": "40372c73f8552ba88b5a51056e5a5fd2421873b9b00070c7edb989b7fdec454b"
+  },
+  "claim_boundary": "PASS is restricted to the frozen R1 P1425 math.limits fragment and its 21 mutation families. It does not claim general math parity, new attachment geometry, or equivalence for the other residual routes."
+}

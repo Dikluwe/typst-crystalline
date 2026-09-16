@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 22dc8e9c
+//! @prompt-hash 6bf8f4be
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -23,6 +23,9 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::Styles;
 use crate::entities::value::Value;
+
+#[cfg(test)]
+mod p1425_tests;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
@@ -1117,9 +1120,12 @@ fn native_math_scripts(
     }
 
     match args.items.as_slice() {
-        [Value::Content(body)] => {
-            Ok(Value::Content(Content::math_limits_override(body.clone(), false, true)))
-        }
+        [Value::Content(body)] => Ok(Value::Content(Content::math_limits_override(
+            body.clone(),
+            false,
+            true,
+            false,
+        ))),
         [other] => Err(vec![SourceDiagnostic::error(
             args.span,
             format!("expected content, found {}", vanilla_type_name_class(other)),
@@ -1133,6 +1139,66 @@ fn native_math_scripts(
             "unexpected argument".to_string(),
         )]),
     }
+}
+
+/// `math.limits(body, inline: true)` — constructor qualificado convergente
+/// com a sintaxe bare, inclusive na presença causal do named `inline`.
+fn native_math_limits(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+
+    let inline_explicit = args.named.contains_key("inline");
+    let inline = match args.named.get("inline") {
+        Some(Value::Bool(value)) => *value,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected boolean, found {}", vanilla_type_name_class(other)),
+            )])
+        }
+        None => true,
+    };
+
+    if let Some((name, _)) = args.named.iter().find(|(name, _)| name.as_str() != "inline")
+    {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    let body = match args.items.as_slice() {
+        [Value::Content(body)] => body.clone(),
+        [other] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected content, found {}", vanilla_type_name_class(other)),
+            )])
+        }
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+
+    Ok(Value::Content(Content::math_limits_override(body, true, inline, inline_explicit)))
 }
 
 /// Constrói o módulo `math` como `Value::Module` com 41 operadores
@@ -1286,6 +1352,10 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "scripts".into(),
         Value::Func(crate::entities::func::Func::native("scripts", native_math_scripts)),
+    );
+    dict.insert(
+        "limits".into(),
+        Value::Func(crate::entities::func::Func::native("limits", native_math_limits)),
     );
 
     // **P895** — espaçamentos nomeados de modo math, nunca registados

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash d5da2e3c
+//! @prompt-hash f1ca58a1
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -876,17 +876,19 @@ fn eval_math_expr(
                         )]);
                     }
                     let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    Ok(Content::math_limits_override(body, false, true))
+                    Ok(Content::math_limits_override(body, false, true, false))
                 }
 
                 "limits" => {
                     let mut pos_args: Vec<Expr<'_>> = Vec::new();
                     let mut inline = true;
+                    let mut inline_explicit = false;
                     let mut errors: Vec<SourceDiagnostic> = Vec::new();
                     for arg in call.args().items() {
                         match arg {
                             Arg::Pos(e) => pos_args.push(e),
                             Arg::Named(n) if n.name().as_str() == "inline" => {
+                                inline_explicit = true;
                                 // **P992** — `true`/`false` sem `#` em modo
                                 // math lexam como `MathIdent` (só
                                 // `compiler/lexer/code.rs::keyword` reconhece o
@@ -951,7 +953,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    Ok(Content::math_limits_override(body, true, inline))
+                    Ok(Content::math_limits_override(body, true, inline, inline_explicit))
                 }
 
                 // P1293 — sintaxe e `math.attach` convergem na mesma validação

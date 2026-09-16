@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash c0d2dd54
+//! @prompt-hash 874844ba
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1753,11 +1753,17 @@ impl Content {
         Self::MathClassOverride(Arc::new(MathClassOverrideElem { class, body }))
     }
     /// Construtor de `MathLimitsOverride` — `limits(body, inline:)`/`scripts(body)`.
-    pub fn math_limits_override(body: Content, limits: bool, inline: bool) -> Self {
+    pub fn math_limits_override(
+        body: Content,
+        limits: bool,
+        inline: bool,
+        inline_explicit: bool,
+    ) -> Self {
         Self::MathLimitsOverride(Arc::new(MathLimitsOverrideElem {
             body,
             limits,
             inline,
+            inline_explicit,
         }))
     }
     /// Construtor de `MathUnderover`.
@@ -3177,6 +3183,9 @@ impl Content {
             // F-5b fatia 1 (P371): strong/emph vazios se o body for (como Styled).
             Self::Strong(e) => e.is_empty(),
             Self::Emph(e) => e.is_empty(),
+            // P1425: o wrapper de limites é semanticamente transparente
+            // para vacuidade, tal como já é para texto plano.
+            Self::MathLimitsOverride(e) => e.is_empty(),
             _ => false, // neutro: N16[β] — Content estrutural não-vazio (variantes sem arm dedicado) retorna false em is_empty
         }
     }

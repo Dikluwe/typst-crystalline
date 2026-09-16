@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 10c467c8
+//! @prompt-hash a0002ded
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -2066,9 +2066,12 @@ fn apply_math_default(body: &Content) -> Content {
         // discriminador de `layout_attach` (`is_limits`); o `body` recursa
         // normalmente para receber o itálico por defeito (achado: base de
         // 1 letra `limits(A)` deve continuar 𝐴, não "A" recto).
-        Content::MathLimitsOverride(e) => {
-            Content::math_limits_override(apply_math_default(&e.body), e.limits, e.inline)
-        }
+        Content::MathLimitsOverride(e) => Content::math_limits_override(
+            apply_math_default(&e.body),
+            e.limits,
+            e.inline,
+            e.inline_explicit,
+        ),
         // **P990-C** — achado §8.1 da auditoria: `cancel(a+b)` e
         // `std.strike(a+b)` renderizavam o corpo em glifo RETO em vez de
         // itálico matemático — nenhum dos dois braços recursava no corpo
@@ -2408,7 +2411,12 @@ mod p311b_tests {
         let style = TextStyle::regular(Pt(12.0));
         let layouter = MathLayouter::new(&FixedMetrics, true, &style);
         let attach = Content::math_attach_scripts(
-            Content::math_limits_override(Content::MathText("∑".into()), false, true),
+            Content::math_limits_override(
+                Content::MathText("∑".into()),
+                false,
+                true,
+                false,
+            ),
             MathAttachSlot::Omitted,
             MathAttachSlot::Omitted,
             MathAttachSlot::Present(Content::MathText("1".into())),
@@ -2687,3 +2695,6 @@ mod p1293_layout_owner_gap_tests {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod p1425_tests;

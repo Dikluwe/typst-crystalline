@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 8b731ff5
+//! @prompt-hash c7ee3b8a
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -570,6 +570,22 @@ fn repr_p1293_math_field(content: &Content) -> String {
     }
 }
 
+/// Projeção do body público de `limits`/`scripts`. A sintaxe matemática
+/// pode envolver uma folha textual num `MathSequence`; morfologicamente ela
+/// continua sendo conteúdo, como a chamada qualificada que recebe `[x]`.
+fn repr_math_limits_body(content: &Content) -> String {
+    match content {
+        Content::MathSequence(nodes)
+            if nodes.iter().all(|node| {
+                matches!(node, Content::MathIdent(_) | Content::MathText(_))
+            }) =>
+        {
+            repr_content(&Content::text(content.plain_text()))
+        }
+        other => repr_p1293_math_field(other),
+    }
+}
+
 fn repr_canonical_binom(
     delimited: &crate::entities::elements::math_delimited::MathDelimitedElem,
 ) -> Option<String> {
@@ -826,9 +842,14 @@ pub fn repr_content(c: &Content) -> String {
         }
         Content::MathLimitsOverride(o) => {
             if o.limits {
-                format!("limits({}, inline: {})", repr_content(&o.body), o.inline)
+                let mut fields =
+                    vec![format!("body: {}", repr_math_limits_body(&o.body))];
+                if o.inline_explicit {
+                    fields.push(format!("inline: {}", o.inline));
+                }
+                format!("limits{}", pretty_array_like(&fields, false))
             } else {
-                format!("scripts({})", repr_content(&o.body))
+                format!("scripts(body: {})", repr_math_limits_body(&o.body))
             }
         }
         Content::MathUnderover(u) => {

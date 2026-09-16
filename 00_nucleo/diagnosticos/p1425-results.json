@@ -1,0 +1,90 @@
+{
+  "schema": "p1425-results/v1",
+  "step": 1425,
+  "revision": "R1",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict": "PASS",
+  "head": "c080cbd77f1c4455f5230e2793df7592eb110641",
+  "tree": "a18af534f5949e42f67e2f2be5b4e7380d9b3d59",
+  "measured_at": "2026-09-16T16:31:03-03:00",
+  "working_tree": {
+    "state": "uncommitted candidate",
+    "diff_stat_before_verifier_receipts": "15 files changed, 178 insertions, 32 deletions",
+    "candidate_paths_within_manifest_allowlist": true,
+    "candidate_path_count": 15,
+    "verifier_wrote_only_registered_receipts": true
+  },
+  "sealed_inputs": {
+    "step_sha256": "4e72ee1a0ae017a2215041dd4d09b4632f53833facc3657f6e4ce083c5a082ee",
+    "manifest_sha256": "4545e3b98aca3fc84d1230651537396cb59f5768d815af5b295f37be1c5ff14e",
+    "contract_sha256": "1cc4febbd6788ef573f701331ac2885952c488f713a2149a60591fc3c86cedb6",
+    "oracles_sha256": "e2158b8d177cd7a5a78aa8cfb090dc44bca506bb37ffdb0430011e6c855e3baa",
+    "mutants_sha256": "aac01398ded93abb2686d0b016f6bcb15f543aadee9978b2981e3cf6fb1fe672",
+    "allowlist_audit_sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0",
+    "seal_sha256": "4a2c4ad5f799186d4e53a26ef7adbc714b2644a9941a82aee9eaf18bd706e191",
+    "stdlib_test_l0_sha256": "9e849dc5a0560c8132c5f455f8cb04ad7dac6d987c3dceaf7e9689a0c7e9724c",
+    "layout_test_l0_sha256": "1f923f647514ee0eb9b1ecae4033dceb9bb552e140e69c932b39b94441ca52f0",
+    "eval_test_l0_sha256": "cf5e31c521c6997db578da9ca8582ace2b86eb3d0434e88a2501b145c3edc101",
+    "infra_test_l0_sha256": "b0923c1686df93f732a15b10159eff5eb60f284f4433cd0abfabe9e23cade13a",
+    "stdlib_tests_sha256": "6296a7ff0c24e272ba362f2fb068a54cada82c8660c9e08715c5b6db428c6d55",
+    "layout_tests_sha256": "f188123a9e94799cb7c273089216b9f2252fd9a8026e50bfe126939dfc6b3a84",
+    "eval_tests_sha256": "8f0e2178f26151f2935d0bf1d18ea8db7522d3698b2245dcc19dbd8228d1a074",
+    "infra_tests_sha256": "e511991172545d377089c838cd3b24f8cc90b579d8d06b3d3831a41c8c6f49a3",
+    "status": "BYTE_IDENTICAL",
+    "lineage_rebind": "The seven owner L0 paths differ from their protected pre-candidate bytes only in Hash do Código metadata, the seal's explicit exception; crystalline-lint validates their final one-to-one bindings."
+  },
+  "candidate_hashes": {
+    "01_core/src/compiler/eval/mod.rs": "f9b7d80a512df3d02b0fe0a35e7d6e46059072108024862cf06026b9d5bb13f2",
+    "01_core/src/compiler/stdlib/structural/math.rs": "d4443ffb7b4ac42e1883bb4bbc5647818899abd4dd46b3021e54b02ac05402bc",
+    "01_core/src/entities/elements/math_limits_override.rs": "2b8c7f7d17af2af05c2a2a1f441fa96ea8f7e0329c6387572b70271ec90e194f",
+    "01_core/src/entities/content.rs": "70aa5c82a3029b16bafae9328cff695a7a7d3c23fba16fe593e8f0079915ee2e",
+    "01_core/src/compiler/eval/math.rs": "a4cf19b130627d3ac3c1aa21ebd7da7f36921e961ac493a6acff1913ea5c663d",
+    "01_core/src/compiler/math/layout/mod.rs": "b2f922452608a2553b928fad10aca309edaccabc6da32a1a34ef9c27d99a8cbb",
+    "01_core/src/compiler/eval/repr.rs": "5c5de5353d6f5eae065e04b4a5200621f57ba8c75f672e3afeb0acc9cb7630ff",
+    "01_core/src/compiler/math/layout/tests.rs": "421cb9ecd4871512c677257820e86d1b4fe90f21959a1fbced5489e47419596d",
+    "target/debug/typst": "58fd77e5bd34803ea24220dba7b4823e4b566b0a87a86704e5e2e19a44306f92",
+    "vanilla_binary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "ownership": {
+    "productive_consumers": 7,
+    "owner_l0s": 7,
+    "one_to_one": true,
+    "observation_eq_consumer_included": true,
+    "mechanical_test_repair": "Only six pre-P1425 constructor callsites in compiler/math/layout/tests.rs gained the required fourth argument, with rustfmt-only line expansion."
+  },
+  "functional_tests": {
+    "forward": {"core":"10 passed, 0 failed","infra":"3 passed, 0 failed"},
+    "forward_repeat": {"core":"10 passed, 0 failed","infra":"3 passed, 0 failed"},
+    "reverse": {"infra":"3 passed, 0 failed","core":"10 passed, 0 failed"},
+    "order_invariant": true,
+    "mandatory_vector": "P01-P12 and N01-N05 = Preserved",
+    "opaque_vector": "U01-U04 = Unknown"
+  },
+  "regressions": {
+    "p992_filter": "22 passed, 0 failed",
+    "scripts_filter": "17 passed, 0 failed"
+  },
+  "mutation_results": {
+    "sha256": "a85647d4c6ab501478e250415b73ab6286f08d300090289077de862a8bbbd850",
+    "negative_vector": "21/21 Violated in forward, forward_repeat, and reverse",
+    "mandatory_vector": "17/17 Preserved",
+    "opaque_vector": "4/4 Unknown, zero credit",
+    "m21": "ObservationEq returns Different when only inline_explicit differs and Same for identical complete carriers",
+    "score": 1.0,
+    "required_score": 1.0,
+    "unknown_never_success": true
+  },
+  "gates": {
+    "cargo_fmt_check": 0,
+    "cargo_build": 0,
+    "crystalline_lint": 0,
+    "git_diff_check": 0,
+    "lineage_lint": "PASS",
+    "candidate_allowlist": "PASS",
+    "sealed_hashes": "PASS",
+    "sealed_test_bodies": "PASS",
+    "v5_v15_v26": "CLEAR"
+  },
+  "blocking_findings": [],
+  "claim_boundary": "The PASS covers only the sealed P1425 math.limits fragment and its 21 frozen mutation families. It does not establish general math parity or cover the other 21 residual routes."
+}
