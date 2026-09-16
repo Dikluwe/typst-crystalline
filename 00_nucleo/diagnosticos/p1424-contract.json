@@ -172,9 +172,11 @@
   ],
   "exhaustive_wiring": {
     "audit": {
-      "exhaustive_matches": 14,
-      "path": "00_nucleo/diagnosticos/p1424-r2-exhaustive-audit.json",
-      "sha256": "4cf2c5a7fbe3c5fc64c214565dad8a38eb7e356a62dbc271cb0ec20710866a9e"
+      "baseline_commit": "328133c00386aac2a7ef5e3fa95711b4b370cc99",
+      "exhaustive_matches": 16,
+      "path": "00_nucleo/diagnosticos/p1424-r3-exhaustive-audit.json",
+      "sha256": "7a14009642105eb29ed145f3fd35beb57baea1a84cca6815c8b27604fbb417cb",
+      "workspace_final_exit_after_audit_only_neutralization": 0
     },
     "consumers": [
       {"file": "01_core/src/entities/content.rs", "obligation": "variant, Debug, elem_name, flattening, plain_text, map_content and map_text explicitly preserve or classify HtmlFrame", "owner_l0": "00_nucleo/prompts/entities/content.md"},
@@ -183,9 +185,10 @@
       {"file": "01_core/src/compiler/eval/mod.rs", "obligation": "ObservationEq compares the HtmlFrame body and preserves carrier identity", "owner_l0": "00_nucleo/prompts/compiler/eval.md"},
       {"file": "01_core/src/compiler/introspect/locatable.rs", "obligation": "locatability explicitly classifies HtmlFrame consistently with payload extraction", "owner_l0": "00_nucleo/prompts/compiler/introspect/locatable.md"},
       {"file": "01_core/src/compiler/introspect.rs", "obligation": "time materialization, label classification and walk explicitly preserve or descend through HtmlFrame body", "owner_l0": "00_nucleo/prompts/compiler/introspect.md"},
-      {"file": "01_core/src/compiler/math/layout/spacing.rs", "obligation": "math-class dispatch explicitly classifies HtmlFrame without claiming new math behavior", "owner_l0": "00_nucleo/prompts/compiler/math/layout/spacing.md"}
+      {"file": "01_core/src/compiler/math/layout/spacing.rs", "obligation": "math-class dispatch explicitly classifies HtmlFrame without claiming new math behavior", "owner_l0": "00_nucleo/prompts/compiler/math/layout/spacing.md"},
+      {"file": "03_infra/src/query_helpers.rs", "obligation": "has_any_text and count_variant descend through HtmlFrame.body without flattening or treating the carrier as a leaf", "owner_l0": "00_nucleo/prompts/infra/query-helpers.md"}
     ],
-    "fail_closed": "Any additional E0004 Content consumer, wildcard introduced to suppress review, missing owner L0 update, or unallowlisted compilation repair invalidates R2."
+    "fail_closed": "Any additional internal-sentinel or external-non-exhaustive Content consumer, wildcard introduced in production to suppress review, missing owner L0 update, or unallowlisted compilation repair invalidates R3."
   },
   "gates": {
     "architecture": [
@@ -206,7 +209,7 @@
   },
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1424-manifest.json",
-    "sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1"
+    "sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3"
   },
   "mutations": [
     {"id": "M01-html-elem-alias", "must_be_rejected_by": ["P03-carrier", "P08-html-text-svg", "P11-literal-frame-tag"], "mutation": "Implement frame as HtmlElem with tag frame or another sentinel tag."},
@@ -243,9 +246,9 @@
     "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
   },
   "revision": {
-    "id": "R2",
-    "previous_contract_sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31",
-    "reason": "Adds the minimal complete fail-closed Content exhaustive-wiring set found by the baseline compiler audit; public claims, cases, mutation expectations, Unknown policy and claim boundary are unchanged."
+    "id": "R3",
+    "previous_contract_sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d",
+    "reason": "Adds query_helpers as the sole cross-crate exhaustive consumer omitted by R2. The two-phase workspace audit reaches L4 with no further consumer after audit-only neutralization; public claims, cases, mutation expectations, Unknown policy and claim boundary remain unchanged."
   },
   "schema": "tekt.materialization.contract/v1",
   "unknown_policy": "Fail closed exactly as frozen in the manifest. Unknown is acceptable only as the expected result of U01-U04; it blocks P01-P13, contributes neither numerator nor rejection credit, and prevents sealing when produced by a required positive or a valid mutation."

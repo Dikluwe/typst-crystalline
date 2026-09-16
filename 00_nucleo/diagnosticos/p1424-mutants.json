@@ -1,11 +1,11 @@
 {
   "schema": "tekt.materialization.mutants/v1",
   "authored_at": "2026-09-16T14:12:57-03:00",
-  "revised_at": "2026-09-16T14:31:50-03:00",
+  "revised_at": "2026-09-16T14:44:34-03:00",
   "protocol": {
     "regime": "full",
     "attestation": "executado sem atestação de isolamento",
-    "status": "frozen_pre_candidate_r2",
+    "status": "frozen_pre_candidate_r3",
     "mutation_score_required": 1.0,
     "mutation_score_formula": "valid_mutations_classified_Violated / valid_mutations",
     "unknown_policy": "Unknown nunca recebe crédito, não rejeita mutação válida, bloqueia caso positivo obrigatório e só é o resultado correto dos controles opacos U01-U04.",
@@ -41,15 +41,15 @@
   "inputs": {
     "manifest": {
       "path": "00_nucleo/diagnosticos/p1424-manifest.json",
-      "sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1"
+      "sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3"
     },
     "contract": {
       "path": "00_nucleo/diagnosticos/p1424-contract.json",
-      "sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d"
+      "sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea"
     },
     "exhaustive_audit": {
-      "path": "00_nucleo/diagnosticos/p1424-r2-exhaustive-audit.json",
-      "sha256": "4cf2c5a7fbe3c5fc64c214565dad8a38eb7e356a62dbc271cb0ec20710866a9e"
+      "path": "00_nucleo/diagnosticos/p1424-r3-exhaustive-audit.json",
+      "sha256": "7a14009642105eb29ed145f3fd35beb57baea1a84cca6815c8b27604fbb417cb"
     },
     "baseline": {
       "approval_predecessor_commit": "50716247a60cc5965e4fe7d73807a482ecd1bb1b",
@@ -321,11 +321,11 @@
     "unknown_valid_mutation_blocks_seal": true
   },
   "revision": {
-    "id": "R2",
-    "previous_mutants_sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b",
-    "previous_manifest_sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab",
-    "previous_contract_sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31",
-    "reason": "Rebinds the unchanged mutation set, claims, execution orders and Unknown policy to the fail-closed R2 manifest and contract after the baseline exhaustive Content sentinel audit expanded the productive consumer allowlist.",
+    "id": "R3",
+    "previous_mutants_sha256": "90290cb354b8e0112c53ed0f303bba2146afd868ce867578dd802cdab6c973fb",
+    "previous_manifest_sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1",
+    "previous_contract_sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d",
+    "reason": "Rebinds the unchanged mutation set, claims, execution orders and Unknown policy to the workspace-wide fail-closed R3 audit, adding only the query_helpers exhaustive-wiring obligation.",
     "mutation_set_changed": false,
     "claims_changed": false,
     "execution_orders_changed": false,
