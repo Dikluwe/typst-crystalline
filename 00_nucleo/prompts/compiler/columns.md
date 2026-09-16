@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: 370cec02
+Hash do Código: bf9efca7
 
 
 **Camada**: L1  
@@ -464,3 +464,28 @@ ocorrência. O buffer privado guarda somente baseline, página, pattern e chain,
 participa do rollback e é drenado ao sair. Callbacks heterogêneos, colunas de
 página heterogêneas, RTL, configuração local divergente e columns aninhadas
 permanecem `Unknown`.
+
+## P1418 — consolidação por coluna física de página
+
+### Medição anterior à decisão
+
+No baseline `573c42c14`, colunas de página com primeira região a 18 pt e
+segunda a 8 pt usam números marginais de 18 pt em ambas e suprimem a baseline
+central da segunda. Invertendo os tamanhos, os números permanecem em 8 pt até
+na região local de 18 pt. Com três colunas, `prev_bottom` recomeça em cada
+frame físico; não há comparação vertical entre irmãs.
+
+### Decisão interna
+
+O owner de página ativa as candidatas P1417 para patterns tanto no modo
+segmentado direto quanto no fluxo contínuo que recebe `colbreak()` sob wrappers
+de estilo. A primeira coluna com ocorrência numerável captura o `TextStyle`
+compartilhado da composição, que permanece imutável para as colunas seguintes.
+`close_current_column` consolida somente a cauda daquela região antes da
+translação, reiniciando a fronteira vertical e preservando contador/scope
+documental; o owner segmentado direto faz a drenagem equivalente.
+
+A última coluna física força margem final conforme P1415. `#columns()` mantém
+sua consolidação transversal P1417. Callbacks heterogêneos, primeira coluna
+sem candidata, estilo local de `par.line`, RTL e columns aninhadas permanecem
+`Unknown`.

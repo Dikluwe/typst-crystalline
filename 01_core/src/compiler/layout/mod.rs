@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash fb55b3d6
+//! @prompt-hash d8cabccf
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -646,6 +646,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1417 — somente patterns em colunas segmentadas usam esta cauda.
     pub(super) defer_segmented_par_line_patterns: bool,
     pub(super) pending_segmented_par_line_patterns: Vec<SegmentedParLinePatternCandidate>,
+    /// P1418 — configuração compartilhada e fronteira da coluna física ativa
+    /// no fluxo contínuo de colunas de página.
+    pub(super) page_par_line_pattern_style: Option<TextStyle>,
+    pub(super) page_par_line_pattern_column_start: usize,
     /// **P538c** — items já fechados de cada coluna da página actual.
     /// Só preenchido quando `page_columns` é `Some`.
     pub(super) column_page_items: Vec<Vec<FrameItem>>,
@@ -845,6 +849,8 @@ pub(super) struct FlowSuffixCheckpoint {
     segmented_par_line_overlay: Option<SegmentedParLineOverlay>,
     defer_segmented_par_line_patterns: bool,
     pending_segmented_par_line_patterns_len: usize,
+    page_par_line_pattern_style: Option<TextStyle>,
+    page_par_line_pattern_column_start: usize,
     column_page_items_len: usize,
     column_page_item_lens: Vec<usize>,
     column_x_offsets_len: usize,
@@ -1142,6 +1148,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             segmented_par_line_overlay: None,
             defer_segmented_par_line_patterns: false,
             pending_segmented_par_line_patterns: Vec::new(),
+            page_par_line_pattern_style: None,
+            page_par_line_pattern_column_start: 0,
             column_page_items: Vec::new(),
             column_x_offsets: Vec::new(),
             // P286 — collector inactivo por default; consumer P284 activa
@@ -1259,6 +1267,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_segmented_par_line_patterns_len: self
                 .pending_segmented_par_line_patterns
                 .len(),
+            page_par_line_pattern_style: self.page_par_line_pattern_style.clone(),
+            page_par_line_pattern_column_start: self.page_par_line_pattern_column_start,
             column_page_items_len: self.column_page_items.len(),
             column_page_item_lens: self.column_page_items.iter().map(Vec::len).collect(),
             column_x_offsets_len: self.column_x_offsets.len(),
@@ -1370,6 +1380,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             checkpoint.defer_segmented_par_line_patterns;
         self.pending_segmented_par_line_patterns
             .truncate(checkpoint.pending_segmented_par_line_patterns_len);
+        self.page_par_line_pattern_style = checkpoint.page_par_line_pattern_style;
+        self.page_par_line_pattern_column_start =
+            checkpoint.page_par_line_pattern_column_start;
         self.column_page_items.truncate(checkpoint.column_page_items_len);
         for (items, len) in self
             .column_page_items

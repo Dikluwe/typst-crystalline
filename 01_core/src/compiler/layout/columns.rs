@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash 4c87837f
+//! @prompt-hash 91ee7737
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -32,12 +32,13 @@ use super::{FontMetrics, ImageSizer, Layouter, SegmentedParLineOverlay};
 
 /// P1417 — materializa patterns depois de ordenar as baselines das regiões
 /// irmãs. `#columns()` respeita a margem configurada no contentor.
-fn realize_segmented_par_line_patterns<M: FontMetrics, S: ImageSizer>(
+pub(super) fn realize_segmented_par_line_patterns<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     start: usize,
     number_style: &TextStyle,
     region_width: f64,
     line_start_x: f64,
+    force_end_margin: bool,
 ) -> Vec<FrameItem> {
     let mut candidates: Vec<_> =
         layouter.pending_segmented_par_line_patterns.drain(start..).collect();
@@ -82,7 +83,7 @@ fn realize_segmented_par_line_patterns<M: FontMetrics, S: ImageSizer>(
             })) => HAlign::Right,
             _ => HAlign::Left,
         };
-        let margin = configured_margin;
+        let margin = if force_end_margin { HAlign::Right } else { configured_margin };
         let align = match candidate.styles.custom("par.line.number-align") {
             Some(Value::Align(Align2D { h: Some(h), v: None })) => *h,
             _ if margin == HAlign::Left => HAlign::Right,
@@ -428,6 +429,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
     let pattern_candidates_start = layouter.pending_segmented_par_line_patterns.len();
     let outer_number_style = TextStyle::from(&layouter.chain);
+    let mut page_number_style: Option<TextStyle> = None;
     let entry_par_line_counter = layouter.par_line_counter;
     let entry_par_line_page = layouter.par_line_page;
     let mut emitted_par_line_rows = 0usize;
@@ -453,7 +455,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.column_mode = true;
         layouter.segmented_par_line_column =
             page_columns.then_some((idx, column_x_offsets.len()));
-        layouter.defer_segmented_par_line_patterns = !page_columns;
+        layouter.defer_segmented_par_line_patterns = true;
         if page_columns {
             layouter.segmented_par_line_overlay = None;
         } else {
@@ -490,6 +492,25 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // sentinela e sem abrir outros contextos de `column_mode`.
         super::sequence::layout_segmented_region(layouter, segment);
         layouter.flush_line();
+        if page_columns {
+            if page_number_style.is_none() {
+                page_number_style = layouter
+                    .pending_segmented_par_line_patterns
+                    .get(pattern_candidates_start)
+                    .map(|candidate| TextStyle::from(&candidate.styles));
+            }
+            if let Some(number_style) = &page_number_style {
+                let numbers = realize_segmented_par_line_patterns(
+                    layouter,
+                    pattern_candidates_start,
+                    number_style,
+                    column_region_width,
+                    margin,
+                    idx + 1 == column_x_offsets.len(),
+                );
+                layouter.regions.current.current_items.extend(numbers);
+            }
+        }
         if !page_columns {
             let rows = layouter.par_line_counter.saturating_sub(entry_par_line_counter);
             if rows > emitted_par_line_rows {
@@ -581,6 +602,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
             &outer_number_style,
             outer_width,
             outer_start,
+            false,
         );
         all_column_items.extend(numbers);
     }
@@ -613,6 +635,14 @@ fn layout_flow<M: FontMetrics, S: ImageSizer>(
     column_region_width: f64,
     margin: f64,
 ) {
+    let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
+    let saved_page_number_style = layouter.page_par_line_pattern_style.take();
+    let saved_page_column_start = layouter.page_par_line_pattern_column_start;
+    layouter.defer_segmented_par_line_patterns = true;
+    layouter.page_par_line_pattern_style = None;
+    layouter.page_par_line_pattern_column_start =
+        layouter.pending_segmented_par_line_patterns.len();
+
     // Configurar estado de colunas no Layouter.
     layouter.page_columns = Some(count);
     layouter.current_column = 0;
@@ -637,6 +667,9 @@ fn layout_flow<M: FontMetrics, S: ImageSizer>(
 
     // Fechar colunas, fundir items e restaurar estado de página normal.
     layouter.finish_columns();
+    layouter.defer_segmented_par_line_patterns = saved_defer_par_line_patterns;
+    layouter.page_par_line_pattern_style = saved_page_number_style;
+    layouter.page_par_line_pattern_column_start = saved_page_column_start;
 
     // O cursor principal avança para o fundo da coluna mais baixa da
     // última página. Como `finish_columns` reposiciona o cursor no topo

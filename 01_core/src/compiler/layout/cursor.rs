@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 7a20c0d2
+//! @prompt-hash 5e46432b
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1295,6 +1295,35 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.column_mode = true;
         self.flush_pending_footnote_bodies(None);
         self.column_mode = prev_column_mode;
+
+        // P1418 — o fluxo contínuo fecha a região física aqui. Patterns são
+        // consolidados antes de retirar/transladar os items, com um estilo
+        // compartilhado capturado somente na primeira coluna numerável.
+        if self.defer_segmented_par_line_patterns && self.page_columns.is_some() {
+            let start = self.page_par_line_pattern_column_start;
+            if self.page_par_line_pattern_style.is_none() {
+                self.page_par_line_pattern_style = self
+                    .pending_segmented_par_line_patterns
+                    .get(start)
+                    .map(|candidate| TextStyle::from(&candidate.styles));
+            }
+            if let Some(number_style) = self.page_par_line_pattern_style.clone() {
+                let force_end_margin = self
+                    .page_columns
+                    .is_some_and(|count| self.current_column + 1 == count);
+                let numbers = super::columns::realize_segmented_par_line_patterns(
+                    self,
+                    start,
+                    &number_style,
+                    self.regions.current.width,
+                    self.regions.current.line_start_x.0,
+                    force_end_margin,
+                );
+                self.regions.current.current_items.extend(numbers);
+            }
+            self.page_par_line_pattern_column_start =
+                self.pending_segmented_par_line_patterns.len();
+        }
 
         // Transladar items da coluna actual de coordenadas locais (origem
         // na margem) para coordenadas absolutas na página.

@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 7280a8cd
+Hash do Código: cec91e7f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -546,14 +546,35 @@ essa decisão somente depois de recolher e ordenar os marcadores verticais.
 
 ### Decisão interna
 
-Quando o contexto privado P1417 de `#columns()` está ativo e `numbering` é string, Cursor não
-incrementa contador, não formata e não cria item/fixup. Registra uma candidata
-com baseline estabilizada, página causal, pattern e chain. Funções continuam
-no caminho P1415/P1416: o Cursor não as executa nem presume a altura do retorno.
+Quando o contexto privado P1417 de `#columns()` está ativo e `numbering` é
+string, Cursor não incrementa contador, não formata e não cria item/fixup.
+Registra uma candidata com baseline estabilizada, página causal, pattern e
+chain. Funções continuam no caminho P1415/P1416: o Cursor não as executa nem
+presume a altura do retorno.
 
 Fora desse contexto, patterns preservam o caminho imediato P1414. O buffer é
 cauda transacional do Layouter e rollback o trunca; flush vazio e subframe não
 registram candidata.
+
+## Amendment-22 — candidatura de pattern em coluna de página P1418
+
+### Medição anterior à decisão
+
+No baseline `573c42c14`, o caminho imediato P1415 formata cada número no estilo
+local da linha e não dispõe da altura compartilhada necessária para suprimir
+baselines próximas dentro da coluna física.
+
+### Decisão interna
+
+O mesmo registro diferido P1417 fica ativo para pattern em coluna de página,
+inclusive no fluxo contínuo. Cursor continua registrando baseline, página,
+pattern e chain sem incrementar contador ou criar item. Ao fechar uma coluna
+contínua, Cursor delega a consolidação da sua cauda ao owner de columns antes
+de aplicar fixups e translação. No modo segmentado direto, o próprio owner faz
+a drenagem equivalente.
+
+Callbacks continuam imediatos e nunca entram nessa cauda. Fora de contexto
+segmentado, P1414 permanece inalterado.
 
 ## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
 

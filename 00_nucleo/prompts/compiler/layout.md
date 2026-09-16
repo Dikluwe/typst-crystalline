@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: ccd99ecb
+Hash do Código: 00ca013a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -453,3 +453,24 @@ checkpoint registra o contexto e comprimento para rollback.
 O vetor é linear nas linhas numeráveis da composição ativa e não é usado para
 callbacks. Em colunas de página e fora de colunas segmentadas permanece vazio;
 o comportamento P1414/P1415 imediato não muda.
+
+## P1418 — estilo compartilhado privado de coluna de página
+
+### Medição anterior à decisão
+
+No baseline `573c42c14`, a cauda P1417 já contém chain causal suficiente para
+capturar o estilo da primeira ocorrência, mas colunas de página não a ativam.
+O estilo local da segunda coluna diverge do estilo compartilhado observado no
+vanila.
+
+### Decisão interna
+
+Durante uma composição de colunas de página, Layouter mantém um
+`Option<TextStyle>` privado capturado da primeira candidata disponível e o
+índice inicial da cauda da coluna corrente. Ambos integram checkpoint/rollback,
+são instalados e restaurados pelo owner de columns e não entram em entidade ou
+contrato público. `close_current_column` drena a cauda por coluna; o modo
+segmentado direto usa estado local equivalente. A cauda fica vazia ao sair.
+
+Callbacks não usam esse estilo nem essa cauda. Primeira coluna sem candidata e
+configurações locais divergentes permanecem `Unknown`.
