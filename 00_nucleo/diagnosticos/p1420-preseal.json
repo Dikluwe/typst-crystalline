@@ -1,0 +1,73 @@
+{
+  "schema": "tekt-preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1420,
+  "status": "SEALED",
+  "verdict": "SEALED",
+  "attestation": "executado sem atestação de isolamento",
+  "sealed_at": "2026-09-16T14:34:00-03:00",
+  "revision": "R2-after-html-focal-oracle-correction",
+  "sealed_inputs": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1420.md",
+      "sha256": "3b6c0b3aaa56566e8a391516f2f8b8b8326fd105d20cd797910a0849da07221c"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1420-manifest.json",
+      "sha256": "8e4a88552848f0e550d864c43b68adbd7b72000aa1969130b80e086077b7818e"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1420-contract.json",
+      "sha256": "f8758aaac326fe9ac9c10a75bf6f1884ae69fd3076666c2469dedf59c44f70d1"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1420-oracles.json",
+      "sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4"
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1420-mutants.json",
+      "sha256": "a811452c8d3aa3a5885a744de5e6b37971cd3e60e21c9582ad16ada96062f601"
+    },
+    "inventory": {
+      "path": "/tmp/p1420-current-inventory.json",
+      "sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15"
+    }
+  },
+  "baseline": {
+    "head": "95491eec8987176616a784554d11938e1b1c1e49",
+    "tree": "ba40fcfa888408ca0e09395beac18e08b59a4fd0",
+    "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanila_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_binary_sha256": "1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e"
+  },
+  "discriminatory_gate": {
+    "valid_negative": 27,
+    "violated": 27,
+    "positive": 7,
+    "preserved": 7,
+    "opaque": 8,
+    "unknown": 8,
+    "mutation_score": 1.0,
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "order_invariant": true,
+    "result": "PASS"
+  },
+  "capability_note": "Papéis tiveram escritas segregadas, mas compartilharam filesystem e contexto de repositório; o selo identifica entradas e ordem, não atesta isolamento técnico.",
+  "revision_receipt": {
+    "cause": "Os dois controles de target HTML excediam a fixture literal obrigatória com texto adicional.",
+    "hypothesis": "A fixture literal exata remove conteúdo não autorizado sem alterar target, transporte ou denominador.",
+    "scope": "Somente dois controles html-target, seis execuções vanilla; casos e demais controles preservados.",
+    "oracle_sha256_before": "5dac6acf5c8caba14a9116665b7df02c4a8e53ae358fc02daa8f6fb7741df8da",
+    "oracle_sha256_after": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+    "full_corpus_runs": 0
+  },
+  "protected_after_seal": [
+    "00_nucleo/materialization/typst-passo-1420.md",
+    "00_nucleo/diagnosticos/p1420-manifest.json",
+    "00_nucleo/diagnosticos/p1420-contract.json",
+    "00_nucleo/diagnosticos/p1420-oracles.json",
+    "00_nucleo/diagnosticos/p1420-mutants.json",
+    "/tmp/p1420-current-inventory.json"
+  ],
+  "claim_boundary": "Sela somente o contrato observável das 66 rotas; não declara paridade funcional geral de HTML, math ou Typst."
+}

@@ -1,0 +1,199 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "step": 1420,
+  "role": "verificador final independente",
+  "verified_at": "2026-09-16T11:21:44-03:00",
+  "verdict": "INCONCLUSIVE",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict_reason": "O instrumento, o gate discriminatório, os hashes e os gates arquiteturais verificados passaram, mas as duas revisões focais consecutivas mantiveram o mesmo vetor e a mesma causa dominante OUTPUT_MISSING no controle HTML obrigatório. O corpus integral não podia ser executado e 64 das 66 rotas permanecem sem execução.",
+  "claim_boundary": "Este certificado verifica a execução focal, a parada obrigatória e os artefatos P1420 observados. Não fecha as 66 rotas e não declara equivalência funcional geral de HTML, math ou Typst.",
+  "regime": {
+    "kind": "full-final-verification",
+    "workspace_isolated": false,
+    "write_authority": [
+      "00_nucleo/diagnosticos/p1420-verification.json"
+    ],
+    "judged_artifacts_modified": false,
+    "product_modified": false
+  },
+  "repository_state": {
+    "head": "95491eec8987176616a784554d11938e1b1c1e49",
+    "tree": "ba40fcfa888408ca0e09395beac18e08b59a4fd0",
+    "working_tree": "working tree não commitado",
+    "changes_in_l0_prompts_or_nuclei": [],
+    "changes_in_l1_l4": [],
+    "only_p1420_paths_observed_before_this_certificate": [
+      "00_nucleo/materialization/typst-passo-1420.md",
+      "00_nucleo/diagnosticos/p1420-backlog.json",
+      "00_nucleo/diagnosticos/p1420-contract.json",
+      "00_nucleo/diagnosticos/p1420-manifest.json",
+      "00_nucleo/diagnosticos/p1420-mutants.json",
+      "00_nucleo/diagnosticos/p1420-oracles.json",
+      "00_nucleo/diagnosticos/p1420-preseal.json",
+      "00_nucleo/diagnosticos/p1420-report.md",
+      "00_nucleo/diagnosticos/p1420-results.json",
+      "lab/parity/p1420_unknown_route_reprobe.py"
+    ]
+  },
+  "sealed_input_verification": {
+    "result": "PASS",
+    "all_current_hashes_match_preseal": true,
+    "step_sha256": "3b6c0b3aaa56566e8a391516f2f8b8b8326fd105d20cd797910a0849da07221c",
+    "manifest_sha256": "8e4a88552848f0e550d864c43b68adbd7b72000aa1969130b80e086077b7818e",
+    "contract_sha256": "f8758aaac326fe9ac9c10a75bf6f1884ae69fd3076666c2469dedf59c44f70d1",
+    "oracles_sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+    "mutants_sha256": "a811452c8d3aa3a5885a744de5e6b37971cd3e60e21c9582ad16ada96062f601",
+    "inventory_sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15",
+    "preseal_sha256": "3be09673f26f556c20226440738a411f1e8eeaf9028adf615cab22c4c0971bf1",
+    "runner_sha256": "db2fa59d3be9394c9ab8da858685d274e6a6364f8c84c6ac681db028fc8f0b25"
+  },
+  "historical_preservation": {
+    "result": "PASS",
+    "all_manifest_protected_inputs_match": true,
+    "p1400_contract_sha256": "b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545",
+    "p1400_oracles_sha256": "75ff90569ca462b819024c186f1705bdd41619c71edb521345549f32fcf1ceb2",
+    "p1400_results_sha256": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542",
+    "p1400_runner_sha256": "a4bcf6f2807fab8354ce296275d3e3c8b0dd41c7a6a77066e1c2320eb656e016",
+    "p1409_runner_sha256": "24ab1247a52d63cffdc2cb93868cd54ff70e91e293df795b789283d5b4701250",
+    "p1409_results_sha256": "5b46cfccc882000aa831538dbf3974ed298740d7fa070d280153ca827dfa4378",
+    "p1414_results_sha256": "1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba"
+  },
+  "discriminatory_gate": {
+    "result": "PASS",
+    "valid_negative": 27,
+    "violated": 27,
+    "positive": 7,
+    "preserved": 7,
+    "opaque": 8,
+    "unknown": 8,
+    "mutation_score": 1.0,
+    "order_invariant": true,
+    "vector_sha256": "f9f8fc87a60686b10ff212bf4abd772cbbabd6f90604c322b400ad6627505240"
+  },
+  "focal_verification": {
+    "result": "INCONCLUSIVE",
+    "revision_1": {
+      "path": "/tmp/p1420-focal-results.json",
+      "sha256": "eaf95ab46213e62b394de531a0d974026ad881da2db1be1ba71cf09831822f22",
+      "oracles_sha256": "5dac6acf5c8caba14a9116665b7df02c4a8e53ae358fc02daa8f6fb7741df8da",
+      "preseal_sha256": "aa048256e1eb7ac8b874b0ecaad65c6fc4ba0e4215015b290657bb64ea9f6e1f",
+      "state_counts": {
+        "PARTIAL": 1,
+        "UNKNOWN": 1
+      },
+      "dominant_reason": "OUTPUT_MISSING"
+    },
+    "revision_2": {
+      "path": "/tmp/p1420-focal-r2-results.json",
+      "sha256": "fe637afddb8b3f8ac4d095cb19014a3662652c1a60342bc0ae4f18eb07ed3196",
+      "oracles_sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+      "preseal_sha256": "3be09673f26f556c20226440738a411f1e8eeaf9028adf615cab22c4c0971bf1",
+      "state_counts": {
+        "PARTIAL": 1,
+        "UNKNOWN": 1
+      },
+      "dominant_reason": "OUTPUT_MISSING"
+    },
+    "same_route_vector": true,
+    "route_vector_sha256": "dbd36664b5bf88e75a6dd5adc8baf69dd7f6aa4704ee1e27406520df22261950",
+    "orders": [
+      "direct",
+      "direct-repeat",
+      "reverse"
+    ],
+    "order_invariant": true,
+    "measured_routes": [
+      {
+        "path": "html.area",
+        "qualified_state": "UNKNOWN",
+        "alternative_state": "MATCH",
+        "route_state": "UNKNOWN",
+        "reason_code": "OUTPUT_MISSING"
+      },
+      {
+        "path": "math.abs",
+        "qualified_state": "ABSENT",
+        "alternative_state": "DIFFERENCE",
+        "route_state": "PARTIAL",
+        "reason_code": "QUALIFIED_ABSENT_ALTERNATIVE_DIFFERENCE"
+      }
+    ],
+    "unexecuted_routes": 64,
+    "product_credit_for_unexecuted_routes": false
+  },
+  "argv_audit": {
+    "result": "PASS",
+    "receipts_scanned": 204,
+    "focal_revision_1_argv": 102,
+    "focal_revision_2_argv": 102,
+    "jobs_occurrences": 0,
+    "target_occurrences": 0,
+    "logical_bilateral_asymmetries": 0,
+    "allowed_per_product_differences": "executável e paths gerados de input/output"
+  },
+  "stop_rule": {
+    "result": "PASS",
+    "html_focal_revisions_used": 2,
+    "same_classification_vector": true,
+    "same_dominant_cause": true,
+    "full_campaigns_used": 0,
+    "full_campaign_required_to_stop": true,
+    "decision": "Parar antes do corpus integral e reabrir o desenho do controle/observabilidade. Uma terceira tentativa focal ou execução integral sem hipótese nova violaria o budget e a regra de rendimento decrescente."
+  },
+  "final_gates": [
+    {
+      "command": "PYTHONPYCACHEPREFIX=/tmp/p1420-verifier-pyc python3 -m py_compile lab/parity/p1420_unknown_route_reprobe.py",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "python3 lab/parity/p1420_unknown_route_reprobe.py --validate-only",
+      "exit_code": 0,
+      "result": "PASS",
+      "route_count": 66,
+      "probe_count_per_order": 154
+    },
+    {
+      "command": "python3 lab/parity/p1420_unknown_route_reprobe.py --gate",
+      "exit_code": 0,
+      "result": "PASS",
+      "mutation_score": 1.0
+    },
+    {
+      "command": "python3 lab/parity/p1420_unknown_route_reprobe.py --run ...",
+      "result": "NOT_RUN_BY_STOP_RULE",
+      "reason": "Os dois focais não passaram; executar o corpus integral seria proibido pelo passo."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "crystalline-lint .",
+      "exit_code": 0,
+      "result": "PASS",
+      "v5": 0,
+      "v15": 0,
+      "v26": 0,
+      "note": "O linter emitiu warnings e infos históricos, mas nenhuma violation e retornou sucesso."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "artifact_consistency": {
+    "results_sha256": "11a9ea2b85abca85ce83277b90503444bc36824d04d36877d6d4feacc195633c",
+    "backlog_sha256": "9ab8e75f2f9d0695672ae0d02bc89d248c857b938d6839fa6456e0021913534f",
+    "report_sha256": "e517993399b84b2e9095d6cb9e66e46a95080b4e571ff74c0922d560c744a4fd",
+    "results_focal_receipt_matches": true,
+    "results_report_backlog_agree_on_inconclusive": true
+  },
+  "limitations": [
+    "Papéis, filesystem e contexto não tiveram isolamento técnico; hashes e allowlists provam identidade observada, não isolamento material.",
+    "O campo sealed_at do preseal é 2026-09-16T14:34:00-03:00, incompatível com o relógio local da verificação e com o focal. O mtime do preseal (2026-09-16T11:17:24-03:00) precede o focal R2 (2026-09-16T11:17:31-03:00), sustentando a ordem causal, mas a codificação temporal do campo é uma anomalia de proveniência.",
+    "A campanha integral e sua repetição final não foram executadas por obrigação de parada; logo não há base para um PASS das 66 rotas."
+  ]
+}

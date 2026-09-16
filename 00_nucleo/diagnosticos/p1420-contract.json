@@ -1,0 +1,940 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1420,
+  "status": "candidate-contract-unsealed",
+  "contract_revision": "R0",
+  "regime": {
+    "kind": "full",
+    "attestation": "executado sem atestação de isolamento",
+    "product_read_only": true,
+    "candidate_implementation_read_by_contract_author": false,
+    "preseal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "step_path": "00_nucleo/materialization/typst-passo-1420.md",
+    "step_sha256": "3b6c0b3aaa56566e8a391516f2f8b8b8326fd105d20cd797910a0849da07221c",
+    "manifest_path": "00_nucleo/diagnosticos/p1420-manifest.json",
+    "manifest_sha256_at_contract_creation": "8e4a88552848f0e550d864c43b68adbd7b72000aa1969130b80e086077b7818e",
+    "manifest_hash_binding": "O preseal deve confirmar este SHA-256 do manifesto e calcular e fixar o SHA-256 deste contrato.",
+    "p1400_results_path": "00_nucleo/diagnosticos/p1400-results.json",
+    "p1400_results_sha256": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542",
+    "current_inventory_path": "/tmp/p1420-current-inventory.json",
+    "current_inventory_sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15"
+  },
+  "baseline_identities": {
+    "repository_head": "95491eec8987176616a784554d11938e1b1c1e49",
+    "repository_tree": "ba40fcfa888408ca0e09395beac18e08b59a4fd0",
+    "vanila_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanila_binary": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "crystalline_binary": {
+      "path": "target/release/typst",
+      "sha256": "1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e"
+    },
+    "crystalline_enumerator": {
+      "path": "lab/surface-inventory/target/release/surface-inventory-p1140",
+      "sha256": "ec109dad8c7a38e8e08e01ed4be4ea842c5f86635584718c55915a8616a6f810"
+    }
+  },
+  "scope": {
+    "denominator": 66,
+    "families": {
+      "html": 44,
+      "math": 22
+    },
+    "source_derivation": "Selecionar de p1400-results.json exatamente as rotas UNKNOWN com html/TARGET_CONTROL_FAILED ou math/NON_BILATERAL_EVIDENCE e exigir igualdade literal com as listas congeladas.",
+    "current_inventory_precondition": "As mesmas 66 rotas devem permanecer presentes entre os paths VANILLA_ONLY do recibo atual.",
+    "authorized_delta": "Corrigir somente transporte HTML, projeção math e classificador de dois eixos no instrumento sucessor P1420.",
+    "product_delta": "none",
+    "excluded": [
+      "124 rotas da família format",
+      "nove rotas math já PARTIAL no P1400",
+      "oito membros e uma rota color já ABSENT no P1400",
+      "as dez rotas retiradas do denominador por P1401-P1419",
+      "dívidas de loaders, closures, diagnósticos e layout",
+      "mudanças em Prompt L0, Núcleo Tekt, L1-L4, catálogo ou manifesto permanente da matriz",
+      "qualquer equivalência funcional geral"
+    ],
+    "mechanics_excluded": [
+      "bytes PDF",
+      "ordem de objetos exportados",
+      "estrutura, igualdade ou passos Rust",
+      "ordem de atributos HTML",
+      "whitespace puramente externo a text nodes"
+    ]
+  },
+  "inventory_precondition": {
+    "must_all_hold": {
+      "receipt_sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15",
+      "VANILLA_ONLY_cells": 504,
+      "VANILLA_ONLY_unique_paths": 207,
+      "format_family_unique_paths": 124,
+      "non_format_family_unique_paths": 83,
+      "frozen_route_count": 66,
+      "frozen_route_list_exact_set_equality": true,
+      "frozen_routes_all_present_in_current_vanilla_only_set": true,
+      "determinism_hashes_identical_count": 4,
+      "determinism_hash": "4109ae0d0f9a9403b1acc759e92438a3aeaa2edd6ae4292bb1b3ed16e265c28e",
+      "product_and_enumerator_identities_exact": true
+    },
+    "failure": {
+      "qualified_state": "UNKNOWN",
+      "alternative_state": "UNKNOWN",
+      "route_state": "UNKNOWN",
+      "reason_code": "BASELINE_DRIFT",
+      "required_action": "Registrar delta nominal e reabrir escopo; não editar lista, probes ou expected silenciosamente."
+    }
+  },
+  "frozen_routes": {
+    "html": [
+      "html.area",
+      "html.audio",
+      "html.base",
+      "html.blockquote",
+      "html.canvas",
+      "html.caption",
+      "html.colgroup",
+      "html.data",
+      "html.del",
+      "html.details",
+      "html.dialog",
+      "html.embed",
+      "html.fieldset",
+      "html.form",
+      "html.frame",
+      "html.hr",
+      "html.img",
+      "html.input",
+      "html.ins",
+      "html.label",
+      "html.link",
+      "html.map",
+      "html.meta",
+      "html.meter",
+      "html.object",
+      "html.optgroup",
+      "html.option",
+      "html.output",
+      "html.progress",
+      "html.q",
+      "html.script",
+      "html.slot",
+      "html.source",
+      "html.style",
+      "html.table",
+      "html.tbody",
+      "html.td",
+      "html.textarea",
+      "html.tfoot",
+      "html.th",
+      "html.thead",
+      "html.time",
+      "html.tr",
+      "html.track"
+    ],
+    "math": [
+      "math.abs",
+      "math.accent",
+      "math.cases",
+      "math.frac",
+      "math.limits",
+      "math.lr",
+      "math.mat",
+      "math.mid",
+      "math.norm",
+      "math.overbrace",
+      "math.overbracket",
+      "math.overline",
+      "math.overparen",
+      "math.overshell",
+      "math.primes",
+      "math.root",
+      "math.round",
+      "math.stretch",
+      "math.underbrace",
+      "math.underbracket",
+      "math.underparen",
+      "math.undershell"
+    ]
+  },
+  "classification_contract": {
+    "exactly_one_value_per_axis_per_route": true,
+    "qualified_states": [
+      "MATCH",
+      "ABSENT",
+      "DIFFERENCE",
+      "UNKNOWN"
+    ],
+    "alternative_states": [
+      "MATCH",
+      "ABSENT",
+      "DIFFERENCE",
+      "UNKNOWN",
+      "NOT_APPLICABLE"
+    ],
+    "route_states": [
+      "MATCH",
+      "PARTIAL",
+      "ABSENT",
+      "DIFFERENCE",
+      "UNKNOWN"
+    ],
+    "axis_definitions": {
+      "qualified_state": "Resultado bilateral da forma pública qualificada exata da rota.",
+      "alternative_state": "Resultado bilateral da alternativa literal ou math-mode própria da rota, executada independentemente.",
+      "route_state": "Composição normativa dos dois subvereditos, controles e recursos."
+    },
+    "composition": [
+      {
+        "when": "qualified_state=MATCH",
+        "route_state": "MATCH",
+        "reason_code": "QUALIFIED_MATCH"
+      },
+      {
+        "when": "qualified_state=DIFFERENCE",
+        "route_state": "DIFFERENCE",
+        "reason_code": "QUALIFIED_PUBLIC_DIFFERENCE"
+      },
+      {
+        "when": "qualified_state=ABSENT and alternative_state=MATCH",
+        "route_state": "PARTIAL",
+        "reason_code": "QUALIFIED_ABSENT_ALTERNATIVE_MATCH"
+      },
+      {
+        "when": "qualified_state=ABSENT and alternative_state=DIFFERENCE",
+        "route_state": "PARTIAL",
+        "reason_code": "QUALIFIED_ABSENT_ALTERNATIVE_DIFFERENCE",
+        "backlog_requirement": "Registrar também a diferença nominal da alternativa."
+      },
+      {
+        "when": "qualified_state=ABSENT and alternative_state=ABSENT",
+        "route_state": "ABSENT",
+        "reason_code": "QUALIFIED_AND_ALTERNATIVE_ABSENT"
+      },
+      {
+        "when": "any mandatory control, identity, execution, resource, qualified probe, alternative probe or projection is inconclusive",
+        "route_state": "UNKNOWN",
+        "reason_code": "A razão literal da primeira fase inconclusiva deve ser preservada."
+      }
+    ],
+    "precedence": [
+      "UNKNOWN_ON_ANY_MANDATORY_INCONCLUSIVE_INPUT",
+      "QUALIFIED_MATCH_OR_DIFFERENCE",
+      "PARTIAL_ON_QUALIFIED_ABSENT_WITH_CONCLUSIVE_ALTERNATIVE",
+      "ABSENT_ONLY_WHEN_BOTH_FORMS_ARE_CONCLUSIVELY_ABSENT"
+    ],
+    "constraints": [
+      "alternative_state=DIFFERENCE nunca vira UNKNOWN apenas porque stdout difere bilateralmente",
+      "alternative_state nunca concede MATCH ao membro qualificado ausente",
+      "PARTIAL nunca esconde uma alternativa DIFFERENCE",
+      "resultado de sibling nunca concede crédito",
+      "erro de cast ou aridade nunca prova ausência",
+      "Unknown nunca é promovido por default"
+    ]
+  },
+  "profiles": {
+    "default": {
+      "features": [],
+      "target": "paged/default",
+      "eval_argv_template": [
+        "<binary>",
+        "eval",
+        "--format",
+        "raw",
+        "<expression>"
+      ]
+    },
+    "a11y-extras": {
+      "features": [
+        "a11y-extras"
+      ],
+      "target": "paged/default",
+      "eval_argv_template": [
+        "<binary>",
+        "eval",
+        "--features",
+        "a11y-extras",
+        "--format",
+        "raw",
+        "<expression>"
+      ]
+    },
+    "html": {
+      "features": [
+        "html"
+      ],
+      "target": "html",
+      "compile_argv_template": [
+        "<binary>",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "<input.typ>",
+        "<output.html>"
+      ]
+    },
+    "html+a11y": {
+      "features": [
+        "html",
+        "a11y-extras"
+      ],
+      "target": "html",
+      "compile_argv_template": [
+        "<binary>",
+        "compile",
+        "--features",
+        "html,a11y-extras",
+        "--format",
+        "html",
+        "<input.typ>",
+        "<output.html>"
+      ]
+    }
+  },
+  "transport_contract": {
+    "bilateral_logical_argv_required": true,
+    "binary_path_is_only_allowed_per_product_difference": true,
+    "argv_scan_scope": "Todos os argv emitidos, incluindo controles, focal, corpus, repetição e ordem reversa.",
+    "forbidden_tokens_or_sequences": [
+      "--jobs",
+      "eval --target"
+    ],
+    "forbidden_mutations": [
+      "remover --jobs somente de um produto",
+      "manter --jobs 1",
+      "remover somente --jobs e deixar 1",
+      "remover somente 1 e deixar --jobs",
+      "normalizar argv depois da execução",
+      "ativar features assimétricas",
+      "substituir flag por produto"
+    ],
+    "parallelism": 1,
+    "rayon_num_threads": 1
+  },
+  "control_contract": {
+    "route_local_applicability": true,
+    "global_poisoning_forbidden": true,
+    "html": {
+      "parser_feature_control": {
+        "id": "eval-parser-feature-common",
+        "expression": "repr(1 + 1)",
+        "expected_projection": "2",
+        "features_must_match_route": true,
+        "must_not_include": [
+          "--target",
+          "--jobs",
+          "route under test",
+          "HTML constructor"
+        ]
+      },
+      "target_fixture_control": {
+        "id": "html-target-fixture-common",
+        "fixture_utf8": "#context assert.eq(target(), \"html\")\nHTML target fixture.",
+        "fixture_utf8_sha256": "6c66dc26fa1e6a37d8f2345c070ed2541d89425c78ed720dbf786e5c42adf664",
+        "fixture_final_newline": false,
+        "transport": "compile --features <profile> --format html INPUT OUTPUT",
+        "required_projection": [
+          "exit 0",
+          "readable nonempty HTML artifact",
+          "public tree contains the target fixture text"
+        ]
+      },
+      "api_control": {
+        "id": "html-api-valid-args-common",
+        "fixture": "#html.elem(\"div\")",
+        "own_process_and_receipt": true,
+        "credit_boundary": "Prova somente API comum; não concede existência, MATCH ou PARTIAL a nenhuma tag investigada."
+      }
+    },
+    "math": {
+      "p1395": {
+        "protected_contract_sha256": "46a101def6d619cfd3a015a8fd7adce58d6ae38b39ca3433b8c1b2a98cc9d566",
+        "protected_oracles_sha256": "e7b0f32a1240fa6b10e20f9003eec4fc02f814fd62892c70c4b4161ce4311d8b",
+        "protected_verification_sha256": "8fb24b484f137cbf2d34f45ff12da2d3335dbe92b28d0f3aad9e7529aaf5b747",
+        "protected_runner_sha256": "883ea48d230e95c56d6eaec44a0dc4cd73976793fefa8bb4089d1c09fe041b29",
+        "applicable_control": "math callee/binding behavior; local Func shadowing, native fallback and non-Func boundary diagnostics remain controls, not route credit"
+      },
+      "p1396": {
+        "protected_contract_sha256": "867d199b21265418221df49990d12b0b1cead85376ba5ebd0946f05330c043b0",
+        "protected_oracles_sha256": "38fe80374cf9803c79f22af47f43b8fe79dde2debc9f77fc9b12678612338b40",
+        "protected_verification_sha256": "ac0efb21f9f2e7e7d616e0e0ed9287e49e9e8552556853e35ded26d1836bccb4",
+        "protected_runner_sha256": "19f8df92ccb866893f876d40fe1463773a086411fae123c4ee60c83976ee00ae",
+        "applicable_controls": [
+          "repr(math.liminf)",
+          "repr(math.limsup)",
+          "repr(math.lim)",
+          "repr(math.max)"
+        ],
+        "comparison": "exact UTF-8 bytes and codepoints without normalization"
+      },
+      "p1397": {
+        "protected_contract_sha256": "2a381fbf2c9e69e8d26526c174b7252a796d8fe0778b535555588d8ed405e0ef",
+        "protected_oracles_sha256": "3d4f42165ce35f5f6621e5e3bd16ef95922909bd0ebb6f9b2fe993c9b0fa23bc",
+        "protected_verification_sha256": "8ffcf6fc1296808a0fbc2a3698b2ce26f7eb8f4466ca0c44f9e1989e0831ec16",
+        "protected_runner_sha256": "70357b440857f1f6b0f50b8cd1c3d7c2fdeef653291495dd13b5955d1ef99f9e",
+        "applicable_controls": [
+          "repr(math.dif)",
+          "repr(math.Dif)",
+          "repr(math.class(\"relation\", [x]))",
+          "repr(math.class(\"unary\", [x]))",
+          "repr(math.bb([x]))",
+          "repr(math.frak([x]))",
+          "repr(math.serif([x]))",
+          "repr(math.inline([x]))",
+          "repr(math.mono([x]))",
+          "repr(math.script([x]))",
+          "repr(math.lim)"
+        ],
+        "comparison": "exact UTF-8 bytes and codepoints without normalization"
+      }
+    }
+  },
+  "html_route_contract": {
+    "route_count": 44,
+    "id_derivation": "Preservar o id P1400-HTML-NNN da rota histórica e registrar predecessor_id; o id do recibo P1420 deve ser P1420-HTML-NNN.",
+    "profile_rule": {
+      "html": "Primeiras 40 rotas, html.area até html.th, usam feature html.",
+      "html+a11y": "html.thead, html.time, html.tr e html.track usam features html,a11y-extras."
+    },
+    "qualified_fixture_template": "#assert.eq(repr(html.<tag>), \"<tag>\")\n#html.<tag>()\n",
+    "qualified_fixture_exception": {
+      "path": "html.frame",
+      "fixture": "#assert.eq(repr(html.frame), \"frame\")\n#html.frame([x])\n"
+    },
+    "alternative_fixture_template": "#html.elem(\"<tag>\")\n",
+    "literal_tag_rule": "Remover exatamente o prefixo html.; cada alternativa usa a tag literal da própria rota.",
+    "processes_per_route": [
+      "qualified",
+      "literal-tag-alternative"
+    ],
+    "independent_execution": "A alternativa roda mesmo se o qualificado abortar, falhar, for morto ou ficar Unknown.",
+    "projection": {
+      "kind": "canonical-public-html-tree",
+      "must_preserve": [
+        "doctype",
+        "tag names",
+        "nesting",
+        "text nodes",
+        "attribute names",
+        "attribute values",
+        "raw artifact bytes",
+        "raw stderr"
+      ],
+      "mechanical_only": [
+        "attribute order",
+        "whitespace purely external to text nodes"
+      ],
+      "always_difference": [
+        "escaping change",
+        "text content change",
+        "missing attribute",
+        "different tag",
+        "different nesting"
+      ],
+      "complete_projection_required": true
+    },
+    "sibling_extrapolation_forbidden": true,
+    "generic_div_credit_forbidden": true
+  },
+  "math_route_contract": {
+    "route_count": 22,
+    "id_derivation": "Preservar o id P1400-MATH-NNN da rota histórica e registrar predecessor_id; o id do recibo P1420 deve ser P1420-MATH-NNN.",
+    "per_route_processes": [
+      "qualified repr access and minimal valid call",
+      "bare or math-mode alternative",
+      "zero-argument boundary probe",
+      "applicable P1395-P1397 controls"
+    ],
+    "qualified_and_alternative_independent": true,
+    "boundary_rule": "Executar repr(math.<member>()) em processo próprio. Um membro existente deve produzir comportamento ou diagnóstico de aridade/cast distinto de unknown variable; o texto exato vem do vanila ratificado. Erro de argumento nunca prova ausência.",
+    "repr_projection": {
+      "comparison": "exact UTF-8 bytes and Unicode codepoints",
+      "normalization": "none",
+      "difference_is_language_morphology": true
+    },
+    "rendered_document_projection": {
+      "comparison": "structured content and public morphology",
+      "excluded": [
+        "PDF bytes",
+        "object ordering",
+        "Rust structure"
+      ]
+    },
+    "route_cases": [
+      {
+        "predecessor_id": "P1400-MATH-001",
+        "id": "P1420-MATH-001",
+        "path": "math.abs",
+        "features": [],
+        "qualified": "repr((repr(math.abs), repr(math.abs([x]))))",
+        "alternative": "repr(eval(\"$ abs(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.abs())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-002",
+        "id": "P1420-MATH-002",
+        "path": "math.accent",
+        "features": [],
+        "qualified": "repr((repr(math.accent), repr(math.accent([x], \"^\"))))",
+        "alternative": "repr(eval(\"$ accent(x, hat) $\", mode: \"markup\"))",
+        "boundary": "repr(math.accent())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-005",
+        "id": "P1420-MATH-005",
+        "path": "math.cases",
+        "features": [],
+        "qualified": "repr((repr(math.cases), repr(math.cases([x]))))",
+        "alternative": "repr(eval(\"$ cases(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.cases())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-007",
+        "id": "P1420-MATH-007",
+        "path": "math.frac",
+        "features": [],
+        "qualified": "repr((repr(math.frac), repr(math.frac([a], [b]))))",
+        "alternative": "repr(eval(\"$ frac(a,b) $\", mode: \"markup\"))",
+        "boundary": "repr(math.frac())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-009",
+        "id": "P1420-MATH-009",
+        "path": "math.limits",
+        "features": [],
+        "qualified": "repr((repr(math.limits), repr(math.limits([x]))))",
+        "alternative": "repr(eval(\"$ limits(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.limits())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-010",
+        "id": "P1420-MATH-010",
+        "path": "math.lr",
+        "features": [],
+        "qualified": "repr((repr(math.lr), repr(math.lr([x]))))",
+        "alternative": "repr(eval(\"$ lr(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.lr())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-011",
+        "id": "P1420-MATH-011",
+        "path": "math.mat",
+        "features": [],
+        "qualified": "repr((repr(math.mat), repr(math.mat([a], [b]))))",
+        "alternative": "repr(eval(\"$ mat(a,b) $\", mode: \"markup\"))",
+        "boundary": "repr(math.mat())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-012",
+        "id": "P1420-MATH-012",
+        "path": "math.mid",
+        "features": [],
+        "qualified": "repr((repr(math.mid), repr(math.mid([x]))))",
+        "alternative": "repr(eval(\"$ mid(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.mid())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-013",
+        "id": "P1420-MATH-013",
+        "path": "math.norm",
+        "features": [],
+        "qualified": "repr((repr(math.norm), repr(math.norm([x]))))",
+        "alternative": "repr(eval(\"$ norm(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.norm())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-014",
+        "id": "P1420-MATH-014",
+        "path": "math.overbrace",
+        "features": [],
+        "qualified": "repr((repr(math.overbrace), repr(math.overbrace([x]))))",
+        "alternative": "repr(eval(\"$ overbrace(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.overbrace())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-015",
+        "id": "P1420-MATH-015",
+        "path": "math.overbracket",
+        "features": [],
+        "qualified": "repr((repr(math.overbracket), repr(math.overbracket([x]))))",
+        "alternative": "repr(eval(\"$ overbracket(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.overbracket())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-016",
+        "id": "P1420-MATH-016",
+        "path": "math.overline",
+        "features": [],
+        "qualified": "repr((repr(math.overline), repr(math.overline([x]))))",
+        "alternative": "repr(eval(\"$ overline(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.overline())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-017",
+        "id": "P1420-MATH-017",
+        "path": "math.overparen",
+        "features": [],
+        "qualified": "repr((repr(math.overparen), repr(math.overparen([x]))))",
+        "alternative": "repr(eval(\"$ overparen(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.overparen())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-018",
+        "id": "P1420-MATH-018",
+        "path": "math.overshell",
+        "features": [],
+        "qualified": "repr((repr(math.overshell), repr(math.overshell([x]))))",
+        "alternative": "repr(eval(\"$ overshell(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.overshell())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-019",
+        "id": "P1420-MATH-019",
+        "path": "math.primes",
+        "features": [],
+        "qualified": "repr((repr(math.primes), repr(math.primes(2))))",
+        "alternative": "repr(eval(\"$ x'' $\", mode: \"markup\"))",
+        "boundary": "repr(math.primes())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-020",
+        "id": "P1420-MATH-020",
+        "path": "math.root",
+        "features": [],
+        "qualified": "repr((repr(math.root), repr(math.root([3], [x]))))",
+        "alternative": "repr(eval(\"$ root(3,x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.root())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-021",
+        "id": "P1420-MATH-021",
+        "path": "math.round",
+        "features": [],
+        "qualified": "repr((repr(math.round), repr(math.round([x]))))",
+        "alternative": "repr(eval(\"$ round(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.round())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-025",
+        "id": "P1420-MATH-025",
+        "path": "math.stretch",
+        "features": [],
+        "qualified": "repr((repr(math.stretch), repr(math.stretch([x]))))",
+        "alternative": "repr(eval(\"$ stretch(arrow.r) $\", mode: \"markup\"))",
+        "boundary": "repr(math.stretch())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-027",
+        "id": "P1420-MATH-027",
+        "path": "math.underbrace",
+        "features": [],
+        "qualified": "repr((repr(math.underbrace), repr(math.underbrace([x]))))",
+        "alternative": "repr(eval(\"$ underbrace(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.underbrace())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-028",
+        "id": "P1420-MATH-028",
+        "path": "math.underbracket",
+        "features": [
+          "a11y-extras"
+        ],
+        "qualified": "repr((repr(math.underbracket), repr(math.underbracket([x]))))",
+        "alternative": "repr(eval(\"$ underbracket(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.underbracket())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-029",
+        "id": "P1420-MATH-029",
+        "path": "math.underparen",
+        "features": [
+          "a11y-extras"
+        ],
+        "qualified": "repr((repr(math.underparen), repr(math.underparen([x]))))",
+        "alternative": "repr(eval(\"$ underparen(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.underparen())"
+      },
+      {
+        "predecessor_id": "P1400-MATH-030",
+        "id": "P1420-MATH-030",
+        "path": "math.undershell",
+        "features": [
+          "a11y-extras"
+        ],
+        "qualified": "repr((repr(math.undershell), repr(math.undershell([x]))))",
+        "alternative": "repr(eval(\"$ undershell(x) $\", mode: \"markup\"))",
+        "boundary": "repr(math.undershell())"
+      }
+    ]
+  },
+  "execution_contract": {
+    "separate_process_when_diagnostic_can_hide_later_probe": true,
+    "qualified_failure_never_suppresses_alternative": true,
+    "orders": [
+      "direct",
+      "direct-repeat",
+      "reverse"
+    ],
+    "same_three_axis_vector_required": true,
+    "focal_before_full": true,
+    "focal_cases": {
+      "html": 1,
+      "historically_unknown_math": 1,
+      "historically_partial_math_external_control": 1,
+      "explicitly_opaque": 1
+    },
+    "limits": {
+      "rlimit_as_kib": 524288,
+      "timeout_seconds_per_process": 15,
+      "stdout_bytes": 65536,
+      "stderr_bytes": 65536,
+      "swap_kib": 0,
+      "parallelism": 1,
+      "rayon_num_threads": 1
+    },
+    "raw_outputs_location": "/tmp",
+    "required_receipt_fields": [
+      "argv",
+      "binary path and sha256",
+      "exit code or signal",
+      "raw stdout path, bytes and sha256",
+      "raw stderr path, bytes and sha256",
+      "artifact path, bytes and sha256 when applicable",
+      "public projection and completeness",
+      "duration_ms",
+      "max_rss_kib",
+      "swap_kib",
+      "instant",
+      "timeout",
+      "truncated",
+      "reason_code"
+    ],
+    "resource_failure": "Timeout, signal, OOM, nonzero swap, truncation or missing/unreadable output is UNKNOWN with literal reason; limits are not raised to obtain semantic success."
+  },
+  "results_schema": {
+    "path": "00_nucleo/diagnosticos/p1420-results.json",
+    "schema": "p1420-unknown-route-reprobe/v1",
+    "required_top_level": [
+      "schema",
+      "attestation",
+      "input_hashes",
+      "head",
+      "tree",
+      "working_tree",
+      "started_at",
+      "finished_at",
+      "binary_identities",
+      "resource_policy",
+      "control_executions",
+      "execution_orders",
+      "routes",
+      "qualified_state_counts",
+      "alternative_state_counts",
+      "route_state_counts",
+      "partial_alternative_match_count",
+      "partial_alternative_difference_count",
+      "order_invariant",
+      "verdict"
+    ],
+    "route_required_fields": [
+      "id",
+      "predecessor_id",
+      "path",
+      "family",
+      "features",
+      "profile",
+      "control_receipt_refs",
+      "qualified_receipt_refs",
+      "alternative_receipt_refs",
+      "boundary_receipt_refs for math",
+      "qualified_state",
+      "alternative_state",
+      "route_state",
+      "reason_code",
+      "adr_0107_axis",
+      "minimum_witness",
+      "observed_cause",
+      "inferred_cause",
+      "inference_refuted_by"
+    ],
+    "route_constraints": {
+      "count": 66,
+      "unique_path": true,
+      "exact_frozen_set": true,
+      "exactly_one_qualified_state": true,
+      "exactly_one_alternative_state": true,
+      "exactly_one_route_state": true,
+      "unknown_reason_literal_required": true,
+      "all_applicable_receipts_required": true,
+      "incomplete_projection_forces_unknown": true
+    },
+    "verdict_values": [
+      "PASS",
+      "INCONCLUSIVE",
+      "FAIL"
+    ]
+  },
+  "backlog_schema": {
+    "path": "00_nucleo/diagnosticos/p1420-backlog.json",
+    "required_for_each_non_match": [
+      "path",
+      "family",
+      "minimum_witness",
+      "qualified_state",
+      "alternative_state",
+      "route_state",
+      "reason_code",
+      "owner",
+      "consumer",
+      "owner_evidence",
+      "causal_hypothesis",
+      "refutation_condition",
+      "probable_adr_0127_class"
+    ],
+    "grouping": "Group only by proven cause and owner; do not change ownership or L0."
+  },
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "all_unknown_require_public_witness_or_resource_receipt": true,
+    "implicit_conversion_to_any_success_state": false,
+    "reasons": [
+      "BASELINE_DRIFT",
+      "IDENTITY_MISMATCH",
+      "AMBIGUOUS_IDENTITY",
+      "PARSER_CONTROL_FAILED",
+      "TARGET_CONTROL_FAILED",
+      "FEATURE_CONTROL_FAILED",
+      "FIXTURE_CONTROL_FAILED",
+      "HTML_API_CONTROL_FAILED",
+      "RUNNER_FAILURE",
+      "TOOL_MISSING",
+      "TARGET_UNAVAILABLE",
+      "UNEXPECTED_EXIT",
+      "TIMEOUT",
+      "OOM",
+      "NONZERO_SWAP",
+      "OUTPUT_MISSING",
+      "OUTPUT_TRUNCATED",
+      "OUTPUT_UNREADABLE",
+      "STREAM_LIMIT",
+      "PROJECTION_INCOMPLETE",
+      "NON_BILATERAL_EVIDENCE",
+      "ORDER_DISAGREEMENT",
+      "CALIBRATION_BUDGET_EXHAUSTED"
+    ]
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "formula": "valid negative mutations rejected / valid negative mutations",
+    "positive_expected": "Preserved",
+    "negative_expected": "Violated with public witness",
+    "opaque_expected": "Unknown only for explicitly declared opacity",
+    "required_attack_families": [
+      "remove-one-of-66-routes",
+      "include-format-or-one-of-17-out-of-scope-routes",
+      "remove-jobs-from-only-one-product",
+      "retain-jobs-one-or-remove-only-flag-or-value",
+      "use-eval-target-html",
+      "asymmetric-features",
+      "generic-html-div-credit-to-siblings",
+      "alternative-suppressed-after-qualified-failure",
+      "math-alternative-difference-to-unknown",
+      "alternative-difference-to-qualified-match",
+      "discard-codepoints-stderr-or-exit",
+      "normalize-html-escaping-tag-or-nesting-as-whitespace",
+      "argument-error-to-absence",
+      "resource-or-identity-failure-to-success",
+      "post-crystalline-expected-edit",
+      "protected-history-edit"
+    ],
+    "repeat_and_reverse_order_required": true,
+    "valid_survivor_blocks_preseal": true
+  },
+  "calibration_budget": {
+    "maximum_html_focal_revisions": 2,
+    "maximum_math_focal_revisions": 2,
+    "full_campaigns_after_focal_green": 1,
+    "final_full_repetitions_by_verifier": 1,
+    "revision_receipt_requires": [
+      "correction hypothesis",
+      "classification delta",
+      "corrected cases",
+      "regressed cases",
+      "dominant reason_code",
+      "elapsed time and process count"
+    ],
+    "stop_and_redesign_if": [
+      "two consecutive revisions have the same vector and cause",
+      "opaque and positive cases trade regressions without monotonic progress",
+      "classification needs unavailable public information",
+      "marginal cost exceeds budget without a new witness or hypothesis"
+    ],
+    "budget_never_authorizes": [
+      "contract relaxation",
+      "Unknown promotion",
+      "projection weakening",
+      "resource-limit increase",
+      "expected adaptation to crystalline"
+    ]
+  },
+  "role_capabilities": {
+    "contract_author": {
+      "executor": "/root/p1420_contract",
+      "read_scope": "Step, protected historical artifacts P1400/P1409/P1414, necessary P1395-P1397 artifacts, current inventory and identities.",
+      "write_scope": [
+        "00_nucleo/diagnosticos/p1420-manifest.json",
+        "00_nucleo/diagnosticos/p1420-contract.json"
+      ],
+      "forbidden": [
+        "candidate runner read or write",
+        "oracles",
+        "mutants",
+        "preseal",
+        "results",
+        "verdict",
+        "historical edits",
+        "product edits"
+      ],
+      "isolation_attested": false
+    },
+    "downstream_roles": "Canonical capabilities are enumerated in p1420-manifest.json and must be copied by hash into preseal and verification."
+  },
+  "protected_history_gate": {
+    "artifacts": {
+      "p1400_contract": "b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545",
+      "p1400_oracles": "75ff90569ca462b819024c186f1705bdd41619c71edb521345549f32fcf1ceb2",
+      "p1400_results": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542",
+      "p1400_runner": "a4bcf6f2807fab8354ce296275d3e3c8b0dd41c7a6a77066e1c2320eb656e016",
+      "p1409_runner": "24ab1247a52d63cffdc2cb93868cd54ff70e91e293df795b789283d5b4701250",
+      "p1409_results": "5b46cfccc882000aa831538dbf3974ed298740d7fa070d280153ca827dfa4378",
+      "p1414_results": "1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba"
+    },
+    "byte_change_forces": "UNKNOWN(BASELINE_DRIFT) and chain invalidation",
+    "in_place_repair_forbidden": true
+  },
+  "final_gates": [
+    "66 exact routes and no route outside the denominator",
+    "all protected hashes unchanged",
+    "zero --jobs and zero eval --target in every emitted argv",
+    "bilateral transport and features",
+    "alternatives execute independently",
+    "direct, direct-repeat and reverse vectors identical",
+    "mutation_score exactly 1.0",
+    "no Unknown promoted by default",
+    "no L0, Nucleus or L1-L4 change",
+    "zero V5, V15 and V26",
+    "historical P1400, P1409 and P1414 artifacts preserved byte-for-byte"
+  ],
+  "closure_criteria": {
+    "pass": "All 66 routes have current bilateral evidence, one qualified_state, one alternative_state, one route_state and literal reason; none remains UNKNOWN for TARGET_CONTROL_FAILED caused by --jobs transport or NON_BILATERAL_EVIDENCE caused solely by divergent successful math alternatives.",
+    "inconclusive": "Any new legitimate Unknown remains visible and closes the step as INCONCLUSIVE with a new diagnostic recommendation, never as product credit.",
+    "next_step_limit": "If all routes are conclusive, recommend at most one product step: the smallest cause with unique L0 owner and complete witness."
+  },
+  "claim_boundary": "The verdict covers only the 66 frozen routes, exact versions and public observables recorded here; it never proves general functional parity of HTML, math or Typst."
+}

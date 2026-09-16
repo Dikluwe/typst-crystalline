@@ -1,0 +1,527 @@
+{
+  "schema": "p1420-adversarial-mutants/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1420",
+  "status": "candidate-mutants-preseal",
+  "created_at": "2026-09-16T11:05:41-03:00",
+  "regime": {
+    "kind": "full",
+    "role": "adversary",
+    "executor": "/root/p1420_adversary",
+    "environment": "shared workspace",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestação de isolamento",
+    "claim_boundary": "Ataques de dados ao transporte, projeção e classificador das 66 rotas congeladas; não é veredito sobre runner candidato, produto ou paridade geral."
+  },
+  "causal_snapshot": {
+    "head": "95491eec8987176616a784554d11938e1b1c1e49",
+    "tree": "ba40fcfa888408ca0e09395beac18e08b59a4fd0",
+    "observed_at": "2026-09-16T11:05:41-03:00",
+    "working_tree": "working tree não commitado",
+    "git_status_short_before_output": [
+      "?? 00_nucleo/materialization/typst-passo-1420.md"
+    ],
+    "git_diff_head_stat_before_output": "",
+    "candidate_runner_read": false,
+    "candidate_contract_read": false,
+    "candidate_oracles_read": false,
+    "candidate_results_read": false
+  },
+  "input_hashes": {
+    "AGENTS.md": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf",
+    "skill": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48",
+    "skill_roles_reference": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417",
+    "skill_gates_reference": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d",
+    "step_p1400": "7d4e258c9fb217b7c8b68b34c2ba930aad4f78fe5f5655062b747b8d8e284375",
+    "step_p1409": "9118346635a6ea883c16b6baa30acfa09a22b6391a984315aa5c7f338ec96683",
+    "step_p1414": "10f0c6152b848d4d9744c9c3ac37c39b551d92b330377038767a8525a7b9c3c6",
+    "step_p1420": "3b6c0b3aaa56566e8a391516f2f8b8b8326fd105d20cd797910a0849da07221c",
+    "p1400_contract": "b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545",
+    "p1400_oracles": "75ff90569ca462b819024c186f1705bdd41619c71edb521345549f32fcf1ceb2",
+    "p1400_mutants": "e3e50c510680d826ab83872bda615342fee8ff9e6ae51b00e9a7c864d4fc9c00",
+    "p1400_results": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542",
+    "p1400_runner": "a4bcf6f2807fab8354ce296275d3e3c8b0dd41c7a6a77066e1c2320eb656e016",
+    "p1409_results": "5b46cfccc882000aa831538dbf3974ed298740d7fa070d280153ca827dfa4378",
+    "p1409_runner": "24ab1247a52d63cffdc2cb93868cd54ff70e91e293df795b789283d5b4701250",
+    "p1414_reprobe": "1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba"
+  },
+  "capabilities": {
+    "read_allowlist_used": [
+      "AGENTS.md",
+      "skill tekt-materializacao-segregada e suas duas referências diretas",
+      "00_nucleo/materialization/typst-passo-1420.md",
+      "00_nucleo/materialization/typst-passo-1400.md",
+      "00_nucleo/materialization/typst-passo-1409.md",
+      "00_nucleo/materialization/typst-passo-1414.md",
+      "00_nucleo/diagnosticos/p1400-mutants.json",
+      "00_nucleo/diagnosticos/p1400-results.json",
+      "00_nucleo/diagnosticos/p1409-results.json",
+      "00_nucleo/diagnosticos/p1414-reprobe.json"
+    ],
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1420-mutants.json"
+    ],
+    "forbidden_and_not_used": [
+      "runner candidato P1420",
+      "contrato candidato P1420",
+      "oráculos candidatos P1420",
+      "resultados candidatos P1420",
+      "produto L1-L4",
+      "Prompt L0 e Núcleos Tekt",
+      "artefatos históricos P1400/P1409/P1414 como alvo de escrita",
+      "reparo do instrumento",
+      "seleção da solução",
+      "emissão de selo ou veredito final"
+    ],
+    "context_inherited": "Atribuição do papel adversário, instruções do repositório e classes mínimas de ataque do Passo 1420; workspace compartilhado.",
+    "output": "00_nucleo/diagnosticos/p1420-mutants.json"
+  },
+  "frozen_scope": {
+    "route_count": 66,
+    "html_route_count": 44,
+    "math_route_count": 22,
+    "excluded_format_family_count": 124,
+    "excluded_non_format_route_count": 17,
+    "historical_html_reason": "TARGET_CONTROL_FAILED",
+    "historical_math_reason": "NON_BILATERAL_EVIDENCE(ROUTE_ALTERNATIVE_PROJECTION)",
+    "protected_history_policy": "P1400, P1409 e P1414 são entradas somente leitura e devem preservar SHA-256 byte a byte.",
+    "copy_policy": "Cada mutação é aplicada a uma cópia lógica das entradas; nenhuma entrada protegida é modificada."
+  },
+  "calibration_budget": {
+    "maximum_focal_revisions_html": 2,
+    "maximum_focal_revisions_math": 2,
+    "maximum_full_campaigns_before_verification": 1,
+    "required_orders": [
+      "direct",
+      "direct-repeat",
+      "reverse"
+    ],
+    "parallelism": 1,
+    "valid_negative_count": 27,
+    "positive_control_count": 7,
+    "opaque_control_count": 8,
+    "required_mutation_score": 1.0,
+    "formula": "valid_negative_mutations_classified_Violated / 27",
+    "survivor_policy": "Qualquer mutante negativo válido não classificado como Violated bloqueia o preseal.",
+    "unknown_policy": "Unknown só é correto para os oito controles deliberadamente opacos; nunca rejeita mutante negativo válido nem concede crédito de sucesso.",
+    "stop_policy": "Duas revisões focais consecutivas com o mesmo vetor e a mesma causa dominante exigem redesenho."
+  },
+  "negative_mutations": [
+    {
+      "id": "P1420-MUT-001",
+      "attack_family": "denominator-route-removal",
+      "mutation_target": "frozen-route-set",
+      "mutation": "Remover html.track do conjunto congelado.",
+      "witness": {"removed_path": "html.track", "baseline_count": 66, "mutated_count": 65, "baseline_member": true, "mutated_member": false},
+      "reason_code": "DENOMINATOR_ROUTE_REMOVED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-002",
+      "attack_family": "excluded-format-inclusion",
+      "mutation_target": "frozen-route-set",
+      "mutation": "Acrescentar format.date ao corpus P1420.",
+      "witness": {"injected_path": "format.date", "excluded_family": "format.*", "baseline_count": 66, "mutated_count": 67},
+      "reason_code": "FORMAT_ROUTE_INCLUDED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-003",
+      "attack_family": "excluded-non-format-inclusion",
+      "mutation_target": "frozen-route-set",
+      "mutation": "Acrescentar math.bold, uma das 17 rotas não-format fora do recorte.",
+      "witness": {"injected_path": "math.bold", "p1400_non_format_member": true, "p1420_member": false, "baseline_count": 66, "mutated_count": 67},
+      "reason_code": "OUT_OF_SCOPE_ROUTE_INCLUDED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-004",
+      "attack_family": "asymmetric-jobs-removal",
+      "mutation_target": "bilateral-argv",
+      "mutation": "Remover --jobs 1 somente do argv cristalino e manter o par no vanila.",
+      "witness": {"vanila_argv_suffix": ["--jobs", "1"], "crystalline_argv_suffix": [], "transport_symmetric": false},
+      "reason_code": "ASYMMETRIC_JOBS_REMOVAL",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-005",
+      "attack_family": "forbidden-jobs-retained",
+      "mutation_target": "bilateral-argv",
+      "mutation": "Manter o par --jobs 1 nos dois produtos.",
+      "witness": {"vanila_forbidden_tokens": ["--jobs", "1"], "crystalline_forbidden_tokens": ["--jobs", "1"], "zero_jobs_required": true},
+      "reason_code": "FORBIDDEN_JOBS_PAIR_RETAINED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-006",
+      "attack_family": "partial-jobs-removal",
+      "mutation_target": "bilateral-argv",
+      "mutation": "Remover apenas a flag --jobs e deixar o valor órfão 1.",
+      "witness": {"original_adjacent_pair": ["--jobs", "1"], "mutated_tokens": ["1"], "orphan_value": true},
+      "reason_code": "JOBS_FLAG_ONLY_REMOVED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-007",
+      "attack_family": "partial-jobs-removal",
+      "mutation_target": "bilateral-argv",
+      "mutation": "Remover apenas o valor 1 e deixar a flag --jobs órfã.",
+      "witness": {"original_adjacent_pair": ["--jobs", "1"], "mutated_tokens": ["--jobs"], "orphan_flag": true},
+      "reason_code": "JOBS_VALUE_ONLY_REMOVED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-008",
+      "attack_family": "forbidden-eval-target",
+      "mutation_target": "html-argv",
+      "mutation": "Substituir compile --format html por eval --target html em um controle HTML.",
+      "witness": {"path": "html.area", "mutated_command": ["typst", "eval", "--target", "html"], "required_command_prefix": ["typst", "compile", "--features", "html", "--format", "html"]},
+      "reason_code": "FORBIDDEN_EVAL_TARGET_HTML",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-009",
+      "attack_family": "asymmetric-features",
+      "mutation_target": "html-argv",
+      "mutation": "Executar html.area com --features html no vanila e --features html,a11y-extras no cristalino.",
+      "witness": {"path": "html.area", "vanila_features": ["html"], "crystalline_features": ["html", "a11y-extras"], "features_equal": false},
+      "reason_code": "ASYMMETRIC_FEATURES",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-010",
+      "attack_family": "generic-html-cross-credit",
+      "mutation_target": "html-alternative-mapping",
+      "mutation": "Usar html.elem(\"div\") para conceder crédito à alternativa de html.track.",
+      "witness": {"qualified_path": "html.track", "required_literal": "html.elem(\"track\")", "mutated_literal": "html.elem(\"div\")", "same_tag": false},
+      "reason_code": "HTML_GENERIC_ALTERNATIVE_CROSS_CREDIT",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-011",
+      "attack_family": "alternative-control-flow-coupling",
+      "mutation_target": "probe-scheduling",
+      "mutation": "Executar a alternativa math somente se a forma qualificada terminar com sucesso.",
+      "witness": {"path": "math.abs", "qualified_exit": 1, "alternative_scheduled": false, "required_alternative_process": "independent and unconditional"},
+      "reason_code": "ALTERNATIVE_NOT_INDEPENDENT",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-012",
+      "attack_family": "math-difference-demotion",
+      "mutation_target": "alternative-classifier",
+      "mutation": "Converter stdout math bilateral divergente, com exit 0 dos dois lados, em alternative_state UNKNOWN.",
+      "witness": {"path": "math.abs", "vanila_exit": 0, "crystalline_exit": 0, "stdout_equal": false, "mutated_alternative_state": "UNKNOWN", "required_alternative_state": "DIFFERENCE"},
+      "reason_code": "MATH_DIFFERENCE_DEMOTED_TO_UNKNOWN",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-013",
+      "attack_family": "alternate-route-upgraded-to-qualified-match",
+      "mutation_target": "route-composition",
+      "mutation": "Promover alternativa math divergente a MATCH da forma qualificada ausente.",
+      "witness": {"path": "math.frac", "qualified_state": "ABSENT", "alternative_state": "DIFFERENCE", "mutated_route_state": "MATCH", "required_route_state": "PARTIAL"},
+      "reason_code": "ALTERNATIVE_FALSE_QUALIFIED_MATCH",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-014",
+      "attack_family": "observable-discard",
+      "mutation_target": "math-repr-projection",
+      "mutation": "Descartar a sequência de codepoints e comparar somente texto normalizado.",
+      "witness": {"vanila_utf8": "é", "crystalline_utf8": "é", "visual_text_similar": true, "codepoints_equal": false, "mutated_projection_equal": true},
+      "reason_code": "CODEPOINTS_DISCARDED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-015",
+      "attack_family": "observable-discard",
+      "mutation_target": "process-receipt",
+      "mutation": "Descartar stderr antes de compor o veredito bilateral.",
+      "witness": {"vanila_exit": 1, "crystalline_exit": 1, "vanila_stderr": "cannot be constructed manually", "crystalline_stderr": "unknown field", "stderr_equal": false, "mutated_projection_equal": true},
+      "reason_code": "STDERR_DISCARDED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-016",
+      "attack_family": "observable-discard",
+      "mutation_target": "process-receipt",
+      "mutation": "Descartar exit antes de compor o veredito bilateral.",
+      "witness": {"vanila_exit": 0, "crystalline_exit": 1, "stdout_equal": true, "mutated_projection_equal": true},
+      "reason_code": "EXIT_DISCARDED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-017",
+      "attack_family": "html-semantic-difference-normalized",
+      "mutation_target": "html-tree-projection",
+      "mutation": "Tratar diferença de escaping dentro de text node como whitespace mecânico.",
+      "witness": {"vanila_text": "a & b", "crystalline_text": "a &amp; b", "external_whitespace_only": false, "mutated_state": "MATCH", "required_state": "DIFFERENCE"},
+      "reason_code": "HTML_ESCAPING_DIFFERENCE_IGNORED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-018",
+      "attack_family": "html-semantic-difference-normalized",
+      "mutation_target": "html-tree-projection",
+      "mutation": "Tratar tag divergente como diferença de whitespace.",
+      "witness": {"vanila_tag": "track", "crystalline_tag": "div", "mutated_state": "MATCH", "required_state": "DIFFERENCE"},
+      "reason_code": "HTML_TAG_DIFFERENCE_IGNORED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-019",
+      "attack_family": "html-semantic-difference-normalized",
+      "mutation_target": "html-tree-projection",
+      "mutation": "Tratar nesting divergente como diferença de whitespace.",
+      "witness": {"vanila_tree": "table>tbody>tr>td", "crystalline_tree": "table>tr>td", "mutated_state": "MATCH", "required_state": "DIFFERENCE"},
+      "reason_code": "HTML_NESTING_DIFFERENCE_IGNORED",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-020",
+      "attack_family": "argument-error-false-absence",
+      "mutation_target": "qualified-classifier",
+      "mutation": "Classificar erro de cast ou aridade como prova de ausência do membro.",
+      "witness": {"path": "math.root", "diagnostic": "unexpected argument", "member_lookup_reached": true, "mutated_qualified_state": "ABSENT", "required_interpretation": "member exists; invocation boundary differs"},
+      "reason_code": "ARGUMENT_ERROR_FALSE_ABSENCE",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-021",
+      "attack_family": "opacity-promoted-to-success",
+      "mutation_target": "failure-policy",
+      "mutation": "Converter timeout em MATCH.",
+      "witness": {"duration_seconds": 15.001, "limit_seconds": 15, "timed_out": true, "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "TIMEOUT_PROMOTED_TO_SUCCESS",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-022",
+      "attack_family": "opacity-promoted-to-success",
+      "mutation_target": "failure-policy",
+      "mutation": "Converter encerramento por OOM em ABSENT conclusivo.",
+      "witness": {"oom": true, "exit": 1, "mutated_state": "ABSENT", "required_state": "UNKNOWN"},
+      "reason_code": "OOM_PROMOTED_TO_CONCLUSION",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-023",
+      "attack_family": "opacity-promoted-to-success",
+      "mutation_target": "failure-policy",
+      "mutation": "Conceder MATCH apesar de swap positivo.",
+      "witness": {"swap_kib": 4, "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "SWAP_PROMOTED_TO_SUCCESS",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-024",
+      "attack_family": "opacity-promoted-to-success",
+      "mutation_target": "failure-policy",
+      "mutation": "Conceder MATCH com stderr truncado em 64 KiB.",
+      "witness": {"stream": "stderr", "captured_bytes": 65536, "truncated": true, "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "TRUNCATION_PROMOTED_TO_SUCCESS",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-025",
+      "attack_family": "opacity-promoted-to-success",
+      "mutation_target": "identity-gate",
+      "mutation": "Executar binário com hash divergente e aceitar seu resultado como MATCH.",
+      "witness": {"expected_sha256": "1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e", "observed_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "mutated_state": "MATCH", "required_state": "UNKNOWN"},
+      "reason_code": "IDENTITY_MISMATCH_PROMOTED_TO_SUCCESS",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-026",
+      "attack_family": "post-observation-expected-edit",
+      "mutation_target": "protected-expected",
+      "mutation": "Editar expected depois de observar a saída cristalina para torná-la coincidente.",
+      "witness": {"expected_before_candidate": "<track>", "candidate_observed": "<div>", "expected_after_candidate": "<div>", "edit_preceded_by_candidate_observation": true},
+      "reason_code": "EXPECTED_ADAPTED_TO_CANDIDATE",
+      "expected": "Violated",
+      "valid_negative": true
+    },
+    {
+      "id": "P1420-MUT-027",
+      "attack_family": "protected-history-mutation",
+      "mutation_target": "historical-artifact",
+      "mutation": "Alterar p1400-results.json para retirar --jobs do argv histórico.",
+      "witness": {"path": "00_nucleo/diagnosticos/p1400-results.json", "protected_sha256": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542", "mutated_sha256_equal": false, "historical_rewrite": true},
+      "reason_code": "PROTECTED_HISTORY_CHANGED",
+      "expected": "Violated",
+      "valid_negative": true
+    }
+  ],
+  "positive_controls": [
+    {
+      "id": "P1420-POS-001",
+      "control": "O conjunto contém exatamente as 44 rotas HTML e 22 rotas math congeladas, sem format.* nem as 17 rotas externas.",
+      "witness": {"route_count": 66, "unique_count": 66, "html_count": 44, "math_count": 22, "format_count": 0, "outside_non_format_count": 0},
+      "reason_code": "EXACT_DENOMINATOR_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-002",
+      "control": "Transporte HTML bilateral usa compile, features idênticas e format html, sem --jobs nem --target.",
+      "witness": {"vanila_argv": ["typst", "compile", "--features", "html", "--format", "html", "INPUT", "OUTPUT"], "crystalline_argv_equal": true, "jobs_occurrences": 0, "target_occurrences": 0},
+      "reason_code": "SYMMETRIC_HTML_TRANSPORT_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-003",
+      "control": "Cada rota HTML recebe somente sua alternativa literal homônima em processo independente.",
+      "witness": {"qualified_path": "html.track", "alternative": "html.elem(\"track\")", "independent_process": true, "cross_credit": false},
+      "reason_code": "HTML_ROUTE_LOCAL_ALTERNATIVE_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-004",
+      "control": "Forma qualificada ausente e alternativa math bilateral divergente compõem PARTIAL sem apagar DIFFERENCE.",
+      "witness": {"qualified_state": "ABSENT", "alternative_state": "DIFFERENCE", "route_state": "PARTIAL", "reason_code": "QUALIFIED_ABSENT_ALTERNATIVE_DIFFERENCE", "backlog_names_alternative_difference": true},
+      "reason_code": "PARTIAL_DIFFERENCE_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-005",
+      "control": "Forma qualificada bilateral com projeção pública completa e igual compõe MATCH.",
+      "witness": {"qualified_bilateral": true, "exit_equal": true, "stdout_equal": true, "stderr_equal": true, "projection_complete": true, "projection_equal": true, "qualified_state": "MATCH", "route_state": "MATCH"},
+      "reason_code": "QUALIFIED_MATCH_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-006",
+      "control": "Ausência conclusiva bilateral das formas qualificada e alternativa compõe ABSENT.",
+      "witness": {"qualified_state": "ABSENT", "alternative_state": "ABSENT", "route_state": "ABSENT", "controls_conclusive": true},
+      "reason_code": "CONCLUSIVE_ABSENCE_PRESERVED",
+      "expected": "Preserved"
+    },
+    {
+      "id": "P1420-POS-007",
+      "control": "Todos os artefatos históricos protegidos preservam os hashes congelados.",
+      "witness": {"p1400_results_sha256": "9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542", "p1409_results_sha256": "5b46cfccc882000aa831538dbf3974ed298740d7fa070d280153ca827dfa4378", "p1414_reprobe_sha256": "1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba", "all_equal": true},
+      "reason_code": "PROTECTED_HISTORY_PRESERVED",
+      "expected": "Preserved"
+    }
+  ],
+  "opaque_controls": [
+    {
+      "id": "P1420-OPAQUE-001",
+      "opacity": "Uma das 66 rotas congeladas desaparece do inventário atual.",
+      "witness": {"path": "html.track", "historical_member": true, "current_inventory_member": false, "route_decision_available": false},
+      "reason_code": "BASELINE_DRIFT",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-002",
+      "opacity": "O hash observado de um produto diverge da identidade congelada.",
+      "witness": {"identity_equal": false, "product_executed_for_credit": false, "route_decision_available": false},
+      "reason_code": "IDENTITY_MISMATCH",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-003",
+      "opacity": "Um processo excede o timeout de 15 segundos.",
+      "witness": {"duration_seconds": 15.001, "limit_seconds": 15, "route_decision_available": false},
+      "reason_code": "TIMEOUT",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-004",
+      "opacity": "O processo termina por OOM sob o limite de 512 MiB.",
+      "witness": {"memory_limit_mib": 512, "oom": true, "route_decision_available": false},
+      "reason_code": "OOM",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-005",
+      "opacity": "O recibo mede swap positivo.",
+      "witness": {"swap_kib": 4, "required_swap_kib": 0, "route_decision_available": false},
+      "reason_code": "SWAP_OBSERVED",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-006",
+      "opacity": "Um stream atinge 64 KiB e é truncado.",
+      "witness": {"stream": "stderr", "captured_bytes": 65536, "truncated": true, "route_decision_available": false},
+      "reason_code": "OUTPUT_TRUNCATED",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-007",
+      "opacity": "A projeção HTML ou math obrigatória está incompleta.",
+      "witness": {"raw_bytes_present": true, "required_projection_complete": false, "route_decision_available": false},
+      "reason_code": "PROJECTION_INCOMPLETE",
+      "expected": "Unknown"
+    },
+    {
+      "id": "P1420-OPAQUE-008",
+      "opacity": "Ferramenta de projeção obrigatória ausente impede formar o observável público.",
+      "witness": {"required_tool_available": false, "fallback_credit_allowed": false, "route_decision_available": false},
+      "reason_code": "TOOL_MISSING",
+      "expected": "Unknown"
+    }
+  ],
+  "evaluation_protocol": {
+    "data_only": true,
+    "candidate_independent": true,
+    "orders": [
+      {"name": "direct", "negative_ids": "ascending", "controls": "positive then opaque"},
+      {"name": "direct-repeat", "negative_ids": "ascending", "controls": "positive then opaque"},
+      {"name": "reverse", "negative_ids": "descending", "controls": "opaque then positive"}
+    ],
+    "canonical_projection": [
+      "id",
+      "reason_code",
+      "expected"
+    ],
+    "required_invariance": "Os três vetores canônicos devem ser idênticos depois de reordenados por id.",
+    "expected_counts": {"Violated": 27, "Preserved": 7, "Unknown": 8},
+    "expected_mutation_score": 1.0,
+    "score_denominator": 27,
+    "score_numerator_required": 27,
+    "opaque_excluded_from_score": true,
+    "valid_survivor_blocks_preseal": true
+  },
+  "modeled_gate_receipt": {
+    "kind": "gate discriminatório modelado somente sobre o catálogo de dados",
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "vector_size_per_order": 42,
+    "checks_per_order": {"Violated": 27, "Preserved": 7, "Unknown": 8},
+    "mutation_score": 1.0,
+    "score_fraction": "27/27",
+    "order_invariant_expected": true,
+    "result": "PASS_EXPECTED_VECTOR",
+    "product_binary_executed": false,
+    "candidate_runner_read_or_executed": false,
+    "candidate_contract_read": false,
+    "candidate_oracles_read": false,
+    "candidate_results_read": false,
+    "receipt_scope": "Declara a condição de aceitação do gate adversarial; a execução contra contrato/runner selados cabe ao verificador e pode refutar este vetor."
+  }
+}

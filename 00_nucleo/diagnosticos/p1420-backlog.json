@@ -1,0 +1,32 @@
+{
+  "schema": "p1420-backlog/v1",
+  "verdict": "INCONCLUSIVE",
+  "items": [
+    {
+      "cause": "HTML_TARGET_CONTROL_UNSUPPORTED_CONTENT",
+      "affected_frozen_routes": 44,
+      "minimum_witness": "#context assert.eq(target(), \"html\")",
+      "qualified_state": "UNKNOWN",
+      "alternative_state": "MATCH para html.area no focal; não extrapolado aos irmãos",
+      "owner": "não atribuído porque o gate de controle precede ownership de rota",
+      "consumer": "target HTML / compilação cristalina",
+      "causal_hypothesis": "o exportador HTML cristalino não materializa a asserção contextual exigida pelo controle",
+      "refutation_condition": "a fixture literal termina bilateralmente com exit 0 e projeção HTML completa sob o mesmo transporte",
+      "adr_0127_probable_class": "mudança interna ou paridade, a confirmar após localizar owner L0 único"
+    },
+    {
+      "cause": "MATH_QUALIFIED_ABSENT_ALTERNATIVE_DIFFERENCE",
+      "affected_frozen_routes_measured": ["math.abs"],
+      "minimum_witness": "repr(math.abs) versus repr(eval(\"$ abs(x) $\", mode: \"markup\"))",
+      "qualified_state": "ABSENT",
+      "alternative_state": "DIFFERENCE",
+      "route_state": "PARTIAL",
+      "owner": "não atribuído nesta campanha focal",
+      "consumer": "math namespace/evaluator",
+      "causal_hypothesis": "forma qualificada ausente e açúcar math produz morfologia pública divergente",
+      "refutation_condition": "acesso qualificado bilateral ou alternativa bilateral byte/codepoint-exata",
+      "adr_0127_probable_class": "paridade interna, a confirmar com owner L0 único"
+    }
+  ],
+  "claim_boundary": "Backlog diagnóstico; não altera ownership, L0 ou produto."
+}
