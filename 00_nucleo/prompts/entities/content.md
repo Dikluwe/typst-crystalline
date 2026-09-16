@@ -3046,3 +3046,19 @@ Layout paginado e pipeline HTML são consumers diferentes da mesma variante.
 Nenhum fallback pode convertê-la em Empty, HtmlElem ou body antes do consumer
 correto. A variante pública foi confirmada pelo dono em 2026-09-16 e deve ser
 materializada somente sob o selo P1424.
+
+# P1427 — construção completa de `MathFrac` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O constructor atual fixa somente a fração vertical com barra e apaga estilo,
+explicitude e a proveniência de parênteses que o AST já consegue medir.
+
+### Contrato público proposto
+
+Manter wrappers verticais compatíveis para callsites existentes e adicionar
+um constructor completo que recebe numerador, denominador, estilo opcional,
+os dois bits de deparenthesization e `line`. Walkers, plain-text, igualdade,
+hash e transformações preservam todos os campos causais. O wrapper sem barra
+de `binom` continua `line=false`, sem estilo público e sem herdar set rule de
+`math.frac`.

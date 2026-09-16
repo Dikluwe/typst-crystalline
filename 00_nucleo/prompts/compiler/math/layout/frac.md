@@ -245,3 +245,23 @@ construtor público `math_frac`, pois ele aplica o default `line=true` e
 converteria o `binom` sem barra numa fração comum antes do layout. A
 aceitação exige ausência de `FrameItem::Line` no `binom` após a transformação
 default e uso efetivo da fórmula Stack sem barra.
+
+### P1427 — três estilos públicos de fração (PROPOSTO; gate ADR-0127)
+
+**Medição anterior à decisão.** `math/frac.rs:24-123` enumera vertical,
+skewed e horizontal; `math/ir/resolve.rs:684-711` seleciona três algoritmos e
+consulta os bits de deparenthesization somente no horizontal. O cristalino só
+implementa o stack vertical.
+
+**Decisão proposta.** Vertical preserva a fórmula já legitimada. Skewed
+coloca numerador e denominador nos estilos matemáticos correspondentes,
+separados por slash inclinada extensível; geometria usa os novos
+`skewed_fraction_vertical_gap` e `skewed_fraction_horizontal_gap` extraídos da
+tabela MATH, junto de `axis_height`, sem assar coordenadas de fixture. Horizontal
+dispõe numerador, slash e denominador na linha; quando o AST removeu um par
+exterior, restaura a proteção morfológica requerida em torno daquele operando.
+Os dois novos caminhos são free functions neste owner, chamadas pelo match
+estático do layouter. `line=false` continua exclusivamente o stack de `binom`.
+
+Aceitação compara relações geométricas e morfologia da linguagem, não bytes,
+fontes internas nem passos idênticos ao Rust vanilla.

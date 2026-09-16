@@ -278,3 +278,26 @@ Valores medidos com fontTools em
 `03_infra/fixtures/fonts/NewCMMath-Book.otf` (upem 1000), working tree não
 commitado, 2026-08-22. Os fallbacks usam esses valores, seguindo o precedente
 P990. Esta ampliação de contrato requer confirmação ADR-0127 antes do código.
+
+## P1427 — constantes de fração inclinada (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla `typst-layout/src/math/fraction.rs:132-162` consome
+`SkewedFractionVerticalGap`, `SkewedFractionHorizontalGap` e `AxisHeight`.
+`MathConstants` cristalino já possui o eixo, mas não os dois gaps.
+
+### Decisão proposta
+
+Adicionar `skewed_fraction_vertical_gap` e
+`skewed_fraction_horizontal_gap`, em design units como as demais constantes.
+O fallback usa, respectivamente, `96du` e `350du`, medidos com
+`ttx -t MATH` em `03_infra/fixtures/fonts/NewCMMath-Book.otf` às
+2026-09-16T17:43:17-03:00, HEAD
+`451f3ca3d208c997a41d93ccc597a9c117fe1de9`, working tree não commitado com
+os 12 L0s P1427 listados por `git diff HEAD --stat` e o passo P1427 ainda
+untracked; SHA-256 da fonte
+`60346e6fc27773d96c3cc9d3ac8a550a85e3ca624437179bd7a88b4ca18f0a18`.
+São métricas da fonte de referência, não coordenadas de fixture.
+A conversão para pt continua `style.size * value / upem` no owner de layout;
+L1 não lê fontes nem tabela OpenType.

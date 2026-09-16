@@ -57,3 +57,20 @@ O valor integra a morfologia e a igualdade estrutural. Frações existentes
 continuam com `true`; `binom` usa `false` e envolve a caixa em
 `MathDelimited('(', ..., ')')`. Campo público novo: gate humano ADR-0127
 obrigatório antes do código.
+
+## P1427 — carrier completo de `math.frac` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla pinado, `math/frac.rs:24-123` define `num`, `denom`, style público
+`vertical | skewed | horizontal` e dois bits internos que registam a remoção
+de um par exterior. O carrier cristalino mede apenas `num`, `den` e `line`.
+
+### Decisão proposta
+
+Adicionar `MathFracStyle::{Vertical, Skewed, Horizontal}`, estilo opcional
+explícito e `num_deparenthesized`/`denom_deparenthesized`. A ausência do estilo
+é causalmente distinta de `Vertical` explícito. `line` permanece apenas para
+o caminho interno de `binom`: quando falso, estilo e bits não o convertem em
+fração pública nem lhe devolvem a barra. `map_content`, igualdade e
+reconstrução preservam todos os campos; só `num` e `denom` são transformados.

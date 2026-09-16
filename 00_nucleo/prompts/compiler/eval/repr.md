@@ -746,3 +746,18 @@ linguagem e aguarda confirmação ADR-0127.
 `Content::OutlineEntry` usa nome `entry` e lista somente campos assentes na
 morfologia corrente. Ocorrências consultadas usam o snapshot realizado e
 imprimem `level`, `element` e `fill` nessa ordem.
+
+## P1427 — morfologia pública de fração (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime `(num)/(den)`. O vanilla imprime
+`frac(num: ..., denom: ...)`; inclui `style` somente quando explicitamente
+definido, inclusive `vertical`, e nunca expõe os bits internos de parênteses.
+
+### Decisão proposta
+
+Uma `MathFrac` pública com `line=true` usa campos `num`, `denom` e, se
+presente, `style`, nessa ordem. Folhas math diretas usam a projeção Content
+vigente. Bits causais não aparecem. O reconhecimento canônico de `binom`
+continua prioritário para `line=false` e não ganha campo `style`.

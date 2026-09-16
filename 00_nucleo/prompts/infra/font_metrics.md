@@ -1025,3 +1025,18 @@ o trait `FontMetrics`.
 TextItem não recebe IC nem substituição `ssty` próprias de GlyphFragment;
 fontes, fallback e demais métricas permanecem iguais. Rotas de glifo e número
 continuam a receber as métricas matemáticas correspondentes.
+
+## P1427 — extração dos gaps de fração inclinada (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+A extração atual preenche constantes de fração vertical e stack, mas omite
+`SkewedFractionVerticalGap` e `SkewedFractionHorizontalGap`, requeridas pelo
+layout vanilla da fração `style: "skewed"`.
+
+### Decisão proposta
+
+Extrair ambas as entradas da tabela OpenType MATH para os campos homônimos de
+`MathConstants`. Fonte ausente ou entrada indisponível usa o fallback L1
+legitimado; zero presente é valor, não ausência. Não derivar um gap do outro,
+do eixo ou da espessura da barra.

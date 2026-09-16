@@ -341,3 +341,20 @@ hint de reparo capturados acima. Não fabricar um segundo hint dizendo que
 `abs` não é função; não apagar nem reivindicar equivalência da anotação de span.
 As cláusulas principais de precedência das closures locais e os controles
 nativos permanecem inalterados.
+
+## P1427 — convergência da sintaxe de fração (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O branch atual de `frac(...)` coleta apenas posicionais, devolve Empty quando
+faltam e ignora excesso/named. O branch `/` já recebe AST capaz de informar se
+um par exterior foi removido, mas não transporta essa proveniência.
+
+### Decisão proposta
+
+`frac(a,b)` usa o mesmo parser de argumentos e constructor que `math.frac`,
+com estilo omitido. `/` permanece associativo à esquerda e constrói o mesmo
+carrier vertical, mas passa os dois bits `was_deparenthesized` do AST. Um par
+exterior removido é lembrado; um par interior remanescente continua conteúdo.
+Não filtrar named, não truncar posicionais e não fabricar Empty para aridade
+inválida.

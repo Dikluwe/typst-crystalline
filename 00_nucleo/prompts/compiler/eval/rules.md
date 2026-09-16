@@ -211,3 +211,21 @@ restantes conservam P1414.
 
 A execução tardia pertence ao contrato `infra/pipeline.md`; o layout puro só
 produz request. A ampliação pública aguarda confirmação humana explícita.
+
+## P1427 — propriedade settable `math.frac.style` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla declara `style` com default vertical no elemento `FracElem`; o
+cristalino reconhece propriedades de frac de forma incompleta, sem transportar
+um valor tipado até o layout.
+
+### Decisão proposta
+
+Aceitar `#set math.frac(style: ...)` somente no domínio string fechado
+`vertical | skewed | horizontal`. Após validação, guardar a `Value::Str`
+canônica no `StyleChain`, que não possui variante específica para este enum;
+o consumer de layout faz a conversão total para `MathFracStyle`. Estilo
+explícito no elemento vence o cascaded; ausência em ambos usa vertical. Named
+inválido falha no set, não é ignorado. `binom` não consome esta propriedade
+porque não é uma `math.frac` pública no vanilla.

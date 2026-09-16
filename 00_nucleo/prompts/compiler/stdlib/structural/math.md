@@ -404,3 +404,20 @@ e `... found integer`. O cristalino rejeita `alt` como argumento inesperado.
 o valor explícito em `equation.alt` na style chain local. Omitido não cria
 delta. `#set math.equation(alt:)` usa o mesmo cast/canal. Não há conversão de
 content para string nem descrição inferida do body.
+
+## P1427 — binding público `math.frac` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O registry cristalino omite `math.frac`. O vanilla exige `num` e `denom`
+posicionais, aceita somente `style:` nomeado no domínio `vertical | skewed |
+horizontal`, converte string/`none` para conteúdo e rejeita inteiros.
+
+### Decisão proposta
+
+Registrar `math.frac` com exatamente dois posicionais. Ausência reporta
+primeiro `num`, depois `denom`; terceiro posicional é inesperado; `num:` e
+`denom:` informam que o argumento é posicional; named desconhecido e
+duplicado falham. `style` pode anteceder os posicionais, conserva explicitude
+inclusive para `vertical` e constrói o carrier completo P1427. Não aceitar nem
+ignorar argumentos fora desse contrato.

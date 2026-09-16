@@ -552,3 +552,17 @@ anexando somente `line`, ligado a `structural/par.md::native_par_line` com nome
 público curto. Não transferir argumentos de `par.with(...)`, não criar alias
 flat e não mudar a identidade do parent. A ampliação aguarda confirmação
 humana explícita.
+
+# P1427 — igualdade observacional de `MathFrac` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`ObservationEq` compara hoje somente numerador, denominador e `line`; dois
+conteúdos que diferem em estilo explícito ou proveniência de parênteses seriam
+tratados como iguais apesar de poderem produzir morfologia/layout distintos.
+
+### Decisão proposta
+
+Comparar também estilo opcional e ambos os bits de deparenthesization. Não
+normalizar `None` para `Vertical`: ausência e vertical explícito divergem em
+`repr`. `line=false` permanece parte da observação para proteger `binom`.

@@ -1452,3 +1452,21 @@ Sintaxe e funções qualificadas produzem a mesma morfologia. Attach preserva os
 seis slots, spacing e posições; binom preserva upper/lower e delimitadores.
 TextItem não recebe IC ou `.st/.sts`, enquanto rotas de glifo e número
 continuam a recebê-las.
+
+## P1427 — dispatch e reconstrução de frações completas (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher chama apenas stack vertical e as duas reconstruções matemáticas
+preservam somente `line`, apagando qualquer futuro estilo ou proveniência.
+
+### Decisão proposta
+
+Resolver estilo efetivo na ordem elemento explícito, valor cascaded de
+`math.frac.style`, `Vertical`. O valor cascaded chega como `Value::Str` já
+validada e é convertido por match total para `MathFracStyle`; outro tipo ou
+string é estado interno inválido e falha fechado, nunca escolhe um default
+silencioso. Para `line=false`, despachar sempre ao stack sem
+barra e ignorar a propriedade de frac pública. Para `line=true`, despachar
+estaticamente a vertical, skewed ou horizontal. `apply_math_default` e
+`apply_math_style` preservam estilo opcional e os dois bits sem normalização.
