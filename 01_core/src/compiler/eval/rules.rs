@@ -1327,9 +1327,10 @@ pub(super) fn eval_set_rule(
                 let value = eval_expr(named.expr(), scopes, ctx, engine)?;
                 match key {
                     "numbering" => {
-                        if !matches!(&value, Value::Str(_) | Value::None) {
+                        if !matches!(&value, Value::Str(_) | Value::Func(_) | Value::None)
+                        {
                             return Err(vec![type_mismatch(
-                                "string or none",
+                                "string, function, or none",
                                 &value,
                                 span,
                             )]);

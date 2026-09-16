@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/callbacks.md
-//! @prompt-hash 8ac56b4f
+//! @prompt-hash 7537e8f9
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -97,13 +97,23 @@ impl MathCallbackPassState {
     }
 
     pub fn finish(self, document: PagedDocument) -> MathLayoutPassOutcome {
+        match self.finish_transcript() {
+            Ok(()) => MathLayoutPassOutcome::Complete(document),
+            Err(transcript) => MathLayoutPassOutcome::Pending(transcript),
+        }
+    }
+
+    /// Finaliza somente o transcript para permitir que o coordenador geral de
+    /// layout combine esta família com outros callbacks puros sem fabricar um
+    /// documento parcial.
+    pub fn finish_transcript(self) -> Result<(), Vec<MathCancelRequest>> {
         let transcript = self.transcript.into_inner();
         let integral = !self.unresolved.get()
             && self.consumed.into_inner().iter().all(|consumed| *consumed);
         if integral {
-            MathLayoutPassOutcome::Complete(document)
+            Ok(())
         } else {
-            MathLayoutPassOutcome::Pending(transcript)
+            Err(transcript)
         }
     }
 }

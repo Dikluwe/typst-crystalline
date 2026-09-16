@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 434ee4c0
+//! @prompt-hash 184ee4c4
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -787,14 +787,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P576 — alinhamento de parágrafo RTL.
         self.align_current_line_rtl();
 
-        // P1414 — a ocorrência nasce somente depois de estabilizar wrap,
-        // paginação e baseline. Flushes vazios e subframes não consomem o
-        // contador privado do fluxo raiz.
+        // P1414/P1415 — a ocorrência nasce somente depois de estabilizar
+        // wrap, paginação e baseline. Flushes vazios e subframes não consomem
+        // o contador privado do fluxo raiz.
         if had_items && !self.is_sub_frame {
-            if let Some(crate::entities::value::Value::Str(pattern)) =
-                self.chain.custom("par.line.numbering")
-            {
-                let pattern = pattern.clone();
+            let numbering = self.chain.custom("par.line.numbering").cloned();
+            if matches!(
+                numbering,
+                Some(
+                    crate::entities::value::Value::Str(_)
+                        | crate::entities::value::Value::Func(_)
+                )
+            ) {
                 let page = self.current_page_number();
                 let page_scoped = matches!(
                     self.chain.custom("par.line.numbering-scope"),
@@ -807,27 +811,110 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.par_line_page = Some(page);
                 self.par_line_counter += 1;
 
-                if let Some(number) =
-                    format_counter(&[self.par_line_counter], pattern.as_str())
-                {
+                enum RealizedLineNumber {
+                    Pattern(String),
+                    Callback(crate::entities::content::Content),
+                }
+
+                let realized = match numbering {
+                    Some(crate::entities::value::Value::Str(pattern)) => {
+                        format_counter(&[self.par_line_counter], pattern.as_str())
+                            .map(RealizedLineNumber::Pattern)
+                    }
+                    Some(crate::entities::value::Value::Func(func)) => {
+                        let request = super::ParLineCallbackRequest {
+                            span: func.diagnostic_span(),
+                            func,
+                            number: self.par_line_counter,
+                            styles: self.chain.clone(),
+                        };
+                        self.par_line_callback_pass
+                            .and_then(|pass| pass.resolve_or_record(request))
+                            .map(RealizedLineNumber::Callback)
+                    }
+                    _ => None,
+                };
+
+                if let Some(realized) = realized {
                     use crate::entities::layout_types::{Align2D, HAlign};
                     use crate::entities::value::Value;
 
                     let style = TextStyle::from(&self.chain);
-                    let width = self.metrics.advance(&number, style.size, &style).0;
+                    let (mut number_items, width) = match realized {
+                        RealizedLineNumber::Pattern(number) => {
+                            let width =
+                                self.metrics.advance(&number, style.size, &style).0;
+                            (
+                                vec![FrameItem::Text {
+                                    pos: Point {
+                                        x: Pt(0.0),
+                                        y: self.regions.current.cursor_y,
+                                    },
+                                    text: number.into(),
+                                    style: style.clone(),
+                                }],
+                                width,
+                            )
+                        }
+                        RealizedLineNumber::Callback(content) => {
+                            let (_, items, _, _, _) = self.layout_sub_frame(
+                                &content,
+                                super::SubLayoutRegion {
+                                    origin_x: 0.0,
+                                    width: f64::INFINITY,
+                                    height: None,
+                                    align_rtl: false,
+                                    unconstrained_height: true,
+                                },
+                            );
+                            let refs: Vec<&FrameItem> = items.iter().collect();
+                            let width = if refs.is_empty() {
+                                0.0
+                            } else {
+                                self.metrics.line_content_right(&refs)
+                            };
+                            let local_baseline = items
+                                .iter()
+                                .find_map(|item| match item {
+                                    FrameItem::Text { pos, .. }
+                                    | FrameItem::TextShaped { pos, .. }
+                                    | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
+                                    _ => None,
+                                })
+                                .unwrap_or(0.0);
+                            let dy = self.regions.current.cursor_y.0 - local_baseline;
+                            let items = items
+                                .into_iter()
+                                .map(|item| {
+                                    let (x, y) = item_pos(&item);
+                                    translate_frame_item(item, Pt(x), Pt(y + dy))
+                                })
+                                .collect();
+                            (items, width)
+                        }
+                    };
                     let default_clearance = (0.026 * self.page_config.width)
                         .clamp(0.75 * style.size.0, 2.5 * style.size.0);
                     let clearance = match self.chain.custom("par.line.number-clearance") {
                         Some(Value::Length(length)) => length.resolve_pt(style.size.0),
                         _ => default_clearance,
                     };
-                    let margin = match self.chain.custom("par.line.number-margin") {
-                        Some(Value::Align(Align2D {
-                            h: Some(HAlign::Right | HAlign::End),
-                            v: None,
-                        })) => HAlign::Right,
-                        _ => HAlign::Left,
-                    };
+                    let configured_margin =
+                        match self.chain.custom("par.line.number-margin") {
+                            Some(Value::Align(Align2D {
+                                h: Some(HAlign::Right | HAlign::End),
+                                v: None,
+                            })) => HAlign::Right,
+                            _ => HAlign::Left,
+                        };
+                    let last_column = self
+                        .page_columns
+                        .is_some_and(|count| self.current_column + 1 == count)
+                        || self
+                            .segmented_par_line_column
+                            .is_some_and(|(index, count)| index + 1 == count);
+                    let margin =
+                        if last_column { HAlign::Right } else { configured_margin };
                     let align = match self.chain.custom("par.line.number-align") {
                         Some(Value::Align(Align2D { h: Some(h), v: None })) => *h,
                         _ if margin == HAlign::Left => HAlign::Right,
@@ -835,7 +922,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     };
                     let slot_start = match margin {
                         HAlign::Right => {
-                            self.page_config.width - self.page_config.margin.right
+                            self.regions.current.width - self.page_config.margin.right
                                 + clearance
                         }
                         _ => self.regions.current.line_start_x.0 - clearance - width,
@@ -846,17 +933,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         }
                         _ => slot_start,
                     };
-                    if self.page_columns.is_none() {
-                        let index = self.regions.current.current_items.len()
-                            + self.regions.current.current_line.len();
+                    let index = self.regions.current.current_items.len()
+                        + self.regions.current.current_line.len();
+                    let count = number_items.len();
+                    if count > 0 {
                         self.pending_par_line_numbering
-                            .push((index, width, margin, align));
+                            .push((index, count, width, margin, align));
+                        for item in &mut number_items {
+                            let (local_x, y) = item_pos(item);
+                            *item = translate_frame_item(
+                                item.clone(),
+                                Pt(x + local_x),
+                                Pt(y),
+                            );
+                        }
+                        self.regions.current.current_line.extend(number_items);
                     }
-                    self.regions.current.current_line.push(FrameItem::Text {
-                        pos: Point { x: Pt(x), y: self.regions.current.cursor_y },
-                        text: number.into(),
-                        style,
-                    });
                 }
             }
         }
@@ -1182,7 +1274,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Transladar items da coluna actual de coordenadas locais (origem
         // na margem) para coordenadas absolutas na página.
         let dx = self.column_origin_x - self.page_config.margin.left;
-        let items = std::mem::take(&mut self.regions.current.current_items);
+        let mut items = std::mem::take(&mut self.regions.current.current_items);
+        self.apply_pending_par_line_fixups(&mut items);
         let translated = items
             .into_iter()
             .map(|item| {

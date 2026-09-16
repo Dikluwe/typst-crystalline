@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash c6554bad
+//! @prompt-hash 96d31d89
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -216,6 +216,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     //    a fronteira vertical antes de configurar a mini-região.
     enter_flow_block(layouter);
 
+    // P1415 — a lista de fixups usa índices relativos ao buffer da região.
+    // Antes de trocar `current_items` por buffers de coluna, concluir a região
+    // exterior para que seus índices nunca sejam consumidos numa coluna irmã.
+    let mut outer_items = std::mem::take(&mut layouter.regions.current.current_items);
+    layouter.apply_pending_par_line_fixups(&mut outer_items);
+    layouter.regions.current.current_items = outer_items;
+
     let page_width = layouter.regions.current.width;
     let margins = layouter.page_config.margin;
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
@@ -324,6 +331,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
 
     // Guardar footnotes eventualmente pendentes do contexto exterior.
     let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
+    let saved_par_line_column = layouter.segmented_par_line_column;
 
     for (idx, segment) in segments.iter().enumerate() {
         // Salvaguardar estado actual (os items da página principal ficam
@@ -343,6 +351,8 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
 
         // Activar modo coluna para flush de footnotes.
         layouter.column_mode = true;
+        layouter.segmented_par_line_column =
+            page_columns.then_some((idx, column_x_offsets.len()));
         layouter.column_origin_x = column_x_offsets[idx];
         // column_width no Layouter é a largura total da mini-página,
         // para que flush_pending_footnote_bodies use column_width - 2*margin
@@ -391,6 +401,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // Recolher items da coluna e restaurar estado.
         let mut column_items =
             std::mem::take(&mut layouter.regions.current.current_items);
+        layouter.apply_pending_par_line_fixups(&mut column_items);
         layouter.regions.current.current_items = saved_items;
         layouter.regions.current.current_line = saved_line;
         layouter.regions.current.cursor_x = saved_cursor_x;
@@ -430,6 +441,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
 
     // Restaurar footnotes do contexto exterior.
     layouter.pending_footnote_bodies = saved_outer_footnotes;
+    layouter.segmented_par_line_column = saved_par_line_column;
 
     // 7. Adicionar todos os items das colunas à página actual.
     layouter.regions.current.current_items.extend(all_column_items);

@@ -168,6 +168,112 @@ const DEFAULT_FONT_SIZE: f64 = 12.0;
 /// 0.04 explícito para auditoria.
 const COLUMNS_DEFAULT_GUTTER_RATIO: f64 = 0.04;
 
+/// Pedido puro de realização de uma ocorrência funcional de `par.line`.
+#[derive(Debug, Clone)]
+pub struct ParLineCallbackRequest {
+    pub func: crate::entities::func::Func,
+    pub number: usize,
+    pub span: crate::entities::span::Span,
+    pub styles: StyleChain,
+}
+
+/// Conteúdo já realizado em L3 para uma ocorrência de numeração de linha.
+#[derive(Debug, Clone)]
+pub struct ParLineCallbackResolution {
+    pub request: ParLineCallbackRequest,
+    pub content: Content,
+}
+
+/// Store imutável e local à compilação.
+#[derive(Debug, Clone, Default)]
+pub struct SealedParLineCallbacks {
+    resolutions: Vec<ParLineCallbackResolution>,
+}
+
+impl SealedParLineCallbacks {
+    pub fn new(resolutions: Vec<ParLineCallbackResolution>) -> Self {
+        Self { resolutions }
+    }
+
+    pub fn resolutions(&self) -> &[ParLineCallbackResolution] {
+        &self.resolutions
+    }
+}
+
+/// Requests de todas as famílias que ainda impedem um documento completo.
+pub struct LayoutCallbackRequests {
+    pub math: Vec<crate::compiler::math::layout::callbacks::MathCancelRequest>,
+    pub par_line: Vec<ParLineCallbackRequest>,
+}
+
+pub enum LayoutPassOutcome {
+    Pending(LayoutCallbackRequests),
+    Complete(PagedDocument),
+}
+
+/// Transcript de `par.line` pertencente a uma única tentativa de Layouter.
+pub struct ParLineCallbackPassState {
+    store: Option<SealedParLineCallbacks>,
+    transcript: std::cell::RefCell<Vec<ParLineCallbackRequest>>,
+    consumed: std::cell::RefCell<Vec<bool>>,
+    unresolved: std::cell::Cell<bool>,
+}
+
+impl ParLineCallbackPassState {
+    fn new(store: Option<&SealedParLineCallbacks>) -> Self {
+        let store = store.cloned();
+        let count = store.as_ref().map_or(0, |store| store.resolutions.len());
+        Self {
+            store,
+            transcript: std::cell::RefCell::new(Vec::new()),
+            consumed: std::cell::RefCell::new(vec![false; count]),
+            unresolved: std::cell::Cell::new(false),
+        }
+    }
+
+    pub(super) fn resolve_or_record(
+        &self,
+        request: ParLineCallbackRequest,
+    ) -> Option<Content> {
+        self.transcript.borrow_mut().push(request.clone());
+        let Some(store) = &self.store else {
+            self.unresolved.set(true);
+            return None;
+        };
+        let mut consumed = self.consumed.borrow_mut();
+        let found = store.resolutions.iter().enumerate().find(|(index, resolution)| {
+            !consumed[*index] && par_line_requests_match(&resolution.request, &request)
+        });
+        if let Some((index, resolution)) = found {
+            consumed[index] = true;
+            Some(resolution.content.clone())
+        } else {
+            self.unresolved.set(true);
+            None
+        }
+    }
+
+    fn finish(self) -> Result<(), Vec<ParLineCallbackRequest>> {
+        let transcript = self.transcript.into_inner();
+        let integral = !self.unresolved.get()
+            && self.consumed.into_inner().iter().all(|consumed| *consumed);
+        if integral {
+            Ok(())
+        } else {
+            Err(transcript)
+        }
+    }
+}
+
+fn par_line_requests_match(
+    left: &ParLineCallbackRequest,
+    right: &ParLineCallbackRequest,
+) -> bool {
+    left.func == right.func
+        && left.number == right.number
+        && left.styles.collapse() == right.styles.collapse()
+}
+
 // ── Layouter ──────────────────────────────────────────────────────────────
 
 /// **P864** — grupo de item estrutural reconhecido para agrupamento por
@@ -332,6 +438,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// the entrypoint and never escapes L1.
     pub(super) math_callback_pass:
         Option<&'a crate::compiler::math::layout::callbacks::MathCallbackPassState>,
+    /// Callback state de `par.line` para esta tentativa concreta.
+    pub(super) par_line_callback_pass: Option<&'a ParLineCallbackPassState>,
     /// **P190C (M6 categoria Page tracking)** — state Layouter-runtime
     /// dedicado. Campos `label_pages` + `known_page_numbers` movidos
     /// de `CounterStateLegacy` para `LayouterRuntimeState` por não
@@ -508,6 +616,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) page_columns: Option<usize>,
     /// **P538c** — índice da coluna actual dentro da página (0-based).
     pub(super) current_column: usize,
+    /// Contexto exclusivo do modo segmentado, que não activa o mecanismo de
+    /// overflow do fluxo contínuo mas ainda precisa identificar a última coluna.
+    pub(super) segmented_par_line_column: Option<(usize, usize)>,
     /// **P538c** — items já fechados de cada coluna da página actual.
     /// Só preenchido quando `page_columns` é `Some`.
     pub(super) column_page_items: Vec<Vec<FrameItem>>,
@@ -530,7 +641,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1414 — ajuste horizontal adiado dos números de linha da página
     /// corrente. A maior largura só é conhecida quando a região fecha.
     /// Entradas: índice do item, largura, margem e alinhamento pedidos.
-    pub(super) pending_par_line_numbering: Vec<(usize, f64, HAlign, HAlign)>,
+    pub(super) pending_par_line_numbering: Vec<(usize, usize, f64, HAlign, HAlign)>,
     /// **P896** — centragem de equação de bloco adiada quando `width: auto`
     /// (a largura final da página só é conhecida em `finish()`/`new_page()`,
     /// depois de todo o conteúdo da página já estar posicionado — mesmo
@@ -703,6 +814,7 @@ pub(super) struct FlowSuffixCheckpoint {
     column_width: f64,
     page_columns: Option<usize>,
     current_column: usize,
+    segmented_par_line_column: Option<(usize, usize)>,
     column_page_items_len: usize,
     column_page_item_lens: Vec<usize>,
     column_x_offsets_len: usize,
@@ -953,6 +1065,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             locator: Locator::new(),
             current_location: None,
             math_callback_pass: None,
+            par_line_callback_pass: None,
             runtime:
                 crate::entities::layouter_runtime_state::LayouterRuntimeState::default(),
             // P245 (M9d / M7+4) — buffer floats + reservas inicializados vazios.
@@ -995,6 +1108,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P538c — fluxo contínuo multi-coluna inactivo por default.
             page_columns: None,
             current_column: 0,
+            segmented_par_line_column: None,
             column_page_items: Vec::new(),
             column_x_offsets: Vec::new(),
             // P286 — collector inactivo por default; consumer P284 activa
@@ -1106,6 +1220,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_width: self.column_width,
             page_columns: self.page_columns,
             current_column: self.current_column,
+            segmented_par_line_column: self.segmented_par_line_column,
             column_page_items_len: self.column_page_items.len(),
             column_page_item_lens: self.column_page_items.iter().map(Vec::len).collect(),
             column_x_offsets_len: self.column_x_offsets.len(),
@@ -1211,6 +1326,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.column_width = checkpoint.column_width;
         self.page_columns = checkpoint.page_columns;
         self.current_column = checkpoint.current_column;
+        self.segmented_par_line_column = checkpoint.segmented_par_line_column;
         self.column_page_items.truncate(checkpoint.column_page_items_len);
         for (items, len) in self
             .column_page_items
@@ -1396,15 +1512,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// aqui só aplicamos a diferença necessária para a largura máxima.
     fn apply_pending_par_line_fixups(&mut self, items: &mut [FrameItem]) {
         let pending = std::mem::take(&mut self.pending_par_line_numbering);
-        let max_width = pending.iter().map(|(_, width, _, _)| *width).fold(0.0, f64::max);
-        for (index, width, margin, align) in pending {
+        let max_width =
+            pending.iter().map(|(_, _, width, _, _)| *width).fold(0.0, f64::max);
+        for (index, count, width, margin, align) in pending {
             let delta = match (margin, align) {
                 (HAlign::Left, HAlign::Left | HAlign::Start) => -(max_width - width),
                 (HAlign::Right, HAlign::Right | HAlign::End) => max_width - width,
                 _ => 0.0,
             };
             if delta != 0.0 {
-                if let Some(item) = items.get_mut(index) {
+                for item in items.iter_mut().skip(index).take(count) {
                     helpers::shift_frame_item_x(item, delta);
                 }
             }
@@ -3073,6 +3190,42 @@ pub fn layout_with_introspector_and_metrics_and_math_callbacks<
         &crate::compiler::math::layout::callbacks::SealedMathCallbacks,
     >,
 ) -> crate::compiler::math::layout::callbacks::MathLayoutPassOutcome {
+    match layout_with_introspector_and_metrics_and_callbacks(
+        content,
+        introspector,
+        metrics,
+        sizer,
+        font_size,
+        callback_store,
+        None,
+    ) {
+        LayoutPassOutcome::Complete(document) => {
+            crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Complete(
+                document,
+            )
+        }
+        LayoutPassOutcome::Pending(requests) => {
+            crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Pending(
+                requests.math,
+            )
+        }
+    }
+}
+
+pub fn layout_with_introspector_and_metrics_and_callbacks<
+    M: FontMetrics + Clone,
+    S: ImageSizer + Clone,
+>(
+    content: &Content,
+    introspector: crate::entities::introspector::TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    math_callback_store: Option<
+        &crate::compiler::math::layout::callbacks::SealedMathCallbacks,
+    >,
+    par_line_callback_store: Option<&SealedParLineCallbacks>,
+) -> LayoutPassOutcome {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::collections::HashMap;
@@ -3151,11 +3304,14 @@ pub fn layout_with_introspector_and_metrics_and_math_callbacks<
     for _ in 0..MAX_ITERATIONS {
         let callback_pass =
             crate::compiler::math::layout::callbacks::MathCallbackPassState::new(
-                callback_store,
+                math_callback_store,
             );
+        let par_line_callback_pass =
+            ParLineCallbackPassState::new(par_line_callback_store);
         let mut l =
             Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.math_callback_pass = Some(&callback_pass);
+        l.par_line_callback_pass = Some(&par_line_callback_pass);
         l.bib_render_cache = bib_render_cache.clone();
         l.layout_errors = layout_errors.clone();
 
@@ -3189,7 +3345,15 @@ pub fn layout_with_introspector_and_metrics_and_math_callbacks<
             && doc.extracted_figure_page_numbers == known_figure_page_numbers
             && doc.extracted_table_page_numbers == known_table_page_numbers
         {
-            return callback_pass.finish(doc);
+            let math = callback_pass.finish_transcript();
+            let par_line = par_line_callback_pass.finish();
+            if math.is_ok() && par_line.is_ok() {
+                return LayoutPassOutcome::Complete(doc);
+            }
+            return LayoutPassOutcome::Pending(LayoutCallbackRequests {
+                math: math.err().unwrap_or_default(),
+                par_line: par_line.err().unwrap_or_default(),
+            });
         }
 
         // Actualizar para a próxima iteração.
@@ -3212,7 +3376,10 @@ pub fn layout_with_introspector_and_metrics_and_math_callbacks<
 
     // Limite atingido sem convergência. Não existe candidato cujo transcript
     // possa ser realizado nem documento que possa atravessar a API.
-    crate::compiler::math::layout::callbacks::MathLayoutPassOutcome::Pending(vec![])
+    LayoutPassOutcome::Pending(LayoutCallbackRequests {
+        math: Vec::new(),
+        par_line: Vec::new(),
+    })
 }
 
 // ── Helpers P418 ───────────────────────────────────────────────────────────

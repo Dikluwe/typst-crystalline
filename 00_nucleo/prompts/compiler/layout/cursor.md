@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 29971618
+Hash do Código: 21e359b4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -501,6 +501,9 @@ A maior largura de numeração é própria da região/coluna física. Com duas o
 mais colunas, a última coluna usa sempre margem `end`; as anteriores respeitam
 `number-margin`. O contador continua documental ou por página segundo P1414 e
 não reinicia por coluna. Checkpoint/rollback não duplica request nem consumo.
+As coordenadas marginais nascem na largura da região física ativa e só depois
+são transladadas pelo owner de colunas; usar a largura global antes dessa
+translação deslocaria a última numeração para fora da página.
 
 Cursor não chama `Func`, não converte `Content` em debug/texto e não guarda
 Engine. A realização e a passagem nova aguardam o gate ADR-0127 P1415.

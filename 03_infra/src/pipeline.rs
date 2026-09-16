@@ -43,12 +43,15 @@ use typst_core::compiler::eval::{
     realize_outlines, EvalContext, EvalTarget,
 };
 use typst_core::compiler::introspect::introspect_with_introspector;
-use typst_core::compiler::layout::layout_with_introspector_and_metrics_and_math_callbacks;
+use typst_core::compiler::layout::{
+    layout_with_introspector_and_metrics_and_callbacks, LayoutPassOutcome,
+    ParLineCallbackRequest, ParLineCallbackResolution, SealedParLineCallbacks,
+};
 use typst_core::compiler::math::layout::callbacks::{
-    MathCancelResolution, MathLayoutPassOutcome, SealedMathCallbacks,
+    MathCancelResolution, SealedMathCallbacks,
 };
 use typst_core::compiler::scopes::Scopes;
-use typst_core::compiler::stdlib::value_to_content;
+use typst_core::compiler::stdlib::{realize_numbering, value_to_content};
 use typst_core::entities::module::Module;
 use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
@@ -1000,36 +1003,97 @@ fn layout_with_realized_math_callbacks(
     world: &dyn World,
     source: &Source,
 ) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)> {
-    let mut store: Option<SealedMathCallbacks> = None;
+    let mut math_store: Option<SealedMathCallbacks> = None;
+    let mut par_line_store: Option<SealedParLineCallbacks> = None;
     let mut warnings = Vec::new();
     for _ in 0..8 {
-        match layout_with_introspector_and_metrics_and_math_callbacks(
+        match layout_with_introspector_and_metrics_and_callbacks(
             content,
             introspector.clone(),
             FallbackFontMetrics::new(world),
             ImageSizeImageSizer,
             11.0,
-            store.as_ref(),
+            math_store.as_ref(),
+            par_line_store.as_ref(),
         ) {
-            MathLayoutPassOutcome::Complete(document) => return Ok((document, warnings)),
-            MathLayoutPassOutcome::Pending(requests) => {
-                if requests.is_empty() {
+            LayoutPassOutcome::Complete(document) => return Ok((document, warnings)),
+            LayoutPassOutcome::Pending(requests) => {
+                if requests.math.is_empty() && requests.par_line.is_empty() {
                     return Err(vec![SourceDiagnostic::error(
                         Span::detached(),
-                        "layout did not converge before math callback realization",
+                        "layout did not converge before callback realization",
                     )]);
                 }
-                let (realized, pass_warnings) =
-                    realize_math_cancel_requests(world, source, requests)?;
-                warnings.extend(pass_warnings);
-                store = Some(realized);
+                if !requests.math.is_empty() {
+                    let (realized, pass_warnings) =
+                        realize_math_cancel_requests(world, source, requests.math)?;
+                    warnings.extend(pass_warnings);
+                    math_store = Some(realized);
+                }
+                if !requests.par_line.is_empty() {
+                    let (realized, pass_warnings) =
+                        realize_par_line_requests(world, source, requests.par_line)?;
+                    warnings.extend(pass_warnings);
+                    par_line_store = Some(realized);
+                }
             }
         }
     }
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
-        "math layout callbacks did not converge",
+        "layout callbacks did not converge",
     )])
+}
+
+fn realize_par_line_requests(
+    world: &dyn World,
+    source: &Source,
+    requests: Vec<ParLineCallbackRequest>,
+) -> SourceResult<(SealedParLineCallbacks, Vec<SourceDiagnostic>)> {
+    let font_metrics = FallbackFontMetrics::new(world);
+    let mut ctx = EvalContext::new();
+    let mut scopes = Scopes::new(None);
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards = Vec::new();
+    let mut sink = TypstSink::new();
+    let route = Route::root().with_id(source.id());
+    let mut resolutions = Vec::with_capacity(requests.len());
+    {
+        let mut tracked_sink = sink.track_mut();
+        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+        let mut engine = Engine {
+            world,
+            font_metrics: &font_metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: source.id(),
+            sink: &mut local_sink,
+        };
+        for request in requests {
+            *engine.styles = request.styles.clone();
+            let numbering =
+                typst_core::entities::numbering::Numbering::Func(request.func.clone());
+            let content = realize_numbering(
+                &numbering,
+                &[request.number],
+                request.span,
+                &mut scopes,
+                &mut ctx,
+                &mut engine,
+            )
+            .map_err(|mut diagnostics| {
+                for diagnostic in &mut diagnostics {
+                    diagnostic.span = request.span;
+                }
+                diagnostics
+            })?;
+            resolutions.push(ParLineCallbackResolution { request, content });
+        }
+    }
+    Ok((SealedParLineCallbacks::new(resolutions), sink.into_diagnostics()))
 }
 
 fn realize_math_cancel_requests(

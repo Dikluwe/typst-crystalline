@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/math/layout/callbacks` — transcript selado de callbacks math
-Hash do Código: 818f5ca1
+Hash do Código: 55473c8e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -161,3 +161,25 @@ total de `Engine`/L3/dyn execution no módulo. Integração negativa tenta
 exportar a primeira passagem em PDF, PNG e SVG e deve falhar antes do exporter.
 A mudança pública e a nova passagem eval↔layout exigem selo ADR-0127 antes de
 código.
+
+## P1415 — finalização componível do transcript
+
+### Medição anterior à decisão
+
+O outcome P1291 acopla a verificação integral do transcript ao
+`PagedDocument`. P1415 precisa decidir conjuntamente os transcripts math e de
+`par.line`, mas não pode fabricar, clonar ou expor um documento enquanto uma
+das famílias estiver pendente.
+
+### Decisão
+
+`MathCallbackPassState` oferece `finish_transcript(self) -> Result<(),
+Vec<MathCancelRequest>>`, contendo exatamente a verificação de store integral,
+pendências e transcript já usada por `finish`. O método antigo continua e
+delega ao novo, preservando `MathLayoutPassOutcome` e todos os callers P1291.
+
+O coordenador geral em `layout/mod.rs` consome a finalização de cada família e
+só associa o documento ao resultado quando todas devolvem `Ok(())`. Esta
+extração não muda identidade, matching, argumento, estilo, teto ou execução
+math; não introduz Engine nem dependência de `par.line` neste owner. O gate
+ADR-0127 P1415 foi confirmado pelo humano em 2026-09-15.

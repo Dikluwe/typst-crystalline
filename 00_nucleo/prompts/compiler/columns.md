@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: 93004005
+Hash do Código: 2e58e64d
 
 
 **Camada**: L1  
@@ -382,3 +382,34 @@ colunas.
 - `cargo test --workspace` limpo.
 - `crystalline-lint .` limpo.
 - P553: `#set page(columns: 2)\n#lorem(1200)` produz 3 páginas no cristalino (com a fonte padrão actual); vanilla com `Liberation Sans` também produz 3 páginas.
+
+## P1415 — região de alinhamento da numeração de linhas
+
+### Medição anterior à decisão
+
+Com `#set page(columns: 2)` e `number-margin: left`, o vanila ratificado põe
+os números da primeira coluna à esquerda e os da última à direita. No baseline
+`0a7de3dd9`, o modo segmentado não comunica índice/quantidade ao Cursor e o
+buffer P1414 de largura máxima só é corrigido no fecho da página, depois de os
+items das colunas já terem sido transladados.
+
+### Decisão
+
+Durante cada segmento explícito de `#set page(columns:)`, instalar um contexto
+privado `(índice, quantidade)` exclusivo de numeração de linhas e restaurá-lo
+ao sair. Ele não ativa o mecanismo de overflow `page_columns`, não muda fitting
+e não interfere na independência das regiões P1378/P1379. O Cursor usa esse
+contexto apenas para identificar a última coluna física. O contentor
+`#columns()` não recebe essa coordenação: a medição adversarial mostrou que o
+vanila deduplica sua linha física transversal e não numera a coluna irmã.
+
+Antes de retirar e transladar os items de cada coluna segmentada, aplicar o
+fixup P1414 de largura máxima daquela própria coluna. No fluxo contínuo, fazer
+o mesmo em `close_current_column`. Assim o buffer é drenado por região e nunca
+mistura larguras de colunas irmãs. Não executar callback, não interpretar
+`number-margin` e não alterar contador neste owner. O gate ADR-0127 P1415 foi
+confirmado pelo humano em 2026-09-15.
+
+Ao entrar no contentor, fechar também os fixups ainda pertencentes à região
+exterior antes de trocar seu buffer de items pelo buffer local de coluna. Uma
+entrada exterior nunca pode ser consumida contra índices de uma coluna irmã.
