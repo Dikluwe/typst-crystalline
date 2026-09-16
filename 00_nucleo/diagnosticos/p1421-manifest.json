@@ -1,0 +1,268 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1421",
+  "status": "candidate-manifest-unsealed",
+  "created_at": "2026-09-16T11:35:54-03:00",
+  "regime": {
+    "kind": "full",
+    "reason": "A nova fase eval -> introspeccao -> expansao contextual -> export HTML altera semantica observavel e exige contrato, oraculos, ataques, implementacao e veredito segregados.",
+    "isolation_attestation": false,
+    "required_delivery_language": "executado sem atestacao de isolamento",
+    "limitation": "Os papeis partilham workspace e contexto. Hashes e allowlists registram identidade e autoridade declarada, mas nao provam isolamento material.",
+    "seal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_baseline": {
+    "repository_head": "a1563cc0ad6eef92019a9163016fba430efe9070",
+    "repository_tree": "d131f77e026e448a585264b211d3099853a1f4ee",
+    "commit_time": "2026-09-16T11:33:47-03:00",
+    "commit_subject": "spec: authorize P1421 HTML context expansion",
+    "working_tree_at_contract_start": "clean",
+    "observed_at": "2026-09-16T11:35:54-03:00",
+    "candidate_implementation_read": false,
+    "candidate_implementation_write_authority": false
+  },
+  "protected_inputs": [
+    {
+      "role": "obligation",
+      "path": "00_nucleo/materialization/typst-passo-1421.md",
+      "sha256": "d80f596a4e9d6d8c09b859bb92d01b6181160badc8b5aecadb508d7403aaf45f"
+    },
+    {
+      "role": "owner-l0",
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "sha256": "96ae767806abf7316ec9de8ca2aeae8224849a7e929c668afab37c70ebdb189e"
+    },
+    {
+      "role": "owner-l0",
+      "path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "sha256": "4958271779a8590aa2674657b55f74c1f5ed0702f7d50c3867b4d7b766445a1f"
+    },
+    {
+      "role": "historical-cause",
+      "path": "00_nucleo/diagnosticos/p1420-report.md",
+      "sha256": "e517993399b84b2e9095d6cb9e66e46a95080b4e571ff74c0922d560c744a4fd"
+    },
+    {
+      "role": "historical-verification",
+      "path": "00_nucleo/diagnosticos/p1420-verification.json",
+      "sha256": "0251e7d443679b679ec8fcfa03f6d429b83649cc2bd2dac346328c8bcea06992"
+    },
+    {
+      "role": "baseline-consumer-identity-only",
+      "path": "03_infra/src/pipeline.rs",
+      "sha256": "435bc7a81f7d86d9818365d9c61b84ae828e7713109bc168da705e22354e0e6a"
+    },
+    {
+      "role": "baseline-consumer-identity-only",
+      "path": "03_infra/src/pipeline/context_stabilization.rs",
+      "sha256": "91188ee82f8e15554d619d3e1381e454f3521bfaeff3c360c07b39dba59773f1"
+    }
+  ],
+  "identities": {
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_product": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "crystalline_precandidate_from_step": {
+      "path": "target/release/typst",
+      "sha256": "1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e",
+      "use": "historical failure identity only; never an expected-output source"
+    }
+  },
+  "artifact_chain": {
+    "manifest": "00_nucleo/diagnosticos/p1421-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1421-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1421-oracles.json",
+    "mutants": "00_nucleo/diagnosticos/p1421-mutants.json",
+    "preseal": "00_nucleo/diagnosticos/p1421-preseal.json",
+    "candidate_receipts": "00_nucleo/diagnosticos/p1421-results.json",
+    "verification": "00_nucleo/diagnosticos/p1421-verification.json"
+  },
+  "mandatory_observables": [
+    "exit status and presence or absence of output artifact",
+    "HTML doctype, element names, nesting, text, attributes and decoded values",
+    "exact HTML artifact bytes for the three frozen vanilla fixtures",
+    "causal target visible inside each contextual closure",
+    "HTML feature availability inside the contextual closure",
+    "paged target regression control without requiring deterministic PDF bytes",
+    "original contextual error propagation and absence of artifact",
+    "failure before successful HTML expansion when the html feature is absent",
+    "residual ContextBlock or unverifiable contextual stability cannot become successful empty output",
+    "warnings from the retained published execution are not silently discarded",
+    "same classification under direct, direct-repeat and reverse schedules"
+  ],
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "implicit_success_forbidden": true,
+    "mandatory_unknown_blocks_close": true,
+    "reasons": [
+      "INPUT_HASH_MISMATCH",
+      "BASELINE_IDENTITY_MISMATCH",
+      "AMBIGUOUS_IDENTITY",
+      "CANDIDATE_IDENTITY_MISSING",
+      "TOOL_MISSING",
+      "TIMEOUT",
+      "OOM",
+      "NONZERO_SWAP",
+      "OUTPUT_MISSING",
+      "OUTPUT_TRUNCATED",
+      "OUTPUT_UNREADABLE",
+      "PROJECTION_INCOMPLETE",
+      "DIAGNOSTIC_UNREADABLE",
+      "PAGED_CONTROL_UNOBSERVABLE",
+      "RESIDUAL_MARKER_UNOBSERVABLE",
+      "TARGET_DEPENDENCY_REQUIRES_PAGINATION",
+      "ORDER_DISAGREEMENT",
+      "CALIBRATION_BUDGET_EXHAUSTED"
+    ],
+    "opaque_case_credit": "Unknown satisfaz somente casos explicitamente opacos do gate discriminatorio e nunca conta como Preserved em positivo, negativo ou controle obrigatorio."
+  },
+  "resource_policy": {
+    "parallelism": 1,
+    "rayon_num_threads": 1,
+    "process_rlimit_as_kib": 524288,
+    "per_process_timeout_seconds": 15,
+    "max_stdout_bytes": 65536,
+    "max_stderr_bytes": 65536,
+    "swap_must_equal_kib": 0,
+    "raw_outputs_directory": "/tmp/p1421",
+    "automatic_limit_increase": false
+  },
+  "calibration_budget": {
+    "maximum_oracle_revisions": 2,
+    "focal_first": true,
+    "full_gate_after_focal_passes": 1,
+    "final_full_repetitions_by_verifier": 1,
+    "required_orders": [
+      "direct",
+      "direct-repeat",
+      "reverse"
+    ],
+    "two_consecutive_same_vector_and_cause_require_redesign": true,
+    "budget_never_authorizes_relaxation_or_unknown_promotion": true
+  },
+  "commands": {
+    "vanilla_html": "lab/typst-original/target/release/typst compile --features html --format html INPUT OUTPUT",
+    "candidate_html": "target/release/typst compile --features html --format html INPUT OUTPUT",
+    "vanilla_html_without_feature": "lab/typst-original/target/release/typst compile --format html INPUT OUTPUT",
+    "candidate_html_without_feature": "target/release/typst compile --format html INPUT OUTPUT",
+    "vanilla_paged": "lab/typst-original/target/release/typst compile INPUT OUTPUT.pdf",
+    "candidate_paged": "target/release/typst compile INPUT OUTPUT.pdf",
+    "required_tests": [
+      "cargo test -p typst-infra p1421_ -- --nocapture",
+      "cargo test -p typst-infra p821_context_target_expande_paged -- --nocapture"
+    ],
+    "final_static_gates": [
+      "cargo fmt --all -- --check",
+      "crystalline-lint .",
+      "git diff --check"
+    ],
+    "forbidden_argv_tokens": [
+      "--jobs",
+      "--target"
+    ]
+  },
+  "role_capabilities": [
+    {
+      "role": "obligation-and-l0-author",
+      "executor": "P1421 specification author and human confirmer",
+      "environment": "shared workspace",
+      "read_allowlist": [
+        "domain evidence and predecessor diagnostics"
+      ],
+      "write_allowlist": [
+        "00_nucleo/materialization/typst-passo-1421.md",
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md"
+      ],
+      "forbidden": [
+        "approve own final materialization",
+        "emit final verdict"
+      ]
+    },
+    {
+      "role": "contract-and-oracle-author",
+      "executor": "/root/p1421_contract",
+      "environment": "shared workspace",
+      "read_allowlist": [
+        "AGENTS.md and tekt-materializacao-segregada instructions",
+        "00_nucleo/materialization/typst-passo-1421.md",
+        "the two confirmed P1421 owner L0 prompts",
+        "baseline a1563cc0ad6eef92019a9163016fba430efe9070 identities",
+        "P1420 report, results, backlog and verification",
+        "ratified vanilla binary"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1421-manifest.json",
+        "00_nucleo/diagnosticos/p1421-contract.json",
+        "00_nucleo/diagnosticos/p1421-oracles.json"
+      ],
+      "forbidden": [
+        "read future candidate implementation",
+        "edit code or tests",
+        "edit mutants or preseal",
+        "execute candidate product",
+        "derive expected values from crystalline output",
+        "emit verdict"
+      ],
+      "context_inherited": "Role assignment, repository instructions and shared parent context; no isolation attestation."
+    },
+    {
+      "role": "adversary",
+      "environment": "shared workspace unless separately attested",
+      "read_allowlist": [
+        "sealed obligation, L0, manifest, contract, oracles and baseline"
+      ],
+      "write_allowlist": [
+        "00_nucleo/diagnosticos/p1421-mutants.json"
+      ],
+      "forbidden": [
+        "candidate repair",
+        "solution selection",
+        "expected edits",
+        "verdict"
+      ]
+    },
+    {
+      "role": "implementer",
+      "environment": "shared workspace unless separately attested",
+      "requires": "valid P1421 preseal with mutation score 1.0",
+      "read_allowlist": [
+        "sealed obligation, L0, manifest, contract, oracles, mutants and preseal"
+      ],
+      "write_allowlist": [
+        "03_infra/src/pipeline.rs",
+        "03_infra/src/pipeline/context_stabilization.rs",
+        "local tests in the two owner consumers",
+        "necessary @prompt-hash headers"
+      ],
+      "forbidden": [
+        "sealed input edits",
+        "expected edits",
+        "verdict"
+      ]
+    },
+    {
+      "role": "verifier",
+      "environment": "shared workspace unless separately attested",
+      "requires": "sealed inputs and candidate implementation",
+      "read_allowlist": [
+        "all sealed inputs, candidate, receipts and ownership evidence"
+      ],
+      "write_allowlist": [
+        "P1421 receipts, report and verification artifacts only"
+      ],
+      "forbidden": [
+        "edit judged artifacts",
+        "repair candidate",
+        "change expected",
+        "promote Unknown"
+      ]
+    }
+  ],
+  "invalidation": "Any byte change to the obligation, confirmed L0s, baseline identity, manifest, contract or oracles after preseal invalidates the chain from the first affected phase.",
+  "claim_boundary": "P1421 covers contextual expansion on the HTML target without paged layout, the declared paged regression control and fail-closed errors. It does not prove general HTML parity, nested-context support, page-dependent introspection or any of the 66 P1420 routes."
+}

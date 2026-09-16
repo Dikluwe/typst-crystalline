@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash c10d75bb
+//! @prompt-hash 0d6bf40e
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -249,7 +249,7 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
             vec![],
         );
     }
-    let (result, warnings) = eval_to_module_with_sink_target_features(
+    let (result, mut warnings) = eval_to_module_with_sink_target_features(
         world,
         source,
         false,
@@ -258,7 +258,13 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
     );
     let html = result.and_then(|module| {
         let content = module.content().cloned().unwrap_or(Content::Empty);
-        crate::export::export_html_with_serialization_and_pretty(&content, mode, pretty)
+        let intr = introspect_with_introspector(&content);
+        let (prepared, contextual_warnings) = context_stabilization::prepare_html(
+            content, &intr, world, source, false, features,
+        );
+        warnings.extend(contextual_warnings);
+        let prepared = prepared?;
+        crate::export::export_html_with_serialization_and_pretty(&prepared, mode, pretty)
             .map_err(|error| vec![error])
     });
     (html, warnings)

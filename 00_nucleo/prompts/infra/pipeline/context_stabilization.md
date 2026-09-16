@@ -1,5 +1,5 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: 49eccf73
+Hash do Código: a5ed756f
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`

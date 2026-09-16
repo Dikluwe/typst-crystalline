@@ -1,0 +1,387 @@
+{
+  "schema": "tekt-adversarial-mutants/v1",
+  "step": "P1421",
+  "title": "expansao contextual HTML sem layout paginado",
+  "generated_at": "2026-09-16T11:35:33-03:00",
+  "regime": {
+    "kind": "full",
+    "role": "adversary",
+    "execution_claim": "executed_without_isolation_attestation",
+    "read_allowlist": [
+      "00_nucleo/materialization/typst-passo-1421.md",
+      "00_nucleo/prompts/infra/pipeline.md",
+      "00_nucleo/prompts/infra/pipeline/context_stabilization.md"
+    ],
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1421-mutants.json"
+    ],
+    "forbidden_inputs": [
+      "candidate implementation",
+      "candidate tests",
+      "private output from implementer or test author"
+    ],
+    "workspace_note": "The role used the shared workspace; capability isolation is declared but not attested."
+  },
+  "frozen_inputs": {
+    "predecessor_head": "a1563cc0ad6eef92019a9163016fba430efe9070",
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1421.md",
+      "sha256": "d80f596a4e9d6d8c09b859bb92d01b6181160badc8b5aecadb508d7403aaf45f"
+    },
+    "prompts": [
+      {
+        "path": "00_nucleo/prompts/infra/pipeline.md",
+        "sha256": "96ae767806abf7316ec9de8ca2aeae8224849a7e929c668afab37c70ebdb189e"
+      },
+      {
+        "path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "sha256": "4958271779a8590aa2674657b55f74c1f5ed0702f7d50c3867b4d7b766445a1f"
+      }
+    ],
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "baseline_commit": "ef33ba5204870646a7c4f3046d8b210d6cd8e8cf"
+  },
+  "classification_policy": {
+    "positive": "Preserved",
+    "valid_negative_mutant": "Violated",
+    "deliberately_opaque": "Unknown",
+    "unknown_is_success": false,
+    "residual_context_marker_is_success": false,
+    "export_after_context_error_is_success": false
+  },
+  "witnesses": [
+    {
+      "id": "W-HTML-TARGET",
+      "kind": "public_html_fixture",
+      "source": "#context target()",
+      "transport": "compile --features html --format html",
+      "expected": {
+        "exit": 0,
+        "dom_fragment": "<body><p>html</p></body>",
+        "forbidden_text": "paged"
+      }
+    },
+    {
+      "id": "W-HTML-FEATURE",
+      "kind": "public_html_fixture",
+      "source": "#context [#html.elem(\"div\")]",
+      "transport": "compile --features html --format html",
+      "expected": {
+        "exit": 0,
+        "dom_fragment": "<body><div></div></body>"
+      }
+    },
+    {
+      "id": "W-PHASE-ORDER",
+      "kind": "ordered_boundary_probe",
+      "source": "#context [expanded]",
+      "expected_events": [
+        "eval_html_complete",
+        "context_introspection_complete",
+        "context_closure_executed",
+        "context_marker_removed_from_html_view",
+        "html_exporter_dispatched"
+      ],
+      "forbidden_event_orders": [
+        [
+          "html_exporter_dispatched",
+          "context_closure_executed"
+        ]
+      ]
+    },
+    {
+      "id": "W-CLOSURE-EXECUTION",
+      "kind": "public_html_fixture_with_execution_counter",
+      "source": "#context [executed]",
+      "expected": {
+        "exit": 0,
+        "dom_contains": "executed",
+        "closure_execution_count": 1
+      }
+    },
+    {
+      "id": "W-NO-PAGED-LAYOUT",
+      "kind": "forbidden_boundary_probe",
+      "source": "#context assert.eq(target(), \"html\")",
+      "expected": {
+        "exit": 0,
+        "body_is_empty": true,
+        "paged_document_construction_count": 0,
+        "paged_layout_call_count": 0,
+        "page_store_construction_count": 0,
+        "position_construction_count": 0
+      }
+    },
+    {
+      "id": "W-CLOSURE-ERROR",
+      "kind": "public_html_fixture",
+      "source": "#context panic(\"p1421-error\")",
+      "expected": {
+        "exit_nonzero": true,
+        "diagnostic_contains": "p1421-error",
+        "html_artifact_emitted": false,
+        "html_exporter_dispatched": false
+      }
+    },
+    {
+      "id": "W-CLOSURE-WARNING",
+      "kind": "controlled_context_closure_sink",
+      "setup": "A context closure returns visible content and emits one SourceDiagnostic warning named p1421-warning through its execution sink.",
+      "expected": {
+        "exit": 0,
+        "visible_content_preserved": true,
+        "warning_count": 1,
+        "warning_contains": "p1421-warning"
+      }
+    },
+    {
+      "id": "W-PAGED-REGRESSION",
+      "kind": "public_paged_control",
+      "source": "#context target()",
+      "transport": "paged compilation",
+      "expected": {
+        "rendered_text": "paged",
+        "context_marker_retained_for_layout": true,
+        "html_preparation_entrypoint_called": false
+      }
+    },
+    {
+      "id": "W-RESIDUAL-MARKER",
+      "kind": "controlled_content_topology",
+      "setup": "The first contextual result contains a ContextBlock that remains residual after the bounded HTML preparation used by P1421.",
+      "expected": {
+        "classification": "error_or_unknown",
+        "success": false,
+        "html_artifact_emitted": false,
+        "html_exporter_dispatched": false,
+        "marker_silently_removed": false
+      }
+    },
+    {
+      "id": "W-TRANSPORT-SYMMETRY",
+      "kind": "public_facade_matrix",
+      "source": "#context target()",
+      "variants": [
+        "default_html_facade",
+        "features_html_facade",
+        "features_and_serialization_html_facade",
+        "features_serialization_and_pretty_false_html_facade",
+        "features_serialization_and_pretty_true_html_facade"
+      ],
+      "expected": {
+        "all_exit_zero": true,
+        "all_dom_equivalent_to": "<body><p>html</p></body>",
+        "differences_limited_to_selected_serialization_and_pretty_encoding": true,
+        "warnings_and_errors_equivalent": true
+      }
+    }
+  ],
+  "positive_controls": [
+    {
+      "id": "P-PLAIN-HTML",
+      "description": "HTML without ContextBlock keeps the pre-P1421 semantic result and selected serialization mode.",
+      "source": "plain text",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-TRANSPORT-SYMMETRY"
+      ]
+    },
+    {
+      "id": "P-HTML-TARGET",
+      "description": "A contextual target read is executed under the causal HTML target.",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-HTML-TARGET"
+      ]
+    },
+    {
+      "id": "P-HTML-FEATURE",
+      "description": "The effective HTML feature collection reaches contextual replay unchanged.",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-HTML-FEATURE"
+      ]
+    },
+    {
+      "id": "P-EMPTY-BODY",
+      "description": "A successful contextual assertion may produce an empty HTML body without being confused with silent marker deletion.",
+      "source": "#context assert.eq(target(), \"html\")",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-NO-PAGED-LAYOUT"
+      ]
+    },
+    {
+      "id": "P-PAGED-CONTROL",
+      "description": "The existing paged target, marker and layout behavior remain unchanged.",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-PAGED-REGRESSION"
+      ]
+    },
+    {
+      "id": "P-WARNING-DELIVERY",
+      "description": "A warning from the contextual execution that contributes the published result is returned exactly once.",
+      "expected": "Preserved",
+      "witnesses": [
+        "W-CLOSURE-WARNING"
+      ]
+    }
+  ],
+  "opaque_controls": [
+    {
+      "id": "O-PAGE-DEPENDENT-READ",
+      "description": "A contextual HTML read whose stability requires page or position information is outside the proved fragment.",
+      "expected": "Unknown",
+      "success_permitted": false,
+      "required_boundary": "fail_closed_before_export"
+    },
+    {
+      "id": "O-NESTED-CONTEXT",
+      "description": "Nested ContextBlocks are not a positive gate of P1421; incomplete preparation cannot be certified.",
+      "expected": "Unknown",
+      "success_permitted": false,
+      "witnesses": [
+        "W-RESIDUAL-MARKER"
+      ]
+    },
+    {
+      "id": "O-AMBIGUOUS-IDENTITY",
+      "description": "Ambiguous or colliding contextual producer identity cannot establish a valid HTML preparation attempt.",
+      "expected": "Unknown",
+      "success_permitted": false,
+      "required_boundary": "fail_closed_before_export"
+    }
+  ],
+  "negative_mutants": [
+    {
+      "id": "M01-HARDCODE-PAGED-TARGET",
+      "class": "target_causality",
+      "mutation": "Replace the caller-provided EvalTarget::Html used by contextual execution with EvalTarget::Paged or a Paged default.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-HTML-TARGET",
+        "W-NO-PAGED-LAYOUT"
+      ],
+      "witness": "The produced paragraph says paged or the assertion expecting html fails."
+    },
+    {
+      "id": "M02-DROP-EFFECTIVE-FEATURES",
+      "class": "feature_causality",
+      "mutation": "Rebuild contextual execution with Features::default/empty instead of transporting the effective HTML features from the facade.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-HTML-FEATURE"
+      ],
+      "witness": "The contextual closure loses access to html.elem and cannot produce the required div morphology."
+    },
+    {
+      "id": "M03-PREPARE-AFTER-EXPORT",
+      "class": "phase_order",
+      "mutation": "Dispatch the HTML exporter on evaluated content before contextual introspection and preparation, then attempt preparation after serialization.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-PHASE-ORDER",
+        "W-HTML-TARGET"
+      ],
+      "witness": "The exporter observes ContextBlock first and either emits the baseline unsupported-content error or the boundary trace is reversed."
+    },
+    {
+      "id": "M04-DELETE-MARKER-WITHOUT-CLOSURE",
+      "class": "closure_execution",
+      "mutation": "Map ContextBlock directly to Empty/remove it from the HTML view without applying its closure.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-CLOSURE-EXECUTION",
+        "W-HTML-TARGET"
+      ],
+      "witness": "Compilation may appear successful, but the execution count is zero and visible contextual output is absent."
+    },
+    {
+      "id": "M05-RUN-PAGED-LAYOUT-FOR-HTML",
+      "class": "forbidden_paged_phase",
+      "mutation": "Obtain contextual observability by constructing a PagedDocument or calling the paged layout/fixpoint before HTML export.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-NO-PAGED-LAYOUT",
+        "W-PHASE-ORDER"
+      ],
+      "witness": "At least one forbidden paged construction/layout counter is nonzero even if the final DOM happens to match."
+    },
+    {
+      "id": "M06-HIDE-CLOSURE-ERROR",
+      "class": "error_propagation",
+      "mutation": "Catch an error from contextual execution, substitute Empty or the previous result, and continue to HTML export.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-CLOSURE-ERROR"
+      ],
+      "witness": "A successful/partial HTML artifact is emitted or the original p1421-error diagnostic is absent."
+    },
+    {
+      "id": "M07-DROP-PUBLISHED-WARNING",
+      "class": "warning_propagation",
+      "mutation": "Discard the sink of the contextual execution whose result is published, or drain it without appending its warning to the facade result.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-CLOSURE-WARNING"
+      ],
+      "witness": "Visible content remains but warning count changes from one to zero."
+    },
+    {
+      "id": "M08-REGRESS-PAGED-PATH",
+      "class": "paged_regression",
+      "mutation": "Generalize HTML preparation into the paged caller so it uses target Html, removes paged markers, or bypasses the existing paged coordination.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-PAGED-REGRESSION"
+      ],
+      "witness": "Paged compilation no longer renders paged, loses the locatable marker, or calls the HTML-only preparation entrypoint."
+    },
+    {
+      "id": "M09-ALLOW-RESIDUAL-CONTEXT-MARKER",
+      "class": "residual_marker_fail_closed",
+      "mutation": "Treat HTML preparation as successful while a ContextBlock remains and dispatch the exporter, or silently strip that residual marker as a fallback.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-RESIDUAL-MARKER"
+      ],
+      "witness": "The exporter is dispatched, an artifact is emitted, or the residual occurrence disappears without a proved execution."
+    },
+    {
+      "id": "M10-ASYMMETRIC-FACADE-TRANSPORT",
+      "class": "transport_symmetry",
+      "mutation": "Insert contextual preparation in only one HTML facade/serialization branch, leaving another wrapper to export the unprepared module content or reconstruct target/features/full_error differently.",
+      "valid": true,
+      "expected": "Violated",
+      "killed_by": [
+        "W-TRANSPORT-SYMMETRY",
+        "W-HTML-TARGET",
+        "W-HTML-FEATURE"
+      ],
+      "witness": "At least one public facade differs in DOM, diagnostics, or contextual target beyond its selected encoding/pretty representation."
+    }
+  ],
+  "gate": {
+    "metric": "valid_negative_mutants_rejected / valid_negative_mutants",
+    "valid_negative_mutants": 10,
+    "expected_rejected": 10,
+    "score": 1.0,
+    "required_score": 1.0,
+    "positive_controls_expected_preserved": 6,
+    "opaque_controls_expected_unknown": 3,
+    "unknown_negative_mutants": 0,
+    "surviving_negative_mutants": 0,
+    "status": "adversarial_truth_table_complete_pending_independent_execution",
+    "seal_rule": "Any valid negative mutant classified Preserved or Unknown blocks the seal; any positive not Preserved or opaque not Unknown also blocks the seal."
+  }
+}

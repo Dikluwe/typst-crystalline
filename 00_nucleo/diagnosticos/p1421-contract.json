@@ -1,0 +1,322 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1421,
+  "status": "candidate-contract-unsealed",
+  "contract_revision": "R0",
+  "regime": {
+    "kind": "full",
+    "attestation": "executado sem atestacao de isolamento",
+    "candidate_implementation_read_by_contract_author": false,
+    "candidate_executed_by_contract_author": false,
+    "preseal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "step_path": "00_nucleo/materialization/typst-passo-1421.md",
+    "step_sha256": "d80f596a4e9d6d8c09b859bb92d01b6181160badc8b5aecadb508d7403aaf45f",
+    "pipeline_l0_path": "00_nucleo/prompts/infra/pipeline.md",
+    "pipeline_l0_sha256": "96ae767806abf7316ec9de8ca2aeae8224849a7e929c668afab37c70ebdb189e",
+    "context_l0_path": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "context_l0_sha256": "4958271779a8590aa2674657b55f74c1f5ed0702f7d50c3867b4d7b766445a1f",
+    "manifest_path": "00_nucleo/diagnosticos/p1421-manifest.json",
+    "manifest_sha256_at_contract_creation": "3ea2cdc4c50b0eb8f9b5e60bc9fc2d6639e86c20faf5eb2c787d6f591c5ce84c",
+    "manifest_hash_binding": "O preseal deve confirmar este SHA-256 e fixar o SHA-256 deste contrato e dos oraculos."
+  },
+  "baseline_identities": {
+    "repository_head": "a1563cc0ad6eef92019a9163016fba430efe9070",
+    "repository_tree": "d131f77e026e448a585264b211d3099853a1f4ee",
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  },
+  "scope": {
+    "authorized_delta": "Inserir no caminho HTML, depois de eval e antes do exporter existente, introspeccao e expansao contextual com EvalTarget::Html, features e full_error causais; entregar ao serializer uma vista sem ContextBlock residual.",
+    "required_preservations": [
+      "o caminho paginado continua a observar target paged e a conservar a politica vigente de locations/fixpoint",
+      "o exporter HTML e seus modos de serializacao/pretty nao mudam",
+      "erros originais impedem artefato e mantem diagnostico",
+      "warnings da execucao retida continuam publicados",
+      "feature HTML ausente continua a impedir exportacao",
+      "nenhum layout, pagina, posicao ou PagedDocument e criado pelo caminho HTML"
+    ],
+    "explicitly_out": [
+      "implementacao ou reclassificacao das 66 rotas P1420",
+      "paridade HTML geral",
+      "contextos aninhados como gate positivo",
+      "leituras dependentes de paginas, positions ou selecao paginada",
+      "mudanca no serializer HTML",
+      "mudanca de assinatura publica",
+      "igualdade de bytes PDF ou estrutura Rust"
+    ]
+  },
+  "phase_contract": {
+    "html_order": [
+      "eval(target=html, effective features, causal full_error)",
+      "build content introspection topology without paged layout",
+      "execute reachable contextual closures",
+      "substitute each block with its produced content",
+      "reject incomplete or unverifiable expansion",
+      "remove only retained ContextBlock location markers from the terminal HTML view",
+      "invoke the unchanged HTML exporter"
+    ],
+    "forbidden_orders": [
+      "export before contextual expansion",
+      "drop marker before executing its closure",
+      "execute closure with target paged then serialize as HTML",
+      "run paged layout/fixpoint to obtain HTML observability",
+      "turn a missing resolution into Content::Empty"
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "P1421-HTML-TARGET-ASSERT",
+      "kind": "required-positive",
+      "source_utf8": "#context assert.eq(target(), \"html\")\n",
+      "source_sha256": "bc729da80aad307c2230127ee4d90a6ace14926b0e5c85f9f3fb5aa7f2c5d579",
+      "argv": [
+        "{binary}",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "{input}",
+        "{output}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 0,
+        "artifact_bytes": 154,
+        "artifact_sha256": "52569b3f0175d7ded4383171fa34c563019206cbc8bac63a3572e775bb72adcf",
+        "artifact_utf8": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body></body></html>",
+        "body_projection": [],
+        "meaning": "the contextual closure executed with target html and emitted no body content"
+      }
+    },
+    {
+      "id": "P1421-HTML-TARGET-VISIBLE",
+      "kind": "required-positive",
+      "source_utf8": "#context target()\n",
+      "source_sha256": "935c3098d908fe92bde75684352977a9e18d142be3f66ae217db2c3e89883277",
+      "argv": [
+        "{binary}",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "{input}",
+        "{output}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 0,
+        "artifact_bytes": 165,
+        "artifact_sha256": "1f51255aef2eaf4fcbfdb0b08152ba5710258427f93be68692d5c200bc9321d0",
+        "artifact_utf8": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>html</p></body></html>",
+        "body_projection": [
+          [
+            "start",
+            "p",
+            []
+          ],
+          [
+            "text",
+            "html"
+          ],
+          [
+            "end",
+            "p"
+          ]
+        ],
+        "meaning": "the produced contextual content remains at the causal position and says html, never paged"
+      }
+    },
+    {
+      "id": "P1421-HTML-FEATURE-IN-CONTEXT",
+      "kind": "required-positive",
+      "source_utf8": "#context [#html.elem(\"div\")]\n",
+      "source_sha256": "33a4d203448d669c4ba1f386dc696bed4c912e251d2c48b8c618db5ee7abb167",
+      "argv": [
+        "{binary}",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "{input}",
+        "{output}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 0,
+        "artifact_bytes": 165,
+        "artifact_sha256": "fe18965c5ffb798226ea7d3335fda25c93b8a69817e9647e49812aa99c23f04c",
+        "artifact_utf8": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div></div></body></html>",
+        "body_projection": [
+          [
+            "start",
+            "div",
+            []
+          ],
+          [
+            "end",
+            "div"
+          ]
+        ],
+        "meaning": "effective html feature is visible while the contextual closure executes"
+      }
+    },
+    {
+      "id": "P1421-PAGED-TARGET-CONTROL",
+      "kind": "required-regression-control",
+      "source_utf8": "#context assert.eq(target(), \"paged\")\n",
+      "source_sha256": "58fdb68c9e00c121405c6ba24538f7c3e50a7232821ac258e85b92815eaa3870",
+      "argv": [
+        "{binary}",
+        "compile",
+        "{input}",
+        "{output_pdf}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 0,
+        "artifact_kind": "PDF 1.7",
+        "page_count": 1,
+        "artifact_nonempty": true,
+        "exact_pdf_bytes_compared": false,
+        "derivation_observation": "two immediate vanilla runs both produced 2151 bytes but different SHA-256 values; PDF byte equality is mechanical and excluded",
+        "meaning": "the paged contextual closure still observes target paged"
+      }
+    },
+    {
+      "id": "P1421-CONTEXT-ERROR",
+      "kind": "required-negative",
+      "source_utf8": "#context panic(\"p1421 contextual boom\")\n",
+      "source_sha256": "eb6d5309c06e8098b4a7ca06dca429ea284be6aafc3b66fe9f4baf2851eff38f",
+      "argv": [
+        "{binary}",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "{input}",
+        "{output}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 1,
+        "artifact_present": false,
+        "diagnostic_required_substring": "panicked with: p1421 contextual boom",
+        "diagnostic_anchor": "the panic expression in the contextual closure",
+        "generic_unsupported_content_is_forbidden": true
+      }
+    },
+    {
+      "id": "P1421-FEATURE-ABSENT",
+      "kind": "required-negative",
+      "source_utf8": "#context [#html.elem(\"div\")]\n",
+      "source_sha256": "33a4d203448d669c4ba1f386dc696bed4c912e251d2c48b8c618db5ee7abb167",
+      "argv": [
+        "{binary}",
+        "compile",
+        "--format",
+        "html",
+        "{input}",
+        "{output}"
+      ],
+      "vanilla_expected": {
+        "exit_code": 1,
+        "artifact_present": false,
+        "diagnostic_required_substring": "html export is only available when `--features html` is passed",
+        "contextual_success_credit": false
+      }
+    },
+    {
+      "id": "P1421-RESIDUAL-MARKER",
+      "kind": "required-internal-negative",
+      "construction": "inject or retain a ContextBlock after the HTML preparation boundary",
+      "expected": {
+        "result": "Err",
+        "exporter_invoked": false,
+        "artifact_present": false,
+        "silent_empty_substitution": false
+      },
+      "external_fixture_available": false,
+      "external_only_observation": "Unknown(RESIDUAL_MARKER_UNOBSERVABLE), never Preserved"
+    }
+  ],
+  "public_projection": {
+    "html": {
+      "required": [
+        "doctype",
+        "tag names",
+        "nesting",
+        "text",
+        "attribute names",
+        "decoded attribute values"
+      ],
+      "mechanical_only": [
+        "attribute order",
+        "whitespace-only nodes outside text content"
+      ],
+      "exact_artifact_hash_required_for_frozen_vanilla": true,
+      "candidate_acceptance": "DOM/morphology equality is mandatory; exact bytes are additionally expected for the current unchanged exporter but a byte-only mismatch cannot by itself override equal language morphology without verifier review."
+    },
+    "paged_control": {
+      "required": [
+        "exit 0",
+        "nonempty valid PDF",
+        "one page"
+      ],
+      "excluded": [
+        "PDF byte equality",
+        "document IDs",
+        "object ordering"
+      ]
+    }
+  },
+  "classification": {
+    "Preserved": "all required public observables equal the frozen expectation and no mandatory evidence is Unknown",
+    "Violated": "a conclusive public semantic or diagnostic mismatch exists, including success with residual marker, paged target in HTML, lost contextual error, missing feature gate, or silent empty substitution",
+    "Unknown": "identity, execution, projection, resource, residual-marker observability or schedule evidence is insufficient",
+    "rule": "Unknown never aliases Preserved or permits closure"
+  },
+  "warning_policy": {
+    "html_development_warning": {
+      "vanilla_stderr_bytes": 250,
+      "vanilla_stderr_sha256": "d103175d5ac5ba1d2d4afae2e801958a1e0dafae1b43ffe6f1f44f3783a2f3ce",
+      "acceptance_use": "transport control, not a substitute for contextual-warning retention"
+    },
+    "contextual_warnings": "Any warning emitted by the retained execution must be published once; warnings from discarded attempts must not leak. If no public fixture can distinguish this, the independent internal test is mandatory and absence of evidence is Unknown."
+  },
+  "gates": {
+    "red_before_green": "All three HTML positives must fail on the baseline crystalline product for the historical unsupported ContextBlock cause before implementation receives credit.",
+    "mutation_score_required": 1.0,
+    "required_mutation_families": [
+      "force target Paged in HTML closure",
+      "drop effective html feature",
+      "export before expansion",
+      "delete marker and result before closure execution",
+      "keep residual marker and allow exporter success",
+      "swallow contextual error",
+      "discard retained warning",
+      "route HTML through paged layout or fixpoint"
+    ],
+    "required_schedules": [
+      "direct",
+      "direct-repeat",
+      "reverse"
+    ],
+    "close_requires": [
+      "three HTML positives Preserved",
+      "paged control Preserved",
+      "both external negatives Preserved as failures",
+      "residual-marker internal negative rejects export",
+      "all valid mutants Violated",
+      "no mandatory Unknown",
+      "sealed inputs unchanged",
+      "all commands in the manifest pass"
+    ]
+  },
+  "claim_boundary": "This contract proves only contextual expansion for the declared HTML fragment without paged layout, plus the paged and fail-closed controls. It does not prove general HTML parity or close P1420 routes."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash d948e9a3
+//! @prompt-hash 7da3e79e
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -40,6 +40,7 @@ struct Session<'a> {
     world: &'a dyn World,
     source: &'a Source,
     metrics: FallbackFontMetrics<'a>,
+    target: EvalTarget,
     features: Features,
     full_error: bool,
     origin: Content,
@@ -95,6 +96,7 @@ impl<'a> Session<'a> {
         source: &'a Source,
         full_error: bool,
         features: Features,
+        target: EvalTarget,
     ) -> Self {
         let blocks = ordered_blocks(&origin, &StyleChain::default_chain());
         let impossible = blocks.is_none();
@@ -126,6 +128,7 @@ impl<'a> Session<'a> {
             world,
             source,
             metrics: FallbackFontMetrics::new(world),
+            target,
             features,
             full_error,
             origin,
@@ -169,10 +172,11 @@ impl<'a> Session<'a> {
         ctx.in_context = true;
         ctx.introspector = input.clone();
         ctx.current_location = Some(location);
-        ctx.target = EvalTarget::Paged;
+        ctx.target = self.target;
         // Discovery and never-selected producers retain EvalContext::new's
-        // legacy options. Do not repair feature propagation before selection.
-        if node.selected {
+        // legacy options. HTML is a distinct causal target: its closures must
+        // retain the feature set selected by the compile invocation.
+        if node.selected || self.target == EvalTarget::Html {
             ctx.features = self.features;
             ctx.full_error = self.full_error;
         }
@@ -549,7 +553,15 @@ pub(super) fn prepare(
     features: Features,
     module: Option<&Module>,
 ) -> (SourceResult<Prepared>, Vec<SourceDiagnostic>) {
-    let mut session = Session::new(content, intr, world, source, full_error, features);
+    let mut session = Session::new(
+        content,
+        intr,
+        world,
+        source,
+        full_error,
+        features,
+        EvalTarget::Paged,
+    );
     if session.discover() {
         if session.impossible {
             (terminal(source, session.errors()), session.warnings())
@@ -566,6 +578,70 @@ pub(super) fn prepare(
         };
         (result, Vec::new())
     }
+}
+
+/// Prepare contextual content for the semantic HTML target without entering
+/// paginated stabilization. Markers retained for layout locations are removed
+/// only after their corresponding producer has been executed successfully.
+pub(super) fn prepare_html(
+    content: Content,
+    intr: &TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: Features,
+) -> (SourceResult<Content>, Vec<SourceDiagnostic>) {
+    let mut session = Session::new(
+        content,
+        intr,
+        world,
+        source,
+        full_error,
+        features,
+        EvalTarget::Html,
+    );
+    let selected = session.discover();
+    let warnings = session.warnings();
+    let errors = session.errors();
+    if session.impossible || selected {
+        return (terminal(source, errors), warnings);
+    }
+    if !errors.is_empty() {
+        return (Err(errors), warnings);
+    }
+
+    let executed: Vec<_> = session
+        .nodes
+        .iter()
+        .filter(|node| node.current.is_some())
+        .map(|node| node.elem.clone())
+        .collect();
+    let prepared = session.content().map_content(&mut |node| {
+        if let Content::ContextBlock(elem) = node {
+            if executed.iter().any(|known| Arc::ptr_eq(known, elem)) {
+                return Ok(Some(Content::Empty));
+            }
+            return Err(vec![SourceDiagnostic::error(
+                source.root().span(),
+                "HTML contextual expansion left unresolved content",
+            )]);
+        }
+        if let Content::Sequence(parts) = node {
+            let retained: Vec<_> = parts
+                .iter()
+                .filter(|part| !matches!(part, Content::Empty))
+                .cloned()
+                .collect();
+            if retained.iter().all(|part| matches!(part, Content::Space)) {
+                return Ok(Some(Content::Empty));
+            }
+            if retained.len() != parts.len() {
+                return Ok(Some(Content::sequence(retained)));
+            }
+        }
+        Ok(None)
+    });
+    (prepared, warnings)
 }
 
 /// Conservative equality of the actual layout input views, not a language
@@ -621,8 +697,15 @@ pub(super) fn expand_legacy(
     world: &dyn World,
     source: &Source,
 ) -> SourceResult<Content> {
-    let mut session =
-        Session::new(content, intr, world, source, false, Features::default());
+    let mut session = Session::new(
+        content,
+        intr,
+        world,
+        source,
+        false,
+        Features::default(),
+        EvalTarget::Paged,
+    );
     session.discover();
     let errors = session.errors();
     if errors.is_empty() {
@@ -649,7 +732,8 @@ pub(super) fn discovered_options_for_test(
     .unwrap();
     let content = module.content().unwrap().clone();
     let intr = introspect_with_introspector(&content);
-    let mut session = Session::new(content, &intr, world, source, true, features);
+    let mut session =
+        Session::new(content, &intr, world, source, true, features, EvalTarget::Paged);
     session.discover();
     session
         .nodes

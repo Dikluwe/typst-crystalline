@@ -1,0 +1,95 @@
+{
+  "schema": "tekt-results/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1421,
+  "regime": "full; executado sem atestacao de isolamento",
+  "baseline_head": "a1563cc0ad6eef92019a9163016fba430efe9070",
+  "measured_at": "2026-09-16T11:49:34-03:00",
+  "working_tree": {
+    "state": "uncommitted candidate",
+    "diff_stat": {
+      "tracked_files": 5,
+      "insertions": 194,
+      "deletions": 13
+    }
+  },
+  "sealed_inputs": {
+    "manifest_sha256": "3ea2cdc4c50b0eb8f9b5e60bc9fc2d6639e86c20faf5eb2c787d6f591c5ce84c",
+    "contract_sha256": "f5c936e8a4f5822e13ee4f30098decfff632627b3606eefc40d52afcaaa6af21",
+    "oracles_sha256": "cfeac53ce5fb584f08f58de5d0fc10a4bdc580ed21a3a3bf34b84368f69fe64e",
+    "mutants_sha256": "9299508b3210fc573ca3903ed78e1cc3fbefc2b49ed7b055f2ed1411548167ba",
+    "preseal_sha256": "834b0ea778f1746ecc5fec41f415c9214ee3bfb16c8b8d23b1244f91fba15303",
+    "independent_tests_sha256": "c19ee54fd5df53af1e1bce7f5d6edd137dffaf0c6b2b766a3e9f5eb60cd37509",
+    "status": "invalidated for protocol attestation by post-preseal reciprocal L0 Hash do Código updates",
+    "pipeline_l0_preseal_sha256": "96ae767806abf7316ec9de8ca2aeae8224849a7e929c668afab37c70ebdb189e",
+    "pipeline_l0_final_sha256": "41a138272a2b90e9a2a0b831bc51bdee282ce2d4b4aa290fc723a79abb0e09a8",
+    "context_l0_preseal_sha256": "4958271779a8590aa2674657b55f74c1f5ed0702f7d50c3867b4d7b766445a1f",
+    "context_l0_final_sha256": "b38411de7405f79f25a3b2a7f3b4b355b07cef13c46bc911130379f2a64b0505",
+    "l0_diff_scope": "only the mandatory reciprocal Hash do Código line changed, but the sealed policy protects bytes and defines no exception"
+  },
+  "product_identities": {
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "candidate_release_binary_sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860"
+  },
+  "candidate_hashes": {
+    "03_infra/src/pipeline.rs": "0aa07b42d6796f75f68d94fe780a6aef92d33aab46790fca1c502ee6803199f3",
+    "03_infra/src/pipeline/context_stabilization.rs": "b56862d8a2a93aa830bda685236e3e389f35c663154a9782aebf58ab3b53dde6",
+    "00_nucleo/prompts/infra/pipeline.md": "41a138272a2b90e9a2a0b831bc51bdee282ce2d4b4aa290fc723a79abb0e09a8",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "b38411de7405f79f25a3b2a7f3b4b355b07cef13c46bc911130379f2a64b0505"
+  },
+  "red_green": {
+    "baseline": {
+      "tests": 5,
+      "passed": 1,
+      "failed": 4,
+      "dominant_failure": "HTML export does not yet support this content"
+    },
+    "candidate": {
+      "command": "cargo test -p typst-infra p1421_ -- --nocapture",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "bilateral_schedules": {
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "same_vector": true,
+    "cases": [
+      {"id": "P1421-HTML-TARGET-ASSERT", "state": "Preserved", "candidate_exit": 0, "artifact_bytes": 154, "artifact_sha256": "52569b3f0175d7ded4383171fa34c563019206cbc8bac63a3572e775bb72adcf"},
+      {"id": "P1421-HTML-TARGET-VISIBLE", "state": "Preserved", "candidate_exit": 0, "artifact_bytes": 165, "artifact_sha256": "1f51255aef2eaf4fcbfdb0b08152ba5710258427f93be68692d5c200bc9321d0"},
+      {"id": "P1421-HTML-FEATURE-IN-CONTEXT", "state": "Preserved", "candidate_exit": 0, "artifact_bytes": 165, "artifact_sha256": "fe18965c5ffb798226ea7d3335fda25c93b8a69817e9647e49812aa99c23f04c"},
+      {"id": "P1421-CONTEXT-ERROR", "state": "Preserved", "candidate_exit": 1, "artifact_present": false, "diagnostic_contains": "p1421 contextual boom"},
+      {"id": "P1421-FEATURE-ABSENT", "state": "Preserved", "candidate_exit": 1, "artifact_present": false},
+      {"id": "P1421-PAGED-TARGET-CONTROL", "state": "Preserved", "candidate_exit": 0, "artifact_kind": "PDF 1.7"}
+    ]
+  },
+  "p1420_focal": {
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "same_vector": true,
+    "html.area": {"state": "PARTIAL", "qualified": "ABSENT", "alternative": "MATCH", "target_control_unblocked": true},
+    "math.abs": {"state": "PARTIAL", "qualified": "ABSENT", "alternative": "DIFFERENCE", "regression": false},
+    "scope_note": "No other P1420 route was reclassified."
+  },
+  "gates": {
+    "paged_control_test": "pass",
+    "cargo_build": "pass",
+    "cargo_build_release": "pass",
+    "cargo_fmt_check": "pass",
+    "crystalline_lint": "pass; zero violations",
+    "git_diff_check": "pass"
+  },
+  "mutation_gate": {
+    "artifact_sha256": "db5b8788a43b6b34c4e3b6d238370dec8d3132839f125e2747b1c48bfaeb2985",
+    "candidate_pipeline_sha256": "0aa07b42d6796f75f68d94fe780a6aef92d33aab46790fca1c502ee6803199f3",
+    "candidate_context_stabilization_sha256": "b56862d8a2a93aa830bda685236e3e389f35c663154a9782aebf58ab3b53dde6",
+    "candidate_tests_sha256": "c19ee54fd5df53af1e1bce7f5d6edd137dffaf0c6b2b766a3e9f5eb60cd37509",
+    "valid_mutants": 10,
+    "violated": 10,
+    "surviving": 0,
+    "unknown": 0,
+    "score": 1.0,
+    "result": "pass"
+  },
+  "provisional_verdict": "functional and architectural fragment passes; protocol attestation independently blocked by sealed-input byte drift"
+}

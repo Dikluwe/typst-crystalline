@@ -4479,6 +4479,97 @@ mod integration {
         assert!(found, "erro/hint ausentes: {errs:?}");
     }
 
+    // P1421 — expansão contextual no target HTML.
+
+    fn p1421_compile_html(
+        source_text: &str,
+        features: typst_core::entities::compiler_features::Features,
+    ) -> Result<String, Vec<typst_core::entities::source_result::SourceDiagnostic>> {
+        let (world, _dir) = world_from_str(source_text);
+        let source = world.source(world.main()).unwrap();
+        crate::pipeline::compile_to_html_string_with_features(&world, &source, features).0
+    }
+
+    #[test]
+    fn p1421_context_assert_target_html_produz_body_vazio() {
+        let html = p1421_compile_html(
+            "#context assert.eq(target(), \"html\")",
+            typst_core::entities::compiler_features::Features::html(),
+        )
+        .expect("assert contextual do target HTML deve compilar");
+
+        assert!(
+            html.contains("<body></body>"),
+            "assert sem conteúdo deve preservar body vazio: {html:?}"
+        );
+    }
+
+    #[test]
+    fn p1421_context_target_emite_html() {
+        let html = p1421_compile_html(
+            "#context target()",
+            typst_core::entities::compiler_features::Features::html(),
+        )
+        .expect("target() contextual HTML deve compilar");
+
+        assert!(
+            html.contains("<body><p>html</p></body>"),
+            "target() deve produzir texto HTML no body: {html:?}"
+        );
+    }
+
+    #[test]
+    fn p1421_context_preserva_feature_e_morfologia_html_elem() {
+        let html = p1421_compile_html(
+            "#context [#html.elem(\"div\")]",
+            typst_core::entities::compiler_features::Features::html(),
+        )
+        .expect("html.elem contextual deve conservar a feature HTML");
+
+        assert!(
+            html.contains("<body><div></div></body>"),
+            "resultado contextual deve preservar a tag div: {html:?}"
+        );
+    }
+
+    #[test]
+    fn p1421_feature_html_ausente_falha_antes_da_expansao() {
+        let errors = p1421_compile_html(
+            "#context panic(\"p1421 closure não deve executar\")",
+            typst_core::entities::compiler_features::Features::default(),
+        )
+        .expect_err("feature HTML ausente deve impedir a compilação");
+
+        assert!(
+            errors.iter().any(|error| error.message.contains(
+                "html export is only available when `--features html` is passed"
+            )),
+            "diagnóstico público da feature ausente não foi preservado: {errors:?}"
+        );
+        assert!(
+            errors
+                .iter()
+                .all(|error| !error.message.contains("p1421 closure não deve executar")),
+            "a closure contextual executou antes do gate de feature: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1421_erro_contextual_impede_artefato_html() {
+        let errors = p1421_compile_html(
+            "#context panic(\"p1421 erro contextual\")",
+            typst_core::entities::compiler_features::Features::html(),
+        )
+        .expect_err("erro da closure contextual deve impedir o artefato HTML");
+
+        assert!(
+            errors
+                .iter()
+                .any(|error| error.message.contains("p1421 erro contextual")),
+            "o erro contextual original deve ser propagado: {errors:?}"
+        );
+    }
+
     // ── P788 — refs: validações do vanilla + happy path "Section 1" ──────
     #[test]
     fn p788_ref_heading_sem_numbering_erro() {
