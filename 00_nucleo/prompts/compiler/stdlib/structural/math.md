@@ -38,6 +38,39 @@ inteiro (`compiler/math/layout/`); este nó só constrói o conteúdo.
 funções, operadores, espaçamentos e símbolos math. A tabela é construída uma
 vez; não há lookup dinâmico por registry.
 
+## P1425 — binding qualificado `math.limits` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado, `math/mod.rs:43-78` registra `LimitsElem` como elemento
+do módulo e `math/attach.rs` declara `limits(body, inline: true)`. Sondas
+bilaterais registradas no Passo 1425 medem a forma omitida
+`limits(body: [x])`, a forma explícita
+`limits(body: [x], inline: false)` e os diagnósticos de missing, excesso,
+posicionalidade, named desconhecido e cast booleano.
+
+No baseline cristalino, `make_math_module` não registra `limits`, embora
+`Content::MathLimitsOverride` e todo o layout P992 já existam. O carrier não
+preserva a presença explícita do named `inline`; o owner da entidade P1425
+acrescenta esse bit sem criar segundo elemento.
+
+### Decisão proposta
+
+Antes do espelho `sym → math`, registrar `math.limits` como função nativa de
+nome público `limits`. Ela aceita exatamente um `Content` posicional
+obrigatório e somente `inline: bool`, default `true`. Missing, excesso, body
+como named, named desconhecido e tipo inválido seguem os diagnósticos medidos;
+nenhum argumento é ignorado.
+
+A nativa produz o mesmo `Content::MathLimitsOverride` da sintaxe bare, com
+`limits:true`, valor `inline` e bit `inline_explicit` derivado da presença do
+named. Não executa layout, não mede body e não duplica o runtime de attach.
+`scripts` permanece a função já materializada com `limits:false` e presença
+falsa. As outras 21 rotas residuais P1422 ficam fora de escopo.
+
+Esta secção altera contrato público e só autoriza candidato após confirmação
+explícita do dono no gate P1425.
+
 ## Instrução
 
 | Nativa | Assinatura | Emite |

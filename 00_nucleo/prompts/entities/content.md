@@ -2839,10 +2839,16 @@ implícitos no layout até P863.
 `MathLimitsOverride(Arc<MathLimitsOverrideElem>)` — família math (Modelo D,
 mesmo padrão do lote P317/P772y). Consolida os dois elementos vanilla
 `ScriptsElem`/`LimitsElem` num só (ADR-0107): `scripts(body)` →
-`Content::math_limits_override(body, false, true)` (`inline` ignorado);
+`Content::math_limits_override(body, false, true, false)` (`inline` ignorado);
 `limits(body, inline:)` → `Content::math_limits_override(body, true,
-inline)`. Ver `entities/elements/math_limits_override.md` para o struct e
+inline, inline_explicit)`. Ver `entities/elements/math_limits_override.md`
+para o struct e
 o contrato do trait `Element`.
+
+P1425 propõe ampliar a assinatura pública do constructor com
+`inline_explicit: bool`. O hub somente transporta o bit; não decide presença
+por valor, não muda enum, layout ou representação. Esta alteração aguarda o
+gate ADR-0127 do passo antes de código.
 
 Despacho no hub, mesmo padrão de `MathClassOverride` (P772y): Debug/Display,
 constructor, `plain_text`, `PartialEq`, `map_content` (recursivo),

@@ -25,6 +25,17 @@ avalia chamadas e preserva anexos, delimitadores, frações, raízes e alinhamen
 Identificador desconhecido usa hints math; deprecated avisa e resolve. Eval não
 executa geometria de layout.
 
+## P1425 — presença de `inline` na sintaxe bare (PROPOSTO; gate ADR-0127)
+
+No braço sintático `limits`, além do valor booleano já validado, preservar se
+o named `inline` esteve causalmente presente. Construir
+`Content::MathLimitsOverride` com `inline_explicit:true` somente nessa
+presença; omissão usa o default `true` com bit falso. O braço `scripts` usa bit
+falso. Named desconhecido, cast, avaliação única e spans permanecem vigentes.
+
+A sintaxe não chama o binding qualificado nem executa layout; ambos convergem
+somente no carrier. Esta alteração depende da confirmação P1425.
+
 ## Aceitação
 
 Lookup, erros, warnings, chamadas e morfologia batem com a língua ratificada.

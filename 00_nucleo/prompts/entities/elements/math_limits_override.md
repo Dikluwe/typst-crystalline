@@ -79,11 +79,28 @@ pub struct MathLimitsOverrideElem {
     pub body: Content,
     pub limits: bool,
     pub inline: bool,
+    pub inline_explicit: bool,
 }
 ```
 
 `Content::MathLimitsOverride(Arc<MathLimitsOverrideElem>)`.
-Construtor ergonómico: `Content::math_limits_override(body: Content, limits: bool, inline: bool)`.
+Construtor ergonómico: `Content::math_limits_override(body: Content, limits:
+bool, inline: bool, inline_explicit: bool)`.
+
+### P1425 — presença morfológica de `inline` (PROPOSTO; gate ADR-0127)
+
+`inline_explicit` distingue omissão do named de presença explícita, inclusive
+quando o valor fornecido é igual ao default `true`. A sintaxe bare e
+`math.limits` qualificado preenchem o bit a partir da lista causal de
+argumentos. `scripts` usa sempre `false`, pois `inline` não integra sua
+assinatura.
+
+O bit não altera geometria, classe, vazio ou texto. Walkers, igualdade e toda
+reconstrução preservam-no. A `repr` usa-o exclusivamente para decidir se emite
+`inline: <bool>`. Não inferir presença comparando o valor com o default.
+
+Este campo público e a assinatura do constructor aguardam confirmação P1425
+antes de qualquer código.
 
 ## `impl Element for MathLimitsOverrideElem`
 
@@ -91,14 +108,15 @@ Construtor ergonómico: `Content::math_limits_override(body: Content, limits: bo
 |---|---|
 | `plain_text` | `self.body.plain_text()` |
 | `is_empty` | `self.body.is_empty()` (delega, mesmo padrão de `MathClassOverrideElem`) |
-| `map_content` | **recursivo** no `body`: `Content::MathLimitsOverride(Arc::new(MathLimitsOverrideElem { body: self.body.map_content(f)?, limits: self.limits, inline: self.inline }))` |
+| `map_content` | **recursivo** no `body`, preservando `limits`, `inline` e `inline_explicit` |
 | `map_text` | **terminal** (família math não desce em `map_text`) |
 | `get_field` | default `None` |
 | `element_kind`/`to_payload` | default `None` (não-locatável) |
 
 ## `eq` estrutural
 
-`#[derive(PartialEq)]` compara `body`, `limits` e `inline`.
+`#[derive(PartialEq)]` compara `body`, `limits`, `inline` e
+`inline_explicit`.
 
 ## Despacho no hub (`content.rs`)
 
