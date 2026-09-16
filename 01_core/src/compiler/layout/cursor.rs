@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 63437e21
+//! @prompt-hash 7a20c0d2
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -792,6 +792,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o contador privado do fluxo raiz.
         if had_items && !self.is_sub_frame {
             let mut numbering = self.chain.custom("par.line.numbering").cloned();
+            if self.defer_segmented_par_line_patterns {
+                if let Some(crate::entities::value::Value::Str(pattern)) = &numbering {
+                    self.pending_segmented_par_line_patterns.push(
+                        super::SegmentedParLinePatternCandidate {
+                            baseline: self.regions.current.cursor_y,
+                            page: self.current_page_number(),
+                            pattern: pattern.clone(),
+                            styles: self.chain.clone(),
+                        },
+                    );
+                    numbering = None;
+                }
+            }
             if matches!(
                 numbering,
                 Some(

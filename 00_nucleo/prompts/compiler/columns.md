@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: e633d9cf
+Hash do Código: 370cec02
 
 
 **Camada**: L1  
@@ -438,3 +438,29 @@ as compensações horizontais da coluna atual até os bordos inicial/final do
 contentor. Ele não contém callback, item, frame ou conteúdo e é restaurado ao
 sair. Colunas de página P1415 não recebem este contexto; modo contínuo,
 métricas verticais diferentes, RTL e columns aninhadas permanecem `Unknown`.
+
+## P1417 — consolidação por baseline de patterns marginais
+
+### Medição anterior à decisão
+
+No baseline `af587e30b`, métricas heterogêneas refutam o máximo ordinal do
+P1416: a fonte pinada ordena marcadores pela baseline e só aceita o seguinte
+quando `y >= prev_bottom`, onde o fundo anterior inclui a altura real do frame
+do número. O controle de página confirma a regra, mas sua configuração comum
+nasce fora deste owner e permanece `Unknown` neste recorte.
+
+### Decisão interna
+
+Para pattern string, o owner de `#columns()` segmentado adia a materialização
+até conhecer as baselines da região relevante e consolida a lista conjunta das
+regiões irmãs. Colunas de página preservam P1415. Ordem estável crescente por
+baseline, supressão estrita
+`baseline < prev_bottom` e avanço pelo máximo entre altura do número e 1 pt
+constituem a regra. O contador só avança para candidatas aceitas.
+
+O estilo tipográfico do número é capturado do contexto exterior comum à
+composição das colunas; propriedades marginais continuam vindas da chain da
+ocorrência. O buffer privado guarda somente baseline, página, pattern e chain,
+participa do rollback e é drenado ao sair. Callbacks heterogêneos, colunas de
+página heterogêneas, RTL, configuração local divergente e columns aninhadas
+permanecem `Unknown`.

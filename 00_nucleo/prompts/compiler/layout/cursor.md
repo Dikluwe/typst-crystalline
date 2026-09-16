@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: ae84f8fd
+Hash do Código: 7280a8cd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -535,6 +535,25 @@ O contexto não se aplica a colunas de página nem ao fluxo contínuo e integra 
 checkpoint privado do Layouter. Métricas verticais diferentes, RTL, nested
 columns e estilos locais divergentes permanecem `Unknown`; não inferir
 deduplicação geral por baseline a partir do recorte uniforme.
+
+## Amendment-21 — candidatura diferida de pattern P1417
+
+### Medição anterior à decisão
+
+No baseline `af587e30b`, emitir o pattern durante o flush fixa contador e item
+antes de o owner poder ordenar baselines de regiões irmãs. A fonte pinada toma
+essa decisão somente depois de recolher e ordenar os marcadores verticais.
+
+### Decisão interna
+
+Quando o contexto privado P1417 de `#columns()` está ativo e `numbering` é string, Cursor não
+incrementa contador, não formata e não cria item/fixup. Registra uma candidata
+com baseline estabilizada, página causal, pattern e chain. Funções continuam
+no caminho P1415/P1416: o Cursor não as executa nem presume a altura do retorno.
+
+Fora desse contexto, patterns preservam o caminho imediato P1414. O buffer é
+cauda transacional do Layouter e rollback o trunca; flush vazio e subframe não
+registram candidata.
 
 ## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
 

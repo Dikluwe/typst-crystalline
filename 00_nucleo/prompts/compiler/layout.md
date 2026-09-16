@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 8b48d7e5
+Hash do Código: ccd99ecb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -433,3 +433,23 @@ O contexto não guarda frames, páginas, callbacks ou vetores, não muda Region,
 entrypoint ou fase. Ele existe somente durante `#columns()` segmentado do
 recorte P1416; colunas de página e fluxo contínuo permanecem nos caminhos
 anteriores.
+
+## P1417 — buffer privado de candidatas marginais
+
+### Medição anterior à decisão
+
+No baseline `af587e30b`, o estado escalar P1416 não representa a ordem de
+baselines heterogêneas. A fonte pinada decide a ocorrência marginal depois de
+ordenar marcadores e mede a altura do número no estilo exterior comum.
+
+### Decisão interna
+
+Layouter acrescenta um contexto booleano privado e uma cauda de candidatas de
+pattern. Cada candidata contém somente baseline, página, pattern e
+`StyleChain`; não contém frame, callback, Engine ou documento. O owner de
+`#columns()` segmentado instala/restaura o contexto, consolida e drena a cauda;
+checkpoint registra o contexto e comprimento para rollback.
+
+O vetor é linear nas linhas numeráveis da composição ativa e não é usado para
+callbacks. Em colunas de página e fora de colunas segmentadas permanece vazio;
+o comportamento P1414/P1415 imediato não muda.

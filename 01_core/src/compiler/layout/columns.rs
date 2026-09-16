@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash 2a363edd
+//! @prompt-hash 4c87837f
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -18,15 +18,107 @@
 //! partir da largura útil da página (`page_width - 2×margin`), e cada coluna
 //! é renderizada como uma mini-página de largura `column_width + 2×margin`,
 //! preenchendo toda a largura útil disponível.
+#![allow(deprecated)] // P1417 — fallback textual igual ao caminho P1414 do Cursor.
 
 use crate::entities::content::Content;
+use crate::entities::counter_format::format_counter;
 use crate::entities::dir::Dir;
 use crate::entities::elements::columns::ColumnsElem;
-use crate::entities::layout_types::{FrameItem, Pt};
+use crate::entities::layout_types::{Align2D, FrameItem, HAlign, Point, Pt, TextStyle};
 use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter, SegmentedParLineOverlay};
+
+/// P1417 — materializa patterns depois de ordenar as baselines das regiões
+/// irmãs. `#columns()` respeita a margem configurada no contentor.
+fn realize_segmented_par_line_patterns<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    start: usize,
+    number_style: &TextStyle,
+    region_width: f64,
+    line_start_x: f64,
+) -> Vec<FrameItem> {
+    let mut candidates: Vec<_> =
+        layouter.pending_segmented_par_line_patterns.drain(start..).collect();
+    candidates.sort_by(|left, right| left.baseline.0.total_cmp(&right.baseline.0));
+
+    let (top, bottom) = layouter.metrics.text_edges(number_style.size, number_style);
+    let number_height = (top.0 + bottom.0.abs()).max(1.0);
+    let mut previous_bottom: Option<f64> = None;
+    let mut realized = Vec::new();
+
+    for candidate in candidates {
+        if previous_bottom.is_some_and(|limit| candidate.baseline.0 < limit) {
+            continue;
+        }
+
+        let page_scoped = matches!(
+            candidate.styles.custom("par.line.numbering-scope"),
+            Some(Value::Str(scope)) if scope.as_str() == "page"
+        );
+        if page_scoped && layouter.par_line_page != Some(candidate.page) {
+            layouter.par_line_counter = 0;
+        }
+        layouter.par_line_page = Some(candidate.page);
+        layouter.par_line_counter += 1;
+
+        let Some(text) =
+            format_counter(&[layouter.par_line_counter], candidate.pattern.as_str())
+        else {
+            continue;
+        };
+        let width = layouter.metrics.advance(&text, number_style.size, number_style).0;
+        let default_clearance = (0.026 * layouter.page_config.width)
+            .clamp(0.75 * number_style.size.0, 2.5 * number_style.size.0);
+        let clearance = match candidate.styles.custom("par.line.number-clearance") {
+            Some(Value::Length(length)) => length.resolve_pt(number_style.size.0),
+            _ => default_clearance,
+        };
+        let configured_margin = match candidate.styles.custom("par.line.number-margin") {
+            Some(Value::Align(Align2D {
+                h: Some(HAlign::Right | HAlign::End),
+                v: None,
+            })) => HAlign::Right,
+            _ => HAlign::Left,
+        };
+        let margin = configured_margin;
+        let align = match candidate.styles.custom("par.line.number-align") {
+            Some(Value::Align(Align2D { h: Some(h), v: None })) => *h,
+            _ if margin == HAlign::Left => HAlign::Right,
+            _ => HAlign::Left,
+        };
+
+        previous_bottom = Some(candidate.baseline.0 + number_height);
+        realized.push((candidate.baseline, text, width, margin, align, clearance));
+    }
+
+    let max_width = realized
+        .iter()
+        .map(|(_, _, width, _, _, _)| *width)
+        .fold(0.0, f64::max);
+    realized
+        .into_iter()
+        .map(|(baseline, text, width, margin, align, clearance)| {
+            let slot_start = if margin == HAlign::Right {
+                region_width - layouter.page_config.margin.right + clearance
+            } else {
+                line_start_x - clearance - max_width
+            };
+            let free = max_width - width;
+            let offset = match align {
+                HAlign::Left | HAlign::Start => 0.0,
+                HAlign::Center => free / 2.0,
+                HAlign::Right | HAlign::End => free,
+            };
+            FrameItem::Text {
+                pos: Point { x: Pt(slot_start + offset), y: baseline },
+                text: text.into(),
+                style: number_style.clone(),
+            }
+        })
+        .collect()
+}
 
 fn flow_block_spacing<M: FontMetrics, S: ImageSizer>(
     layouter: &Layouter<M, S>,
@@ -333,6 +425,9 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
     let saved_par_line_column = layouter.segmented_par_line_column;
     let saved_par_line_overlay = layouter.segmented_par_line_overlay;
+    let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
+    let pattern_candidates_start = layouter.pending_segmented_par_line_patterns.len();
+    let outer_number_style = TextStyle::from(&layouter.chain);
     let entry_par_line_counter = layouter.par_line_counter;
     let entry_par_line_page = layouter.par_line_page;
     let mut emitted_par_line_rows = 0usize;
@@ -358,6 +453,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.column_mode = true;
         layouter.segmented_par_line_column =
             page_columns.then_some((idx, column_x_offsets.len()));
+        layouter.defer_segmented_par_line_patterns = !page_columns;
         if page_columns {
             layouter.segmented_par_line_overlay = None;
         } else {
@@ -470,9 +566,23 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     layouter.pending_footnote_bodies = saved_outer_footnotes;
     layouter.segmented_par_line_column = saved_par_line_column;
     layouter.segmented_par_line_overlay = saved_par_line_overlay;
+    layouter.defer_segmented_par_line_patterns = saved_defer_par_line_patterns;
     if !page_columns {
         layouter.par_line_counter = entry_par_line_counter + emitted_par_line_rows;
         layouter.par_line_page = emitted_par_line_page;
+        let outer_start = column_x_offsets.iter().copied().fold(f64::INFINITY, f64::min);
+        let outer_width =
+            column_x_offsets.iter().copied().fold(f64::NEG_INFINITY, f64::max)
+                + column_region_width
+                - margin;
+        let numbers = realize_segmented_par_line_patterns(
+            layouter,
+            pattern_candidates_start,
+            &outer_number_style,
+            outer_width,
+            outer_start,
+        );
+        all_column_items.extend(numbers);
     }
 
     // 7. Adicionar todos os items das colunas à página actual.
