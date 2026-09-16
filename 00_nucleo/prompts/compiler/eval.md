@@ -414,6 +414,32 @@ O comparador privado retorna `Same`, `Different` ou `Unproven` e não muda
 `Unproven` nunca certifica estabilidade. Serviço opaco exige identidade
 causal preservada; falta de prova invalida a reutilização.
 
+### P1425 — presença de `inline` na relação observacional
+
+Medição fail-closed no baseline causal
+`0305568a7509653198f16a01441051fea47e304a`, tree
+`e6785a80f345abae324c365df96126076b322c07`: em
+`01_core/src/compiler/eval/mod.rs:2053-2063`, a implementação de
+`ObservationEq` para `MathLimitsOverrideElem` desestrutura exaustivamente
+`body`, `limits` e `inline` e compara os três. A adição P1425 de
+`inline_explicit` tornaria esse consumer inválido por campo omitido (`E0027`)
+e, se o destructuring fosse apenas afrouxado, permitiria declarar `Same` para
+omissão e presença explícita do default.
+
+O comparador deve incluir `inline_explicit` nominalmente na desestruturação e
+na cadeia de `observation_relation`. O bit é morfologia causal da língua e
+portanto duas observações que diferem somente nele são `Different`; não é
+permitido ignorá-lo, inferi-lo de `inline` nem devolver `Unproven` para evitar
+a comparação. Nenhuma outra variante, regra de estabilização, API ou fase
+muda.
+
+A varredura integral de Rust nesse baseline encontrou este como único
+destructuring externo de `MathLimitsOverrideElem`. Os demais struct literals
+pertencem ao owner da entidade; os callsites do constructor pertencem aos
+owners já declarados de eval math, stdlib math, layout comum e aos testes
+existentes cuja aridade requer reparo mecânico. Esta expansão do consumer foi
+aprovada como revisão fail-closed R1 do contrato P1425.
+
 ### Não convergência
 
 A história é a sequência real de snapshots do orquestrador. O diagnóstico usa

@@ -1,5 +1,7 @@
 {
   "authored_at": "2026-09-16T15:50:01-03:00",
+  "revised_at": "2026-09-16T16:16:15-03:00",
+  "revision": "R1-final-contract-rebind",
   "author": {
     "executor": "agent:/root/p1425_adversary",
     "role": "adversary",
@@ -8,6 +10,7 @@
     "read_inputs": [
       "00_nucleo/diagnosticos/p1425-manifest.json",
       "00_nucleo/diagnosticos/p1425-contract.json",
+      "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
       "00_nucleo/materialization/typst-passo-1425.md at baseline d10f81161331000f81165c23109baa025613ce04",
       "tekt-materializacao-segregada instructions and required references"
     ],
@@ -16,17 +19,21 @@
     ]
   },
   "baseline": {
-    "commit": "d10f81161331000f81165c23109baa025613ce04",
-    "tree": "15b66e3aa9a4da8cac4d1b0298a00832601d7de1"
+    "commit": "0305568a7509653198f16a01441051fea47e304a",
+    "tree": "e6785a80f345abae324c365df96126076b322c07"
   },
   "inputs": {
     "contract": {
       "path": "00_nucleo/diagnosticos/p1425-contract.json",
-      "sha256": "286a06027db74487f7a3c686c2feaedc2841ba180d51311dec13a39baf856bcd"
+      "sha256": "1cc4febbd6788ef573f701331ac2885952c488f713a2149a60591fc3c86cedb6"
     },
     "manifest": {
       "path": "00_nucleo/diagnosticos/p1425-manifest.json",
-      "sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8"
+      "sha256": "4545e3b98aca3fc84d1230651537396cb59f5768d815af5b295f37be1c5ff14e"
+    },
+    "r1_allowlist_audit": {
+      "path": "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
+      "sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0"
     }
   },
   "mutations": [
@@ -191,12 +198,12 @@
       "expected_witness": "The scripts control becomes stacked or changes established layout behavior."
     },
     {
-      "id": "M21-scope-leak",
-      "mutation": "Materialize another residual math route, add a new carrier, relax the closed module generically, or alter attachment geometry outside math.limits.",
-      "observable": "O-FAIL-CLOSED",
-      "must_be_rejected_by": ["P01-qualified-binding", "P11-scripts-control"],
+      "id": "M21-observation-relation-ignores-presence",
+      "mutation": "In MathLimitsOverrideElem ObservationEq, omit, ignore, infer, or wildcard inline_explicit, or return Same/Unproven when comparing omission with explicit true.",
+      "observable": "O-OBSERVATION-RELATION",
+      "must_be_rejected_by": ["P12-observation-relation-presence"],
       "expected_classification": "Violated",
-      "expected_witness": "The candidate productive surface exceeds the exhaustive six-consumer allowlist or modifies a control outside the frozen P1425 fragment; structural review rejects the candidate even if language probes pass."
+      "expected_witness": "ObservationEq must classify identical complete carriers as Same and carriers differing only by inline_explicit as Different; Same or Unproven for omitted versus explicit true violates the closed observation relation."
     }
   ],
   "classification_matrix": {
@@ -217,7 +224,8 @@
         "P08-walkers-and-equality",
         "P09-default-reconstruction",
         "P10-layout-semantics-unchanged",
-        "P11-scripts-control"
+        "P11-scripts-control",
+        "P12-observation-relation-presence"
       ],
       "unmutated_expected": "Preserved",
       "mutated_expected": "At least one named must_be_rejected_by case is Violated for every valid mutation; Unknown is not rejection credit."
@@ -272,6 +280,6 @@
     "fail_closed": true,
     "rule": "Identity mismatch, opaque or unsupported extraction, unreadable or truncated output, missing dependency, timeout, crash, OOM, swap, or exhausted budget is Unknown. Unknown is expected only for U01-U04; it cannot preserve a mandatory case, reject a mutation, enter the mutation-score numerator, or permit sealing."
   },
-  "claim_boundary": "These mutations attack only the frozen P1425 math.limits fragment, its six exhaustive productive consumers, and the scripts control. They do not claim general math parity or byte-level render equivalence.",
+  "claim_boundary": "These mutations attack only the frozen P1425 R1 math.limits fragment, its seven exhaustive productive consumers including the closed ObservationEq relation, and the scripts control. They do not claim general math parity or byte-level render equivalence.",
   "schema": "tekt.materialization.mutations/v1"
 }

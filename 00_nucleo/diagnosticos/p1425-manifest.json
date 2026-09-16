@@ -1,5 +1,6 @@
 {
   "artifacts": {
+    "allowlist_audit": "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
     "contract": "00_nucleo/diagnosticos/p1425-contract.json",
     "manifest": "00_nucleo/diagnosticos/p1425-manifest.json",
     "mutations": "00_nucleo/diagnosticos/p1425-mutants.json",
@@ -22,7 +23,9 @@
         ],
         "write_allowlist": [
           "00_nucleo/diagnosticos/p1425-manifest.json",
-          "00_nucleo/diagnosticos/p1425-contract.json"
+          "00_nucleo/diagnosticos/p1425-contract.json",
+          "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
+          "00_nucleo/prompts/compiler/eval.md: P1425 ObservationEq obligation only"
         ]
       },
       "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
@@ -78,12 +81,13 @@
           "01_core/src/compiler/stdlib/structural/math.rs",
           "01_core/src/entities/elements/math_limits_override.rs",
           "01_core/src/entities/content.rs",
+          "01_core/src/compiler/eval/mod.rs",
           "01_core/src/compiler/eval/math.rs",
           "01_core/src/compiler/math/layout/mod.rs",
           "01_core/src/compiler/eval/repr.rs",
           "mechanical four-argument constructor repairs in existing tests",
           "test-module wiring declarations only",
-          "P1425 obligation text and lineage hash metadata only in the six owner L0 paths listed by protected_inputs"
+          "lineage hash metadata only in the seven owner L0 paths listed by protected_inputs"
         ]
       },
       "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
@@ -109,8 +113,8 @@
     }
   ],
   "baseline": {
-    "approval_predecessor_commit": "2d7165305e4fe629253d0cfe628a8587b1e09034",
-    "commit": "d10f81161331000f81165c23109baa025613ce04",
+    "approval_predecessor_commit": "d10f81161331000f81165c23109baa025613ce04",
+    "commit": "0305568a7509653198f16a01441051fea47e304a",
     "productive_files": [
       {
         "path": "01_core/src/compiler/stdlib/structural/math.rs",
@@ -125,6 +129,10 @@
         "sha256": "0ea226a2e38a7594577505857595dcceb5c21de25a6c9868b62bd76c2f5c6e48"
       },
       {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "2421e400047a9891c8224b5a7dd041d3e9ba10dec757c21fb48de5c7fb039862"
+      },
+      {
         "path": "01_core/src/compiler/eval/math.rs",
         "sha256": "9658a77c3bfdc5b66e7cfab89999a9524d4776b2da92b6437a54f6c84226e94f"
       },
@@ -137,7 +145,7 @@
         "sha256": "be1d3be57c9ac167254aed0b25fa216305dae7e71eee807c7c678d06e5fbc0fa"
       }
     ],
-    "tree": "15b66e3aa9a4da8cac4d1b0298a00832601d7de1"
+    "tree": "e6785a80f345abae324c365df96126076b322c07"
   },
   "budgets": {
     "full_corpus_runs": 3,
@@ -148,7 +156,7 @@
     "wall_clock_minutes": 60
   },
   "claim_boundary": {
-    "attests": "Only the P1425 math.limits fragment: qualified binding and closed signature, explicit-inline presence, convergence with bare syntax, carrier and walker preservation, canonical repr, established attachment layout behavior, and preservation of scripts.",
+    "attests": "Only the P1425 math.limits fragment: qualified binding and closed signature, explicit-inline presence, convergence with bare syntax, carrier and walker preservation, observation-relation preservation, canonical repr, established attachment layout behavior, and preservation of scripts.",
     "does_not_attest": [
       "the other 21 residual math routes from P1422",
       "general math parity",
@@ -179,6 +187,7 @@
     "O-CARRIER-PRESENCE",
     "O-BILATERAL-CONVERGENCE",
     "O-WALKERS",
+    "O-OBSERVATION-RELATION",
     "O-REPR",
     "O-LAYOUT-PRESERVATION",
     "O-SCRIPTS-CONTROL",
@@ -212,6 +221,14 @@
     {
       "path": "00_nucleo/prompts/compiler/eval/repr.md",
       "sha256": "446d4d4a5c0b4ef0ffbae5bd6eccd04d1b95e0b1fc998e4ec58f6030753911b4"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "2c2befe8aa43ff6bf10a88b7661b6224e53f5ba08bd405de479f3f056579d908"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
+      "sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0"
     }
   ],
   "protocol": {
@@ -234,6 +251,12 @@
         "sha256": "a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957"
       }
     ]
+  },
+  "revision": {
+    "id": "R1",
+    "previous_manifest_sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8",
+    "reason": "The R0 implementer compile probe exposed the baseline exhaustive ObservationEq destructuring in compiler/eval/mod.rs. Immutable-tree audit confirmed it as the sole omitted external destructuring and requires a seventh productive consumer, its owner L0, and an independent observation-relation witness before resealing.",
+    "r0_seal_sha256": "a14cbf63611ece0b11b088750a0917d21794728e8b5ceda6698c0c320df4a64b"
   },
   "schema": "tekt.materialization.manifest/v1",
   "unknown_policy": {

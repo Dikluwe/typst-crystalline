@@ -5,6 +5,7 @@
         "01_core/src/compiler/math/layout/tests.rs: add the fourth inline_explicit argument to pre-P1425 constructor callsites only"
       ],
       "allowed_l0_lineage_only": [
+        "00_nucleo/prompts/compiler/eval.md",
         "00_nucleo/prompts/compiler/stdlib/structural/math.md",
         "00_nucleo/prompts/entities/elements/math_limits_override.md",
         "00_nucleo/prompts/entities/content.md",
@@ -13,6 +14,7 @@
         "00_nucleo/prompts/compiler/eval/repr.md"
       ],
       "allowed_productive_writes": [
+        "01_core/src/compiler/eval/mod.rs",
         "01_core/src/compiler/stdlib/structural/math.rs",
         "01_core/src/entities/elements/math_limits_override.rs",
         "01_core/src/entities/content.rs",
@@ -21,6 +23,7 @@
         "01_core/src/compiler/eval/repr.rs"
       ],
       "allowed_test_wiring_only": [
+        "01_core/src/compiler/eval/mod.rs: declaration that wires the sealed p1425_tests module",
         "01_core/src/compiler/stdlib/structural/math.rs: declaration that wires the sealed p1425_tests module",
         "01_core/src/compiler/math/layout/mod.rs: declaration that wires the sealed p1425_tests module"
       ],
@@ -32,26 +35,28 @@
         "00_nucleo/diagnosticos/p1425-seal.json",
         "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md except automated lineage metadata",
         "00_nucleo/prompts/compiler/math/layout/p1425-tests.md except automated lineage metadata",
+        "00_nucleo/prompts/compiler/eval/p1425-tests.md except automated lineage metadata",
         "00_nucleo/prompts/infra/tests/p1425-tests.md except automated lineage metadata",
+        "01_core/src/compiler/eval/p1425_tests.rs",
         "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
         "01_core/src/compiler/math/layout/p1425_tests.rs",
         "03_infra/tests/p1425_math_limits.rs",
         "all paths not expressly allowed above"
       ],
-      "lineage_exception": "The six productive owner L0s and three test-only L0s may receive only generated Hash do Código or @prompt-hash metadata after implementation. Every such byte change must be recorded and rebound by the final verifier; all semantic L0 bytes remain sealed.",
+      "lineage_exception": "The seven productive owner L0s and four test-only L0s may receive only generated Hash do Código or @prompt-hash metadata after implementation. Every such byte change must be recorded and rebound by the final verifier; all semantic L0 bytes remain sealed.",
       "may_edit_independent_test_bodies": false
     }
   },
   "attestation": "executado sem atestação de isolamento",
   "authored_at": "2026-09-16T16:04:49-03:00",
   "baseline": {
-    "approval_predecessor_commit": "2d7165305e4fe629253d0cfe628a8587b1e09034",
-    "commit": "d10f81161331000f81165c23109baa025613ce04",
-    "tree": "15b66e3aa9a4da8cac4d1b0298a00832601d7de1"
+    "approval_predecessor_commit": "d10f81161331000f81165c23109baa025613ce04",
+    "commit": "0305568a7509653198f16a01441051fea47e304a",
+    "tree": "e6785a80f345abae324c365df96126076b322c07"
   },
   "calibration": {
     "candidate_executed": false,
-    "method": "Static pre-candidate discriminatory evaluation checked every frozen case, oracle witness, mutation-to-case mapping, capability boundary, protected-input hash, and test artifact hash. Classification was indexed by case id and replayed in forward, fresh forward-repeat, and fresh reverse order; no candidate result is claimed.",
+    "method": "R1 fail-closed static pre-candidate evaluation rebounded the immutable-tree allowlist audit, P12 ObservationEq witness, adversarial M21, every frozen case, capability boundary, protected-input hash, and test artifact hash. Classification was indexed by case id and replayed in forward, fresh forward-repeat, and fresh reverse order; no candidate result is claimed.",
     "mutation_score": 1.0,
     "mutations": {
       "rejectable_with_witness": 21,
@@ -71,13 +76,13 @@
       "unknown_never_success": true,
       "vector": "U01-U04=Unknown"
     },
-    "order_vector_sha256": "f27939dd58fe1ecaa6cad307aa5cc52b5a76f83dbbed88c9a3e5f69419ee976a",
+    "order_vector_sha256": "6bbb7a548eb49010e9ca7d4ee393e4d8e8b13c80ea68e6c405faeba9eca26e51",
     "orders": [
       {
         "classification_vector": {
           "M01-M21": "Violated",
           "N01-N05": "Preserved",
-          "P01-P11": "Preserved",
+          "P01-P12": "Preserved",
           "U01-U04": "Unknown"
         },
         "id": "forward",
@@ -87,7 +92,7 @@
         "classification_vector": {
           "M01-M21": "Violated",
           "N01-N05": "Preserved",
-          "P01-P11": "Preserved",
+          "P01-P12": "Preserved",
           "U01-U04": "Unknown"
         },
         "id": "forward_repeat",
@@ -97,7 +102,7 @@
         "classification_vector": {
           "M01-M21": "Violated",
           "N01-N05": "Preserved",
-          "P01-P11": "Preserved",
+          "P01-P12": "Preserved",
           "U01-U04": "Unknown"
         },
         "id": "reverse",
@@ -105,14 +110,14 @@
       }
     ],
     "positive_cases": {
-      "expected_preserved": 11,
+      "expected_preserved": 12,
       "mandatory_unknown_allowed": false,
-      "with_sealed_witness": 11,
-      "vector": "P01-P11=Preserved"
+      "with_sealed_witness": 12,
+      "vector": "P01-P12=Preserved"
     },
     "result": "PASS_PRE_CANDIDATE"
   },
-  "claim_boundary": "This seal freezes only the P1425 math.limits contract, witnesses, mutations, opaque policy, tests, baseline, capabilities, and execution orders. It does not attest a candidate, the other 21 residual math routes, general math parity, new attachment geometry, Rust representation, render-byte equality, or out-of-scope diagnostic formatting.",
+  "claim_boundary": "This R1 seal freezes only the P1425 math.limits contract, the seven-consumer allowlist including ObservationEq, witnesses, mutations, opaque policy, tests, baseline, capabilities, and execution orders. It does not attest a candidate, the other 21 residual math routes, general math parity, new attachment geometry, Rust representation, render-byte equality, or out-of-scope diagnostic formatting.",
   "invalidation": {
     "fail_closed": true,
     "rule": "Any unallowlisted write, semantic L0 change, test-body change, sealed diagnostic artifact change, capability expansion, missing hash, identity mismatch, timeout, crash, OOM, swap, unreadable result, mutation survivor, mandatory Unknown, or order-vector divergence invalidates the seal. Generated lineage-only changes are the sole byte-level exception and require explicit final rebind.",
@@ -124,22 +129,33 @@
     "status": "sealed_pre_candidate",
     "version": "tekt-materializacao-segregada/1"
   },
+  "revision": {
+    "allowlist_audit_path": "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
+    "allowlist_audit_sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0",
+    "id": "R1",
+    "previous_seal_sha256": "a14cbf63611ece0b11b088750a0917d21794728e8b5ceda6698c0c320df4a64b",
+    "reason": "R0 omitted the exhaustive MathLimitsOverrideElem ObservationEq consumer. Immutable baseline audit added exactly compiler/eval/mod.rs and its owner L0, and R1 freezes a dedicated P12 witness plus M21 adversarial rejection before authorizing resumed implementation."
+  },
   "sealed_inputs": [
     {
       "path": "00_nucleo/diagnosticos/p1425-manifest.json",
-      "sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8"
+      "sha256": "4545e3b98aca3fc84d1230651537396cb59f5768d815af5b295f37be1c5ff14e"
     },
     {
       "path": "00_nucleo/diagnosticos/p1425-contract.json",
-      "sha256": "286a06027db74487f7a3c686c2feaedc2841ba180d51311dec13a39baf856bcd"
+      "sha256": "1cc4febbd6788ef573f701331ac2885952c488f713a2149a60591fc3c86cedb6"
     },
     {
       "path": "00_nucleo/diagnosticos/p1425-oracles.json",
-      "sha256": "b38fd6aa78dfa8afd62fbcd2b0dfd59e9d61128ed9c6ec7cfedd5217f539797a"
+      "sha256": "e2158b8d177cd7a5a78aa8cfb090dc44bca506bb37ffdb0430011e6c855e3baa"
     },
     {
       "path": "00_nucleo/diagnosticos/p1425-mutants.json",
-      "sha256": "0f41cbcc56b3a346fc445c9b96b03dcb6b1d9d2df211629dbc560ccc300c71e9"
+      "sha256": "aac01398ded93abb2686d0b016f6bcb15f543aadee9978b2981e3cf6fb1fe672"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-r1-allowlist-audit.json",
+      "sha256": "4de22230dca28608ca3026d6f2e449f6455c34b4bfa198497aaa24745b432fc0"
     },
     {
       "path": "00_nucleo/materialization/typst-passo-1425.md",
@@ -170,12 +186,20 @@
       "sha256": "446d4d4a5c0b4ef0ffbae5bd6eccd04d1b95e0b1fc998e4ec58f6030753911b4"
     },
     {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "2c2befe8aa43ff6bf10a88b7661b6224e53f5ba08bd405de479f3f056579d908"
+    },
+    {
       "path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
       "sha256": "9e849dc5a0560c8132c5f455f8cb04ad7dac6d987c3dceaf7e9689a0c7e9724c"
     },
     {
       "path": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
       "sha256": "1f923f647514ee0eb9b1ecae4033dceb9bb552e140e69c932b39b94441ca52f0"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/p1425-tests.md",
+      "sha256": "cf5e31c521c6997db578da9ca8582ace2b86eb3d0434e88a2501b145c3edc101"
     },
     {
       "path": "00_nucleo/prompts/infra/tests/p1425-tests.md",
@@ -190,6 +214,10 @@
       "sha256": "f188123a9e94799cb7c273089216b9f2252fd9a8026e50bfe126939dfc6b3a84"
     },
     {
+      "path": "01_core/src/compiler/eval/p1425_tests.rs",
+      "sha256": "8f0e2178f26151f2935d0bf1d18ea8db7522d3698b2245dcc19dbd8228d1a074"
+    },
+    {
       "path": "03_infra/tests/p1425_math_limits.rs",
       "sha256": "e511991172545d377089c838cd3b24f8cc90b579d8d06b3d3831a41c8c6f49a3"
     }
@@ -200,7 +228,7 @@
   },
   "verdict": {
     "implementation_authorized": true,
-    "reason": "The frozen P1425 suite has attributable witnesses for 11/11 mandatory positives and 5/5 mandatory rejection cases, fail-closed Unknown controls for 4/4 opaque cases, and discriminatory witnesses or structural allowlist review capable of classifying 21/21 valid mutations as Violated in each of the three deterministic orders; mutation score is 1.0 and no survivor or integrity mismatch remains.",
+    "reason": "The rebound P1425 R1 suite covers all seven productive consumers and has attributable witnesses for 12/12 mandatory positives including the closed ObservationEq relation, 5/5 mandatory rejection cases, fail-closed Unknown controls for 4/4 opaque cases, and discriminatory witnesses capable of classifying 21/21 valid mutations including M21 as Violated in each of the three deterministic orders; mutation score is 1.0 and no survivor or integrity mismatch remains.",
     "verification_still_required": true
   },
   "schema": "tekt.materialization.seal/v1"

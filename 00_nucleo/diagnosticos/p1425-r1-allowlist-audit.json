@@ -1,0 +1,102 @@
+{
+  "audit": {
+    "baseline_only": true,
+    "candidate_worktree_read": false,
+    "commands": [
+      "git grep -n -E 'MathLimitsOverrideElem[[:space:]]*\\{|math_limits_override\\(' 0305568a7 -- '*.rs'",
+      "git show 0305568a7:01_core/src/compiler/eval/mod.rs | sed -n '2030,2075p'",
+      "git grep -n -E 'MathLimitsOverride\\([^)]*\\)|\\.inline|\\.limits' 0305568a7 -- '*.rs'"
+    ],
+    "executor": "agent:/root/p1425_contract",
+    "method": "immutable git object inspection; no productive working-tree file was opened",
+    "role": "contract_author"
+  },
+  "baseline": {
+    "commit": "0305568a7509653198f16a01441051fea47e304a",
+    "tree": "e6785a80f345abae324c365df96126076b322c07"
+  },
+  "cause": {
+    "compile_failure": "E0027 after adding inline_explicit to MathLimitsOverrideElem",
+    "file": "01_core/src/compiler/eval/mod.rs",
+    "lines": "2053-2063 at the frozen baseline",
+    "obligation": "ObservationEq must destructure and compare inline_explicit so omission and explicit true are observationally Different.",
+    "owner_l0": "00_nucleo/prompts/compiler/eval.md",
+    "owner_l0_baseline_sha256": "cfd05cab53e2e29798650ab334a621228fa3968cfcc2711e052e6d84902383b5",
+    "owner_l0_r1_sha256": "2c2befe8aa43ff6bf10a88b7661b6224e53f5ba08bd405de479f3f056579d908",
+    "productive_baseline_sha256": "2421e400047a9891c8224b5a7dd041d3e9ba10dec757c21fb48de5c7fb039862"
+  },
+  "findings": {
+    "constructor_or_literal_occurrences": [
+      {
+        "count": 2,
+        "disposition": "already allowlisted productive construction; add causal presence argument",
+        "path": "01_core/src/compiler/eval/math.rs"
+      },
+      {
+        "count": 2,
+        "disposition": "already allowlisted productive reconstruction plus in-module legacy test callsite",
+        "path": "01_core/src/compiler/math/layout/mod.rs"
+      },
+      {
+        "count": 3,
+        "disposition": "sealed independent tests; already use four arguments; immutable",
+        "path": "01_core/src/compiler/math/layout/p1425_tests.rs"
+      },
+      {
+        "count": 6,
+        "disposition": "mechanical existing-test arity repairs only",
+        "path": "01_core/src/compiler/math/layout/tests.rs"
+      },
+      {
+        "count": 1,
+        "disposition": "already allowlisted productive construction",
+        "path": "01_core/src/compiler/stdlib/structural/math.rs"
+      },
+      {
+        "count": 3,
+        "disposition": "sealed independent tests; already use four arguments; immutable",
+        "path": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs"
+      },
+      {
+        "count": 2,
+        "disposition": "already allowlisted constructor definition and struct literal",
+        "path": "01_core/src/entities/content.rs"
+      },
+      {
+        "count": 5,
+        "disposition": "already allowlisted entity definition, walker reconstruction, and unit-test literals",
+        "path": "01_core/src/entities/elements/math_limits_override.rs"
+      }
+    ],
+    "external_exhaustive_destructurings": [
+      {
+        "baseline_snippet": "let Self { body: _, limits: _, inline: _ } = self;",
+        "classification": "missing productive consumer and semantic comparison obligation",
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "required_change": "add inline_explicit to the nominal destructuring and ObservationEq chain"
+      }
+    ],
+    "external_exhaustive_destructurings_count": 1,
+    "scope_expansion": {
+      "new_l0_owner": "00_nucleo/prompts/compiler/eval.md",
+      "new_productive_path": "01_core/src/compiler/eval/mod.rs",
+      "new_test_obligation": "independent test distinguishes omitted inline from explicit true through ObservationEq, not only PartialEq",
+      "new_adversarial_obligation": "a mutant that ignores, infers, or omits inline_explicit in ObservationEq is Violated",
+      "other_new_paths": []
+    }
+  },
+  "inference": {
+    "claim": "The minimal complete R1 expansion is exactly compiler/eval/mod.rs plus its owner L0 and one independent ObservationEq witness; no other productive struct literal, destructuring, or constructor callsite was omitted.",
+    "refutation": "Any additional Rust occurrence at commit 0305568a7 that constructs, destructures, or reconstructs MathLimitsOverrideElem outside the enumerated paths, or any consumer whose semantics depend on inline_explicit and cannot remain unchanged, refutes this audit and invalidates the R1 seal."
+  },
+  "rebind_required": {
+    "contract": true,
+    "manifest": true,
+    "mutants": true,
+    "oracles_and_independent_tests": true,
+    "reason": "The R0 oracle checks PartialEq but does not exercise ObservationEq; merely expanding the write allowlist would leave a semantic survivor.",
+    "seal": true
+  },
+  "schema": "tekt.materialization.allowlist-audit/v1",
+  "verdict": "R0_SEAL_INVALIDATED_REBIND_REQUIRED"
+}

@@ -3,7 +3,8 @@
   "protocol_version": "tekt-materializacao-segregada/1",
   "step": 1425,
   "status": "candidate-oracles-unsealed",
-  "revision": "R1",
+  "revision": "R1-observation-relation",
+  "revision_note": "Fail-closed R1 audit adds P12/O-OBSERVATION-RELATION and a dedicated independent witness; the prior six test artifacts remain byte-identical.",
   "attestation": "executado sem atestação de isolamento",
   "executor": {
     "authority": "agent:/root/p1425_oracles",
@@ -14,12 +15,14 @@
     "candidate_tests_edited": false,
     "candidate_executed": false,
     "verdict_emitted": false,
-    "causal_baseline": "d10f81161331000f81165c23109baa025613ce04",
+    "causal_baseline": "0305568a7509653198f16a01441051fea47e304a",
     "write_allowlist": [
       "00_nucleo/diagnosticos/p1425-oracles.json",
       "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
       "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "00_nucleo/prompts/compiler/eval/p1425-tests.md",
       "00_nucleo/prompts/infra/tests/p1425-tests.md",
+      "01_core/src/compiler/eval/p1425_tests.rs",
       "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
       "01_core/src/compiler/math/layout/p1425_tests.rs",
       "03_infra/tests/p1425_math_limits.rs"
@@ -32,11 +35,15 @@
     },
     {
       "path": "00_nucleo/diagnosticos/p1425-manifest.json",
-      "sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8"
+      "sha256": "4545e3b98aca3fc84d1230651537396cb59f5768d815af5b295f37be1c5ff14e"
     },
     {
       "path": "00_nucleo/diagnosticos/p1425-contract.json",
-      "sha256": "286a06027db74487f7a3c686c2feaedc2841ba180d51311dec13a39baf856bcd"
+      "sha256": "1cc4febbd6788ef573f701331ac2885952c488f713a2149a60591fc3c86cedb6"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "2c2befe8aa43ff6bf10a88b7661b6224e53f5ba08bd405de479f3f056579d908"
     }
   ],
   "reference": {
@@ -100,6 +107,11 @@
       "id": "P11-scripts-control",
       "oracle": "O7-scripts-control",
       "assertion": "scripts remains limits=false, presence=false, bilateral and lateral in display"
+    },
+    {
+      "id": "P12-observation-relation-presence",
+      "oracle": "O9-observation-relation",
+      "assertion": "identical complete carriers are Same while omission versus explicit true is Different in both directions"
     }
   ],
   "negative_cases": [
@@ -179,6 +191,16 @@
         "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_assinatura_publica_rejeita_cinco_classes_invalidas",
         "03_infra/tests/p1425_math_limits.rs#p1425_qualificado_preserva_cinco_diagnosticos_publicos"
       ]
+    },
+    {
+      "id": "O9-observation-relation",
+      "expected": "Preserved",
+      "assertions": [
+        "two identical omitted complete carriers are Same",
+        "two identical explicit-true complete carriers are Same",
+        "omitted versus explicit true is Different symmetrically and never Unproven"
+      ],
+      "test": "01_core/src/compiler/eval/p1425_tests.rs#p1425_observation_relation_observa_presenca_inline"
     }
   ],
   "opaque_cases": [
@@ -211,11 +233,15 @@
   },
   "mutation_gate": {
     "required_score": 1.0,
+    "r1_required_rejection": {
+      "mutation": "M16-observation-relation-ignores-presence",
+      "must_be_rejected_by": "P12-observation-relation-presence/O9-observation-relation"
+    },
     "candidate_not_run_by_oracle_author": true,
     "orders": ["forward", "forward_repeat", "reverse"]
   },
   "baseline_red": {
-    "state": "d10f81161331000f81165c23109baa025613ce04 plus untracked sealed-test candidates; no productive file modified",
+    "state": "pre-R1 causal RED recorded before candidate admission; R1 immutable baseline is 0305568a7509653198f16a01441051fea47e304a",
     "command": "cargo test -p typst-infra --test p1425_math_limits -- --nocapture",
     "result": "RED: 0 passed, 3 failed",
     "witnesses": [
@@ -234,6 +260,10 @@
       "sha256": "1f923f647514ee0eb9b1ecae4033dceb9bb552e140e69c932b39b94441ca52f0"
     },
     {
+      "path": "00_nucleo/prompts/compiler/eval/p1425-tests.md",
+      "sha256": "cf5e31c521c6997db578da9ca8582ace2b86eb3d0434e88a2501b145c3edc101"
+    },
+    {
       "path": "00_nucleo/prompts/infra/tests/p1425-tests.md",
       "sha256": "b0923c1686df93f732a15b10159eff5eb60f284f4433cd0abfabe9e23cade13a"
     },
@@ -246,6 +276,10 @@
       "sha256": "f188123a9e94799cb7c273089216b9f2252fd9a8026e50bfe126939dfc6b3a84"
     },
     {
+      "path": "01_core/src/compiler/eval/p1425_tests.rs",
+      "sha256": "8f0e2178f26151f2935d0bf1d18ea8db7522d3698b2245dcc19dbd8228d1a074"
+    },
+    {
       "path": "03_infra/tests/p1425_math_limits.rs",
       "sha256": "e511991172545d377089c838cd3b24f8cc90b579d8d06b3d3831a41c8c6f49a3"
     }
@@ -254,5 +288,5 @@
     "cargo test -p typst-core p1425_ -- --nocapture",
     "cargo test -p typst-infra --test p1425_math_limits -- --nocapture"
   ],
-  "claim_boundary": "These oracles cover only the P1425 math.limits fragment. They do not classify the candidate, prove general math parity, alter attachment geometry, or require Rust-structure or render-byte equality."
+  "claim_boundary": "These oracles cover only the P1425 math.limits fragment, including its closed observation relation. They do not classify the candidate, prove general math parity, alter attachment geometry, or require Rust-structure or render-byte equality."
 }
