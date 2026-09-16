@@ -1,0 +1,230 @@
+{
+  "baseline": {
+    "approval_predecessor_commit": "50716247a60cc5965e4fe7d73807a482ecd1bb1b",
+    "commit": "79c7a6d60a29bcf53a3b06f15d800dcf286381a6",
+    "tree": "6a279d423d77940f9f738c91e1c7382ad46775a6"
+  },
+  "cases": [
+    {
+      "expected": "Preserved",
+      "fixture": "#repr(html.frame)",
+      "id": "P01-binding-repr",
+      "mandatory": true,
+      "profiles": ["feature-html+paged", "feature-html+html"],
+      "requires": ["O-BINDING-FEATURE", "O-CARRIER"],
+      "witness": "The binding exists under Feature::Html in both targets and repr is exactly frame."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "access html.frame with Feature::Html disabled",
+      "id": "P02-feature-off",
+      "mandatory": true,
+      "profiles": ["feature-off+paged", "feature-off+html"],
+      "requires": ["O-BINDING-FEATURE"],
+      "witness": "Access is rejected through the existing feature gate; selecting HTML format does not activate the feature."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([x]) inspected before layout/export",
+      "id": "P03-carrier",
+      "mandatory": true,
+      "profiles": ["feature-html+eval"],
+      "requires": ["O-CARRIER"],
+      "witness": "Construction preserves Content::HtmlFrame(HtmlFrameElem { body }) and repr morphology frame(body: [x]); it is not HtmlElem, Empty, SVG bytes, or the bare body."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame()",
+      "id": "P04-missing-body",
+      "mandatory": true,
+      "profiles": ["feature-html+paged", "feature-html+html"],
+      "requires": ["O-SIGNATURE"],
+      "witness": "Compilation fails with the public diagnostic missing argument: body."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame(body: [x])",
+      "id": "P05-named-body",
+      "mandatory": true,
+      "profiles": ["feature-html+paged", "feature-html+html"],
+      "requires": ["O-SIGNATURE"],
+      "witness": "Compilation fails with the public diagnostic the argument `body` is positional."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([x], [y])",
+      "id": "P06-extra-positional",
+      "mandatory": true,
+      "profiles": ["feature-html+paged", "feature-html+html"],
+      "requires": ["O-SIGNATURE"],
+      "witness": "Compilation fails with the public diagnostic unexpected argument."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([x]) versus x",
+      "id": "P07-paged-transparent",
+      "mandatory": true,
+      "profiles": ["feature-html+paged"],
+      "requires": ["O-PAGED-TRANSPARENCY"],
+      "witness": "Paged language morphology, position, and supported visual output match the bare body without a wrapper, margin, canvas, or extra page."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([x])",
+      "id": "P08-html-text-svg",
+      "mandatory": true,
+      "profiles": ["feature-html+html"],
+      "requires": ["O-HTML-INLINE-SVG", "O-GEOMETRY-PAINT-TEXT"],
+      "witness": "The useful DOM node is one inline svg at the source position, block-level by default, transparent, intrinsically sized with positive dimensions, and visibly contains x; there is no frame tag or A4/page wrapper."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([#rect(width: 10pt, height: 5pt, fill: red)])",
+      "id": "P09-html-rect-svg",
+      "mandatory": true,
+      "profiles": ["feature-html+html"],
+      "requires": ["O-HTML-INLINE-SVG", "O-GEOMETRY-PAINT-TEXT"],
+      "witness": "One transparent inline svg has numeric viewBox 0 0 10 5 within 0.001pt, coherent 10pt by 5pt physical dimensions, display:block, and supported red paint; no page background or A4 canvas exists."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.frame([#html.frame([x])]) versus #html.frame([x])",
+      "id": "P10-nesting",
+      "mandatory": true,
+      "profiles": ["feature-html+paged", "feature-html+html"],
+      "requires": ["O-NESTING", "O-PAGED-TRANSPARENCY"],
+      "witness": "Nesting is geometrically and visually equivalent to the simple frame and emits exactly one inline svg in HTML; byte equality is not required."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "#html.elem(\"frame\")",
+      "id": "P11-literal-frame-tag",
+      "mandatory": true,
+      "profiles": ["feature-html+html"],
+      "requires": ["O-LITERAL-FRAME-TAG"],
+      "witness": "The result remains a literal HTML frame element and is not promoted to html.frame or inline svg."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "existing HTML fixtures containing no Content::HtmlFrame",
+      "id": "P12-no-frame-regression",
+      "mandatory": true,
+      "profiles": ["feature-html+html"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "The frame-resolution phase is not entered and existing golden DOM and bytes remain unchanged."
+    },
+    {
+      "expected": "Preserved",
+      "fixture": "a frame body rejected by the supported crystalline layout or SVG subset",
+      "id": "P13-unsupported-fails",
+      "mandatory": true,
+      "profiles": ["feature-html+html"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "Compilation returns the underlying error or explicit Unknown classification and never succeeds with an empty node, bare text fallback, literal frame tag, or omitted occurrence."
+    },
+    {
+      "expected": "Unknown",
+      "fixture": "successful process output whose extractor cannot establish one unambiguous useful svg root",
+      "id": "U01-opaque-svg-root",
+      "mandatory": false,
+      "profiles": ["contract-calibration"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "UNKNOWN_OPAQUE_SVG_ROOT"
+    },
+    {
+      "expected": "Unknown",
+      "fixture": "output truncated or unreadable before DOM, geometry, or diagnostic classification",
+      "id": "U02-unreadable-output",
+      "mandatory": false,
+      "profiles": ["contract-calibration"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "UNKNOWN_UNREADABLE_OUTPUT"
+    },
+    {
+      "expected": "Unknown",
+      "fixture": "reference or candidate binary identity does not match its frozen hash",
+      "id": "U03-identity-mismatch",
+      "mandatory": false,
+      "profiles": ["contract-calibration"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "UNKNOWN_IDENTITY_MISMATCH"
+    },
+    {
+      "expected": "Unknown",
+      "fixture": "case exceeds the per-case or total calibration budget",
+      "id": "U04-budget-exhausted",
+      "mandatory": false,
+      "profiles": ["contract-calibration"],
+      "requires": ["O-FAIL-CLOSED"],
+      "witness": "UNKNOWN_BUDGET_EXHAUSTED"
+    }
+  ],
+  "claim_boundary": "This contract discriminates only the P1424 fragment listed in the manifest. It does not establish general HTML or SVG equivalence and does not compare SVG bytes, IDs, path text, or attribute order.",
+  "classification": {
+    "Preserved": "All required public-language observations for the case are established with an attributable witness.",
+    "Unknown": "Identity, execution, parsing, extraction, dependency, or budget prevents a sound decision. Unknown is fail-closed and cannot satisfy a mandatory case or reject a mutation.",
+    "Violated": "At least one required observation differs, with a public witness naming the observable and actual result."
+  },
+  "execution_orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "gates": {
+    "architecture": [
+      "cargo fmt --all -- --check",
+      "cargo build",
+      "crystalline-lint .",
+      "git diff --check",
+      "V5, V15, and V26 remain clear"
+    ],
+    "discriminatory": {
+      "mandatory_positive_unknown_allowed": false,
+      "mutation_score_required": 1.0,
+      "opaque_cases_must_be_unknown": true,
+      "orders_must_have_identical_vectors": true,
+      "valid_mutations_must_be_violated": true
+    },
+    "preseal": "Manifest, contract, oracle suite, mutation suite, executor bindings, and all hashes must be frozen before any candidate implementation is admitted."
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1424-manifest.json",
+    "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"
+  },
+  "mutations": [
+    {"id": "M01-html-elem-alias", "must_be_rejected_by": ["P03-carrier", "P08-html-text-svg", "P11-literal-frame-tag"], "mutation": "Implement frame as HtmlElem with tag frame or another sentinel tag."},
+    {"id": "M02-body-erasure", "must_be_rejected_by": ["P03-carrier", "P07-paged-transparent", "P08-html-text-svg"], "mutation": "Erase HtmlFrame to Empty or bare body during construction."},
+    {"id": "M03-typed-tag-registration", "must_be_rejected_by": ["P04-missing-body", "P05-named-body", "P06-extra-positional"], "mutation": "Register frame through the generic typed-tag table or accept named/extra arguments."},
+    {"id": "M04-text-or-empty-html", "must_be_rejected_by": ["P08-html-text-svg", "P09-html-rect-svg", "P13-unsupported-fails"], "mutation": "Export the body as ordinary HTML/text or silently omit the occurrence instead of inline SVG."},
+    {"id": "M05-standalone-page-svg", "must_be_rejected_by": ["P09-html-rect-svg"], "mutation": "Reuse standalone page SVG including A4 canvas, page background, or non-intrinsic dimensions."},
+    {"id": "M06-paged-wrapper", "must_be_rejected_by": ["P07-paged-transparent", "P10-nesting"], "mutation": "Emit a paged wrapper, margin, item, or second island for HtmlFrame."},
+    {"id": "M07-wrong-inner-target", "must_be_rejected_by": ["P07-paged-transparent", "P08-html-text-svg", "P10-nesting"], "mutation": "Resolve the island under the outer HTML target rather than a localized paged target."},
+    {"id": "M08-style-loss", "must_be_rejected_by": ["P08-html-text-svg", "P09-html-rect-svg"], "mutation": "Discard occurrence-effective styles, text size, metrics, image sizing, or font context."},
+    {"id": "M09-double-nesting", "must_be_rejected_by": ["P10-nesting"], "mutation": "Resolve a nested frame as a second inline SVG or independent geometry."},
+    {"id": "M10-escaped-svg", "must_be_rejected_by": ["P08-html-text-svg", "P09-html-rect-svg"], "mutation": "Escape generated SVG as HTML text or wrap it in a paragraph/frame tag."},
+    {"id": "M11-global-html-pagination", "must_be_rejected_by": ["P12-no-frame-regression"], "mutation": "Paginate the whole HTML document or enter frame resolution when no frame exists."},
+    {"id": "M12-implicit-feature", "must_be_rejected_by": ["P02-feature-off"], "mutation": "Activate Feature::Html because the selected target or format is HTML."},
+    {"id": "M13-fallback-success", "must_be_rejected_by": ["P13-unsupported-fails"], "mutation": "Convert unsupported layout/render, timeout, or opaque extraction into successful empty output."}
+  ],
+  "observables": {
+    "O-BINDING-FEATURE": "Binding availability follows Feature::Html independently of target; format never enables feature.",
+    "O-CARRIER": "Construction and reflection preserve the distinct frame carrier and body morphology until the target-specific consumer.",
+    "O-FAIL-CLOSED": "Unsupported, ambiguous, crashed, timed-out, unreadable, or unresolved occurrences never become successful omission or empty output.",
+    "O-GEOMETRY-PAINT-TEXT": "Intrinsic dimensions, viewBox, transparency, supported paint, and visible text are compared semantically with 0.001pt geometric tolerance where numeric extraction is required.",
+    "O-HTML-INLINE-SVG": "HTML places one unescaped inline svg at the occurrence, block-level by default, without frame tag, paragraph wrapper, page background, or A4 canvas.",
+    "O-LITERAL-FRAME-TAG": "html.elem(\"frame\") remains a literal DOM element and is not the primitive.",
+    "O-NESTING": "Nested primitive frames collapse to the same supported geometry and visual morphology as one frame.",
+    "O-PAGED-TRANSPARENCY": "Paged layout delegates once to the body and adds no wrapper, offset, margin, page, or geometry.",
+    "O-SIGNATURE": "Exactly one positional required Content body is accepted; missing, named, and extra positional forms retain their public diagnostics."
+  },
+  "protected_prompt": {
+    "path": "00_nucleo/prompts/compiler/layout/html_frame.md",
+    "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"
+  },
+  "reference_vanilla": {
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+  },
+  "schema": "tekt.materialization.contract/v1",
+  "unknown_policy": "Fail closed exactly as frozen in the manifest. Unknown is acceptable only as the expected result of U01-U04; it blocks P01-P13, contributes neither numerator nor rejection credit, and prevents sealing when produced by a required positive or a valid mutation."
+}

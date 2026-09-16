@@ -1,0 +1,142 @@
+{
+  "schema": "p1424-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1424,
+  "status": "candidate-oracles-unsealed",
+  "revision": "R0",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1424_oracles",
+    "roles": ["oracle_author", "ab_tester"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_executed": false,
+    "verdict_emitted": false,
+    "causal_baseline": "79c7a6d60a29bcf53a3b06f15d800dcf286381a6",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1424-oracles.json",
+      "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md",
+      "00_nucleo/prompts/infra/tests/p1424-tests.md",
+      "01_core/src/compiler/stdlib/html/p1424_tests.rs",
+      "03_infra/tests/p1424_html_frame.rs"
+    ]
+  },
+  "inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1424.md", "sha256": "7bfdbc758e3c1a922957626ba8c707b548bb0e7e2caf22153448bf18a851f95e"},
+    {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"},
+    {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"},
+    {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"},
+    {"path": "lab/typst-original/crates/typst-html/src/format.rs", "sha256": "366ea4aa68932ecf95c0d81863b3ca2905fe3ae48164b2029099d95905e8ce7b"},
+    {"path": "lab/typst-original/crates/typst-html/src/convert.rs", "sha256": "d3f4dd52de2d60665926596def07d4782ce4d40281c92988324ff728d957687e"},
+    {"path": "lab/typst-original/crates/typst-html/src/rules.rs", "sha256": "f38f697d45ac5dcc4f26410d1ac550d627bc1d4c83144548d6ff4c70d80c6920"},
+    {"path": "lab/typst-original/crates/typst-html/src/encode.rs", "sha256": "9b99fa4ee0ac81019c0b87503a8161db5758a65a82fb03ff5dddcabab170d2fa"}
+  ],
+  "reference": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": "/usr/local/bin/typst",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "language_level_only": true
+  },
+  "oracles": [
+    {
+      "id": "O1-binding-signature-carrier",
+      "contract_cases": ["P01", "P03", "P04", "P05", "P06"],
+      "expected": "Preserved",
+      "assertions": [
+        "html.frame exists as a native binding with repr exactly frame and is absent from TYPED_TAGS",
+        "one positional Content yields Content::HtmlFrame(HtmlFrameElem { body })",
+        "repr starts with frame(body:) and is not html.elem",
+        "zero positional reports missing argument: body",
+        "named body reports the argument `body` is positional",
+        "two positional report unexpected argument"
+      ],
+      "test": "01_core/src/compiler/stdlib/html/p1424_tests.rs#p1424_ab_binding_assinatura_e_carrier_distinto"
+    },
+    {
+      "id": "O2-carrier-walkers",
+      "contract_cases": ["P03"],
+      "expected": "Preserved",
+      "assertions": [
+        "elem_name and plain_text expose frame and its body",
+        "map_text descends and retains Content::HtmlFrame",
+        "map_content visits the body bottom-up and retains Content::HtmlFrame"
+      ],
+      "test": "01_core/src/compiler/stdlib/html/p1424_tests.rs#p1424_ab_walkers_preservam_variante_e_descem_no_body"
+    },
+    {
+      "id": "O3-paged-transparency",
+      "contract_cases": ["P07", "P10"],
+      "expected": "Preserved",
+      "comparison": "bare body versus simple frame versus nested frame: page count, page geometry, plain text, visual item kinds and positions",
+      "test": "01_core/src/compiler/stdlib/html/p1424_tests.rs#p1424_ab_layout_paginado_simples_e_aninhado_sao_transparentes"
+    },
+    {
+      "id": "O4-feature-and-public-signature",
+      "contract_cases": ["P01", "P02", "P04", "P05", "P06"],
+      "expected": "Preserved",
+      "test": "03_infra/tests/p1424_html_frame.rs#p1424_html_feature_binding_e_assinatura_publica"
+    },
+    {
+      "id": "O5-text-inline-svg-and-nesting",
+      "contract_cases": ["P08", "P10"],
+      "expected": "Preserved",
+      "assertions": [
+        "exactly one unescaped inline svg and no frame tag",
+        "positive intrinsic dimensions and viewBox, display:block, visible x, no A4-sized canvas",
+        "nested and simple frames share the same geometry within 0.001pt"
+      ],
+      "test": "03_infra/tests/p1424_html_frame.rs#p1424_html_texto_e_nesting_formam_uma_unica_ilha_intrinseca"
+    },
+    {
+      "id": "O6-rect-geometry-paint",
+      "contract_cases": ["P09"],
+      "expected": "Preserved",
+      "assertions": [
+        "one SVG with viewBox 0 0 10 5 within 0.001pt",
+        "physical width 10pt and height 5pt within 0.001pt",
+        "display:block, #ff0000 paint, and no #ffffff page background"
+      ],
+      "test": "03_infra/tests/p1424_html_frame.rs#p1424_html_rect_preserva_geometria_paint_e_transparencia"
+    },
+    {
+      "id": "O7-literal-control-regression-fail-closed",
+      "contract_cases": ["P11", "P12", "P13"],
+      "expected": "Preserved",
+      "assertions": [
+        "html.elem(\"frame\") emits literal <frame>x</frame> and no svg",
+        "plain HTML without frame keeps its existing paragraph DOM and no svg",
+        "export_html on unresolved Content::HtmlFrame returns an explicit error"
+      ],
+      "test": "03_infra/tests/p1424_html_frame.rs#p1424_html_literal_sem_frame_e_unresolved_fail_closed"
+    }
+  ],
+  "opaque_cases": [
+    {"id": "U01", "stimulus": "useful SVG root cannot be uniquely extracted", "expected": "Unknown(UNKNOWN_OPAQUE_SVG_ROOT)"},
+    {"id": "U02", "stimulus": "output is truncated or unreadable", "expected": "Unknown(UNKNOWN_UNREADABLE_OUTPUT)"},
+    {"id": "U03", "stimulus": "reference or candidate identity differs from its frozen hash", "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"},
+    {"id": "U04", "stimulus": "per-case or total budget exhausted", "expected": "Unknown(UNKNOWN_BUDGET_EXHAUSTED)"}
+  ],
+  "classification": {
+    "Preserved": "all assertions for the case are observed",
+    "Violated": "one or more public-language assertions mismatch with a witness",
+    "Unknown": "identity, execution, extraction, dependency or budget prevents a sound decision",
+    "unknown_never_success": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "covered_contract_mutations": ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12", "M13"],
+    "candidate_not_run_by_oracle_author": true,
+    "orders": ["forward", "forward_repeat", "reverse"]
+  },
+  "outputs": [
+    {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "f5ae179684c10b580fd0c51b04be4a8ee35163250897b60d856bd5d3710c22b1"},
+    {"path": "00_nucleo/prompts/infra/tests/p1424-tests.md", "sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3"},
+    {"path": "01_core/src/compiler/stdlib/html/p1424_tests.rs", "sha256": "c9a1cffe247189e961672c60278ead86e95bb97485490eb1161d6f8b2a3daff3"},
+    {"path": "03_infra/tests/p1424_html_frame.rs", "sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101"}
+  ],
+  "commands_for_verifier": [
+    "cargo test -p typst-core p1424_ -- --nocapture",
+    "cargo test -p typst-infra --test p1424_html_frame -- --nocapture"
+  ],
+  "claim_boundary": "These oracles and A/B tests cover only the P1424 fragment. They do not classify the candidate, prove general HTML/SVG parity, or require byte, ID, path-text, or attribute-order equality."
+}
