@@ -1012,6 +1012,18 @@ pub(crate) fn native_element_fields(
     );
     element!(native_parbreak, "parbreak", false, []);
     element!(
+        native_par_line,
+        "par.line",
+        true,
+        [
+            "numbering",
+            "number-align",
+            "number-margin",
+            "number-clearance",
+            "numbering-scope"
+        ]
+    );
+    element!(
         native_rect,
         "rect",
         false,

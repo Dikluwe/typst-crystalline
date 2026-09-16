@@ -356,6 +356,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) cursor_y_bottom_reserve: f64,
     /// **P793** — Contador de itens de enum sequenciais.
     pub(super) enum_counter: Option<u32>,
+    /// P1414 — estado privado da numeração das linhas físicas do fluxo raiz.
+    /// Participa do rollback de cauda; subframes não o leem nem o alteram.
+    pub(super) par_line_counter: usize,
+    pub(super) par_line_page: Option<usize>,
     /// **P250 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa; cita
     /// ADR-0082 PROPOSTO N=1)** — below pendente do bloco anterior
     /// para CSS-style margin collapse `max(prev.below, curr.above)`
@@ -523,6 +527,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
         f64,
         f64,
     )>,
+    /// P1414 — ajuste horizontal adiado dos números de linha da página
+    /// corrente. A maior largura só é conhecida quando a região fecha.
+    /// Entradas: índice do item, largura, margem e alinhamento pedidos.
+    pub(super) pending_par_line_numbering: Vec<(usize, f64, HAlign, HAlign)>,
     /// **P896** — centragem de equação de bloco adiada quando `width: auto`
     /// (a largura final da página só é conhecida em `finish()`/`new_page()`,
     /// depois de todo o conteúdo da página já estar posicionado — mesmo
@@ -657,6 +665,8 @@ pub(super) struct FlowSuffixCheckpoint {
     cursor_y_top_reserve: f64,
     cursor_y_bottom_reserve: f64,
     enum_counter: Option<u32>,
+    par_line_counter: usize,
+    par_line_page: Option<usize>,
     prev_block_below_pending: f64,
     fractional_block_height: Option<f64>,
     fractional_preflight_active: bool,
@@ -697,6 +707,7 @@ pub(super) struct FlowSuffixCheckpoint {
     column_page_item_lens: Vec<usize>,
     column_x_offsets_len: usize,
     pending_page_numbering_len: usize,
+    pending_par_line_numbering_len: usize,
     pending_equation_centering_len: usize,
     pending_equation_numbering_len: usize,
     pending_align_centering_len: usize,
@@ -949,6 +960,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cursor_y_top_reserve: 0.0,
             cursor_y_bottom_reserve: 0.0,
             enum_counter: None,
+            par_line_counter: 0,
+            par_line_page: None,
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
             fractional_block_height: None,
@@ -1007,6 +1020,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             parbreak_since_last_item: false,
             // P541 — numeração adiada para patterns compostos (ex: "1 / 1").
             pending_page_numbering: Vec::new(),
+            pending_par_line_numbering: Vec::new(),
             pending_equation_centering: Vec::new(),
             pending_equation_numbering: Vec::new(),
             pending_align_centering: Vec::new(),
@@ -1054,6 +1068,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cursor_y_top_reserve: self.cursor_y_top_reserve,
             cursor_y_bottom_reserve: self.cursor_y_bottom_reserve,
             enum_counter: self.enum_counter,
+            par_line_counter: self.par_line_counter,
+            par_line_page: self.par_line_page,
             prev_block_below_pending: self.prev_block_below_pending,
             fractional_block_height: self.fractional_block_height,
             fractional_preflight_active: self.fractional_preflight_active,
@@ -1094,6 +1110,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_page_item_lens: self.column_page_items.iter().map(Vec::len).collect(),
             column_x_offsets_len: self.column_x_offsets.len(),
             pending_page_numbering_len: self.pending_page_numbering.len(),
+            pending_par_line_numbering_len: self.pending_par_line_numbering.len(),
             pending_equation_centering_len: self.pending_equation_centering.len(),
             pending_equation_numbering_len: self.pending_equation_numbering.len(),
             pending_align_centering_len: self.pending_align_centering.len(),
@@ -1147,6 +1164,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.cursor_y_top_reserve = checkpoint.cursor_y_top_reserve;
         self.cursor_y_bottom_reserve = checkpoint.cursor_y_bottom_reserve;
         self.enum_counter = checkpoint.enum_counter;
+        self.par_line_counter = checkpoint.par_line_counter;
+        self.par_line_page = checkpoint.par_line_page;
         self.prev_block_below_pending = checkpoint.prev_block_below_pending;
         self.fractional_block_height = checkpoint.fractional_block_height;
         self.fractional_preflight_active = checkpoint.fractional_preflight_active;
@@ -1203,6 +1222,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.column_x_offsets.truncate(checkpoint.column_x_offsets_len);
         self.pending_page_numbering
             .truncate(checkpoint.pending_page_numbering_len);
+        self.pending_par_line_numbering
+            .truncate(checkpoint.pending_par_line_numbering_len);
         self.pending_equation_centering
             .truncate(checkpoint.pending_equation_centering_len);
         self.pending_equation_numbering
@@ -1367,6 +1388,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 text,
                 style,
             });
+        }
+    }
+
+    /// P1414 — alinha todos os números da região pela maior largura nela
+    /// observada. O item já nasce numa posição correta para a própria largura;
+    /// aqui só aplicamos a diferença necessária para a largura máxima.
+    fn apply_pending_par_line_fixups(&mut self, items: &mut [FrameItem]) {
+        let pending = std::mem::take(&mut self.pending_par_line_numbering);
+        let max_width = pending.iter().map(|(_, width, _, _)| *width).fold(0.0, f64::max);
+        for (index, width, margin, align) in pending {
+            let delta = match (margin, align) {
+                (HAlign::Left, HAlign::Left | HAlign::Start) => -(max_width - width),
+                (HAlign::Right, HAlign::Right | HAlign::End) => max_width - width,
+                _ => 0.0,
+            };
+            if delta != 0.0 {
+                if let Some(item) = items.get_mut(index) {
+                    helpers::shift_frame_item_x(item, delta);
+                }
+            }
         }
     }
 
@@ -1968,6 +2009,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 } else {
                     self.layout_content(body);
                 }
+                let owns_par_line_style = styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .any(|(key, _)| key.as_str().starts_with("par.line."));
+                if owns_par_line_style && !self.regions.current.current_line.is_empty() {
+                    self.flush_line();
+                }
                 self.chain = prev_chain;
                 self.style = prev_style;
             }
@@ -2258,6 +2307,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
             let mut items = std::mem::take(&mut self.regions.current.current_items);
+            self.apply_pending_par_line_fixups(&mut items);
             // **P896** — resolve centragem/numeração de equação de bloco
             // adiadas por `width: auto` (ver `equation.rs`), agora que
             // `page_width`/`page_height` já estão finitos.

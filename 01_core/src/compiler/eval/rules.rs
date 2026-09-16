@@ -1310,6 +1310,93 @@ pub(super) fn eval_set_rule(
     // P456: guarda o pattern string (não Bool) para formatar via format_counter,
     // análogo a figure.numbering (P454) e heading.numbering.pattern (P451).
     if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "par"
+            && fa.field().to_untyped().text_str() == "line"
+        {
+            use crate::entities::layout_types::{Align2D, HAlign};
+
+            for arg in set.args().items() {
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        target_span,
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                let span = named.expr().span();
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                match key {
+                    "numbering" => {
+                        if !matches!(&value, Value::Str(_) | Value::None) {
+                            return Err(vec![type_mismatch(
+                                "string or none",
+                                &value,
+                                span,
+                            )]);
+                        }
+                    }
+                    "number-align" => match &value {
+                        Value::Auto => {}
+                        Value::Align(Align2D { h: Some(_), v: None }) => {}
+                        _ => {
+                            return Err(vec![type_mismatch(
+                                "horizontal alignment or auto",
+                                &value,
+                                span,
+                            )]);
+                        }
+                    },
+                    "number-margin" => match &value {
+                        Value::Align(Align2D {
+                            h:
+                                Some(
+                                    HAlign::Left
+                                    | HAlign::Right
+                                    | HAlign::Start
+                                    | HAlign::End,
+                                ),
+                            v: None,
+                        }) => {}
+                        _ => {
+                            return Err(vec![type_mismatch(
+                                "left, right, start, or end",
+                                &value,
+                                span,
+                            )]);
+                        }
+                    },
+                    "number-clearance" => {
+                        if !matches!(&value, Value::Length(_) | Value::Auto) {
+                            return Err(vec![type_mismatch(
+                                "length or auto",
+                                &value,
+                                span,
+                            )]);
+                        }
+                    }
+                    "numbering-scope" => match &value {
+                        Value::Str(scope)
+                            if matches!(scope.as_str(), "document" | "page") => {}
+                        Value::Str(_) => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                "expected \"document\" or \"page\"",
+                            )]);
+                        }
+                        _ => return Err(vec![type_mismatch("string", &value, span)]),
+                    },
+                    _ => {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            format!("unexpected argument: {key}"),
+                        )]);
+                    }
+                }
+                *engine.styles =
+                    engine.styles.push_custom(format!("par.line.{key}"), value);
+            }
+            return Ok(Value::None);
+        }
         if fa.target().to_untyped().text_str() == "outline"
             && fa.field().to_untyped().text_str() == "entry"
         {

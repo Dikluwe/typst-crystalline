@@ -787,6 +787,80 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P576 — alinhamento de parágrafo RTL.
         self.align_current_line_rtl();
 
+        // P1414 — a ocorrência nasce somente depois de estabilizar wrap,
+        // paginação e baseline. Flushes vazios e subframes não consomem o
+        // contador privado do fluxo raiz.
+        if had_items && !self.is_sub_frame {
+            if let Some(crate::entities::value::Value::Str(pattern)) =
+                self.chain.custom("par.line.numbering")
+            {
+                let pattern = pattern.clone();
+                let page = self.current_page_number();
+                let page_scoped = matches!(
+                    self.chain.custom("par.line.numbering-scope"),
+                    Some(crate::entities::value::Value::Str(scope))
+                        if scope.as_str() == "page"
+                );
+                if page_scoped && self.par_line_page != Some(page) {
+                    self.par_line_counter = 0;
+                }
+                self.par_line_page = Some(page);
+                self.par_line_counter += 1;
+
+                if let Some(number) =
+                    format_counter(&[self.par_line_counter], pattern.as_str())
+                {
+                    use crate::entities::layout_types::{Align2D, HAlign};
+                    use crate::entities::value::Value;
+
+                    let style = TextStyle::from(&self.chain);
+                    let width = self.metrics.advance(&number, style.size, &style).0;
+                    let default_clearance = (0.026 * self.page_config.width)
+                        .clamp(0.75 * style.size.0, 2.5 * style.size.0);
+                    let clearance = match self.chain.custom("par.line.number-clearance") {
+                        Some(Value::Length(length)) => length.resolve_pt(style.size.0),
+                        _ => default_clearance,
+                    };
+                    let margin = match self.chain.custom("par.line.number-margin") {
+                        Some(Value::Align(Align2D {
+                            h: Some(HAlign::Right | HAlign::End),
+                            v: None,
+                        })) => HAlign::Right,
+                        _ => HAlign::Left,
+                    };
+                    let align = match self.chain.custom("par.line.number-align") {
+                        Some(Value::Align(Align2D { h: Some(h), v: None })) => *h,
+                        _ if margin == HAlign::Left => HAlign::Right,
+                        _ => HAlign::Left,
+                    };
+                    let slot_start = match margin {
+                        HAlign::Right => {
+                            self.page_config.width - self.page_config.margin.right
+                                + clearance
+                        }
+                        _ => self.regions.current.line_start_x.0 - clearance - width,
+                    };
+                    let x = match (margin, align) {
+                        (HAlign::Right, HAlign::Right | HAlign::End) => {
+                            slot_start - width
+                        }
+                        _ => slot_start,
+                    };
+                    if self.page_columns.is_none() {
+                        let index = self.regions.current.current_items.len()
+                            + self.regions.current.current_line.len();
+                        self.pending_par_line_numbering
+                            .push((index, width, margin, align));
+                    }
+                    self.regions.current.current_line.push(FrameItem::Text {
+                        pos: Point { x: Pt(x), y: self.regions.current.cursor_y },
+                        text: number.into(),
+                        style,
+                    });
+                }
+            }
+        }
+
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -910,6 +984,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let page_number = self.pages.len() + 1;
 
         let mut items = std::mem::take(&mut self.regions.current.current_items);
+        self.apply_pending_par_line_fixups(&mut items);
         // **P896** — resolve centragem/numeração de equação de bloco
         // adiadas por `width: auto` (ver `equation.rs`), agora que
         // `page_width`/`page_height` já estão finitos.

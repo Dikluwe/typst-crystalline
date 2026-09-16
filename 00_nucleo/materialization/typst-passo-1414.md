@@ -118,3 +118,49 @@ Os cinco casos válidos devem coincidir bilateralmente em texto extraído, exit
 e stderr; o constructor deve falhar com a mensagem pública vanila. A matriz
 P1409 termina `PASS` com `{MATCH: 6}`. Build, formatação, diff-check e linter
 passam nos limites, sem OOM ou swap.
+
+## Confirmação e materialização
+
+O contrato público acima foi commitado em
+`c50abf1ab16d1de29242036ab0cb08e66170b37b` e confirmado explicitamente pelo
+humano antes da escrita L1. A implementação materializou:
+
+- o namespace `par.line`, com representação `line` e constructor sempre
+  proibido;
+- os cinco campos settable validados no eval e transportados pela StyleChain;
+- contador privado documental/por página, incluído no checkpoint transacional;
+- emissão na margem após wrap, fitting de página, correção da baseline e
+  alinhamento da linha física;
+- ajuste diferido intrapágina pela maior largura efetivamente observada, para
+  que números de um e dois dígitos respeitem `number-align` bilateralmente;
+- isolamento de subframes e ausência de incremento em flush vazio.
+
+Callbacks de `numbering` e coordenação da última coluna continuam rejeitados e
+declarados para P1415; não foram absorvidos silenciosamente.
+
+## Verificação final e proveniência
+
+Medição final às `2026-09-15T22:00:32-03:00`, sobre o checkpoint
+`c50abf1ab16d1de29242036ab0cb08e66170b37b` mais a working tree não commitada
+formada pelos oito consumers L1 alterados e por
+`00_nucleo/diagnosticos/p1414-reprobe.json`.
+
+- build release definitivo limitado a 2 GiB/um job: `PASS` em 3 min 40 s;
+- cinco fixtures válidos: texto extraído bilateralmente idêntico;
+- constructor: ambos exit 1 e mensagem pública
+  `cannot be constructed manually`; somente a mecânica de apresentação da
+  localização difere entre os CLIs;
+- ataques: campo desconhecido, margem vertical e callback foram rejeitados;
+  uma sequência até `11` encontrou e depois confirmou a correção da largura
+  máxima para `number-align:left`;
+- focal definitivo: seis matches, máximo 40.396 KiB RSS, sem timeout/OOM;
+- re-sondagem P1409: 84 processos, `PASS`, `{MATCH: 6}`, ordem invariável,
+  máximo 43.192 KiB RSS e 0 KiB swap;
+- `cargo fmt --check`, `git diff --check` e `crystalline-lint .`: `PASS`;
+  o linter terminou com exit 0 e zero violações;
+- binário cristalino: SHA-256
+  `271ae0a93f77fad737debe856c9913688bacd7b6b4367c91308163e82ebc5df6`;
+- relatório: SHA-256
+  `1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba`.
+
+Regime Tekt: rehearsal completo, executado sem atestação de isolamento.

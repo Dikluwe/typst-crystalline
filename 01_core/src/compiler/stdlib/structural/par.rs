@@ -19,6 +19,19 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
+/// `par.line` is a settable element-like value, but cannot be constructed.
+///
+/// Line numbers are materialized by the physical line closer. Calling this
+/// function directly must therefore fail before producing any `Content`.
+pub fn native_par_line(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(Span::detached(), "cannot be constructed manually")])
+}
+
 /// `parbreak()` → marker de quebra de parágrafo já usado pela sintaxe markup.
 ///
 /// P1140.17 restaura somente a superfície chamável ratificada. A realização e

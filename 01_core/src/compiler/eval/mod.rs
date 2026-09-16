@@ -7343,6 +7343,7 @@ fn make_stdlib_with_features(
         native_pagebreak,
         native_panic,
         native_par,
+        native_par_line,
         native_parbreak,
         native_place,
         // P697 — builtin plugin (nível 2 de P696); P819 — transition.
@@ -7501,9 +7502,20 @@ fn make_stdlib_with_features(
             )),
         );
     }
-    // P806 — `par` invocável (achado #12 de P798; ver `stdlib/structural.md`
-    // §`native_par` para o scope do body-devolvido-directamente).
-    scope.define("par", Value::Func(Func::native("par", native_par)));
+    // P1414 — `par.line` é settable e introspectável, mas a construção manual
+    // falha. A numeração nasce no fechamento físico de linha no layout.
+    {
+        let mut par_namespace = Scope::new();
+        par_namespace.define("line", Value::Func(Func::native("line", native_par_line)));
+        scope.define(
+            "par",
+            Value::Func(Func::native_with_namespace(
+                "par",
+                native_par,
+                Arc::new(par_namespace),
+            )),
+        );
+    }
     // **P472** — lof() e lot() como aliases de outline(target: "figures"/"tables").
     scope.define("lof", Value::Func(Func::native("lof", native_lof)));
     scope.define("lot", Value::Func(Func::native("lot", native_lot)));

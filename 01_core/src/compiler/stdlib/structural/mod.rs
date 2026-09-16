@@ -56,7 +56,7 @@ pub use outline::{
     native_outline_entry_body, native_outline_entry_indented, native_outline_entry_inner,
     native_outline_entry_page, native_outline_entry_prefix,
 };
-pub use par::{native_par, native_parbreak};
+pub use par::{native_par, native_par_line, native_parbreak};
 pub use quote::native_quote;
 pub use table_grid::{
     native_grid_cell, native_grid_footer, native_grid_header, native_table,
