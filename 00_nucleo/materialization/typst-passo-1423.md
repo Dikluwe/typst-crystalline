@@ -40,6 +40,9 @@ compatibilidade no sentido do ADR-0127. Portanto:
 5. depois da confirmação, registrar aprovação no L0, derivar contrato,
    oráculos, ataques e testes segregados, selar e só então implementar.
 
+**Gate confirmado pelo dono em 2026-09-16.** A continuação deve usar o L0
+aprovado e não pode reabrir silenciosamente o recorte de 43 constructors.
+
 ## Objetivo após confirmação
 
 Sob `Feature::Html`, acrescentar exatamente os 43 bindings tipados definidos
@@ -94,4 +97,3 @@ medidas, as 43 rotas passam de `PARTIAL` para `MATCH`, `html.frame` permanece
 fora, todos os mutantes válidos são rejeitados, hashes selados permanecem
 íntegros e os gates arquiteturais passam. O veredito cobre apenas os 43
 constructors e não declara paridade geral de HTML.
-

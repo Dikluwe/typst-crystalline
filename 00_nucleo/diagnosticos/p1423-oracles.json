@@ -1,0 +1,150 @@
+{
+  "schema": "p1423-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1423,
+  "status": "candidate-oracles-unsealed",
+  "revision": "R0",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "/root/p1423_contract",
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "candidate_executed": false,
+    "verdict_emitted": false,
+    "write_allowlist": ["00_nucleo/diagnosticos/p1423-manifest.json", "00_nucleo/diagnosticos/p1423-contract.json", "00_nucleo/diagnosticos/p1423-oracles.json"]
+  },
+  "inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1423.md", "sha256": "6384aba49cf5a54af59e74b0438f6b9dbb76609d91f1e10ca8e281cb82524f05"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "d8df67c9f730efd3f110314dcf068deb644c35e5cbc2c8fffdfdc1eebab7d6dd"},
+    {"path": "00_nucleo/diagnosticos/p1423-manifest.json", "sha256": "09e1bffe6afb25f3b869a8d3bcd3c40e8dcfdec67365146402e139128f8087d7"},
+    {"path": "00_nucleo/diagnosticos/p1423-contract.json", "sha256": "2a25258b607c9a012e4d6df14d9e700c4d914e975e657456551e5974e218d8c1"},
+    {"path": "00_nucleo/diagnosticos/p1422-results.json", "sha256": "b6501f6d9778d6fb4dae0c3b5badd7c45d31c6ecc892f6eda75df31cec4d506b"},
+    {"path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/html/data.rs", "sha256": "593214ab0d92d12c9ef603a983958a432f46be278d805152d38a65818fb266b8"},
+    {"path": "lab/typst-original/crates/typst-html/src/typed.rs", "sha256": "b702bfe01ab81ab238a96bcbf93302bbd4eba9875c7d996354e89428f07c67f7"},
+    {"path": "lab/typst-original/crates/typst-html/src/tag.rs", "sha256": "d85ce3085af7cc31ba06931cfc9671b2c1029e26cdd46eb7a3c5d84c137c2cd0"}
+  ],
+  "derivation": {
+    "baseline_only": true,
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "typst_assets_revision": "94dcb990edb36311ef85162baa26e4a8205e0bf0",
+    "derived_at": "2026-09-16T13:05:59-03:00",
+    "candidate_used_as_expected_source": false,
+    "raw_directory": "/tmp/p1423-oracle-derivation"
+  },
+  "surface_oracle": {
+    "expected": "Preserved",
+    "count": 43,
+    "names": ["area", "audio", "base", "blockquote", "canvas", "caption", "colgroup", "data", "del", "details", "dialog", "embed", "fieldset", "form", "hr", "img", "input", "ins", "label", "link", "map", "meta", "meter", "object", "optgroup", "option", "output", "progress", "q", "script", "slot", "source", "style", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "time", "tr", "track"],
+    "canonical_sha256": "2ca5795d0e6b68d4c7d0f9e929635d6392e139fce773d40f8952cfd96f370b16",
+    "qualified_repr": "repr(html.NAME) == NAME",
+    "baseline_expected": "ABSENT for all 43 in crystalline P1422",
+    "candidate_expected": "MATCH against vanilla for all 43",
+    "frame_control": {"name": "html.frame", "crystalline_expected": "ABSENT", "must_not_be_constructed_as_tag": true}
+  },
+  "signature_oracle": {
+    "expected": "Preserved",
+    "void": {"count": 10, "names": ["area", "base", "embed", "hr", "img", "input", "link", "meta", "source", "track"], "body_parameter": false, "result_body": "Unset"},
+    "raw": {"count": 2, "names": ["script", "style"], "body_parameter": "optional positional str", "omission": "None"},
+    "content": {"count": 31, "canonical_sha256": "7155abaafcdb33598e24a47ecf6decd750a0130be0fd4dc2ed9350e475dd95b9", "body_parameter": "optional positional Content", "omission": "None"},
+    "specific_before_global_in_reflection": true,
+    "global_attribute_count": 76,
+    "specific_schema_source": "sealed contract attribute_contract and pinned data.rs",
+    "any_unobserved_signature": "Unknown(SIGNATURE_UNOBSERVED)"
+  },
+  "positive_dom_cases": [
+    {
+      "id": "P1423-DOM-VOID-IMG",
+      "source_utf8": "#html.img(src: \"x&y\", width: 3, ismap: true)\n",
+      "source_sha256": "701bfc7d98e947635882aad41363c4a34ce2596b6bb95adfb31c17eb07687773",
+      "vanilla": {"exit_code": 0, "artifact_bytes": 196, "artifact_sha256": "a1d78611046fca7fa6dae8777d56a260111327627ac30e543359c7b6442375a6", "body_html": "<p><img src=\"x&amp;y\" width=\"3\" ismap></p>"},
+      "proves": ["void DOM", "specific string/int/Presence casts", "attribute escaping", "Presence empty value"]
+    },
+    {
+      "id": "P1423-DOM-RAW-SCRIPT",
+      "source_utf8": "#html.script(\"if (a < b) x &= 1;\", defer: true)\n",
+      "source_sha256": "9c4fa9fd47d1e21f9f849a43bb72e20d8a0e6a9f3c96fdfd37849b7d223218ec",
+      "vanilla": {"exit_code": 0, "artifact_bytes": 195, "artifact_sha256": "38f6ae56b98a4bb28057b22ef1b87f45ac0ee737c6d6dcf94fd8d75855310d22", "body_html": "<script defer>if (a < b) x &= 1;</script>"},
+      "proves": ["raw str body", "raw text not HTML-escaped as Content", "Presence"]
+    },
+    {
+      "id": "P1423-DOM-CONTENT-BLOCKQUOTE",
+      "source_utf8": "#html.blockquote([A & B], cite: \"u&v\")\n",
+      "source_sha256": "b28ef566166a5b8d1119fa39c0e2c4b7e4b6b6dc575f031cb60605775896c0ee",
+      "vanilla": {"exit_code": 0, "artifact_bytes": 203, "artifact_sha256": "c097e4d0c36474f791cfc0a0db6b29a4f5d0956160217ff64ea73566af0d2e49", "body_html": "<blockquote cite=\"u&amp;v\">A &amp; B</blockquote>"},
+      "proves": ["Content body", "text escaping", "attribute escaping"]
+    },
+    {
+      "id": "P1423-DOM-LISTS-AREA",
+      "source_utf8": "#html.area(coords: (1, 2.5), ping: (\"a\", \"b\"), rel: (\"nofollow\", \"noopener\"), shape: \"rect\")\n",
+      "source_sha256": "f001eda89382ddabd0e998d5de6d32422cb029ccf3177f2d424439167af80dc0",
+      "vanilla": {"exit_code": 0, "artifact_bytes": 224, "artifact_sha256": "964763bcbba2133836c672c336cb9e9b38b91d5ed895eb7849809a541569ec57", "body_html": "<area coords=\"1, 2.5\" ping=\"a b\" rel=\"nofollow noopener\" shape=\"rect\">"},
+      "proves": ["comma list", "space list", "enum", "order preservation", "void tag"]
+    }
+  ],
+  "exhaustive_dom_oracle": {
+    "cases": 43,
+    "source": "P1422 qualified fixtures and vanilla expected projections restricted to the frozen 43 names",
+    "candidate_requirement": "qualified form must produce the same complete canonical DOM as vanilla",
+    "comparison": ["doctype", "tag names", "nesting", "text", "attribute names", "attribute order where publicly retained", "decoded values", "escaping lexemes where semantically observable"],
+    "route_transition": "qualified MATCH + alternative MATCH => route MATCH",
+    "orders": ["direct", "direct-repeat", "reverse"]
+  },
+  "cast_oracles": {
+    "exact_authority": "sealed contract cast_contract plus pinned typed.rs",
+    "required_positive_families": ["str", "signed int", "non-negative int", "positive int", "float", "positive float", "Presence true/false", "closed enum", "free-string union", "space list", "comma list", "scalar shorthand where declared", "datetime", "duration", "color", "icon-size", "image-candidate", "source-size"],
+    "required_negative_families": ["wrong scalar type", "enum outside set", "negative non-negative int", "zero positive int", "non-positive positive float", "list scalar without shorthand", "item containing separator", "invalid union", "unknown dict key", "missing image src", "empty/comma-edge image src", "both image width and density"],
+    "coverage_rule": "Each family requires at least one independent A/B test; special dicts require every listed negative branch. Missing evidence is Unknown(SIGNATURE_UNOBSERVED), not Preserved."
+  },
+  "negative_cases": [
+    {"id": "P1423-NEG-VOID-BODY", "source_utf8": "#html.img([x])\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "unexpected argument"},
+    {"id": "P1423-NEG-SECOND-BODY", "source_utf8": "#html.blockquote([a], [b])\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "unexpected argument"},
+    {"id": "P1423-NEG-CROSS-NAMED", "source_utf8": "#html.hr(src: \"x\")\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "unexpected argument: src"},
+    {"id": "P1423-NEG-ENUM", "source_utf8": "#html.area(shape: \"triangle\")\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "expected \"circle\", \"default\", \"poly\", or \"rect\""},
+    {"id": "P1423-NEG-POSITIVE-INT", "source_utf8": "#html.colgroup(span: 0)\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "number must be positive"},
+    {"id": "P1423-NEG-IMAGE-UNION", "source_utf8": "#html.img(srcset: ((src: \"x\", width: 2, density: 2.0),))\n", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "cannot specify both `width` and `density`"},
+    {"id": "P1423-NEG-FEATURE-OFF", "source_utf8": "#html.area\n", "argv": "compile --format html without --features html", "expected_exit": 1, "artifact": "absent", "diagnostic_contains": "html export is only available when `--features html` is passed"},
+    {"id": "P1423-NEG-FRAME-RESERVED", "construction": "crystalline module lookup html.frame with Feature::Html", "expected": "ABSENT", "vanilla_bilateral": false, "reason": "intentional P1424 reservation; treating it as tag is Violated"}
+  ],
+  "feature_and_target": {
+    "feature_off": "all 43 unavailable",
+    "feature_on_html": "all 43 available and exportable",
+    "feature_on_paged": "all 43 construct the same HtmlElem without target-dependent validation",
+    "target_difference_in_constructor": "Violated"
+  },
+  "opaque_cases": [
+    {"id": "P1423-OPAQUE-IDENTITY", "stimulus": "protected hash or binary identity differs", "expected": "Unknown(IDENTITY_MISMATCH or INPUT_HASH_MISMATCH)"},
+    {"id": "P1423-OPAQUE-SIGNATURE", "stimulus": "binding exists but reflected body/specific/global signature is unavailable", "expected": "Unknown(SIGNATURE_UNOBSERVED)"},
+    {"id": "P1423-OPAQUE-DOM", "stimulus": "artifact exists but DOM projection is incomplete", "expected": "Unknown(DOM_INCOMPLETE)"},
+    {"id": "P1423-OPAQUE-RESOURCE", "stimulus": "timeout, OOM, swap or truncation", "expected": "Unknown(resource-specific reason)"},
+    {"id": "P1423-OPAQUE-ORDER", "stimulus": "direct, direct-repeat and reverse differ", "expected": "Unknown(ORDER_DISAGREEMENT)"}
+  ],
+  "classification": {
+    "Preserved": "positive/signature/DOM expectation observed completely",
+    "Violated": "conclusive mismatch or negative case accepted",
+    "Unknown": "identity, signature, execution, DOM, resource or order evidence insufficient",
+    "route_match": "all 43 require qualified MATCH and alternative MATCH",
+    "unknown_never_success": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "positive_expected": "Preserved",
+    "negative_expected": "Violated",
+    "opaque_expected": "Unknown",
+    "minimum_families": ["binding", "frame exclusion", "body class", "casts", "enum/union/list", "special dictionaries", "feature", "target independence", "DOM/escaping", "Unknown promotion"],
+    "survivor_blocks_preseal_or_close": true
+  },
+  "transport": {
+    "html_argv": ["{binary}", "compile", "--features", "html", "--format", "html", "{input}", "{output}"],
+    "one_case_per_process": true,
+    "parallelism": 1,
+    "rayon_num_threads": 1,
+    "timeout_seconds": 15,
+    "rlimit_as_mib": 512,
+    "stream_limit_bytes_each": 65536,
+    "swap_must_equal_kib": 0,
+    "forbidden_tokens": ["--jobs", "eval --target"]
+  },
+  "claim_boundary": "These oracles cover only the 43 approved typed constructors and controls. They do not classify a candidate, include html.frame, or prove general HTML parity."
+}

@@ -646,7 +646,7 @@ fase. Refutam esta decisão qualquer aceitação das strings `"none"`/`"auto"`,
 rejeição dos valores `none`/`auto`, mudança de `"metadata"` ou efeito fora dos
 constructors P1293.
 
-## P1423 — 43 constructors tipados residuais (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1423 — 43 constructors tipados residuais (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -846,8 +846,5 @@ P1423 materializa somente estes 43 constructors. `html.frame` permanece
 ausente e será P1424; MathML, CSS, browser/network behavior e qualquer tag fora
 da tabela continuam fora.
 
-Esta secção é proposta de contrato público. Pelo ADR-0127, nenhuma alteração
-em L1, testes candidatos ou headers de linhagem pode ocorrer antes da
-confirmação explícita do dono. Após aprovação, o estado desta secção deve ser
-registrado como aprovado, selado pelo protocolo segregado e só então
-materializado.
+Esta secção foi confirmada explicitamente pelo dono em 2026-09-16. O contrato
+aprovado deve ser selado pelo protocolo segregado antes da materialização.

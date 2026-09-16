@@ -1,0 +1,44 @@
+{
+  "schema": "tekt-preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1423,
+  "status": "SEALED",
+  "verdict": "SEALED",
+  "attestation": "executado sem atestação de isolamento",
+  "causal_baseline": {
+    "head": "9922b7cf81c5eae0a442f58a2a66ebbd1c37d319",
+    "tree": "5ef9f5a8299d24dc0307704b7f422d4a7556b073",
+    "consumer_sha256": "9194006bd095b49a93c2c482ca8ffe290e596621f3c5b4dbe6a78049bb515d6c",
+    "red_result": "43/43 bindings P1423 absent from the baseline TYPED_TAGS dispatcher; html.frame also absent as the preserved P1424 control"
+  },
+  "reference_identity": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "typst_assets_commit": "94dcb990edb36311ef85162baa26e4a8205e0bf0",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_binary_before_sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860"
+  },
+  "sealed_inputs": {
+    "step": {"path": "00_nucleo/materialization/typst-passo-1423.md", "sha256": "6384aba49cf5a54af59e74b0438f6b9dbb76609d91f1e10ca8e281cb82524f05"},
+    "html_l0": {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "d8df67c9f730efd3f110314dcf068deb644c35e5cbc2c8fffdfdc1eebab7d6dd"},
+    "manifest": {"path": "00_nucleo/diagnosticos/p1423-manifest.json", "sha256": "09e1bffe6afb25f3b869a8d3bcd3c40e8dcfdec67365146402e139128f8087d7"},
+    "contract": {"path": "00_nucleo/diagnosticos/p1423-contract.json", "sha256": "2a25258b607c9a012e4d6df14d9e700c4d914e975e657456551e5974e218d8c1"},
+    "oracles": {"path": "00_nucleo/diagnosticos/p1423-oracles.json", "sha256": "e4e8632efd8c4f376fa90da47a3f18f508d6cf0e3f10610da47804c738b9f26c"},
+    "mutants": {"path": "00_nucleo/diagnosticos/p1423-mutants.json", "sha256": "9fa449cadbc2a6a3d9681ba8b90ae860e0c91b34d5409c4ea389076eb2e68fab"},
+    "independent_tests": {"path": "01_core/src/compiler/stdlib/html/p1423_tests.rs", "sha256": "02c208dae4765223bf1d94c0bef8b0224b3ec55b397651f86f5c7b047f114a52"}
+  },
+  "discriminatory_gate": {
+    "valid_negative": 26,
+    "violated": 26,
+    "positive": 5,
+    "preserved": 5,
+    "opaque": 6,
+    "unknown": 6,
+    "required_mutation_score": 1.0,
+    "result": "PASS"
+  },
+  "write_capability_after_seal": {
+    "implementer": ["01_core/src/compiler/stdlib/html.rs"],
+    "forbidden": ["sealed inputs", "independent tests", "L2-L4", "html.frame"]
+  },
+  "claim_boundary": "Sela somente os 43 constructors tipados HTML residuais; html.frame e paridade HTML geral permanecem fora."
+}

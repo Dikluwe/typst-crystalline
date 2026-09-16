@@ -1,0 +1,90 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1423",
+  "status": "candidate-manifest-unsealed",
+  "created_at": "2026-09-16T13:05:59-03:00",
+  "attestation": "executado sem atestação de isolamento",
+  "regime": {
+    "kind": "full",
+    "reason": "A adição de 43 funções públicas HTML, seus casts, diagnósticos e morfologia exige contrato, oráculos, ataques, testes A/B, implementação e veredito segregados.",
+    "isolation_attestation": false,
+    "seal_emitted": false,
+    "verdict_emitted": false,
+    "limitation": "Papéis compartilham workspace e contexto; hashes e allowlists registram causalidade, não isolamento técnico."
+  },
+  "causal_state": {
+    "p1422_product_head": "5b40e9b354e95fbb0195337512e26f1c8c0ab92b",
+    "p1422_product_tree": "9d56477e598613fd7869c1e5100743115c0c7a03",
+    "spec_commit_head": "9922b7cf81c5eae0a442f58a2a66ebbd1c37d319",
+    "spec_commit_tree": "5ef9f5a8299d24dc0307704b7f422d4a7556b073",
+    "working_tree_at_contract_start": "only approved P1423 step and owner L0 differ from spec commit",
+    "baseline_consumer_sha256_from_step": "9194006bd095b49a93c2c482ca8ffe290e596621f3c5b4dbe6a78049bb515d6c",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false
+  },
+  "protected_inputs": [
+    {"role": "obligation", "path": "00_nucleo/materialization/typst-passo-1423.md", "sha256": "6384aba49cf5a54af59e74b0438f6b9dbb76609d91f1e10ca8e281cb82524f05"},
+    {"role": "approved-owner-l0", "path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "d8df67c9f730efd3f110314dcf068deb644c35e5cbc2c8fffdfdc1eebab7d6dd"},
+    {"role": "approved-p1423-l0-section", "path": "00_nucleo/prompts/compiler/stdlib/html.md#P1423", "sha256": "4418673c22903fffe115cc97cb25fefb26c176f5862db9bf20f02d91d71c9200"},
+    {"role": "p1422-results", "path": "00_nucleo/diagnosticos/p1422-results.json", "sha256": "b6501f6d9778d6fb4dae0c3b5badd7c45d31c6ecc892f6eda75df31cec4d506b"},
+    {"role": "p1422-backlog", "path": "00_nucleo/diagnosticos/p1422-backlog.json", "sha256": "8b570bc05799daddc83182584dd4cd9289633a019779fd56c37d2431368584c8"},
+    {"role": "p1422-report", "path": "00_nucleo/diagnosticos/p1422-report.md", "sha256": "b25b392d2861eddca2b9f7ba4c8a49a75da8fc25b9a93719b39e33e47f2490f0"},
+    {"role": "p1422-verification", "path": "00_nucleo/diagnosticos/p1422-verification.json", "sha256": "1a937124da0b60b599fca1bb9fd107461617b8278d282a6216c2d36f445cdad5"},
+    {"role": "typst-assets-data", "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/html/data.rs", "sha256": "593214ab0d92d12c9ef603a983958a432f46be278d805152d38a65818fb266b8"},
+    {"role": "vanilla-typed-source", "path": "lab/typst-original/crates/typst-html/src/typed.rs", "sha256": "b702bfe01ab81ab238a96bcbf93302bbd4eba9875c7d996354e89428f07c67f7"},
+    {"role": "vanilla-tag-source", "path": "lab/typst-original/crates/typst-html/src/tag.rs", "sha256": "d85ce3085af7cc31ba06931cfc9671b2c1029e26cdd46eb7a3c5d84c137c2cd0"},
+    {"role": "vanilla-html-source", "path": "lab/typst-original/crates/typst-html/src/lib.rs", "sha256": "19b5eaeb859b0e96cdae1865192b2d64863d20cc5fa0aa74abf57316e3404407"}
+  ],
+  "identities": {
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": {"path": "lab/typst-original/target/release/typst", "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+    "typst_assets_revision": "94dcb990edb36311ef85162baa26e4a8205e0bf0",
+    "crystalline_baseline_binary": {"path": "target/release/typst", "sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860"}
+  },
+  "frozen_surface": {
+    "constructor_count": 43,
+    "names_canonical_sha256": "2ca5795d0e6b68d4c7d0f9e929635d6392e139fce773d40f8952cfd96f370b16",
+    "body_classes": {
+      "void_unset": {"count": 10, "canonical_sha256": "6f6967229744c6960d3f8c2e2dac9b633096bca36ef5250b4d79e0f7a8bdc4f9"},
+      "raw_optional_str": {"count": 2, "canonical_sha256": "71249f4ee1d770128c970edc56bdc051dab919ba2eb1e6de07ab4f331706cd1e"},
+      "content_optional": {"count": 31, "canonical_sha256": "7155abaafcdb33598e24a47ecf6decd750a0130be0fd4dc2ed9350e475dd95b9"}
+    },
+    "excluded": ["html.frame"],
+    "global_attributes": 76,
+    "specific_attributes_authority": "approved P1423 L0 section plus pinned typst-assets data",
+    "casts_authority": "approved P1423 L0 section plus pinned vanilla typed.rs"
+  },
+  "mandatory_observables": [
+    "exact 43 qualified bindings under Feature::Html and no html.frame",
+    "10 void, 2 raw and 31 content body signatures",
+    "76 global attributes plus only per-tag specifics",
+    "casts, omission, ordering and diagnostics",
+    "HtmlElem tag, attrs, body and reflected signature",
+    "HTML DOM tag, attributes, escaping, raw text and content body",
+    "feature-off rejection and target independence",
+    "direct, direct-repeat and reverse vectors"
+  ],
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "implicit_success_forbidden": true,
+    "mandatory_unknown_closes_as": "INCONCLUSIVE",
+    "reasons": ["INPUT_HASH_MISMATCH", "IDENTITY_MISMATCH", "AMBIGUOUS_IDENTITY", "SIGNATURE_UNOBSERVED", "TARGET_UNAVAILABLE", "TIMEOUT", "OOM", "NONZERO_SWAP", "OUTPUT_MISSING", "OUTPUT_TRUNCATED", "OUTPUT_UNREADABLE", "DOM_INCOMPLETE", "DIAGNOSTIC_UNREADABLE", "ORDER_DISAGREEMENT", "CALIBRATION_BUDGET_EXHAUSTED"]
+  },
+  "resource_policy": {"parallelism": 1, "rayon_num_threads": 1, "process_rlimit_as_kib": 524288, "per_process_timeout_seconds": 15, "max_stdout_bytes": 65536, "max_stderr_bytes": 65536, "swap_must_equal_kib": 0, "raw_outputs_directory": "/tmp"},
+  "commands": {
+    "tests": ["cargo test -p typst-core p1423_ -- --nocapture", "cargo build"],
+    "reprobe": "bilateral 43-route qualified reprobe in direct, direct-repeat and reverse",
+    "static": ["cargo fmt --all -- --check", "crystalline-lint .", "git diff --check"],
+    "forbidden": ["--jobs", "eval --target", "cargo test --workspace", "global rebuild before identity check"]
+  },
+  "role_capabilities": [
+    {"role": "contract-and-oracle-author", "executor": "/root/p1423_contract", "read_allowlist": ["P1423 step", "approved P1423 L0", "P1422 results/backlog/report/verification", "pinned vanilla and typst-assets sources/binaries"], "write_allowlist": ["p1423-manifest.json", "p1423-contract.json", "p1423-oracles.json"], "forbidden": ["candidate implementation", "candidate tests", "mutants", "preseal", "candidate results", "verdict"]},
+    {"role": "adversary", "write_allowlist": ["p1423-mutants.json"], "forbidden": ["candidate repair", "contract/oracle edits", "product", "verdict"]},
+    {"role": "A/B test author", "read_allowlist": ["sealed L0, contract and oracles"], "write_allowlist": ["independent P1423 tests"], "forbidden": ["candidate implementation", "sealed input edits", "verdict"]},
+    {"role": "implementer", "requires": "valid preseal", "write_allowlist": ["01_core/src/compiler/stdlib/html.rs and necessary internal adaptations/header"], "forbidden": ["sealed inputs", "independent tests", "expected edits", "verdict"]},
+    {"role": "verifier", "requires": "sealed inputs, A/B tests and candidate", "write_allowlist": ["P1423 receipts/report/verification only"], "forbidden": ["repair judged artifacts", "expected edits", "Unknown promotion"]}
+  ],
+  "invalidation": "Any protected input change after preseal invalidates the chain from the first affected phase.",
+  "claim_boundary": "P1423 covers only the 43 table-derived HTML constructors. It excludes html.frame and does not prove general HTML parity."
+}
