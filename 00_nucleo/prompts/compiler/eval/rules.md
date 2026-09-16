@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 2193c3cd
+Hash do Código: f4cc942c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -191,3 +191,23 @@ erro e nenhuma avaliação é descartada.
 `numbering: function` fica explicitamente para P1415 porque callback não pode
 ser executado no layout puro. P1414 não o aceita nem o converte em string. A
 ampliação pública aguarda confirmação humana explícita.
+
+## P1415 — captura de callback de `par.line` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `0a7de3dd9`, o branch de `par.line` rejeita `Value::Func` em
+`rules.rs:1330-1335`. O vanila ratificado aceita função unária e só revela erro
+de aridade quando a linha física é realizada. Executá-la durante o set perderia
+o número pós-wrap e a página causal.
+
+### Decisão proposta
+
+Ampliar exclusivamente a validação de `numbering` para
+`string | function | none`. Guardar o `Value::Func` intacto na StyleChain,
+preservando identidade e span. Eval não chama `apply_func`, não antecipa
+contador, não converte retorno e não fabrica marker. Campos e validações
+restantes conservam P1414.
+
+A execução tardia pertence ao contrato `infra/pipeline.md`; o layout puro só
+produz request. A ampliação pública aguarda confirmação humana explícita.

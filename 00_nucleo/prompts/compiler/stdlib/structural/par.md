@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/par` — `par` e `parbreak`
-Hash do Código: 7568a8bb
+Hash do Código: 13f7df60
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/par.rs`
@@ -118,3 +118,24 @@ com nome público curto. Nenhum `ParLineElem`, marker consultável ou variante d
 Os campos públicos da função são `numbering`, `number-align`, `number-margin`,
 `number-clearance` e `numbering-scope`. Sua semântica de set/layout pertence aos
 owners eval e Cursor. A adição pública aguarda confirmação humana explícita.
+
+## P1415 — `numbering` funcional (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanila ratificado declara `ParLine.numbering` como `Option<Numbering>` e
+documenta pattern ou função de um número em `model/par.rs:791-813`. Os oráculos
+P1415 confirmam retorno `Content`, retorno `none`, reinício por página e erro de
+aridade. P1414 aceita somente `string | none` e declarou este subconjunto
+incompleto.
+
+### Decisão proposta
+
+O campo público `numbering` aceita `string | function | none`. A função recebe
+exatamente o número lógico da linha confirmada e seu retorno segue a conversão
+canônica para conteúdo; conteúdo forte não é achatado para string. O owner não
+executa a função e não cria constructor manual: `par.line()` continua falhando
+com `cannot be constructed manually`.
+
+A realização pertence aos owners de eval, layout e pipeline. Esta ampliação de
+contrato público aguarda confirmação humana explícita.

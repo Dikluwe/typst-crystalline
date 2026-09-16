@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 5da1722f
+Hash do Código: bba27f45
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -383,3 +383,32 @@ checkpoint/rollback e sublayouts sem vazar contagem especulativa. Cursor é o
 único consumer e incrementa apenas depois de estabilizar uma linha com itens.
 Não criar counter público, marker em Content, segunda passagem ou estado
 global. A ampliação de comportamento padrão aguarda confirmação humana.
+
+## P1415 — transcript puro de callbacks de linha (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O Layouter P1414 conhece a linha física somente depois de wrap, fitting e
+baseline, mas L1 não possui nem pode possuir `Engine`. O precedente P1291 já
+separa medição pura e realização L3 por transcript selado. No baseline
+`0a7de3dd9`, a entry point callback-aware cobre apenas math.
+
+### Decisão proposta
+
+Generalizar a entry point explícita de passagem para receber stores seladas de
+math e de `par.line` e devolver um outcome combinado. O estado privado da
+tentativa registra requests de linha em ordem causal com `Func`, inteiro
+lógico, `StyleChain` e span; não executa a função nem conserva documento no
+outcome `Pending`. Resoluções contêm `Content` já realizado e são consumidas
+uma única vez pela mesma ocorrência na passagem seguinte.
+
+Tentativa interna rejeitada por TOC, replay ou fitting descarta seu transcript.
+`Complete` exige todos os stores consumidos e nenhum request novo. Divergência
+de ordem/quantidade devolve `Pending`, nunca documento parcial. Entry points
+compatíveis permanecem para árvores sem request e falham fechado ao encontrar
+callback que não possam realizar.
+
+O store é local à invocação, integra o ciclo já limitado de callbacks e não
+entra em `Content`, `Region`, `PagedDocument`, cache global ou introspector.
+Não há `Engine`, `World` ou `EvalContext` em L1. A nova passagem pública e a
+mudança de fase aguardam confirmação humana explícita.

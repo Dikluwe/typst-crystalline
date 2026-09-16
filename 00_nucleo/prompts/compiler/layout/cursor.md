@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: ba057688
+Hash do Código: 29971618
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -477,6 +477,33 @@ magnitude dos pesos.
 
 Esta regra acompanha a ampliação pública de P1408. O gate ADR-0127 foi
 confirmado pelo humano em 2026-09-15 antes da alteração do código.
+
+## Amendment-19 — consumo realizado e margem da última coluna P1415
+
+### Medição anterior à decisão
+
+No baseline `0a7de3dd9`, o Cursor só numera quando o valor é `Value::Str` e
+emite `FrameItem::Text` diretamente. A prova bilateral de duas colunas mostra
+que o vanila força a última coluna para `end`, enquanto o cristalino mantém os
+números `3` e `4` à esquerda. A fonte pinada decide isso depois de conhecer o
+índice físico da coluna.
+
+### Decisão proposta
+
+No mesmo ponto pós-estabilização de P1414, pattern continua imediato; função
+avança o contador exatamente uma vez e consulta a resolução selada da
+ocorrência. Na primeira passagem, ausência de resolução registra request com
+função, número, chain e span, sem inserir número provisório. Na passagem
+resolvida, o `Content` retornado é disposto em subframe marginal e alinhado à
+baseline causal; `none` produz frame vazio, mas a chamada e o contador existem.
+
+A maior largura de numeração é própria da região/coluna física. Com duas ou
+mais colunas, a última coluna usa sempre margem `end`; as anteriores respeitam
+`number-margin`. O contador continua documental ou por página segundo P1414 e
+não reinicia por coluna. Checkpoint/rollback não duplica request nem consumo.
+
+Cursor não chama `Func`, não converte `Content` em debug/texto e não guarda
+Engine. A realização e a passagem nova aguardam o gate ADR-0127 P1415.
 
 ## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
 

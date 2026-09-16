@@ -806,3 +806,36 @@ as fachadas existentes de introspecção e expansão contextual.
 Esta inclusão executa callbacks contextuais após a realização P1406 e altera a
 fronteira introspecção/realização/contexto/layout. Confirmação humana explícita
 recebida em 2026-09-15; a mudança de fase está autorizada conforme ADR-0127.
+
+## P1415 — realização de `par.line(numbering: function)` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `0a7de3dd9`, `layout_with_realized_math_callbacks` já executa o
+protocolo puro `Pending → realizar em L3 → repetir`, com teto oito, mas só para
+`cancel.angle`. O vanila chama o callback de `par.line` depois de conhecer cada
+linha física e passa um único inteiro; a fixture binária falha com
+`missing argument: b`. Eval antecipado e layout com Engine estão refutados.
+
+### Decisão proposta
+
+Substituir a coordenação exclusivamente math por coordenação combinada dos
+stores independentes de math e `par.line`. Cada candidato chama a entry point
+L1 combinada. Ao receber requests de linha, L3 constrói `Engine` com o
+`StyleChain` e span capturados, chama `apply_func` com exatamente
+`[Value::Int(number)]` e usa a conversão canônica `value_to_content`. Erro da
+closure, aridade ou conversão aborta sem documento exportável; warnings da
+chamada são preservados uma vez e em ordem.
+
+Resoluções completas formam store selada e uma nova passagem. Transcript novo,
+store parcialmente consumido ou requests de qualquer família ainda pendentes
+continuam o ciclo sob teto oito. Somente `Complete(PagedDocument)` alcança
+realização P1159, shaping ou export. Antes de cada relayout externo de page
+numbering, os stores são reconstruídos para o novo candidato; não são cacheados
+entre compilações.
+
+Math e linha partilham somente a orquestração e o orçamento: uma família não
+executa a outra nem altera sua chave. HTML permanece fora do layout paginado.
+Não mover `Engine` para L1, não reentrar eval a partir do Cursor e não devolver
+documento provisório. A nova fase e sua superfície pública aguardam confirmação
+humana explícita.
