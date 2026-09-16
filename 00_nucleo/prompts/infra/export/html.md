@@ -296,3 +296,24 @@ Compacto e pretty devem produzir o mesmo DOM ordenado e os mesmos escapes no
 modo selecionado. O formatador identifica o fim de tags respeitando aspas em
 atributos; `>` dentro de atributo não encerra token. Void, raw, erros e
 subset suportado permanecem iguais.
+
+## P1424 — slot de SVG inline resolvido (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla codifica `HtmlFrame` como nó SVG inline, sem escape textual e sem tag
+`frame`. O exporter cristalino recebe hoje apenas `Content` sem capacidade de
+layout; fazê-lo criar layout quebraria a separação L3 e duplicaria a pipeline.
+
+### Contrato proposto
+
+O exporter aceita, por entry point interna explícita, um resolvedor read-only
+de ocorrências `HtmlFrame`. Ao visitar uma ocorrência, insere exatamente o SVG
+validado fornecido pela pipeline como markup inline, preservando sua posição no
+DOM. `export_html*` sem resolvedor conserva a API e retorna diagnóstico
+explícito se receber frame não resolvido.
+
+O SVG não passa por escape HTML, não é embrulhado em `<p>` e é block-level por
+defeito. Texto/attrs HTML comuns, `html.elem("frame")`, modos de escaping e
+pretty externo permanecem inalterados. O exporter não chama layout, World nem
+filesystem. A nova integração de fase aguarda confirmação ADR-0127.

@@ -848,3 +848,28 @@ da tabela continuam fora.
 
 Esta secção foi confirmada explicitamente pelo dono em 2026-09-16. O contrato
 aprovado deve ser selado pelo protocolo segregado antes da materialização.
+
+## P1424 — primitiva `html.frame` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`typst-html/src/format.rs:268-281` define `FrameElem` separadamente da tabela
+tipada, com um único `body: Content` posicional e obrigatório. Sondas no
+vanilla ratificado mostram: ausência produz `missing argument: body`, forma
+named produz ``the argument `body` is positional`` e um segundo positional
+produz `unexpected argument`. A chamada válida gera SVG inline em HTML e é
+transparente no target paginado. `html.elem("frame")` continua tag literal.
+
+### Contrato público proposto
+
+Sob `Feature::Html`, acrescentar `frame` ao scope do módulo como função nativa
+distinta de `TYPED_TAGS`. Aceitar exatamente um Content posicional obrigatório,
+sem named, e produzir `Content::HtmlFrame` conforme os owners
+`entities/html.md` e `entities/content.md`. `repr(html.frame)` é `"frame"`.
+
+A construção preserva a primitiva; não a codifica como `HtmlElem`, tag
+sentinela, string SVG ou body simples. Target paged e HTML divergem no consumo,
+não na identidade construída. Feature off continua rejeitando o módulo.
+
+Esta adição é contrato público e compatibilidade. Nenhum código é autorizado
+antes da confirmação explícita do dono registrada no P1424.

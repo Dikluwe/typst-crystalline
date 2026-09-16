@@ -877,3 +877,27 @@ O caminho paginado preserva target `Paged`, markers e coordenação vigente. A
 mudança `eval → introspecção → expansão contextual → export HTML` é uma mudança
 de fase e aguarda confirmação humana explícita conforme ADR-0127 antes de
 qualquer código.
+
+## P1424 — resolução paginada localizada de `html.frame` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Depois de P1421, HTML segue `eval(Html) → introspecção → preparação contextual
+→ export`. A árvore pode preservar semântica, mas não existe fase capaz de
+converter uma ocorrência `HtmlFrame` em SVG. O vanilla faz essa conversão
+localmente com target interno paged, sem converter o documento HTML inteiro em
+`PagedDocument`.
+
+### Contrato proposto
+
+Inserir, somente quando a árvore preparada contém `Content::HtmlFrame`, a fase
+local `resolve_html_frames` entre preparação contextual e export. Ela percorre
+as ocorrências em ordem, conserva os estilos efetivos, chama a entry point
+intrínseca L1 com target paged, resolve fontes/imagens pelo World existente e
+fornece ao exporter o SVG inline correspondente. Ausência de frames mantém o
+caminho e bytes atuais.
+
+Não paginar o documento HTML inteiro, não trocar `EvalTarget::Html` da
+avaliação externa, não ativar feature implicitamente e não guardar SVG em L1.
+Falha de layout/render da ilha aborta a compilação; não apagar, substituir por
+texto ou emitir `<frame>`. A nova fase aguarda confirmação ADR-0127.

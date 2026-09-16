@@ -610,3 +610,27 @@ representação para translate no primeiro ponto e segmento relativo até o
 segundo. A geometria, stroke, fill, bbox e ordem de pintura não mudam. Paths
 fechados, cúbicos ou com outra cardinalidade continuam no emissor genérico.
 É correção de paridade interna sem API pública, default ou fase nova.
+
+## P1424 — variante SVG embutida em HTML (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O renderer standalone acrescenta canvas/fundo de página. O vanilla
+`svg_in_html` recebe um frame intrínseco e emite raiz SVG transparente com
+`viewBox`, dimensões pt e estilo proporcional ao tamanho de texto; usar o
+standalone como string e recortá-lo no exporter HTML perderia ownership e
+misturaria sintaxe com geometria.
+
+### Contrato proposto
+
+Adicionar entry point L3 reutilizando o renderer e contextos de fontes já
+existentes para produzir SVG inline de uma página/frame intrínseco: sem fundo
+de página, com `overflow: visible`, largura/altura físicas, `viewBox` coerente
+e `display: block` no recorte P1424. O fator em `em` deriva do tamanho de texto
+efetivo fornecido pela pipeline. A geometria, paint e texto usam os mesmos
+writers do SVG standalone; não duplicar desenho no exporter HTML.
+
+IDs internos, ordem mecânica de atributos e bytes não são paridade. São
+observáveis a presença de SVG inline, transparência, dimensões, viewBox,
+display e morfologia visual suportada. A nova entry point e integração
+aguardam confirmação ADR-0127.

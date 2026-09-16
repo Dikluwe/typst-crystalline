@@ -105,3 +105,29 @@ estado, implementação ou teste duplicado em HTML.
 
 O binding público `html` e o exporter permanecem sujeitos ao Núcleo pinado;
 esta entidade não ativa feature, target nem formato.
+
+## P1424 — carrier `HtmlFrameElem` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla ratificado mantém `FrameElem { body: Content }` separado de
+`HtmlElem`: frame não possui tag, attrs nem body triestatal e só adquire SVG
+depois do layout no target HTML. A entidade vigente não consegue preservar
+essa identidade sem falsificá-la como tag.
+
+### Contrato público proposto
+
+Adicionar entidade pública pura:
+
+```rust
+pub struct HtmlFrameElem {
+    pub body: Content,
+}
+```
+
+Clone/debug/igualdade preservam o body; construção não calcula layout, SVG,
+target ou estilos e não faz I/O. O carrier não reutiliza `HtmlBody`, não aceita
+attrs e não guarda bytes derivados. Sua única incorporação em Content pertence
+ao owner `entities/content.md`.
+
+Tipo e campo públicos exigem confirmação ADR-0127 antes do código.

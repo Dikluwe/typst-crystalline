@@ -3018,3 +3018,24 @@ a nova posição da expansão pertence ao owner L3 `infra/pipeline.md` P1411.
 
 Esta correção interna do walker integra a mudança de fase P1411 confirmada em
 2026-09-15 e não adiciona API pública.
+
+# P1424 — `Content::HtmlFrame` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`Content::HtmlElem` representa uma tag e portanto não pode conservar a
+morfologia da primitiva `html.frame`, que vira SVG em HTML e desaparece como
+wrapper no target paginado.
+
+### Contrato público proposto
+
+Adicionar `Content::HtmlFrame(Arc<HtmlFrameElem>)`. O enum fechado mantém
+dispatch estático e braços explícitos em repr, nome, plain-text, igualdade,
+hash quando aplicável, walkers e transformações. É contentor: `plain_text` e
+walkers descem em `body`; `map_content`/`map_text` reconstruem o carrier sem
+apagar a variante; `func()` identifica `frame`; `repr` expõe a morfologia
+`frame(body: ...)`, nunca `html.elem("frame")`.
+
+Layout paginado e pipeline HTML são consumers diferentes da mesma variante.
+Nenhum fallback pode convertê-la em Empty, HtmlElem ou body antes do consumer
+correto. Variante pública exige confirmação ADR-0127 antes do código.

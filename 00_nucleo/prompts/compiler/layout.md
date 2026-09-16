@@ -24,6 +24,30 @@ Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição f
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
 
+## P1424 — layout intrínseco de frame HTML (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `html.frame` é transparente em layout paginado
+(`typst-html/src/rules.rs:88-91`). Durante conversão HTML, seu body é relaid out
+sob target `Paged` numa região ilimitada e o frame resultante usa dimensões
+intrínsecas (`typst-html/src/convert.rs:140-154`). A entry point pública vigente
+produz `PagedDocument` com canvas/página e não representa este fragmento.
+
+### Contrato proposto
+
+O dispatcher exaustivo delega `Content::HtmlFrame(e)` a uma unidade
+descendente que, no caminho paginado ordinário, chama layout do `e.body` sem
+emitir wrapper nem alterar geometria. Para o caller L3 HTML, expor uma entry
+point pura de layout intrínseco que recebe body, estilos/metrics/sizer e devolve
+um frame/page transparente recortado ao conteúdo, sem margens, fundo, header,
+footer, numeração ou canvas A4.
+
+O layout interno observa target paged e conserva nesting: frame dentro de
+frame não cria uma segunda ilha. Erros e callbacks pendentes seguem os canais
+vigentes; não executar Func dentro do layouter nem importar L3. A assinatura
+pública nova e o novo braço aguardam confirmação ADR-0127.
+
 ## P1374 — parcela fracionária interna proposta
 
 ### Medição anterior à decisão
