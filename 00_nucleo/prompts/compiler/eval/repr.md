@@ -761,3 +761,19 @@ Uma `MathFrac` pública com `line=true` usa campos `num`, `denom` e, se
 presente, `style`, nessa ordem. Folhas math diretas usam a projeção Content
 vigente. Bits causais não aparecem. O reconhecimento canônico de `binom`
 continua prioritário para `line=false` e não ganha campo `style`.
+
+## P1429 — morfologia pública de acento (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime dois posicionais. O vanilla imprime campos `base` e
+`accent`, com o codepoint já normalizado, e acrescenta `size`/`dotless`
+somente quando explicitamente definidos, inclusive nos valores default.
+
+### Decisão proposta
+
+Imprimir `accent(base: <repr>, accent: <string escapada>)`, seguido por
+`size: <relative>` e `dotless: <bool>` na ordem canônica somente quando os
+respectivos bits de presença estiverem ativos. Cascata aplicada no layout não
+fabrica presença no elemento. Posição superior/inferior e dotless realizado
+não aparecem como campos derivados.

@@ -245,3 +245,24 @@ frame vanilla ✓.
 **Critério**: `dot(dot(x))` com os dois pontos em y distintos (distância pela
 fórmula ≈ 2.5pt a 11pt); `new_ascent` de acento simples = topo da tinta do
 acento (7.45pt para dot(x)); suite verde com os valores P922 actualizados.
+
+## P1429 — orientação, tamanho e dotless completos (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O layout P296/P922 assume sempre acento superior, base cramped e largura-alvo
+igual à base; os campos públicos `size` e `dotless` não existem. No vanilla,
+classe combining `Below` e `⏟`/`⎵`/`⏝`/`⏡` selecionam posição inferior;
+`size.resolve(base.width)` define o alvo de stretch com short-fall `0.5em`;
+somente acento superior usa cramped e dotless.
+
+### Decisão proposta
+
+`layout_accent` recebe o carrier completo e resolve efetivo por precedência
+elemento > StyleChain > default. No ramo superior, mantém attachment e
+`AccentBaseHeight`, aplica base cramped e realiza dotless em `i`/`j` sem
+alterar o conteúdo público. No ramo inferior, base não cramped, não dotless,
+attachment inferior e caixa abaixo da base. O alvo horizontal é o relativo
+resolvido contra a largura da base, respeitando short-fall; tamanho deixa de
+ser fixo em 100%. Testes devem distinguir orientação, 100%/150%, on/off e
+preservar os casos superiores P906/P922/P988.

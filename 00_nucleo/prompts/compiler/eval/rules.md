@@ -229,3 +229,17 @@ o consumer de layout faz a conversão total para `MathFracStyle`. Estilo
 explícito no elemento vence o cascaded; ausência em ambos usa vertical. Named
 inválido falha no set, não é ignorado. `binom` não consome esta propriedade
 porque não é uma `math.frac` pública no vanilla.
+
+## P1429 — propriedades settable de `math.accent` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O validador já reconhece `size` e `dotless`, mas os classifica como desligados
+e só avisa; nenhum valor chega à construção ou ao layout.
+
+### Decisão proposta
+
+Ligar ambos os pares em `MATH_SET_LIGADOS`. `size` aceita relative length e
+`dotless` aceita boolean, guardados em chaves canônicas da `StyleChain`.
+Argumento explícito no elemento vence cascata; cascata vence defaults
+`100%`/`true`. Regras não alteram os bits morfológicos de presença do elemento.

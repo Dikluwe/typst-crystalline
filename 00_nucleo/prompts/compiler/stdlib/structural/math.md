@@ -421,3 +421,22 @@ primeiro `num`, depois `denom`; terceiro posicional é inesperado; `num:` e
 duplicado falham. `style` pode anteceder os posicionais, conserva explicitude
 inclusive para `vertical` e constrói o carrier completo P1427. Não aceitar nem
 ignorar argumentos fora desse contrato.
+
+## P1429 — binding público completo `math.accent` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+A nativa P296 existe mas não integra `make_math_module`, aceita conteúdo
+arbitrário no segundo slot e rejeita todo named. O vanilla ratificado exige
+dois posicionais, normaliza string/símbolo de um codepoint e aceita somente
+`size: Rel<Length>` e `dotless: bool`, defaults `100%` e `true`.
+
+### Decisão proposta
+
+Registrar `math.accent` e fazer a fronteira construir o carrier P1429. `base`
+converte string/none para conteúdo; `accent` aceita string de um codepoint ou
+content de símbolo único, aplica a tabela canônica de combining marks e
+rejeita qualquer outro conteúdo. Preservar presença independente de `size` e
+`dotless`, inclusive quando iguais aos defaults. Aridade, positional-only,
+named desconhecido, duplicado e cast inválido seguem os diagnósticos medidos;
+nenhum argumento pode ser truncado ou ignorado.

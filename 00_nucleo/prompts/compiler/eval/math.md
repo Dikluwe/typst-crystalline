@@ -358,3 +358,19 @@ carrier vertical, mas passa os dois bits `was_deparenthesized` do AST. Um par
 exterior removido é lembrado; um par interior remanescente continua conteúdo.
 Não filtrar named, não truncar posicionais e não fabricar Empty para aridade
 inválida.
+
+## P1429 — convergência das chamadas bare de acento (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Os wrappers `hat`/`tilde`/`dot`/`dot.double` constroem hoje o recorte P296 e
+descartam named. O vanilla encaminha os wrappers de símbolo para o mesmo
+elemento `AccentElem`, com codepoint canônico fixo e named `size`/`dotless`.
+
+### Decisão proposta
+
+`accent(...)` bare usa a mesma nativa e o mesmo parser de argumentos que
+`math.accent(...)`. Wrappers simbólicos exigem um base posicional, fixam o
+codepoint normalizado e aceitam somente `size`/`dotless`; convergem no carrier
+completo e preservam presença. Não duplicar normalização, casts ou política de
+diagnósticos dentro do parser math.

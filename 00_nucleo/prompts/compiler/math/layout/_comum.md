@@ -1470,3 +1470,12 @@ silencioso. Para `line=false`, despachar sempre ao stack sem
 barra e ignorar a propriedade de frac pública. Para `line=true`, despachar
 estaticamente a vertical, skewed ou horizontal. `apply_math_default` e
 `apply_math_style` preservam estilo opcional e os dois bits sem normalização.
+
+## P1429 — despacho e reconstrução de `MathAccent` (PROPOSTO; gate ADR-0127)
+
+`layout_node` delega estaticamente o carrier completo ao owner `accent.rs`.
+`apply_math_default` e `apply_math_style` transformam somente a base e
+reconstroem `accent`, `size`, `dotless` e presença sem perda; a transformação
+dotless é contextual ao layout superior e não contamina o conteúdo público.
+O helper de stretch recebe o alvo resolvido de `size` e short-fall `0.5em`;
+posição superior/inferior é derivada do codepoint normalizado.

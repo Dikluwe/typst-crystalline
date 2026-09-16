@@ -3062,3 +3062,20 @@ os dois bits de deparenthesization e `line`. Walkers, plain-text, igualdade,
 hash e transformações preservam todos os campos causais. O wrapper sem barra
 de `binom` continua `line=false`, sem estilo público e sem herdar set rule de
 `math.frac`.
+
+# P1429 — construção completa de `MathAccent` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O constructor P296 aceita `Content` arbitrário no acento e só transporta os
+dois filhos. Isso contradiz a identidade pública normalizada e apaga os dois
+campos opcionais observáveis.
+
+### Contrato público proposto
+
+Adicionar constructor completo que recebe `base`, `accent: char`, `size`,
+`dotless` e os bits de presença. Manter wrapper interno default para callsites
+que já possuem codepoint canônico, sem reintroduzir `Content` arbitrário como
+acento. Enum, walkers, igualdade, hash, debug, `plain_text` e todas as
+reconstruções preservam o carrier P1429. A fronteira de avaliação é a única
+dona de casts e normalização de entrada.

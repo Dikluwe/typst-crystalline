@@ -5,7 +5,8 @@ Hash do Código: 5c99c7dd
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
 partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
 P317). Comportamento idêntico ao braço atual do hub. Mecanismo vanilla:
-`AccentElem` minimal (P296; cosméticos `size`/`dotless` scope-out, inalterado).
+`AccentElem` minimal em P296; P1429 propõe fechar `size`, `dotless`,
+normalização e orientação (gate ADR-0127 pendente).
 
 ---
 
@@ -41,3 +42,22 @@ Construtor ergonómico: `Content::math_accent(base: Content, accent: Content)`.
 
 `plain_text` concat `base+accent`; `map_content` recurse ambos; `map_text`
 terminal; igualdade estrutural.
+
+## P1429 — carrier completo (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier P296 guarda o acento como `Content` e não consegue provar
+single-codepoint, orientação, tamanho, dotless nem presença explícita. O
+vanilla ratificado guarda um `Accent(char)` normalizado, `size` relativo com
+default `100%` e `dotless=true`.
+
+### Contrato público proposto
+
+`MathAccentElem` passa a guardar `base: Content`, `accent: char`,
+`size: Rel<Length>`, `dotless: bool` e `MathAccentExplicit { size, dotless }`.
+O tipo de presença é público, `Copy + Eq + Hash`; o elemento implementa
+`PartialEq`/`Hash` observacional incluindo valores e bits, com floats
+normalizados pelo padrão vigente dos carriers relativos. `map_content` desce
+somente em `base`; `map_text` continua terminal; `plain_text` concatena base e
+codepoint canônico. Toda reconstrução preserva valores e presença.
