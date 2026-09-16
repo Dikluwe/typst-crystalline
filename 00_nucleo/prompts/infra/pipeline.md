@@ -839,3 +839,41 @@ executa a outra nem altera sua chave. HTML permanece fora do layout paginado.
 Não mover `Engine` para L1, não reentrar eval a partir do Cursor e não devolver
 documento provisório. A nova fase e sua superfície pública aguardam confirmação
 humana explícita.
+
+## P1421 — expansão contextual no target HTML (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `ef33ba5204870646a7c4f3046d8b210d6cd8e8cf`, a fachada HTML
+executa `eval(target=html) → module.content → export_html`. Um
+`Content::ContextBlock` alcança diretamente o serializer e produz
+`HTML export does not yet support this content`. O caminho paginado já possui
+introspecção e expansão, mas o módulo de estabilização fixa o target de replay
+em `Paged` e conserva markers locatáveis necessários ao layout.
+
+O vanilla ratificado, sob `compile --features html --format html`, mede:
+
+- `#context assert.eq(target(), "html")` → exit 0, body vazio;
+- `#context target()` → `<body><p>html</p></body>`;
+- `#context [#html.elem("div")]` → `<body><div></div></body>`.
+
+### Decisão proposta
+
+Depois de eval HTML e antes do exporter, L3 constrói a topologia de
+introspecção do Content e delega ao owner privado de estabilização uma
+preparação HTML sem layout. O conteúdo preparado substitui ContextBlocks pelos
+resultados executados com `EvalTarget::Html` e features/full-error causais; a
+vista final entregue ao serializer não contém o marker locatável paginado.
+Warnings e erros das closures são anexados/devolvidos pelo canal existente.
+
+Esta fase não cria `PagedDocument`, positions ou PageStore, não chama layout,
+não entra no fixpoint paginado e não altera modo de serialização, pretty,
+feature gate ou assinatura pública das fachadas HTML. Leituras que exigem
+estabilidade paginada e qualquer ContextBlock residual continuam fail-closed;
+não são convertidos em vazio nem em sucesso. O exporter conserva o diagnóstico
+para conteúdo realmente fora do seu subset e não aprende a ignorar context.
+
+O caminho paginado preserva target `Paged`, markers e coordenação vigente. A
+mudança `eval → introspecção → expansão contextual → export HTML` é uma mudança
+de fase e aguarda confirmação humana explícita conforme ADR-0127 antes de
+qualquer código.

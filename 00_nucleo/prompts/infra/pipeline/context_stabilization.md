@@ -251,3 +251,39 @@ evento substituto.
 Não existe neste owner obrigação de módulo de observação, ledger, DTO ou hooks
 condicionados por `p1339_observation`. Instrumentação futura requer obrigação
 L0 própria e `cfg` formalizado em Cargo/check-cfg.
+
+## P1421 — preparação contextual HTML sem paginação (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `ef33ba5204870646a7c4f3046d8b210d6cd8e8cf`, `Session::execute`
+fixa `ctx.target = EvalTarget::Paged`; `prepare` pertence ao caminho paginado e
+pode coordenar layout/fixpoint. Sua substituição conserva cada marker
+`ContextBlock` antes do resultado para manter Location no layout. Nenhuma dessas
+três propriedades pode ser reutilizada sem distinção no target HTML.
+
+### Decisão proposta
+
+A sessão privada passa a conservar o `EvalTarget` causal recebido pelo caller.
+Todos os callers paginados fornecem `Paged` explicitamente e preservam o
+comportamento atual. Uma entry point privada, usada somente pela fachada HTML,
+fornece `Html`, as features efetivas e `full_error` causal, executa a passagem
+contextual sem criar documento paginado e devolve conteúdo mais warnings.
+
+Na preparação HTML, target/features não são defaults reconstruídos: a closure
+observa `target() == "html"` e conserva acesso ao módulo HTML habilitado. Depois
+da substituição, remover somente os markers `ContextBlock` mantidos para o
+layout paginado; seus resultados permanecem na posição causal. A remoção é uma
+vista terminal específica para serialização, não mudança na entidade, no walk
+ou na política paginada de Locations.
+
+Se a sessão detectar dependência cuja estabilidade exige páginas/positions,
+identidade ambígua, erro de closure ou marker residual depois da preparação,
+devolve Err e impede exportação. Não chamar o fixpoint/layout paginado para
+fabricar observabilidade HTML, não converter incapacidade em `Content::Empty` e
+não descartar warnings da execução efetivamente publicada.
+
+Contextos aninhados não são gate positivo de P1421, mas também não podem
+alcançar o serializer como sucesso. A mudança é uma fase nova do pipeline HTML
+e aguarda confirmação humana explícita pelo ADR-0127. Nenhuma assinatura
+pública muda; a entry point permanece privada ao módulo pai.
