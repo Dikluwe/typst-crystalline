@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash 96d31d89
+//! @prompt-hash 2a363edd
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -26,7 +26,7 @@ use crate::entities::layout_types::{FrameItem, Pt};
 use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
-use super::{FontMetrics, ImageSizer, Layouter};
+use super::{FontMetrics, ImageSizer, Layouter, SegmentedParLineOverlay};
 
 fn flow_block_spacing<M: FontMetrics, S: ImageSizer>(
     layouter: &Layouter<M, S>,
@@ -332,6 +332,11 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     // Guardar footnotes eventualmente pendentes do contexto exterior.
     let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
     let saved_par_line_column = layouter.segmented_par_line_column;
+    let saved_par_line_overlay = layouter.segmented_par_line_overlay;
+    let entry_par_line_counter = layouter.par_line_counter;
+    let entry_par_line_page = layouter.par_line_page;
+    let mut emitted_par_line_rows = 0usize;
+    let mut emitted_par_line_page = entry_par_line_page;
 
     for (idx, segment) in segments.iter().enumerate() {
         // Salvaguardar estado actual (os items da página principal ficam
@@ -353,6 +358,21 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.column_mode = true;
         layouter.segmented_par_line_column =
             page_columns.then_some((idx, column_x_offsets.len()));
+        if page_columns {
+            layouter.segmented_par_line_overlay = None;
+        } else {
+            // P1416 — regiões irmãs recomeçam no mesmo progresso lógico. O
+            // prefixo já materializado por uma irmã não gera item/callback;
+            // uma cauda maior continua a partir do inteiro documental certo.
+            layouter.par_line_counter = entry_par_line_counter;
+            layouter.par_line_page = entry_par_line_page;
+            layouter.segmented_par_line_overlay = Some(SegmentedParLineOverlay {
+                suppress_through: entry_par_line_counter + emitted_par_line_rows,
+                start_x_shift: column_x_offsets[0] - column_x_offsets[idx],
+                end_x_shift: column_x_offsets[column_x_offsets.len() - 1]
+                    - column_x_offsets[idx],
+            });
+        }
         layouter.column_origin_x = column_x_offsets[idx];
         // column_width no Layouter é a largura total da mini-página,
         // para que flush_pending_footnote_bodies use column_width - 2*margin
@@ -374,6 +394,13 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // sentinela e sem abrir outros contextos de `column_mode`.
         super::sequence::layout_segmented_region(layouter, segment);
         layouter.flush_line();
+        if !page_columns {
+            let rows = layouter.par_line_counter.saturating_sub(entry_par_line_counter);
+            if rows > emitted_par_line_rows {
+                emitted_par_line_rows = rows;
+                emitted_par_line_page = layouter.par_line_page;
+            }
+        }
         if page_columns {
             // Notas por coluna: flush imediato no fundo desta coluna.
             layouter.flush_pending_footnote_bodies(None);
@@ -442,6 +469,11 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     // Restaurar footnotes do contexto exterior.
     layouter.pending_footnote_bodies = saved_outer_footnotes;
     layouter.segmented_par_line_column = saved_par_line_column;
+    layouter.segmented_par_line_overlay = saved_par_line_overlay;
+    if !page_columns {
+        layouter.par_line_counter = entry_par_line_counter + emitted_par_line_rows;
+        layouter.par_line_page = emitted_par_line_page;
+    }
 
     // 7. Adicionar todos os items das colunas à página actual.
     layouter.regions.current.current_items.extend(all_column_items);

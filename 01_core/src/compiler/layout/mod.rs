@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 8f2fb685
+//! @prompt-hash 20787a08
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -272,6 +272,16 @@ fn par_line_requests_match(
     left.func == right.func
         && left.number == right.number
         && left.styles.collapse() == right.styles.collapse()
+}
+
+/// P1416 — coordenação escalar de uma linha transversal entre regiões irmãs
+/// de `#columns()` segmentado. As compensações são aplicadas antes da
+/// translação normal da coluna para alcançar os bordos externos do contentor.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct SegmentedParLineOverlay {
+    pub suppress_through: usize,
+    pub start_x_shift: f64,
+    pub end_x_shift: f64,
 }
 
 // ── Layouter ──────────────────────────────────────────────────────────────
@@ -619,6 +629,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Contexto exclusivo do modo segmentado, que não activa o mecanismo de
     /// overflow do fluxo contínuo mas ainda precisa identificar a última coluna.
     pub(super) segmented_par_line_column: Option<(usize, usize)>,
+    /// P1416 — prefixo transversal já emitido e deslocamentos até os bordos
+    /// externos de um contentor `#columns()` segmentado.
+    pub(super) segmented_par_line_overlay: Option<SegmentedParLineOverlay>,
     /// **P538c** — items já fechados de cada coluna da página actual.
     /// Só preenchido quando `page_columns` é `Some`.
     pub(super) column_page_items: Vec<Vec<FrameItem>>,
@@ -815,6 +828,7 @@ pub(super) struct FlowSuffixCheckpoint {
     page_columns: Option<usize>,
     current_column: usize,
     segmented_par_line_column: Option<(usize, usize)>,
+    segmented_par_line_overlay: Option<SegmentedParLineOverlay>,
     column_page_items_len: usize,
     column_page_item_lens: Vec<usize>,
     column_x_offsets_len: usize,
@@ -1109,6 +1123,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             page_columns: None,
             current_column: 0,
             segmented_par_line_column: None,
+            segmented_par_line_overlay: None,
             column_page_items: Vec::new(),
             column_x_offsets: Vec::new(),
             // P286 — collector inactivo por default; consumer P284 activa
@@ -1221,6 +1236,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             page_columns: self.page_columns,
             current_column: self.current_column,
             segmented_par_line_column: self.segmented_par_line_column,
+            segmented_par_line_overlay: self.segmented_par_line_overlay,
             column_page_items_len: self.column_page_items.len(),
             column_page_item_lens: self.column_page_items.iter().map(Vec::len).collect(),
             column_x_offsets_len: self.column_x_offsets.len(),
@@ -1327,6 +1343,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.page_columns = checkpoint.page_columns;
         self.current_column = checkpoint.current_column;
         self.segmented_par_line_column = checkpoint.segmented_par_line_column;
+        self.segmented_par_line_overlay = checkpoint.segmented_par_line_overlay;
         self.column_page_items.truncate(checkpoint.column_page_items_len);
         for (items, len) in self
             .column_page_items

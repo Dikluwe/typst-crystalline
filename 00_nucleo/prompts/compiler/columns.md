@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: 2e58e64d
+Hash do Código: e633d9cf
 
 
 **Camada**: L1  
@@ -413,3 +413,28 @@ confirmado pelo humano em 2026-09-15.
 Ao entrar no contentor, fechar também os fixups ainda pertencentes à região
 exterior antes de trocar seu buffer de items pelo buffer local de coluna. Uma
 entrada exterior nunca pode ser consumida contra índices de uma coluna irmã.
+
+## P1416 — coordenação transversal de `par.line` em contentor segmentado
+
+### Medição anterior à decisão
+
+No baseline `f4537577a`, `#columns(2)[left #colbreak() right]` faz cada região
+irmã consumir um número e produz `2 left + 3 right`; o vanila ratificado emite
+somente `2 left + right`. Três colunas continuam consumindo um único ordinal.
+Com duas linhas na primeira e três na segunda, o progresso observado é o
+máximo três, não a soma cinco. Primeira coluna vazia ainda posiciona o número
+no bordo exterior, e `number-margin:right` escolhe o bordo final do contentor.
+
+### Decisão interna
+
+Somente no modo segmentado de `#columns()` (`page_columns == false`), cada
+segmento recebe o mesmo snapshot de contador/página da entrada. O owner mantém
+um máximo escalar de ordinais já materializados: o segmento seguinte suprime
+esse prefixo e só permite que uma cauda maior emita novas ocorrências. Ao fim,
+o progresso conservado é `entrada + máximo`, nunca a soma das regiões irmãs.
+
+O contexto fornecido ao Cursor contém somente o limite absoluto já emitido e
+as compensações horizontais da coluna atual até os bordos inicial/final do
+contentor. Ele não contém callback, item, frame ou conteúdo e é restaurado ao
+sair. Colunas de página P1415 não recebem este contexto; modo contínuo,
+métricas verticais diferentes, RTL e columns aninhadas permanecem `Unknown`.

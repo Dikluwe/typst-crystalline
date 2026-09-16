@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 21e359b4
+Hash do Código: ae84f8fd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -507,6 +507,34 @@ translação deslocaria a última numeração para fora da página.
 
 Cursor não chama `Func`, não converte `Content` em debug/texto e não guarda
 Engine. A realização e a passagem nova aguardam o gate ADR-0127 P1415.
+
+## Amendment-20 — supressão transversal certificada P1416
+
+### Medição anterior à decisão
+
+Em segmentos irmãos uniformes de `#columns()`, o vanila conta cada ordinal
+transversal uma vez, inclusive quando o primeiro segmento está vazio ou uma
+coluna posterior tem linhas adicionais. O cristalino P1415 conta cada flush
+regional e soma as colunas. O callback reproduz a mesma duplicação.
+
+### Decisão interna
+
+Depois de avançar o contador físico, Cursor consulta um contexto privado
+instalado pelo owner de colunas. Se o inteiro está no prefixo já materializado,
+não cria pattern, request, item nem fixup; o fechamento da linha continua
+inalterado. Uma cauda nova segue exatamente o caminho P1414/P1415 e mantém o
+inteiro documental alcançado pelo snapshot comum.
+
+Para ocorrência emitida, o contexto fornece duas compensações escalares. A
+escolha já resolvida de `number-margin` aplica a compensação inicial ou final
+antes da translação normal da coluna, fazendo o número terminar no bordo
+externo do contentor. Cursor não conhece quantidade de colunas, `colbreak`,
+callback ou conteúdo irmão.
+
+O contexto não se aplica a colunas de página nem ao fluxo contínuo e integra o
+checkpoint privado do Layouter. Métricas verticais diferentes, RTL, nested
+columns e estilos locais divergentes permanecem `Unknown`; não inferir
+deduplicação geral por baseline a partir do recorte uniforme.
 
 ## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 184ee4c4
+//! @prompt-hash 63437e21
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -791,7 +791,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // wrap, paginação e baseline. Flushes vazios e subframes não consomem
         // o contador privado do fluxo raiz.
         if had_items && !self.is_sub_frame {
-            let numbering = self.chain.custom("par.line.numbering").cloned();
+            let mut numbering = self.chain.custom("par.line.numbering").cloned();
             if matches!(
                 numbering,
                 Some(
@@ -810,6 +810,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
                 self.par_line_page = Some(page);
                 self.par_line_counter += 1;
+                if self.segmented_par_line_overlay.is_some_and(|overlay| {
+                    self.par_line_counter <= overlay.suppress_through
+                }) {
+                    numbering = None;
+                }
 
                 enum RealizedLineNumber {
                     Pattern(String),
@@ -927,12 +932,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         }
                         _ => self.regions.current.line_start_x.0 - clearance - width,
                     };
-                    let x = match (margin, align) {
+                    let mut x = match (margin, align) {
                         (HAlign::Right, HAlign::Right | HAlign::End) => {
                             slot_start - width
                         }
                         _ => slot_start,
                     };
+                    if let Some(overlay) = self.segmented_par_line_overlay {
+                        x += if margin == HAlign::Right {
+                            overlay.end_x_shift
+                        } else {
+                            overlay.start_x_shift
+                        };
+                    }
                     let index = self.regions.current.current_items.len()
                         + self.regions.current.current_line.len();
                     let count = number_items.len();

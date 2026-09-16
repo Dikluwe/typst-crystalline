@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: bba27f45
+Hash do Código: 8b48d7e5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -412,3 +412,24 @@ O store é local à invocação, integra o ciclo já limitado de callbacks e nã
 entra em `Content`, `Region`, `PagedDocument`, cache global ou introspector.
 Não há `Engine`, `World` ou `EvalContext` em L1. A nova passagem pública e a
 mudança de fase aguardam confirmação humana explícita.
+
+## P1416 — contexto privado de ordinal transversal
+
+### Medição anterior à decisão
+
+O modo segmentado cria regiões irmãs independentes, mas P1415 conserva um
+único contador progressivo; por isso `#columns()` soma linhas das colunas em
+vez de contar o ordinal transversal uniforme observado no vanila.
+
+### Decisão interna
+
+Layouter pode manter um contexto opcional, privado e escalar com: limite
+absoluto de ordinais já emitidos e compensações horizontais até os bordos
+inicial/final do contentor. `columns.rs` instala/restaura o valor por segmento;
+Cursor somente consulta. O campo inicia ausente, participa do checkpoint e
+não entra em subframes sem instalação explícita.
+
+O contexto não guarda frames, páginas, callbacks ou vetores, não muda Region,
+entrypoint ou fase. Ele existe somente durante `#columns()` segmentado do
+recorte P1416; colunas de página e fluxo contínuo permanecem nos caminhos
+anteriores.
