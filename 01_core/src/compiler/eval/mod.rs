@@ -8039,6 +8039,9 @@ mod p1425_tests;
 #[cfg(test)]
 #[path = "p1426_tests.rs"]
 mod p1426_tests;
+#[cfg(test)]
+#[path = "p1427_tests.rs"]
+mod p1427_tests;
 /// Extrai o nome do contador de uma expressão `counter(key)`.
 // extract_counter_key e eval_counter_method extraídos para eval/bindings.rs (Passo 96.1).
 

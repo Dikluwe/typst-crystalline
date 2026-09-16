@@ -30,6 +30,9 @@ mod p1425_tests;
 #[cfg(test)]
 mod p1426_tests;
 
+#[cfg(test)]
+mod p1427_tests;
+
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
 /// Construtor puro compartilhado pela função pública e pelo modo math.

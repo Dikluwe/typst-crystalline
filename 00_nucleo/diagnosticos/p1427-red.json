@@ -1,0 +1,77 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1427,
+  "status": "red-confirmed",
+  "attestation": "executado sem atestação de isolamento",
+  "measured_at": "2026-09-16T18:12:44-03:00",
+  "executor": {
+    "authority": "agent:/root/p1427_adversary",
+    "roles": ["adversary", "independent_test_materializer"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "productive_rust_written": false,
+    "verdict_emitted": false
+  },
+  "baseline": {
+    "commit": "4723744d69ba0db9a7ff543e644464518439a282",
+    "tree_state": "working tree not committed; only four independent test files, four test-only L0s, three cfg(test)-only declarations, P1427 public artifacts and this receipt are present",
+    "tracked_diff_stat": "01_core/src/compiler/eval/mod.rs | 3 +++; 01_core/src/compiler/math/layout/mod.rs | 3 +++; 01_core/src/compiler/stdlib/structural/math.rs | 3 +++; 3 files changed, 9 insertions(+)"
+  },
+  "inputs": [
+    {"path":"00_nucleo/diagnosticos/p1427-manifest.json","sha256":"76ad02886b04b7001ab476cb416b8615400b288143da6e02220c1b0ae6b782e3"},
+    {"path":"00_nucleo/diagnosticos/p1427-contract.json","sha256":"9d356661c39d7ee70a092a2b17819d28e612fbb6073536518f74bdbbff177055"},
+    {"path":"00_nucleo/diagnosticos/p1427-oracles.json","sha256":"4081c8ddc409aa7703108e52bc641d609a6bf2478e21946953f99020329e5253"},
+    {"path":"00_nucleo/diagnosticos/p1427-mutants.json","sha256":"ed01ebe46f5a2c1e54372d7b044d56be805ce4fa5265257d6110471186827bd4"}
+  ],
+  "independent_tests": [
+    {"path":"01_core/src/compiler/stdlib/structural/math/p1427_tests.rs","sha256":"415a9d339e964814b66acea7b02ec6965fbcd72ddb82c33b1e2f733e964aff7f"},
+    {"path":"01_core/src/compiler/eval/p1427_tests.rs","sha256":"418779653fc5c963cfed62345444a8f28c05dcbc1fafc174ddbfdc9cf3943aef"},
+    {"path":"01_core/src/compiler/math/layout/p1427_tests.rs","sha256":"ae63c143ed47074b0f0aacf0a65103936f79eeda1953036a28debde8c4266906"},
+    {"path":"03_infra/tests/p1427_math_frac.rs","sha256":"708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7"}
+  ],
+  "calibration_revision": {
+    "revision": 1,
+    "hypothesis": "Direct layout and productive extraction observations eliminate plausible survivors M12, M13, M22, M24, M26 and M27.",
+    "delta_discriminatory": {
+      "M12": "explicit Vertical is now exercised under a Horizontal StyleChain cascade and must retain a horizontal fraction rule",
+      "M13": "style=None with no cascade must project identically to explicit Vertical",
+      "M22": "repr is now asserted on a direct carrier with both causal bits true",
+      "M24": "independent +100du perturbations of vertical and horizontal gaps must alter only their matching separation; 96/350 swap is rejected",
+      "M26": "FontBookMetrics extraction is exercised on NewCMMath plus independently zeroed horizontal and vertical table entries",
+      "M27": "line=false is laid out under Horizontal cascade and must remain vertically stacked without rule or slash"
+    },
+    "corrected_cases": 6,
+    "regressed_cases": 0,
+    "dominant_reason_code": "RED_APPROVED_PUBLIC_SURFACE_ABSENT",
+    "cost": {"focused_runs":2,"wall_time_seconds":19.57}
+  },
+  "runs": [
+    {
+      "command":"cargo test -p typst-core p1427_explicito_vertical_vence_cascade_horizontal -- --nocapture",
+      "exit_code":101,
+      "wall_time_seconds":19.29,
+      "classification":"Violated",
+      "witness":"52 compile errors; attributable witnesses include unresolved MathFracStyle, absent complete MathFrac fields, absent skewed gap constants and the new direct precedence/geometric probes. These are precisely the approved P1427 surface, not an unrelated harness failure.",
+      "mapped_cases":["P02-P05","P08-P09","P11-P23"],
+      "reason_code":"RED_APPROVED_PUBLIC_SURFACE_ABSENT"
+    },
+    {
+      "command":"cargo test -p typst-infra --test p1427_math_frac p1427_extrai_skewed_gaps_newcmath -- --nocapture",
+      "exit_code":101,
+      "wall_time_seconds":0.28,
+      "classification":"Violated",
+      "witness":"Compilation reaches the independent productive extractor and fails on exactly six absent MathConstants skewed-gap field reads: fixture 96/350 plus each independently present-zero control. Direct ttf-parser controls remain structurally available but cannot substitute this productive path.",
+      "mapped_cases":["P22-math-constants"],
+      "reason_code":"RED_PRODUCTIVE_EXTRACTION_FIELDS_ABSENT"
+    }
+  ],
+  "red_conclusion": {
+    "result":"RED",
+    "attributable":true,
+    "productive_candidate_admitted":false,
+    "mutation_score":null,
+    "note":"This receipt proves only that the independent suite rejects the frozen baseline before productive implementation. It does not classify a candidate, run mutations, seal inputs or emit a final verdict."
+  },
+  "unknown_policy":"Unknown never counts as RED success or mutation kill. Neither run was Unknown: both completed with attributable witnesses."
+}
