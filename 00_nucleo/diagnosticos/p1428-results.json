@@ -1,0 +1,67 @@
+{
+  "schema": "p1428-results/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1428,
+  "revision": "R3-final",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict": "PASS",
+  "head": "d626d530b86d92e4001203b5d0e3267cd85b86c2",
+  "head_tree": "9ecbfe69bc9b8ba646e2648daeb56ed535787365",
+  "measured_at": "2026-09-16T19:51:05-03:00",
+  "working_tree_before_verifier_outputs": "clean",
+  "integrity": {
+    "seal_and_protected_hashes": "PASS",
+    "protected_inputs_checked": 12,
+    "productive_baseline_commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "productive_files_checked": 12,
+    "productive_files_byte_identical": 12,
+    "productive_changes_since_baseline": 0,
+    "frozen_p1427_public_test_sha256": "708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7",
+    "lineage_prompt_hash_prefix": "a8451345",
+    "lineage_header_hash_prefix": "a8451345"
+  },
+  "execution_orders": {
+    "fresh_processes": 3,
+    "forward": {"exit_code":0,"cases":17,"Preserved":13,"Unknown":4,"order":"P01,P02,P03,P04,P05,P06,P07,P08,C01,C02,C03,C04,C05,U02,U03,U04,U05"},
+    "forward_repeat": {"exit_code":0,"cases":17,"Preserved":13,"Unknown":4,"order":"P01,P02,P03,P04,P05,P06,P07,P08,C01,C02,C03,C04,C05,U02,U03,U04,U05"},
+    "reverse": {"exit_code":0,"cases":17,"Preserved":13,"Unknown":4,"order":"U05,U04,U03,U02,C05,C04,C03,C02,C01,P08,P07,P06,P05,P04,P03,P02,P01"},
+    "vectors_equal_by_id": true,
+    "reverse_is_exact_inverse": true,
+    "mandatory_unknown": 0,
+    "opaque_unknown": ["U02","U03","U04","U05"],
+    "unknown_credit": 0,
+    "result": "PASS"
+  },
+  "p1427_layout_conjunct": {
+    "command": "cargo test -q -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture",
+    "selected": 1,
+    "passed": 1,
+    "failed": 0,
+    "exit_code": 0,
+    "result": "PASS"
+  },
+  "mutation_gate": {
+    "receipt": "00_nucleo/diagnosticos/p1428-final-mutation-results.json",
+    "fresh_processes": 12,
+    "valid": 12,
+    "violated": 12,
+    "unknown": 0,
+    "survived": 0,
+    "mutation_score": 1.0,
+    "result": "PASS"
+  },
+  "gates": {
+    "cargo_fmt_all_check": "PASS",
+    "cargo_build": "PASS",
+    "crystalline_lint": "PASS; exit 0, avisos e infos nao bloqueantes",
+    "git_diff_check_before_outputs": "PASS",
+    "git_status_before_outputs": "clean",
+    "v5_v15_v26": "CLEAR by exit-0 crystalline-lint"
+  },
+  "limitations": [
+    "O workspace e o contexto sao partilhados; nao ha atestacao tecnica de isolamento.",
+    "O PASS cobre apenas a recalibracao observavel P1428 do fragmento math.frac congelado em P1427.",
+    "Os quatro casos opacos declarados permanecem Unknown sem credito, como exigido.",
+    "Nao se afirma correcao geral de SVG, paridade matematica geral ou igualdade de bytes de render."
+  ]
+}

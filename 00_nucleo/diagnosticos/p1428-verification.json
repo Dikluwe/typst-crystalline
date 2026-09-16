@@ -1,0 +1,93 @@
+{
+  "schema": "p1428-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1428,
+  "revision": "R3-final",
+  "verdict": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "verifier": "/root/p1428_final_verifier",
+  "independence": {
+    "candidate_repaired": false,
+    "sealed_inputs_edited": false,
+    "productive_code_edited": false,
+    "contract_tests_mutants_or_seal_edited": false,
+    "allowed_outputs_only": true,
+    "environment": "shared workspace and inherited context; procedural capability separation, no isolation attestation"
+  },
+  "causal_state": {
+    "head": "d626d530b86d92e4001203b5d0e3267cd85b86c2",
+    "head_tree": "9ecbfe69bc9b8ba646e2648daeb56ed535787365",
+    "measured_at": "2026-09-16T19:51:05-03:00",
+    "working_tree_before_verifier_outputs": "clean",
+    "working_tree_after_verifier_outputs": "only the four authorized P1428 final receipts are untracked"
+  },
+  "sealed_chain": {
+    "step_sha256": "e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a",
+    "manifest_sha256": "0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b",
+    "contract_sha256": "d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313",
+    "oracles_sha256": "539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a",
+    "mutants_sha256": "4b4dd37d5f60e857859f2a23180976c96b73031eb6a13041dd6bac0facca92e1",
+    "mutation_results_sha256": "61669be1f48ed973f3afa01a83bb577e1182975e1856b7432280a1eee083a65c",
+    "order_results_sha256": "6f2b6fc0e51f47420b73f7e9d553488890df630a741b502dd280d782aba8b6ea",
+    "red_sha256": "e3220d6e817f6b8875c836f5de4eeaada06892641669a8633a5c60edbc4df7ec",
+    "test_l0_sha256": "a8451345662a76fed89966dd0efa4f9919c1256f0a3cf3a8b333fcfcdc8cc50f",
+    "independent_test_sha256": "d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f",
+    "preseal_r3_sha256": "f77b7bb77f97eefe1f69e2d46b40faa69689628b91e93182a8f65f192f94b0d3",
+    "seal_sha256": "090002d012e2dad1a13f051217c86ba7063350e60ae459fea892ffed6bd70a01",
+    "byte_integrity": "PASS"
+  },
+  "productive_identity": {
+    "baseline_commit": "22d7795d48786e590e12c1d6c02280673c657a8c",
+    "baseline_tree": "24a1bda05d4e19e54a05d121f77ef3f3345c3811",
+    "productive_files_declared": 12,
+    "productive_files_matching_manifest": 12,
+    "productive_files_matching_baseline_git_objects": 12,
+    "productive_diff_since_baseline": "empty",
+    "frozen_p1427_public_test_matching": true,
+    "p1428_lineage_matching": true,
+    "result": "PASS"
+  },
+  "execution": {
+    "commands": [
+      "env P1428_ORDER=forward cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+      "the same forward command in a second fresh process",
+      "env P1428_ORDER=reverse cargo test -q -p typst-infra --test p1428_math_frac p1428_runner_ordem_contrato -- --exact --nocapture",
+      "twelve distinct cargo test processes, each with exactly one P1428_MUTANT=M01 through M12 and its frozen focal test",
+      "cargo test -q -p typst-core p1427_horizontal_restaura_protecao_causal -- --nocapture",
+      "cargo fmt --all -- --check",
+      "cargo build",
+      "crystalline-lint .",
+      "git diff --check HEAD",
+      "git status --short"
+    ],
+    "orders": ["forward","forward_repeat","reverse"],
+    "fresh_runner_processes": 3,
+    "fresh_mutant_processes": 12,
+    "order_vectors_identical_by_id": true,
+    "reverse_is_exact_inverse": true
+  },
+  "evidence": {
+    "runner": "17/17 cases executed in each order: 13 mandatory/control cases Preserved and U02-U05 Unknown as declared",
+    "mandatory_unknown": 0,
+    "opaque_unknown": 4,
+    "unknown_never_success": true,
+    "p1427_layout_conjunct": "1 passed, 0 failed",
+    "mutations": "12/12 valid attacks rejected by attributable assertion witnesses in fresh processes",
+    "mutation_score": 1.0,
+    "mutation_unknown": 0,
+    "mutation_survivors": 0,
+    "cargo_fmt_check": "PASS",
+    "cargo_build": "PASS with pre-existing non-blocking warnings",
+    "crystalline_lint": "PASS, exit 0 with non-blocking warnings and infos",
+    "v5_v15_v26": "CLEAR by exit-0 linter gate",
+    "git_diff_check": "PASS",
+    "final_status": "only p1428-results.json, p1428-final-mutation-results.json, p1428-report.md and p1428-verification.json are untracked"
+  },
+  "blocking_findings": [],
+  "output_hashes": {
+    "p1428-final-mutation-results.json": "0bbc21ec870068d0256c9fec9585da1578e23b866567811fe1a6a2e2ee692b4e",
+    "p1428-results.json": "36d5b799332b8860f1b89f1e6f3d1ca1066084f69047f3e74364ee9a4e1bc9d2",
+    "p1428-report.md": "5cff8903019a88ba82671eb9b8c192b47db65c0c5ba865dfaab1007f549e11e5"
+  },
+  "claim_boundary": "PASS limitado a recalibracao observavel P1428 do fragmento math.frac P1427: repr semanticamente decodificado, carrier MathFrac unico, vetor de bits, conjunct horizontal e controles preservados. Nao atesta isolamento, correcao geral de SVG, paridade matematica geral ou igualdade de bytes de render."
+}

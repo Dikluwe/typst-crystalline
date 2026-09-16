@@ -1,0 +1,55 @@
+{
+  "schema": "p1428-final-mutation-results/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1428,
+  "revision": "R3-final",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": "/root/p1428_final_verifier",
+  "measured_at": "2026-09-16T19:51:05-03:00",
+  "verdict": "PASS",
+  "causal_state": {
+    "head": "d626d530b86d92e4001203b5d0e3267cd85b86c2",
+    "head_tree": "9ecbfe69bc9b8ba646e2648daeb56ed535787365",
+    "working_tree_before_verifier_outputs": "clean"
+  },
+  "sealed_inputs": {
+    "step_sha256": "e084331781e0d4ea1ea3204e9b2fcc9db6ee3a90364a8fa646dfe9d242eca93a",
+    "manifest_sha256": "0c8c2e4ba45900c52359956df85a745d8c537c3a29c513a75debd0e389cc2a0b",
+    "contract_sha256": "d2bce23baccf0677e63a87ca94d3a3b96fd3f0cce7fe567aa1565b585a8ec313",
+    "oracles_sha256": "539825153ef99df9c336335e5cb6683d8b373720cf2f8fe75b25d33b999d385a",
+    "mutants_sha256": "4b4dd37d5f60e857859f2a23180976c96b73031eb6a13041dd6bac0facca92e1",
+    "mutation_results_sha256": "61669be1f48ed973f3afa01a83bb577e1182975e1856b7432280a1eee083a65c",
+    "order_results_sha256": "6f2b6fc0e51f47420b73f7e9d553488890df630a741b502dd280d782aba8b6ea",
+    "red_sha256": "e3220d6e817f6b8875c836f5de4eeaada06892641669a8633a5c60edbc4df7ec",
+    "test_l0_sha256": "a8451345662a76fed89966dd0efa4f9919c1256f0a3cf3a8b333fcfcdc8cc50f",
+    "independent_test_sha256": "d64b7aee1f5838c2e612ec69f6e16f6a9434e690efb1bf07d0a2ae12a3c2325f",
+    "preseal_r3_sha256": "f77b7bb77f97eefe1f69e2d46b40faa69689628b91e93182a8f65f192f94b0d3",
+    "seal_sha256": "090002d012e2dad1a13f051217c86ba7063350e60ae459fea892ffed6bd70a01"
+  },
+  "fresh_process_rule": "Cada mutante foi executado por um cargo test distinto, com exatamente um P1428_MUTANT e sem reutilizar estado de processo.",
+  "mutations": [
+    {"id":"M01","test":"p1428_repr_compara_texto_html_decodificado","exit_code":101,"classification":"Violated","witness":"HTML cru reteve &quot; e nao conteve o fragmento semantico com aspas literais."},
+    {"id":"M02","test":"p1428_decoder_html_e_fail_closed","exit_code":101,"classification":"Violated","witness":"Ok(\"\\\"\") diferiu de Ok(\"&quot;\"), provando dupla decodificacao."},
+    {"id":"M03","test":"p1428_decoder_html_e_fail_closed","exit_code":101,"classification":"Violated","witness":"Texto sem markup retornou Ok em vez de Err(HtmlMarkup)."},
+    {"id":"M04","test":"p1428_decoder_html_e_fail_closed","exit_code":101,"classification":"Violated","witness":"Entidade desconhecida retornou Ok(\"?\") em vez de Err(HtmlEntity)."},
+    {"id":"M05","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","exit_code":101,"classification":"Violated","witness":"F10 observado por SVG resultou 00 em vez de 10."},
+    {"id":"M06","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","exit_code":101,"classification":"Violated","witness":"Zero carriers retornou Ok(00) em vez de Err(MathFracCardinality)."},
+    {"id":"M07","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","exit_code":101,"classification":"Violated","witness":"Dois carriers retornaram o primeiro 00 em vez de Err(MathFracCardinality)."},
+    {"id":"M08","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","exit_code":101,"classification":"Violated","witness":"F10 foi invertido para 01."},
+    {"id":"M09","test":"p1428_modulo_expoe_frac_unica_e_quatro_bits","exit_code":101,"classification":"Violated","witness":"A fonte principal indireta inferiu 00 enquanto o carrier avaliado era 11."},
+    {"id":"M10","test":"p1428_classificadores_conjuntivo_score_e_meta_gate","exit_code":101,"classification":"Violated","witness":"Bits Preserved com layout Unknown retornaram Preserved em vez de Unknown."},
+    {"id":"M11","test":"p1428_controles_rotas_diagnosticos_constantes_e_binom","exit_code":101,"classification":"Violated","witness":"A mascara obrigatoria foi 13 em vez de 15."},
+    {"id":"M12","test":"p1428_classificadores_conjuntivo_score_e_meta_gate","exit_code":101,"classification":"Violated","witness":"U01 e U06 receberam credito agregado 2 em vez de zero."}
+  ],
+  "gate": {
+    "valid_mutations": 12,
+    "violated": 12,
+    "unknown": 0,
+    "survived": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "unknown_credit": 0,
+    "result": "PASS"
+  },
+  "claim_boundary": "O score cobre somente os doze ataques congelados ao observador/classificador P1428; nao prova equivalencia funcional geral nem isolamento do workspace."
+}
