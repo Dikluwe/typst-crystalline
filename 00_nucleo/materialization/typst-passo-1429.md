@@ -137,5 +137,6 @@ dotless e regressão da geometria superior. Mutation score exigido: `1.0`;
 
 ## Confirmação do gate
 
-**PENDENTE.** Nenhum código produtivo de P1429 pode ser escrito antes da
-confirmação explícita do dono sobre este contrato.
+**Confirmado explicitamente pelo dono em 2026-09-16.** A materialização fica
+autorizada somente dentro do recorte completo de `math.accent` e dos oito L0
+proprietários atualizados; as outras 19 rotas math permanecem fora de escopo.

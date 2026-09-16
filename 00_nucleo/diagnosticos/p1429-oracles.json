@@ -1,0 +1,154 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1429,
+  "status": "candidate-oracles-unsealed",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1429_contract",
+    "roles": ["contract_author", "oracle_designer"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "candidate_executed": false,
+    "productive_code_written": false,
+    "test_code_written": false,
+    "verdict_emitted": false,
+    "causal_productive_baseline": "530bb5c4208ee82f815515d761517b818a949ee6",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1429-manifest.json",
+      "00_nucleo/diagnosticos/p1429-contract.json",
+      "00_nucleo/diagnosticos/p1429-oracles.json"
+    ]
+  },
+  "inputs": [
+    {"path": "00_nucleo/diagnosticos/p1429-manifest.json", "sha256": "3b1ee4d266cfdffb85f13555134c0b09dc36a7d89bd5f912d6eef101e0ca045a"},
+    {"path": "00_nucleo/diagnosticos/p1429-contract.json", "sha256": "99305a0f84ea13ad477702562d3aa032c67c9d9362f644ddb64389ae5f0a1e01"},
+    {"path": "00_nucleo/materialization/typst-passo-1429.md", "sha256": "ffccd6fce70ca43c4e071c0706767e060a94ec1ffbe6c758cf5d77a23f14825c"}
+  ],
+  "oracles": [
+    {
+      "id": "O1-public-binding-signature-normalization",
+      "expected": "Preserved",
+      "cases": ["P01-P12", "N01-N13"],
+      "required_test": "01_core/src/compiler/stdlib/structural/p1429_tests.rs",
+      "assertion": "Evaluate qualified calls through the real math module. Require exact carrier identity, positional/named discipline, base casts, relative-length/bool casts, independent presence and canonical accents U+0302/U+0303/U+0307/U+20D7. Invalid calls must expose their frozen attributable diagnostic fragments; error existence alone is insufficient."
+    },
+    {
+      "id": "O2-cascade-and-route-convergence",
+      "expected": "Preserved",
+      "cases": ["P13-P18", "N14-N18"],
+      "required_test": "01_core/src/compiler/stdlib/structural/p1429_tests.rs",
+      "assertion": "Observe qualified, bare and symbolic-wrapper carriers plus effective styled layout. Require explicit > cascade > default independently for size/dotless, no cascaded presence fabrication, fixed canonical wrapper accents, retained named arguments, and rejection of invalid set/wrapper calls."
+    },
+    {
+      "id": "O3-carrier-walkers-observation-repr",
+      "expected": "Preserved",
+      "cases": ["P02", "P08-P11", "P19-P20", "U02"],
+      "required_test": "01_core/src/entities/elements/p1429_math_accent_tests.rs",
+      "assertion": "Construct complete carriers directly, require exactly one attributable MathAccent, and discriminate each field and presence bit through equality/hash/observation. Walkers and reconstructions may transform only base; repr must use canonical field order and presence, never effective cascade or derived orientation. Zero/multiple/opaque carriers are Unknown."
+    },
+    {
+      "id": "O4-upper-lower-layout",
+      "expected": "Preserved",
+      "cases": ["P21", "P22", "P26", "U05"],
+      "required_test": "01_core/src/compiler/math/layout/p1429_tests.rs",
+      "assertion": "Inspect the attributed frame tree with frozen NewCMMath. Upper accents are above a cramped base using attachment and AccentBaseHeight; Below-class and four explicit bottom symbols are below an uncramped base. Lower accents retain the i/j dot. Ambiguous font, frame ownership or geometry is Unknown."
+    },
+    {
+      "id": "O5-relative-size",
+      "expected": "Preserved",
+      "cases": ["P13-P15", "P23", "U03", "U05"],
+      "required_test": "01_core/src/compiler/math/layout/p1429_tests.rs",
+      "assertion": "For one stretch-eligible arrow and identical base/font, measure the attributed accent fragment at effective 100% and 150%. Verify target resolution against base width and documented 0.5em short-fall; require a wider available result at 150%. Do not compare serialized bytes or demand mechanically exact target width."
+    },
+    {
+      "id": "O6-dotless-morphology",
+      "expected": "Preserved",
+      "cases": ["P13-P15", "P24-P26", "U04"],
+      "required_test": "01_core/src/compiler/math/layout/p1429_tests.rs",
+      "assertion": "Use attributable glyph/frame morphology for upper i and j with effective dotless true/false. True removes the base dot only for upper accents, false retains it, lower retains it in both modes, and the public carrier base remains unchanged. Inability to attribute glyph morphology is Unknown, not Preserved."
+    },
+    {
+      "id": "O7-upper-regression",
+      "expected": "Preserved",
+      "cases": ["P21"],
+      "required_test": "01_core/src/compiler/math/layout/p1429_tests.rs plus frozen P906/P922/P988 controls",
+      "assertion": "Simple and nested top accents retain the established attachment, baseline and distinct vertical ink positions within frozen tolerances. A new size/dotless branch cannot erase these controls."
+    },
+    {
+      "id": "O8-global-fail-closed",
+      "expected": "Unknown",
+      "cases": ["U01-U06"],
+      "required_test_or_harness": "P1429 verifier harness",
+      "assertion": "Protected identity drift, ambiguous cardinality/cascade/glyph/layout, unsupported extraction, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown and receives no acceptance or mutation credit."
+    }
+  ],
+  "expected_case_vector": {
+    "Preserved": ["P01-P26"],
+    "Violated": ["N01-N18"],
+    "Unknown": ["U01-U06"]
+  },
+  "classification": {
+    "Preserved": "all required P1429 observations and named conjuncts have attributable witnesses",
+    "Violated": "one or more required assertions mismatch with a named witness; negative cases are expected to reject the invalid fixture",
+    "Unknown": "identity, execution, parsing, extraction, dependency, opacity, cardinality or budget prevents a sound decision",
+    "unknown_never_success": true,
+    "unknown_never_kills_mutation": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "score_formula": "valid semantic mutations classified Violated / all valid semantic mutations",
+    "required_classes": [
+      "registration/signature",
+      "normalization/cast",
+      "presence/cascade",
+      "route convergence",
+      "carrier/walker/observation/repr",
+      "upper/lower orientation",
+      "relative size",
+      "dotless polarity and scope",
+      "Unknown credit"
+    ],
+    "all_valid_mutations_must_be_violated": true,
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "orders_require_identical_case_and_mutation_vectors": true,
+    "candidate_not_run_by_oracle_designer": true,
+    "status": "required-not-yet-executed"
+  },
+  "opaque_cases": [
+    {"id": "U01-identity-mismatch", "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"},
+    {"id": "U02-carrier-cardinality", "expected": "Unknown(UNKNOWN_MATHACCENT_CARDINALITY)"},
+    {"id": "U03-style-cascade-opacity", "expected": "Unknown(UNKNOWN_STYLE_CASCADE)"},
+    {"id": "U04-glyph-opacity", "expected": "Unknown(UNKNOWN_GLYPH_OBSERVATION)"},
+    {"id": "U05-layout-opacity", "expected": "Unknown(UNKNOWN_LAYOUT_OBSERVATION)"},
+    {"id": "U06-execution-or-budget", "expected": "Unknown(UNKNOWN_EXECUTION_OR_BUDGET)"}
+  ],
+  "calibration_budget": {
+    "wall_clock_minutes": 120,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 18,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 180,
+    "stop_rule": "Two consecutive revisions with the same classification vector and dominant cause, or no discriminatory gain, require architectural review; score 1.0 ends local oracle adjustment."
+  },
+  "test_materialization": {
+    "status": "required-but-not-written-by-this-authority",
+    "artifacts": [
+      "01_core/src/compiler/stdlib/structural/p1429_tests.rs",
+      "01_core/src/entities/elements/p1429_math_accent_tests.rs",
+      "01_core/src/compiler/math/layout/p1429_tests.rs"
+    ],
+    "red_requirement": "Before implementation, the independent suite must fail attributably on missing registration/full carrier, normalization and presence/cascade, plus lower/size/dotless geometry. Build-only failure or an unrelated regression is not an acceptable RED."
+  },
+  "commands_for_verifier": [
+    "cargo test -p typst-core p1429 -- --nocapture",
+    "repeat the focused command in a fresh process",
+    "run the focused test binaries in reverse suite order in fresh processes",
+    "cargo fmt --all -- --check",
+    "cargo build",
+    "crystalline-lint .",
+    "git diff --check"
+  ],
+  "claim_boundary": "These oracle designs cover only the approved P1429 math.accent fragment. They do not classify a candidate, emit a seal or verdict, prove general math parity, require render-byte equality, authorize productive changes or attest isolation."
+}

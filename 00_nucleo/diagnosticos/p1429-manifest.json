@@ -1,0 +1,126 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "authored_at": "2026-09-16T20:52:50-03:00",
+  "protocol": {
+    "version": "tekt-materializacao-segregada/1",
+    "regime": "full",
+    "attestation": "executed_without_isolation_attestation",
+    "invalidation": "Any byte change to a protected input, baseline identity, contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the seal from the first affected phase."
+  },
+  "artifacts": {
+    "manifest": "00_nucleo/diagnosticos/p1429-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1429-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1429-oracles.json",
+    "mutations": "00_nucleo/diagnosticos/p1429-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1429-seal.json"
+  },
+  "baseline": {
+    "commit": "530bb5c4208ee82f815515d761517b818a949ee6",
+    "approval_predecessor_commit": "530bb5c4208ee82f815515d761517b818a949ee6",
+    "tree": "274a57dc60fee4623559cad12bd5a1c588c8481b",
+    "productive_files": [
+      {"path": "01_core/src/compiler/stdlib/structural/math.rs", "sha256": "85aaed3f51fdac91562a1641a79a02118eb349ebfa0ddc416dccf7912f166e42"},
+      {"path": "01_core/src/compiler/eval/math.rs", "sha256": "12540b330e0d4c385f4420d23df62e92297fc0e027a92cf75708c04f51fffb61"},
+      {"path": "01_core/src/compiler/eval/repr.rs", "sha256": "a6d2dbca9a98f06a1b34393b5979521ab071f57ac3c20cc98692521bde35c3ba"},
+      {"path": "01_core/src/compiler/eval/rules.rs", "sha256": "2ce6863fca9510260362a26ef0f03d94d81a7ca98887d6e2093ccd8ea9ac7b04"},
+      {"path": "01_core/src/compiler/math/layout/mod.rs", "sha256": "263dd5e1f0459954b326eec2a55c7a9d33e18cd13b1259f8b44fd7abe9e3a5fd"},
+      {"path": "01_core/src/compiler/math/layout/accent.rs", "sha256": "8c6311089ed117e972d886b0d945a648630ea638d3c75d356bd9ed90dc81d3b0"},
+      {"path": "01_core/src/entities/content.rs", "sha256": "f3c96280958528706089f4c91c82b2a7f18840557c68a3e75efb2b3b6f5b139d"},
+      {"path": "01_core/src/entities/elements/math_accent.rs", "sha256": "f1d7c7c1a35cea279ff6c24592ed9723f02ea7d96abb0bf0fc8eb6bc5c767015"}
+    ]
+  },
+  "protected_inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1429.md", "sha256": "ffccd6fce70ca43c4e071c0706767e060a94ec1ffbe6c758cf5d77a23f14825c"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "sha256": "936f514cd2a1abf79047b00d6d30c64ace84ea784e7ba963e43ce74d40d57461"},
+    {"path": "00_nucleo/prompts/compiler/eval/math.md", "sha256": "84044c44cbcc5cc98ec9d4708f4b9b960ce197746134a13d80bbdbfbf9860474"},
+    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "3e1647a1eaacecde7cb8dde28ed9a9b125762771aca98b09b7f80bb53345bd15"},
+    {"path": "00_nucleo/prompts/compiler/eval/rules.md", "sha256": "47af8b856b65f39306c70ac2e1bbb08bda8820051251669d72b6e74d091f48d3"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/_comum.md", "sha256": "914c0422c4a8149474ac883d2db99887e533e2bf96ea583f50bd1abf81d1c504"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/accent.md", "sha256": "b62392085c167c24e27dec2d658e170fff1b020e1328a3f61433648325b3bdcf"},
+    {"path": "00_nucleo/prompts/entities/content.md", "sha256": "c4e6cd0f2e5db0d9c484050874c89908b824c99d793cb72fab1dfbbfe0cf4f22"},
+    {"path": "00_nucleo/prompts/entities/elements/math_accent.md", "sha256": "5d31fedbc95c13355cb063de3588a85cc995cb28ae0519fc0232670fb4c62896"}
+  ],
+  "reference_vanilla": {
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_path": "/usr/local/bin/typst",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "sources": [
+      {"path": "lab/typst-original/crates/typst-library/src/math/accent.rs", "sha256": "52c898c9bfa5f80a9ea72a212f44955e7df5a1e858224f038e9a06d8bc55d0e8"},
+      {"path": "lab/typst-original/crates/typst-layout/src/math/accent.rs", "sha256": "3c8e7260ce50cae8d24d62acedec307bd5c87464e5031caa98bb96ffde15fc0b"},
+      {"path": "lab/typst-original/crates/typst-eval/src/math.rs", "sha256": "4aad95925fbc3542fc5709ca4e053895e6aac4c6620195a305a07dab6a24bf7f"},
+      {"path": "03_infra/fixtures/fonts/NewCMMath-Book.otf", "sha256": "60346e6fc27773d96c3cc9d3ac8a550a85e3ca624437179bd7a88b4ca18f0a18"}
+    ]
+  },
+  "observables": [
+    "O-BINDING", "O-SIGNATURE", "O-NORMALIZATION", "O-EXPLICITNESS",
+    "O-SET-PRECEDENCE", "O-ROUTE-CONVERGENCE", "O-CARRIER", "O-WALKERS",
+    "O-OBSERVATION-RELATION", "O-REPR", "O-RECONSTRUCTION",
+    "O-LAYOUT-UPPER", "O-LAYOUT-LOWER", "O-SIZE", "O-DOTLESS",
+    "O-UPPER-REGRESSION", "O-FAIL-CLOSED"
+  ],
+  "execution_orders": [
+    {"id": "forward", "order": "contract case order in a fresh process"},
+    {"id": "forward_repeat", "order": "contract case order repeated in a second fresh process"},
+    {"id": "reverse", "order": "exact reverse of contract case order in a third fresh process"}
+  ],
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "rule": "Ambiguous binary, font, source or candidate identity; opaque carrier, parser, style cascade, glyph or layout construction; unsupported extractor; unreadable or truncated output; timeout; crash; OOM; swap; missing dependency; or exhausted budget is Unknown. Unknown never counts as Preserved, never increases mutation score, and blocks every mandatory case; it is expected only for explicitly opaque cases."
+  },
+  "budgets": {
+    "wall_clock_minutes": 120,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 18,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 180,
+    "stop_after_consecutive_revisions_without_discriminatory_gain": 2
+  },
+  "authorities": [
+    {
+      "role": "obligation_contract_and_oracle_author",
+      "executor": "agent:/root/p1429_contract",
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "context": "approved P1429 prompt, frozen baseline and public vanilla references; no candidate patch or tests",
+      "capabilities": {
+        "read_allowlist": ["approved P1429 step and its eight L0 owners", "ratified vanilla accent references and frozen font fixture", "baseline identity at 530bb5c42", "prior artifact shapes"],
+        "forbidden_reads": ["candidate implementation diffs", "candidate test diffs", "private implementer, adversary or verifier outputs"],
+        "write_allowlist": ["00_nucleo/diagnosticos/p1429-manifest.json", "00_nucleo/diagnosticos/p1429-contract.json", "00_nucleo/diagnosticos/p1429-oracles.json"]
+      }
+    },
+    {
+      "role": "adversary_and_independent_test_materializer",
+      "executor": "agent:/root/p1429_adversary",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["frozen manifest", "frozen contract", "frozen oracles", "protected inputs", "baseline"],
+        "forbidden_reads": ["candidate productive implementation diffs"],
+        "write_allowlist": ["00_nucleo/diagnosticos/p1429-mutants.json", "contract-listed test-only L0s", "contract-listed independent test files", "test-only module declarations", "00_nucleo/diagnosticos/p1429-red.json"]
+      }
+    },
+    {
+      "role": "implementer",
+      "executor": "agent:/root",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["sealed public P1429 artifacts", "approved L0s", "baseline"],
+        "forbidden_writes": ["manifest", "contract", "sealed oracles", "sealed mutations", "independent test assertions"],
+        "write_allowlist": ["the eight productive consumers", "mechanical repairs to existing MathAccent call sites", "lineage hashes of the eight owner L0s"]
+      }
+    },
+    {
+      "role": "verifier",
+      "executor": "agent:/root/p1429_verifier",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["sealed artifacts", "candidate implementation", "independent tests and command outputs"],
+        "forbidden_writes": ["artifacts under verification", "candidate implementation", "independent tests"],
+        "write_allowlist": ["P1429 receipts, mutation results, verification, report and verdict"]
+      }
+    }
+  ],
+  "claim_boundary": {
+    "attests": "Only the approved P1429 math.accent fragment: qualified and bare construction, symbolic wrappers, closed signature and casts, Unicode normalization, size/dotless explicitness and set precedence, complete carrier preservation, repr, upper/lower layout, relative size and upper-only dotless behavior.",
+    "does_not_attest": ["the other nineteen residual math routes", "general math parity", "render-byte equality", "Rust representation or operation order as language observables", "diagnostic spans or formatting outside measured fragments", "font behavior outside the frozen NewCMMath reference and declared fallbacks", "general OpenType feature support"]
+  }
+}
