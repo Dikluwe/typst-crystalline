@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: cec91e7f
+Hash do Código: 55219efb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -575,6 +575,26 @@ a drenagem equivalente.
 
 Callbacks continuam imediatos e nunca entram nessa cauda. Fora de contexto
 segmentado, P1414 permanece inalterado.
+
+## Amendment-23 — estilo ao fechar coluna vazia P1419
+
+### Medição anterior à decisão
+
+No baseline `3a3d16604`, a primeira coluna vazia não fornece candidata a
+P1418. A coluna seguinte passa então a doar a sua chain local, embora o vanila
+conserve o estilo ativo antes do `colbreak()`. No fluxo contínuo, Cursor ainda
+observa esse estilo no fechamento físico da coluna vazia.
+
+### Decisão interna
+
+Ao fechar uma coluna contínua, Cursor mantém a preferência P1418 pela chain da
+primeira candidata da coluna. Se a cauda está vazia e o estilo compartilhado
+ainda não foi capturado, guarda uma vez o `TextStyle` ativo antes de aplicar
+fixups, translação e avanço regional. Uma candidata posterior não substitui o
+snapshot.
+
+Contador, scope, deduplicação, margem e callbacks permanecem inalterados. O
+modo segmentado direto sem evento de fechamento vazio continua `Unknown`.
 
 ## P1414 — numeração no fechamento físico (PROPOSTO; gate ADR-0127)
 

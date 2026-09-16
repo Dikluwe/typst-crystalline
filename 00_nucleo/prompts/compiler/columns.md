@@ -489,3 +489,26 @@ A última coluna física força margem final conforme P1415. `#columns()` manté
 sua consolidação transversal P1417. Callbacks heterogêneos, primeira coluna
 sem candidata, estilo local de `par.line`, RTL e columns aninhadas permanecem
 `Unknown`.
+
+## P1419 — estilo compartilhado anterior à primeira candidata
+
+### Medição anterior à decisão
+
+No baseline `3a3d16604`, uma primeira coluna vazia faz P1418 capturar o estilo
+local da segunda candidata. O vanila conserva o estilo definido antes do
+`colbreak()`: 18 pt exteriores suprimem a baseline central de linhas locais de
+8 pt; 8 pt exteriores continuam visíveis como 8 pt junto a linhas de 18 pt.
+No fluxo contínuo, `close_current_column` ainda observa o estilo anterior ao
+evento mesmo quando a coluna não produziu candidata.
+
+### Decisão interna
+
+P1418 continua capturando a chain da primeira candidata quando ela existe. Se
+a primeira coluna física fecha sem candidata e o estilo ainda está ausente,
+`close_current_column` captura uma vez o `TextStyle` ativo antes da translação e
+do avanço regional. Candidata posterior não o substitui. O owner não percorre
+Content nem procura linha visível.
+
+Contador, scope, deduplicação, margem e callbacks não mudam. Body sem wrapper
+segmentado direto com primeira região vazia, configuração local de `par.line`,
+RTL e nested columns ficam `Unknown`.

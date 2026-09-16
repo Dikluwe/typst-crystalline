@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 5e46432b
+//! @prompt-hash a2c57f17
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1302,10 +1302,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.defer_segmented_par_line_patterns && self.page_columns.is_some() {
             let start = self.page_par_line_pattern_column_start;
             if self.page_par_line_pattern_style.is_none() {
-                self.page_par_line_pattern_style = self
-                    .pending_segmented_par_line_patterns
-                    .get(start)
-                    .map(|candidate| TextStyle::from(&candidate.styles));
+                self.page_par_line_pattern_style = Some(
+                    self.pending_segmented_par_line_patterns
+                        .get(start)
+                        .map(|candidate| TextStyle::from(&candidate.styles))
+                        .unwrap_or_else(|| self.style.clone()),
+                );
             }
             if let Some(number_style) = self.page_par_line_pattern_style.clone() {
                 let force_end_margin = self
