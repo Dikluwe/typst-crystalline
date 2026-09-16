@@ -1200,6 +1200,11 @@ fn materialize_time(
         // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
         // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
         // (L0 `f_fronteira_e1.md` §3a.7); em F-1 só existe em fixtures.
+        Content::HtmlFrame(e) => Content::HtmlFrame(Arc::new(
+            crate::entities::html::HtmlFrameElem {
+                body: materialize_time(&e.body, intr, location),
+            },
+        )),
         Content::Dynamic(_) | Content::HtmlElem(_) => content.clone(),
     }
 }
@@ -1602,6 +1607,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         Content::Equation(_) => UnreferencableKind::EquationWithoutNumbering,
         Content::Styled(child, _) => classify_unreferencable_body(child),
         Content::PageRun(e) => classify_unreferencable_body(&e.body),
+        Content::HtmlFrame(e) => classify_unreferencable_body(&e.body),
         Content::Sequence(seq) => {
             for child in seq.iter() {
                 let kind = classify_unreferencable_body(child);
@@ -1875,6 +1881,16 @@ pub(crate) fn walk(
             label_from_parent,
         ),
         Content::PageRun(e) => walk(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            label_from_parent,
+        ),
+        Content::HtmlFrame(e) => walk(
             &e.body,
             locator,
             tags,

@@ -221,7 +221,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Asset { .. }
         | Content::PdfAttach(_)
         | Content::PdfArtifact(_)
-        | Content::HtmlElem(_) => false,
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_) => false,
     }
 }
 

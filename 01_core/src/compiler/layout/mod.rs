@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash d8cabccf
+//! @prompt-hash 93755554
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -84,6 +84,7 @@ mod stack;
 mod columns;
 mod curve;
 mod heading;
+mod html_frame;
 mod shape;
 mod tiling;
 mod title;
@@ -1789,6 +1790,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P863: parágrafo é transparente para layout.
             Content::Par { body } => self.layout_content(body),
 
+            Content::HtmlFrame(e) => html_frame::layout(self, e),
+
             // Lote F-3 (DEBT C2 fechado): layout **default** do elemento de
             // utilizador (fronteira E1). Renderiza o campo `body` (se o elemento
             // o expõe via `get_field`) ou, em fallback, o `plain_text`. Um
@@ -3198,6 +3201,16 @@ pub fn measure_content_real(
     };
 
     (width, height)
+}
+
+/// Layouta uma ocorrência de `html.frame` como fragmento paginado intrínseco.
+pub fn layout_html_frame<M: FontMetrics, S: ImageSizer>(
+    elem: &crate::entities::html::HtmlFrameElem,
+    chain: &StyleChain,
+    metrics: M,
+    sizer: S,
+) -> Page {
+    html_frame::layout_intrinsic(elem, chain, metrics, sizer)
 }
 
 /// **P544** — entry point genérico que permite injectar métricas de fonte

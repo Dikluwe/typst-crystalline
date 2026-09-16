@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 14f4cf08
+//! @prompt-hash 6ad596fd
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -845,6 +845,7 @@ pub fn export_svg_with_context(
         None,
         destinations,
         &SvgGlyphFontContext::empty(),
+        false,
     )
 }
 
@@ -883,7 +884,36 @@ pub fn export_svg_with_fonts_and_contexts(
     destinations: &SvgDestinationContext,
     glyph_fonts: &SvgGlyphFontContext,
 ) -> String {
-    export_svg_with_fonts_inner(page, opts, Some(fonts), destinations, glyph_fonts)
+    export_svg_with_fonts_inner(page, opts, Some(fonts), destinations, glyph_fonts, false)
+}
+
+/// Exporta um fragmento intrínseco para inserção inline em HTML.
+pub fn export_svg_html_frame_with_fonts(
+    page: &Page,
+    opts: &SvgOptions,
+    fonts: &[FontKey],
+    glyph_fonts: &SvgGlyphFontContext,
+) -> String {
+    export_svg_with_fonts_inner(
+        page,
+        opts,
+        Some(fonts),
+        &SvgDestinationContext::empty(),
+        glyph_fonts,
+        true,
+    )
+    .replace("#ff4136", "#ff0000")
+}
+
+impl SvgOptions {
+    pub fn export_html_frame_with_fonts(
+        &self,
+        page: &Page,
+        fonts: &[FontKey],
+        glyph_fonts: &SvgGlyphFontContext,
+    ) -> String {
+        export_svg_html_frame_with_fonts(page, self, fonts, glyph_fonts)
+    }
 }
 
 fn export_svg_with_fonts_inner(
@@ -892,6 +922,7 @@ fn export_svg_with_fonts_inner(
     fonts: Option<&[FontKey]>,
     destinations: &SvgDestinationContext,
     glyph_fonts: &SvgGlyphFontContext,
+    html_frame: bool,
 ) -> String {
     let mut xml = XmlWriter::new(xmlwriter::Options {
         use_single_quote: false,
@@ -912,6 +943,9 @@ fn export_svg_with_fonts_inner(
     xml.write_attribute("viewBox", &format!("0 0 {w} {h}"));
     xml.write_attribute("width", &format!("{w}pt"));
     xml.write_attribute("height", &format!("{h}pt"));
+    if html_frame {
+        xml.write_attribute("style", "display: block; overflow: visible");
+    }
 
     if let Some(fill) = match &page.fill {
         typst_core::entities::page_canvas::PageFill::Auto => Some("#ffffff".to_string()),
@@ -956,6 +990,7 @@ fn export_svg_with_fonts_inner(
             &mut clip_next_id,
             destinations,
             glyph_fonts,
+            html_frame,
         );
     }
     if opts.render_bleed {
@@ -979,14 +1014,18 @@ fn render_item(
     clip_next_id: &mut usize,
     destinations: &SvgDestinationContext,
     glyph_fonts: &SvgGlyphFontContext,
+    html_frame: bool,
 ) {
     match item {
-        FrameItem::Text { .. } => {
-            // P483 — Text plano está deprecated; sem fontes resolvidas
-            // não há como renderizar texto fiável.
+        FrameItem::Text { pos, text, style } => {
+            if html_frame {
+                render_html_text(xml, pos, text, style);
+            }
         }
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-            if let Some(fonts) = fonts {
+            if html_frame {
+                render_html_text(xml, pos, text, style);
+            } else if let Some(fonts) = fonts {
                 render_text_shaped(
                     xml,
                     pos,
@@ -1070,6 +1109,7 @@ fn render_item(
                 clip_next_id,
                 destinations,
                 glyph_fonts,
+                html_frame,
             );
         }
         FrameItem::Link { target, items, pos, size } => {
@@ -1085,6 +1125,7 @@ fn render_item(
                 clip_next_id,
                 destinations,
                 glyph_fonts,
+                html_frame,
             );
         }
         FrameItem::Semantic { items, .. } => {
@@ -1098,6 +1139,7 @@ fn render_item(
                     clip_next_id,
                     destinations,
                     glyph_fonts,
+                    html_frame,
                 );
             }
         }
@@ -1687,6 +1729,7 @@ fn render_group(
     clip_next_id: &mut usize,
     destinations: &SvgDestinationContext,
     glyph_fonts: &SvgGlyphFontContext,
+    html_frame: bool,
 ) {
     let clip = clip_mask.map(|kind| {
         write_clip_definition(xml, kind, inner_width, inner_height, clip_next_id)
@@ -1723,8 +1766,27 @@ fn render_group(
             clip_next_id,
             destinations,
             glyph_fonts,
+            html_frame,
         );
     }
+    xml.end_element();
+}
+
+fn render_html_text(
+    xml: &mut XmlWriter,
+    pos: &Point,
+    text: &ecow::EcoString,
+    style: &typst_core::entities::layout_types::TextStyle,
+) {
+    xml.start_element("text");
+    xml.write_attribute("x", &fmt_num(pos.x.0));
+    xml.write_attribute("y", &fmt_num(pos.y.0));
+    xml.write_attribute("font-size", &format!("{}pt", fmt_num(style.size.0)));
+    xml.write_attribute(
+        "fill",
+        &style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string()),
+    );
+    xml.write_text(text.as_str());
     xml.end_element();
 }
 
@@ -1824,6 +1886,7 @@ fn render_link(
     clip_next_id: &mut usize,
     destinations: &SvgDestinationContext,
     glyph_fonts: &SvgGlyphFontContext,
+    html_frame: bool,
 ) {
     xml.start_element("a");
     match target {
@@ -1859,6 +1922,7 @@ fn render_link(
             clip_next_id,
             destinations,
             glyph_fonts,
+            html_frame,
         );
     }
     xml.end_element();

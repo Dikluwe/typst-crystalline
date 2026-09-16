@@ -1,5 +1,5 @@
 # Prompt L0 — exportação HTML semântica
-Hash do Código: 5cd374df
+Hash do Código: 73bdeb50
 
 **Camada:** L3  
 **Ficheiro alvo:** `03_infra/src/export/html.rs`  

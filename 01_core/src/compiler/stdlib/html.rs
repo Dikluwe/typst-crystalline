@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 99bb2653
+//! @prompt-hash 9a579ae5
 //! @layer L1
 
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 #[cfg(test)]
 use crate::entities::html::{Feature, Features};
-use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem};
+use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem, HtmlFrameElem};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -27,13 +27,52 @@ use crate::entities::value::Value;
 #[path = "html/p1423_tests.rs"]
 mod p1423_tests;
 
+#[cfg(test)]
+#[path = "html/p1424_tests.rs"]
+mod p1424_tests;
+
 pub fn make_html_module() -> Module {
     let mut scope = Scope::new();
     scope.define("elem", Value::Func(Func::native("elem", native_html_elem)));
+    scope.define("frame", Value::Func(Func::native("frame", native_html_frame)));
     for (name, native) in TYPED_TAGS {
         scope.define(*name, Value::Func(Func::native(name, *native)));
     }
     Module::new("html", scope)
+}
+
+fn native_html_frame(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional",
+        )]);
+    }
+    if let Some((name, _)) = args.named.first() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let body = match args.items.as_slice() {
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body",
+            )])
+        }
+        [Value::Content(body)] => body.clone(),
+        [other] => return type_error(args.span, "content", other),
+        [_, ..] => {
+            return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")])
+        }
+    };
+    Ok(Value::Content(Content::HtmlFrame(Arc::new(HtmlFrameElem { body }))))
 }
 
 type NativeHtmlFunc = fn(

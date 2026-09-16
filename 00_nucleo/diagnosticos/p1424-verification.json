@@ -2,10 +2,10 @@
   "schema": "p1424-verification/v1",
   "protocol_version": "tekt-materializacao-segregada/1",
   "step": 1424,
-  "revision": "R3",
-  "verdict": "FAIL",
+  "revision": "R4",
+  "verdict": "PASS",
   "attestation": "executado sem atestação de isolamento",
-  "verifier": "/root/p1424_verifier",
+  "verifier": "/root/p1424_verifier_r4",
   "independence": {
     "candidate_repaired": false,
     "sealed_inputs_edited": false,
@@ -14,54 +14,74 @@
     "environment": "shared workspace; procedural capabilities, no isolation attestation"
   },
   "causal_state": {
-    "head": "58aa96da3fc485213c03801b53ee924da20e1dd3",
-    "tree": "1d0c374b64b77aa69a51391ba636d7327dc4660e",
-    "measured_at": "2026-09-16T14:59:55-03:00",
-    "working_tree": "uncommitted candidate plus four verifier receipts"
+    "head": "4e4654d4ceed0fb8d44e3b4c345b078f70cc9aa0",
+    "tree": "d1a8a1e394468f879ecf93de205a13426240d757",
+    "measured_at": "2026-09-16T15:22:31-03:00",
+    "working_tree": "uncommitted 28-path candidate plus four verifier receipts"
   },
   "sealed_chain": {
-    "manifest_sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3",
-    "contract_sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea",
-    "oracles_sha256": "89a0f97f4acb067ea41bcfa6e706007846dcc28c8a478656773b4179b4555caf",
-    "mutants_sha256": "b43787f18f8dc905cdc366afd704deeafc8ebbd0307bf1ff3919661489cec0b1",
-    "seal_sha256": "3209adc7b0f87ae2727b23fe00977f5d0204d87545796308ae344eec7df6902b",
+    "manifest_sha256": "ba1a9909d196c4e6d388343328863074a67d618664719b5b04f7cc96bcb705a0",
+    "contract_sha256": "f80e212bae5acad63f0cca396231468979dc183eeca7be289d545ad1afe29d21",
+    "oracles_sha256": "e24b3350b8568165d44e3c07297e58e22ae21410f004964295dd51cdd0347282",
+    "mutants_sha256": "9432b31db6d4cae187fd3d9c4c14686ed62be21db54ddd4860b6270916be9ff4",
+    "seal_sha256": "15c5287b9e7ad8b75932f751376d14975c230d9a2fcd2b2913c7ebf589235591",
     "core_test_l0_sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c",
-    "infra_test_l0_sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3",
+    "infra_test_l0_sha256": "835170aaedf2dfbdfd851503f982098d7069a57b4a3b130e28b9dc17910a156c",
     "core_tests_sha256": "27c9b1b49957a756dcb7695ef562337d8caa38fa2c8c219704a8ef523a9fc92b",
-    "infra_tests_sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101",
-    "byte_integrity": "PASS"
+    "infra_tests_sha256": "56ad53de8d0662942e630db68c64a55cccf8e1ff71ff760f2ca0a07f4f01fb4a",
+    "byte_integrity": "PASS",
+    "r3_predecessor_receipts_at_head": {
+      "verification_sha256": "322354294aa00064442741a09fd218089ecd1c85e800555e6c50963f6c4cd9f6",
+      "results_sha256": "872e9d643fadcbb3ab00d53e1c33b1a82af6f41c013107880a1ac0eed1ac5f6b",
+      "mutation_results_sha256": "9c4dc5bb4d86154fa324162981b8677453aff53232eb05ee33b8634a2e428fc5",
+      "report_sha256": "bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91",
+      "note": "These frozen R3 inputs matched at HEAD and were then replaced only because the R4 task expressly authorizes the same four paths as verifier outputs."
+    },
+    "allowed_lineage_rebind": "PASS; only Hash do Código metadata changed in the 14 declared owner L0 paths"
+  },
+  "execution": {
+    "commands": [
+      "cargo test -p typst-core p1424_ -- --nocapture",
+      "cargo test -p typst-infra --test p1424_html_frame -- --nocapture",
+      "the same two commands repeated in fresh processes",
+      "the seven sealed tests individually in exact reverse order",
+      "cargo test -p typst-infra export::html::tests -- --nocapture",
+      "cargo test -p typst-infra pipeline::tests -- --nocapture",
+      "cargo test -p typst-infra pipeline::tests::p1159_location_page_numbering_ve_func_no_relayout -- --exact --nocapture from a git archive of baseline 79c7a6d60",
+      "cargo fmt --all -- --check",
+      "cargo build",
+      "crystalline-lint .",
+      "git diff --check HEAD"
+    ],
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "order_vectors_identical": true
   },
   "evidence": {
     "core_focal": "3 passed, 0 failed in forward, repeat, and individual reverse order",
     "infra_focal": "4 passed, 0 failed in forward, repeat, and individual reverse order",
-    "html_regression": "17 passed, 0 failed",
-    "pipeline_regression": "60 passed, 1 pre-existing baseline-reproduced failure",
-    "mutations": "20/21 Violated; M20 survives identically in all three orders",
-    "positive_cases": "12/13 Preserved; mandatory P13 Violated",
+    "html_regression": "16 passed, 0 failed",
+    "pipeline_regression": "60 passed, 1 baseline-reproduced non-causal failure",
+    "baseline_non_causal": "p1159_location_page_numbering_ve_func_no_relayout fails at both candidate and causal baseline 79c7a6d60 with the same plain-text assertion",
+    "mutations": "21/21 Violated in all three orders; no survivor",
+    "positive_cases": "13/13 Preserved",
     "opaque_cases": "4/4 Unknown with zero credit",
-    "mutation_score": 0.9523809523809523,
+    "m20_p13": "PASS: unsupported html.elem-only frame body returns an explicit non-empty diagnostic through the public pipeline",
+    "m21": "PASS: unresolved direct export returns an explicit frame/resolver error",
+    "mutation_score": 1.0,
     "required_mutation_score": 1.0,
     "unknown_never_success": true,
     "cargo_build": "PASS",
     "cargo_fmt_check": "PASS",
-    "crystalline_lint": "PASS (exit 0)",
+    "crystalline_lint": "PASS (exit 0; warnings only)",
     "git_diff_check": "PASS",
-    "candidate_allowlist": "PASS",
+    "candidate_allowlist": "PASS: exactly 28 declared candidate paths",
     "lineage": "PASS according to crystalline-lint"
   },
-  "blocking_findings": [
-    {
-      "id": "P1424-BLOCK-001",
-      "case": "P13-unsupported-fails",
-      "mutation": "M20-unsupported-fallback-success",
-      "reason": "The sealed O7 test exercises unresolved direct export, not an unsupported body. The candidate silently no-ops Content::HtmlElem during paged island layout and returns a serializable Page, so the prohibited successful empty fallback survives.",
-      "required_action": "Invalidate and refine the affected oracle/contract chain, add an executable unsupported-body witness, implement explicit failure or Unknown, then rerun all three orders."
-    }
-  ],
+  "blocking_findings": [],
   "output_hashes": {
-    "p1424-mutation-results.json": "9c4dc5bb4d86154fa324162981b8677453aff53232eb05ee33b8634a2e428fc5",
-    "p1424-results.json": "872e9d643fadcbb3ab00d53e1c33b1a82af6f41c013107880a1ac0eed1ac5f6b",
-    "p1424-report.md": "bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91"
+    "p1424-mutation-results.json": "574f426051c7f4ac8cfdb229902af413a3c57194721ad48eb8a901f8c661b4ff",
+    "p1424-results.json": "e6c0df4de224fd8ad0240c8a30d75ad1337949783b86c9e580f21f5bea9bc8f7",
+    "p1424-report.md": "dd57823feeed1f5a12e544665c7ce73c1466bbebe97e3f4fb9a43cdb0d921d61"
   },
-  "claim_boundary": "FAIL is restricted to the sealed P1424 fragment and its mutation threshold. It does not claim general HTML/SVG equivalence or diagnose unrelated baseline failures."
+  "claim_boundary": "PASS is restricted to the frozen R4 P1424 fragment and its 21 mutation families. It does not claim general HTML/SVG equivalence or erase the separately recorded baseline regression."
 }

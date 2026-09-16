@@ -637,6 +637,9 @@ pub fn repr_content(c: &Content) -> String {
             }
             format!("elem{}", pretty_array_like(&fields, false))
         }
+        Content::HtmlFrame(elem) => {
+            format!("frame(body: {})", repr_content(&elem.body))
+        }
         Content::PageRun(e) => {
             let sequence = format!(
                 "sequence(\n  pagebreak(weak: true),\n  flush(),\n  {},\n  pagebreak(weak: true),\n)",

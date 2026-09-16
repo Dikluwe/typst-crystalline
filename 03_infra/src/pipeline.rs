@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 0d6bf40e
+//! @prompt-hash d515658e
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -264,7 +264,36 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
         );
         warnings.extend(contextual_warnings);
         let prepared = prepared?;
-        crate::export::export_html_with_serialization_and_pretty(&prepared, mode, pretty)
+        let metrics = FallbackFontMetrics::new(world);
+        let resolve_frame = |elem: &typst_core::entities::html::HtmlFrameElem,
+                             chain: &StyleChain|
+         -> Result<String, SourceDiagnostic> {
+            let mut contains_html = false;
+            elem.body
+                .map_content(&mut |node| {
+                    contains_html |= matches!(node, Content::HtmlElem(_));
+                    Ok(None)
+                })
+                .expect("html.frame support scan is total");
+            if contains_html {
+                return Err(SourceDiagnostic::error(
+                    Span::detached(),
+                    "html.frame body contains content unsupported by paged layout",
+                ));
+            }
+            let page = typst_core::compiler::layout::layout_html_frame(
+                elem,
+                chain,
+                metrics.clone(),
+                ImageSizeImageSizer,
+            );
+            let doc = PagedDocument::new(vec![page.clone()]);
+            let fonts = resolve_and_instantiate_fonts(&doc, world)?;
+            let glyph_fonts = svg_glyph_font_context_for_page(&page, world);
+            let options = crate::export::SvgOptions { pretty, ..Default::default() };
+            Ok(options.export_html_frame_with_fonts(&page, &fonts, &glyph_fonts))
+        };
+        mode.export_with_resolved_frames(&prepared, pretty, &resolve_frame)
             .map_err(|error| vec![error])
     });
     (html, warnings)

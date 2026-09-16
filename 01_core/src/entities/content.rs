@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash a33af1d2
+//! @prompt-hash c0d2dd54
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -158,6 +158,8 @@ pub enum Content {
 
     /// Nó HTML explícito produzido por `html.elem` sob a feature HTML.
     HtmlElem(Arc<crate::entities::html::HtmlElem>),
+    /// Ilha de layout paginado embutida no target HTML.
+    HtmlFrame(Arc<crate::entities::html::HtmlFrameElem>),
 
     /// Parágrafo — contentor sintético que agrupa o conteúdo entre
     /// `Content::Parbreak`s durante a paragraph realization (P863).
@@ -1206,6 +1208,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Par { body } => write!(f, "par({:?})", body),
         Content::Sequence(seq) => f.debug_tuple("sequence").field(&seq.as_ref()).finish(),
         Content::HtmlElem(e) => write!(f, "html.elem({:?})", e),
+        Content::HtmlFrame(e) => write!(f, "html.frame({:?})", e),
         Content::Heading(h) => write!(f, "heading({:?})", h),
         Content::Title(t) => write!(f, "title({:?})", t),
         Content::Strong(s) => write!(f, "strong({:?})", s),
@@ -1328,6 +1331,7 @@ impl Content {
             Self::Empty => "empty",
             Self::Sequence(_) => "sequence",
             Self::HtmlElem(_) => "elem",
+            Self::HtmlFrame(_) => "frame",
             Self::Par { .. } => "par",
             Self::Styled(..) => "styled",
             Self::PageRun(_) => "page.run",
@@ -2982,7 +2986,8 @@ impl Content {
             | Self::CounterDisplayCallback(_)
             | Self::ContextBlock(_)
             | Self::Dynamic(_)
-            | Self::HtmlElem(_) => vec![body.clone()],
+            | Self::HtmlElem(_)
+            | Self::HtmlFrame(_) => vec![body.clone()],
         }
     }
 
@@ -3191,6 +3196,7 @@ impl Content {
             Self::HtmlElem(e) => {
                 e.body.content().map_or_else(String::new, Content::plain_text)
             }
+            Self::HtmlFrame(e) => e.body.plain_text(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
             // Modelo D (Lote 6 P321): família state/counter delega ao elemento (vazio).
@@ -3669,6 +3675,11 @@ impl Content {
                     },
                 ),
             )),
+            Content::HtmlFrame(e) => Content::HtmlFrame(Arc::new(
+                crate::entities::html::HtmlFrameElem {
+                    body: e.body.map_content(transform)?,
+                },
+            )),
             // P863: parágrafo é container transparente.
             Content::Par { body } => Content::Par {
                 body: Box::new(body.map_content(transform)?),
@@ -3940,6 +3951,11 @@ impl Content {
                     e.attrs.clone(),
                     e.body.map_content(|body| body.map_text(transform)),
                 ),
+            )),
+            Content::HtmlFrame(e) => Content::HtmlFrame(Arc::new(
+                crate::entities::html::HtmlFrameElem {
+                    body: e.body.map_text(transform),
+                },
             )),
             // P863: parágrafo é container transparente para map_text.
             Content::Par { body } => Content::Par {

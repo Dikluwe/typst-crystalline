@@ -255,6 +255,12 @@ impl ObservationEq for crate::entities::content::Content {
                 }
                 _ => ObservationRelation::Different,
             },
+            Self::HtmlFrame(a0) => match other {
+                Self::HtmlFrame(b0) => {
+                    ObservationRelation::Same.and(a0.body.observation_relation(&b0.body))
+                }
+                _ => ObservationRelation::Different,
+            },
             Self::Par { body: a0 } => match other {
                 Self::Par { body: b0 } => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))

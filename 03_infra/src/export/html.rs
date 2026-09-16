@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash aaf28732
+//! @prompt-hash ae12d68d
 //! @layer L3
 
 use typst_core::entities::content::Content;
@@ -158,23 +158,69 @@ pub fn export_html_with_serialization_and_pretty(
     mode: HtmlSerializationMode,
     pretty: bool,
 ) -> Result<String, SourceDiagnostic> {
+    export_html_with_frame_resolver(content, mode, pretty, None)
+}
+
+pub type HtmlFrameResolver<'a> = dyn Fn(
+        &typst_core::entities::html::HtmlFrameElem,
+        &typst_core::entities::style_chain::StyleChain,
+    ) -> Result<String, SourceDiagnostic>
+    + 'a;
+
+pub fn export_html_with_resolved_frames(
+    content: &Content,
+    mode: HtmlSerializationMode,
+    pretty: bool,
+    resolver: &HtmlFrameResolver<'_>,
+) -> Result<String, SourceDiagnostic> {
+    export_html_with_frame_resolver(content, mode, pretty, Some(resolver))
+}
+
+impl HtmlSerializationMode {
+    pub fn export_with_resolved_frames(
+        self,
+        content: &Content,
+        pretty: bool,
+        resolver: &HtmlFrameResolver<'_>,
+    ) -> Result<String, SourceDiagnostic> {
+        export_html_with_resolved_frames(content, self, pretty, resolver)
+    }
+}
+
+fn export_html_with_frame_resolver(
+    content: &Content,
+    mode: HtmlSerializationMode,
+    pretty: bool,
+    resolver: Option<&HtmlFrameResolver<'_>>,
+) -> Result<String, SourceDiagnostic> {
+    let chain = typst_core::entities::style_chain::StyleChain::default_chain();
     let compact = if let Some(root) = explicit_document_root(content)? {
         if matches!(root, Content::HtmlElem(elem) if elem.tag == "html") {
-            Ok(format!("{DOCTYPE}{}", inline(root, mode)?))
+            Ok(format!("{DOCTYPE}{}", inline(root, mode, resolver, &chain)?))
         } else {
-            Ok(format!("{AUTO_ROOT_PREFIX}{}</html>", inline(root, mode)?))
+            Ok(format!(
+                "{AUTO_ROOT_PREFIX}{}</html>",
+                inline(root, mode, resolver, &chain)?
+            ))
         }
     } else {
         let body = match content {
             Content::Empty => String::new(),
             Content::Heading(h) => {
-                format!("<h{}>{}</h{}>", h.level, inline(&h.body, mode)?.trim(), h.level)
+                format!(
+                    "<h{}>{}</h{}>",
+                    h.level,
+                    inline(&h.body, mode, resolver, &chain)?.trim(),
+                    h.level
+                )
             }
             Content::HtmlElem(elem) if should_group_into_paragraph(elem.tag.as_str()) => {
-                format!("<p>{}</p>", inline(content, mode)?)
+                format!("<p>{}</p>", inline(content, mode, resolver, &chain)?)
             }
-            Content::HtmlElem(_) => inline(content, mode)?,
-            Content::Table(_) => inline(content, mode)?,
+            Content::HtmlElem(_) | Content::HtmlFrame(_) => {
+                inline(content, mode, resolver, &chain)?
+            }
+            Content::Table(_) => inline(content, mode, resolver, &chain)?,
             Content::Sequence(seq)
                 if seq.iter().any(|c| {
                     matches!(
@@ -183,14 +229,17 @@ pub fn export_html_with_serialization_and_pretty(
                             | Content::Parbreak
                             | Content::Par { .. }
                             | Content::HtmlElem(_)
+                            | Content::HtmlFrame(_)
                             | Content::Table(_)
                     )
                 }) =>
             {
-                block_sequence(seq, mode)?
+                block_sequence(seq, mode, resolver, &chain)?
             }
-            Content::Par { body } => format!("<p>{}</p>", inline(body, mode)?.trim()),
-            other => format!("<p>{}</p>", inline(other, mode)?.trim()),
+            Content::Par { body } => {
+                format!("<p>{}</p>", inline(body, mode, resolver, &chain)?.trim())
+            }
+            other => format!("<p>{}</p>", inline(other, mode, resolver, &chain)?.trim()),
         };
         Ok(format!("{PREFIX}{body}</body></html>"))
     };
@@ -399,6 +448,8 @@ fn explicit_document_root(
 fn block_sequence(
     seq: &[Content],
     mode: HtmlSerializationMode,
+    resolver: Option<&HtmlFrameResolver<'_>>,
+    chain: &typst_core::entities::style_chain::StyleChain,
 ) -> Result<String, SourceDiagnostic> {
     let mut out = String::new();
     let mut paragraph = String::new();
@@ -418,28 +469,35 @@ fn block_sequence(
                 out.push_str(&format!(
                     "<h{}>{}</h{}>",
                     h.level,
-                    inline(&h.body, mode)?.trim(),
+                    inline(&h.body, mode, resolver, chain)?.trim(),
                     h.level
                 ));
             }
             Content::Par { body } => {
                 flush(&mut out, &mut paragraph);
-                out.push_str(&format!("<p>{}</p>", inline(body, mode)?.trim()));
+                out.push_str(&format!(
+                    "<p>{}</p>",
+                    inline(body, mode, resolver, chain)?.trim()
+                ));
             }
             Content::HtmlElem(elem) => {
                 if should_group_into_paragraph(elem.tag.as_str()) {
-                    paragraph.push_str(&inline(item, mode)?);
+                    paragraph.push_str(&inline(item, mode, resolver, chain)?);
                 } else {
                     flush(&mut out, &mut paragraph);
-                    out.push_str(&inline(item, mode)?);
+                    out.push_str(&inline(item, mode, resolver, chain)?);
                 }
+            }
+            Content::HtmlFrame(_) => {
+                flush(&mut out, &mut paragraph);
+                out.push_str(&inline(item, mode, resolver, chain)?);
             }
             Content::Table(_) => {
                 flush(&mut out, &mut paragraph);
-                out.push_str(&inline(item, mode)?);
+                out.push_str(&inline(item, mode, resolver, chain)?);
             }
             Content::Space => paragraph.push_str(top_level_space_between(seq, index)),
-            other => paragraph.push_str(&inline(other, mode)?),
+            other => paragraph.push_str(&inline(other, mode, resolver, chain)?),
         }
     }
     flush(&mut out, &mut paragraph);
@@ -453,6 +511,8 @@ fn should_group_into_paragraph(tag: &str) -> bool {
 fn inline(
     content: &Content,
     mode: HtmlSerializationMode,
+    resolver: Option<&HtmlFrameResolver<'_>>,
+    chain: &typst_core::entities::style_chain::StyleChain,
 ) -> Result<String, SourceDiagnostic> {
     Ok(match content {
         Content::Empty => String::new(),
@@ -461,17 +521,33 @@ fn inline(
         Content::SetPage { .. } => String::new(),
         Content::Sequence(seq) => seq
             .iter()
-            .map(|item| inline(item, mode))
+            .map(|item| inline(item, mode, resolver, chain))
             .collect::<Result<Vec<_>, _>>()?
             .concat(),
-        Content::Strong(e) => format!("<strong>{}</strong>", inline(&e.body, mode)?),
-        Content::Emph(e) => format!("<em>{}</em>", inline(&e.body, mode)?),
-        Content::Styled(body, _) => inline(body, mode)?,
+        Content::Strong(e) => {
+            format!("<strong>{}</strong>", inline(&e.body, mode, resolver, chain)?)
+        }
+        Content::Emph(e) => {
+            format!("<em>{}</em>", inline(&e.body, mode, resolver, chain)?)
+        }
+        Content::Styled(body, styles) => {
+            let child_chain = chain.push_styles(styles);
+            inline(body, mode, resolver, &child_chain)?
+        }
         Content::Linebreak(_) => "<br>".into(),
-        Content::Table(table) => html_table(table, mode)?,
-        Content::TableCell(cell) => inline(&cell.body, mode)?,
-        Content::TableHeader(header) => inline(&header.body, mode)?,
-        Content::TableFooter(footer) => inline(&footer.body, mode)?,
+        Content::Table(table) => html_table(table, mode, resolver, chain)?,
+        Content::TableCell(cell) => inline(&cell.body, mode, resolver, chain)?,
+        Content::TableHeader(header) => inline(&header.body, mode, resolver, chain)?,
+        Content::TableFooter(footer) => inline(&footer.body, mode, resolver, chain)?,
+        Content::HtmlFrame(elem) => match resolver {
+            Some(resolve) => resolve(elem, chain)?,
+            None => {
+                return Err(SourceDiagnostic::error(
+                    Span::detached(),
+                    "html.frame must be resolved by the HTML compilation pipeline",
+                ))
+            }
+        },
         Content::HtmlElem(elem) => {
             let mut out = String::new();
             out.push('<');
@@ -503,7 +579,13 @@ fn inline(
                 } else if RAW_TEXT_TAGS.contains(&elem.tag.as_str()) {
                     out.push_str(&raw_text(body)?);
                 } else {
-                    out.push_str(&inline_html_body(elem.tag.as_str(), body, mode)?);
+                    out.push_str(&inline_html_body(
+                        elem.tag.as_str(),
+                        body,
+                        mode,
+                        resolver,
+                        chain,
+                    )?);
                 }
             }
             out.push_str("</");
@@ -542,6 +624,8 @@ fn raw_text(content: &Content) -> Result<String, SourceDiagnostic> {
 fn html_table(
     table: &typst_core::entities::elements::table::TableElem,
     mode: HtmlSerializationMode,
+    resolver: Option<&HtmlFrameResolver<'_>>,
+    chain: &typst_core::entities::style_chain::StyleChain,
 ) -> Result<String, SourceDiagnostic> {
     fn flatten<'a>(content: &'a Content, out: &mut Vec<&'a Content>) {
         match content {
@@ -561,6 +645,8 @@ fn html_table(
         columns: usize,
         tag: &str,
         mode: HtmlSerializationMode,
+        resolver: Option<&HtmlFrameResolver<'_>>,
+        chain: &typst_core::entities::style_chain::StyleChain,
     ) -> Result<String, SourceDiagnostic> {
         let mut out = String::new();
         for chunk in cells.chunks(columns.max(1)) {
@@ -581,7 +667,7 @@ fn html_table(
                     out.push_str(&format!(" rowspan=\"{rowspan}\""));
                 }
                 out.push('>');
-                out.push_str(&inline(body, mode)?);
+                out.push_str(&inline(body, mode, resolver, chain)?);
                 out.push_str("</");
                 out.push_str(tag);
                 out.push('>');
@@ -597,7 +683,7 @@ fn html_table(
         let mut cells = Vec::new();
         flatten(header, &mut cells);
         out.push_str("<thead>");
-        out.push_str(&rows(&cells, columns, "th", mode)?);
+        out.push_str(&rows(&cells, columns, "th", mode, resolver, chain)?);
         out.push_str("</thead>");
     }
     let mut cells = Vec::new();
@@ -605,7 +691,7 @@ fn html_table(
         flatten(child, &mut cells);
     }
     out.push_str("<tbody>");
-    out.push_str(&rows(&cells, columns, "td", mode)?);
+    out.push_str(&rows(&cells, columns, "td", mode, resolver, chain)?);
     out.push_str("</tbody></table>");
     Ok(out)
 }
@@ -643,9 +729,11 @@ fn inline_html_body(
     parent_tag: &str,
     content: &Content,
     mode: HtmlSerializationMode,
+    resolver: Option<&HtmlFrameResolver<'_>>,
+    chain: &typst_core::entities::style_chain::StyleChain,
 ) -> Result<String, SourceDiagnostic> {
     let Content::Sequence(items) = content else {
-        return inline(content, mode);
+        return inline(content, mode, resolver, chain);
     };
     let first = items.iter().position(|item| !matches!(item, Content::Space));
     let Some(first) = first else { return Ok(String::new()) };
@@ -671,7 +759,7 @@ fn inline_html_body(
             }
             out.push_str(space_between(items, index));
         } else {
-            out.push_str(&inline(&items[index], mode)?);
+            out.push_str(&inline(&items[index], mode, resolver, chain)?);
         }
     }
     Ok(out)

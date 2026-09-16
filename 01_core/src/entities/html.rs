@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/html.md
-//! @prompt-hash b5f8330f
+//! @prompt-hash 8a8f3676
 //! @layer L1
 
 use ecow::EcoString;
@@ -11,6 +11,11 @@ pub use crate::entities::compiler_features::{Feature, Features};
 use crate::entities::content::Content;
 
 pub type HtmlAttrs = IndexMap<EcoString, EcoString, FxBuildHasher>;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct HtmlFrameElem {
+    pub body: Content,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum HtmlBody {

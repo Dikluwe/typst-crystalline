@@ -1,4 +1,5 @@
 # Prompt L0 — layout da ilha `html.frame`
+Hash do Código: 1939c26d
 
 **Estado:** APROVADO NO GATE ADR-0127 P1424 EM 2026-09-16  
 **Camada:** L1  

@@ -176,7 +176,8 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::PdfArtifact(_)
         | Content::ContextBlock(_)
         | Content::Dynamic(_)
-        | Content::HtmlElem(_) => MathClass::Normal,
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_) => MathClass::Normal,
     }
 }
 
