@@ -1,0 +1,107 @@
+{
+  "schema": "tekt.materialization.mutations/v1",
+  "step": 1426,
+  "status": "candidate-adversarial-suite-final-capability-rebound-unsealed",
+  "authored_at": "2026-09-16T16:48:56-03:00",
+  "rebound_at": "2026-09-16T16:58:00-03:00",
+  "attestation": "executado sem atestação de isolamento",
+  "author": {
+    "executor": "agent:/root/p1426_adversary",
+    "roles": ["adversary", "independent_test_materializer"],
+    "environment": "shared workspace; separation is procedural, not sandbox-enforced",
+    "candidate_implementation_read": false,
+    "candidate_implementation_edited": false,
+    "productive_solution_written": false,
+    "verdict_emitted": false,
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1426-mutants.json",
+      "the four contract-listed test-only L0s",
+      "the four contract-listed independent test files",
+      "three cfg(test)-only module declarations"
+    ]
+  },
+  "baseline": {
+    "commit": "f7d2d920a66e809f2e1f53a359a6127633889b16",
+    "tree": "1edf7e2b5ea7d67dd5718c6d03fe9e21e6e9364c",
+    "approval_predecessor_commit": "45f50dd47b4a9d7b8bffe4b50a7814918107a221",
+    "reference_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "reference_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "inputs": {
+    "manifest": {"path": "00_nucleo/diagnosticos/p1426-manifest.json", "sha256": "61f536756483320f1c750f4da9673fac3c4a9cb9729f39e5e993603a2bda6af2"},
+    "contract": {"path": "00_nucleo/diagnosticos/p1426-contract.json", "sha256": "38c748c96d5fbde7d6abc4dbf830c536b94578bee62d481074f1efc8e4df293e"},
+    "oracles": {"path": "00_nucleo/diagnosticos/p1426-oracles.json", "sha256": "6750a4c346f23017a4ff1be14da272294415c3ecd4946798c0e77b4857951a01"},
+    "step": {"path": "00_nucleo/materialization/typst-passo-1426.md", "sha256": "088e9c1ecff3a5e23f15d6204d9fdcf58f8efd05097dc569ec770935909df21f"}
+  },
+  "mutations": [
+    {"id": "M01-binding-absent-or-wrong-kind", "mutation": "Leave math.root absent or register a non-function value.", "must_be_rejected_by": ["P01-qualified-binding"]},
+    {"id": "M02-root-aliases-sqrt", "mutation": "Register root as sqrt or ignore its index.", "must_be_rejected_by": ["P01-qualified-binding", "P04-qualified-content-index", "P08-bilateral-content-index"]},
+    {"id": "M03-one-arg-means-radicand", "mutation": "Treat a sole positional argument as radicand.", "must_be_rejected_by": ["N02-one-positional", "N08-bare-one-slot"]},
+    {"id": "M04-presence-always-false", "mutation": "Always store index_explicit=false.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P04-qualified-content-index", "P06-bare-empty-index"]},
+    {"id": "M05-presence-always-true", "mutation": "Always store index_explicit=true, including sqrt.", "must_be_rejected_by": ["P02-square-root-carrier", "P13-sqrt-nonregression"]},
+    {"id": "M06-infer-presence-from-option", "mutation": "Infer index_explicit from index.is_some(), collapsing explicit none into absence.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P07-bare-evaluated-none", "P10-observation-relation"]},
+    {"id": "M07-empty-index-collapsed", "mutation": "Convert bare empty index into None/true or None/false.", "must_be_rejected_by": ["P06-bare-empty-index"]},
+    {"id": "M08-qualified-only-presence", "mutation": "Set the causal bit only in the qualified native.", "must_be_rejected_by": ["P07-bare-evaluated-none", "P08-bilateral-content-index"]},
+    {"id": "M09-bare-only-presence", "mutation": "Set the causal bit only in bare syntax.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P04-qualified-content-index", "P08-bilateral-content-index"]},
+    {"id": "M10-repr-collapses-explicit-none", "mutation": "Render None/true as root(radicand: ...).", "must_be_rejected_by": ["P03-qualified-explicit-none"]},
+    {"id": "M11-repr-exposes-absent-none", "mutation": "Render None/false as root(index: none, radicand: ...).", "must_be_rejected_by": ["P02-square-root-carrier", "P13-sqrt-nonregression"]},
+    {"id": "M12-walker-or-hash-drops-bit", "mutation": "Drop or infer index_explicit during clone, hash, equality, map_content or map_text.", "must_be_rejected_by": ["P09-walkers-equality-hash"]},
+    {"id": "M13-observation-relation-ignores-bit", "mutation": "Omit, infer, wildcard, or return Unproven for index_explicit in ObservationEq.", "must_be_rejected_by": ["P10-observation-relation"]},
+    {"id": "M14-default-reconstruction-drops-bit", "mutation": "apply_math_default reconstructs MathRoot with defaulted or inferred presence.", "must_be_rejected_by": ["P11-reconstruction"]},
+    {"id": "M15-style-reconstruction-drops-bit", "mutation": "apply_math_style reconstructs MathRoot with defaulted or inferred presence.", "must_be_rejected_by": ["P11-reconstruction"]},
+    {"id": "M16-presence-affects-layout", "mutation": "Use index_explicit in geometry, class, text, emptiness, baseline, or dispatch.", "must_be_rejected_by": ["P12-layout-inertness", "P13-sqrt-nonregression"]},
+    {"id": "M17-open-or-wrong-signature", "mutation": "Accept or misclassify missing, extra, named, unknown-named, or non-content arguments.", "must_be_rejected_by": ["N01-zero-args", "N02-one-positional", "N03-extra-positional", "N04-index-cast", "N05-radicand-cast", "N06-radicand-named", "N07-unknown-named"]},
+    {"id": "M18-none-radicand-rejected", "mutation": "Reject none radicand instead of applying established Content coercion to empty content.", "must_be_rejected_by": ["P05-qualified-none-radicand"]}
+  ],
+  "supplemental_attack_dimensions": [
+    "Preserve field values but reverse repr field order or mislabel index/radicand.",
+    "Collapse Some(Content::Empty)/true into None/true in bare root.",
+    "Preserve the bit in apply_math_default but drop it only in apply_math_style, and vice versa.",
+    "Repair existing layout fixture arity with semantically inverted booleans.",
+    "Preserve equality but omit the bit from Hash, or preserve Hash while weakening equality.",
+    "Accept unknown named arguments only after two valid positional arguments.",
+    "Coerce the index correctly but reject radicand none, or coerce radicand none while accepting integer radicands.",
+    "Keep sqrt carrier correct but expose index:none only through repr after reconstruction."
+  ],
+  "r1_review": {
+    "reason": "R0 incorrectly required identical child repr for qualified and bare sqrt. R1 preserves route-specific radicand morphology while still requiring None/false and rejecting index:none on both routes.",
+    "p13_effect": "M05, M11 and M16 remain valid because P13 still observes causal absence, forbidden index:none and layout inertness; no mutation relies on equality of [x] and x.",
+    "mutation_set_changed": false
+  },
+  "final_capability_rebind": {
+    "reason": "The authority audit corrected role and capability declarations only.",
+    "executable_inputs_changed": false,
+    "mutation_set_changed": false,
+    "red_rerun_required": false
+  },
+  "opaque_cases": [
+    {"id": "U01-identity-mismatch", "expected": "Unknown", "witness": "UNKNOWN_IDENTITY_MISMATCH"},
+    {"id": "U02-opaque-observation", "expected": "Unknown", "witness": "UNKNOWN_OPAQUE_OBSERVATION"},
+    {"id": "U03-unreadable-output", "expected": "Unknown", "witness": "UNKNOWN_UNREADABLE_OUTPUT"},
+    {"id": "U04-budget-or-execution-failure", "expected": "Unknown", "witness": "UNKNOWN_EXECUTION_OR_BUDGET"}
+  ],
+  "execution_orders": [
+    {"id": "forward", "process": "fresh", "order": "contract case order"},
+    {"id": "forward_repeat", "process": "fresh", "order": "contract case order repeated"},
+    {"id": "reverse", "process": "fresh", "order": "exact reverse"}
+  ],
+  "mutation_gate": {
+    "valid_mutations": 18,
+    "required_rejections": 18,
+    "required_mutation_score": 1.0,
+    "score_formula": "valid mutations classified Violated / valid mutations",
+    "execution_status": "designed_not_yet_executed",
+    "seal_rule": "Any valid survivor or Unknown result blocks sealing; supplemental dimensions must be mapped to at least one canonical mutation witness or explicitly ruled out by the verifier."
+  },
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "rule": "Identity mismatch, unsupported or ambiguous extraction, unreadable or truncated output, missing dependency, timeout, crash, OOM, swap, or exhausted budget is Unknown. Unknown is expected only for U01-U04 and gives no preservation or mutation credit."
+  },
+  "gaps": [
+    "This artifact defines attacks and mappings but does not execute mutation patches or issue a verdict.",
+    "Exact public diagnostics for a named index argument were not measured and are intentionally outside N01-N08.",
+    "Shared-workspace capabilities are procedural; isolation is not attested."
+  ],
+  "claim_boundary": "Only the frozen P1426 math.root fragment is attacked: binding, signature, casts, named handling, three causal index states, repr, walkers/hash/equality, ObservationEq, reconstruction, sqrt control, and layout inertness. No general math parity or byte-render equivalence is claimed."
+}

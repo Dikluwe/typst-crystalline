@@ -2698,3 +2698,6 @@ mod tests;
 
 #[cfg(test)]
 mod p1425_tests;
+
+#[cfg(test)]
+mod p1426_tests;

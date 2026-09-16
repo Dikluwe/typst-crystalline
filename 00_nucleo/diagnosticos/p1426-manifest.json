@@ -1,0 +1,118 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "authored_at": "2026-09-16T16:49:40-03:00",
+  "protocol": {
+    "version": "tekt-materializacao-segregada/1",
+    "regime": "full",
+    "attestation": "executed_without_isolation_attestation",
+    "invalidation": "Any byte change to a protected input, baseline identity, contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the seal from the first affected phase."
+  },
+  "artifacts": {
+    "manifest": "00_nucleo/diagnosticos/p1426-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1426-contract.json",
+    "oracles": "00_nucleo/diagnosticos/p1426-oracles.json",
+    "mutations": "00_nucleo/diagnosticos/p1426-mutants.json",
+    "seal": "00_nucleo/diagnosticos/p1426-seal.json"
+  },
+  "baseline": {
+    "commit": "f7d2d920a66e809f2e1f53a359a6127633889b16",
+    "approval_predecessor_commit": "45f50dd47b4a9d7b8bffe4b50a7814918107a221",
+    "tree": "1edf7e2b5ea7d67dd5718c6d03fe9e21e6e9364c",
+    "productive_files": [
+      {"path": "01_core/src/compiler/eval/mod.rs", "sha256": "f9b7d80a512df3d02b0fe0a35e7d6e46059072108024862cf06026b9d5bb13f2"},
+      {"path": "01_core/src/compiler/math/layout/tests.rs", "sha256": "421cb9ecd4871512c677257820e86d1b4fe90f21959a1fbced5489e47419596d"},
+      {"path": "01_core/src/compiler/math/layout/mod.rs", "sha256": "b2f922452608a2553b928fad10aca309edaccabc6da32a1a34ef9c27d99a8cbb"},
+      {"path": "01_core/src/entities/content.rs", "sha256": "70aa5c82a3029b16bafae9328cff695a7a7d3c23fba16fe593e8f0079915ee2e"},
+      {"path": "01_core/src/compiler/stdlib/structural/math.rs", "sha256": "d4443ffb7b4ac42e1883bb4bbc5647818899abd4dd46b3021e54b02ac05402bc"},
+      {"path": "01_core/src/compiler/eval/math.rs", "sha256": "a4cf19b130627d3ac3c1aa21ebd7da7f36921e961ac493a6acff1913ea5c663d"},
+      {"path": "01_core/src/compiler/eval/repr.rs", "sha256": "5c5de5353d6f5eae065e04b4a5200621f57ba8c75f672e3afeb0acc9cb7630ff"},
+      {"path": "01_core/src/entities/elements/math_root.rs", "sha256": "dd544158b38ea0011fe877951262d4e445c68d1881fd4ecd67d218628bf3a5f9"}
+    ]
+  },
+  "protected_inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1426.md", "sha256": "088e9c1ecff3a5e23f15d6204d9fdcf58f8efd05097dc569ec770935909df21f"},
+    {"path": "00_nucleo/prompts/compiler/eval.md", "sha256": "fd0c25414490223cab38daea75567aef739c41b53cf85bc91e208514d761a666"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/tests.md", "sha256": "9de085f80e39ab20b5b61b8d70b4ec1c74c2c2f396555b78f5b08247ae07b7a3"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/_comum.md", "sha256": "c47d2163901b81670786589b3d89bcc5ff5b383a213a9bb2f121e02901f10efc"},
+    {"path": "00_nucleo/prompts/entities/content.md", "sha256": "20ef4354d74279acd27b4e78e1a28b10f4f80490f499f160d469f23321a9d509"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "sha256": "0ba1c03e95911e0d992c7441d45789ac5c9e18abed8b502e93fbba294ff81fc7"},
+    {"path": "00_nucleo/prompts/compiler/eval/math.md", "sha256": "bbd4c908b3764d2ddc3820cd12b6ab27bcc39769306397dfbdc3e2d88b89ba01"},
+    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "efb0c21dcbfcc947c85f5cecf50fe999c7403dc7f7ecece7db77861ce048659b"},
+    {"path": "00_nucleo/prompts/entities/elements/math_root.md", "sha256": "f1c6c35a47b2df1616880ac5fa1eea7e0f3c9aa990d2b5265a55f3d407add2fb"}
+  ],
+  "reference_vanilla": {
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_path": "/usr/local/bin/typst",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "sources": [
+      {"path": "lab/typst-original/crates/typst-library/src/math/root.rs", "sha256": "c62f8135a6b8ef26a1bd0a3a28b7cbd12750dd1d0f0ed48370e839ac34638763"},
+      {"path": "lab/typst-original/crates/typst-library/src/math/mod.rs", "sha256": "a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957"}
+    ]
+  },
+  "observables": [
+    "O-BINDING", "O-SIGNATURE", "O-CARRIER-THREE-STATES", "O-BARE-SYNTAX",
+    "O-BILATERAL-CONVERGENCE", "O-WALKERS", "O-OBSERVATION-RELATION",
+    "O-REPR", "O-RECONSTRUCTION", "O-LAYOUT-INERTNESS", "O-SQRT-CONTROL",
+    "O-FAIL-CLOSED"
+  ],
+  "execution_orders": [
+    {"id": "forward", "order": "contract case order in a fresh process"},
+    {"id": "forward_repeat", "order": "contract case order repeated in a second fresh process"},
+    {"id": "reverse", "order": "exact reverse of contract case order in a third fresh process"}
+  ],
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "rule": "Ambiguous binary or source identity, opaque construction, unsupported parser or extractor, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency, or exhausted budget is Unknown. Unknown never counts as Preserved, never increases mutation score, and blocks every mandatory case; it is expected only for cases explicitly classified as opaque."
+  },
+  "budgets": {
+    "wall_clock_minutes": 60,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 12,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 120,
+    "stop_after_consecutive_revisions_without_discriminatory_gain": 2
+  },
+  "authorities": [
+    {
+      "role": "obligation_contract_and_oracle_author",
+      "executor": "agent:/root/p1426_contract",
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "capabilities": {
+        "read_allowlist": ["protected inputs", "ratified vanilla references", "baseline identities at f7d2d920a", "pre-candidate P1426 mutants, test-only L0s, independent tests, cfg(test) wiring, and RED receipt"],
+        "forbidden_reads": ["candidate implementation diffs", "candidate test diffs", "private implementer, adversary, or verifier outputs"],
+        "write_allowlist": ["00_nucleo/diagnosticos/p1426-manifest.json", "00_nucleo/diagnosticos/p1426-contract.json", "00_nucleo/diagnosticos/p1426-oracles.json", "00_nucleo/diagnosticos/p1426-seal.json"]
+      }
+    },
+    {
+      "role": "adversary",
+      "executor": "agent:/root/p1426_adversary",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["frozen manifest", "frozen contract", "frozen oracles", "protected inputs", "baseline"],
+        "forbidden_reads": ["candidate productive implementation diffs"],
+        "write_allowlist": ["00_nucleo/diagnosticos/p1426-mutants.json", "the four contract-listed test-only L0s", "the four contract-listed independent test files", "three cfg(test)-only module declarations", "00_nucleo/diagnosticos/p1426-red.json"]
+      }
+    },
+    {
+      "role": "implementer",
+      "executor": "agent:/root",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["sealed public P1426 artifacts", "approved L0s", "baseline"],
+        "forbidden_writes": ["manifest", "contract", "sealed oracles", "sealed mutations"],
+        "write_allowlist": ["the eight productive consumers", "mechanical repairs to the 14 existing layout-test constructor callsites", "lineage hashes of the eight owner L0s"]
+      }
+    },
+    {
+      "role": "verifier",
+      "executor": "agent:/root/p1426_verifier",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {"read_allowlist": ["sealed artifacts", "candidate implementation and test outputs"], "forbidden_writes": ["artifacts under verification"], "write_allowlist": ["P1426 receipts, results, report, and verdict"]}
+    }
+  ],
+  "claim_boundary": {
+    "attests": "Only the P1426 math.root fragment: qualified binding and positional signature, three causal index states, bare syntax, bilateral convergence, carrier and walker preservation, observation relation, canonical repr, reconstruction, geometric inertness of presence, and math.sqrt control.",
+    "does_not_attest": ["the other 20 residual math routes", "general math parity", "radical geometry changes", "parser or AST changes", "render-byte equality", "Rust representation as a language observable", "diagnostic spans or formatting outside measured fragments"]
+  }
+}

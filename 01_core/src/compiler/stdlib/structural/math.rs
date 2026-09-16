@@ -27,6 +27,9 @@ use crate::entities::value::Value;
 #[cfg(test)]
 mod p1425_tests;
 
+#[cfg(test)]
+mod p1426_tests;
+
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
 /// Construtor puro compartilhado pela função pública e pelo modo math.

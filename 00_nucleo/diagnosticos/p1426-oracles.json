@@ -1,0 +1,170 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1426,
+  "status": "candidate-oracles-unsealed",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1426_contract",
+    "roles": ["obligation_author", "contract_author", "oracle_designer"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "candidate_executed": false,
+    "productive_rust_written": false,
+    "test_rust_written": false,
+    "verdict_emitted": false,
+    "causal_baseline": "f7d2d920a66e809f2e1f53a359a6127633889b16",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1426-manifest.json",
+      "00_nucleo/diagnosticos/p1426-contract.json",
+      "00_nucleo/diagnosticos/p1426-oracles.json"
+    ]
+  },
+  "inputs": [
+    {"path": "00_nucleo/diagnosticos/p1426-manifest.json", "sha256": "61f536756483320f1c750f4da9673fac3c4a9cb9729f39e5e993603a2bda6af2"},
+    {"path": "00_nucleo/diagnosticos/p1426-contract.json", "sha256": "38c748c96d5fbde7d6abc4dbf830c536b94578bee62d481074f1efc8e4df293e"},
+    {"path": "00_nucleo/materialization/typst-passo-1426.md", "sha256": "088e9c1ecff3a5e23f15d6204d9fdcf58f8efd05097dc569ec770935909df21f"}
+  ],
+  "reference": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": "/usr/local/bin/typst",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "language_level_only": true
+  },
+  "oracles": [
+    {
+      "id": "O1-binding-signature",
+      "expected": "Preserved",
+      "cases": ["P01-qualified-binding", "P05-qualified-none-radicand", "N01-zero-args", "N02-one-positional", "N03-extra-positional", "N04-index-cast", "N05-radicand-cast", "N06-radicand-named", "N07-unknown-named"],
+      "required_test": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs#p1426_binding_e_assinatura_posicional",
+      "assertion": "The closed math module exposes a callable root and reproduces every measured success/coercion and diagnostic fragment."
+    },
+    {
+      "id": "O2-three-state-carrier",
+      "expected": "Preserved",
+      "cases": ["P02-square-root-carrier", "P03-qualified-explicit-none", "P04-qualified-content-index", "P06-bare-empty-index", "P07-bare-evaluated-none"],
+      "required_tests": [
+        "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs#p1426_carrier_preserva_tres_estados_do_indice",
+        "01_core/src/compiler/eval/p1426_tests.rs#p1426_sintaxe_bare_preserva_vazio_none_e_conteudo"
+      ],
+      "assertion": "None/false, None/true, Some(Content::Empty)/true and Some(content)/true are observed directly before layout and never inferred from each other; qualified and bare sqrt retain their respective radicand morphology."
+    },
+    {
+      "id": "O3-presence-sensitive-repr",
+      "expected": "Preserved",
+      "cases": ["P02-square-root-carrier", "P03-qualified-explicit-none", "P04-qualified-content-index", "P05-qualified-none-radicand"],
+      "required_test": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs#p1426_repr_distingue_ausencia_none_e_indice",
+      "assertion": "Qualified repr is exactly root(radicand: [x]), root(index: none, radicand: [x]), root(index: [3], radicand: [x]), and root(index: [3], radicand: []) for the four fixtures; bare sqrt morphology is covered separately by O10."
+    },
+    {
+      "id": "O4-bare-syntax",
+      "expected": "Preserved",
+      "cases": ["P06-bare-empty-index", "P07-bare-evaluated-none", "N08-bare-one-slot"],
+      "required_test": "01_core/src/compiler/eval/p1426_tests.rs#p1426_root_bare_exige_slots_e_preserva_presenca",
+      "assertion": "Bare root keeps empty, evaluated none and present content distinct, while root(x) remains a missing-radicand error."
+    },
+    {
+      "id": "O5-bilateral-public",
+      "expected": "Preserved",
+      "cases": ["P08-bilateral-content-index"],
+      "required_test": "03_infra/tests/p1426_math_root.rs#p1426_root_bare_e_qualificado_convergem",
+      "assertion": "root(3, x) and math.root([3], [x]) expose the same carrier morphology and established rendered language result."
+    },
+    {
+      "id": "O6-walkers-equality-hash",
+      "expected": "Preserved",
+      "cases": ["P09-walkers-equality-hash"],
+      "required_test": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs#p1426_walkers_igualdade_e_hash_preservam_presenca",
+      "assertion": "map_content transforms children only, map_text is terminal, clone is exact, and equality/hash discriminate None/false from None/true."
+    },
+    {
+      "id": "O7-observation-relation",
+      "expected": "Preserved",
+      "cases": ["P10-observation-relation"],
+      "required_test": "01_core/src/compiler/eval/p1426_tests.rs#p1426_observation_relation_observa_presenca_do_indice",
+      "assertion": "Identical complete carriers are Same; opposite index_explicit with identical index/radicand is Different symmetrically and never Unproven."
+    },
+    {
+      "id": "O8-reconstruction",
+      "expected": "Preserved",
+      "cases": ["P11-reconstruction"],
+      "required_tests": [
+        "01_core/src/compiler/math/layout/p1426_tests.rs#p1426_apply_math_default_preserva_presenca",
+        "01_core/src/compiler/math/layout/p1426_tests.rs#p1426_apply_math_style_preserva_presenca"
+      ],
+      "assertion": "Both reconstruction paths preserve the causal bit for absent, explicit-none and present-index carriers."
+    },
+    {
+      "id": "O9-layout-inertness",
+      "expected": "Preserved",
+      "cases": ["P12-layout-inertness"],
+      "required_test": "01_core/src/compiler/math/layout/p1426_tests.rs#p1426_presenca_sozinha_nao_muda_layout",
+      "assertion": "Paired carriers differing only in index_explicit produce equal frame geometry, baseline, class, text and emptiness."
+    },
+    {
+      "id": "O10-sqrt-control",
+      "expected": "Preserved",
+      "cases": ["P02-square-root-carrier", "P13-sqrt-nonregression"],
+      "required_tests": [
+        "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs#p1426_math_sqrt_permanece_sem_indice_explicito",
+        "03_infra/tests/p1426_math_root.rs#p1426_sqrt_permanece_controle_bilateral"
+      ],
+      "assertion": "Qualified and bare sqrt remain None/false and retain established square-root layout; qualified content [x] exposes root(radicand: [x]), while bare identifier x preserves root(radicand: x). Neither exposes index:none."
+    }
+  ],
+  "opaque_cases": [
+    {"id": "U01-identity-mismatch", "stimulus": "reference or candidate identity differs from frozen hash", "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"},
+    {"id": "U02-opaque-observation", "stimulus": "carrier, repr, diagnostic or layout witness cannot be extracted unambiguously", "expected": "Unknown(UNKNOWN_OPAQUE_OBSERVATION)"},
+    {"id": "U03-unreadable-output", "stimulus": "output is unreadable or truncated", "expected": "Unknown(UNKNOWN_UNREADABLE_OUTPUT)"},
+    {"id": "U04-budget-or-execution-failure", "stimulus": "timeout, crash, OOM, swap, missing dependency or exhausted budget", "expected": "Unknown(UNKNOWN_EXECUTION_OR_BUDGET)"}
+  ],
+  "classification": {
+    "Preserved": "all required language-level assertions have attributable witnesses",
+    "Violated": "one or more required public assertions mismatch with a named witness",
+    "Unknown": "identity, execution, extraction, dependency or budget prevents a sound decision",
+    "unknown_never_success": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "valid_mutations": [
+      "M01-binding-absent-or-wrong-kind",
+      "M02-root-aliases-sqrt",
+      "M03-one-arg-means-radicand",
+      "M04-presence-always-false",
+      "M05-presence-always-true",
+      "M06-infer-presence-from-option",
+      "M07-empty-index-collapsed",
+      "M08-qualified-only-presence",
+      "M09-bare-only-presence",
+      "M10-repr-collapses-explicit-none",
+      "M11-repr-exposes-absent-none",
+      "M12-walker-or-hash-drops-bit",
+      "M13-observation-relation-ignores-bit",
+      "M14-default-reconstruction-drops-bit",
+      "M15-style-reconstruction-drops-bit",
+      "M16-presence-affects-layout",
+      "M17-open-or-wrong-signature",
+      "M18-none-radicand-rejected"
+    ],
+    "all_valid_mutations_must_be_violated": true,
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "orders_require_identical_vectors": true,
+    "candidate_not_run_by_oracle_designer": true
+  },
+  "test_materialization": {
+    "status": "required-but-not-written-by-this-authority",
+    "artifacts": [
+      {"test": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs", "l0": "00_nucleo/prompts/compiler/stdlib/structural/math/p1426-tests.md"},
+      {"test": "01_core/src/compiler/eval/p1426_tests.rs", "l0": "00_nucleo/prompts/compiler/eval/p1426-tests.md"},
+      {"test": "01_core/src/compiler/math/layout/p1426_tests.rs", "l0": "00_nucleo/prompts/compiler/math/layout/p1426-tests.md"},
+      {"test": "03_infra/tests/p1426_math_root.rs", "l0": "00_nucleo/prompts/infra/tests/p1426-tests.md"}
+    ],
+    "red_requirement": "Before productive implementation, the independent materializer must demonstrate attributable RED for binding, three causal states, repr/diagnostics, bare syntax, observation relation, reconstruction and layout inertness. Compilation failure caused only by the approved public field/signature change may be used as RED only when its witness maps unambiguously to a named case."
+  },
+  "commands_for_verifier": [
+    "cargo test -p typst-core p1426_ -- --nocapture",
+    "cargo test -p typst-infra --test p1426_math_root -- --nocapture"
+  ],
+  "claim_boundary": "These independent oracle designs cover only the P1426 math.root fragment. They do not classify a candidate, prove general math parity, authorize geometry changes, or require Rust-structure or render-byte equality."
+}

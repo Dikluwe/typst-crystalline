@@ -1,0 +1,103 @@
+{
+  "schema": "tekt.materialization.contract/v1",
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1426-manifest.json",
+    "sha256": "61f536756483320f1c750f4da9673fac3c4a9cb9729f39e5e993603a2bda6af2"
+  },
+  "baseline": {
+    "commit": "f7d2d920a66e809f2e1f53a359a6127633889b16",
+    "tree": "1edf7e2b5ea7d67dd5718c6d03fe9e21e6e9364c"
+  },
+  "classification": {
+    "Preserved": "All required public-language observations for the case are established with an attributable witness.",
+    "Violated": "At least one required observation differs, with a witness naming the observable and actual result.",
+    "Unknown": "Identity, execution, parsing, extraction, dependency, or budget prevents a sound decision. Unknown is fail-closed and cannot satisfy a mandatory case or reject a mutation."
+  },
+  "observables": {
+    "O-BINDING": "math.root is a callable function in the closed math module and is distinct from math.sqrt and bare syntax.",
+    "O-SIGNATURE": "Successful qualified calls consume exactly index then radicand positionally; index accepts Content or none, radicand accepts Content with the established none-to-empty coercion, and measured invalid calls preserve their public diagnostic fragments.",
+    "O-CARRIER-THREE-STATES": "MathRoot stores index, radicand, and causal index_explicit so absent None/false, explicit none None/true, and present content Some(_)/true remain distinct, including Some(Empty)/true.",
+    "O-BARE-SYNTAX": "Bare root requires index and radicand slots, preserves empty index as Some(Empty)/true and evaluated none as None/true; sqrt produces None/false.",
+    "O-BILATERAL-CONVERGENCE": "Equivalent bare root and qualified math.root calls converge on the same carrier, repr morphology, and established layout result without one route rewriting the other.",
+    "O-WALKERS": "Clone, hash, structural equality, map_content, and terminal map_text preserve index_explicit; map_content recurses only through index and radicand, and plain_text remains value-based.",
+    "O-OBSERVATION-RELATION": "ObservationEq compares index_explicit nominally: carriers differing only in causal presence are Different, identical complete carriers are Same, and no such pair is Unproven.",
+    "O-REPR": "None/false emits root(radicand: ...), Some(index)/true emits root(index: ..., radicand: ...), and None/true emits root(index: none, radicand: ...); field order and child repr are stable.",
+    "O-RECONSTRUCTION": "apply_math_default and apply_math_style recurse as before while transporting index_explicit nominally.",
+    "O-LAYOUT-INERTNESS": "index_explicit changes no radical geometry, class, text, emptiness, baseline, or dispatch; index and radicand retain established layout semantics.",
+    "O-SQRT-CONTROL": "math.sqrt and sqrt syntax remain one-radicand square-root producers with None/false and root(radicand: ...) morphology.",
+    "O-FAIL-CLOSED": "Only deliberately opaque cases may classify Unknown; Unknown blocks every mandatory case and gives no mutation credit."
+  },
+  "cases": [
+    {"id": "P01-qualified-binding", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-BINDING"], "fixture": "repr(type(math.root)) and a complete qualified call", "witness": "math.root exists as callable function named root, not as symbol, none, sqrt alias, or bare-only route."},
+    {"id": "P02-square-root-carrier", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-CARRIER-THREE-STATES", "O-SQRT-CONTROL"], "fixture": "math.sqrt([x]) and $sqrt(x)$ inspected before layout", "witness": "Both carry index=None and index_explicit=false. Their existing radicand morphology remains route-specific: qualified content [x] represents root(radicand: [x]), while the bare math identifier x represents root(radicand: x)."},
+    {"id": "P03-qualified-explicit-none", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-CARRIER-THREE-STATES", "O-REPR"], "fixture": "math.root(none, [x])", "witness": "Carrier is None/true and repr is root(index: none, radicand: [x]); it is not collapsed to square-root absence."},
+    {"id": "P04-qualified-content-index", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-CARRIER-THREE-STATES", "O-REPR"], "fixture": "math.root([3], [x])", "witness": "Carrier is Some([3])/true and repr is root(index: [3], radicand: [x])."},
+    {"id": "P05-qualified-none-radicand", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE", "O-REPR"], "fixture": "math.root([3], none)", "witness": "Established Content coercion yields empty radicand and repr root(index: [3], radicand: [])."},
+    {"id": "P06-bare-empty-index", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-BARE-SYNTAX", "O-CARRIER-THREE-STATES"], "fixture": "root(, x)", "witness": "Carrier index is Some(Content::Empty), not None, with index_explicit=true; radicand remains x."},
+    {"id": "P07-bare-evaluated-none", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-BARE-SYNTAX", "O-CARRIER-THREE-STATES"], "fixture": "bare root whose index expression evaluates to none", "witness": "Carrier is None/true, distinct from sqrt None/false and empty Some(Empty)/true."},
+    {"id": "P08-bilateral-content-index", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-BILATERAL-CONVERGENCE", "O-REPR"], "fixture": "root(3, x) versus math.root([3], [x])", "witness": "Both routes converge on equivalent Some(index)/true carrier state and root(index: [3], radicand: [x]) morphology."},
+    {"id": "P09-walkers-equality-hash", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-WALKERS", "O-CARRIER-THREE-STATES"], "fixture": "map_content, map_text, clone, equality and hash over all three index states", "witness": "map_content transforms children but preserves the bit; map_text is terminal; None/false differs from None/true in equality and hash while identical carriers remain equal."},
+    {"id": "P10-observation-relation", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-OBSERVATION-RELATION"], "fixture": "ObservationEq over identical roots and roots differing only by index_explicit", "witness": "Identical complete carriers are Same; None/false versus None/true is Different symmetrically and never Unproven."},
+    {"id": "P11-reconstruction", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-RECONSTRUCTION", "O-REPR"], "fixture": "apply_math_default and apply_math_style over all three index states", "witness": "Both passes preserve index_explicit exactly while retaining transformed children and the corresponding repr morphology."},
+    {"id": "P12-layout-inertness", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-LAYOUT-INERTNESS"], "fixture": "paired MathRoot carriers with identical index/radicand and opposite index_explicit", "witness": "Layout frames, baseline, class, text and emptiness remain equal; changing only the presence bit has no geometric effect."},
+    {"id": "P13-sqrt-nonregression", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-SQRT-CONTROL", "O-LAYOUT-INERTNESS"], "fixture": "math.sqrt([x]) and $sqrt(x)$ through repr and layout", "witness": "Qualified retains root(radicand: [x]); bare retains root(radicand: x). Both retain established square-root layout and neither exposes index:none."},
+    {"id": "N01-zero-args", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "repr(math.root())", "witness": "Rejected with public fragment missing argument: radicand."},
+    {"id": "N02-one-positional", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "repr(math.root([x]))", "witness": "The sole positional is consumed as index and the call is rejected with missing argument: radicand."},
+    {"id": "N03-extra-positional", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "math.root([3], [x], [y])", "witness": "Rejected with public fragment unexpected argument."},
+    {"id": "N04-index-cast", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "math.root(3, [x])", "witness": "Rejected with public fragment expected content, found integer."},
+    {"id": "N05-radicand-cast", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "math.root([3], 1)", "witness": "Rejected with public fragment expected content, found integer."},
+    {"id": "N06-radicand-named", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "math.root([3], radicand: [x])", "witness": "Rejected with public fragment the argument `radicand` is positional."},
+    {"id": "N07-unknown-named", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-SIGNATURE"], "fixture": "math.root([3], [x], foo: 1)", "witness": "Rejected with public fragment unexpected argument: foo."},
+    {"id": "N08-bare-one-slot", "category": "negative", "mandatory": true, "expected": "Preserved", "requires": ["O-BARE-SYNTAX"], "fixture": "root(x)", "witness": "Rejected as missing radicand rather than reinterpreted as sqrt."},
+    {"id": "U01-identity-mismatch", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "reference or candidate identity differs from frozen hash", "witness": "UNKNOWN_IDENTITY_MISMATCH"},
+    {"id": "U02-opaque-observation", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "carrier, repr, diagnostic or layout cannot be extracted unambiguously", "witness": "UNKNOWN_OPAQUE_OBSERVATION"},
+    {"id": "U03-unreadable-output", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "output is unreadable or truncated", "witness": "UNKNOWN_UNREADABLE_OUTPUT"},
+    {"id": "U04-budget-or-execution-failure", "category": "opaque", "mandatory": false, "expected": "Unknown", "requires": ["O-FAIL-CLOSED"], "fixture": "timeout, crash, OOM, swap, missing dependency or exhausted budget", "witness": "UNKNOWN_EXECUTION_OR_BUDGET"}
+  ],
+  "mutations": [
+    {"id": "M01-binding-absent-or-wrong-kind", "mutation": "Leave math.root absent or register a non-function value.", "must_be_rejected_by": ["P01-qualified-binding"]},
+    {"id": "M02-root-aliases-sqrt", "mutation": "Register root as sqrt or ignore its index.", "must_be_rejected_by": ["P01-qualified-binding", "P04-qualified-content-index", "P08-bilateral-content-index"]},
+    {"id": "M03-one-arg-means-radicand", "mutation": "Treat a sole positional argument as radicand.", "must_be_rejected_by": ["N02-one-positional", "N08-bare-one-slot"]},
+    {"id": "M04-presence-always-false", "mutation": "Always store index_explicit=false.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P04-qualified-content-index", "P06-bare-empty-index"]},
+    {"id": "M05-presence-always-true", "mutation": "Always store index_explicit=true, including sqrt.", "must_be_rejected_by": ["P02-square-root-carrier", "P13-sqrt-nonregression"]},
+    {"id": "M06-infer-presence-from-option", "mutation": "Infer index_explicit from index.is_some(), collapsing explicit none into absence.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P07-bare-evaluated-none", "P10-observation-relation"]},
+    {"id": "M07-empty-index-collapsed", "mutation": "Convert bare empty index into None/true or None/false.", "must_be_rejected_by": ["P06-bare-empty-index"]},
+    {"id": "M08-qualified-only-presence", "mutation": "Set the causal bit only in the qualified native.", "must_be_rejected_by": ["P07-bare-evaluated-none", "P08-bilateral-content-index"]},
+    {"id": "M09-bare-only-presence", "mutation": "Set the causal bit only in bare syntax.", "must_be_rejected_by": ["P03-qualified-explicit-none", "P04-qualified-content-index", "P08-bilateral-content-index"]},
+    {"id": "M10-repr-collapses-explicit-none", "mutation": "Render None/true as root(radicand: ...).", "must_be_rejected_by": ["P03-qualified-explicit-none"]},
+    {"id": "M11-repr-exposes-absent-none", "mutation": "Render None/false as root(index: none, radicand: ...).", "must_be_rejected_by": ["P02-square-root-carrier", "P13-sqrt-nonregression"]},
+    {"id": "M12-walker-or-hash-drops-bit", "mutation": "Drop or infer index_explicit during clone, hash, equality, map_content or map_text.", "must_be_rejected_by": ["P09-walkers-equality-hash"]},
+    {"id": "M13-observation-relation-ignores-bit", "mutation": "Omit, infer, wildcard, or return Unproven for index_explicit in ObservationEq.", "must_be_rejected_by": ["P10-observation-relation"]},
+    {"id": "M14-default-reconstruction-drops-bit", "mutation": "apply_math_default reconstructs MathRoot with defaulted or inferred presence.", "must_be_rejected_by": ["P11-reconstruction"]},
+    {"id": "M15-style-reconstruction-drops-bit", "mutation": "apply_math_style reconstructs MathRoot with defaulted or inferred presence.", "must_be_rejected_by": ["P11-reconstruction"]},
+    {"id": "M16-presence-affects-layout", "mutation": "Use index_explicit in geometry, class, text, emptiness, baseline, or dispatch.", "must_be_rejected_by": ["P12-layout-inertness", "P13-sqrt-nonregression"]},
+    {"id": "M17-open-or-wrong-signature", "mutation": "Accept or misclassify missing, extra, named, unknown-named, or non-content arguments.", "must_be_rejected_by": ["N01-zero-args", "N02-one-positional", "N03-extra-positional", "N04-index-cast", "N05-radicand-cast", "N06-radicand-named", "N07-unknown-named"]},
+    {"id": "M18-none-radicand-rejected", "mutation": "Reject none radicand instead of applying established Content coercion to empty content.", "must_be_rejected_by": ["P05-qualified-none-radicand"]}
+  ],
+  "exhaustive_wiring": {
+    "consumers": [
+      {"file": "01_core/src/compiler/eval/mod.rs", "owner_l0": "00_nucleo/prompts/compiler/eval.md", "obligation": "compare index_explicit in exhaustive MathRoot ObservationEq"},
+      {"file": "01_core/src/compiler/math/layout/tests.rs", "owner_l0": "00_nucleo/prompts/compiler/math/layout/tests.md", "obligation": "repair exactly the 14 existing constructor callsites mechanically"},
+      {"file": "01_core/src/compiler/math/layout/mod.rs", "owner_l0": "00_nucleo/prompts/compiler/math/layout/_comum.md", "obligation": "transport index_explicit through default and style reconstruction without geometric use"},
+      {"file": "01_core/src/entities/content.rs", "owner_l0": "00_nucleo/prompts/entities/content.md", "obligation": "accept and transport the third constructor argument without inference"},
+      {"file": "01_core/src/compiler/stdlib/structural/math.rs", "owner_l0": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "obligation": "register qualified root, enforce signature, set presence true, and retain sqrt false"},
+      {"file": "01_core/src/compiler/eval/math.rs", "owner_l0": "00_nucleo/prompts/compiler/eval/math.md", "obligation": "preserve bare empty/none/content index distinctions and sqrt absence"},
+      {"file": "01_core/src/compiler/eval/repr.rs", "owner_l0": "00_nucleo/prompts/compiler/eval/repr.md", "obligation": "emit the three presence-sensitive morphologies"},
+      {"file": "01_core/src/entities/elements/math_root.rs", "owner_l0": "00_nucleo/prompts/entities/elements/math_root.md", "obligation": "store public index_explicit and preserve it through data semantics and walkers"}
+    ],
+    "fail_closed": "Any additional productive consumer, non-mechanical existing-test repair, wildcard suppressing review, missing owner L0, or change outside the eight-consumer allowlist invalidates admission until obligation authority reviews the expanded surface."
+  },
+  "required_new_tests": [
+    {"path": "01_core/src/compiler/stdlib/structural/math/p1426_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/stdlib/structural/math/p1426-tests.md", "covers": ["P01", "P02", "P03", "P04", "P05", "P09", "N01-N07"]},
+    {"path": "01_core/src/compiler/eval/p1426_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/eval/p1426-tests.md", "covers": ["P06", "P07", "P10", "N08"]},
+    {"path": "01_core/src/compiler/math/layout/p1426_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/math/layout/p1426-tests.md", "covers": ["P11", "P12", "P13"]},
+    {"path": "03_infra/tests/p1426_math_root.rs", "test_only_l0": "00_nucleo/prompts/infra/tests/p1426-tests.md", "covers": ["P02-P08", "P13", "N01-N08"]}
+  ],
+  "execution_orders": ["forward", "forward_repeat", "reverse"],
+  "gates": {
+    "preseal": "Manifest, contract, oracle suite, mutation suite, executor bindings, and hashes are frozen before candidate admission.",
+    "discriminatory": {"mutation_score_required": 1.0, "valid_mutations_must_be_violated": true, "opaque_cases_must_be_unknown": true, "mandatory_unknown_allowed": false, "orders_must_have_identical_vectors": true},
+    "architecture": ["cargo fmt --all -- --check", "focused independent P1426 tests", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15, and V26 remain clear"]
+  },
+  "claim_boundary": "This contract discriminates only the approved P1426 math.root fragment. It does not establish general math parity, authorize radical geometry changes, cover the other 20 residual routes, or grant credit for Rust representation or render-byte equality."
+}
