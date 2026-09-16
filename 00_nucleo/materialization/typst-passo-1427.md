@@ -139,5 +139,6 @@ regressão de `binom`. Mutation score exigido: 1.0; `Unknown` é fail-closed.
 
 ## Confirmação do gate
 
-**PENDENTE.** Nenhuma implementação L1 está autorizada por este documento até
-confirmação humana explícita do P1427.
+**Confirmado explicitamente pelo dono em 2026-09-16.** A materialização fica
+autorizada somente dentro do recorte completo de `math.frac` e dos doze pares
+L0/consumer acima; as outras 19 rotas math permanecem fora de escopo.
