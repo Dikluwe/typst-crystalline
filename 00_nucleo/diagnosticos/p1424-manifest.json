@@ -1,6 +1,7 @@
 {
   "artifacts": {
     "contract": "00_nucleo/diagnosticos/p1424-contract.json",
+    "exhaustive_audit": "00_nucleo/diagnosticos/p1424-r2-exhaustive-audit.json",
     "manifest": "00_nucleo/diagnosticos/p1424-manifest.json",
     "seal": "00_nucleo/diagnosticos/p1424-seal.json"
   },
@@ -71,7 +72,21 @@
           "protected prompt and baseline"
         ],
         "write_allowlist": [
-          "productive P1424 implementation paths"
+          "01_core/src/compiler/eval/mod.rs",
+          "01_core/src/compiler/eval/repr.rs",
+          "01_core/src/compiler/introspect.rs",
+          "01_core/src/compiler/introspect/locatable.rs",
+          "01_core/src/compiler/layout/html_frame.rs",
+          "01_core/src/compiler/layout/mod.rs",
+          "01_core/src/compiler/math/layout/spacing.rs",
+          "01_core/src/compiler/stdlib/html.rs",
+          "01_core/src/entities/content.rs",
+          "01_core/src/entities/html.rs",
+          "03_infra/src/export/html.rs",
+          "03_infra/src/export/svg.rs",
+          "03_infra/src/pipeline.rs",
+          "test-module wiring declaration in 01_core/src/compiler/stdlib/html.rs",
+          "P1424-specific exhaustive-wiring obligation and lineage hash metadata only in the owner L0 paths listed by protected_inputs"
         ]
       },
       "environment": "shared workspace",
@@ -123,6 +138,11 @@
     },
     "productive_files": [
       {"path": "01_core/src/compiler/layout/mod.rs", "sha256": "fa82ff13bdb0adea98f1ad7985bea774b29fd9ce8984cf0f9baf603ce1613c1c"},
+      {"path": "01_core/src/compiler/eval/mod.rs", "sha256": "33e9145daa92bc688b6af71ae597d22a22d8da0b26688793838edf6143d0baad"},
+      {"path": "01_core/src/compiler/eval/repr.rs", "sha256": "b9e4197b3fd255ce12be34e3e48e35cc207cf2ec3289d2db5c9270471d2d331b"},
+      {"path": "01_core/src/compiler/introspect.rs", "sha256": "45ef7d21d82d7d12ba044e208653b1c59cc3155c769038bd289325544d6aec5d"},
+      {"path": "01_core/src/compiler/introspect/locatable.rs", "sha256": "997b6b4d9169cf9eb3d56a90b582a988c8fa5995f67cc516895579ae4b6aa32a"},
+      {"path": "01_core/src/compiler/math/layout/spacing.rs", "sha256": "72f9f25119deed83cea013756c138f3ca5cf1ea2e28b31682fba684df0c76c8d"},
       {"path": "01_core/src/compiler/stdlib/html.rs", "sha256": "d7cc4388fe161b2a69c029bdbbe879ed38c3d7b611af57d6b8addf8ecd04f159"},
       {"path": "01_core/src/entities/content.rs", "sha256": "b5c6dd1156e4f64fc1dc60a4c3434a000d40e42b4d0d66d77728f14486a0c4ab"},
       {"path": "01_core/src/entities/html.rs", "sha256": "a04d5c04b9b02aeef6b5a1aca5a9697e42566932d914e311f29153e2414d55b8"},
@@ -174,6 +194,11 @@
     {"path": "00_nucleo/materialization/typst-passo-1424.md", "sha256": "7bfdbc758e3c1a922957626ba8c707b548bb0e7e2caf22153448bf18a851f95e"},
     {"path": "00_nucleo/prompts/compiler/layout.md", "sha256": "acea6c98a50bb02ad01374d08a12282d02282526553d005867441a20c85662f3"},
     {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"},
+    {"path": "00_nucleo/prompts/compiler/eval.md", "sha256": "b3a4b12be834baeb02f318a856efadbf91de20d5fe3c446b5c394cf6d6d98182"},
+    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "79540d6f86fa7f378eb7c3599af2a24cf9d3db7c7b6de1be3bdb73ec8bf6a4c6"},
+    {"path": "00_nucleo/prompts/compiler/introspect.md", "sha256": "8666f0ff492eb093c7d14e2fc962de17cf46cb279e70601a8d3b77163ebdd399"},
+    {"path": "00_nucleo/prompts/compiler/introspect/locatable.md", "sha256": "02b43c4d39747dc88fe7b8bd008582d8f0c6ff50a1f7073d642b8d5e584d1aa1"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/spacing.md", "sha256": "19ba70105084baeb34f87a0ae0349c02fb4fbc239a095f634882bf127d45c1c8"},
     {"path": "00_nucleo/prompts/compiler/stdlib/html.md", "sha256": "873f7255aa5f12ef16b4b41d9707a9f027c6bacd4582a6f6f7b6e114e250845c"},
     {"path": "00_nucleo/prompts/entities/content.md", "sha256": "e022edcbca589415827210788f1a8a441bd1461c768046f4f18845c830d4c1a9"},
     {"path": "00_nucleo/prompts/entities/html.md", "sha256": "c84544bb67689592968c220a9a257e02ea378ac7304a566fa02e29bf18a4e39d"},
@@ -197,6 +222,12 @@
       {"path": "lab/typst-original/crates/typst-html/src/format.rs", "sha256": "366ea4aa68932ecf95c0d81863b3ca2905fe3ae48164b2029099d95905e8ce7b"},
       {"path": "lab/typst-original/crates/typst-html/src/rules.rs", "sha256": "f38f697d45ac5dcc4f26410d1ac550d627bc1d4c83144548d6ff4c70d80c6920"}
     ]
+  },
+  "revision": {
+    "exhaustive_audit_sha256": "4cf2c5a7fbe3c5fc64c214565dad8a38eb7e356a62dbc271cb0ec20710866a9e",
+    "id": "R2",
+    "previous_manifest_sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab",
+    "reason": "Fail-closed expansion after compiler-sentinel audit found 14 exhaustive Content matches in seven owned consumers; five consumer paths and five owner L0 inputs were missing from the implementation allowlist."
   },
   "schema": "tekt.materialization.manifest/v1",
   "unknown_policy": {

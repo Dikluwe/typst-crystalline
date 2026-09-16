@@ -2,8 +2,13 @@
   "allowlists": {
     "implementer": {
       "allowed_productive_writes": [
+        "01_core/src/compiler/eval/mod.rs",
+        "01_core/src/compiler/eval/repr.rs",
+        "01_core/src/compiler/introspect.rs",
+        "01_core/src/compiler/introspect/locatable.rs",
         "01_core/src/compiler/layout/html_frame.rs",
         "01_core/src/compiler/layout/mod.rs",
+        "01_core/src/compiler/math/layout/spacing.rs",
         "01_core/src/compiler/stdlib/html.rs",
         "01_core/src/entities/content.rs",
         "01_core/src/entities/html.rs",
@@ -14,9 +19,14 @@
       "allowed_test_wiring_only": [
         "01_core/src/compiler/stdlib/html.rs: declaration that wires the sealed p1424_tests module"
       ],
-      "allowed_l0_lineage_hash_only": [
+      "allowed_l0_p1424_obligation_and_lineage_only": [
+        "00_nucleo/prompts/compiler/eval.md",
+        "00_nucleo/prompts/compiler/eval/repr.md",
+        "00_nucleo/prompts/compiler/introspect.md",
+        "00_nucleo/prompts/compiler/introspect/locatable.md",
         "00_nucleo/prompts/compiler/layout.md",
         "00_nucleo/prompts/compiler/layout/html_frame.md",
+        "00_nucleo/prompts/compiler/math/layout/spacing.md",
         "00_nucleo/prompts/compiler/stdlib/html.md",
         "00_nucleo/prompts/entities/content.md",
         "00_nucleo/prompts/entities/html.md",
@@ -36,7 +46,7 @@
         "03_infra/tests/p1424_html_frame.rs",
         "all paths not expressly allowed above"
       ],
-      "lineage_exception": "A post-implementation change is permitted only to generated Hash do Código or @prompt-hash metadata. It invalidates the corresponding byte hash for final verification and requires an explicit final rebind; every semantic L0 byte remains sealed.",
+      "lineage_exception": "The five R2 owners may receive only their P1424 exhaustive-wiring obligation before the corresponding code change; all listed owners may receive generated Hash do Código or @prompt-hash metadata. Each byte change requires final rebind. Every unrelated semantic L0 byte remains sealed.",
       "may_edit_test_bodies": false
     }
   },
@@ -48,7 +58,7 @@
   },
   "calibration": {
     "candidate_executed": false,
-    "method": "R1 pre-candidate static discrimination after a compile-only oracle correction: every expected classification retains an attributable sealed witness; no implementation result is claimed.",
+    "method": "R2 fail-closed static discrimination after a baseline-only compiler sentinel enumerated every exhaustive Content match; every expected classification retains an attributable sealed witness and no candidate result is claimed.",
     "mutation_score": 1.0,
     "mutations": {
       "rejectable_with_witness": 21,
@@ -89,7 +99,7 @@
   "claim_boundary": "This seal freezes only the P1424 contract, witnesses, mutations, opaque policy, tests, baseline, capabilities, and execution orders. It does not attest a candidate, general HTML/SVG parity, byte equality, SVG IDs or attribute order, or any out-of-scope behavior named by the manifest.",
   "invalidation": {
     "fail_closed": true,
-    "rule": "Any unallowlisted write, test-body change, semantic L0 change, sealed artifact change, capability expansion, missing hash, identity mismatch, timeout, crash, unreadable result, mutation survivor, mandatory Unknown, or order-vector divergence invalidates the seal.",
+    "rule": "Any unallowlisted write, unrelated semantic L0 change, missing P1424 owner update, additional E0004 Content consumer, wildcard used to suppress exhaustive review, test-body change, sealed artifact change, capability expansion, missing hash, identity mismatch, timeout, crash, unreadable result, mutation survivor, mandatory Unknown, or order-vector divergence invalidates the seal.",
     "unknown_policy": "Unknown never counts as Preserved or Violated and blocks every mandatory positive or valid mutation; only U01-U04 require Unknown."
   },
   "protocol": {
@@ -99,20 +109,16 @@
     "version": "tekt-materializacao-segregada/1"
   },
   "revision": {
-    "id": "R1",
-    "previous_seal_sha256": "e46cd06e85a70a9dcd428f69a6486f2f2380afc40881adc10af7d32c4b68c941",
-    "reason": "Compile-only correction to the independent L1 oracle import and its lineage hash; intent, contract cases, observables, mutation witnesses, Unknown policy, claim boundary, baseline, and capabilities are unchanged.",
-    "unchanged_causal_inputs": [
-      {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"},
-      {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"},
-      {"path": "00_nucleo/diagnosticos/p1424-mutants.json", "sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b"}
-    ]
+    "id": "R2",
+    "previous_seal_sha256": "d7f0f3b868ca6989c5b0941b9a99e69f00fc0a4b84608987c55768bac903532b",
+    "reason": "Baseline compiler-sentinel audit found 14 exhaustive Content matches in seven consumers. R2 adds the five previously missing consumers and their owner L0s while preserving public cases, observables, mutations, Unknown policy, tests and claim boundary."
   },
   "sealed_inputs": [
-    {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"},
-    {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"},
-    {"path": "00_nucleo/diagnosticos/p1424-oracles.json", "sha256": "03a34ae7362ba155862a5ba742f042f5eb69c3a82a3b5e2d8ea0e75ca28bf852"},
-    {"path": "00_nucleo/diagnosticos/p1424-mutants.json", "sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b"},
+    {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1"},
+    {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d"},
+    {"path": "00_nucleo/diagnosticos/p1424-oracles.json", "sha256": "d448d54f0c532974e9b08bedd90d63eebf82c267ea4715cccc486f635fc49824"},
+    {"path": "00_nucleo/diagnosticos/p1424-mutants.json", "sha256": "90290cb354b8e0112c53ed0f303bba2146afd868ce867578dd802cdab6c973fb"},
+    {"path": "00_nucleo/diagnosticos/p1424-r2-exhaustive-audit.json", "sha256": "4cf2c5a7fbe3c5fc64c214565dad8a38eb7e356a62dbc271cb0ec20710866a9e"},
     {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"},
     {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c"},
     {"path": "00_nucleo/prompts/infra/tests/p1424-tests.md", "sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3"},
@@ -125,7 +131,7 @@
   },
   "verdict": {
     "implementation_authorized": true,
-    "reason": "The frozen contract has witnesses for 13/13 mandatory positives, fail-closed Unknown controls for 4/4 opaque cases, and witnesses capable of rejecting 21/21 valid mutations in each of the three deterministic orders; mutation score is 1.0.",
+    "reason": "The R2 contract covers all 14 compiler-proven exhaustive Content matches across seven owned consumers, has witnesses for 13/13 mandatory positives, fail-closed Unknown controls for 4/4 opaque cases, and witnesses capable of rejecting 21/21 valid mutations in each of the three deterministic orders; mutation score is 1.0.",
     "verification_still_required": true
   },
   "schema": "tekt.materialization.seal/v1"

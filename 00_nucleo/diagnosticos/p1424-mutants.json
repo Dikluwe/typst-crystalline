@@ -1,10 +1,11 @@
 {
   "schema": "tekt.materialization.mutants/v1",
   "authored_at": "2026-09-16T14:12:57-03:00",
+  "revised_at": "2026-09-16T14:31:50-03:00",
   "protocol": {
     "regime": "full",
     "attestation": "executado sem atestação de isolamento",
-    "status": "frozen_pre_candidate",
+    "status": "frozen_pre_candidate_r2",
     "mutation_score_required": 1.0,
     "mutation_score_formula": "valid_mutations_classified_Violated / valid_mutations",
     "unknown_policy": "Unknown nunca recebe crédito, não rejeita mutação válida, bloqueia caso positivo obrigatório e só é o resultado correto dos controles opacos U01-U04.",
@@ -40,11 +41,15 @@
   "inputs": {
     "manifest": {
       "path": "00_nucleo/diagnosticos/p1424-manifest.json",
-      "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"
+      "sha256": "3e929cc2db1a965ba89a136c18e6ee0c3c53911516acfe6d8a8c48cadafc11f1"
     },
     "contract": {
       "path": "00_nucleo/diagnosticos/p1424-contract.json",
-      "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"
+      "sha256": "88aaebc3be4581dba2d2c094b5e135e0cdfe32652854de4ae0b7e505bedc175d"
+    },
+    "exhaustive_audit": {
+      "path": "00_nucleo/diagnosticos/p1424-r2-exhaustive-audit.json",
+      "sha256": "4cf2c5a7fbe3c5fc64c214565dad8a38eb7e356a62dbc271cb0ec20710866a9e"
     },
     "baseline": {
       "approval_predecessor_commit": "50716247a60cc5965e4fe7d73807a482ecd1bb1b",
@@ -314,6 +319,17 @@
     "orders_must_have_identical_vectors": true,
     "surviving_valid_mutation_blocks_seal": true,
     "unknown_valid_mutation_blocks_seal": true
+  },
+  "revision": {
+    "id": "R2",
+    "previous_mutants_sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b",
+    "previous_manifest_sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab",
+    "previous_contract_sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31",
+    "reason": "Rebinds the unchanged mutation set, claims, execution orders and Unknown policy to the fail-closed R2 manifest and contract after the baseline exhaustive Content sentinel audit expanded the productive consumer allowlist.",
+    "mutation_set_changed": false,
+    "claims_changed": false,
+    "execution_orders_changed": false,
+    "unknown_policy_changed": false
   },
   "claim_boundary": "This suite attacks only the P1424 fragment named by the manifest and contract. It does not claim general HTML/SVG parity, byte equality, SVG ID or attribute-order equality, box-based display suppression, generated CSS, anchors/link targets, pretty formatting, or unsupported content support."
 }
