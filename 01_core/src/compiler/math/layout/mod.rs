@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash a0002ded
+//! @prompt-hash e71875c7
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -2043,6 +2043,7 @@ fn apply_math_default(body: &Content) -> Content {
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(apply_math_default),
             apply_math_default(&e.radicand),
+            e.index_explicit,
         ),
         Content::MathDelimited(e) => {
             Content::math_delimited(e.open, apply_math_default(&e.body), e.close)
@@ -2259,6 +2260,7 @@ fn apply_math_style(
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
             apply_math_style(&e.radicand, kind, bold, italic),
+            e.index_explicit,
         ),
         Content::MathDelimited(e) => Content::math_delimited(
             e.open,

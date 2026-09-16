@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 874844ba
+//! @prompt-hash f6242a09
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1628,8 +1628,12 @@ impl Content {
         Self::MathAttach(Arc::new(MathAttachElem { base, t, b, tl, bl, tr, br }))
     }
     /// Construtor de `MathRoot` (`index: None` = raiz quadrada).
-    pub fn math_root(index: Option<Content>, radicand: Content) -> Self {
-        Self::MathRoot(Arc::new(MathRootElem { index, radicand }))
+    pub fn math_root(
+        index: Option<Content>,
+        radicand: Content,
+        index_explicit: bool,
+    ) -> Self {
+        Self::MathRoot(Arc::new(MathRootElem { index, radicand, index_explicit }))
     }
     /// Construtor de `MathDelimited`.
     pub fn math_delimited(open: char, body: Content, close: char) -> Self {
@@ -4350,7 +4354,7 @@ mod tests {
 
     #[test]
     fn content_math_root_quadrada() {
-        let root = Content::math_root(None, Content::MathIdent("x".into()));
+        let root = Content::math_root(None, Content::MathIdent("x".into()), false);
         assert_eq!(root.plain_text(), "sqrt(x)");
     }
 
@@ -4359,6 +4363,7 @@ mod tests {
         let root = Content::math_root(
             Some(Content::MathText("3".into())),
             Content::MathIdent("x".into()),
+            true,
         );
         assert_eq!(root.plain_text(), "root(3, x)");
     }

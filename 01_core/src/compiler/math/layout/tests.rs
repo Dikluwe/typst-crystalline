@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/tests.md
-//! @prompt-hash e7f9908b
+//! @prompt-hash d77cb0ff
 //! @layer L1
 //! @updated 2026-08-10
 //!
@@ -682,7 +682,7 @@ fn p812b_tamanho_sobre_glyph_variant_preserva_glyph_e_factor() {
 #[test]
 fn layout_root_contem_radical_e_radicando() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-    let root = Content::math_root(None, Content::MathIdent("x".into()));
+    let root = Content::math_root(None, Content::MathIdent("x".into()), false);
     let items = ml.layout_equation(&root, &default_style());
     // Deve conter pelo menos o símbolo √ e o radicando "x"
     let texts: Vec<_> = items
@@ -702,7 +702,7 @@ fn layout_root_contem_radical_e_radicando() {
 #[test]
 fn layout_root_tem_overline() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-    let root = Content::math_root(None, Content::MathIdent("x".into()));
+    let root = Content::math_root(None, Content::MathIdent("x".into()), false);
     let items = ml.layout_equation(&root, &default_style());
     let has_line = items.iter().any(|i| matches!(i, FrameItem::Line { .. }));
     assert!(has_line, "sqrt deve gerar FrameItem::Line para overline");
@@ -711,7 +711,7 @@ fn layout_root_tem_overline() {
 #[test]
 fn layout_root_overline_horizontal() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-    let root = Content::math_root(None, Content::MathIdent("x".into()));
+    let root = Content::math_root(None, Content::MathIdent("x".into()), false);
     let items = ml.layout_equation(&root, &default_style());
     for item in &items {
         if let FrameItem::Line { start, end, .. } = item {
@@ -727,6 +727,7 @@ fn layout_root_com_indice_contem_indice() {
     let root = Content::math_root(
         Some(Content::MathText("3".into())),
         Content::MathIdent("x".into()),
+        true,
     );
     let items = ml.layout_equation(&root, &default_style());
     let texts: Vec<_> = items
@@ -1032,7 +1033,7 @@ fn frac_dentro_de_delimitadores_nao_regride() {
 #[test]
 fn sqrt_nao_regride_passo43() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-    let root = Content::math_root(None, Content::MathIdent("x".into()));
+    let root = Content::math_root(None, Content::MathIdent("x".into()), false);
     let items = ml.layout_equation(&root, &default_style());
     let texts: Vec<_> = items
         .iter()
@@ -1175,7 +1176,7 @@ fn delimitado_com_axis_height_nao_regride() {
 
 #[test]
 fn sqrt_com_axis_height_nao_regride() {
-    let root = Content::math_root(None, Content::MathIdent("x".into()));
+    let root = Content::math_root(None, Content::MathIdent("x".into()), false);
     let items = layout_equation_items(&root);
     assert!(
         items_contain_text(&items, '√') || items_contain_text(&items, '𝑥'),
@@ -1347,6 +1348,7 @@ fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
             Content::MathIdent("x".into()),
             Content::MathIdent("y".into()),
         ),
+        false,
     );
     let items = ml.layout_equation(&root, &style);
 
@@ -4563,7 +4565,7 @@ fn axis_ok_sqrt_radicando_nao_ganha_deslocamento_de_axis_height() {
     let seq = Content::MathSequence(Arc::from(
         vec![
             Content::MathIdent("x".into()),
-            Content::math_root(None, Content::MathIdent("y".into())),
+            Content::math_root(None, Content::MathIdent("y".into()), false),
         ]
         .into_boxed_slice(),
     ));
@@ -7398,6 +7400,7 @@ mod p970_tests {
         let root = Content::math_root(
             Some(Content::MathText("3".into())),
             Content::MathIdent("x".into()),
+            true,
         );
         let items = ml.layout_equation(&root, &style);
         items
@@ -7479,6 +7482,7 @@ mod p970b_tests {
             &Content::math_root(
                 Some(Content::MathText("3".into())),
                 Content::MathIdent("x".into()),
+                true,
             ),
             &default_style(),
         )
@@ -7590,7 +7594,7 @@ mod p970b_tests {
     fn p970b_sem_indice_inalterado() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let b = ml.layout_node(
-            &Content::math_root(None, Content::MathIdent("x".into())),
+            &Content::math_root(None, Content::MathIdent("x".into()), false),
             &default_style(),
         );
         assert!((b.width - 14.4).abs() < 1e-9, "largura sem índice: {}", b.width);
@@ -7691,7 +7695,10 @@ mod p974_tests {
         let metrics = P974Metrics::new().with_ink('x', 11.088, 0.0);
         let style = default_style();
         let ml = MathLayouter::new(&metrics, true, &style);
-        ml.layout_node(&Content::math_root(None, Content::MathIdent("x".into())), &style)
+        ml.layout_node(
+            &Content::math_root(None, Content::MathIdent("x".into()), false),
+            &style,
+        )
     }
 
     /// **Parte A** — com short_fall=0 (vanilla), um alvo de 1050du passa o
@@ -7718,7 +7725,7 @@ mod p974_tests {
         let style_display = TextStyle { math_size: MathSize::Display, ..default_style() };
         let style_text = TextStyle { math_size: MathSize::Text, ..default_style() };
         let ml = MathLayouter::new(&metrics, true, &style_display);
-        let root = Content::math_root(None, Content::MathIdent("x".into()));
+        let root = Content::math_root(None, Content::MathIdent("x".into()), false);
 
         let b_display = ml.layout_node(&root, &style_display);
         let tem_v1_display = b_display.items.iter().any(
@@ -7749,7 +7756,7 @@ mod p974_tests {
         let style = default_style();
         let ml = MathLayouter::new(&metrics, true, &style);
         let b = ml.layout_node(
-            &Content::math_root(None, Content::MathIdent("x".into())),
+            &Content::math_root(None, Content::MathIdent("x".into()), false),
             &style,
         );
         let tem_glyph_esticado = b.items.iter().any(

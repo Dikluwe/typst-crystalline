@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash c7ee3b8a
+//! @prompt-hash 104cf2d8
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -716,13 +716,20 @@ pub fn repr_content(c: &Content) -> String {
             format!("({})/({})", repr_content(&f.num), repr_content(&f.den))
         }
         Content::MathAttach(a) => repr_math_attach(a),
-        Content::MathRoot(r) => {
-            if let Some(idx) = &r.index {
-                format!("root({}, {})", repr_content(idx), repr_content(&r.radicand))
-            } else {
-                format!("root(radicand: {})", repr_content(&r.radicand))
+        Content::MathRoot(r) => match (&r.index, r.index_explicit) {
+            (Some(index), true) => format!(
+                "root(index: {}, radicand: {})",
+                repr_p1293_math_field(index),
+                repr_p1293_math_field(&r.radicand)
+            ),
+            (None, true) => {
+                format!(
+                    "root(index: none, radicand: {})",
+                    repr_p1293_math_field(&r.radicand)
+                )
             }
-        }
+            (_, false) => format!("root(radicand: {})", repr_content(&r.radicand)),
+        },
         Content::MathDelimited(d) => repr_canonical_binom(d)
             .unwrap_or_else(|| format!("{}{}{}", d.open, repr_content(&d.body), d.close)),
         Content::MathAlignPoint(_) => "&".to_string(),

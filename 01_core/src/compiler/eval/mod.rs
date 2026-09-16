@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 46e59dc2
+//! @prompt-hash 64dd9a92
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -4324,10 +4324,11 @@ impl ObservationEq for crate::entities::elements::curve::CloseMode {
 }
 impl ObservationEq for crate::entities::elements::math_root::MathRootElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { index: _, radicand: _ } = self;
+        let Self { index: _, radicand: _, index_explicit: _ } = self;
         ObservationRelation::Same
             .and(self.index.observation_relation(&other.index))
             .and(self.radicand.observation_relation(&other.radicand))
+            .and(self.index_explicit.observation_relation(&other.index_explicit))
     }
 }
 impl ObservationEq for crate::entities::elements::math_accent::MathAccentElem {

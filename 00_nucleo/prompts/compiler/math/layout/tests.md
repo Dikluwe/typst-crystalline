@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/math/layout/tests` — suíte matemática
-Hash do Código: 57c9f8a4
+Hash do Código: 91c2bac8
 
 
 **Camada:** L1, testes

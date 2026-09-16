@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 6bf8f4be
+//! @prompt-hash f45b7301
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -34,7 +34,7 @@ mod p1426_tests;
 
 /// Construtor puro compartilhado pela função pública e pelo modo math.
 pub(crate) fn sqrt_content(radicand: Content) -> Content {
-    Content::math_root(None, radicand)
+    Content::math_root(None, radicand, false)
 }
 
 /// Construtor puro compartilhado pela função pública e pela sintaxe `$...$`.
@@ -222,6 +222,61 @@ pub fn native_math_sqrt(
             "unexpected argument".to_string(),
         )]),
     }
+}
+
+/// `math.root(index, radicand)` — raiz estrutural com índice causalmente presente.
+pub fn native_math_root(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.contains_key("radicand") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `radicand` is positional".to_string(),
+        )]);
+    }
+    if let Some((name, _)) = args.named.iter().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    let [index, radicand] = args.items.as_slice() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            if args.items.len() < 2 {
+                "missing argument: radicand".to_string()
+            } else {
+                "unexpected argument".to_string()
+            },
+        )]);
+    };
+
+    let index = match index {
+        Value::Content(index) => Some(index.clone()),
+        Value::None => None,
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected content, found {}", vanilla_type_name_class(other)),
+            )])
+        }
+    };
+    let radicand = match radicand {
+        Value::Content(radicand) => radicand.clone(),
+        Value::None => Content::Empty,
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected content, found {}", vanilla_type_name_class(other)),
+            )])
+        }
+    };
+
+    Ok(Value::Content(Content::math_root(index, radicand, true)))
 }
 
 /// `accent(base, accent)` — emite `Content::MathAccent { base, accent }`.
@@ -1254,6 +1309,10 @@ pub fn make_math_module() -> Value {
         "sqrt".into(),
         Value::Func(crate::entities::func::Func::native("math.sqrt", native_math_sqrt)),
     );
+    dict.insert(
+        "root".into(),
+        Value::Func(crate::entities::func::Func::native("root", native_math_root)),
+    );
 
     // P1292-A — a função canónica existente também é membro de `math`.
     // O binding precede o espelho sym→math, que nunca o sobrescreve.
@@ -2048,7 +2107,7 @@ mod p1283_tests {
                 (Value::Module(left), Value::Module(right)) => assert_mirror(left, right),
                 // Bindings próprios de math ganham de símbolos homónimos.
                 (_, Value::Func(_))
-                    if matches!(name, "sqrt" | "class" | "equation" | "op") => {}
+                    if matches!(name, "sqrt" | "root" | "class" | "equation" | "op") => {}
                 (left, right) => {
                     panic!("wrong math mirror kind for {name}: {left:?} vs {right:?}")
                 }
@@ -2065,7 +2124,7 @@ mod p1283_tests {
             panic!("math must be module")
         };
         assert_mirror(&sym, &math);
-        for name in ["sqrt", "class", "equation", "op"] {
+        for name in ["sqrt", "root", "class", "equation", "op"] {
             assert!(
                 matches!(math.scope().get(name), Some(Value::Func(_))),
                 "math.{name} overwritten"

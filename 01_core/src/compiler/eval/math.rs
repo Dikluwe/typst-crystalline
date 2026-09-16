@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash f1ca58a1
+//! @prompt-hash e7a6b24a
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -478,7 +478,7 @@ fn eval_math_expr(
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
             let index = root.index().map(|n| Content::MathText(n.to_string().into()));
             let radicand = eval_math_expr(scopes, ctx, engine, root.radicand())?;
-            Ok(Content::math_root(index, radicand))
+            Ok(Content::math_root(index, radicand, false))
         }
         Expr::Math(inner) => eval_math_content(scopes, ctx, engine, inner),
 
@@ -737,15 +737,23 @@ fn eval_math_expr(
                     if args.len() != 2 {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
-                            format!(
-                                "root espera exactamente 2 argumentos, recebeu {}",
-                                args.len()
-                            ),
+                            if args.len() < 2 {
+                                "missing argument: radicand".to_string()
+                            } else {
+                                "unexpected argument".to_string()
+                            },
                         )]);
                     }
-                    let index = eval_math_expr(scopes, ctx, engine, args[0])?;
+                    let index = match eval_math_arg_value(scopes, ctx, engine, args[0])? {
+                        Value::None => None,
+                        Value::Content(content) => Some(content),
+                        value => Some(
+                            super::value_to_display_content(value)
+                                .unwrap_or(Content::Empty),
+                        ),
+                    };
                     let radicand = eval_math_expr(scopes, ctx, engine, args[1])?;
-                    Ok(Content::math_root(Some(index), radicand))
+                    Ok(Content::math_root(index, radicand, true))
                 }
                 // **P899 (Parte A)** — `hat`/`tilde`/`dot` são funções de
                 // acento (`dot.double` é tratado à parte, callee com

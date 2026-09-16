@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_root.md
-//! @prompt-hash 2be56251
+//! @prompt-hash f576109f
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -19,6 +19,7 @@ use crate::entities::source_result::SourceResult;
 pub struct MathRootElem {
     pub index: Option<Content>,
     pub radicand: Content,
+    pub index_explicit: bool,
 }
 
 impl Element for MathRootElem {
@@ -38,6 +39,7 @@ impl Element for MathRootElem {
         Ok(Content::MathRoot(Arc::new(MathRootElem {
             index: self.index.as_ref().map(|c| c.map_content(transform)).transpose()?,
             radicand: self.radicand.map_content(transform)?,
+            index_explicit: self.index_explicit,
         })))
     }
 
@@ -56,21 +58,31 @@ mod tests {
 
     #[test]
     fn plain_text_sqrt_e_root() {
-        let sq = MathRootElem { index: None, radicand: Content::text("x") };
+        let sq = MathRootElem {
+            index: None,
+            radicand: Content::text("x"),
+            index_explicit: false,
+        };
         assert_eq!(sq.plain_text(), "sqrt(x)");
         let nth = MathRootElem {
             index: Some(Content::text("3")),
             radicand: Content::text("x"),
+            index_explicit: true,
         };
         assert_eq!(nth.plain_text(), "root(3, x)");
     }
 
     #[test]
     fn igualdade_estrutural() {
-        let a = MathRootElem { index: None, radicand: Content::text("x") };
+        let a = MathRootElem {
+            index: None,
+            radicand: Content::text("x"),
+            index_explicit: false,
+        };
         let b = MathRootElem {
             index: Some(Content::text("2")),
             radicand: Content::text("x"),
+            index_explicit: true,
         };
         assert_eq!(a.clone(), a.clone());
         assert_ne!(a, b);
@@ -84,10 +96,15 @@ mod tests {
                 _ => Ok(None),
             }
         };
-        let sq = MathRootElem { index: None, radicand: Content::text("x") };
+        let sq = MathRootElem {
+            index: None,
+            radicand: Content::text("x"),
+            index_explicit: false,
+        };
         match sq.map_content(&mut f).unwrap() {
             Content::MathRoot(e) => {
                 assert!(e.index.is_none());
+                assert!(!e.index_explicit);
                 assert_eq!(e.plain_text(), "sqrt(Z)");
             }
             _ => panic!("esperado MathRoot"),
