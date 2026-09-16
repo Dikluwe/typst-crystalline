@@ -24,7 +24,7 @@ Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição f
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
 
-## P1424 — layout intrínseco de frame HTML (PROPOSTO; gate ADR-0127)
+## P1424 — layout intrínseco de frame HTML (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -46,7 +46,8 @@ footer, numeração ou canvas A4.
 O layout interno observa target paged e conserva nesting: frame dentro de
 frame não cria uma segunda ilha. Erros e callbacks pendentes seguem os canais
 vigentes; não executar Func dentro do layouter nem importar L3. A assinatura
-pública nova e o novo braço aguardam confirmação ADR-0127.
+pública nova e o novo braço foram confirmados pelo dono em 2026-09-16 e ficam
+limitados pelo selo P1424.
 
 ## P1374 — parcela fracionária interna proposta
 

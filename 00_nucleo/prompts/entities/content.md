@@ -3019,7 +3019,7 @@ a nova posição da expansão pertence ao owner L3 `infra/pipeline.md` P1411.
 Esta correção interna do walker integra a mudança de fase P1411 confirmada em
 2026-09-15 e não adiciona API pública.
 
-# P1424 — `Content::HtmlFrame` (PROPOSTO; gate ADR-0127)
+# P1424 — `Content::HtmlFrame` (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -3038,4 +3038,5 @@ apagar a variante; `func()` identifica `frame`; `repr` expõe a morfologia
 
 Layout paginado e pipeline HTML são consumers diferentes da mesma variante.
 Nenhum fallback pode convertê-la em Empty, HtmlElem ou body antes do consumer
-correto. Variante pública exige confirmação ADR-0127 antes do código.
+correto. A variante pública foi confirmada pelo dono em 2026-09-16 e deve ser
+materializada somente sob o selo P1424.

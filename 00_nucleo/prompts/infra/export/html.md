@@ -297,7 +297,7 @@ modo selecionado. O formatador identifica o fim de tags respeitando aspas em
 atributos; `>` dentro de atributo não encerra token. Void, raw, erros e
 subset suportado permanecem iguais.
 
-## P1424 — slot de SVG inline resolvido (PROPOSTO; gate ADR-0127)
+## P1424 — slot de SVG inline resolvido (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -316,4 +316,5 @@ explícito se receber frame não resolvido.
 O SVG não passa por escape HTML, não é embrulhado em `<p>` e é block-level por
 defeito. Texto/attrs HTML comuns, `html.elem("frame")`, modos de escaping e
 pretty externo permanecem inalterados. O exporter não chama layout, World nem
-filesystem. A nova integração de fase aguarda confirmação ADR-0127.
+filesystem. A nova integração de fase foi confirmada pelo dono em 2026-09-16
+e fica limitada pelo selo P1424.

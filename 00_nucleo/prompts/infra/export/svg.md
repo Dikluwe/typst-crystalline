@@ -611,7 +611,7 @@ segundo. A geometria, stroke, fill, bbox e ordem de pintura não mudam. Paths
 fechados, cúbicos ou com outra cardinalidade continuam no emissor genérico.
 É correção de paridade interna sem API pública, default ou fase nova.
 
-## P1424 — variante SVG embutida em HTML (PROPOSTO; gate ADR-0127)
+## P1424 — variante SVG embutida em HTML (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -632,5 +632,5 @@ writers do SVG standalone; não duplicar desenho no exporter HTML.
 
 IDs internos, ordem mecânica de atributos e bytes não são paridade. São
 observáveis a presença de SVG inline, transparência, dimensões, viewBox,
-display e morfologia visual suportada. A nova entry point e integração
-aguardam confirmação ADR-0127.
+display e morfologia visual suportada. A nova entry point e integração foram
+confirmadas pelo dono em 2026-09-16 e ficam limitadas pelo selo P1424.

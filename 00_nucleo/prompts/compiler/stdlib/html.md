@@ -849,7 +849,7 @@ da tabela continuam fora.
 Esta secção foi confirmada explicitamente pelo dono em 2026-09-16. O contrato
 aprovado deve ser selado pelo protocolo segregado antes da materialização.
 
-## P1424 — primitiva `html.frame` (PROPOSTO; gate ADR-0127)
+## P1424 — primitiva `html.frame` (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -871,5 +871,5 @@ A construção preserva a primitiva; não a codifica como `HtmlElem`, tag
 sentinela, string SVG ou body simples. Target paged e HTML divergem no consumo,
 não na identidade construída. Feature off continua rejeitando o módulo.
 
-Esta adição é contrato público e compatibilidade. Nenhum código é autorizado
-antes da confirmação explícita do dono registrada no P1424.
+Esta adição é contrato público e compatibilidade. Foi confirmada explicitamente
+pelo dono em 2026-09-16; a materialização deve respeitar o selo P1424.

@@ -103,3 +103,8 @@ os dois targets, nesting, geometria e falhas. Mutation score exigido: `1.0`;
   `crystalline-lint .` e `git diff --check`.
 
 O fecho atesta somente o fragmento P1424 e não paridade HTML/SVG geral.
+
+## Confirmação do gate
+
+**Confirmado explicitamente pelo dono em 2026-09-16.** A execução fica
+autorizada somente dentro do contrato acima e dos L0 proprietários aprovados.

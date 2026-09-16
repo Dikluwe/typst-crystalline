@@ -878,7 +878,7 @@ mudança `eval → introspecção → expansão contextual → export HTML` é u
 de fase e aguarda confirmação humana explícita conforme ADR-0127 antes de
 qualquer código.
 
-## P1424 — resolução paginada localizada de `html.frame` (PROPOSTO; gate ADR-0127)
+## P1424 — resolução paginada localizada de `html.frame` (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -900,4 +900,5 @@ caminho e bytes atuais.
 Não paginar o documento HTML inteiro, não trocar `EvalTarget::Html` da
 avaliação externa, não ativar feature implicitamente e não guardar SVG em L1.
 Falha de layout/render da ilha aborta a compilação; não apagar, substituir por
-texto ou emitir `<frame>`. A nova fase aguarda confirmação ADR-0127.
+texto ou emitir `<frame>`. A nova fase foi confirmada pelo dono em 2026-09-16
+e fica limitada pelo selo P1424.

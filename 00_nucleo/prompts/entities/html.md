@@ -106,7 +106,7 @@ estado, implementação ou teste duplicado em HTML.
 O binding público `html` e o exporter permanecem sujeitos ao Núcleo pinado;
 esta entidade não ativa feature, target nem formato.
 
-## P1424 — carrier `HtmlFrameElem` (PROPOSTO; gate ADR-0127)
+## P1424 — carrier `HtmlFrameElem` (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
 ### Medição anterior à decisão
 
@@ -130,4 +130,5 @@ target ou estilos e não faz I/O. O carrier não reutiliza `HtmlBody`, não acei
 attrs e não guarda bytes derivados. Sua única incorporação em Content pertence
 ao owner `entities/content.md`.
 
-Tipo e campo públicos exigem confirmação ADR-0127 antes do código.
+Tipo e campo públicos foram confirmados pelo dono em 2026-09-16 e devem ser
+materializados somente sob o selo P1424.
