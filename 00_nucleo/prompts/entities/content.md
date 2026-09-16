@@ -297,7 +297,7 @@ contrato do trait); em `map_content` os contentores recursam.
 | `MathAccent { base, accent }` | `math_accent` | `MathAccent(Arc<…Elem>)` | contentor (recurse) |
 | `MathCancel { body }` | `math_cancel` | `MathCancel(Arc<…Elem>)` | contentor (recurse) |
 | `MathDelimited { open, body, close }` | `math_delimited` | `MathDelimited(Arc<…Elem>)` | contentor (recurse body) |
-| `MathRoot { index, radicand }` | `math_root` | `MathRoot(Arc<…Elem>)` | contentor (recurse) |
+| `MathRoot { index, radicand }` | `math_root(index, radicand, index_explicit)` | `MathRoot(Arc<…Elem>)` | contentor (recurse; preserva presença P1426) |
 | `MathUnderover { base, under, over }` | `math_underover` | `MathUnderover(Arc<…Elem>)` | contentor (recurse) |
 | `MathFrac { num, den }` | `math_frac` | `MathFrac(Arc<…Elem>)` | contentor (recurse) |
 | `MathAttach { base, tl, bl, sub, sup }` | `math_attach` | `MathAttach(Arc<…Elem>)` | contentor (recurse) |

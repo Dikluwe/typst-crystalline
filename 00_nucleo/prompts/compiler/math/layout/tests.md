@@ -14,3 +14,11 @@ A suíte verifica despacho, estilos, baseline, extents, spacing e regressões do
 submódulos matemáticos usando métricas injetadas e oráculos medidos. Testes não
 legitimam o algoritmo produtivo nem elevam coordenadas de fixture a contrato.
 Casos novos registram a fonte/proveniência da fórmula ou do observável.
+
+## P1426 — reparo mecânico das fixtures (PROPOSTA)
+
+Os 14 callsites existentes de `Content::math_root` recebem o terceiro
+argumento exigido pelo novo constructor. Fixtures de raiz quadrada usam
+`index_explicit:false`; fixtures com índice presente usam `true`. Isto não
+altera coordenadas, oráculos nem algoritmo de layout e só será aplicado após o
+gate ADR-0127.

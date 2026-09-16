@@ -92,11 +92,18 @@ Produzir `repr` exaustivo e determinístico para `Value`, `Content` e
 constructoras. A aceitação é textual/linguística; a estrutura Rust é mecânica.
 
 Labels usam `<nome>` somente quando o nome satisfaz a gramática literal; caso
-contrário usam `label(<repr string>)`. Raiz matemática sem índice usa
-`root(radicand: <repr>)`; com índice conserva `root(<index>, <radicand>)` até
-medição específica. Symbols multi-codepoint preservam todos os scalar values,
+contrário usam `label(<repr string>)`. Raiz matemática segue a medição P1426
+abaixo. Symbols multi-codepoint preservam todos os scalar values,
 incluindo variation selectors e ZWJ, sem conversão para `char`, normalização ou
 substituição pelo nome canônico.
+
+## P1426 — `repr` de raiz por presença (PROPOSTA; gate ADR-0127 pendente)
+
+`MathRootElem` com `index_explicit:false` representa
+`root(radicand: <repr>)`. Com presença verdadeira, `Some(index)` representa
+`root(index: <repr>, radicand: <repr>)` e `None` representa
+`root(index: none, radicand: <repr>)`. O formatter usa o bit causal; não infere
+presença pelo valor e não altera escaping ou multiline dos filhos.
 
 ## P1425 — `repr` de `math.limits` por presença (APROVADO no gate ADR-0127)
 
