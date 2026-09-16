@@ -1,0 +1,133 @@
+{
+  "schema": "tekt-contract/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1422,
+  "status": "candidate-contract-unsealed",
+  "contract_revision": "R0",
+  "attestation": "executado sem atestação de isolamento",
+  "regime": {
+    "kind": "full",
+    "product_read_only": true,
+    "candidate_runner_read_by_contract_author": false,
+    "candidate_results_read_by_contract_author": false,
+    "preseal_emitted": false,
+    "verdict_emitted": false
+  },
+  "causal_predecessor": {
+    "step_path": "00_nucleo/materialization/typst-passo-1422.md",
+    "step_sha256": "e553f1496c665a870721d2c64664cc59b1719c2f8007e37fd8df1bcaaf16d1da",
+    "manifest_path": "00_nucleo/diagnosticos/p1422-manifest.json",
+    "manifest_sha256_at_contract_creation": "ec0d8aad677c4725d94560664b5404aae75a26a868698a65786bdfa06f4fdf96",
+    "p1420_contract_path": "00_nucleo/diagnosticos/p1420-contract.json",
+    "p1420_contract_sha256": "f8758aaac326fe9ac9c10a75bf6f1884ae69fd3076666c2469dedf59c44f70d1",
+    "p1420_oracles_path": "00_nucleo/diagnosticos/p1420-oracles.json",
+    "p1420_oracles_sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4"
+  },
+  "nominal_transformation": {
+    "from": "P1420",
+    "to": "P1422",
+    "allowed_changes": {
+      "repository_identity": {"head": "fc803d05f0e7eec7f6bc6a8e363e3cfe1450077d", "tree": "11a404824b77d608b1eda29ad44fb281d89aef03"},
+      "crystalline_binary_sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860",
+      "artifact_prefix": "p1422",
+      "runner_path": "lab/parity/p1422_unknown_route_reprobe.py",
+      "resume_reason": "P1421 made the mandatory HTML target control bilateral and the P1420 focal vector stable, authorizing focal-first resumption."
+    },
+    "must_remain_byte_semantically_identical": ["all 66 cases and fixture source bytes", "all expected values", "12 common/external controls", "denominator and order", "state composition", "HTML/math projection rules", "transport symmetry", "Unknown policy"],
+    "mismatch_result": "Unknown(BASELINE_DRIFT); do not execute product and do not edit expected"
+  },
+  "baseline_identities": {
+    "repository_head": "fc803d05f0e7eec7f6bc6a8e363e3cfe1450077d",
+    "repository_tree": "11a404824b77d608b1eda29ad44fb281d89aef03",
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": {"path": "lab/typst-original/target/release/typst", "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+    "crystalline_binary": {"path": "target/release/typst", "sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860"},
+    "inventory": {"path": "/tmp/p1420-current-inventory.json", "sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15"}
+  },
+  "authoritative_payload_hashes": {
+    "p1420_oracles_file": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+    "oracles_cases_canonical": "1a801f2417b17a144a050957a5834c15f2afa1f0897abd6d4660882353322696",
+    "oracles_controls_canonical": "59b8d85d7c7f1d883de4317a5a8cf08b0d7a9aa6b3d049cb1b22ccc0cb117764",
+    "oracles_denominator_canonical": "f8987b3e5dff44d2799f0654b745a3a5222da7e6ed34c3a303821fd56e75d571",
+    "oracles_state_composition_canonical": "0dc1f20cd4d5d4c46535ce061156e9dac2028d1a0e17c274bd19d77c0eef4ca1",
+    "oracles_projection_policy_canonical": "45c2bfd619a16218bb6c6e7dbe54ae0cc00b0a235146c6ec4d9052f2a6148cf2",
+    "oracles_transport_policy_canonical": "b3856117e17657784835421145f0b0244fd30a6b7fa7eef8992d872b4a892ec9",
+    "oracles_unknown_policy_canonical": "071d41787dd797c1c6f2d7e7b9bef5457fd69da615c77673b7d6350fb3f80aae",
+    "contract_frozen_routes_canonical": "47a3b5758ed7619dd008a096fd8da0695800468e060d28353d20107c493c3434",
+    "contract_classification_canonical": "86cd24068a4174cbbbfb51aecc6e5078141ebc047d8912e76aef6418991a6502"
+  },
+  "denominator": {
+    "route_count": 66,
+    "html_count": 44,
+    "math_count": 22,
+    "paths_sha256": "db0997fb12aecec3aa024da0174b978035baa446e5105b71fc2fd577feb8f1bb",
+    "membership_source": "p1420-oracles.json#denominator.paths",
+    "inventory_precondition": "All 66 literal paths remain VANILLA_ONLY in the protected presence-only inventory.",
+    "any_add_remove_reorder_or_reason_change": "Unknown(BASELINE_DRIFT)"
+  },
+  "resume_precondition": {
+    "p1421_results_sha256": "f444bd11a7855ef5baf632a9db5c108c5bdf21905be78fb7037524cd947e90a9",
+    "html_target_control": "unblocked and stable in direct, direct-repeat and reverse",
+    "html_area_focal": {"qualified_state": "ABSENT", "alternative_state": "MATCH", "route_state": "PARTIAL"},
+    "math_abs_focal": {"qualified_state": "ABSENT", "alternative_state": "DIFFERENCE", "route_state": "PARTIAL"},
+    "scope": "This authorizes execution, not extrapolation to the other 64 routes."
+  },
+  "execution_contract": {
+    "pre_product_gates": ["validate preseal", "validate all protected hashes", "validate both binary identities", "validate inventory", "validate 66 routes", "validate 154 probes per order"],
+    "focal_gate": ["html.area", "math.abs", "all mandatory common controls"],
+    "on_focal_failure": "stop before full campaign and emit INCONCLUSIVE",
+    "on_focal_pass": "run one full campaign and one independent full repetition",
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "same_vector_required": true,
+    "alternatives_always_execute": true,
+    "processes_serial": true,
+    "raw_outputs_only_under": "/tmp",
+    "consolidated_output": "00_nucleo/diagnosticos/p1422-results.json"
+  },
+  "transport_contract": {
+    "authoritative": "p1420-oracles.json#transport_policy",
+    "bilateral_exact_argv_required": true,
+    "forbidden_tokens": ["--jobs", "eval --target"],
+    "features_must_be_symmetric": true,
+    "one_probe_per_process": true,
+    "limits": {"rlimit_as_mib": 512, "timeout_seconds": 15, "stream_bytes_each": 65536, "rayon_num_threads": 1, "swap_kib": 0}
+  },
+  "state_composition": {
+    "authoritative": "p1420-oracles.json#state_composition",
+    "canonical_sha256": "0dc1f20cd4d5d4c46535ce061156e9dac2028d1a0e17c274bd19d77c0eef4ca1",
+    "states": ["MATCH", "DIFFERENCE", "PARTIAL", "ABSENT", "UNKNOWN"],
+    "difference_is_not_unknown": true,
+    "argument_or_construction_error_does_not_imply_absence": true,
+    "unknown_never_promotes": true
+  },
+  "results_contract": {
+    "schema": "p1422-route-results/v1",
+    "required_per_route": ["id", "path", "qualified_state", "alternative_state", "route_state", "reason_code", "reason_phase", "schedule_stable"],
+    "required_global": ["head", "tree", "binary hashes", "preseal hash", "runner hash", "orders", "vector hashes", "resource receipts", "state counts", "claim boundary"],
+    "exactly_one_record_per_frozen_route": true,
+    "route_credit_from_common_control": false
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "positive_expected": "Preserved",
+    "negative_expected": "Violated",
+    "opaque_expected": "Unknown",
+    "minimum_families": ["route add/remove", "old identity", "expected edit", "--jobs", "eval --target", "asymmetric features", "generic or conditional alternative", "Difference/Unknown promotion", "observable discard", "HTML relaxation", "absence inferred from argument error", "resource failure promotion", "order divergence", "historical input edit"],
+    "survivor_blocks_preseal": true
+  },
+  "closure_criteria": [
+    "focal passes before full campaign",
+    "66 routes each have all required states and literal reason",
+    "154 probes per order",
+    "direct, direct-repeat and reverse vectors identical",
+    "independent full repetition identical",
+    "mutation score 1.0",
+    "protected history byte-identical",
+    "static gates pass",
+    "legitimate UNKNOWN closes as INCONCLUSIVE, never parity"
+  ],
+  "role_capabilities": {
+    "contract_oracle_author": {"executor": "/root/p1422_contract", "reads": "only step and protected P1420/P1421 inputs", "writes": ["p1422-manifest.json", "p1422-contract.json", "p1422-oracles.json"], "forbidden": ["candidate runner", "mutants", "preseal", "candidate results", "verdict"]}
+  },
+  "claim_boundary": "The verdict can cover only the 66 frozen routes, exact products and public observables. It never proves general functional parity of HTML, math or Typst."
+}

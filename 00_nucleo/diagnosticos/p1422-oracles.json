@@ -1,0 +1,143 @@
+{
+  "schema": "p1422-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1422,
+  "status": "candidate-oracles-unsealed",
+  "revision": "R0-nominal-resume",
+  "attestation": "executado sem atestação de isolamento",
+  "role": "contract-and-oracle-author",
+  "executor": {
+    "authority": "/root/p1422_contract",
+    "workspace": "shared",
+    "candidate_p1422_runner_read": false,
+    "candidate_p1422_results_read": false,
+    "candidate_executed": false,
+    "verdict_emitted": false,
+    "write_allowlist": ["00_nucleo/diagnosticos/p1422-manifest.json", "00_nucleo/diagnosticos/p1422-contract.json", "00_nucleo/diagnosticos/p1422-oracles.json"],
+    "forbidden_inputs": ["lab/parity/p1422_unknown_route_reprobe.py", "00_nucleo/diagnosticos/p1422-mutants.json", "00_nucleo/diagnosticos/p1422-preseal.json", "any P1422 candidate output"]
+  },
+  "causal_predecessor": {
+    "step_path": "00_nucleo/materialization/typst-passo-1422.md",
+    "step_sha256": "e553f1496c665a870721d2c64664cc59b1719c2f8007e37fd8df1bcaaf16d1da",
+    "manifest_path": "00_nucleo/diagnosticos/p1422-manifest.json",
+    "manifest_sha256": "ec0d8aad677c4725d94560664b5404aae75a26a868698a65786bdfa06f4fdf96",
+    "contract_path": "00_nucleo/diagnosticos/p1422-contract.json",
+    "contract_sha256": "b2614665a50060b0a0a1f4ca6197f3147695cdb1592cc71181848c5bdf78d437"
+  },
+  "baseline": {
+    "repository_head": "fc803d05f0e7eec7f6bc6a8e363e3cfe1450077d",
+    "repository_tree": "11a404824b77d608b1eda29ad44fb281d89aef03",
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_binary_sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860",
+    "inventory_sha256": "580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15"
+  },
+  "authoritative_public_payload": {
+    "path": "00_nucleo/diagnosticos/p1420-oracles.json",
+    "sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+    "reuse_mode": "byte-for-byte; P1422 defines no replacement fixture or expected",
+    "load_before_product": true,
+    "mismatch": "Unknown(BASELINE_DRIFT) and stop before product",
+    "immutable_sections": {
+      "cases": {"count": 66, "canonical_sha256": "1a801f2417b17a144a050957a5834c15f2afa1f0897abd6d4660882353322696"},
+      "controls": {"count": 12, "canonical_sha256": "59b8d85d7c7f1d883de4317a5a8cf08b0d7a9aa6b3d049cb1b22ccc0cb117764"},
+      "denominator": {"canonical_sha256": "f8987b3e5dff44d2799f0654b745a3a5222da7e6ed34c3a303821fd56e75d571"},
+      "state_composition": {"count": 6, "canonical_sha256": "0dc1f20cd4d5d4c46535ce061156e9dac2028d1a0e17c274bd19d77c0eef4ca1"},
+      "projection_policy": {"canonical_sha256": "45c2bfd619a16218bb6c6e7dbe54ae0cc00b0a235146c6ec4d9052f2a6148cf2"},
+      "transport_policy": {"canonical_sha256": "b3856117e17657784835421145f0b0244fd30a6b7fa7eef8992d872b4a892ec9"},
+      "unknown_policy": {"canonical_sha256": "071d41787dd797c1c6f2d7e7b9bef5457fd69da615c77673b7d6350fb3f80aae"},
+      "opaque_cases": {"count": 4, "canonical_sha256": "bb86f8ed44d93a91e1f27f21029a3f462c89fe4c5ac6cbc03590d97a2466a575"}
+    }
+  },
+  "nominal_overrides": {
+    "allowed_only": {
+      "step": 1422,
+      "repository_head": "fc803d05f0e7eec7f6bc6a8e363e3cfe1450077d",
+      "repository_tree": "11a404824b77d608b1eda29ad44fb281d89aef03",
+      "crystalline_binary_sha256": "26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860",
+      "runner_path": "lab/parity/p1422_unknown_route_reprobe.py",
+      "result_path": "00_nucleo/diagnosticos/p1422-results.json",
+      "raw_path_prefix": "/tmp/p1422",
+      "resume_reason": "P1421 unblocked the mandatory HTML target control."
+    },
+    "forbidden": ["case addition/removal/reorder", "fixture edit", "expected edit", "control edit", "denominator edit", "state rule edit", "projection relaxation", "transport asymmetry", "Unknown promotion"]
+  },
+  "denominator": {
+    "route_count": 66,
+    "html_count": 44,
+    "math_count": 22,
+    "paths_sha256": "db0997fb12aecec3aa024da0174b978035baa446e5105b71fc2fd577feb8f1bb",
+    "paths_source": "authoritative_public_payload#denominator.paths",
+    "probe_count_per_order": 154,
+    "baseline_drift_policy": "Any set, order, reason, inventory or payload mismatch is Unknown(BASELINE_DRIFT); expected is never edited silently."
+  },
+  "focal_gate": {
+    "cases": [
+      {"id": "P1420-HTML-001", "path": "html.area", "expected_source": "authoritative P1420 case and controls", "p1421_observation": {"qualified_state": "ABSENT", "alternative_state": "MATCH", "route_state": "PARTIAL"}},
+      {"id": "P1420-MATH-001", "path": "math.abs", "expected_source": "authoritative P1420 case and controls", "p1421_observation": {"qualified_state": "ABSENT", "alternative_state": "DIFFERENCE", "route_state": "PARTIAL"}}
+    ],
+    "mandatory_controls": ["eval-parser-feature-common:default", "eval-parser-feature-common:html", "eval-parser-feature-common:html+a11y", "html-target-fixture-common:html", "html-api-valid-args-common:html", "html-target-fixture-common:html+a11y", "html-api-valid-args-common:html+a11y", "math-callee-common:p1395", "math-codepoint-common:p1396", "math-repr-common:p1397", "historical-partial-control:math.bold:qualified", "historical-partial-control:math.bold:alternative"],
+    "required_orders": ["direct", "direct-repeat", "reverse"],
+    "on_any_control_failure": "INCONCLUSIVE; stop before full campaign",
+    "route_credit_from_control": false
+  },
+  "campaign_oracle": {
+    "precondition": "focal gate passes in all three orders with one stable vector",
+    "full_campaigns": 1,
+    "independent_full_repetitions": 1,
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "same_vector_required": true,
+    "each_route_requires": ["qualified_state", "alternative_state", "route_state", "literal reason"],
+    "difference_is_conclusive": true,
+    "alternative_runs_after_qualified_failure": true,
+    "unknown_is_success": false
+  },
+  "projection_policy": {
+    "authoritative": "p1420-oracles.json#projection_policy",
+    "html": "canonical doctype, tags, nesting, text, attributes and values; no semantic relaxation",
+    "math": "exact UTF-8 bytes/codepoints, stderr and exit plus declared rendered morphology",
+    "discarding_observable": "Violated"
+  },
+  "transport_policy": {
+    "authoritative": "p1420-oracles.json#transport_policy",
+    "bilateral_exact_argv_required": true,
+    "one_probe_per_process": true,
+    "alternatives_unconditional_on_qualified_success": true,
+    "forbidden_tokens": ["--jobs", "--target on eval"],
+    "resource_policy": {"parallelism": 1, "rayon_num_threads": 1, "rlimit_as_mib": 512, "timeout_seconds": 15, "stream_limit_bytes_each": 65536, "swap_kib": 0}
+  },
+  "state_composition": {
+    "authoritative": "p1420-oracles.json#state_composition",
+    "canonical_sha256": "0dc1f20cd4d5d4c46535ce061156e9dac2028d1a0e17c274bd19d77c0eef4ca1",
+    "rule": "No P1422-local rule may replace, reorder or reinterpret the six P1420 composition entries."
+  },
+  "unknown_policy": {
+    "authoritative": "p1420-oracles.json#unknown_policy",
+    "mode": "fail-closed",
+    "implicit_conversion_to_success": false,
+    "identity_timeout_oom_swap_truncation_projection_or_order_failure": "Unknown with literal reason",
+    "mandatory_unknown_verdict": "INCONCLUSIVE"
+  },
+  "opaque_cases": {
+    "authoritative": "p1420-oracles.json#opaque_cases",
+    "canonical_sha256": "bb86f8ed44d93a91e1f27f21029a3f462c89fe4c5ac6cbc03590d97a2466a575",
+    "expected": "Unknown",
+    "credit": "only for explicitly opaque discriminatory cases; never route success"
+  },
+  "mutation_gate": {
+    "positive": "Preserved",
+    "negative": "Violated",
+    "opaque": "Unknown",
+    "required_score": 1.0,
+    "same_vector_all_orders": true,
+    "surviving_valid_mutant_blocks_preseal": true
+  },
+  "commands": {
+    "validate": "python3 lab/parity/p1422_unknown_route_reprobe.py --validate-only",
+    "gate": "python3 lab/parity/p1422_unknown_route_reprobe.py --gate",
+    "focal": "python3 lab/parity/p1422_unknown_route_reprobe.py --run --focal --output /tmp/p1422-focal.json",
+    "full": "python3 lab/parity/p1422_unknown_route_reprobe.py --run --output 00_nucleo/diagnosticos/p1422-results.json",
+    "static": ["cargo fmt --all -- --check", "crystalline-lint .", "git diff --check"]
+  },
+  "claim_boundary": "Expected values remain exactly the protected P1420 payload. These P1422 oracles authorize no expected change and do not classify candidate output or claim general HTML/math/Typst parity."
+}
