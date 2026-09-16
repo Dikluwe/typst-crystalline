@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/frac.md
-//! @prompt-hash f51c4d8e
+//! @prompt-hash 5c6c6606
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -17,6 +17,87 @@ use crate::entities::{
 use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    pub(super) fn layout_frac_horizontal(
+        &self,
+        num: &Content,
+        den: &Content,
+        num_deparenthesized: bool,
+        denom_deparenthesized: bool,
+        style: &TextStyle,
+    ) -> MathBox {
+        let mut nodes = Vec::new();
+        if num_deparenthesized {
+            nodes.push(Content::MathText("(".into()));
+        }
+        nodes.push(num.clone());
+        if num_deparenthesized {
+            nodes.push(Content::MathText(")".into()));
+        }
+        nodes.push(Content::MathText("/".into()));
+        if denom_deparenthesized {
+            nodes.push(Content::MathText("(".into()));
+        }
+        nodes.push(den.clone());
+        if denom_deparenthesized {
+            nodes.push(Content::MathText(")".into()));
+        }
+        self.layout_node(&Content::MathSequence(nodes.into()), style)
+    }
+
+    pub(super) fn layout_frac_skewed(
+        &self,
+        num: &Content,
+        den: &Content,
+        style: &TextStyle,
+    ) -> MathBox {
+        let num_box = self.layout_node(num, &self.numerator_style(style));
+        let den_box = self.layout_node(den, &self.denominator_style(style));
+        let horizontal_gap = self
+            .constants
+            .to_pt(self.constants.skewed_fraction_horizontal_gap, style.size)
+            .val();
+        let vertical_gap = self
+            .constants
+            .to_pt(self.constants.skewed_fraction_vertical_gap, style.size)
+            .val();
+        let slash_target_pt = num_box.height().max(den_box.height()) + vertical_gap;
+        let slash_target_du = slash_target_pt / style.size.val() * self.constants.upem;
+        let slash_box = self.layout_stretchy_delimiter('⁄', slash_target_du, style);
+        let num_y = -vertical_gap / 2.0;
+        let den_y = vertical_gap / 2.0;
+        let slash_x = num_box.width + horizontal_gap / 2.0;
+        let den_x = slash_x + slash_box.width + horizontal_gap / 2.0;
+        let width = den_x + den_box.width;
+        let ascent = (num_box.ascent - num_y)
+            .max(slash_box.ascent)
+            .max(den_box.ascent - den_y);
+        let descent = (num_box.descent + num_y)
+            .max(slash_box.descent)
+            .max(den_box.descent + den_y);
+        let mut items = Vec::with_capacity(
+            num_box.items.len() + slash_box.items.len() + den_box.items.len(),
+        );
+        items.extend(
+            num_box
+                .items
+                .into_iter()
+                .map(|item| offset_item(item, Pt(0.0), Pt(num_y))),
+        );
+        items.extend(
+            slash_box
+                .items
+                .into_iter()
+                .map(|item| offset_item(item, Pt(slash_x), Pt(0.0))),
+        );
+        items.extend(
+            den_box
+                .items
+                .into_iter()
+                .map(|item| offset_item(item, Pt(den_x), Pt(den_y))),
+        );
+        MathBox { width, ascent, descent, items }
+    }
+
     pub(super) fn layout_frac(
         &self,
         num: &Content,

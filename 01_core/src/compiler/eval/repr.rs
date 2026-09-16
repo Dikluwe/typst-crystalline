@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 104cf2d8
+//! @prompt-hash 509063f6
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -570,6 +570,13 @@ fn repr_p1293_math_field(content: &Content) -> String {
     }
 }
 
+fn repr_frac_field(content: &Content) -> String {
+    match content {
+        Content::MathIdent(_) | Content::MathText(_) => repr_content(content),
+        other => repr_p1293_math_field(other),
+    }
+}
+
 /// Projeção do body público de `limits`/`scripts`. A sintaxe matemática
 /// pode envolver uma folha textual num `MathSequence`; morfologicamente ela
 /// continua sendo conteúdo, como a chamada qualificada que recebe `[x]`.
@@ -598,21 +605,24 @@ fn repr_canonical_binom(
     if frac.line {
         return None;
     }
-    let Content::MathSequence(denominator) = &frac.den else {
-        return None;
-    };
-    if denominator.is_empty() || denominator.len() % 2 == 0 {
-        return None;
-    }
-
-    let mut lower = Vec::with_capacity(denominator.len().div_ceil(2));
-    for (index, content) in denominator.iter().enumerate() {
-        if index % 2 == 0 {
-            lower.push(repr_p1293_math_field(content));
-        } else if !matches!(content, Content::MathText(text) if text.as_str() == ", ") {
-            return None;
+    let lower = match &frac.den {
+        Content::MathSequence(denominator) => {
+            if denominator.is_empty() || denominator.len() % 2 == 0 {
+                return None;
+            }
+            let mut lower = Vec::with_capacity(denominator.len().div_ceil(2));
+            for (index, content) in denominator.iter().enumerate() {
+                if index % 2 == 0 {
+                    lower.push(repr_p1293_math_field(content));
+                } else if !matches!(content, Content::MathText(text) if text.as_str() == ", ")
+                {
+                    return None;
+                }
+            }
+            lower
         }
-    }
+        denominator => vec![repr_p1293_math_field(denominator)],
+    };
     let fields = [
         format!("upper: {}", repr_p1293_math_field(&frac.num)),
         format!("lower: {}", pretty_array_like(&lower, lower.len() == 1)),
@@ -713,7 +723,24 @@ pub fn repr_content(c: &Content) -> String {
         Content::MathIdent(s) => s.to_string(),
         Content::MathText(s) => format!("\"{}\"", s.as_str()),
         Content::MathFrac(f) => {
-            format!("({})/({})", repr_content(&f.num), repr_content(&f.den))
+            if !f.line {
+                format!("({})/({})", repr_content(&f.num), repr_content(&f.den))
+            } else {
+                use crate::entities::elements::math_frac::MathFracStyle;
+                let mut fields = vec![
+                    format!("num: {}", repr_frac_field(&f.num)),
+                    format!("denom: {}", repr_frac_field(&f.den)),
+                ];
+                if let Some(style) = f.style {
+                    let style = match style {
+                        MathFracStyle::Vertical => "vertical",
+                        MathFracStyle::Skewed => "skewed",
+                        MathFracStyle::Horizontal => "horizontal",
+                    };
+                    fields.push(format!("style: \"{style}\""));
+                }
+                format!("frac({})", fields.join(", "))
+            }
         }
         Content::MathAttach(a) => repr_math_attach(a),
         Content::MathRoot(r) => match (&r.index, r.index_explicit) {

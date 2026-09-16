@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash e7a6b24a
+//! @prompt-hash aff798fe
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -423,9 +423,20 @@ fn eval_math_expr(
         },
         Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
         Expr::MathFrac(frac) => {
+            let num_deparenthesized =
+                matches!(frac.num(), Expr::Math(math) if math.was_deparenthesized());
+            let denom_deparenthesized =
+                matches!(frac.denom(), Expr::Math(math) if math.was_deparenthesized());
             let num = eval_math_expr(scopes, ctx, engine, frac.num())?;
             let den = eval_math_expr(scopes, ctx, engine, frac.denom())?;
-            Ok(Content::math_frac(num, den))
+            Ok(Content::math_frac_full(
+                num,
+                den,
+                None,
+                num_deparenthesized,
+                denom_deparenthesized,
+                true,
+            ))
         }
         Expr::MathAttach(attach) => {
             let base = eval_math_expr(scopes, ctx, engine, attach.base())?;
@@ -688,19 +699,8 @@ fn eval_math_expr(
             };
             match name.as_str() {
                 "frac" => {
-                    let mut pos_args = call.args().items().filter_map(|arg| match arg {
-                        Arg::Pos(expr) => Some(expr),
-                        _ => None,
-                    });
-                    if let (Some(num_expr), Some(den_expr)) =
-                        (pos_args.next(), pos_args.next())
-                    {
-                        let num = eval_math_expr(scopes, ctx, engine, num_expr)?;
-                        let den = eval_math_expr(scopes, ctx, engine, den_expr)?;
-                        Ok(Content::math_frac(num, den))
-                    } else {
-                        Ok(Content::Empty)
-                    }
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    apply_p1293_math_constructor("frac", args, scopes, ctx, engine)
                 }
                 // sqrt(x) — 1 argumento posicional → Content::MathRoot { index: None }
                 "sqrt" => {

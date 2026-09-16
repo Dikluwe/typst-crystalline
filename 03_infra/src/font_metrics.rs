@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 01f8b01e
+//! @prompt-hash ee774a6b
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -770,6 +770,10 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 // o campo, `ttf-parser-0.25.1/src/tables/math.rs:378,390`).
                 fraction_numerator_shift_up: c.fraction_numerator_shift_up().value as f64,
                 fraction_denominator_shift_down: c.fraction_denominator_shift_down().value
+                    as f64,
+                skewed_fraction_vertical_gap: c.skewed_fraction_vertical_gap().value
+                    as f64,
+                skewed_fraction_horizontal_gap: c.skewed_fraction_horizontal_gap().value
                     as f64,
                 // P990 — variantes Display (mesmo mecanismo; métodos de
                 // ttf_parser 0.25, `tables/math.rs`).

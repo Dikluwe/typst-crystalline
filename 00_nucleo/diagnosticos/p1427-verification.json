@@ -1,0 +1,98 @@
+{
+  "schema": "p1427-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1427,
+  "revision": "R1",
+  "verdict": "BLOCKED",
+  "attestation": "executado sem atestação de isolamento",
+  "verifier": "/root/p1427_final_verifier",
+  "independence": {
+    "candidate_repaired": false,
+    "sealed_inputs_edited": false,
+    "tests_edited_by_verifier": false,
+    "allowed_outputs_only": true,
+    "environment": "shared workspace; procedural capabilities, no isolation attestation"
+  },
+  "causal_state": {
+    "head": "5686fdeb09ee3da33bbcb3b54ab009a4a55a2be5",
+    "head_tree": "bddb8444e600adb7db522d5160bb14599ffbf21b",
+    "measured_at": "2026-09-16T18:37:30-03:00",
+    "working_tree": "uncommitted 23-path candidate plus four verifier receipts"
+  },
+  "sealed_chain": {
+    "manifest_sha256": "76ad02886b04b7001ab476cb416b8615400b288143da6e02220c1b0ae6b782e3",
+    "contract_sha256": "9d356661c39d7ee70a092a2b17819d28e612fbb6073536518f74bdbbff177055",
+    "oracles_sha256": "4081c8ddc409aa7703108e52bc641d609a6bf2478e21946953f99020329e5253",
+    "mutants_sha256": "ed01ebe46f5a2c1e54372d7b044d56be805ce4fa5265257d6110471186827bd4",
+    "red_sha256": "c9f1611cc550ed8b5526537beb9835adb24f39ad966be16dd916445a8e2611ab",
+    "seal_sha256": "0c95199636ea3708484886d36a447619383de35c1141da3bbe7a9ef77ee1235d",
+    "byte_integrity": "PASS",
+    "allowed_lineage_rebind": "PASS"
+  },
+  "ownership_and_allowlist": {
+    "productive_consumers": 12,
+    "owner_l0s": 12,
+    "one_to_one": true,
+    "candidate_paths": 23,
+    "candidate_paths_allowed": true,
+    "mechanical_repair": "PASS; only the declared existing layout test consumer receives a lineage-hash-only repair"
+  },
+  "execution": {
+    "commands": [
+      "cargo test -p typst-core p1427 -- --nocapture",
+      "cargo test -p typst-infra --test p1427_math_frac -- --nocapture",
+      "the same two commands repeated in fresh processes",
+      "the same two commands in reverse suite order in fresh processes",
+      "cargo fmt --all -- --check",
+      "cargo build",
+      "crystalline-lint .",
+      "git diff --check HEAD"
+    ],
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "order_vectors_identical": true
+  },
+  "evidence": {
+    "core_focal": "15 passed, 0 failed in each order",
+    "infra_focal": "4 passed, 2 failed in each order",
+    "mandatory_cases": "35 Preserved, 0 Violated, 4 Unknown (P13, P14, P15, P21)",
+    "opaque_cases": "U01-U04 remain Unknown with zero credit",
+    "repr_finding": "The semantic repr is independently Preserved; the frozen infra assertion fails because it searches serialized HTML for raw quotes while the serializer correctly emits &quot;.",
+    "svg_finding": "All four registered causal fixtures emit byte-identical empty SVG content groups; the public morphology is therefore Unknown fail-closed despite passing direct L1 layout evidence.",
+    "mutations": "not admitted; 0/28 executed, 28 Unknown, no credit",
+    "mutation_score": null,
+    "required_mutation_score": 1.0,
+    "unknown_never_success": true,
+    "cargo_build": "PASS",
+    "cargo_fmt_check": "PASS",
+    "crystalline_lint": "PASS (exit 0; V5/V15/V26 clear)",
+    "git_diff_check": "PASS",
+    "candidate_allowlist": "PASS",
+    "lineage": "PASS according to crystalline-lint"
+  },
+  "blocking_findings": [
+    {
+      "id": "B01-serialized-html-oracle",
+      "kind": "protected oracle mismatch",
+      "effect": "focused public suite remains red",
+      "required_action": "obligation authority must revise and reseal a semantic HTML text extractor"
+    },
+    {
+      "id": "B02-empty-svg-observation",
+      "kind": "mandatory public opacity",
+      "effect": "P13, P14, P15 and P21 are Unknown and block acceptance",
+      "required_action": "obligation authority must revise and reseal a fixture/extractor that materializes math content in SVG"
+    },
+    {
+      "id": "B03-mutation-score-unavailable",
+      "kind": "downstream gate not admitted",
+      "effect": "required mutation_score 1.0 is not established",
+      "required_action": "rerun all 28 mutations in three orders only after B01/B02 are resolved"
+    }
+  ],
+  "output_hashes": {
+    "p1427-mutation-results.json": "b6c6be48b4dec555012a171f0ac047a6a56507a2eb2f4fc0061ec62ebccc3910",
+    "p1427-results.json": "0c20dba01fadb2822864ccb99f09d1f3f77781c72a2a58967862382196c6d6c0",
+    "p1427-report.md": "70086f4d7ae3247b700e863e9cb4c2f95ff833367433071f5b7587df96b9b44e"
+  },
+  "claim_boundary": "BLOCKED is restricted to the frozen P1427 math.frac fragment. It does not claim a candidate semantic violation, general math parity, render-byte equivalence, or mutation adequacy."
+}

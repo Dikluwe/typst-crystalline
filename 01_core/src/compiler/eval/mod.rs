@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 64dd9a92
+//! @prompt-hash 659a94d2
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2489,10 +2489,30 @@ impl ObservationEq for crate::entities::elements::table_hline::TableHLineElem {
 }
 impl ObservationEq for crate::entities::elements::math_frac::MathFracElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { num: _, den: _, line: _ } = self;
+        let Self {
+            num: _,
+            den: _,
+            style: _,
+            num_deparenthesized: _,
+            denom_deparenthesized: _,
+            line: _,
+        } = self;
         ObservationRelation::Same
             .and(self.num.observation_relation(&other.num))
             .and(self.den.observation_relation(&other.den))
+            .and(if self.style == other.style {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Different
+            })
+            .and(
+                self.num_deparenthesized
+                    .observation_relation(&other.num_deparenthesized),
+            )
+            .and(
+                self.denom_deparenthesized
+                    .observation_relation(&other.denom_deparenthesized),
+            )
             .and(self.line.observation_relation(&other.line))
     }
 }

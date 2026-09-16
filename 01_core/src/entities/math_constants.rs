@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash ab7b4d29
+//! @prompt-hash 2a81ad4c
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -40,6 +40,10 @@ pub struct MathConstants {
     /// denominador de uma fracção. Mesmo mecanismo de
     /// `fraction_numerator_shift_up`, para o lado do denominador.
     pub fraction_denominator_shift_down: f64,
+    /// Gap vertical da fracção skewed.
+    pub skewed_fraction_vertical_gap: f64,
+    /// Gap horizontal da fracção skewed.
+    pub skewed_fraction_horizontal_gap: f64,
 
     // ── Fracção em estilo Display (P990 — GATE aprovado 2026-08-06) ──
     /// **P990** — variantes Display das 4 constantes de fracção acima,
@@ -207,6 +211,8 @@ impl MathConstants {
             // math_constants.md` §P920.
             fraction_numerator_shift_up: 394.0,
             fraction_denominator_shift_down: 345.0,
+            skewed_fraction_vertical_gap: 96.0,
+            skewed_fraction_horizontal_gap: 350.0,
             // P990 — valores reais de NewCMMath-Book (fontTools), mesmo
             // padrão dos outros fallbacks documentados.
             fraction_numerator_display_style_shift_up: 677.0,

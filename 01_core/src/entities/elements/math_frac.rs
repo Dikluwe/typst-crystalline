@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_frac.md
-//! @prompt-hash bc9992a8
+//! @prompt-hash 4cd1a64a
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -14,10 +14,20 @@ use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
 /// Fracção matemática (`a/b` ou `frac(a, b)`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MathFracStyle {
+    Vertical,
+    Skewed,
+    Horizontal,
+}
+
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathFracElem {
     pub num: Content,
     pub den: Content,
+    pub style: Option<MathFracStyle>,
+    pub num_deparenthesized: bool,
+    pub denom_deparenthesized: bool,
     pub line: bool,
 }
 
@@ -33,6 +43,9 @@ impl Element for MathFracElem {
         Ok(Content::MathFrac(Arc::new(MathFracElem {
             num: self.num.map_content(transform)?,
             den: self.den.map_content(transform)?,
+            style: self.style,
+            num_deparenthesized: self.num_deparenthesized,
+            denom_deparenthesized: self.denom_deparenthesized,
             line: self.line,
         })))
     }
@@ -54,6 +67,9 @@ mod tests {
         MathFracElem {
             num: Content::text("a"),
             den: Content::text("b"),
+            style: None,
+            num_deparenthesized: false,
+            denom_deparenthesized: false,
             line: true,
         }
     }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 6a51c676
+//! @prompt-hash 11006a1e
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -235,6 +235,7 @@ const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("cases", "delim"),
     ("cases", "reverse"),
     ("cases", "gap"),
+    ("frac", "style"),
 ];
 
 /// **P1030** — `#set math.<elemento>(...)`, alvo pontuado.
@@ -286,6 +287,33 @@ fn eval_set_math_rule(
 
         if MATH_SET_LIGADOS.contains(&(elem, nome)) {
             let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+            if (elem, nome) == ("frac", "style") {
+                match &val {
+                    Value::Str(value)
+                        if matches!(value.as_str(), "vertical" | "skewed" | "horizontal") => {}
+                    Value::Str(_) => {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            "expected \"vertical\", \"skewed\", or \"horizontal\""
+                                .to_string(),
+                        )])
+                    }
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            format!(
+                                "expected \"vertical\", \"skewed\", or \"horizontal\", found {}",
+                                match other {
+                                    Value::Int(_) => "integer",
+                                    Value::Str(_) => "string",
+                                    Value::Bool(_) => "boolean",
+                                    _ => other.type_name(),
+                                }
+                            ),
+                        )])
+                    }
+                }
+            }
             *engine.styles =
                 engine.styles.push_custom(format!("math.{elem}.{nome}"), val);
         } else {

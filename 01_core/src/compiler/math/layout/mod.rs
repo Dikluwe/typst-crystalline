@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash e71875c7
+//! @prompt-hash dddebd41
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -662,7 +662,46 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` — mesma lógica.
             Content::MathFrac(e) => {
-                self.layout_frac_with_line(&e.num, &e.den, e.line, style)
+                use crate::entities::elements::math_frac::MathFracStyle;
+                let effective = if !e.line {
+                    MathFracStyle::Vertical
+                } else if let Some(explicit) = e.style {
+                    explicit
+                } else {
+                    match self
+                        .lexical_styles
+                        .and_then(|styles| styles.custom("math.frac.style"))
+                    {
+                        None => MathFracStyle::Vertical,
+                        Some(crate::entities::value::Value::Str(value)) => match value
+                            .as_str()
+                        {
+                            "vertical" => MathFracStyle::Vertical,
+                            "skewed" => MathFracStyle::Skewed,
+                            "horizontal" => MathFracStyle::Horizontal,
+                            other => panic!("invalid validated math.frac.style: {other}"),
+                        },
+                        Some(other) => panic!(
+                            "invalid validated math.frac.style type: {}",
+                            other.type_name()
+                        ),
+                    }
+                };
+                match effective {
+                    MathFracStyle::Vertical => {
+                        self.layout_frac_with_line(&e.num, &e.den, e.line, style)
+                    }
+                    MathFracStyle::Skewed => {
+                        self.layout_frac_skewed(&e.num, &e.den, style)
+                    }
+                    MathFracStyle::Horizontal => self.layout_frac_horizontal(
+                        &e.num,
+                        &e.den,
+                        e.num_deparenthesized,
+                        e.denom_deparenthesized,
+                        style,
+                    ),
+                }
             }
 
             Content::MathAttach(e) => self.layout_attach_slots(
@@ -2023,13 +2062,25 @@ fn apply_math_default(body: &Content) -> Content {
             e.gap,
         ),
         Content::MathFrac(e) => {
-            let num = apply_math_default(&e.num);
-            let den = apply_math_default(&e.den);
-            if e.line {
-                Content::math_frac(num, den)
-            } else {
-                Content::math_frac_unlined(num, den)
-            }
+            // `MathText` é texto matemático já resolvido; identificadores
+            // sintácticos chegam como `MathIdent` e continuam a receber o
+            // itálico por defeito. Não reinterpretar payload textual do carrier.
+            let num = match &e.num {
+                Content::MathText(_) => e.num.clone(),
+                other => apply_math_default(other),
+            };
+            let den = match &e.den {
+                Content::MathText(_) => e.den.clone(),
+                other => apply_math_default(other),
+            };
+            Content::math_frac_full(
+                num,
+                den,
+                e.style,
+                e.num_deparenthesized,
+                e.denom_deparenthesized,
+                e.line,
+            )
         }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_default(&e.base),
@@ -2242,11 +2293,14 @@ fn apply_math_style(
         Content::MathFrac(e) => {
             let num = apply_math_style(&e.num, kind, bold, italic);
             let den = apply_math_style(&e.den, kind, bold, italic);
-            if e.line {
-                Content::math_frac(num, den)
-            } else {
-                Content::math_frac_unlined(num, den)
-            }
+            Content::math_frac_full(
+                num,
+                den,
+                e.style,
+                e.num_deparenthesized,
+                e.denom_deparenthesized,
+                e.line,
+            )
         }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_style(&e.base, kind, bold, italic),

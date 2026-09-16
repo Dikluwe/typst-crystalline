@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_frac` — `MathFracElem`
-Hash do Código: c66c6d82
+Hash do Código: bea439f8
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_frac.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

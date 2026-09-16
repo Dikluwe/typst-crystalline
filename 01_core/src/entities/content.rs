@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash f6242a09
+//! @prompt-hash 6359afb2
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1590,11 +1590,29 @@ impl Content {
     // ── Construtores ergonómicos da família math (Modelo D, Lote 2 P317) ──────
     /// Construtor de `MathFrac`.
     pub fn math_frac(num: Content, den: Content) -> Self {
-        Self::MathFrac(Arc::new(MathFracElem { num, den, line: true }))
+        Self::math_frac_full(num, den, None, false, false, true)
+    }
+    /// Construtor completo de `MathFrac`, incluindo causalidade sintáctica.
+    pub fn math_frac_full(
+        num: Content,
+        den: Content,
+        style: Option<crate::entities::elements::math_frac::MathFracStyle>,
+        num_deparenthesized: bool,
+        denom_deparenthesized: bool,
+        line: bool,
+    ) -> Self {
+        Self::MathFrac(Arc::new(MathFracElem {
+            num,
+            den,
+            style,
+            num_deparenthesized,
+            denom_deparenthesized,
+            line,
+        }))
     }
     /// Pilha frac-like sem barra, usada pela morfologia de `binom`.
     pub(crate) fn math_frac_unlined(num: Content, den: Content) -> Self {
-        Self::MathFrac(Arc::new(MathFracElem { num, den, line: false }))
+        Self::math_frac_full(num, den, None, false, false, false)
     }
     /// Construtor de `MathAttach` (base + pre/pos-scripts opcionais).
     /// Construtor canónico de scripts (retrocompatibilidade com testes existentes)
