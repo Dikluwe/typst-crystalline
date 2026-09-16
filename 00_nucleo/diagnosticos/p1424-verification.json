@@ -1,0 +1,67 @@
+{
+  "schema": "p1424-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1424,
+  "revision": "R3",
+  "verdict": "FAIL",
+  "attestation": "executado sem atestação de isolamento",
+  "verifier": "/root/p1424_verifier",
+  "independence": {
+    "candidate_repaired": false,
+    "sealed_inputs_edited": false,
+    "tests_edited_by_verifier": false,
+    "allowed_outputs_only": true,
+    "environment": "shared workspace; procedural capabilities, no isolation attestation"
+  },
+  "causal_state": {
+    "head": "58aa96da3fc485213c03801b53ee924da20e1dd3",
+    "tree": "1d0c374b64b77aa69a51391ba636d7327dc4660e",
+    "measured_at": "2026-09-16T14:59:55-03:00",
+    "working_tree": "uncommitted candidate plus four verifier receipts"
+  },
+  "sealed_chain": {
+    "manifest_sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3",
+    "contract_sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea",
+    "oracles_sha256": "89a0f97f4acb067ea41bcfa6e706007846dcc28c8a478656773b4179b4555caf",
+    "mutants_sha256": "b43787f18f8dc905cdc366afd704deeafc8ebbd0307bf1ff3919661489cec0b1",
+    "seal_sha256": "3209adc7b0f87ae2727b23fe00977f5d0204d87545796308ae344eec7df6902b",
+    "core_test_l0_sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c",
+    "infra_test_l0_sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3",
+    "core_tests_sha256": "27c9b1b49957a756dcb7695ef562337d8caa38fa2c8c219704a8ef523a9fc92b",
+    "infra_tests_sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101",
+    "byte_integrity": "PASS"
+  },
+  "evidence": {
+    "core_focal": "3 passed, 0 failed in forward, repeat, and individual reverse order",
+    "infra_focal": "4 passed, 0 failed in forward, repeat, and individual reverse order",
+    "html_regression": "17 passed, 0 failed",
+    "pipeline_regression": "60 passed, 1 pre-existing baseline-reproduced failure",
+    "mutations": "20/21 Violated; M20 survives identically in all three orders",
+    "positive_cases": "12/13 Preserved; mandatory P13 Violated",
+    "opaque_cases": "4/4 Unknown with zero credit",
+    "mutation_score": 0.9523809523809523,
+    "required_mutation_score": 1.0,
+    "unknown_never_success": true,
+    "cargo_build": "PASS",
+    "cargo_fmt_check": "PASS",
+    "crystalline_lint": "PASS (exit 0)",
+    "git_diff_check": "PASS",
+    "candidate_allowlist": "PASS",
+    "lineage": "PASS according to crystalline-lint"
+  },
+  "blocking_findings": [
+    {
+      "id": "P1424-BLOCK-001",
+      "case": "P13-unsupported-fails",
+      "mutation": "M20-unsupported-fallback-success",
+      "reason": "The sealed O7 test exercises unresolved direct export, not an unsupported body. The candidate silently no-ops Content::HtmlElem during paged island layout and returns a serializable Page, so the prohibited successful empty fallback survives.",
+      "required_action": "Invalidate and refine the affected oracle/contract chain, add an executable unsupported-body witness, implement explicit failure or Unknown, then rerun all three orders."
+    }
+  ],
+  "output_hashes": {
+    "p1424-mutation-results.json": "9c4dc5bb4d86154fa324162981b8677453aff53232eb05ee33b8634a2e428fc5",
+    "p1424-results.json": "872e9d643fadcbb3ab00d53e1c33b1a82af6f41c013107880a1ac0eed1ac5f6b",
+    "p1424-report.md": "bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91"
+  },
+  "claim_boundary": "FAIL is restricted to the sealed P1424 fragment and its mutation threshold. It does not claim general HTML/SVG equivalence or diagnose unrelated baseline failures."
+}

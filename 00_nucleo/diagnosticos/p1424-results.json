@@ -1,0 +1,94 @@
+{
+  "schema": "p1424-results/v1",
+  "step": 1424,
+  "revision": "R3",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict": "FAIL",
+  "head": "58aa96da3fc485213c03801b53ee924da20e1dd3",
+  "tree": "1d0c374b64b77aa69a51391ba636d7327dc4660e",
+  "measured_at": "2026-09-16T14:59:55-03:00",
+  "working_tree": {
+    "state": "uncommitted candidate",
+    "diff_stat": "28 files changed, 415 insertions, 59 deletions before verifier receipts",
+    "candidate_paths_within_manifest_allowlist": true,
+    "verifier_wrote_only_registered_receipts": true
+  },
+  "sealed_inputs": {
+    "step_sha256": "7bfdbc758e3c1a922957626ba8c707b548bb0e7e2caf22153448bf18a851f95e",
+    "manifest_sha256": "af5f00cfd55d9e052f70f65eef05835c4e0e3061d859f3bbe5b35f5b2679ddf3",
+    "contract_sha256": "6dd16380cea3916dd6eb51bad44ce89f975b1782c6185380c6a60c23bc113fea",
+    "oracles_sha256": "89a0f97f4acb067ea41bcfa6e706007846dcc28c8a478656773b4179b4555caf",
+    "mutants_sha256": "b43787f18f8dc905cdc366afd704deeafc8ebbd0307bf1ff3919661489cec0b1",
+    "exhaustive_audit_sha256": "7a14009642105eb29ed145f3fd35beb57baea1a84cca6815c8b27604fbb417cb",
+    "seal_sha256": "3209adc7b0f87ae2727b23fe00977f5d0204d87545796308ae344eec7df6902b",
+    "core_test_l0_sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c",
+    "infra_test_l0_sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3",
+    "core_tests_sha256": "27c9b1b49957a756dcb7695ef562337d8caa38fa2c8c219704a8ef523a9fc92b",
+    "infra_tests_sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101",
+    "status": "BYTE_IDENTICAL"
+  },
+  "candidate_hashes": {
+    "01_core/src/compiler/eval/mod.rs": "2421e400047a9891c8224b5a7dd041d3e9ba10dec757c21fb48de5c7fb039862",
+    "01_core/src/compiler/eval/repr.rs": "be1d3be57c9ac167254aed0b25fa216305dae7e71eee807c7c678d06e5fbc0fa",
+    "01_core/src/compiler/introspect.rs": "8900e3a01a7642074c93c74dc1b9b87e30118640f4a2b30f4c06345f47a83e92",
+    "01_core/src/compiler/introspect/locatable.rs": "f962956984e830c3a3627382f4913b2308c39a576060333771c6a5890e84c7ca",
+    "01_core/src/compiler/layout/html_frame.rs": "9c80e232dfbdfded2a1c19ec489f75eb35ba87509953612c35fb74b19fe762fa",
+    "01_core/src/compiler/layout/mod.rs": "7fab6d2e2d897944bdfe5b8404801545bbb9011b9ddc531f05e96bef84a60b42",
+    "01_core/src/compiler/math/layout/spacing.rs": "d01a858750b20b69d098dbcc69fa005f67c605864817e4c73c1b667c0ccdc40b",
+    "01_core/src/compiler/stdlib/html.rs": "f09003fa5876779aaca4279e7af4d8a3e79ef2604ecd997b1e24dd49333d8ff5",
+    "01_core/src/entities/content.rs": "0ea226a2e38a7594577505857595dcceb5c21de25a6c9868b62bd76c2f5c6e48",
+    "01_core/src/entities/html.rs": "c3f23b6f7e08d393c83e753c582692f7c25873cccfcb462ea75f5952f492d197",
+    "03_infra/src/export/html.rs": "6f59236423181230db52680d4999a834cde8614aea6a66d5bb9f9f801775fadb",
+    "03_infra/src/export/svg.rs": "f8d509bdadf81438938d93964ae24a0d3e65305f39069d4e8388ea08a1ed4c23",
+    "03_infra/src/pipeline.rs": "c7fc5c860185c654658eb4ccb683432d9740ef74acec0a837814e565a47b9a40",
+    "03_infra/src/query_helpers.rs": "37ed92e4396708796671bb62b55e1af9185edbe3e84883f66d76167f14a7546c",
+    "target/debug/typst": "a93ca766de341cfcc9e2a7160764b23b4be118bc66f60d87e3e93368f3dbfdd5",
+    "vanilla_binary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "functional_tests": {
+    "forward": {"core":"3 passed, 0 failed","infra":"4 passed, 0 failed"},
+    "forward_repeat": {"core":"3 passed, 0 failed","infra":"4 passed, 0 failed"},
+    "reverse": {"core":"3/3 individually passed in reverse order","infra":"4/4 individually passed in reverse order"},
+    "order_invariant": true
+  },
+  "regressions": {
+    "html_export_unit_tests": "17 passed, 0 failed",
+    "pipeline_unit_tests": "60 passed, 1 failed",
+    "pipeline_failure": "pipeline::tests::p1159_location_page_numbering_ve_func_no_relayout",
+    "baseline_reproduction": "the same focused test fails at causal baseline 79c7a6d60 with the same assertion, so it is recorded as pre-existing and non-causal rather than attributed to P1424"
+  },
+  "mutation_results": {
+    "sha256": "9c4dc5bb4d86154fa324162981b8677453aff53232eb05ee33b8634a2e428fc5",
+    "negative_vector": "20/21 Violated; M20 Preserved/SURVIVED in forward, forward_repeat, and reverse",
+    "positive_vector": "12/13 Preserved; mandatory P13 Violated",
+    "opaque_vector": "4/4 Unknown, zero credit",
+    "score": 0.9523809523809523,
+    "required_score": 1.0,
+    "unknown_never_success": true
+  },
+  "gates": {
+    "cargo_fmt_check": 0,
+    "cargo_build": 0,
+    "crystalline_lint": 0,
+    "git_diff_check": 0,
+    "lineage_lint": "PASS",
+    "candidate_allowlist": "PASS",
+    "sealed_hashes": "PASS"
+  },
+  "blocking_findings": [
+    {
+      "id": "P1424-BLOCK-001",
+      "severity": "blocking",
+      "contract_case": "P13-unsupported-fails",
+      "mutation": "M20-unsupported-fallback-success",
+      "finding": "The sealed O7 test substitutes unresolved direct export for the contract's unsupported-frame-body fixture. The candidate paged dispatcher treats Content::HtmlElem as a no-op and layout_intrinsic/pipeline return success, permitting empty successful SVG fallback instead of error or explicit Unknown.",
+      "evidence": [
+        "01_core/src/compiler/layout/mod.rs:2425",
+        "01_core/src/compiler/layout/html_frame.rs:24",
+        "03_infra/src/pipeline.rs:269",
+        "03_infra/tests/p1424_html_frame.rs:119"
+      ]
+    }
+  ],
+  "claim_boundary": "The verification covers only the sealed P1424 fragment. Passing build/lint and A/B tests does not override the surviving mandatory mutation."
+}
