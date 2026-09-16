@@ -1,0 +1,258 @@
+{
+  "schema": "p1425-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1425,
+  "status": "candidate-oracles-unsealed",
+  "revision": "R1",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1425_oracles",
+    "roles": ["oracle_author", "ab_tester"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "candidate_tests_read": false,
+    "candidate_tests_edited": false,
+    "candidate_executed": false,
+    "verdict_emitted": false,
+    "causal_baseline": "d10f81161331000f81165c23109baa025613ce04",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1425-oracles.json",
+      "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
+      "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "00_nucleo/prompts/infra/tests/p1425-tests.md",
+      "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
+      "01_core/src/compiler/math/layout/p1425_tests.rs",
+      "03_infra/tests/p1425_math_limits.rs"
+    ]
+  },
+  "inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1425.md",
+      "sha256": "4e72ee1a0ae017a2215041dd4d09b4632f53833facc3657f6e4ce083c5a082ee"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-manifest.json",
+      "sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-contract.json",
+      "sha256": "286a06027db74487f7a3c686c2feaedc2841ba180d51311dec13a39baf856bcd"
+    }
+  ],
+  "reference": {
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_binary": "/usr/local/bin/typst",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "language_level_only": true
+  },
+  "positive_cases": [
+    {
+      "id": "P01-qualified-binding",
+      "oracle": "O1-binding-carrier",
+      "assertion": "math.limits exists as a native callable named limits"
+    },
+    {
+      "id": "P02-qualified-omitted-carrier",
+      "oracle": "O1-binding-carrier",
+      "assertion": "omitted inline yields limits=true, inline=true, inline_explicit=false"
+    },
+    {
+      "id": "P03-qualified-explicit-true-carrier",
+      "oracle": "O1-binding-carrier",
+      "assertion": "explicit true yields inline=true and inline_explicit=true"
+    },
+    {
+      "id": "P04-qualified-explicit-false-carrier",
+      "oracle": "O1-binding-carrier",
+      "assertion": "explicit false yields inline=false and inline_explicit=true"
+    },
+    {
+      "id": "P05-bilateral-omitted",
+      "oracle": "O4-bilateral-public",
+      "assertion": "bare and qualified omission expose limits(body: [x])"
+    },
+    {
+      "id": "P06-bilateral-explicit",
+      "oracle": "O4-bilateral-public",
+      "assertion": "bare and qualified explicit booleans expose identical presence-sensitive repr"
+    },
+    {
+      "id": "P07-presence-sensitive-repr",
+      "oracle": "O2-repr",
+      "assertion": "repr emits body first and inline only when explicit, including explicit true"
+    },
+    {
+      "id": "P08-walkers-and-equality",
+      "oracle": "O3-walkers",
+      "assertion": "walkers preserve all fields and equality distinguishes omission from explicit true"
+    },
+    {
+      "id": "P09-default-reconstruction",
+      "oracle": "O5-default-reconstruction",
+      "assertion": "apply_math_default recurses into body and preserves inline_explicit"
+    },
+    {
+      "id": "P10-layout-semantics-unchanged",
+      "oracle": "O6-layout",
+      "assertion": "presence is geometrically inert; inline controls the established stacked/lateral behavior"
+    },
+    {
+      "id": "P11-scripts-control",
+      "oracle": "O7-scripts-control",
+      "assertion": "scripts remains limits=false, presence=false, bilateral and lateral in display"
+    }
+  ],
+  "negative_cases": [
+    {
+      "id": "N01-missing-body",
+      "oracle": "O8-signature",
+      "expected_fragment": "missing argument: body"
+    },
+    {
+      "id": "N02-inline-cast",
+      "oracle": "O8-signature",
+      "expected_fragment": "expected boolean, found integer"
+    },
+    {
+      "id": "N03-unknown-named",
+      "oracle": "O8-signature",
+      "expected_fragment": "unexpected argument: nope"
+    },
+    {
+      "id": "N04-extra-positional",
+      "oracle": "O8-signature",
+      "expected_fragment": "unexpected argument"
+    },
+    {
+      "id": "N05-body-is-positional",
+      "oracle": "O8-signature",
+      "expected_fragment": "the argument `body` is positional"
+    }
+  ],
+  "oracles": [
+    {
+      "id": "O1-binding-carrier",
+      "expected": "Preserved",
+      "test": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_binding_e_tres_estados_de_presenca"
+    },
+    {
+      "id": "O2-repr",
+      "expected": "Preserved",
+      "test": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_repr_distingue_omissao_de_default_explicito"
+    },
+    {
+      "id": "O3-walkers",
+      "expected": "Preserved",
+      "test": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_walkers_e_igualdade_preservam_presenca"
+    },
+    {
+      "id": "O4-bilateral-public",
+      "expected": "Preserved",
+      "test": "03_infra/tests/p1425_math_limits.rs#p1425_bare_e_qualificado_convergem_nos_tres_estados"
+    },
+    {
+      "id": "O5-default-reconstruction",
+      "expected": "Preserved",
+      "test": "01_core/src/compiler/math/layout/p1425_tests.rs#p1425_apply_math_default_preserva_presenca_e_morfologia"
+    },
+    {
+      "id": "O6-layout",
+      "expected": "Preserved",
+      "tests": [
+        "01_core/src/compiler/math/layout/p1425_tests.rs#p1425_presenca_sozinha_nao_muda_geometria",
+        "01_core/src/compiler/math/layout/p1425_tests.rs#p1425_inline_false_so_empilha_em_display"
+      ]
+    },
+    {
+      "id": "O7-scripts-control",
+      "expected": "Preserved",
+      "tests": [
+        "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_scripts_permanece_controle_sem_presenca_inline",
+        "01_core/src/compiler/math/layout/p1425_tests.rs#p1425_scripts_controle_permanece_lateral_em_display",
+        "03_infra/tests/p1425_math_limits.rs#p1425_scripts_permanece_controle_bilateral"
+      ]
+    },
+    {
+      "id": "O8-signature",
+      "expected": "Preserved",
+      "tests": [
+        "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs#p1425_assinatura_publica_rejeita_cinco_classes_invalidas",
+        "03_infra/tests/p1425_math_limits.rs#p1425_qualificado_preserva_cinco_diagnosticos_publicos"
+      ]
+    }
+  ],
+  "opaque_cases": [
+    {
+      "id": "U01-identity-mismatch",
+      "stimulus": "reference or candidate identity differs from the frozen hash",
+      "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"
+    },
+    {
+      "id": "U02-opaque-observation",
+      "stimulus": "carrier, repr, diagnostic or layout witness cannot be extracted unambiguously",
+      "expected": "Unknown(UNKNOWN_OPAQUE_OBSERVATION)"
+    },
+    {
+      "id": "U03-unreadable-output",
+      "stimulus": "output is unreadable or truncated",
+      "expected": "Unknown(UNKNOWN_UNREADABLE_OUTPUT)"
+    },
+    {
+      "id": "U04-budget-or-execution-failure",
+      "stimulus": "timeout, crash, OOM, swap or exhausted budget",
+      "expected": "Unknown(UNKNOWN_EXECUTION_OR_BUDGET)"
+    }
+  ],
+  "classification": {
+    "Preserved": "all required language-level assertions have attributable witnesses",
+    "Violated": "one or more required public assertions mismatch with a witness",
+    "Unknown": "identity, execution, extraction, dependency or budget prevents a sound decision",
+    "unknown_never_success": true
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "candidate_not_run_by_oracle_author": true,
+    "orders": ["forward", "forward_repeat", "reverse"]
+  },
+  "baseline_red": {
+    "state": "d10f81161331000f81165c23109baa025613ce04 plus untracked sealed-test candidates; no productive file modified",
+    "command": "cargo test -p typst-infra --test p1425_math_limits -- --nocapture",
+    "result": "RED: 0 passed, 3 failed",
+    "witnesses": [
+      "qualified binding absent: module `math` does not contain `limits`",
+      "qualified diagnostics unreachable because binding is absent",
+      "scripts control still has pre-P1425 morphology scripts(x)"
+    ]
+  },
+  "outputs": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
+      "sha256": "9e849dc5a0560c8132c5f455f8cb04ad7dac6d987c3dceaf7e9689a0c7e9724c"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "sha256": "1f923f647514ee0eb9b1ecae4033dceb9bb552e140e69c932b39b94441ca52f0"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/p1425-tests.md",
+      "sha256": "b0923c1686df93f732a15b10159eff5eb60f284f4433cd0abfabe9e23cade13a"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
+      "sha256": "6296a7ff0c24e272ba362f2fb068a54cada82c8660c9e08715c5b6db428c6d55"
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1425_tests.rs",
+      "sha256": "f188123a9e94799cb7c273089216b9f2252fd9a8026e50bfe126939dfc6b3a84"
+    },
+    {
+      "path": "03_infra/tests/p1425_math_limits.rs",
+      "sha256": "e511991172545d377089c838cd3b24f8cc90b579d8d06b3d3831a41c8c6f49a3"
+    }
+  ],
+  "commands_for_verifier": [
+    "cargo test -p typst-core p1425_ -- --nocapture",
+    "cargo test -p typst-infra --test p1425_math_limits -- --nocapture"
+  ],
+  "claim_boundary": "These oracles cover only the P1425 math.limits fragment. They do not classify the candidate, prove general math parity, alter attachment geometry, or require Rust-structure or render-byte equality."
+}

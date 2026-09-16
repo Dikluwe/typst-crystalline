@@ -1,0 +1,207 @@
+{
+  "allowlists": {
+    "implementer": {
+      "allowed_existing_test_repairs_only": [
+        "01_core/src/compiler/math/layout/tests.rs: add the fourth inline_explicit argument to pre-P1425 constructor callsites only"
+      ],
+      "allowed_l0_lineage_only": [
+        "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+        "00_nucleo/prompts/entities/elements/math_limits_override.md",
+        "00_nucleo/prompts/entities/content.md",
+        "00_nucleo/prompts/compiler/eval/math.md",
+        "00_nucleo/prompts/compiler/math/layout/_comum.md",
+        "00_nucleo/prompts/compiler/eval/repr.md"
+      ],
+      "allowed_productive_writes": [
+        "01_core/src/compiler/stdlib/structural/math.rs",
+        "01_core/src/entities/elements/math_limits_override.rs",
+        "01_core/src/entities/content.rs",
+        "01_core/src/compiler/eval/math.rs",
+        "01_core/src/compiler/math/layout/mod.rs",
+        "01_core/src/compiler/eval/repr.rs"
+      ],
+      "allowed_test_wiring_only": [
+        "01_core/src/compiler/stdlib/structural/math.rs: declaration that wires the sealed p1425_tests module",
+        "01_core/src/compiler/math/layout/mod.rs: declaration that wires the sealed p1425_tests module"
+      ],
+      "forbidden_writes": [
+        "00_nucleo/diagnosticos/p1425-manifest.json",
+        "00_nucleo/diagnosticos/p1425-contract.json",
+        "00_nucleo/diagnosticos/p1425-oracles.json",
+        "00_nucleo/diagnosticos/p1425-mutants.json",
+        "00_nucleo/diagnosticos/p1425-seal.json",
+        "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md except automated lineage metadata",
+        "00_nucleo/prompts/compiler/math/layout/p1425-tests.md except automated lineage metadata",
+        "00_nucleo/prompts/infra/tests/p1425-tests.md except automated lineage metadata",
+        "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
+        "01_core/src/compiler/math/layout/p1425_tests.rs",
+        "03_infra/tests/p1425_math_limits.rs",
+        "all paths not expressly allowed above"
+      ],
+      "lineage_exception": "The six productive owner L0s and three test-only L0s may receive only generated Hash do Código or @prompt-hash metadata after implementation. Every such byte change must be recorded and rebound by the final verifier; all semantic L0 bytes remain sealed.",
+      "may_edit_independent_test_bodies": false
+    }
+  },
+  "attestation": "executado sem atestação de isolamento",
+  "authored_at": "2026-09-16T16:04:49-03:00",
+  "baseline": {
+    "approval_predecessor_commit": "2d7165305e4fe629253d0cfe628a8587b1e09034",
+    "commit": "d10f81161331000f81165c23109baa025613ce04",
+    "tree": "15b66e3aa9a4da8cac4d1b0298a00832601d7de1"
+  },
+  "calibration": {
+    "candidate_executed": false,
+    "method": "Static pre-candidate discriminatory evaluation checked every frozen case, oracle witness, mutation-to-case mapping, capability boundary, protected-input hash, and test artifact hash. Classification was indexed by case id and replayed in forward, fresh forward-repeat, and fresh reverse order; no candidate result is claimed.",
+    "mutation_score": 1.0,
+    "mutations": {
+      "rejectable_with_witness": 21,
+      "required": 21,
+      "survivors": 0,
+      "unknown": 0,
+      "vector": "M01-M21=Violated"
+    },
+    "negative_cases": {
+      "expected_preserved_rejections": 5,
+      "with_sealed_witness": 5,
+      "vector": "N01-N05=Preserved"
+    },
+    "opaque_controls": {
+      "expected_unknown": 4,
+      "observed_contract_classification": 4,
+      "unknown_never_success": true,
+      "vector": "U01-U04=Unknown"
+    },
+    "order_vector_sha256": "f27939dd58fe1ecaa6cad307aa5cc52b5a76f83dbbed88c9a3e5f69419ee976a",
+    "orders": [
+      {
+        "classification_vector": {
+          "M01-M21": "Violated",
+          "N01-N05": "Preserved",
+          "P01-P11": "Preserved",
+          "U01-U04": "Unknown"
+        },
+        "id": "forward",
+        "result": "identical"
+      },
+      {
+        "classification_vector": {
+          "M01-M21": "Violated",
+          "N01-N05": "Preserved",
+          "P01-P11": "Preserved",
+          "U01-U04": "Unknown"
+        },
+        "id": "forward_repeat",
+        "result": "identical"
+      },
+      {
+        "classification_vector": {
+          "M01-M21": "Violated",
+          "N01-N05": "Preserved",
+          "P01-P11": "Preserved",
+          "U01-U04": "Unknown"
+        },
+        "id": "reverse",
+        "result": "identical"
+      }
+    ],
+    "positive_cases": {
+      "expected_preserved": 11,
+      "mandatory_unknown_allowed": false,
+      "with_sealed_witness": 11,
+      "vector": "P01-P11=Preserved"
+    },
+    "result": "PASS_PRE_CANDIDATE"
+  },
+  "claim_boundary": "This seal freezes only the P1425 math.limits contract, witnesses, mutations, opaque policy, tests, baseline, capabilities, and execution orders. It does not attest a candidate, the other 21 residual math routes, general math parity, new attachment geometry, Rust representation, render-byte equality, or out-of-scope diagnostic formatting.",
+  "invalidation": {
+    "fail_closed": true,
+    "rule": "Any unallowlisted write, semantic L0 change, test-body change, sealed diagnostic artifact change, capability expansion, missing hash, identity mismatch, timeout, crash, OOM, swap, unreadable result, mutation survivor, mandatory Unknown, or order-vector divergence invalidates the seal. Generated lineage-only changes are the sole byte-level exception and require explicit final rebind.",
+    "unknown_policy": "Unknown never counts as Preserved or Violated and blocks every mandatory positive, mandatory negative, or valid mutation; only U01-U04 require Unknown."
+  },
+  "protocol": {
+    "isolation": "shared workspace; capability allowlists are procedural and not sandbox-enforced",
+    "regime": "full",
+    "status": "sealed_pre_candidate",
+    "version": "tekt-materializacao-segregada/1"
+  },
+  "sealed_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1425-manifest.json",
+      "sha256": "51ebd2cd93ff80c52919f490a0a8a7220949ac3bf65cb82dce668c48674be3b8"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-contract.json",
+      "sha256": "286a06027db74487f7a3c686c2feaedc2841ba180d51311dec13a39baf856bcd"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-oracles.json",
+      "sha256": "b38fd6aa78dfa8afd62fbcd2b0dfd59e9d61128ed9c6ec7cfedd5217f539797a"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1425-mutants.json",
+      "sha256": "0f41cbcc56b3a346fc445c9b96b03dcb6b1d9d2df211629dbc560ccc300c71e9"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1425.md",
+      "sha256": "4e72ee1a0ae017a2215041dd4d09b4632f53833facc3657f6e4ce083c5a082ee"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "b239200ffeca2fe279d14bc74425a5dd2dd2cfc8c2aa8967dc2565470bdbbd28"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/elements/math_limits_override.md",
+      "sha256": "7ae8f9f6f5dc4c2ef99b9d14d569ce3363dcdeff5bd46aa91aee98064ff32ef8"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/content.md",
+      "sha256": "b574a9457a606c61a58f3df5e3b3e4eabceb7a6ee1f567a3e17128a0a7b1a327"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "aa8d076e86a5ec63cfc2cf2c37910e7b5169267534c82ef1a56552e65372147a"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "sha256": "7d86b1aca4b337a21aeaa07dcf999eee89deffccf95e7cae253fbb2be3d6ccb3"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "446d4d4a5c0b4ef0ffbae5bd6eccd04d1b95e0b1fc998e4ec58f6030753911b4"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math/p1425-tests.md",
+      "sha256": "9e849dc5a0560c8132c5f455f8cb04ad7dac6d987c3dceaf7e9689a0c7e9724c"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/p1425-tests.md",
+      "sha256": "1f923f647514ee0eb9b1ecae4033dceb9bb552e140e69c932b39b94441ca52f0"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/tests/p1425-tests.md",
+      "sha256": "b0923c1686df93f732a15b10159eff5eb60f284f4433cd0abfabe9e23cade13a"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math/p1425_tests.rs",
+      "sha256": "6296a7ff0c24e272ba362f2fb068a54cada82c8660c9e08715c5b6db428c6d55"
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1425_tests.rs",
+      "sha256": "f188123a9e94799cb7c273089216b9f2252fd9a8026e50bfe126939dfc6b3a84"
+    },
+    {
+      "path": "03_infra/tests/p1425_math_limits.rs",
+      "sha256": "e511991172545d377089c838cd3b24f8cc90b579d8d06b3d3831a41c8c6f49a3"
+    }
+  ],
+  "sealed_reference": {
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+  },
+  "verdict": {
+    "implementation_authorized": true,
+    "reason": "The frozen P1425 suite has attributable witnesses for 11/11 mandatory positives and 5/5 mandatory rejection cases, fail-closed Unknown controls for 4/4 opaque cases, and discriminatory witnesses or structural allowlist review capable of classifying 21/21 valid mutations as Violated in each of the three deterministic orders; mutation score is 1.0 and no survivor or integrity mismatch remains.",
+    "verification_still_required": true
+  },
+  "schema": "tekt.materialization.seal/v1"
+}

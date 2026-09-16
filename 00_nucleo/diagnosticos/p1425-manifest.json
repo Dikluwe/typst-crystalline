@@ -1,0 +1,244 @@
+{
+  "artifacts": {
+    "contract": "00_nucleo/diagnosticos/p1425-contract.json",
+    "manifest": "00_nucleo/diagnosticos/p1425-manifest.json",
+    "mutations": "00_nucleo/diagnosticos/p1425-mutants.json",
+    "oracles": "00_nucleo/diagnosticos/p1425-oracles.json",
+    "seal": "00_nucleo/diagnosticos/p1425-seal.json"
+  },
+  "authored_at": "2026-09-16T15:45:51-03:00",
+  "authorities": [
+    {
+      "capabilities": {
+        "forbidden_reads": [
+          "candidate implementation diffs",
+          "candidate test diffs",
+          "private outputs of implementer, oracle author, adversary, or verifier"
+        ],
+        "read_allowlist": [
+          "the protected inputs listed by this manifest",
+          "the ratified vanilla sources listed by this manifest",
+          "the productive baseline files listed by this manifest"
+        ],
+        "write_allowlist": [
+          "00_nucleo/diagnosticos/p1425-manifest.json",
+          "00_nucleo/diagnosticos/p1425-contract.json"
+        ]
+      },
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "executor": "agent:/root/p1425_contract",
+      "role": "contract_author"
+    },
+    {
+      "capabilities": {
+        "read_allowlist": [
+          "frozen manifest",
+          "frozen contract",
+          "protected prompts and baseline"
+        ],
+        "write_allowlist": [
+          "P1425 oracle artifacts and independent test files only"
+        ]
+      },
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "executor": "agent:/root/p1425_oracles",
+      "role": "oracle_author_and_ab_tester"
+    },
+    {
+      "capabilities": {
+        "read_allowlist": [
+          "frozen manifest",
+          "frozen contract",
+          "protected prompts and baseline"
+        ],
+        "write_allowlist": [
+          "00_nucleo/diagnosticos/p1425-mutants.json"
+        ]
+      },
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "executor": "agent:/root/p1425_adversary",
+      "role": "adversary"
+    },
+    {
+      "capabilities": {
+        "forbidden_writes": [
+          "manifest",
+          "contract",
+          "sealed oracles",
+          "sealed mutations",
+          "independent P1425 test bodies"
+        ],
+        "read_allowlist": [
+          "sealed manifest",
+          "sealed contract",
+          "protected prompts and baseline",
+          "sealed public oracle and mutation artifacts"
+        ],
+        "write_allowlist": [
+          "01_core/src/compiler/stdlib/structural/math.rs",
+          "01_core/src/entities/elements/math_limits_override.rs",
+          "01_core/src/entities/content.rs",
+          "01_core/src/compiler/eval/math.rs",
+          "01_core/src/compiler/math/layout/mod.rs",
+          "01_core/src/compiler/eval/repr.rs",
+          "mechanical four-argument constructor repairs in existing tests",
+          "test-module wiring declarations only",
+          "P1425 obligation text and lineage hash metadata only in the six owner L0 paths listed by protected_inputs"
+        ]
+      },
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "executor": "agent:/root/p1425_implementation",
+      "role": "implementer"
+    },
+    {
+      "capabilities": {
+        "forbidden_writes": [
+          "any artifact under verification"
+        ],
+        "read_allowlist": [
+          "all sealed P1425 artifacts",
+          "candidate implementation and test outputs"
+        ],
+        "write_allowlist": [
+          "P1425 result receipts, report, mutation results, and verdict only"
+        ]
+      },
+      "environment": "shared workspace; allowlist is procedural, not sandbox-enforced",
+      "executor": "agent:/root/p1425_verifier",
+      "role": "verifier"
+    }
+  ],
+  "baseline": {
+    "approval_predecessor_commit": "2d7165305e4fe629253d0cfe628a8587b1e09034",
+    "commit": "d10f81161331000f81165c23109baa025613ce04",
+    "productive_files": [
+      {
+        "path": "01_core/src/compiler/stdlib/structural/math.rs",
+        "sha256": "14ba94bf6de39bf9a8d905499181d5c9e7ac7d3063f994816391449ed2de6578"
+      },
+      {
+        "path": "01_core/src/entities/elements/math_limits_override.rs",
+        "sha256": "d4edfbb5cafd298b5be60555c6a4b457d4856d20a7e5d935bdba8776bdeb9398"
+      },
+      {
+        "path": "01_core/src/entities/content.rs",
+        "sha256": "0ea226a2e38a7594577505857595dcceb5c21de25a6c9868b62bd76c2f5c6e48"
+      },
+      {
+        "path": "01_core/src/compiler/eval/math.rs",
+        "sha256": "9658a77c3bfdc5b66e7cfab89999a9524d4776b2da92b6437a54f6c84226e94f"
+      },
+      {
+        "path": "01_core/src/compiler/math/layout/mod.rs",
+        "sha256": "63e5bc076c4e77be8b591f2799ccb1fa190a9badcb45358b64c180639b72e035"
+      },
+      {
+        "path": "01_core/src/compiler/eval/repr.rs",
+        "sha256": "be1d3be57c9ac167254aed0b25fa216305dae7e71eee807c7c678d06e5fbc0fa"
+      }
+    ],
+    "tree": "15b66e3aa9a4da8cac4d1b0298a00832601d7de1"
+  },
+  "budgets": {
+    "full_corpus_runs": 3,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 12,
+    "per_case_timeout_seconds": 120,
+    "stop_after_consecutive_revisions_without_discriminatory_gain": 2,
+    "wall_clock_minutes": 60
+  },
+  "claim_boundary": {
+    "attests": "Only the P1425 math.limits fragment: qualified binding and closed signature, explicit-inline presence, convergence with bare syntax, carrier and walker preservation, canonical repr, established attachment layout behavior, and preservation of scripts.",
+    "does_not_attest": [
+      "the other 21 residual math routes from P1422",
+      "general math parity",
+      "new carriers for mid, stretch, or primes",
+      "changes to attachment geometry",
+      "Rust structural equality as a language observable",
+      "render-byte equality",
+      "diagnostic spans or formatting outside the measured message fragment"
+    ]
+  },
+  "execution_orders": [
+    {
+      "id": "forward",
+      "order": "contract case order in a fresh process"
+    },
+    {
+      "id": "forward_repeat",
+      "order": "contract case order repeated in a second fresh process"
+    },
+    {
+      "id": "reverse",
+      "order": "exact reverse of contract case order in a third fresh process"
+    }
+  ],
+  "observables": [
+    "O-BINDING",
+    "O-SIGNATURE",
+    "O-CARRIER-PRESENCE",
+    "O-BILATERAL-CONVERGENCE",
+    "O-WALKERS",
+    "O-REPR",
+    "O-LAYOUT-PRESERVATION",
+    "O-SCRIPTS-CONTROL",
+    "O-FAIL-CLOSED"
+  ],
+  "protected_inputs": [
+    {
+      "path": "00_nucleo/materialization/typst-passo-1425.md",
+      "sha256": "4e72ee1a0ae017a2215041dd4d09b4632f53833facc3657f6e4ce083c5a082ee"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "sha256": "b239200ffeca2fe279d14bc74425a5dd2dd2cfc8c2aa8967dc2565470bdbbd28"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/elements/math_limits_override.md",
+      "sha256": "7ae8f9f6f5dc4c2ef99b9d14d569ce3363dcdeff5bd46aa91aee98064ff32ef8"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/content.md",
+      "sha256": "b574a9457a606c61a58f3df5e3b3e4eabceb7a6ee1f567a3e17128a0a7b1a327"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "sha256": "aa8d076e86a5ec63cfc2cf2c37910e7b5169267534c82ef1a56552e65372147a"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "sha256": "7d86b1aca4b337a21aeaa07dcf999eee89deffccf95e7cae253fbb2be3d6ccb3"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "sha256": "446d4d4a5c0b4ef0ffbae5bd6eccd04d1b95e0b1fc998e4ec58f6030753911b4"
+    }
+  ],
+  "protocol": {
+    "attestation": "executed_without_isolation_attestation",
+    "invalidation": "Any byte change to a protected input, baseline identity, contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the seal from the first affected phase.",
+    "regime": "full",
+    "version": "tekt-materializacao-segregada/1"
+  },
+  "reference_vanilla": {
+    "binary_path": "/usr/local/bin/typst",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "sources": [
+      {
+        "path": "lab/typst-original/crates/typst-library/src/math/attach.rs",
+        "sha256": "7efdda527260ad0ac91436b35abe5f98b85019ff8491192c1ed5077c17953f5f"
+      },
+      {
+        "path": "lab/typst-original/crates/typst-library/src/math/mod.rs",
+        "sha256": "a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957"
+      }
+    ]
+  },
+  "schema": "tekt.materialization.manifest/v1",
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "rule": "Ambiguous binary or source identity, opaque construction, unsupported parser or extractor, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency, or exhausted budget is Unknown. Unknown never counts as Preserved, never increases mutation score, and blocks every mandatory case; it is expected only for cases explicitly classified as opaque."
+  }
+}
