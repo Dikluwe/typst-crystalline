@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md
-//! @prompt-hash f5ae1796
+//! @prompt-hash 56d87a7f
 //! @layer L1
 #![cfg(test)]
 //!
@@ -9,7 +9,7 @@
 
 use super::*;
 
-use crate::compiler::eval::repr_value;
+use crate::compiler::eval::repr::repr_value;
 use crate::compiler::layout::layout;
 use crate::entities::func::FuncRepr;
 

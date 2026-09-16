@@ -3,7 +3,8 @@
   "protocol_version": "tekt-materializacao-segregada/1",
   "step": 1424,
   "status": "candidate-oracles-unsealed",
-  "revision": "R0",
+  "revision": "R1",
+  "revision_note": "Correção estritamente compilatória do import de repr_value no teste L1 após o RED; intenção, casos e cobertura permanecem idênticos a R0.",
   "attestation": "executado sem atestação de isolamento",
   "executor": {
     "authority": "agent:/root/p1424_oracles",
@@ -129,9 +130,9 @@
     "orders": ["forward", "forward_repeat", "reverse"]
   },
   "outputs": [
-    {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "f5ae179684c10b580fd0c51b04be4a8ee35163250897b60d856bd5d3710c22b1"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c"},
     {"path": "00_nucleo/prompts/infra/tests/p1424-tests.md", "sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3"},
-    {"path": "01_core/src/compiler/stdlib/html/p1424_tests.rs", "sha256": "c9a1cffe247189e961672c60278ead86e95bb97485490eb1161d6f8b2a3daff3"},
+    {"path": "01_core/src/compiler/stdlib/html/p1424_tests.rs", "sha256": "27c9b1b49957a756dcb7695ef562337d8caa38fa2c8c219704a8ef523a9fc92b"},
     {"path": "03_infra/tests/p1424_html_frame.rs", "sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101"}
   ],
   "commands_for_verifier": [

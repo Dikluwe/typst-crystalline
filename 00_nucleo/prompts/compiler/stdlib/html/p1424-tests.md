@@ -1,6 +1,6 @@
 # Prompt L0 — testes A/B L1 de `html.frame` P1424
 
-Hash do Código: b54ac95d
+Hash do Código: bb84f682
 
 **Camada:** L1 (testes)  
 **Ficheiro alvo exclusivo:** `01_core/src/compiler/stdlib/html/p1424_tests.rs`  

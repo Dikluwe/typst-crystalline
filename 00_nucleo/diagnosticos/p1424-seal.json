@@ -48,7 +48,7 @@
   },
   "calibration": {
     "candidate_executed": false,
-    "method": "Pre-candidate static discrimination: every expected classification has an attributable sealed witness; no implementation result is claimed.",
+    "method": "R1 pre-candidate static discrimination after a compile-only oracle correction: every expected classification retains an attributable sealed witness; no implementation result is claimed.",
     "mutation_score": 1.0,
     "mutations": {
       "rejectable_with_witness": 21,
@@ -98,15 +98,25 @@
     "status": "sealed_pre_candidate",
     "version": "tekt-materializacao-segregada/1"
   },
+  "revision": {
+    "id": "R1",
+    "previous_seal_sha256": "e46cd06e85a70a9dcd428f69a6486f2f2380afc40881adc10af7d32c4b68c941",
+    "reason": "Compile-only correction to the independent L1 oracle import and its lineage hash; intent, contract cases, observables, mutation witnesses, Unknown policy, claim boundary, baseline, and capabilities are unchanged.",
+    "unchanged_causal_inputs": [
+      {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"},
+      {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"},
+      {"path": "00_nucleo/diagnosticos/p1424-mutants.json", "sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b"}
+    ]
+  },
   "sealed_inputs": [
     {"path": "00_nucleo/diagnosticos/p1424-manifest.json", "sha256": "e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab"},
     {"path": "00_nucleo/diagnosticos/p1424-contract.json", "sha256": "d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31"},
-    {"path": "00_nucleo/diagnosticos/p1424-oracles.json", "sha256": "5dee2c4ac48eb3a8c68600be691515272f33c5415d4f688886b8bc5ba96d1e8b"},
+    {"path": "00_nucleo/diagnosticos/p1424-oracles.json", "sha256": "03a34ae7362ba155862a5ba742f042f5eb69c3a82a3b5e2d8ea0e75ca28bf852"},
     {"path": "00_nucleo/diagnosticos/p1424-mutants.json", "sha256": "770ea2d136e25e80eca53546bd3b96dfcbae4fb7102666bd078bb47050d86a1b"},
     {"path": "00_nucleo/prompts/compiler/layout/html_frame.md", "sha256": "44b880d78023372eb9712d85f40a4b1e6e480f95b050e7886942fb498cc6c367"},
-    {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "f5ae179684c10b580fd0c51b04be4a8ee35163250897b60d856bd5d3710c22b1"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md", "sha256": "56d87a7fe6a902a8e594a0a4ca096ecad95ec78014d0af58854b7e791f77212c"},
     {"path": "00_nucleo/prompts/infra/tests/p1424-tests.md", "sha256": "48506c64df7c23c7676a18ef36ed321ab3cd23b18f549784e751b41310f79ac3"},
-    {"path": "01_core/src/compiler/stdlib/html/p1424_tests.rs", "sha256": "c9a1cffe247189e961672c60278ead86e95bb97485490eb1161d6f8b2a3daff3"},
+    {"path": "01_core/src/compiler/stdlib/html/p1424_tests.rs", "sha256": "27c9b1b49957a756dcb7695ef562337d8caa38fa2c8c219704a8ef523a9fc92b"},
     {"path": "03_infra/tests/p1424_html_frame.rs", "sha256": "7f788d8494e5e51ed24efafa38fddf119b8609d379eabaa810e4334572ee0101"}
   ],
   "sealed_reference": {
