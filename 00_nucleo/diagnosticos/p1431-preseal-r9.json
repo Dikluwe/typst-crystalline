@@ -1,0 +1,54 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1435,
+  "subject_step": 1431,
+  "revision": 9,
+  "measured_at": "2026-09-17T16:15:32-03:00",
+  "status": "AUTHORIZED_POST_REPAIR_MUTATION_EXECUTION",
+  "verdict": "AUTHORIZE_M01_M30_THREE_ORDER_CAMPAIGN",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "executor": "agent:/root",
+    "role": "procedurally_separated_preseal_authority",
+    "write_allowlist": ["00_nucleo/diagnosticos/p1431-preseal-r9.json"],
+    "verified_inputs_edited": false,
+    "isolation_attested": false
+  },
+  "state": {
+    "verification_head": "c583c4b46be307f877955ea0baf6fc18a2dc3f22",
+    "verification_tree": "0fcd7c137f9935f1e9324d041b8068bd904e44fa",
+    "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "tracked_tree_clean": true
+  },
+  "protected_inputs": {
+    "step_sha256": "2a9766da0627a51f7b936a17fcacc17852c84592501a0719d068f55049d5ec0f",
+    "manifest_sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+    "contract_sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+    "oracles_r9_sha256": "00b707d8487dc21cadb9f7de46813b9776f3d0b39cdcab9a486526748965cbc6",
+    "mutation_design_r9_sha256": "028d97d009388a660d67d688851b52e5bdac3d0e00ce040170548044c5c221c9",
+    "calibration_sha256": "36d624dce9f9916e827d1ef9887ee318e132053b069fe06e2e57a5899e24715f",
+    "public_runner_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
+    "design_runner_sha256": "14fd334a49fd1f703a984095a714bca1eb7b4fad30315f34bd11be1fc1063e4d"
+  },
+  "invalidation": {
+    "result": "PASS_RESTARTED_AT_ORACLE_BOUNDARY",
+    "invalidated": ["oracles R6", "mutation design/preseal R8", "R8 receipts and verdicts"],
+    "preserved": ["manifest", "contract", "productive candidate", "five other test-only pairs", "34 test identities"]
+  },
+  "gates": {
+    "unmutated": "PASS_34_OF_34",
+    "design": "PASS_REVISION_9_30_FAMILIES_34_ORACLES",
+    "m21": "VIOLATED_ALIGN_POINT",
+    "m21_exact_patch_sha256": "4b884dee77d9fd426d7c25678d368ca8d94f17aa45b6090f0b0c2977a48412ae",
+    "unknown_policy": "FAIL_CLOSED_EXIT_3",
+    "productive_projection": "BYTE_IDENTICAL_TO_CF92C3D07"
+  },
+  "authorization": {
+    "authorized": true,
+    "scope": "Execute M01-M30 in forward, forward_repeat and reverse against the exact post-preseal HEAD. M05 uses R8, M21 uses R9, M26 uses R7; all other current patches require apply/allowlist checks.",
+    "required_success": {"survivors":0,"unexpected_unknown":0,"orders":["forward","forward_repeat","reverse"],"mutation_score":1.0,"clean_reversal":true},
+    "final_certificate_authorized": false
+  },
+  "claim_boundary": "This preseal authorizes only the P1431 physical campaign and is not a final certificate."
+}
