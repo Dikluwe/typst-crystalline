@@ -1,0 +1,61 @@
+{
+  "schema": "tekt.materialization.focused-calibration/v1",
+  "revision": 9,
+  "measured_at": "2026-09-17T16:14:47-03:00",
+  "subject_step": 1431,
+  "repair_step": 1435,
+  "role": "adversarial_design_repair_authority",
+  "executor": "agent:/root",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "write": ["mutation design R9", "M21 recipe and patch", "design shim", "this receipt"],
+    "forbidden_writes_respected": ["productive code", "manifest", "contract", "R9 oracle", "independent tests", "public runner", "M01-M20 and M22-M30 recipes"],
+    "isolation_attested": false
+  },
+  "identities": {
+    "design_commit": "b408bf343d626cbbbf0f2698711e0890b41de0b2",
+    "design_tree": "7fdf794392e07278c97ffe365e4ba11859eea31b",
+    "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "oracles_r9_sha256": "00b707d8487dc21cadb9f7de46813b9776f3d0b39cdcab9a486526748965cbc6",
+    "mutation_design_r9_sha256": "028d97d009388a660d67d688851b52e5bdac3d0e00ce040170548044c5c221c9",
+    "m21_recipe_sha256": "8c8c4da61271ba7c0bd2b96e3c653224e73e6f53cd64f9a148a1757dba652c7d",
+    "design_runner_sha256": "14fd334a49fd1f703a984095a714bca1eb7b4fad30315f34bd11be1fc1063e4d",
+    "m21_patch_sha256": "4b884dee77d9fd426d7c25678d368ca8d94f17aa45b6090f0b0c2977a48412ae"
+  },
+  "design_gate": {
+    "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
+    "exit": 0,
+    "classification": "Preserved",
+    "revision": 9,
+    "mutations": 30,
+    "oracle_tests": 34
+  },
+  "focused_m21_gate": {
+    "transform": "Exactly one GridAlign::Alternating token becomes GridAlign::Center in the any_align branch.",
+    "patch_hunks": 1,
+    "changed_lines_removed": 1,
+    "changed_lines_added": 1,
+    "align_boundaries_preserved": true,
+    "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_alignpoint_resolve_tarde_e_estilo_denominador_permanece -- --exact",
+    "runner_exit": 0,
+    "classification": "Violated",
+    "reason_code": "VIOLATED_ALIGN_POINT",
+    "witness": "P26 left subcolumn must right-align",
+    "clean_reversal": true
+  },
+  "controls": {
+    "unmutated_candidate": "PASS_34_OF_34 under R9 before mutation redesign",
+    "p25": "unchanged in the 30-core unmutated corpus",
+    "p31": "same P26 test continues checking Display/Inline/Script/SScript sizes before successful completion",
+    "p32": "unchanged in the 30-core unmutated corpus"
+  },
+  "delta_discrimination": {
+    "prior": "M21 Preserved under weak P26 and two-hunk patch",
+    "current": "M21 Violated through independent right-edge equation using one-hunk patch",
+    "corrected_cases": ["M21"],
+    "regressed_cases": [],
+    "result": "MONOTONIC_DISCRIMINATORY_GAIN"
+  },
+  "verdict": {"classification":"FOCUSED_REPAIR_PASS","preseal_authorized":true,"campaign_authorized":false}
+}
