@@ -1,0 +1,109 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "step": 1429,
+  "revision": 3,
+  "status": "PASS",
+  "verdict": "SEAL",
+  "attestation": "executed_without_isolation_attestation",
+  "measured_at": "2026-09-16T21:24:12-03:00",
+  "verifier": {
+    "authority": "agent:/root/p1429_preseal",
+    "role": "independent_preseal_verifier",
+    "workspace": "shared",
+    "isolation_attested": false,
+    "productive_source_written": false,
+    "verified_inputs_edited": false,
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1429-preseal-r3.json",
+      "00_nucleo/diagnosticos/p1429-seal.json"
+    ]
+  },
+  "state": {
+    "head": "1622c14ce5b564ed6ddba99835fc94c16b2fa6fa",
+    "tree": "acee82c7b4243789bc1441457c2f26af7814bd0f",
+    "productive_baseline_commit": "530bb5c4208ee82f815515d761517b818a949ee6",
+    "productive_baseline_tree": "274a57dc60fee4623559cad12bd5a1c588c8481b",
+    "working_tree_before_receipts": "clean"
+  },
+  "protected_inputs": [
+    {"kind":"step","path":"00_nucleo/materialization/typst-passo-1429.md","sha256":"ffccd6fce70ca43c4e071c0706767e060a94ec1ffbe6c758cf5d77a23f14825c","identity":"MATCH"},
+    {"kind":"manifest","path":"00_nucleo/diagnosticos/p1429-manifest.json","sha256":"3b1ee4d266cfdffb85f13555134c0b09dc36a7d89bd5f912d6eef101e0ca045a","identity":"MATCH"},
+    {"kind":"contract","path":"00_nucleo/diagnosticos/p1429-contract.json","sha256":"99305a0f84ea13ad477702562d3aa032c67c9d9362f644ddb64389ae5f0a1e01","identity":"MATCH"},
+    {"kind":"oracles","path":"00_nucleo/diagnosticos/p1429-oracles.json","sha256":"9e5647d3c6c5ece776a27dee443b2eede0035cb5011a2c593f5d3eed9c9d422e","identity":"MATCH"},
+    {"kind":"mutations","path":"00_nucleo/diagnosticos/p1429-mutants.json","sha256":"dd76a12c28ebc736008ea26b7dd540c002c0867f3696866fda10a2e5822b452c","identity":"MATCH"},
+    {"kind":"red_receipt","path":"00_nucleo/diagnosticos/p1429-red.json","sha256":"01482147d16707d53a733c67ed360af80575ae69fa473a962d9558031cbfe3b9","identity":"MATCH"},
+    {"kind":"red_receipt_r3","path":"00_nucleo/diagnosticos/p1429-red-r3.json","sha256":"cf282060333820e1ed13428d2293b12eb624eed5f9ffa4d009fb51a55bc9c214","identity":"MATCH"},
+    {"kind":"test_l0","path":"00_nucleo/prompts/compiler/stdlib/structural/p1429-tests.md","sha256":"fc94fd67c9c4d077273d36251afdb2a8f918b6a77ea47093c74b4d8e196eae3b","identity":"MATCH"},
+    {"kind":"test_l0","path":"00_nucleo/prompts/entities/elements/p1429-math-accent-tests.md","sha256":"ad756cbd469ac56f5b1d1a0dc2f9f7292dd7241cc6cd490b7438999fadfe6595","identity":"MATCH"},
+    {"kind":"test_l0","path":"00_nucleo/prompts/compiler/math/layout/p1429-tests.md","sha256":"d5724bfb9c6faac7611eac53bbbfba0c907ee4680baabaa8584d5343e52b8988","identity":"MATCH"},
+    {"kind":"test_l0","path":"00_nucleo/prompts/compiler/eval/p1429-observation-tests.md","sha256":"c5df7e0a264bb351407b7bc618ec1b4699a1b2ea7a45e197538e60ac07bd7909","identity":"MATCH"},
+    {"kind":"independent_test","path":"01_core/src/compiler/stdlib/structural/p1429_tests.rs","sha256":"ff7792ab1310644548eca5549401d794b57bc4a8a413ffffe4589dc621258bf1","identity":"MATCH"},
+    {"kind":"independent_test","path":"01_core/src/entities/elements/p1429_math_accent_tests.rs","sha256":"178ad902c29a7432af77144236f17259973708a930ca26f90363f34299bfe806","identity":"MATCH"},
+    {"kind":"independent_test","path":"01_core/src/compiler/math/layout/p1429_tests.rs","sha256":"67b1a714c9932b6a30b3f1b3908af38c24a4cd385ee01cf39bad6b3dce782fca","identity":"MATCH"},
+    {"kind":"independent_test","path":"01_core/src/compiler/eval/p1429_observation_tests.rs","sha256":"de4d05a8f61ad84064eea9e157aa00818008498e4e480a3b697d03efa8cce848","identity":"MATCH"}
+  ],
+  "identity_gate": {
+    "result": "PASS",
+    "productive_files_matching_manifest_and_baseline_git_objects": 8,
+    "protected_inputs_matching": 15,
+    "unexpected_changed_paths": [],
+    "lineage_hashes_matching": true
+  },
+  "red_gate": {
+    "command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1429 -- --nocapture",
+    "exit_code": 101,
+    "selected": 10,
+    "passed_controls": 1,
+    "failed_attributably": 9,
+    "unexpected_unknown": 0,
+    "result": "RED_ATTRIBUTABLE"
+  },
+  "r3_m10_discriminant": {
+    "base_target_du": 1200,
+    "base_glyph_advance_du": 600,
+    "first_variant_du": 750,
+    "second_variant_du": 1300,
+    "short_fall_0_4": {"target_du":800,"observable":"glyph_id=143","classification":"Violated"},
+    "short_fall_0_5": {"target_du":700,"observable":"glyph_id=142","classification":"Preserved"},
+    "short_fall_0_6": {"target_du":600,"observable":"base glyph retained; attributable glyph extraction fails","classification":"Violated"},
+    "result": "PASS",
+    "scope": "The frozen adjacent 0.4em and 0.6em semantic mutations are both distinguished from the required 0.5em behavior."
+  },
+  "discriminatory_gate": {
+    "valid_mutations": 12,
+    "mutations_with_attributable_contractual_rejection": 12,
+    "survivors": 0,
+    "unexpected_unknown": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "unknown_credit": 0,
+    "result": "PASS",
+    "scope": "Pre-implementation contractual discrimination. Physical execution of candidate mutations remains mandatory for the final certificate."
+  },
+  "closed_prior_gaps": {
+    "P19": "clone, hash, map_content, map_text, apply_math_default and apply_math_style have independent assertions",
+    "P20": "accent, size, dotless and both presence bits are compared symmetrically by the observation relation",
+    "P25": "upper j is checked under both dotless polarities",
+    "M10": "0.4em and 0.6em produce observations distinct from the required 0.5em",
+    "U01_U06_M12": "the executable classifier requires Unknown, acceptance=false, mutation_credit=false and exact reason codes"
+  },
+  "unknown_gate": {
+    "declared_opaque_cases": 6,
+    "expected": "Unknown",
+    "acceptance_credit": 0,
+    "mutation_credit": 0,
+    "mandatory_unknown_allowed": false,
+    "executable_control": "p1429_unknown_u01_u06_falha_fechado_sem_credito",
+    "result": "PASS"
+  },
+  "mechanical_gates": {
+    "json_syntax": "PASS",
+    "git_diff_check_before_receipts": "PASS"
+  },
+  "limitations": [
+    "The shared workspace does not provide enforceable capability isolation; this execution is not isolation-attested.",
+    "This preseal establishes only pre-implementation discriminatory adequacy for the frozen P1429 fragment.",
+    "Candidate mutation execution, three-order determinism, full functional gates, build, lint and the final certificate remain required after implementation."
+  ],
+  "claim_boundary": "PASS admits implementation only for the frozen P1429 math.accent fragment and exact protected artifacts. It does not attest general math parity, render-byte equality, workspace isolation or a future candidate."
+}
