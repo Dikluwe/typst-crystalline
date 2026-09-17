@@ -1,0 +1,75 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1434,
+  "subject_step": 1431,
+  "revision": 8,
+  "measured_at": "2026-09-17T15:40:31-03:00",
+  "status": "AUTHORIZED_POST_REPAIR_MUTATION_EXECUTION",
+  "verdict": "AUTHORIZE_M01_M30_THREE_ORDER_CAMPAIGN",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "executor": "agent:/root",
+    "role": "procedurally_separated_preseal_authority",
+    "write_allowlist": ["00_nucleo/diagnosticos/p1431-preseal-r8.json"],
+    "verified_inputs_edited": false,
+    "isolation_attested": false,
+    "limitation": "Sequential shared-session roles are hash-audited but not independently isolated."
+  },
+  "state": {
+    "verification_head": "95f2387bdbb2599300eaddc15f58cc6b50345f65",
+    "verification_tree": "c58c87020aebe0634cc9aafa9308c5d04611fd34",
+    "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "tracked_tree_clean": true
+  },
+  "protected_inputs": {
+    "step_sha256": "96df892f7b54aa797c6e2970055b1ff901b4b6cbea8b229bb08b129c76a69d19",
+    "manifest_sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+    "contract_sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+    "oracles_r6_sha256": "b37af704bc605c63132edf0fffa0377f3f12d731740e445b03672961a5cf13fe",
+    "mutation_design_r8_sha256": "6432f32d98905ea8b78abbba80ad30161a4e10b9914ca9e98adda038744f52fc",
+    "public_runner_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
+    "design_runner_sha256": "65492bb0873fd05fc941fc21524ac955e0f80eb726f8fc6e1ea3d1997cc0ff56",
+    "calibration_sha256": "7005efa7ef73b580d17dd911831edc97e2d1074a76d901603c0af7539b51cfa3"
+  },
+  "invalidation": {
+    "result": "PASS_RESTARTED_AT_MUTATION_DESIGN_BOUNDARY",
+    "invalidated": ["mutation design R7", "preseal R7", "R7 execution receipts and verdicts"],
+    "preserved": ["manifest", "contract", "R6 oracles", "productive candidate", "M26 R7", "M01-M04 and M06-M30 recipes"]
+  },
+  "design_gate": {
+    "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
+    "exit": 0,
+    "classification": "Preserved",
+    "revision": 8,
+    "mutations": 30,
+    "oracle_tests": 34
+  },
+  "focused_m05_gate": {
+    "patch_sha256": "189163b8c17f9268fe4fecb365843ef6f2b15706cd9fc5cae641cb486bbb1fbe",
+    "transform": "Delete only row.resize loop; preserve columns binding.",
+    "compiles": true,
+    "classification": "Violated",
+    "reason_code": "VIOLATED_PADDING",
+    "killer": "p1431_binding_rows_padding_e_repr_canonico",
+    "boundary_control": "P04 assertions execute before P05/P06 in the same witness",
+    "clean_reversal": true
+  },
+  "unmutated_gate": {
+    "result": "PASS_34_OF_34",
+    "core": {"selected":30,"passed":30},
+    "infra_release": {"selected":4,"passed":4}
+  },
+  "authorization": {
+    "authorized": true,
+    "scope": "Execute M01-M30 in forward, forward_repeat and reverse against the exact post-preseal HEAD. M05 must use the R8 patch, M26 the R7 patch, and every reused patch must pass current apply and target checks.",
+    "required_success": {
+      "valid_mutation_survivors": 0,
+      "unexpected_unknown": 0,
+      "orders": ["forward", "forward_repeat", "reverse"],
+      "mutation_score": 1.0,
+      "clean_reversal": true
+    },
+    "final_certificate_authorized": false
+  }
+}
