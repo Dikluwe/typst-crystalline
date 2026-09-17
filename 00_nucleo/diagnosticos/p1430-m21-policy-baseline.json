@@ -1,0 +1,44 @@
+{
+  "schema": "tekt.materialization.m21-policy-baseline/v1",
+  "step": "P1430",
+  "revision": "M21-R2-oracle-refinement",
+  "recorded_at": "2026-09-17T00:11:41-03:00",
+  "authority": "agent:/root/p1430_oracles",
+  "attestation": "executado sem atestacao de isolamento",
+  "workspace": {
+    "head": "748c38a46cff3c0685b762322e681de574fe96d1",
+    "state": "working tree nao commitado",
+    "preexisting_authority_changes": [
+      "00_nucleo/diagnosticos/p1430-manifest.json",
+      "00_nucleo/diagnosticos/p1430-contract.json",
+      "00_nucleo/diagnosticos/p1430-mutants.json",
+      "00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json"
+    ]
+  },
+  "frozen_inputs": {
+    "00_nucleo/diagnosticos/p1430-manifest.json": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc",
+    "00_nucleo/diagnosticos/p1430-contract.json": "4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309",
+    "00_nucleo/diagnosticos/p1430-mutants.json": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014",
+    "00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json": "5be045de34e98afadc199c8129f11ec3479304af2e9356eb777772afbcbee45c"
+  },
+  "executables": {
+    "00_nucleo/diagnosticos/p1430-certification-policy.py": "d0d38b639e0946a7204571455b884c6fd7623f87175c286ce1194136f4312803",
+    "00_nucleo/diagnosticos/p1430-certification-policy-oracle.py": "ab70286dd8bd13ded18c75b9b4449a4bc362be97e524d6f5dbd1649c15b0351c"
+  },
+  "execution": {
+    "command": "python3 00_nucleo/diagnosticos/p1430-certification-policy-oracle.py --policy 00_nucleo/diagnosticos/p1430-certification-policy.py",
+    "exit_code": 0,
+    "output": {
+      "status": "PASS",
+      "failures": [],
+      "vectors_executed": ["V01", "V02", "V03", "V04", "V05"],
+      "V01": {"cases": ["U01", "U02", "U03", "U04", "U05", "U06"], "acceptance_credit_total": 0, "mutation_credit_total": 0, "blocks_gate": false},
+      "V02": {"classification_matches": false, "acceptance_credit": 0, "mutation_credit": 0, "blocks_gate": true},
+      "V03": {"classification_matches": false, "mutation_credit": 0, "score_numerator_delta": 0, "score_denominator_delta": 1, "blocks_gate": true},
+      "V04": {"killed": 1, "valid": 2, "mutation_score": 0.5, "mutation_credit": 1, "blocks_gate": true},
+      "V05": {"positive_match": true, "negative_match": true, "constant_unknown_rejected": true}
+    },
+    "classification": "PASS"
+  },
+  "claim_boundary": "This receipt proves only the unmutated executable certification policy over V01-V05. It is not a candidate verdict, complete mutation campaign, replacement seal or isolation attestation."
+}

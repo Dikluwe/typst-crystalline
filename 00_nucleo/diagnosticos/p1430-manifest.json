@@ -1,18 +1,39 @@
 {
   "schema": "tekt.materialization.manifest/v1",
+  "revision": 2,
   "authored_at": "2026-09-16T22:54:46-03:00",
+  "revised_at": "2026-09-17T00:03:04-03:00",
   "protocol": {
     "version": "tekt-materializacao-segregada/1",
     "regime": "full",
     "attestation": "executed_without_isolation_attestation",
-    "invalidation": "Any byte change to an approved prompt, frozen baseline identity, contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the seal from the first affected phase."
+    "phase": "contract-and-discriminatory-boundary-reopened-for-m21",
+    "invalidation": "Any byte change to an approved prompt, frozen baseline identity, contract, oracle suite, mutation suite, capability assignment, or execution-order definition invalidates the seal from the first affected phase. Revision 2 explicitly invalidates seal revision 1 at the M21 contract/discriminatory boundary."
   },
   "artifacts": {
     "manifest": "00_nucleo/diagnosticos/p1430-manifest.json",
     "contract": "00_nucleo/diagnosticos/p1430-contract.json",
-    "oracles": "00_nucleo/diagnosticos/p1430-oracles.json",
+    "oracles": "00_nucleo/diagnosticos/p1430-oracles-r2.json",
+    "predecessor_oracles": "00_nucleo/diagnosticos/p1430-oracles.json",
     "mutations": "00_nucleo/diagnosticos/p1430-mutants.json",
-    "seal": "00_nucleo/diagnosticos/p1430-seal.json"
+    "seal": "00_nucleo/diagnosticos/p1430-seal-r2.json",
+    "predecessor_seal": "00_nucleo/diagnosticos/p1430-seal.json",
+    "seal_r1_invalidation": "00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json",
+    "certification_policy_harness": "00_nucleo/diagnosticos/p1430-certification-policy.py",
+    "certification_policy_oracle": "00_nucleo/diagnosticos/p1430-certification-policy-oracle.py"
+  },
+  "revision_cause": {
+    "trigger_commit": "748c38a46cff3c0685b762322e681de574fe96d1",
+    "prior_manifest_sha256": "0d9a095a97083883b960fee2d6ba3ddf698d9ba998b85b9c0f3f9a81f4a09a4f",
+    "prior_contract_sha256": "5553f18f449378c8d9efc581d3baedf4ebb095f7b1ee08133bda1ef0294cb741",
+    "prior_mutations_sha256": "07d71f83f2691f2ebf6f60107d18e3086077c38199d225fe79be7f8411034d15",
+    "prior_oracles_sha256": "a9793703b002d8d85db02f2b7b3fe16bee33757325e3d76fb46053fbe28f6c27",
+    "prior_seal_sha256": "ff4ae5cc7a6cf97dab95077890d924c60cc8515f24095a23980312362f3ba110",
+    "adversarial_campaign_sha256": "e08a1511c014ed7aa60faaad141af1d4fb2d4e54fc3a7d1ebd5335ccb92e05b0",
+    "physical_results_sha256": "0a307abf2aafb0d0a66b44ce898498c06f187606cf169dbd30783e7030bc62c4",
+    "reopened_from": "mutation M21 contract and observable certification-policy boundary",
+    "preserved_scope": "P1430 product semantics, productive candidate, cases P01-P24/N01-N16/U01-U06 and mutation intents M01-M20 are unchanged",
+    "revised_mutations_sha256": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014"
   },
   "baseline": {
     "commit": "dbcc6f62a1460607fad1d9f7f1fe43c528845c60",
@@ -71,7 +92,8 @@
   "unknown_policy": {
     "classification": "Unknown",
     "fail_closed": true,
-    "rule": "Ambiguous source, binary, font, baseline or candidate identity; opaque carrier, parser, style cascade, child-evaluation count, delimiter normalization or layout construction; unsupported extractor; unreadable or truncated output; timeout; crash; OOM; swap; missing dependency; or exhausted budget is Unknown. Unknown never counts as Preserved, never increases mutation score, and blocks every mandatory case; it is expected only for explicitly opaque cases."
+    "rule": "Ambiguous source, binary, font, baseline or candidate identity; opaque carrier, parser, style cascade, child-evaluation count, delimiter normalization or layout construction; unsupported extractor; unreadable or truncated output; timeout; crash; OOM; swap; missing dependency; or exhausted budget is Unknown. Unknown never counts as Preserved, never earns acceptance or mutation credit, never enters the mutation numerator, remains in the denominator for every valid mutation, and blocks every mandatory case or valid mutation; it is expected only for explicitly opaque non-mandatory controls.",
+    "executable_boundary": "The frozen certification-policy harness must expose classification_matches, acceptance_credit, mutation_credit, score numerator/denominator deltas and blocks_gate for controlled inputs. Source declarations or test-local classifications disconnected from these outputs are not evidence."
   },
   "budgets": {
     "wall_clock_minutes": 120,
@@ -90,7 +112,7 @@
       "capabilities": {
         "read_allowlist": ["approved P1430 step and its eight L0 owners", "ratified vanilla cases references and frozen font fixture", "baseline identity at dbcc6f62a", "prior artifact shapes"],
         "forbidden_reads": ["candidate implementation diffs", "candidate test diffs", "private oracle, adversary or verifier outputs"],
-        "write_allowlist": ["00_nucleo/diagnosticos/p1430-manifest.json", "00_nucleo/diagnosticos/p1430-contract.json"]
+        "write_allowlist": ["00_nucleo/diagnosticos/p1430-manifest.json", "00_nucleo/diagnosticos/p1430-contract.json", "the M21-only revision of 00_nucleo/diagnosticos/p1430-mutants.json", "00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json"]
       }
     },
     {
@@ -100,7 +122,7 @@
       "capabilities": {
         "read_allowlist": ["frozen manifest", "frozen contract", "approved P1430 step and L0s", "ratified vanilla references", "baseline"],
         "forbidden_reads": ["candidate productive implementation diffs", "private adversary outputs"],
-        "write_allowlist": ["00_nucleo/diagnosticos/p1430-oracles.json", "contract-listed test-only L0s", "contract-listed independent test files", "test-only module declarations", "00_nucleo/diagnosticos/p1430-red.json", "oracle-only fixtures and receipts named by the frozen contract"]
+        "write_allowlist": ["00_nucleo/diagnosticos/p1430-oracles-r2.json", "00_nucleo/diagnosticos/p1430-certification-policy.py", "00_nucleo/diagnosticos/p1430-certification-policy-oracle.py", "00_nucleo/diagnosticos/p1430-m21-policy-red.json", "oracle-only M21 refinement receipts named by the revised contract"]
       }
     },
     {
@@ -108,9 +130,9 @@
       "executor": "agent:/root/p1430_adversary",
       "environment": "shared workspace; procedural separation required",
       "capabilities": {
-        "read_allowlist": ["frozen manifest", "frozen contract", "protected inputs", "baseline"],
+        "read_allowlist": ["revised frozen manifest", "revised frozen contract", "revised mutation design", "published M21 policy harness/oracle", "protected inputs", "candidate"],
         "forbidden_reads": ["candidate productive implementation diffs", "private oracle outputs"],
-        "write_allowlist": ["00_nucleo/diagnosticos/p1430-mutants.json", "adversarial receipts named by the frozen contract"]
+        "write_allowlist": ["M21-only update to 00_nucleo/diagnosticos/p1430-mutation-runner.py", "replacement M21 metamutation patch", "focused M21 calibration receipt", "complete revised mutation campaign receipts"]
       }
     },
     {
@@ -135,7 +157,7 @@
     }
   ],
   "claim_boundary": {
-    "attests": "Only the approved P1430 math.cases fragment: qualified and bare construction; variadic children; delimiter normalization; reverse and gap; explicitness and set precedence; complete carrier preservation; repr; branch/alignment resolution; direction, relative gap and the already-established cases geometry.",
-    "does_not_attest": ["the other seventeen residual math routes", "math.mat or math.vec", "general math parity", "render-byte equality", "Rust representation, vector shape or operation order as language observables", "diagnostic spans or formatting outside measured fragments", "font behavior outside the frozen NewCMMath reference and declared fallbacks", "a generalized DelimiterPair implementation"]
+    "attests": "Only the approved P1430 math.cases fragment plus the executable fail-closed classification/scoring policy used to certify that fragment: qualified and bare construction; variadic children; delimiter normalization; reverse and gap; explicitness and set precedence; complete carrier preservation; repr; branch/alignment resolution; direction, relative gap, established cases geometry and zero-credit Unknown handling in the certification harness.",
+    "does_not_attest": ["the other seventeen residual math routes", "math.mat or math.vec", "general math parity", "render-byte equality", "Rust representation, vector shape or operation order as language observables", "diagnostic spans or formatting outside measured fragments", "font behavior outside the frozen NewCMMath reference and declared fallbacks", "a generalized DelimiterPair implementation", "a productive runtime policy for Unknown", "validity of the invalid R2 dead-constant M21 patch"]
   }
 }

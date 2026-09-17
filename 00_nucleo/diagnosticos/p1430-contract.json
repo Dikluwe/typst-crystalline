@@ -1,8 +1,20 @@
 {
   "schema": "tekt.materialization.contract/v1",
+  "revision": 2,
+  "revised_at": "2026-09-17T00:03:04-03:00",
+  "revises": {
+    "contract_sha256": "5553f18f449378c8d9efc581d3baedf4ebb095f7b1ee08133bda1ef0294cb741",
+    "reason": "M21 survived because its R2 patch added an unused productive constant and never changed an executed acceptance or scoring decision.",
+    "scope": "M21 certification-policy boundary only; no math.cases product-language obligation changes."
+  },
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1430-manifest.json",
-    "sha256": "0d9a095a97083883b960fee2d6ba3ddf698d9ba998b85b9c0f3f9a81f4a09a4f"
+    "sha256": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc"
+  },
+  "mutation_design": {
+    "path": "00_nucleo/diagnosticos/p1430-mutants.json",
+    "sha256": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014",
+    "revision": "R3"
   },
   "baseline": {
     "commit": "dbcc6f62a1460607fad1d9f7f1fe43c528845c60",
@@ -31,7 +43,7 @@
     "O-GAP": "The effective Rel<Length> gap resolves against the exterior style and controls vertical branch separation. Default 0.2em, explicit/cascaded 1em and percentage values remain distinguishable; a relative percentage is not reduced prematurely to a fixed Length.",
     "O-LAYOUT-REGRESSION": "The P919/P923/P945/P1042/P1132 contracts remain intact: denominator-style level descent, natural ampersand alignment, no redundant delimiter padding, grid centered once on the math axis, and external ascent/descent including the stretched delimiter without top alignment.",
     "O-COMPATIBILITY-WRAPPER": "The internal legacy rows wrapper remains non-public and preserves existing row/cell boundaries and geometry at old call sites. It does not broaden the public signature, discard boundaries or make the public carrier row-based.",
-    "O-FAIL-CLOSED": "Identity mismatch, opaque carrier/cascade/evaluation/delimiter/layout observation, unsupported extractor, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown and blocks mandatory acceptance."
+    "O-FAIL-CLOSED": "Identity mismatch, opaque carrier/cascade/evaluation/delimiter/layout observation, unsupported extractor, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown. The executable certification policy grants Unknown zero acceptance and mutation credit, never increments the score numerator, retains every valid mutation in the denominator and blocks mandatory-case or valid-mutation gates. An explicitly opaque non-mandatory control may match expected Unknown but still earns no credit."
   },
   "cases": [
     {"id": "P01-qualified-binding-zero", "category": "positive", "mandatory": true, "expected": "Preserved", "requires": ["O-BINDING", "O-SIGNATURE", "O-REPR"], "fixture": "repr(type(math.cases)) and repr(math.cases())", "witness": "type is function and repr is exactly cases(children: ())."},
@@ -95,8 +107,32 @@
     "always use the left/opening delimiter, always use the right/closing delimiter, reverse child order or render None",
     "collapse Rel<Length> to fixed Length, ignore percentage or use the wrong exterior size for gap",
     "regress denominator style, ampersand alignment, delimiter padding, axis centering or external extents",
-    "grant success from render bytes, opaque extraction or Unknown"
+    "grant success from render bytes or opaque extraction",
+    "at the executed certification-policy boundary, grant Unknown acceptance/mutation credit, increment its score numerator, remove a valid Unknown mutation from the denominator or fail to block its gate"
   ],
+  "certification_policy_refinement": {
+    "scope": "verification-only M21 boundary; it adds no public or internal math.cases product behavior",
+    "required_harness": "00_nucleo/diagnosticos/p1430-certification-policy.py",
+    "required_oracle": "00_nucleo/diagnosticos/p1430-certification-policy-oracle.py",
+    "required_oracle_revision": "00_nucleo/diagnosticos/p1430-oracles-r2.json",
+    "input_model": {
+      "case_record": ["case_id", "category", "mandatory", "expected_classification", "actual_classification", "reason_code"],
+      "mutation_record": ["mutation_id", "valid", "classification", "attributable", "reason_code"]
+    },
+    "decision_fields": ["classification_matches", "acceptance_credit", "mutation_credit", "score_numerator_delta", "score_denominator_delta", "blocks_gate", "reason_code"],
+    "required_vectors": [
+      {"id": "V01-opaque-expected-unknown", "input": "each U01-U06 as non-mandatory opaque expected Unknown and actual Unknown", "expected": "classification_matches=true, acceptance_credit=0, mutation_credit=0, blocks_gate=false, exact reason_code retained"},
+      {"id": "V02-mandatory-unknown", "input": "a mandatory case with actual Unknown", "expected": "classification_matches=false, acceptance_credit=0, mutation_credit=0, blocks_gate=true"},
+      {"id": "V03-valid-mutation-unknown", "input": "one valid attributable mutation classified Unknown", "expected": "mutation_credit=0, score_numerator_delta=0, score_denominator_delta=1, blocks_gate=true"},
+      {"id": "V04-mixed-mutation-score", "input": "two valid mutations classified [Violated, Unknown]", "expected": "killed=1, valid=2, mutation_score=0.5, blocks_gate=true"},
+      {"id": "V05-positive-negative-controls", "input": "one positive Preserved and one attributable negative Violated case", "expected": "both classification matches are true and a constant-Unknown policy is rejected"}
+    ],
+    "m21_metamutation": "Patch an executed policy branch so Unknown receives credit, numerator membership, denominator exclusion or non-blocking treatment. The frozen oracle command must pass before the patch and fail after it on the exact changed decision field.",
+    "invalid_m21_forms": ["unused productive constant", "comment-only change", "source grep", "test-local enum disconnected from certification output", "any math.cases semantic change"],
+    "classification_rule": "M21 is Violated/KILLED only for an attributable policy-oracle failure after a passing unmutated control. Patch mismatch, harness identity mismatch, timeout, crash, truncation or incidental failure is Unknown and earns zero credit.",
+    "calibration_order": ["publish revised oracle/harness identities", "run unmutated policy oracle and require PASS", "run only M21 and boundary controls", "if focal M21 is killed, reexecute the complete M01-M21 corpus in the three frozen orders", "only then request a replacement seal"],
+    "prior_evidence": "The 20 killed R2 product mutations are historical evidence only until the complete revised campaign revalidates the exact candidate and protected identities."
+  },
   "exhaustive_wiring": {
     "consumers": [
       {"file": "01_core/src/compiler/stdlib/structural/math.rs", "owner_l0": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "obligation": "register math.cases; enforce the variadic/closed signature and typed normalization; construct the complete carrier"},
@@ -126,9 +162,20 @@
       "opaque_cases_must_be_unknown": true,
       "mandatory_unknown_allowed": false,
       "unknown_receives_credit": false,
-      "orders_must_have_identical_vectors": true
+      "orders_must_have_identical_vectors": true,
+      "m21_target": "executed certification-policy classifier/scorer",
+      "m21_dead_product_declaration_is_invalid": true,
+      "mixed_campaign": "M01-M20 mutate the candidate product; M21 mutates the frozen certification harness",
+      "replacement_seal_requires_complete_reexecution": true
     },
     "architecture": ["cargo fmt --all -- --check", "focused P1430 independent tests", "frozen P919/P923/P945/P1042/P1132 cases regression controls", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15 and V26 remain clear"]
   },
-  "claim_boundary": "This contract discriminates only the approved P1430 math.cases fragment. It does not classify a candidate, establish general math parity, authorize another math route or generalized delimiter carrier, prove render-byte equality, grant credit for Rust representation/operation order, or attest workspace isolation."
+  "invalidation": {
+    "invalidated_seal": "00_nucleo/diagnosticos/p1430-seal.json",
+    "invalidated_seal_sha256": "ff4ae5cc7a6cf97dab95077890d924c60cc8515f24095a23980312362f3ba110",
+    "reopened_phase": "M21 contract -> oracle -> mutation design -> discriminatory gate",
+    "preserved_but_uncredited_until_revalidation": "candidate product and historical M01-M20 receipts",
+    "replacement_gate": "focal M21 policy metamutation killed, then full M01-M21 campaign at score 1.0, zero Unknown credit and identical forward/forward_repeat/reverse vectors"
+  },
+  "claim_boundary": "This revision discriminates only the approved P1430 math.cases fragment and the certification policy used to score it. It does not change math.cases semantics, classify the candidate, establish general math parity, authorize another math route or generalized delimiter carrier, prove render-byte equality, create a productive Unknown policy, grant credit for Rust representation/operation order, or attest workspace isolation."
 }

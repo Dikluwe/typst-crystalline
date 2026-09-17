@@ -1,0 +1,50 @@
+{
+  "schema": "tekt.materialization.m21-policy-red/v1",
+  "step": "P1430",
+  "revision": "M21-R2-oracle-refinement",
+  "recorded_at": "2026-09-17T00:11:41-03:00",
+  "authority": "agent:/root/p1430_oracles",
+  "attestation": "executado sem atestacao de isolamento",
+  "workspace": {
+    "head": "748c38a46cff3c0685b762322e681de574fe96d1",
+    "state": "working tree nao commitado"
+  },
+  "frozen_inputs": {
+    "00_nucleo/diagnosticos/p1430-manifest.json": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc",
+    "00_nucleo/diagnosticos/p1430-contract.json": "4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309",
+    "00_nucleo/diagnosticos/p1430-mutants.json": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014"
+  },
+  "control": {
+    "receipt": "00_nucleo/diagnosticos/p1430-m21-policy-baseline.json",
+    "receipt_sha256": "82fa4f36026cb13f93dce954acca57f8be340c8efc6621f223f342514c75e8ef",
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "physical_mutant": {
+    "id": "M21-credit-unknown-focal",
+    "path": "/tmp/p1430-m21-focus/p1430-certification-policy.py",
+    "sha256": "9424c1012edab7dea7d604b4fc42570bb39f5f4c57ca7404fff961af39078f2c",
+    "target": "evaluate_mutation executed classification == Unknown branch",
+    "patch": [
+      "mutation_credit: 0 -> 1",
+      "score_numerator_delta: 0 -> 1"
+    ],
+    "validity": "executed decision-field metamutation; not a constant, grep, comment, local enum or productive math.cases change"
+  },
+  "execution": {
+    "command": "python3 00_nucleo/diagnosticos/p1430-certification-policy-oracle.py --policy /tmp/p1430-m21-focus/p1430-certification-policy.py",
+    "exit_code": 1,
+    "output": {
+      "status": "FAIL",
+      "failures": [
+        {"vector": "V03", "mismatch": ["mutation_credit: expected 0, got 1", "score_numerator_delta: expected 0, got 1"]},
+        {"vector": "V04", "mismatch": ["killed: expected 1, got 2", "mutation_score: expected 0.5, got 1.0", "mutation_credit: expected 1, got 2"]}
+      ],
+      "observed_mutated_V03": {"mutation_credit": 1, "score_numerator_delta": 1, "score_denominator_delta": 1, "blocks_gate": true},
+      "observed_mutated_V04": {"killed": 2, "valid": 2, "mutation_score": 1.0, "mutation_credit": 2, "blocks_gate": true}
+    },
+    "attribution": "The only physical delta is in the executed Unknown scoring branch and the failures name exactly the changed public decision fields.",
+    "classification": "KILLED"
+  },
+  "claim_boundary": "This is the focal M21 RED receipt only. It does not recredit historical M01-M20 evidence, execute the complete M01-M21 campaign, emit a replacement seal or provide a final candidate verdict."
+}
