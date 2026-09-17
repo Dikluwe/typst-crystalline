@@ -8827,10 +8827,7 @@ fn p296_math_accent_emite_base_e_accent_no_pdf() {
     // letra, o itálico por defeito (P961) produziria 𝑎 (U+1D44E), que o
     // caminho Type1 sem fontes escapa para `?` — não pesquisável aqui.
     let doc = layout(&Content::equation(
-        Content::math_accent(
-            Content::MathText("ab".into()),
-            Content::MathText("^".into()),
-        ),
+        Content::math_accent(Content::MathText("ab".into()), '^'),
         false,
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);

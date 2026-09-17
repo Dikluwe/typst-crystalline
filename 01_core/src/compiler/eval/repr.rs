@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 509063f6
+//! @prompt-hash d4b6e69f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -770,7 +770,24 @@ pub fn repr_content(c: &Content) -> String {
         Content::MathMatrix(_) => "matrix".to_string(),
         Content::MathCases(_) => "cases".to_string(),
         Content::MathAccent(a) => {
-            format!("accent({}, {})", repr_content(&a.base), repr_content(&a.accent))
+            let mut fields = vec![
+                format!("base: {}", repr_content(&a.base)),
+                format!(
+                    "accent: {}",
+                    repr_value(&Value::Str(a.accent.to_string().into()))
+                ),
+            ];
+            if a.explicit.size {
+                fields.push(format!(
+                    "size: {} + {}",
+                    format_float_with_unit(a.size.rel * 100.0, "%"),
+                    repr_length(&a.size.abs)
+                ));
+            }
+            if a.explicit.dotless {
+                fields.push(format!("dotless: {}", a.dotless));
+            }
+            format!("accent({})", fields.join(", "))
         }
         Content::MathCancel(c) => {
             let mut fields = vec![format!("body: {}", repr_content(&c.body))];

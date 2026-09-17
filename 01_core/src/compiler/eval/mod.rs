@@ -4353,10 +4353,14 @@ impl ObservationEq for crate::entities::elements::math_root::MathRootElem {
 }
 impl ObservationEq for crate::entities::elements::math_accent::MathAccentElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { base: _, accent: _ } = self;
+        let Self { base: _, accent: _, .. } = self;
         ObservationRelation::Same
             .and(self.base.observation_relation(&other.base))
             .and(self.accent.observation_relation(&other.accent))
+            .and(self.size.observation_relation(&other.size))
+            .and(self.dotless.observation_relation(&other.dotless))
+            .and(self.explicit.size.observation_relation(&other.explicit.size))
+            .and(self.explicit.dotless.observation_relation(&other.explicit.dotless))
     }
 }
 impl ObservationEq for crate::entities::elements::math_attach::MathAttachElem {

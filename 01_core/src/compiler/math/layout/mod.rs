@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash dddebd41
+//! @prompt-hash d9b0ca0f
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -731,7 +731,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
 
             // P296 — Math accent/cancel handlers dedicados.
-            Content::MathAccent(e) => self.layout_accent(&e.base, &e.accent, style),
+            Content::MathAccent(e) => self.layout_accent_elem(e, style),
 
             Content::MathCancel(e) => {
                 let occurrence = self.cancel_occurrence.get();
@@ -2105,9 +2105,16 @@ fn apply_math_default(body: &Content) -> Content {
         // mark) passa inalterado. `MathUnderover`: recursão nos três
         // campos (a anotação de 1 letra também recebe itálico; a peça ⏟ não
         // é letra, inalterada na prática). Ver `_comum.md` §P961.
-        Content::MathAccent(e) => {
-            Content::math_accent(apply_math_default(&e.base), e.accent.clone())
-        }
+        Content::MathAccent(e) => Content::math_accent_full(
+            match &e.base {
+                Content::MathText(_) => e.base.clone(),
+                other => apply_math_default(other),
+            },
+            e.accent,
+            e.size,
+            e.dotless,
+            e.explicit,
+        ),
         Content::MathUnderover(e) => Content::math_underover(
             apply_math_default(&e.base),
             e.under.as_ref().map(apply_math_default),
@@ -2320,6 +2327,13 @@ fn apply_math_style(
             e.open,
             apply_math_style(&e.body, kind, bold, italic),
             e.close,
+        ),
+        Content::MathAccent(e) => Content::math_accent_full(
+            apply_math_style(&e.base, kind, bold, italic),
+            e.accent,
+            e.size,
+            e.dotless,
+            e.explicit,
         ),
         Content::MathUnderline(e) => {
             Content::math_underline(apply_math_style(&e.body, kind, bold, italic))

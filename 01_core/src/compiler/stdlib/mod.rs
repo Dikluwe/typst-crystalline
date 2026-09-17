@@ -112,7 +112,7 @@ pub use crate::compiler::stdlib::state::{
 };
 pub(crate) use crate::compiler::stdlib::structural::{
     equation_alt, equation_content, equation_number_align, equation_supplement,
-    realize_outline_entry_page, sqrt_content,
+    math_accent_content, realize_outline_entry_page, sqrt_content,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
@@ -12301,7 +12301,7 @@ mod tests {
         .unwrap();
         if let Value::Content(Content::MathAccent(e)) = r {
             assert_eq!(e.base.plain_text(), "a");
-            assert_eq!(e.accent.plain_text(), "^");
+            assert_eq!(e.accent, '\u{0302}');
         } else {
             panic!("esperava Content::MathAccent");
         }
@@ -12320,7 +12320,7 @@ mod tests {
         .unwrap();
         if let Value::Content(Content::MathAccent(e)) = r {
             assert_eq!(e.base.plain_text(), "x");
-            assert_eq!(e.accent.plain_text(), "~");
+            assert_eq!(e.accent, '\u{0303}');
         }
     }
 
@@ -12430,10 +12430,7 @@ mod tests {
 
     #[test]
     fn p296_math_accent_partial_eq_e_is_empty() {
-        let a = Content::math_accent(
-            Content::MathIdent("a".into()),
-            Content::MathText("^".into()),
-        );
+        let a = Content::math_accent(Content::MathIdent("a".into()), '^');
         let b = a.clone();
         assert_eq!(a, b);
         // is_empty fallback é false (math structural sempre observable).

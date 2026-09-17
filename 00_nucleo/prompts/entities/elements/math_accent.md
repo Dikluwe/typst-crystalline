@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_accent` — `MathAccentElem`
-Hash do Código: 5c99c7dd
+Hash do Código: 559c9a01
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_accent.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

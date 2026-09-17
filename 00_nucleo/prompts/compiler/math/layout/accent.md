@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: f1b56ad8
+Hash do Código: b871c7db
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento

@@ -4892,9 +4892,8 @@ mod p922_tests {
             .with_signed(dot, 7.44, 6.24); // sinal da L3 pré-P989
 
         let base_x = Content::MathText("x".into());
-        let dot_c = || Content::MathText(dot.to_string().into());
-        let inner = Content::math_accent(base_x, dot_c());
-        let outer = Content::math_accent(inner, dot_c());
+        let inner = Content::math_accent(base_x, dot);
+        let outer = Content::math_accent(inner, dot);
 
         let ml = MathLayouter::new(&metrics, true, &style);
         let box_ = ml.layout_node(&outer, &style);
@@ -6551,10 +6550,7 @@ mod p961_tests {
     #[test]
     fn p961_acento_base_recebe_italico_default() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::math_accent(
-            Content::MathIdent("x".into()),
-            Content::MathText("^".into()),
-        );
+        let content = Content::math_accent(Content::MathIdent("x".into()), '^');
         let items = ml.layout_equation(&content, &default_style());
         let textos: Vec<&str> = items
             .iter()

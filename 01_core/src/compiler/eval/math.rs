@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash aff798fe
+//! @prompt-hash b1b27cec
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -772,22 +772,15 @@ fn eval_math_expr(
                 // (delimitador via `sym.bar` = `|`) — implementado em
                 // "Parte B" (braço `"abs" | "bar" | ...`), não aqui.
                 "hat" | "tilde" | "dot" | "dot.double" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
-                    if pos_args.len() != 1 {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    if args.items.len() != 1 {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
-                            format!(
-                                "{} espera exactamente 1 argumento, recebeu {}",
-                                name,
-                                pos_args.len()
-                            ),
+                            if args.items.is_empty() {
+                                "missing argument: base".to_string()
+                            } else {
+                                "unexpected argument".to_string()
+                            },
                         )]);
                     }
                     let accent_char = match name.as_str() {
@@ -797,8 +790,22 @@ fn eval_math_expr(
                         "dot.double" => '\u{0308}',
                         _ => unreachable!(),
                     };
-                    let base = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    Ok(Content::math_accent(base, Content::MathText(accent_char.into())))
+                    let mut occurrences = args.occurrence_sequence();
+                    let base_position = occurrences
+                        .iter()
+                        .position(|occurrence| occurrence.name.is_none())
+                        .expect("one positional base");
+                    occurrences.insert(
+                        base_position + 1,
+                        ArgOccurrence {
+                            name: None,
+                            value: Value::Str(accent_char.to_string().into()),
+                            span: call.span(),
+                            value_span: call.span(),
+                        },
+                    );
+                    let args = Args::from_occurrences(call.span(), occurrences);
+                    crate::compiler::stdlib::math_accent_content(&args)
                 }
 
                 // **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`/

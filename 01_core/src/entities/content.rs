@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 6359afb2
+//! @prompt-hash 82e36bf9
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -44,7 +44,7 @@ use crate::entities::elements::title::TitleElem;
 use crate::entities::elements::DynElement;
 use crate::entities::elements::Element;
 // Lote 2 P317 — família math element-shaped (11 variantes).
-use crate::entities::elements::math_accent::MathAccentElem;
+use crate::entities::elements::math_accent::{MathAccentElem, MathAccentExplicit};
 use crate::entities::elements::math_align_point::MathAlignPointElem;
 use crate::entities::elements::math_attach::{MathAttachElem, MathAttachSlot};
 use crate::entities::elements::math_cancel::{
@@ -1693,8 +1693,30 @@ impl Content {
         Self::MathCases(Arc::new(MathCasesElem { rows, delim, reverse, gap }))
     }
     /// Construtor de `MathAccent`.
-    pub fn math_accent(base: Content, accent: Content) -> Self {
-        Self::MathAccent(Arc::new(MathAccentElem { base, accent }))
+    pub fn math_accent(base: Content, accent: char) -> Self {
+        Self::math_accent_full(
+            base,
+            accent,
+            crate::entities::rel::Rel::from_percent(100.0),
+            true,
+            MathAccentExplicit::default(),
+        )
+    }
+
+    pub fn math_accent_full(
+        base: Content,
+        accent: char,
+        size: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        dotless: bool,
+        explicit: MathAccentExplicit,
+    ) -> Self {
+        Self::MathAccent(Arc::new(MathAccentElem {
+            base,
+            accent,
+            size,
+            dotless,
+            explicit,
+        }))
     }
     /// Construtor de `MathCancel`.
     pub fn math_cancel(body: Content) -> Self {

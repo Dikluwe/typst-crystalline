@@ -48,7 +48,7 @@ pub use lists::{native_enum, native_list, native_terms};
 pub use markup::{native_emph, native_link, native_raw, native_strong};
 pub(crate) use math::{
     equation_alt, equation_content, equation_number_align, equation_supplement,
-    sqrt_content,
+    math_accent_content, sqrt_content,
 };
 pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,

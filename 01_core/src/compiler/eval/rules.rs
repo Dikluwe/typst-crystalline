@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 11006a1e
+//! @prompt-hash 3e9ca62c
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -236,6 +236,8 @@ const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("cases", "reverse"),
     ("cases", "gap"),
     ("frac", "style"),
+    ("accent", "size"),
+    ("accent", "dotless"),
 ];
 
 /// **P1030** — `#set math.<elemento>(...)`, alvo pontuado.
@@ -281,7 +283,11 @@ fn eval_set_math_rule(
             // → `error: unexpected argument: lower`).
             return Err(vec![SourceDiagnostic::error(
                 named.name().to_untyped().span(),
-                format!("unexpected argument: {nome}"),
+                if elem == "accent" {
+                    format!("unknown property: {nome}")
+                } else {
+                    format!("unexpected argument: {nome}")
+                },
             )]);
         }
 
@@ -313,6 +319,38 @@ fn eval_set_math_rule(
                         )])
                     }
                 }
+            }
+            if (elem, nome) == ("accent", "size") {
+                match &val {
+                    Value::Relative(_) | Value::Ratio(_) | Value::Length(_) => {}
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            format!(
+                                "expected relative length, found {}",
+                                match other {
+                                    Value::Int(_) => "integer",
+                                    Value::Bool(_) => "boolean",
+                                    Value::Str(_) => "string",
+                                    _ => other.type_name(),
+                                }
+                            ),
+                        )])
+                    }
+                }
+            }
+            if (elem, nome) == ("accent", "dotless") && !matches!(&val, Value::Bool(_)) {
+                return Err(vec![SourceDiagnostic::error(
+                    named.expr().span(),
+                    format!(
+                        "expected boolean, found {}",
+                        match &val {
+                            Value::Int(_) => "integer",
+                            Value::Str(_) => "string",
+                            _ => val.type_name(),
+                        }
+                    ),
+                )]);
             }
             *engine.styles =
                 engine.styles.push_custom(format!("math.{elem}.{nome}"), val);

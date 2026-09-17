@@ -9696,7 +9696,7 @@ mod tests {
 
     fn find_mathaccent_in(c: &Content) -> Option<(String, String)> {
         match c {
-            Content::MathAccent(e) => Some((e.base.plain_text(), e.accent.plain_text())),
+            Content::MathAccent(e) => Some((e.base.plain_text(), e.accent.to_string())),
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathaccent_in)
             }
@@ -16620,10 +16620,7 @@ mod tests {
             panic!("esperava Equation: {content:?}")
         };
         let is_accent = match &e.body {
-            Content::MathAccent(acc) => {
-                acc.accent.plain_text().contains('̈')
-                    || acc.accent.plain_text().contains('¨')
-            }
+            Content::MathAccent(acc) => acc.accent == '̈' || acc.accent == '¨',
             Content::MathSequence(items) => {
                 items.iter().any(|c| matches!(c, Content::MathAccent(_)))
             }
