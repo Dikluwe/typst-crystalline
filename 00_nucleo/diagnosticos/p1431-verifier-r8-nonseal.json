@@ -1,0 +1,59 @@
+{
+  "schema": "tekt.materialization.verifier-nonseal/v1",
+  "verified_at": "2026-09-17T15:51:09-03:00",
+  "phase": "final-verification-after-r8-forward-survivor",
+  "subject_step": 1431,
+  "repair_step": 1434,
+  "role": "procedurally_separated_final_verifier",
+  "executor": "agent:/root",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "write_allowlist": ["00_nucleo/diagnosticos/p1431-verifier-r8-nonseal.json"],
+    "verified_inputs_edited": false,
+    "productive_code_written": false,
+    "isolation_attested": false,
+    "limitation": "Sequential verification in a shared root session; hashes and write boundaries are recorded, but independent isolation is not attested."
+  },
+  "state": {
+    "verification_head_before_report": "05ef2b18d191a0da6e38218d30e5ef232fdcc2e7",
+    "verification_tree_before_report": "cec23fce1985b36c4e254ed14d07ce853fe1c6b4",
+    "tracked_tree_clean_before_report": true
+  },
+  "artifacts": {
+    "adversarial_report_sha256": "149137c1b3aa1c49973d04857cedbac3e97e491fa03fa608573ffe9f5d2067dd",
+    "partial_receipt_sha256": "44ed9b423d97aedeb9aff3d5ba53d914f80ad859b07ef2986acc1f9cd061a488",
+    "preseal_r8_sha256": "5000c1a5f56a61a38c0e1e625e42241ef7e99a76084767ae966757df6d23d0e5",
+    "m21_patch_sha256": "f39e997d1552e81e94e2696de32d2d96fed6ef464d5823ae7d93670e8f04af3b"
+  },
+  "m05_verification": {
+    "prior_r7": "Unknown/E0425",
+    "r8_forward": "Violated/VIOLATED_PADDING",
+    "result": "REPAIR_CONFIRMED"
+  },
+  "m21_reproduction": {
+    "command": "ruby runner.rb --mode execute --mutation M21 --candidate 05ef2b18d191a0da6e38218d30e5ef232fdcc2e7 --patch materialized/ad2732e0d/M21.patch --command exact-P26-test --witness p1431_alignpoint_resolve_tarde_e_estilo_denominador_permanece",
+    "runner_exit": 2,
+    "classification": "Preserved",
+    "reason_code": "MUTATION_SURVIVED",
+    "clean_reversal": true
+  },
+  "causal_verification": {
+    "productive_semantics": "Matrix cells split at MathAlignPoint use GridAlign::Alternating and suppress column gap at recorded ampersand boundaries.",
+    "mutant": "The materialized patch selects GridAlign::Center and empties boundary marks.",
+    "oracle_observation": "P26 requires equal x for right tokens 2 and 4 and only inequalities for the uneven example; centered subcolumns satisfy all current assertions.",
+    "finding": "The semantic mutation is observable in asymmetric coordinates, but the frozen witness does not assert the alternating left/right coordinate equations. This is a relevant survivor, not evidence that the candidate is wrong.",
+    "materialization_note": "The boundaries=&[] hunk is additional to the recipe's dispatch replacement and must be removed when the mutation is revised."
+  },
+  "seal_authority": {
+    "required": {"survivors":0,"unexpected_unknown":0,"orders":["forward","forward_repeat","reverse"],"mutation_score":1.0},
+    "observed": {"forward_kills":20,"forward_survivors":1,"forward_not_executed":9,"forward_repeat":"ABSENT","reverse":"ABSENT","mutation_score":null},
+    "classification": "BLOCKED_NO_SEAL",
+    "reason_code": "BLOCK_RELEVANT_M21_SURVIVOR",
+    "success_seal_authorized": false,
+    "final_certificate_authorized": false,
+    "p1431_closed": false,
+    "required_next_authority_action": "Strengthen the P26 test-only L0/oracle with independently derived alternating coordinates, revise M21 to exactly one Alternating-to-Center change, recalibrate and restart the complete campaign."
+  },
+  "claim_boundary": "This nonseal confirms the M05 repair and M21 survivor only; it proves no general Typst or math.mat equivalence."
+}
