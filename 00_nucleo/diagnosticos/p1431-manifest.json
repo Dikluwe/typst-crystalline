@@ -1,0 +1,149 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "revision": 1,
+  "authored_at": "2026-09-17T08:34:40-03:00",
+  "protocol": {
+    "version": "tekt-materializacao-segregada/1",
+    "regime": "full",
+    "attestation": "executed_without_isolation_attestation",
+    "phase": "contract-candidate-before-oracles-and-implementation",
+    "invalidation": "Any byte change to the approved step, one of the eight owner L0 prompts, frozen baseline identity, this manifesto, the contract, future oracle or mutation suites, capability assignments, or execution-order definition invalidates the chain from the first affected phase."
+  },
+  "artifacts": {
+    "manifest": "00_nucleo/diagnosticos/p1431-manifest.json",
+    "contract": "00_nucleo/diagnosticos/p1431-contract.json",
+    "oracles_planned": "00_nucleo/diagnosticos/p1431-oracles.json",
+    "mutations_planned": "00_nucleo/diagnosticos/p1431-mutants.json",
+    "preseal_planned": "00_nucleo/diagnosticos/p1431-preseal.json",
+    "seal_planned": "00_nucleo/diagnosticos/p1431-seal.json"
+  },
+  "baseline": {
+    "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
+    "tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
+    "predecessor": "spec: confirm P1431 implementation gate",
+    "state_rule": "All baseline reads by the contract author use git blobs at the frozen commit, not a later shared-workspace working tree.",
+    "productive_files": [
+      {"path": "01_core/src/compiler/stdlib/structural/math.rs", "sha256": "c82b8ff8c8743eba08119cad737caa759934148a39d502a88b76867be8279756"},
+      {"path": "01_core/src/compiler/eval/math.rs", "sha256": "a413b664e99485be2a77f9e3f2ea0e815661956d44a0a8c560c0fe12b7e0cff9"},
+      {"path": "01_core/src/compiler/eval/repr.rs", "sha256": "6daff397e7ecbdd91f889e31b21fc0294aa191885fca04ef472168ccb3876930"},
+      {"path": "01_core/src/compiler/eval/rules.rs", "sha256": "92472b1dacc052880ee5e3197c60027b78a79ac6f3a1272e29b3f4ab5816abfa"},
+      {"path": "01_core/src/compiler/math/layout/matrix.rs", "sha256": "a7facbf2f648778bf4ab29e985deadb68177558685828e16b1f3ad3a54584c65"},
+      {"path": "01_core/src/compiler/math/layout/mod.rs", "sha256": "f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d"},
+      {"path": "01_core/src/entities/content.rs", "sha256": "ad0f0ead17586b71a7f1c36079c36ca16ae65b60dd73ac00304faeb5b73e77a1"},
+      {"path": "01_core/src/entities/elements/math_matrix.rs", "sha256": "b03d3149399f23ead6e33b4be53a3de1efd934d772cd0df3e976deea26fab65a"}
+    ]
+  },
+  "protected_inputs": [
+    {"path": "00_nucleo/materialization/typst-passo-1431.md", "sha256": "cbca85ae7e439e548d809cfd9c3e672b9529c395b945b6c41d2415784be33525"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "sha256": "4607ac34172665d39e774613fba12f91abda076ded3274f57177345d1e6a81b0"},
+    {"path": "00_nucleo/prompts/compiler/eval/math.md", "sha256": "03d6aaa3e5735b8dbc30c0cf1a6d077ebc85db297cbbd45accc381eb37d6322e"},
+    {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "1d6c948345d9698d62acc4508e65ac54b7d146edee2884faf4e496602a369a6e"},
+    {"path": "00_nucleo/prompts/compiler/eval/rules.md", "sha256": "640e0abffe559dbf1f299d5c9e08c86edade1db7284fbad0692e27a7516214b0"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/matrix.md", "sha256": "7204a891e13e2ba7f43ac75552249a3060a182884eaf5f7d54f44990ffa1067e"},
+    {"path": "00_nucleo/prompts/compiler/math/layout/_comum.md", "sha256": "2bae4395e67ad6bf07b6dad52a5d4e0b48dae418028ccbf33a2794c27d7b85a6"},
+    {"path": "00_nucleo/prompts/entities/content.md", "sha256": "94a1c1b7fc442aa112116695095c9f675cb9babb78bd96a6af11401e0466a085"},
+    {"path": "00_nucleo/prompts/entities/elements/math_matrix.md", "sha256": "832fe8743e375abed19e8d799175c4bcf76e7791800125df0114cc89d7bea79b"}
+  ],
+  "reference_vanilla": {
+    "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "binary_path": "/usr/local/bin/typst",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "sources": [
+      {"path": "lab/typst-original/crates/typst-library/src/math/matrix.rs", "sha256": "fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f"},
+      {"path": "lab/typst-original/crates/typst-library/src/math/ir/resolve.rs", "sha256": "115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112"},
+      {"path": "03_infra/fixtures/fonts/NewCMMath-Book.otf", "sha256": "60346e6fc27773d96c3cc9d3ac8a550a85e3ca624437179bd7a88b4ca18f0a18"}
+    ]
+  },
+  "observables": [
+    "O-BINDING", "O-SIGNATURE", "O-ROWS", "O-PADDING",
+    "O-DELIMITER", "O-ALIGN", "O-GAPS", "O-AUGMENT-CAST",
+    "O-AUGMENT-CASCADE", "O-EXPLICITNESS", "O-SET-PRECEDENCE",
+    "O-ROUTE-CONVERGENCE", "O-EVALUATION-ONCE", "O-CARRIER",
+    "O-WALKERS", "O-REPR", "O-RECONSTRUCTION", "O-ALIGN-POINT",
+    "O-LAYOUT-GEOMETRY", "O-AUGMENT-GEOMETRY", "O-OFFSET-VALIDATION",
+    "O-COMPATIBILITY", "O-FAIL-CLOSED"
+  ],
+  "execution_orders": [
+    {"id": "forward", "order": "contract case order in a fresh process"},
+    {"id": "forward_repeat", "order": "contract case order repeated in a second fresh process"},
+    {"id": "reverse", "order": "exact reverse contract case order in a third fresh process"}
+  ],
+  "unknown_policy": {
+    "classification": "Unknown",
+    "fail_closed": true,
+    "reason_codes": [
+      "UNKNOWN_IDENTITY_MISMATCH", "UNKNOWN_BINDING_OBSERVATION",
+      "UNKNOWN_CARRIER_CARDINALITY", "UNKNOWN_STYLE_CASCADE",
+      "UNKNOWN_EVALUATION_OBSERVATION", "UNKNOWN_REPR_OBSERVATION",
+      "UNKNOWN_LAYOUT_OBSERVATION", "UNKNOWN_STROKE_OBSERVATION",
+      "UNKNOWN_EXECUTION_OR_BUDGET"
+    ],
+    "rule": "Ambiguous protected-input, baseline, source, binary, font or candidate identity; opaque binding, parser, carrier, style cascade, evaluation order/count, repr, frame tree, delimiter, alignment, gap, augment stroke or geometry; unsupported extraction; unreadable or truncated output; timeout; crash; OOM; swap; missing dependency; or exhausted budget is Unknown. Unknown never counts as Preserved, never earns acceptance or mutation credit, remains in the denominator for every valid mutation, and blocks every mandatory case and valid mutation. It is expected only for explicitly opaque non-mandatory controls."
+  },
+  "budgets": {
+    "wall_clock_minutes": 150,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 24,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 240,
+    "stop_after_consecutive_revisions_without_discriminatory_gain": 2,
+    "required_mutation_score": 1.0
+  },
+  "authorities": [
+    {
+      "role": "obligation_and_contract_author",
+      "executor": "agent:/root/p1431_contract",
+      "environment": "shared workspace; procedural allowlist, no isolation attestation",
+      "context": "approved P1431 step, eight owner L0s, frozen baseline blobs and ratified public vanilla references; no candidate implementation or future private oracle/adversary/verifier output",
+      "capabilities": {
+        "read_allowlist": ["approved P1431 step and its eight owner L0s", "ratified vanilla matrix references and frozen font", "baseline blobs at f5aa8d72f", "prior P1430 artifact shape"],
+        "forbidden_reads": ["candidate implementation diffs", "future candidate test diffs", "private future oracle, adversary or verifier output"],
+        "write_allowlist": ["00_nucleo/diagnosticos/p1431-manifest.json", "00_nucleo/diagnosticos/p1431-contract.json"]
+      }
+    },
+    {
+      "role": "oracle_and_independent_test_author",
+      "executor": "agent:/root/p1431_oracles",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["frozen manifesto and contract", "approved P1431 step and L0s", "ratified vanilla references", "frozen baseline"],
+        "forbidden_reads": ["candidate productive implementation diffs", "private adversary output"],
+        "write_allowlist": ["P1431 oracle artifacts", "P1431 test-only L0s", "P1431 independent test modules and wiring"]
+      }
+    },
+    {
+      "role": "adversary",
+      "executor": "agent:/root/p1431_adversary",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["frozen manifesto and contract", "approved P1431 step and L0s", "ratified vanilla references", "frozen baseline", "published oracle identities after freeze"],
+        "forbidden_reads": ["candidate productive implementation before adversarial design freeze", "private oracle reasoning"],
+        "write_allowlist": ["P1431 mutation design, runner, patches and adversarial receipts"]
+      }
+    },
+    {
+      "role": "implementer",
+      "executor": "agent:/root",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["sealed public P1431 artifacts", "approved owner L0s", "frozen baseline"],
+        "forbidden_writes": ["manifesto", "contract", "sealed oracles", "sealed mutation design", "independent test assertions"],
+        "write_allowlist": ["the eight productive consumers", "mechanical legacy call-site repairs", "lineage hashes for the eight owner L0s"]
+      }
+    },
+    {
+      "role": "verifier",
+      "executor": "agent:/root/p1431_verifier",
+      "environment": "shared workspace; procedural separation required",
+      "capabilities": {
+        "read_allowlist": ["sealed artifacts", "candidate implementation", "independent tests", "reproducible command outputs"],
+        "forbidden_writes": ["sealed artifacts under verification", "candidate implementation", "independent tests"],
+        "write_allowlist": ["P1431 receipts, mutation results, verification report, verdict and certificate"]
+      }
+    }
+  ],
+  "claim_boundary": {
+    "attests": "Only the approved P1431 math.mat fragment: public binding and signature, row formation and padding, typed fields and duplicates, delimiter/alignment/gaps, cascade and explicitness, complete augment representation and geometry, carrier/walkers/repr/reconstruction, ampersand behavior, offset diagnostics and named regression controls.",
+    "does_not_attest": ["the other sixteen residual math routes", "math.vec or math.cases", "general math parity", "render-byte equality", "Rust representation or loop order as language observables", "diagnostic spans or formatting outside measured witnesses", "the full stroke language outside matrix augment", "a generalized DelimiterPair carrier", "workspace or conversational isolation"]
+  }
+}
