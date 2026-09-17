@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 4a6db1bf
+//! @prompt-hash 4324bb22
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -55,7 +55,9 @@ use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
 use crate::entities::elements::math_frac::MathFracElem;
 use crate::entities::elements::math_limits_override::MathLimitsOverrideElem;
-use crate::entities::elements::math_matrix::MathMatrixElem;
+use crate::entities::elements::math_matrix::{
+    MathMatrixAugment, MathMatrixElem, MathMatrixExplicit,
+};
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
 use crate::entities::elements::math_underline::MathUnderlineElem;
@@ -1674,13 +1676,51 @@ impl Content {
         gap: Option<crate::entities::layout_types::Length>,
         augment: Option<usize>,
     ) -> Self {
+        use crate::entities::layout_types::{HAlign, Length};
+        use crate::entities::rel::Rel;
+        let to_rel = |value: Option<Length>, default_em: f64| Rel {
+            rel: 0.0,
+            abs: value.unwrap_or_else(|| Length::em(default_em)),
+        };
+        Self::math_matrix_complete(
+            rows,
+            ((delim.0 != '\0').then_some(delim.0), (delim.1 != '\0').then_some(delim.1)),
+            HAlign::Center,
+            augment.map(|offset| MathMatrixAugment {
+                hline: vec![],
+                vline: vec![offset as i64],
+                stroke: None,
+            }),
+            to_rel(row_gap.or(gap), 0.2),
+            to_rel(column_gap.or(gap), 0.5),
+            MathMatrixExplicit {
+                delim: true,
+                align: false,
+                augment: augment.is_some(),
+                row_gap: row_gap.is_some() || gap.is_some(),
+                column_gap: column_gap.is_some() || gap.is_some(),
+            },
+        )
+    }
+
+    /// Construtor canônico completo de `MathMatrix`.
+    pub fn math_matrix_complete(
+        rows: Vec<Vec<Content>>,
+        delim: (Option<char>, Option<char>),
+        align: crate::entities::layout_types::HAlign,
+        augment: Option<MathMatrixAugment>,
+        row_gap: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        column_gap: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        explicit: MathMatrixExplicit,
+    ) -> Self {
         Self::MathMatrix(Arc::new(MathMatrixElem {
             rows,
             delim,
+            align,
+            augment,
             row_gap,
             column_gap,
-            gap,
-            augment,
+            explicit,
         }))
     }
     /// Construtor de `MathCases`.
@@ -3678,6 +3718,10 @@ impl std::hash::Hash for Content {
             // therefore the historical Debug-based fallback cannot observe
             // the causal fields of this carrier.
             Self::MathCases(elem) => {
+                std::mem::discriminant(self).hash(state);
+                elem.hash(state);
+            }
+            Self::MathMatrix(elem) => {
                 std::mem::discriminant(self).hash(state);
                 elem.hash(state);
             }

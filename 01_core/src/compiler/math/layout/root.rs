@@ -171,6 +171,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             thickness: line_thickness,
             // P285: sqrt overline preto default (paridade matemática).
             color: None,
+            cap: crate::entities::geometry::LineCap::Butt,
         });
 
         // 5c. Radicando — à direita do símbolo (após o deslocamento

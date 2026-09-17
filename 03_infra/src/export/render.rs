@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash d3e4dc0e
+//! @prompt-hash 9f5d931f
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -21,7 +21,7 @@ use ttf_parser::GlyphId;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+use typst_core::entities::geometry::{LineCap, PathItem, ShapeKind, Stroke};
 use typst_core::entities::image_format::{detect_image_format, ImageFormat};
 
 use super::pdf_defaults;
@@ -204,8 +204,8 @@ fn render_item(
                 );
             }
         }
-        FrameItem::Line { start, end, thickness, color } => {
-            render_line(canvas, state, start, end, *thickness, *color);
+        FrameItem::Line { start, end, thickness, color, cap } => {
+            render_line(canvas, state, start, end, *thickness, *color, *cap);
         }
         FrameItem::Glyph { .. } => {}
         FrameItem::Image { pos, data, width, height, orientation, .. } => {
@@ -349,6 +349,7 @@ fn render_line(
     end: &Point,
     thickness: f64,
     color: Option<Color>,
+    cap: LineCap,
 ) {
     let mut pb = sk::PathBuilder::new();
     pb.move_to(start.x.0 as f32, start.y.0 as f32);
@@ -361,7 +362,11 @@ fn render_line(
     };
     let stroke = sk::Stroke {
         width: thickness as f32,
-        line_cap: sk::LineCap::Butt,
+        line_cap: match cap {
+            LineCap::Butt => sk::LineCap::Butt,
+            LineCap::Round => sk::LineCap::Round,
+            LineCap::Square => sk::LineCap::Square,
+        },
         ..Default::default()
     };
     canvas.stroke_path(&path, &paint, &stroke, state.transform, None);

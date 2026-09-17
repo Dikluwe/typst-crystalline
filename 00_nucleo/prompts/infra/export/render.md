@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/render` — Rasterização PNG
-Hash do Código: d7ebd488
+Hash do Código: e8662691
 
 ## P1140.20.2 — canvas raster
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 70110edd
+//! @prompt-hash 3123ce4d
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -230,6 +230,11 @@ fn math_elem_params(elem: &str) -> Option<&'static [&'static str]> {
 /// de `eval.md` §P1030).
 const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("mat", "delim"),
+    ("mat", "align"),
+    ("mat", "augment"),
+    ("mat", "gap"),
+    ("mat", "row-gap"),
+    ("mat", "column-gap"),
     ("vec", "delim"),
     ("op", "limits"),
     ("cases", "delim"),
@@ -273,9 +278,18 @@ fn eval_set_math_rule(
         return Ok(Value::None);
     };
 
+    let mut seen = Vec::new();
     for arg in set.args().items() {
         let Arg::Named(named) = arg else { continue };
         let nome = named.name().as_str();
+
+        if seen.contains(&nome) {
+            return Err(vec![SourceDiagnostic::error(
+                named.name().to_untyped().span(),
+                format!("duplicate argument: {nome}"),
+            )]);
+        }
+        seen.push(nome);
 
         if !params.contains(&nome) {
             // Paridade com o vanilla, que rejeita o argumento em vez de o
@@ -355,6 +369,16 @@ fn eval_set_math_rule(
             if elem == "cases" {
                 let mut options = crate::compiler::stdlib::MathCasesOptions::default();
                 crate::compiler::stdlib::apply_math_cases_option(
+                    &mut options,
+                    nome,
+                    &val,
+                    named.expr().span(),
+                    false,
+                )?;
+            }
+            if elem == "mat" {
+                let mut options = crate::compiler::stdlib::MathMatrixOptions::default();
+                crate::compiler::stdlib::apply_math_matrix_option(
                     &mut options,
                     nome,
                     &val,

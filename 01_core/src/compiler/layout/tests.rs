@@ -170,6 +170,7 @@ fn p1293_final_frame_items_recursive_compoe_grupos_aninhados() {
         end: Point { x: Pt(2.0), y: Pt(2.0) },
         thickness: 1.0,
         color: None,
+        cap: crate::entities::geometry::LineCap::Butt,
     };
     let inner = FrameItem::Group {
         pos: Point { x: Pt(4.0), y: Pt(5.0) },
@@ -17766,7 +17767,7 @@ mod p284_decoration_tests {
         let mut out = Vec::new();
         for page in &doc.pages {
             for item in &page.items {
-                if let FrameItem::Line { start, end, thickness, color } = item {
+                if let FrameItem::Line { start, end, thickness, color, .. } = item {
                     out.push((*start, *end, *thickness, *color));
                 }
             }

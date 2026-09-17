@@ -143,7 +143,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 units_per_em,
             }
         }
-        FrameItem::Line { start, end, thickness, color } => {
+        FrameItem::Line { start, end, thickness, color, cap } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;
             FrameItem::Line {
@@ -152,6 +152,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 thickness,
                 // P285: translate preserva cor.
                 color,
+                cap,
             }
         }
         FrameItem::Glyph { glyph_id, x_advance, size, style, base_char, .. } => {

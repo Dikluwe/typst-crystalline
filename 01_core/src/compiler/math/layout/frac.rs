@@ -342,6 +342,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             thickness: rule_thickness,
             // P285: math frac sem stroke explícito — preserva preto bit-exact.
             color: None,
+            cap: crate::entities::geometry::LineCap::Butt,
         });
 
         for item in den_box.items {

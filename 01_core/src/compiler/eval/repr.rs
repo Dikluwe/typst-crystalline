@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash cc745b77
+//! @prompt-hash eb02eb94
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -767,7 +767,7 @@ pub fn repr_content(c: &Content) -> String {
                 "linebreak()".to_string()
             }
         }
-        Content::MathMatrix(_) => "matrix".to_string(),
+        Content::MathMatrix(matrix) => repr_math_matrix(matrix),
         Content::MathCases(cases) => {
             fn repr_cases_child(content: &Content) -> String {
                 match content {
@@ -1195,6 +1195,99 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
     }
+}
+
+fn repr_math_matrix(
+    matrix: &crate::entities::elements::math_matrix::MathMatrixElem,
+) -> String {
+    fn delimiter(value: Option<char>) -> String {
+        value.map_or_else(|| "none".to_string(), |value| format!("\"{value}\""))
+    }
+    fn offsets(values: &[i64]) -> String {
+        let fields = values.iter().map(ToString::to_string).collect::<Vec<_>>();
+        pretty_array_like(&fields, values.len() == 1)
+    }
+    fn relative(value: &Rel<Length>) -> String {
+        format!(
+            "{} + {}",
+            format_float_with_unit(value.rel * 100.0, "%"),
+            repr_length(&value.abs)
+        )
+    }
+    fn sequence_cell(content: &Content) -> String {
+        match content {
+            Content::MathIdent(text) | Content::MathText(text) | Content::Text(text) => {
+                text.to_string()
+            }
+            Content::MathAlignPoint(_) => " & ".to_string(),
+            Content::MathSequence(nodes) => nodes.iter().map(sequence_cell).collect(),
+            other => repr_content(other),
+        }
+    }
+    fn cell(content: &Content) -> String {
+        match content {
+            Content::MathSequence(nodes) => nodes.iter().map(sequence_cell).collect(),
+            Content::MathIdent(text) | Content::MathText(text) => text.to_string(),
+            other => repr_content(other),
+        }
+    }
+
+    let mut fields = Vec::new();
+    if matrix.explicit.delim {
+        fields.push(format!(
+            "delim: ({}, {})",
+            delimiter(matrix.delim.0),
+            delimiter(matrix.delim.1)
+        ));
+    }
+    if matrix.explicit.align {
+        let align = match matrix.align {
+            HAlign::Start => "start",
+            HAlign::Left => "left",
+            HAlign::Center => "center",
+            HAlign::Right => "right",
+            HAlign::End => "end",
+        };
+        fields.push(format!("align: {align}"));
+    }
+    if matrix.explicit.augment {
+        let value = match &matrix.augment {
+            None => "none".to_string(),
+            Some(augment)
+                if augment.hline.is_empty()
+                    && augment.vline.len() == 1
+                    && augment.stroke.is_none() =>
+            {
+                augment.vline[0].to_string()
+            }
+            Some(augment) => format!(
+                "(hline: {}, vline: {}, stroke: {})",
+                offsets(&augment.hline),
+                offsets(&augment.vline),
+                augment
+                    .stroke
+                    .as_ref()
+                    .map_or_else(|| "auto".to_string(), repr_stroke)
+            ),
+        };
+        fields.push(format!("augment: {value}"));
+    }
+    if matrix.explicit.row_gap {
+        fields.push(format!("row-gap: {}", relative(&matrix.row_gap)));
+    }
+    if matrix.explicit.column_gap {
+        fields.push(format!("column-gap: {}", relative(&matrix.column_gap)));
+    }
+    let rows = matrix
+        .rows
+        .iter()
+        .map(|row| {
+            let cells = row.iter().map(cell).collect::<Vec<_>>();
+            pretty_array_like(&cells, cells.len() == 1)
+        })
+        .collect::<Vec<_>>();
+    fields.push(format!("rows: {}", pretty_array_like(&rows, rows.len() == 1)));
+    format!("mat({})", fields.join(", "))
 }
 
 /// Representação de um `Selector`.

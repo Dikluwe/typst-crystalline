@@ -1808,18 +1808,28 @@ impl ObservationEq for crate::entities::elements::math_matrix::MathMatrixElem {
         let Self {
             rows: _,
             delim: _,
+            align: _,
+            augment: _,
             row_gap: _,
             column_gap: _,
-            gap: _,
-            augment: _,
+            explicit: _,
         } = self;
         ObservationRelation::Same
             .and(self.rows.observation_relation(&other.rows))
             .and(self.delim.observation_relation(&other.delim))
+            .and(self.align.observation_relation(&other.align))
+            .and(self.augment.observation_relation(&other.augment))
             .and(self.row_gap.observation_relation(&other.row_gap))
             .and(self.column_gap.observation_relation(&other.column_gap))
-            .and(self.gap.observation_relation(&other.gap))
-            .and(self.augment.observation_relation(&other.augment))
+            .and(ObservationRelation::exact(self.explicit == other.explicit))
+    }
+}
+impl ObservationEq for crate::entities::elements::math_matrix::MathMatrixAugment {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        self.hline
+            .observation_relation(&other.hline)
+            .and(self.vline.observation_relation(&other.vline))
+            .and(self.stroke.observation_relation(&other.stroke))
     }
 }
 impl ObservationEq for crate::entities::elements::grid::GridElem {

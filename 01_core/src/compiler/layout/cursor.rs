@@ -74,10 +74,10 @@ fn justify_frame_item<M: super::FontMetrics>(
         share * opportunities.iter().filter(|anchor| **anchor <= x).count() as f64
     };
     match item {
-        FrameItem::Line { mut start, mut end, thickness, color } => {
+        FrameItem::Line { mut start, mut end, thickness, color, cap } => {
             start.x = Pt(start.x.0 + shift_at(start.x.0));
             end.x = Pt(end.x.0 + shift_at(end.x.0));
-            FrameItem::Line { start, end, thickness, color }
+            FrameItem::Line { start, end, thickness, color, cap }
         }
         FrameItem::Link { target, items, .. } => {
             let items: Vec<_> = items
@@ -1642,16 +1642,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     inner_height,
                     items,
                 },
-                FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
-                    start: Point {
-                        x: start.x + Pt(target_x),
-                        y: start.y + Pt(target_y),
-                    },
-                    end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
-                    thickness,
-                    // P285: cursor reflector preserva cor (translação).
-                    color,
-                },
+                FrameItem::Line { start, end, thickness, color, cap } => {
+                    FrameItem::Line {
+                        start: Point {
+                            x: start.x + Pt(target_x),
+                            y: start.y + Pt(target_y),
+                        },
+                        end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
+                        thickness,
+                        // P285: cursor reflector preserva cor (translação).
+                        color,
+                        cap,
+                    }
+                }
                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                     FrameItem::Glyph {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },

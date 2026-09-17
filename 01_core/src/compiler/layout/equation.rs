@@ -322,7 +322,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Line { start, end, thickness, color } => {
+                FrameItem::Line { start, end, thickness, color, cap } => {
                     let abs_start =
                         Point { x: offset_x + start.x, y: offset_y + start.y };
                     let abs_end = Point { x: offset_x + end.x, y: offset_y + end.y };
@@ -333,6 +333,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         // P285: equação preserva cor da Line original (math
                         // frac/sqrt usam None → preto bit-exact).
                         color,
+                        cap,
                     });
                 }
                 FrameItem::TextShaped { pos, text, style, glyphs, units_per_em } => {

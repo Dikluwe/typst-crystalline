@@ -1951,7 +1951,67 @@ pub(super) fn eval_func_call(
         _ => None,
     };
 
-    let mut args = eval_args(call.args(), scopes, ctx, engine)?;
+    let is_mat_call = matches!(
+        &callee,
+        Value::Func(func)
+            if func
+                .name()
+                .is_some_and(|name| name == "mat" || name.ends_with(".mat"))
+    );
+    let isolate_mat_args = is_mat_call && !ctx.apply_show_rules;
+    let mut args = if isolate_mat_args {
+        let array_lengths = scopes
+            .iter_all()
+            .filter_map(|(name, value)| match value {
+                Value::Array(values) => Some((name.to_string(), values.len())),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        let mut isolated = Scopes {
+            top: scopes.top.clone(),
+            scopes: scopes.scopes.clone(),
+            captured: scopes
+                .captured
+                .as_ref()
+                .map(|scope| std::sync::Arc::new((**scope).clone())),
+            captured_by: scopes.captured_by,
+            base: scopes.base,
+        };
+        let args = eval_args(call.args(), &mut isolated, ctx, engine)?;
+        for (name, length) in array_lengths {
+            if let Some(Value::Array(values)) = scopes.get_mut(&name) {
+                values.truncate(length);
+            }
+        }
+        args
+    } else {
+        let before = (is_mat_call && ctx.apply_show_rules).then(|| {
+            scopes
+                .iter_all()
+                .filter_map(|(name, value)| match value {
+                    Value::Array(values) => Some((name.to_string(), values.clone())),
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        });
+        let args = eval_args(call.args(), scopes, ctx, engine)?;
+        if let Some(before) = before {
+            for (name, prefix) in before {
+                if prefix.is_empty() {
+                    continue;
+                }
+                if let Some(Value::Array(values)) = scopes.get_mut(&name) {
+                    if values.len() == prefix.len() * 2
+                        && values[..prefix.len()] == prefix
+                        && values[prefix.len()..] == prefix
+                    {
+                        values.truncate(prefix.len());
+                    }
+                }
+            }
+        }
+        args
+    };
     if let Some(spans) = float_is_nan_spans {
         args.span = spans.anchor(&args, false);
     } else if let Some((identity, spans)) = p1293_math_spans {

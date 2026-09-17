@@ -104,6 +104,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 end: Point { x: Pt(center_x + half_x), y: Pt(center_y - half_y) },
                 thickness,
                 color,
+                cap: elem
+                    .stroke
+                    .as_ref()
+                    .map_or(crate::entities::geometry::LineCap::Butt, |stroke| {
+                        stroke.cap
+                    }),
             }
         };
         let mut items = body_box.items;

@@ -64,6 +64,7 @@ pub(super) fn layout<M: FontMetrics>(
         end: Point { x: Pt(line_width), y: Pt(line_y) },
         thickness,
         color: style.fill,
+        cap: crate::entities::geometry::LineCap::Butt,
     });
     body.descent += gap + thickness + extra_descender;
     body

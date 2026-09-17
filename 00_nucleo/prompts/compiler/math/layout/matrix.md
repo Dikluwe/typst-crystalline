@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/matrix` — `MathMatrix`
-Hash do Código: 90b21d98
+Hash do Código: 6c80f717
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/matrix.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

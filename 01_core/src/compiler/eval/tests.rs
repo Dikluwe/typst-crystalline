@@ -554,7 +554,9 @@ mod tests {
     /// `mat` e `vec` preservam identidades distintas desde P1292.
     fn find_matrix_or_vec_delim(c: &Content) -> Option<(char, char)> {
         match c {
-            Content::MathMatrix(e) => Some(e.delim),
+            Content::MathMatrix(e) => {
+                Some((e.delim.0.unwrap_or('\0'), e.delim.1.unwrap_or('\0')))
+            }
             Content::MathVec(e) => Some(e.delim),
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_matrix_or_vec_delim)
@@ -586,11 +588,11 @@ mod tests {
     }
 
     #[test]
-    fn p1030_set_mat_delim_aplica() {
+    fn p1030_set_mat_delim_fica_na_cascata_lexica() {
         assert_eq!(
             delim_de("#set math.mat(delim: \"[\")\n$ mat(1, 2; 3, 4) $"),
-            Some(('[', ']')),
-            "#set math.mat(delim:) tem de chegar ao construtor da matriz"
+            Some(('(', ')')),
+            "#set math.mat(delim:) não fabrica presença explícita no carrier"
         );
     }
 
@@ -635,20 +637,19 @@ mod tests {
     }
 
     #[test]
-    fn p1030_param_reconhecido_sem_efeito_avisa_nomeando() {
-        // `mat.gap` é parâmetro da linguagem mas ainda não implementado
-        // (grupo B da medição da Fase A). O aviso tem de nomear elemento e
-        // parâmetro — não o alvo vazio.
+    fn p1030_param_mat_gap_implementado_nao_avisa() {
+        // P1431 implementou `mat.gap`; a antiga advertência de parâmetro
+        // reconhecido sem efeito deixou de ser válida.
         let world = MockWorld::new("#set math.mat(gap: 1em)\n$ mat(1, 2; 3, 4) $");
         let source = World::source(&world, World::main(&world)).unwrap();
         let (res, sink) = eval_for_test_keep_sink(&world, &source);
         assert!(res.is_ok(), "o documento tem de continuar a compilar");
         let diags = sink.into_diagnostics();
         assert!(
-            diags
+            !diags
                 .iter()
                 .any(|d| d.message.contains("math.mat") && d.message.contains("gap")),
-            "o aviso tem de nomear elemento e parâmetro, obteve: {diags:?}"
+            "math.mat(gap:) implementado não pode emitir aviso: {diags:?}"
         );
         assert!(
             !diags.iter().any(|d| d.message.contains("target ''")),
@@ -9629,7 +9630,10 @@ mod tests {
 
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {
         match c {
-            Content::MathMatrix(e) => Some((e.rows.clone(), e.delim)),
+            Content::MathMatrix(e) => Some((
+                e.rows.clone(),
+                (e.delim.0.unwrap_or('\0'), e.delim.1.unwrap_or('\0')),
+            )),
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathmatrix_in)
             }
@@ -16889,7 +16893,6 @@ mod tests {
                     println!("  DELIM: {:?}", m.delim);
                     println!("  ROW_GAP: {:?}", m.row_gap);
                     println!("  COL_GAP: {:?}", m.column_gap);
-                    println!("  GAP: {:?}", m.gap);
                     println!("  AUGMENT: {:?}", m.augment);
                 }
             }

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 4bdde5a2
+Hash do Código: 5904e507
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`

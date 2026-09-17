@@ -89,6 +89,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             end: Point { x: Pt(seg.end_x.val() + extent_pt), y: line_y },
             thickness,
             color,
+            cap: crate::entities::geometry::LineCap::Butt,
         });
     }
 }

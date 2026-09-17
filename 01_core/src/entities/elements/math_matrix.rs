@@ -1,47 +1,76 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_matrix.md
-//! @prompt-hash 82190941
+//! @prompt-hash bf5a5c71
 //! @layer L1
-//! @updated 2026-08-20
+//! @updated 2026-09-17
 //!
-//! `MathMatrixElem` — Lote 2 P317 (família math). Matriz `mat(...)`.
+//! Carrier completo de `math.mat`.
 
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
-use crate::entities::layout_types::Length;
+use crate::entities::geometry::Stroke;
+use crate::entities::layout_types::{HAlign, Length};
+use crate::entities::rel::Rel;
 use crate::entities::source_result::SourceResult;
 
-/// Matriz matemática (`mat(...)`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct MathMatrixExplicit {
+    pub delim: bool,
+    pub align: bool,
+    pub augment: bool,
+    pub row_gap: bool,
+    pub column_gap: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MathMatrixAugment {
+    pub hline: Vec<i64>,
+    pub vline: Vec<i64>,
+    /// `None` representa o stroke automático.
+    pub stroke: Option<Stroke>,
+}
+
+impl Hash for MathMatrixAugment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.hline.hash(state);
+        self.vline.hash(state);
+        format!("{:?}", self.stroke).hash(state);
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct MathMatrixElem {
     pub rows: Vec<Vec<Content>>,
-    pub delim: (char, char),
-    pub row_gap: Option<Length>,
-    pub column_gap: Option<Length>,
-    pub gap: Option<Length>,
-    pub augment: Option<usize>,
+    pub delim: (Option<char>, Option<char>),
+    pub align: HAlign,
+    pub augment: Option<MathMatrixAugment>,
+    pub row_gap: Rel<Length>,
+    pub column_gap: Rel<Length>,
+    pub explicit: MathMatrixExplicit,
 }
 
 impl Hash for MathMatrixElem {
     fn hash<H: Hasher>(&self, state: &mut H) {
+        fn bits(value: f64) -> u64 {
+            if value == 0.0 {
+                0
+            } else {
+                value.to_bits()
+            }
+        }
         self.rows.hash(state);
         self.delim.hash(state);
-        if let Some(g) = &self.row_gap {
-            g.abs.0.to_bits().hash(state);
-            g.em.to_bits().hash(state);
-        }
-        if let Some(g) = &self.column_gap {
-            g.abs.0.to_bits().hash(state);
-            g.em.to_bits().hash(state);
-        }
-        if let Some(g) = &self.gap {
-            g.abs.0.to_bits().hash(state);
-            g.em.to_bits().hash(state);
-        }
+        self.align.hash(state);
         self.augment.hash(state);
+        for gap in [self.row_gap, self.column_gap] {
+            bits(gap.rel).hash(state);
+            bits(gap.abs.abs.0).hash(state);
+            bits(gap.abs.em).hash(state);
+        }
+        self.explicit.hash(state);
     }
 }
 
@@ -49,7 +78,7 @@ impl Element for MathMatrixElem {
     fn plain_text(&self) -> String {
         self.rows
             .iter()
-            .map(|row| row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(", "))
+            .map(|row| row.iter().map(Content::plain_text).collect::<Vec<_>>().join(", "))
             .collect::<Vec<_>>()
             .join("; ")
     }
@@ -58,18 +87,19 @@ impl Element for MathMatrixElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let rows: SourceResult<Vec<Vec<Content>>> = self
+        let rows = self
             .rows
             .iter()
-            .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
-            .collect();
-        Ok(Content::MathMatrix(Arc::new(MathMatrixElem {
-            rows: rows?,
+            .map(|row| row.iter().map(|cell| cell.map_content(transform)).collect())
+            .collect::<SourceResult<Vec<Vec<_>>>>()?;
+        Ok(Content::MathMatrix(Arc::new(Self {
+            rows,
             delim: self.delim,
+            align: self.align,
+            augment: self.augment.clone(),
             row_gap: self.row_gap,
             column_gap: self.column_gap,
-            gap: self.gap,
-            augment: self.augment,
+            explicit: self.explicit,
         })))
     }
 
@@ -77,15 +107,25 @@ impl Element for MathMatrixElem {
     where
         F: FnMut(&str) -> String,
     {
-        // Terminal (math structural; não desce).
         Content::MathMatrix(Arc::new(self.clone()))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn test_math_matrix_stub() {
-        assert!(true);
+    fn default_explicitness_has_no_fabricated_presence() {
+        assert_eq!(
+            MathMatrixExplicit::default(),
+            MathMatrixExplicit {
+                delim: false,
+                align: false,
+                augment: false,
+                row_gap: false,
+                column_gap: false,
+            }
+        );
     }
 }

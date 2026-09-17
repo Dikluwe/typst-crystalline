@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash ba644c58
+//! @prompt-hash 773fef38
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -157,7 +157,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 units_per_em,
             }
         }
-        FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
+        FrameItem::Line { start, end, thickness, color, cap } => FrameItem::Line {
             start: Point {
                 x: Pt(start.x.val() + dx.val()),
                 y: Pt(start.y.val() + dy.val()),
@@ -169,6 +169,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             thickness,
             // P285: reflector preserva cor original (translação não afecta paint).
             color,
+            cap,
         },
         FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
             FrameItem::Glyph {
@@ -716,15 +717,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_delimited(e.open, &e.body, e.close, style)
             }
 
-            Content::MathMatrix(e) => self.layout_matrix(
-                &e.rows,
-                e.delim,
-                e.row_gap,
-                e.column_gap,
-                e.gap,
-                e.augment,
-                style,
-            ),
+            Content::MathMatrix(e) => self.layout_matrix_elem(e, style),
 
             Content::MathCases(e) => self.layout_cases_elem(e, style),
 
@@ -848,6 +841,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
                 if let Some(c) = cramped {
                     math_style.cramped = c;
+                }
+                if matches!(transformed, Content::MathMatrix(_))
+                    && matches!(size_kind, Some(MathStyleKind::Display))
+                {
+                    // `display(mat(..))` escolhe Text como nível exterior;
+                    // uma equação de bloco mantém Display→Text a tamanho
+                    // cheio conforme P945.
+                    math_style.math_size = crate::entities::layout_types::MathSize::Text;
                 }
                 // Se kind glyph foi aplicado (chars já variant-encoded) OU
                 // italic explícito foi set, suprimir auto-itálico do
@@ -1279,6 +1280,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             end: Point { x: Pt(width), y: Pt(line_y) },
             thickness,
             color,
+            cap: crate::entities::geometry::LineCap::Butt,
         });
 
         MathBox { width, ascent, descent, items }
@@ -1319,6 +1321,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             end: Point { x: Pt(width), y: Pt(line_y) },
             thickness,
             color,
+            cap: crate::entities::geometry::LineCap::Butt,
         });
 
         MathBox { width, ascent, descent, items }
@@ -2039,16 +2042,17 @@ fn apply_math_default(body: &Content) -> Content {
             let new_seq: Vec<Content> = seq.iter().map(apply_math_default).collect();
             Content::MathSequence(Arc::from(new_seq))
         }
-        Content::MathMatrix(e) => Content::math_matrix_full(
+        Content::MathMatrix(e) => Content::math_matrix_complete(
             e.rows
                 .iter()
                 .map(|row| row.iter().map(apply_math_default).collect())
                 .collect(),
             e.delim,
+            e.align,
+            e.augment.clone(),
             e.row_gap,
             e.column_gap,
-            e.gap,
-            e.augment,
+            e.explicit,
         ),
         Content::MathCases(e) => Content::math_cases_full(
             e.children.iter().map(apply_math_default).collect(),
@@ -2267,19 +2271,7 @@ fn apply_math_style(
         }
         // **P809** — matrix/cases: recursão por célula (estavam no braço
         // `other` — as células não eram estilizadas, ex.: a,b,c,d plain).
-        Content::MathMatrix(e) => Content::math_matrix_full(
-            e.rows
-                .iter()
-                .map(|row| {
-                    row.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect()
-                })
-                .collect(),
-            e.delim,
-            e.row_gap,
-            e.column_gap,
-            e.gap,
-            e.augment,
-        ),
+        Content::MathMatrix(e) => Content::MathMatrix(e.clone()),
         Content::MathCases(e) => Content::math_cases_full(
             e.children
                 .iter()

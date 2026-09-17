@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 985fb88d
+//! @prompt-hash a438d034
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -399,7 +399,14 @@ pub enum FrameItem {
     /// de `S`; `None` → preserva default preto bit-exact (backward-compat
     /// para fracções, sqrt overline e linhas geométricas sem stroke
     /// explícito).
-    Line { start: Point, end: Point, thickness: f64, color: Option<Color> },
+    Line {
+        start: Point,
+        end: Point,
+        thickness: f64,
+        color: Option<Color>,
+        /// P1431 — terminal da linha, preservado até raster/PDF.
+        cap: crate::entities::geometry::LineCap,
+    },
     /// Glifo renderizado directamente por ID, sem mapeamento Unicode.
     ///
     /// Usado para variantes de tamanho matemático onde `glyph_to_char`

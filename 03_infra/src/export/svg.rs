@@ -1038,7 +1038,7 @@ fn render_item(
                 );
             }
         }
-        FrameItem::Line { start, end, thickness, color } => {
+        FrameItem::Line { start, end, thickness, color, .. } => {
             render_line(xml, start, end, *thickness, *color);
         }
         FrameItem::Glyph { pos, glyph_id, size, style, base_char, .. } => {

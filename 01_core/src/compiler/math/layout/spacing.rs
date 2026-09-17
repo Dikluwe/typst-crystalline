@@ -217,8 +217,8 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
         // efectiva de cada borda vem da presença do delimitador, não da
         // classe Normal do corpo composto.
         Content::MathMatrix(e) => (
-            if e.delim.0 != '\0' { MathClass::Opening } else { MathClass::Normal },
-            if e.delim.1 != '\0' { MathClass::Closing } else { MathClass::Normal },
+            if e.delim.0.is_some() { MathClass::Opening } else { MathClass::Normal },
+            if e.delim.1.is_some() { MathClass::Closing } else { MathClass::Normal },
         ),
         Content::MathVec(e) => (
             if e.delim.0 != '\0' { MathClass::Opening } else { MathClass::Normal },

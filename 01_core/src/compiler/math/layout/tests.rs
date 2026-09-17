@@ -1100,6 +1100,7 @@ fn offset_item_desloca_line() {
         end: Point { x: Pt(10.0), y: Pt(0.0) },
         thickness: 0.5,
         color: None, // P285
+        cap: crate::entities::geometry::LineCap::Butt,
     };
     let shifted = offset_item(item, Pt(5.0), Pt(2.0));
     if let FrameItem::Line { start, end, .. } = shifted {

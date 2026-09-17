@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 7dd93462
+//! @prompt-hash 3bfe7e36
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -342,8 +342,185 @@ fn eval_p1293_math_args(
                     value_span: named_arg.expr().span(),
                 });
             }
-            Arg::Spread(_) => {}
+            Arg::Spread(spread) => {
+                let value = eval_math_arg_value(scopes, ctx, engine, spread.expr())?;
+                match value {
+                    Value::None => {}
+                    Value::Array(values) => {
+                        occurrences.extend(values.into_iter().map(|value| {
+                            ArgOccurrence {
+                                name: None,
+                                value,
+                                span: spread.span(),
+                                value_span: spread.span(),
+                            }
+                        }));
+                    }
+                    Value::Dict(values) => {
+                        occurrences.extend(values.into_iter().map(|(name, value)| {
+                            ArgOccurrence {
+                                name: Some(name),
+                                value,
+                                span: spread.span(),
+                                value_span: spread.span(),
+                            }
+                        }));
+                    }
+                    Value::Args(args) => occurrences.extend(args.occurrence_sequence()),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            spread.span(),
+                            format!("cannot spread {}", other.type_name()),
+                        )])
+                    }
+                }
+            }
         }
+    }
+    Ok(Args::from_occurrences(call_args.span(), occurrences))
+}
+
+/// Variante de P1431: parênteses posicionais em `mat((a, b), (c, d))`
+/// representam linhas. A decomposição acontece ainda no AST, antes de o
+/// conteúdo matemático esconder as fronteiras entre células.
+fn eval_p1431_mat_args(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    call_args: AstArgs<'_>,
+) -> SourceResult<Args> {
+    let mut occurrences = Vec::new();
+    let row_mode = call_args.items().any(|arg| matches!(arg, Arg::Pos(Expr::Array(_))));
+    let mut trailing_row = Vec::new();
+    for arg in call_args.items() {
+        match arg {
+            Arg::Pos(Expr::Array(array)) => {
+                if !trailing_row.is_empty() {
+                    occurrences.push(ArgOccurrence {
+                        name: None,
+                        value: Value::Array(std::mem::take(&mut trailing_row)),
+                        span: array.span(),
+                        value_span: array.span(),
+                    });
+                }
+                let mut row = Vec::new();
+                for item in array.items() {
+                    let ArrayItem::Pos(expr) = item else { continue };
+                    if let Some(named) = extract_math_named(expr.to_untyped()) {
+                        occurrences.push(ArgOccurrence {
+                            name: Some(named.name().as_str().into()),
+                            value: eval_math_arg_value(
+                                scopes,
+                                ctx,
+                                engine,
+                                named.expr(),
+                            )?,
+                            span: named.span(),
+                            value_span: named.expr().span(),
+                        });
+                    } else {
+                        row.push(Value::Content(eval_math_expr(
+                            scopes, ctx, engine, expr,
+                        )?));
+                    }
+                }
+                if !row.is_empty() {
+                    occurrences.push(ArgOccurrence {
+                        name: None,
+                        value: Value::Array(row),
+                        span: array.span(),
+                        value_span: array.span(),
+                    });
+                }
+            }
+            Arg::Pos(Expr::Math(math)) if math.was_deparenthesized() => {
+                let values = math
+                    .exprs()
+                    .map(|expr| eval_math_arg_value(scopes, ctx, engine, expr))
+                    .collect::<SourceResult<Vec<_>>>()?;
+                occurrences.push(ArgOccurrence {
+                    name: None,
+                    value: Value::Array(values),
+                    span: math.span(),
+                    value_span: math.span(),
+                });
+            }
+            Arg::Pos(expr) => {
+                if row_mode {
+                    if let Some(named) = extract_math_named(expr.to_untyped()) {
+                        occurrences.push(ArgOccurrence {
+                            name: Some(named.name().as_str().into()),
+                            value: eval_math_arg_value(
+                                scopes,
+                                ctx,
+                                engine,
+                                named.expr(),
+                            )?,
+                            span: named.span(),
+                            value_span: named.expr().span(),
+                        });
+                    } else {
+                        trailing_row.push(Value::Content(eval_math_expr(
+                            scopes, ctx, engine, expr,
+                        )?));
+                    }
+                } else {
+                    occurrences.push(ArgOccurrence {
+                        name: None,
+                        value: eval_math_arg_value(scopes, ctx, engine, expr)?,
+                        span: expr.span(),
+                        value_span: expr.span(),
+                    });
+                }
+            }
+            Arg::Named(named) => occurrences.push(ArgOccurrence {
+                name: Some(named.name().as_str().into()),
+                value: eval_math_arg_value(scopes, ctx, engine, named.expr())?,
+                span: named.span(),
+                value_span: named.expr().span(),
+            }),
+            Arg::Spread(spread) => {
+                let value = eval_math_arg_value(scopes, ctx, engine, spread.expr())?;
+                match value {
+                    Value::None => {}
+                    Value::Array(values) => {
+                        occurrences.extend(values.into_iter().map(|value| {
+                            ArgOccurrence {
+                                name: None,
+                                value,
+                                span: spread.span(),
+                                value_span: spread.span(),
+                            }
+                        }));
+                    }
+                    Value::Dict(values) => {
+                        occurrences.extend(values.into_iter().map(|(name, value)| {
+                            ArgOccurrence {
+                                name: Some(name),
+                                value,
+                                span: spread.span(),
+                                value_span: spread.span(),
+                            }
+                        }));
+                    }
+                    Value::Args(args) => occurrences.extend(args.occurrence_sequence()),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            spread.span(),
+                            format!("cannot spread {}", other.type_name()),
+                        )])
+                    }
+                }
+            }
+        }
+    }
+    if !trailing_row.is_empty() {
+        occurrences.push(ArgOccurrence {
+            name: None,
+            value: Value::Array(trailing_row),
+            span: call_args.span(),
+            value_span: call_args.span(),
+        });
     }
     Ok(Args::from_occurrences(call_args.span(), occurrences))
 }
@@ -1142,163 +1319,24 @@ fn eval_math_expr(
                     apply_p1293_math_constructor("cases", args, scopes, ctx, engine)
                 }
 
-                // mat(...) — matriz matemática (Passo 54)
-                // O parser converte `;` em Arrays: cada Arg::Pos(Expr::Array(...)) é uma linha.
-                // Sem `;`: todos os args são células de uma única linha.
+                // P1431 — bare e qualificado convergem no mesmo constructor.
                 "mat" => {
-                    let mut delim = match engine.styles.custom("math.mat.delim") {
-                        Some(v) => parse_delim_val(v).unwrap_or(('(', ')')),
-                        None => ('(', ')'),
-                    };
-                    let mut row_gap = match engine.styles.custom("math.mat.row-gap") {
-                        Some(Value::Length(l)) => Some(*l),
-                        _ => None,
-                    };
-                    let mut column_gap = match engine.styles.custom("math.mat.column-gap")
-                    {
-                        Some(Value::Length(l)) => Some(*l),
-                        _ => None,
-                    };
-                    let mut gap = match engine.styles.custom("math.mat.gap") {
-                        Some(Value::Length(l)) => Some(*l),
-                        _ => None,
-                    };
-                    let mut augment: Option<usize> = None;
-
-                    // Fase 1: Coleta de named args e segmentação estrutural
-                    let mut named_args: Vec<crate::entities::ast::expr::Named<'_>> =
-                        Vec::new();
-                    let mut raw_rows: Vec<Vec<Expr<'_>>> = Vec::new();
-
-                    let mut top_pos: Vec<Expr<'_>> = Vec::new();
-                    for arg in call.args().items() {
-                        match arg {
-                            Arg::Pos(e) => {
-                                let node = e.to_untyped();
-                                if let Some(named) = extract_math_named(node) {
-                                    named_args.push(named);
-                                } else {
-                                    top_pos.push(e);
-                                }
-                            }
-                            Arg::Named(n) => {
-                                named_args.push(n);
-                            }
-                            _ => {}
-                        }
+                    let rollback = (!ctx.apply_show_rules).then(|| {
+                        (
+                            scopes.top.clone(),
+                            scopes.scopes.clone(),
+                            scopes.captured.clone(),
+                            scopes.captured_by,
+                        )
+                    });
+                    let args = eval_p1431_mat_args(scopes, ctx, engine, call.args())?;
+                    if let Some((top, parents, captured, captured_by)) = rollback {
+                        scopes.top = top;
+                        scopes.scopes = parents;
+                        scopes.captured = captured;
+                        scopes.captured_by = captured_by;
                     }
-
-                    let has_row_arrays = top_pos
-                        .first()
-                        .map(|e| matches!(e, Expr::Array(_)))
-                        .unwrap_or(false);
-
-                    if has_row_arrays {
-                        let mut trailing_row = Vec::new();
-                        for arg in top_pos {
-                            match arg {
-                                Expr::Array(arr) => {
-                                    if !trailing_row.is_empty() {
-                                        raw_rows.push(std::mem::take(&mut trailing_row));
-                                    }
-                                    let mut row = Vec::new();
-                                    for item in arr.items() {
-                                        if let ArrayItem::Pos(e) = item {
-                                            let node = e.to_untyped();
-                                            if let Some(named) = extract_math_named(node)
-                                            {
-                                                named_args.push(named);
-                                            } else {
-                                                row.push(e);
-                                            }
-                                        }
-                                    }
-                                    if !row.is_empty() {
-                                        raw_rows.push(row);
-                                    }
-                                }
-                                other => {
-                                    let node = other.to_untyped();
-                                    if let Some(named) = extract_math_named(node) {
-                                        named_args.push(named);
-                                    } else {
-                                        trailing_row.push(other);
-                                    }
-                                }
-                            }
-                        }
-                        if !trailing_row.is_empty() {
-                            raw_rows.push(trailing_row);
-                        }
-                    } else {
-                        let mut row = Vec::new();
-                        for e in top_pos {
-                            let node = e.to_untyped();
-                            if let Some(named) = extract_math_named(node) {
-                                named_args.push(named);
-                            } else {
-                                row.push(e);
-                            }
-                        }
-                        if !row.is_empty() {
-                            raw_rows.push(row);
-                        }
-                    }
-
-                    // Fase 2: Avaliação dos named args
-                    for named in named_args {
-                        let name = named.name().as_str();
-                        if let Ok(val) =
-                            eval_math_arg_value(scopes, ctx, engine, named.expr())
-                        {
-                            match name {
-                                "delim" => {
-                                    if let Some(d) = parse_delim_val(&val) {
-                                        delim = d;
-                                    }
-                                }
-                                "row-gap" => {
-                                    if let Value::Length(l) = val {
-                                        row_gap = Some(l);
-                                    }
-                                }
-                                "column-gap" => {
-                                    if let Value::Length(l) = val {
-                                        column_gap = Some(l);
-                                    }
-                                }
-                                "gap" => {
-                                    if let Value::Length(l) = val {
-                                        gap = Some(l);
-                                    }
-                                }
-                                "augment" => {
-                                    if let Value::Int(i) = val {
-                                        if i > 0 {
-                                            augment = Some(i as usize);
-                                        }
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-
-                    // Fase 3: Avaliação das células
-                    let mut rows: Vec<Vec<Content>> = Vec::new();
-                    for raw_row in raw_rows {
-                        let mut row = Vec::new();
-                        for cell_expr in raw_row {
-                            row.push(eval_math_expr(scopes, ctx, engine, cell_expr)?);
-                        }
-                        if !row.is_empty() {
-                            rows.push(row);
-                        }
-                    }
-
-                    Ok(Content::math_matrix_full(
-                        rows, delim, row_gap, column_gap, gap, augment,
-                    ))
+                    apply_p1293_math_constructor("mat", args, scopes, ctx, engine)
                 }
 
                 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)

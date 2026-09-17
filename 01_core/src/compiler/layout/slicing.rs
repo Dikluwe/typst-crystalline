@@ -97,12 +97,13 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 units_per_em,
             }
         }
-        FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
+        FrameItem::Line { start, end, thickness, color, cap } => FrameItem::Line {
             start: Point { x: start.x, y: Pt(start.y.0 + delta) },
             end: Point { x: end.x, y: Pt(end.y.0 + delta) },
             thickness,
             // P285: slicing reflector preserva cor (Y-delta).
             color,
+            cap,
         },
         FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
             FrameItem::Glyph {
@@ -288,6 +289,7 @@ mod tests {
             end: Point { x: Pt(50.0), y: Pt(10.0) },
             thickness: 1.0,
             color: None, // P285
+            cap: crate::entities::geometry::LineCap::Butt,
         };
         let rebased = rebase_item_y(item, -10.0);
         if let FrameItem::Line { start, end, .. } = rebased {

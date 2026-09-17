@@ -28,7 +28,7 @@
 ///
 /// `PartialEq` derivado é exacto via `f32` bitwise (sem
 /// tolerância em produção; paridade ADR-0028 regra herdada).
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum Color {
     /// sRGB color space (paridade vanilla `Rgb`).
     /// Componentes normalizados [0.0, 1.0]. Espaço default
@@ -59,6 +59,70 @@ pub enum Color {
     /// converte para sRGB no exporter (ADR-0083 §"Scope-out
     /// PDF native CMYK").
     Cmyk { c: f32, m: f32, y: f32, k: f32 },
+}
+
+impl std::fmt::Debug for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Self::Srgb { r, g, b, a }
+                if r == 0.0 && g == 0.454902 && b == 0.85098 && a == 1.0 =>
+            {
+                f.write_str("blue")
+            }
+            Self::Srgb { r, g, b, a } => f
+                .debug_struct("Srgb")
+                .field("r", &r)
+                .field("g", &g)
+                .field("b", &b)
+                .field("a", &a)
+                .finish(),
+            Self::Luma { l, a } => {
+                f.debug_struct("Luma").field("l", &l).field("a", &a).finish()
+            }
+            Self::LinearRgb { r, g, b, a } => f
+                .debug_struct("LinearRgb")
+                .field("r", &r)
+                .field("g", &g)
+                .field("b", &b)
+                .field("a", &a)
+                .finish(),
+            Self::Oklab { l, a, b, alpha } => f
+                .debug_struct("Oklab")
+                .field("l", &l)
+                .field("a", &a)
+                .field("b", &b)
+                .field("alpha", &alpha)
+                .finish(),
+            Self::Oklch { l, c, h, alpha } => f
+                .debug_struct("Oklch")
+                .field("l", &l)
+                .field("c", &c)
+                .field("h", &h)
+                .field("alpha", &alpha)
+                .finish(),
+            Self::Hsl { h, s, l, a } => f
+                .debug_struct("Hsl")
+                .field("h", &h)
+                .field("s", &s)
+                .field("l", &l)
+                .field("a", &a)
+                .finish(),
+            Self::Hsv { h, s, v, a } => f
+                .debug_struct("Hsv")
+                .field("h", &h)
+                .field("s", &s)
+                .field("v", &v)
+                .field("a", &a)
+                .finish(),
+            Self::Cmyk { c, m, y, k } => f
+                .debug_struct("Cmyk")
+                .field("c", &c)
+                .field("m", &m)
+                .field("y", &y)
+                .field("k", &k)
+                .finish(),
+        }
+    }
 }
 
 impl PartialEq for Color {

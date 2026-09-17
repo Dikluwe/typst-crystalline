@@ -8276,6 +8276,7 @@ fn p281_line_em_group_emite_path_ops() {
         end: Point { x: Pt(20.0), y: Pt(15.0) },
         thickness: 1.5,
         color: None, // P285 — preserva bit-exact pré-P285
+        cap: typst_core::entities::geometry::LineCap::Butt,
     };
     let group = FrameItem::Group {
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
@@ -9704,6 +9705,7 @@ mod p979_tests {
             end: Point { x: Pt(10.0), y: Pt(0.0) },
             thickness: 1.0,
             color: None,
+            cap: typst_core::entities::geometry::LineCap::Butt,
         };
         let items = vec![
             shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),

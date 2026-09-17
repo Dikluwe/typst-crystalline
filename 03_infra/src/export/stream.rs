@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 20439e24
+//! @prompt-hash bc0858db
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -24,6 +24,7 @@ use typst_core::entities::elements::pdf_artifact::ArtifactKind;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
+use typst_core::entities::geometry::LineCap;
 use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
 
 use crate::font_variant::text_style_to_font_variant;
@@ -572,6 +573,15 @@ pub(super) fn line_rg_prefix(
             let (r, g, b, _) = c.to_rgba_f32();
             format!("{:.3} {:.3} {:.3} RG ", r, g, b)
         }
+    }
+}
+
+fn line_cap_prefix(cap: LineCap) -> &'static str {
+    match cap {
+        // Omitir `0 J` preserva os bytes históricos dos produtores Butt.
+        LineCap::Butt => "",
+        LineCap::Round => "1 J ",
+        LineCap::Square => "2 J ",
     }
 }
 
@@ -1312,7 +1322,7 @@ fn draw_item_top(
                 ),
             }
         }
-        FrameItem::Line { start, end, thickness, color } => {
+        FrameItem::Line { start, end, thickness, color, cap } => {
             let x1 = start.x.val();
             let y1 = page_height - start.y.val();
             let x2 = end.x.val();
@@ -1322,9 +1332,10 @@ fn draw_item_top(
             // (frac/sqrt/line sem stroke explícito preservam bytes
             // exactos vs baseline P284).
             let rg = line_rg_prefix(color);
+            let cap = line_cap_prefix(*cap);
             ops.push_str(&format!(
-                "q {}{:.3} w {:.5} {:.5} m {:.5} {:.5} l S Q\n",
-                rg, thickness, x1, y1, x2, y2
+                "q {}{:.3} w {}{:.5} {:.5} m {:.5} {:.5} l S Q\n",
+                rg, thickness, cap, x1, y1, x2, y2
             ));
         }
         FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
@@ -2058,7 +2069,7 @@ pub(super) fn draw_item_local(
             }
             group_text_flip_close(ops);
         }
-        FrameItem::Line { start, end, thickness, color } => {
+        FrameItem::Line { start, end, thickness, color, cap } => {
             // Local emit: coords locais (após Group `cm`). Y já invertido
             // pela matriz cm → preserved bit-exact com top-level emit
             // estructura (`q w m l S Q`) mas sem `page_height -` subtract.
@@ -2067,9 +2078,10 @@ pub(super) fn draw_item_local(
             // bit-exact (Win arquitectural P281 — helpers unificados
             // garantem que mudança em ambos os emit ocorre simetricamente).
             let rg = line_rg_prefix(color);
+            let cap = line_cap_prefix(*cap);
             ops.push_str(&format!(
-                "q {}{:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
-                rg, thickness, start.x.0, start.y.0, end.x.0, end.y.0
+                "q {}{:.3} w {}{:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                rg, thickness, cap, start.x.0, start.y.0, end.x.0, end.y.0
             ));
         }
         // **P425-A7**: transporte recursivo de Link no espaço local do Group.

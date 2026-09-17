@@ -284,15 +284,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         inner_height,
                         items,
                     },
-                    FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
-                        start: Point {
-                            x: start.x + Pt(target_x),
-                            y: start.y + Pt(target_y),
-                        },
-                        end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
-                        thickness,
-                        color,
-                    },
+                    FrameItem::Line { start, end, thickness, color, cap } => {
+                        FrameItem::Line {
+                            start: Point {
+                                x: start.x + Pt(target_x),
+                                y: start.y + Pt(target_y),
+                            },
+                            end: Point {
+                                x: end.x + Pt(target_x),
+                                y: end.y + Pt(target_y),
+                            },
+                            thickness,
+                            color,
+                            cap,
+                        }
+                    }
                     FrameItem::Glyph {
                         pos,
                         glyph_id,
