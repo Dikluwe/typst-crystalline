@@ -388,7 +388,7 @@ qualificada.
 
 Construir Args math canônicos, avaliando cada ocorrência uma vez, e delegar ao
 mesmo constructor/validador de `math.cases`. Não pré-resolver `&`, não descartar
-Spread/named/erros e não executar layout. Estilos cascaded fornecem defaults;
-argumentos explícitos prevalecem e ativam somente seu bit correspondente.
-Bare e qualificado devem produzir children, delimitadores, reverse, gap e
-presença idênticos para entradas equivalentes.
+Spread/named/erros e não executar layout. A construção guarda defaults e
+argumentos explícitos, ativando somente o bit correspondente; não assa a
+cascata no carrier. Bare e qualificado devem produzir children,
+delimitadores, reverse, gap e presença idênticos para entradas equivalentes.

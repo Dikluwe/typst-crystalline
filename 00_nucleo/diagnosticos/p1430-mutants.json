@@ -1,0 +1,228 @@
+{
+  "schema": "tekt.materialization.mutations/v1",
+  "step": 1430,
+  "status": "designed-preseal",
+  "revision": "R2 after obligation-author clarification of temporary StyleChain resolution and contract publication",
+  "attestation": "executado sem atestacao de isolamento",
+  "executor": "agent:/root/p1430_adversary",
+  "created_at": "2026-09-16T22:54:17-03:00",
+  "role_boundary": {
+    "read": [
+      "00_nucleo/materialization/typst-passo-1430.md",
+      "the eight P1430 L0 owners",
+      "P1429 public adversarial artifacts as protocol precedent"
+    ],
+    "write": [
+      "00_nucleo/diagnosticos/p1430-mutants.json"
+    ],
+    "forbidden": [
+      "candidate implementation",
+      "productive code edits",
+      "oracle/test edits",
+      "verdict or seal edits"
+    ],
+    "inherited_context": "shared parent conversation and shared workspace; isolation is not attestable"
+  },
+  "inputs": {
+    "baseline_commit": "dbcc6f62a1460607fad1d9f7f1fe43c528845c60",
+    "step_sha256_after_human_confirmation": "785e1dc6f0d4cca1ac4cc1fd68ac83255900424ca9998d83af11f6aa13ccbfa3",
+    "manifest_sha256": "0d9a095a97083883b960fee2d6ba3ddf698d9ba998b85b9c0f3f9a81f4a09a4f",
+    "contract_sha256": "5553f18f449378c8d9efc581d3baedf4ebb095f7b1ee08133bda1ef0294cb741",
+    "oracles_sha256": "a9793703b002d8d85db02f2b7b3fe16bee33757325e3d76fb46053fbe28f6c27",
+    "l0_sha256": {
+      "compiler/eval/math.md": "45d41417e62409bfabb318e95415fc797f543b6e6345a1695f0e223bff0746ff",
+      "compiler/eval/repr.md": "0f860651fda8554da61f10bd17da31ac778fe4109f45736a0d45b757af7d9b0b",
+      "compiler/eval/rules.md": "7048399e819973696b1453fa102dc455746545d389cec62e52e3f01d455a5853",
+      "compiler/math/layout/_comum.md": "99592e96417126ef15b02d30d609d13fefa17c09bf94cd63e1ae37eacbbb30aa",
+      "compiler/math/layout/cases.md": "1f542ffb5fe5dc2c7f7632941c19bcc60fdbaa3aff6de0a149c402969fbdd472",
+      "compiler/stdlib/structural/math.md": "82c1bce8bf667c39b49eac8598144c8f7099b8c0fd42ed7fe35dbbb329e0fc90",
+      "entities/content.md": "9df03046f567da54ed601357bbf069405b8a7a2c22340e8cd71f92ba9f6abe0e",
+      "entities/elements/math_cases.md": "f46861b869ade0564c1c98665edfbb01b575fccf25a9f00c9e623957fb9c750a"
+    }
+  },
+  "policy": {
+    "valid_mutations": 21,
+    "required_classification": "Violated",
+    "unknown_receives_credit": false,
+    "required_mutation_score": 1.0,
+    "physical_execution_required_before_seal": true,
+    "formula": "valid semantic mutations classified Violated / 21",
+    "opaque_controls": "U01-U06 must classify Unknown with acceptance=false and mutation_credit=false"
+  },
+  "physical_campaign": {
+    "construction_time": "after a candidate implementation exists, without changing this mutation intent",
+    "isolation": "one fresh local clone or worktree per mutant; no mutation stacking",
+    "requirements": [
+      "one concrete patch per M01-M21",
+      "one unique focused killer command per mutant",
+      "record patch SHA-256, candidate tree, command, exit code, bounded stdout/stderr and attributable witness",
+      "run the unmutated focused suite first and require PASS",
+      "a compile failure is Violated only when the patch deliberately mutates a public type/signature invariant and the failure is attributable; incidental build failure is Unknown",
+      "timeout, OOM, swap, truncation, opaque identity or non-attributable failure is Unknown and blocks the score"
+    ]
+  },
+  "mutants": [
+    {
+      "id": "M01-drop-or-alias-binding",
+      "class": "registration/identity",
+      "mutation": "Omit math.cases, register a non-function, or alias it to mat/vec/generic content.",
+      "required_killer": "qualified lookup plus callable invocation and func/repr identity",
+      "witness": "math.cases is missing, non-callable, or returns a carrier whose public identity is not cases"
+    },
+    {
+      "id": "M02-break-variadic-cardinality",
+      "class": "signature/cardinality",
+      "mutation": "Require at least one child, cap children, collapse one child, reorder many children, or accept children only as a tuple.",
+      "required_killer": "zero, one and at least three positional children with order-sensitive repr/plain-text witnesses",
+      "witness": "(), singleton tuple morphology, cardinality or child order differs"
+    },
+    {
+      "id": "M03-relax-positional-content-cast",
+      "class": "cast/diagnostic",
+      "mutation": "Accept an integer positional child, silently drop it, or report a non-attributable error.",
+      "required_killer": "integer positional probe requiring the frozen expected-content diagnostic",
+      "witness": "invalid positional input constructs content or diagnostic identity differs"
+    },
+    {
+      "id": "M04-open-named-signature",
+      "class": "signature/diagnostic",
+      "mutation": "Accept children: named, unknown named, duplicate named, or an extra unsupported option.",
+      "required_killer": "children:, unknown and duplicate probes, including named-before-positional ordering",
+      "witness": "closed signature fails to reject with the frozen attributable diagnostic"
+    },
+    {
+      "id": "M05-relax-delimiter-cast",
+      "class": "delimiter/cast",
+      "mutation": "Accept integer, arbitrary content, malformed array length, or a non-delimiter scalar for delim.",
+      "required_killer": "invalid type and invalid cardinality probes plus valid none/string/symbol/array controls",
+      "witness": "invalid delimiter is accepted or a valid domain member is rejected"
+    },
+    {
+      "id": "M06-corrupt-delimiter-normalization",
+      "class": "delimiter/normalization",
+      "mutation": "Do not infer a matching pair from a unit delimiter, swap pair sides, convert none to a sentinel glyph, or collapse an asymmetric pair.",
+      "required_killer": "unit '[', none, ('[', none), (none, ']') and explicit default-pair repr/carrier probes",
+      "witness": "normalized optional pair or public none morphology differs"
+    },
+    {
+      "id": "M07-relax-reverse-cast",
+      "class": "reverse/cast",
+      "mutation": "Coerce truthy values, accept integer reverse, or ignore an invalid explicit value.",
+      "required_killer": "reverse:true/false controls and reverse:1 diagnostic",
+      "witness": "non-boolean is accepted or boolean polarity is lost"
+    },
+    {
+      "id": "M08-relax-or-flatten-gap-cast",
+      "class": "gap/cast",
+      "mutation": "Accept a unitless integer, reduce Rel<Length> to absolute Length, discard percent, or canonicalize 150% as 0pt.",
+      "required_killer": "gap:1 error plus 1em, 150% and mixed relative-length carrier/repr/layout probes",
+      "witness": "invalid gap is accepted or percent/length components are not preserved"
+    },
+    {
+      "id": "M09-collapse-explicit-presence",
+      "class": "presence/carrier",
+      "mutation": "Infer presence from non-default values, share one presence bit, or omit explicit defaults from repr/equality/hash.",
+      "required_killer": "independent absent/present-default pairs for delim, reverse and gap, including all eight bit combinations",
+      "witness": "a single causal bit no longer changes repr and structural carrier identity independently"
+    },
+    {
+      "id": "M10-break-cascade-precedence",
+      "class": "cascade/precedence",
+      "mutation": "Let cascaded delim/reverse/gap override an explicit argument, ignore cascade, or use a non-frozen default.",
+      "required_killer": "default, cascade-only and explicit-over-cascade probes for each field independently",
+      "witness": "effective value differs from explicit > cascade > ('{','}'), false, 0.2em"
+    },
+    {
+      "id": "M11-fabricate-presence-from-cascade",
+      "class": "cascade/morphology",
+      "mutation": "Set an explicit-presence bit when a value comes only from #set math.cases.",
+      "required_killer": "cascade-only effective-layout change paired with repr that still omits delim/reverse/gap",
+      "witness": "repr exposes a field not causally supplied by the constructor call"
+    },
+    {
+      "id": "M12-diverge-bare-and-qualified-routes",
+      "class": "route-convergence",
+      "mutation": "Keep bare cases on the old rows carrier, ignore a named value, or use a different constructor than math.cases.",
+      "required_killer": "equivalent bare/qualified calls across zero/many children and all three named fields",
+      "witness": "carrier, repr, plain-text or visible geometry differs between routes"
+    },
+    {
+      "id": "M13-pre-resolve-or-reevaluate-children",
+      "class": "evaluation/provenance",
+      "mutation": "Split MathAlignPoint during eval, evaluate a child twice, or evaluate children out of source order.",
+      "required_killer": "carrier inspection preserving '&' plus stateful/order-sensitive child evaluation witness",
+      "witness": "align point disappears before layout or per-child evaluation count/order differs from exactly once in source order"
+    },
+    {
+      "id": "M14-drop-carrier-field-in-reconstruction",
+      "class": "carrier/walker/reconstruction",
+      "mutation": "Omit or default a child, delimiter side, reverse, gap or presence bit in clone/equality/hash/map_content/map_text/apply_math_default/apply_math_style.",
+      "required_killer": "single-cause pair matrix and reconstruction round trips; map_content descends only into children while map_text remains terminal",
+      "witness": "distinct carriers collapse, a field changes after reconstruction, or walker scope changes"
+    },
+    {
+      "id": "M15-corrupt-repr-morphology",
+      "class": "repr",
+      "mutation": "Print positional children, omit children:, lose singleton comma/order, emit sentinel delimiters, reorder optional fields, or expose cascaded fields.",
+      "required_killer": "exact repr for zero/one/many children and each independent explicit field",
+      "witness": "repr differs from cases(delim?, reverse?, gap?, children: tuple)"
+    },
+    {
+      "id": "M16-split-align-points-as-global-columns",
+      "class": "layout/alignment",
+      "mutation": "Treat '&' as an extra row/visible glyph/global grid column, or fail to align boundaries within each branch.",
+      "required_killer": "two or more branches with distinct left/right widths around '&' and a no-align control",
+      "witness": "branch baselines/order, natural symbol spacing or aligned boundary coordinates differ"
+    },
+    {
+      "id": "M17-use-wrong-delimiter-side-or-direction",
+      "class": "layout/direction/delimiter",
+      "mutation": "Always draw the left side, draw both sides, invert reverse polarity, or render a None side.",
+      "required_killer": "asymmetric ('[', ']'), left-none/right-present and left-present/right-none under reverse false/true",
+      "witness": "visible delimiter count, side, glyph or x-position differs"
+    },
+    {
+      "id": "M18-resolve-gap-against-wrong-basis",
+      "class": "layout/relative-gap",
+      "mutation": "Ignore gap, use a fixed 0.2em, resolve percent against font size/zero instead of the required exterior style basis, or apply gap per cell rather than per branch.",
+      "required_killer": "two-branch geometry at default, 1em, 150% and mixed relative value under two exterior sizes",
+      "witness": "exact inter-branch baseline delta fails the frozen relative-resolution relation"
+    },
+    {
+      "id": "M19-regress-established-cases-geometry",
+      "class": "layout/regression",
+      "mutation": "Use unconditional script scaling, double axis-offset the delimiter, reintroduce delimiter padding, align component tops, or drop delimiter ascent/descent from outer bounds.",
+      "required_killer": "focused geometric controls for P919/P923/P945/P1042/P1132 with short/tall grids and stretchy delimiter",
+      "witness": "denominator style, delimiter x advance, grid axis, delimiter local y, or outer ascent/descent differs"
+    },
+    {
+      "id": "M20-break-legacy-wrapper",
+      "class": "compatibility/wrapper",
+      "mutation": "Expose the row-based compatibility wrapper publicly, flatten established cells, lose inserted boundaries, or change pre-P1430 geometry at an old call site.",
+      "required_killer": "legacy multi-row/multi-cell call-site control plus public-surface inventory",
+      "witness": "existing row/cell boundaries or geometry change, or a second public row-based constructor becomes reachable"
+    },
+    {
+      "id": "M21-credit-unknown",
+      "class": "Unknown/fail-closed",
+      "mutation": "Treat ambiguous identity/cardinality/cascade/layout, build failure, timeout, OOM, swap or truncated observation as Preserved or grant mutation credit.",
+      "required_killer": "executable U01-U06 harness with exact public reason codes",
+      "witness": "any opaque control has acceptance=true, mutation_credit=true or contributes to mutation_score"
+    }
+  ],
+  "opaque_controls": [
+    {"id":"U01-identity-opaque","condition":"callable or returned carrier identity cannot be observed","expected":"Unknown"},
+    {"id":"U02-cardinality-opaque","condition":"child count/order observation is unavailable or truncated","expected":"Unknown"},
+    {"id":"U03-cascade-opaque","condition":"source of effective value cannot distinguish explicit from cascaded","expected":"Unknown"},
+    {"id":"U04-layout-opaque","condition":"geometry observer cannot identify delimiter side, branch bounds or align boundary","expected":"Unknown"},
+    {"id":"U05-execution-failure","condition":"build/test timeout, OOM, swap, signal or non-attributable failure","expected":"Unknown"},
+    {"id":"U06-stream-truncated","condition":"required stdout/stderr witness exceeds or loses the bounded capture","expected":"Unknown"}
+  ],
+  "expected_discriminatory_result": {
+    "violated": 21,
+    "survived": 0,
+    "unknown_credit": 0,
+    "mutation_score": 1.0,
+    "note": "This R1 artifact defines mutation intent before candidate code. It is not a physical execution receipt and cannot by itself seal the contract."
+  }
+}

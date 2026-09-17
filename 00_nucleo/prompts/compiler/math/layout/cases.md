@@ -131,8 +131,9 @@ foi a parte correta de P1132 e preserva a altura total da página.
 ## P1430 — consumo do carrier público (PROPOSTO; gate ADR-0127)
 
 `layout_cases` recebe children em ordem, forma uma row inicial por child e só
-então separa `MathAlignPoint` em células. Resolve `gap: Rel<Length>` contra o
-estilo exterior; a cascata já aplicada no carrier prevalece sobre `0.2em`.
+então separa `MathAlignPoint` em células. Sem mutar o carrier, deriva
+delimitadores, reverse e gap efetivos com precedência explícito > `StyleChain`
+> default; resolve `gap: Rel<Length>` contra o estilo exterior.
 Com `reverse=false`, usa apenas `delim.0` à esquerda; com `true`, apenas
 `delim.1` à direita; `None` omite o glifo. Estilo de denominador, alinhamento,
 stretch, centro no eixo, limites externos e ausência de padding redundante

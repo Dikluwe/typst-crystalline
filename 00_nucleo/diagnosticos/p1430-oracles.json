@@ -1,0 +1,203 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1430,
+  "status": "candidate-oracles-unsealed",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": {
+    "authority": "agent:/root/p1430_oracles",
+    "roles": ["oracle_author", "independent_test_author"],
+    "workspace": "shared",
+    "candidate_implementation_read": false,
+    "productive_code_written": false,
+    "verdict_emitted": false,
+    "causal_productive_baseline": "dbcc6f62a1460607fad1d9f7f1fe43c528845c60",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1430-oracles.json",
+      "00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md",
+      "01_core/src/compiler/stdlib/structural/p1430_tests.rs",
+      "test-only declaration in 01_core/src/compiler/stdlib/structural/mod.rs"
+    ]
+  },
+  "inputs": [
+    {"path": "00_nucleo/diagnosticos/p1430-manifest.json", "sha256": "0d9a095a97083883b960fee2d6ba3ddf698d9ba998b85b9c0f3f9a81f4a09a4f"},
+    {"path": "00_nucleo/diagnosticos/p1430-contract.json", "sha256": "5553f18f449378c8d9efc581d3baedf4ebb095f7b1ee08133bda1ef0294cb741"},
+    {"path": "00_nucleo/materialization/typst-passo-1430.md", "sha256": "785e1dc6f0d4cca1ac4cc1fd68ac83255900424ca9998d83af11f6aa13ccbfa3"}
+  ],
+  "materialized_oracle_suite": {
+    "test_l0": {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md",
+      "sha256": "89ee1062189ac4d0f1cd65d84f7520679bbf0f0c2a012157f878c98599b055b3"
+    },
+    "test_consumer": {
+      "path": "01_core/src/compiler/stdlib/structural/p1430_tests.rs",
+      "sha256": "5ecea98a03c05b4965adeaeb0ed068ccfe612eac873c3214fb479ecadab353f5"
+    },
+    "test_only_wiring": {
+      "path": "01_core/src/compiler/stdlib/structural/mod.rs",
+      "sha256": "c0136c1aa9735a4cf3140caf90c0bb341b8efd1561d6c61c2540d0d599acff90",
+      "scope": "only the cfg(test) p1430_tests module declaration"
+    },
+    "assertion_count": "seven executable focal tests; assertions are frozen with the consumer hash",
+    "additional_suites": [
+      {
+        "role": "evaluation-route-order-cascade",
+        "test_l0": {"path": "00_nucleo/prompts/compiler/eval/p1430-tests.md", "sha256": "bcad6c38c08a792dfe6ea5cc166c34f70854d0a92ceb2d6bed6c992304a1e7a1"},
+        "test_consumer": {"path": "01_core/src/compiler/eval/p1430_tests.rs", "sha256": "2a28ec9b253105c5928cd57e9249509296b2e7180e26392d587de196d3e43727"},
+        "test_only_wiring": {"path": "01_core/src/compiler/eval/mod.rs", "sha256": "e52df5d28432a6cc79c696076dbeea0fc1bb15da264b0779d773895e947a9e1f"}
+      },
+      {
+        "role": "carrier-walkers-hash",
+        "test_l0": {"path": "00_nucleo/prompts/entities/elements/p1430-math-cases-tests.md", "sha256": "5ee8de6fcc6abf6d6959db1b8ff4e49ea5dcd5c195d999e5e0f84f4b26a2c738"},
+        "test_consumer": {"path": "01_core/src/entities/elements/p1430_math_cases_tests.rs", "sha256": "e9b5cad39be34f1bde04f161d74cb19ea6051fdcdd32ab896f56a56c0c2dc233"},
+        "test_only_wiring": {"path": "01_core/src/entities/elements/mod.rs", "sha256": "8dfd01e3e82973fcf7e936d19da65e7cdc9d505a0107cae01e64f499548366a5"}
+      },
+      {
+        "role": "layout-geometry-reconstruction-wrapper",
+        "test_l0": {"path": "00_nucleo/prompts/compiler/math/layout/p1430-tests.md", "sha256": "2fc1a1f5b3ce7ba4fa3d268b9dcdaaa3fe4ccabd3221683c424061b64d5d41c4"},
+        "test_consumer": {"path": "01_core/src/compiler/math/layout/p1430_tests.rs", "sha256": "f15db6193d62c81c23b8e263489601736824c3c576499de68f3ceda8b04a59f6"},
+        "test_only_wiring": {"path": "01_core/src/compiler/math/layout/mod.rs", "sha256": "23a2e86500d2249ae10f0ef66def56c9c239f50d1bf47b88cf0c2baf1cd3202a"}
+      }
+    ]
+  },
+  "oracles": [
+    {
+      "id": "O1-binding-variadic-content-casts",
+      "expected": "Preserved",
+      "cases": ["P01", "P02", "P03", "P04", "N01"],
+      "required_test": "p1430_binding_aridade_variadica_e_casts_de_children",
+      "assertion": "Look up and invoke the real math.cases function. Require zero, singleton and ordered multi-child tuple morphology; cast string and none to distinct ordered content slots; reject an integer with the attributable expected-content diagnostic."
+    },
+    {
+      "id": "O2-delimiters-explicitness-repr",
+      "expected": "Preserved",
+      "cases": ["P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12"],
+      "required_test": "p1430_delimitadores_opcionais_gap_e_explicitude",
+      "assertion": "Require canonical normalization for a unit delimiter, none and an asymmetric optional pair; require canonical delim/reverse/gap/children repr order; explicit values equal to defaults remain structurally and hash-distinct from omission."
+    },
+    {
+      "id": "O3-closed-signature-diagnostics",
+      "expected": "Violated for each invalid fixture",
+      "cases": ["N02", "N06", "N07", "N08", "N09", "N10", "N11", "N12"],
+      "required_test": "p1430_rejeicoes_atribuiveis_e_duplicados",
+      "assertion": "Invalid delimiter/reverse/gap types, children:, unknown names and each duplicated named must produce the exact frozen attributable diagnostic; error existence alone is insufficient."
+    },
+    {
+      "id": "O4-route-convergence",
+      "expected": "Preserved",
+      "cases": ["P15"],
+      "required_test": "p1430_rotas_bare_e_qualificada_convergem",
+      "assertion": "Construct equivalent MathText children through the public function and bare syntax and require equal complete carriers and repr. Also require a qualified all-fields call to retain canonical normalized morphology."
+    },
+    {
+      "id": "O5-cascade-morphology-and-precedence",
+      "expected": "Preserved",
+      "cases": ["P13", "P14", "N14", "N15", "N16"],
+      "required_test": "p1430_cascata_nao_fabrica_explicitude_e_explicit_override",
+      "assertion": "A cascade-only element remains carrier-equal to the omitted-field default and repr exposes no cascaded field. Explicit values override an incompatible cascade and equal the same explicit call without a cascade. Invalid or unknown set properties are rejected with typed attributable fragments. Effective geometry is reserved to the independent layout oracle."
+    },
+    {
+      "id": "O6-carrier-walkers",
+      "expected": "Preserved",
+      "cases": ["P17"],
+      "required_test": "p1430_carrier_clone_hash_e_walkers_preservam_causalidade",
+      "assertion": "Clone and hash preserve a complete all-fields carrier; plain_text retains ordered branches; map_content changes children only while preserving repr of delimiters, reverse, relative gap and presence; map_text is terminal."
+    },
+    {
+      "id": "O7-global-fail-closed",
+      "expected": "Unknown",
+      "cases": ["U01", "U02", "U03", "U06"],
+      "required_test": "p1430_unknown_falha_fechado_sem_credito",
+      "assertion": "Identity mismatch, ambiguous MathCases cardinality, opaque cascade and execution/budget failure classify Unknown with acceptance=false and mutation_credit=false. Positive and attributable-negative controls prevent a constant Unknown classifier."
+    },
+    {
+      "id": "O8-additional-contract-oracles",
+      "expected": "Preserved/Violated/Unknown according to the frozen case vector",
+      "cases": ["P16", "P18", "P19", "P20", "P21", "P22", "P23", "P24", "N03", "N04", "N05", "N13", "U04", "U05"],
+      "required_tests": [
+        "01_core/src/compiler/eval/p1430_tests.rs",
+        "01_core/src/entities/elements/p1430_math_cases_tests.rs",
+        "01_core/src/compiler/math/layout/p1430_tests.rs"
+      ],
+      "assertion": "The three additional independent suites are materialized and hashed. They cover source-order failure propagation without retries, reconstruction, malformed delimiter cardinality/class, bare invalids, late alignment, direction, relative gap, denominator style, extents, legacy-wrapper geometry and executable evaluation/layout Unknown controls. GREEN and physical mutation discrimination remain required before a seal."
+    }
+  ],
+  "expected_case_vector": {
+    "Preserved": ["P01-P24"],
+    "Violated": ["N01-N16"],
+    "Unknown": ["U01-U06"]
+  },
+  "classification": {
+    "Preserved": "all required observations of the case have attributable witnesses",
+    "Violated": "one or more named assertions mismatch with an attributable witness; invalid fixtures are rejected",
+    "Unknown": "identity, execution, parsing, extraction, dependency, opacity, cardinality or budget prevents a sound decision",
+    "unknown_never_success": true,
+    "unknown_never_kills_mutation": true
+  },
+  "red_receipt": {
+    "baseline_commit": "dbcc6f62a1460607fad1d9f7f1fe43c528845c60",
+    "productive_baseline_changed_by_oracle_author": false,
+    "compile_command": "cargo test -p typst-core p1430 --no-run",
+    "compile_exit_code": 0,
+    "command": "set -o pipefail; cargo test -p typst-core p1430 -- --nocapture 2>&1 | tail -260",
+    "exit_code": 101,
+    "compiled_against_baseline": true,
+    "tests_total": 23,
+    "passed": 6,
+    "failed": 17,
+    "passed_controls": [
+      "p1430_unknown_falha_fechado_sem_credito",
+      "p1430_avaliacao_opaca_falha_fechado",
+      "p1430_layout_opaco_falha_fechado",
+      "p1430_delimitador_respeita_direcao_e_none",
+      "p1430_extents_incluem_delimitador_sem_padding_redundante",
+      "p1430_wrapper_legado_preserva_geometria_de_rows"
+    ],
+    "attributable_witnesses": [
+      {"count": 5, "message": "missing callable math.cases", "source": "01_core/src/compiler/stdlib/structural/p1430_tests.rs:72"},
+      {"count": 9, "message": "missing callable math.cases", "cause": "public binding absent across structural, malformed-delimiter and carrier suites"},
+      {"count": 3, "left": "cases", "right_prefix": "cases(children:", "cause": "legacy repr and pre-resolved rows omit the complete public carrier"},
+      {"count": 1, "cause": "bare invalid fixture was accepted instead of producing an attributable diagnostic"},
+      {"count": 1, "expected": "DELIM-FIRST", "actual": "CHILD-SECOND", "cause": "argument occurrences were not evaluated in source order"},
+      {"count": 1, "cause": "cascade-only invocation changed stored carrier identity"},
+      {"count": 1, "expected_relation": "150% gap > 1em gap", "actual": "8.28 <= 17.88", "cause": "relative percentage was collapsed or ignored"},
+      {"count": 1, "cause": "reconstruction could not project causal fields because legacy repr remained bare cases"}
+    ],
+    "verdict": "RED attributable across binding, carrier/repr, closed bare validation, source-order evaluation, non-mutating cascade, relative gap and reconstruction; not a build-only or infrastructure failure"
+  },
+  "opaque_cases": [
+    {"id": "U01-identity-mismatch", "expected": "Unknown(UNKNOWN_IDENTITY_MISMATCH)"},
+    {"id": "U02-carrier-cardinality", "expected": "Unknown(UNKNOWN_MATHCASES_CARDINALITY)"},
+    {"id": "U03-style-cascade-opacity", "expected": "Unknown(UNKNOWN_STYLE_CASCADE)"},
+    {"id": "U04-evaluation-opacity", "expected": "Unknown(UNKNOWN_EVALUATION_OBSERVATION)"},
+    {"id": "U05-layout-opacity", "expected": "Unknown(UNKNOWN_LAYOUT_OBSERVATION)"},
+    {"id": "U06-execution-or-budget", "expected": "Unknown(UNKNOWN_EXECUTION_OR_BUDGET)"}
+  ],
+  "mutation_gate": {
+    "required_score": 1.0,
+    "valid_mutations": 21,
+    "all_valid_mutations_must_be_violated": true,
+    "unknown_receives_credit": false,
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "orders_require_identical_case_and_mutation_vectors": true,
+    "candidate_not_run_by_oracle_author": true,
+    "status": "required-not-yet-executed"
+  },
+  "calibration_budget": {
+    "wall_clock_minutes": 120,
+    "max_contract_revisions": 2,
+    "max_focused_runs_per_revision": 18,
+    "full_corpus_runs": 3,
+    "per_case_timeout_seconds": 180,
+    "stop_rule": "Two consecutive revisions with the same classification vector and dominant cause, or no discriminatory gain, require architectural review; score 1.0 ends local oracle adjustment."
+  },
+  "commands_for_verifier": [
+    "cargo test -p typst-core p1430 -- --nocapture",
+    "repeat focused suites in fresh forward, forward_repeat and reverse-order processes",
+    "cargo fmt --all -- --check",
+    "cargo build",
+    "crystalline-lint .",
+    "git diff --check"
+  ],
+  "claim_boundary": "These four independent suites and the RED receipt cover only the approved P1430 math.cases fragment and the frozen contract cases. They do not classify a candidate, emit a seal or verdict, prove general math parity, authorize productive changes or attest workspace isolation. GREEN, three deterministic orders and the physical mutation campaign remain verifier obligations."
+}

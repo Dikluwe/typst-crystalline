@@ -39,6 +39,10 @@ mod title;
 #[path = "p1429_tests.rs"]
 mod p1429_tests;
 
+#[cfg(test)]
+#[path = "p1430_tests.rs"]
+mod p1430_tests;
+
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
 pub use document::{native_asset, native_document};

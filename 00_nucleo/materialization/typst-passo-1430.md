@@ -74,9 +74,9 @@ com assinatura/morfologia diferente.
 4. aplicar casts e normalização do par na fronteira: `none`, string/símbolo
    unitário inferível ou array de dois delimitadores opcionais; nenhum sentinel
    interno aparece no observável público;
-5. ligar os três campos à `StyleChain`, com precedência argumento explícito >
-   cascata > defaults `("{", "}")`, `false`, `0.2em`; cascata não fabrica
-   presença explícita no elemento;
+5. ligar os três campos à `StyleChain`: o layout deriva valores efetivos
+   temporários com precedência argumento explícito > cascata > defaults
+   `("{", "}")`, `false`, `0.2em`, sem mutar o carrier nem fabricar presença;
 6. fazer chamadas bare e qualificadas convergirem no mesmo carrier sem
    pré-resolver children em rows; cada child é avaliado uma vez e `&` continua
    dentro do ramo até o consumer de layout;
@@ -141,5 +141,6 @@ da geometria vigente. Mutation score exigido: `1.0`; `Unknown` é fail-closed.
 
 ## Confirmação do gate
 
-**PENDENTE.** Nenhum código produtivo de P1430 pode ser escrito antes da
-confirmação explícita do dono sobre este contrato.
+**Confirmado explicitamente pelo dono em 2026-09-16.** A materialização fica
+autorizada somente dentro do recorte completo de `math.cases` e dos oito L0
+proprietários atualizados; as outras 17 rotas math permanecem fora de escopo.
