@@ -1,0 +1,64 @@
+{
+  "schema": "tekt.materialization.focused-calibration/v1",
+  "revision": 8,
+  "measured_at": "2026-09-17T15:39:50-03:00",
+  "subject_step": 1431,
+  "repair_step": 1434,
+  "role": "adversarial_design_repair_authority",
+  "executor": "agent:/root",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "write": ["mutation design R8", "M05 recipe and patch", "design shim", "this receipt"],
+    "forbidden_writes_respected": ["productive code", "manifest", "contract", "R6 oracles", "independent tests", "public runner", "M01-M04 and M06-M30 recipes"],
+    "isolation_attested": false
+  },
+  "identities": {
+    "design_commit": "df4ecb69db4d847765e10a018cbce69bf4bab78c",
+    "design_tree": "f6cd9f5c95c780fcd0cb52d9c697cc5d1978e27d",
+    "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "step_sha256": "96df892f7b54aa797c6e2970055b1ff901b4b6cbea8b229bb08b129c76a69d19",
+    "mutation_design_r8_sha256": "6432f32d98905ea8b78abbba80ad30161a4e10b9914ca9e98adda038744f52fc",
+    "m05_recipe_sha256": "1d2106a0d3fac1432f6649f6ff1ba047bf91fe5ef1505e6361e68aaa9a68b3be",
+    "design_runner_sha256": "65492bb0873fd05fc941fc21524ac955e0f80eb726f8fc6e1ea3d1997cc0ff56",
+    "m05_patch_sha256": "189163b8c17f9268fe4fecb365843ef6f2b15706cd9fc5cae641cb486bbb1fbe"
+  },
+  "design_gate": {
+    "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
+    "exit": 0,
+    "classification": "Preserved",
+    "revision": 8,
+    "mutations": 30,
+    "oracle_tests": 34
+  },
+  "focused_m05_gate": {
+    "transform": "Delete only the three-line row.resize loop; retain let columns and all downstream uses.",
+    "unique_apply": true,
+    "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core compiler::stdlib::structural::p1431_tests::p1431_binding_rows_padding_e_repr_canonico -- --exact",
+    "runner_exit": 0,
+    "classification": "Violated",
+    "reason_code": "VIOLATED_PADDING",
+    "witness": "p1431_binding_rows_padding_e_repr_canonico",
+    "causal_boundary": "P04 scalar/array parsing assertions precede the ragged P05/P06 assertions in the same test; the mutant compiles and reaches the padding witness.",
+    "clean_reversal": true
+  },
+  "unmutated_gate": {
+    "result": "PASS_34_OF_34",
+    "core": {"selected":30,"passed":30,"failed":0},
+    "infra_release": {"selected":4,"passed":4,"failed":0}
+  },
+  "delta_discrimination": {
+    "prior": "M05 Unknown/E0425 before oracle execution",
+    "current": "M05 Violated/VIOLATED_PADDING through P05/P06/P23",
+    "corrected_cases": ["M05"],
+    "regressed_cases": [],
+    "focused_executions": 1,
+    "full_campaigns_consumed": 0,
+    "result": "MONOTONIC_DISCRIMINATORY_GAIN"
+  },
+  "verdict": {
+    "classification": "FOCUSED_REPAIR_PASS",
+    "preseal_authorized": true,
+    "campaign_authorized": false
+  }
+}
