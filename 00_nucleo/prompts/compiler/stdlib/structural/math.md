@@ -458,3 +458,22 @@ preserva presença causal, ordem e duplicados. Ela constrói o carrier completo
 P1430 sem executar layout ou separar `&`. A sintaxe bare delega à mesma
 validação/construção. Named desconhecido ou `children:` são erros, nunca
 ignorados; set rule fornece somente defaults cascaded e não marca explicitude.
+
+## P1431 — binding público completo `math.mat` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado não registra `mat`. O vanilla ratificado aceita rows
+posicionais variádicas e os named `delim`, `align`, `augment`, `gap`,
+`row-gap`, `column-gap`; `rows:` é rejeitado. Escalares formam uma linha; se
+qualquer positional for array, todos devem ser arrays e rows menores recebem
+células vazias até à largura máxima.
+
+### Decisão proposta
+
+Registrar `math.mat` antes do espelho de símbolos e fazer a nativa construir o
+carrier completo P1431. `gap` é shorthand causal para ambos os eixos e os
+named específicos prevalecem. Delimitador, alinhamento horizontal, relative
+length, augment inteiro/dict/none, offsets e stroke são validados sem truncar,
+ignorar named ou reavaliar children. Duplicados e tipos inválidos propagam os
+diagnósticos medidos. A nativa não executa layout nem separa `&`.

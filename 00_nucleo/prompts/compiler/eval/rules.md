@@ -253,3 +253,13 @@ named desconhecido é erro atribuível, nunca warning nem fallback. A chamada
 explícita prevalece sobre a cascata, que prevalece sobre os defaults
 `("{", "}")`, `false`, `0.2em`. Valores cascaded não ativam bits de presença
 morfológica no elemento.
+
+## P1431 — cascata tipada de `math.mat` (PROPOSTO; gate ADR-0127)
+
+`#set math.mat` aceita somente `delim`, `align`, `augment`, `gap`, `row-gap` e
+`column-gap`, com os mesmos casts do constructor. `gap` alimenta os dois eixos;
+o gap específico no mesmo nível prevalece. Argumento explícito no elemento
+vence cascata, que vence defaults `()`, `center`, `none`, `0.2em`, `0.5em`.
+Augment explícito dobra o stroke cascaded segundo a regra vanilla, mas preserva
+os próprios offsets; `none` explícito apaga augment externo. Valores de set
+rule nunca ativam bits morfológicos de presença no elemento.

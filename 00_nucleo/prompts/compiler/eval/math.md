@@ -392,3 +392,21 @@ Spread/named/erros e não executar layout. A construção guarda defaults e
 argumentos explícitos, ativando somente o bit correspondente; não assa a
 cascata no carrier. Bare e qualificado devem produzir children,
 delimitadores, reverse, gap e presença idênticos para entradas equivalentes.
+
+## P1431 — sintaxe bare de `mat` converge no carrier público (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O braço atual implementa parsing próprio, aceita apenas gaps absolutos e
+augment inteiro, não transporta align/presença e usa `if let Ok` em named,
+silenciando falhas. Ele também mantém uma segunda regra de rows distinta da
+função qualificada ausente.
+
+### Decisão proposta
+
+`mat(...)` bare avalia os argumentos uma vez, preserva a ordem/ocorrências e
+delega ao mesmo parser/construtor de `math.mat`. O algoritmo de rows é único:
+zero ou apenas escalares produzem uma linha; presença de array exige arrays em
+todos os posicionais; rows menores são completadas com `Content::Empty`.
+`MathAlignPoint` permanece na célula até ao consumer de layout. Nenhum cast,
+named desconhecido ou duplicado pode ser descartado silenciosamente.

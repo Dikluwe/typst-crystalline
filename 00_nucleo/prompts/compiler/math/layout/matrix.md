@@ -177,3 +177,25 @@ alvo dos delimitadores continuam resolvidos contra o estilo **exterior**
 correctas via variante pré-fabricada) continuam cobertas — o alvo do
 delimitador cresce com a grelha maior, mas a selecção de variante/assembly
 acompanha (mecanismo P913, inalterado).
+
+## P1431 — consumer completo de `MathMatrixElem` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O layout vigente recebe campos soltos, centra sempre, resolve apenas `Length`
+absoluto opcional e desenha no máximo uma vline positiva com stroke fixo. O
+vanilla resolve `align`, gaps relativos e `Augment` contra o estilo exterior,
+valida offsets contra rows/columns e suporta hline/vline múltiplas, negativas,
+de borda e stroke customizado.
+
+### Decisão proposta
+
+Expor `layout(self, elem, style)` e derivar valores efetivos com precedência
+explícito > `StyleChain` > defaults. Rows/células continuam em estilo de
+denominador; gaps resolvem contra o estilo exterior. Sem `&`, alinhar cada
+célula por `start|left|center|right|end`; com `&`, preservar a alternância e o
+espaçamento de classe P825. Normalizar offsets negativos a partir do fim,
+aceitar bordas 0/n, rejeitar magnitude fora da dimensão e desenhar todas as
+linhas no meio do gap correspondente. Stroke auto usa 0.05em, cap quadrado;
+stroke explícito preserva espessura/cor/cap. Delimitador, eixo, piso de linha,
+descida de estilo e extents mantêm P912/P919/P923/P945/P1042.

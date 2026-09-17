@@ -40,3 +40,35 @@ Construtor ergonómico: `Content::math_matrix(rows: Vec<Vec<Content>>, delim: (c
 
 `plain_text` células `, ` e linhas `; `; `map_content` recurse na grelha; `delim`
 preservado; `map_text` terminal; igualdade estrutural.
+
+## P1431 — carrier público completo (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O L0 histórico descreve só `rows + delim`, enquanto o consumer já acumulou
+gaps absolutos opcionais e um augment inteiro. Nenhuma das formas conserva a
+assinatura vanilla completa ou presença explícita.
+
+### Struct proposta
+
+`MathMatrixElem` preserva:
+
+- `rows: Vec<Vec<Content>>`, já retangularizadas;
+- `delim: (Option<char>, Option<char>)`;
+- `align: HAlign`;
+- `augment: Option<MathMatrixAugment>`;
+- `row_gap: Rel<Length>` e `column_gap: Rel<Length>`;
+- `explicit: MathMatrixExplicit { delim, align, augment, row_gap, column_gap }`.
+
+`MathMatrixAugment` preserva `hline: Vec<isize>`, `vline: Vec<isize>` e stroke
+opcional, onde ausência significa `auto`; offsets continuam assinados até ao
+consumer. O bit `augment` distingue omissão de `none` explícito. `gap` não é
+campo do carrier: a fronteira expande-o causalmente nos dois gaps.
+
+### Invariantes
+
+Igualdade e hash discriminam todos os campos, valores, ordens e bits.
+`plain_text` mantém células por `, ` e linhas por `; `. `map_content` recursa
+em cada célula, preservando integralmente os demais campos; `map_text` continua
+terminal. Nenhum walker resolve cascata, offsets negativos, stroke auto ou
+pontos `&`.

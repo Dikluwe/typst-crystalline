@@ -3096,3 +3096,22 @@ um wrapper compatível para callsites internos antigos, reconstruindo os
 boundaries sem alterar sua geometria. Enum, walkers, igualdade, hash, debug,
 `plain_text` e todas as reconstruções preservam o carrier P1430; casts e
 normalização pertencem exclusivamente à fronteira de avaliação.
+
+# P1431 — construção completa de `MathMatrix` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O constructor atual transporta rows, par obrigatório de chars, três
+`Option<Length>` e um único `Option<usize>`. Não representa delimitador nulo
+por lado, alinhamento, relative length, augment completo nem presença causal.
+
+### Contrato público proposto
+
+Adicionar constructor completo que recebe rows retangulares, par de
+`Option<char>`, `HAlign`, augment tipado opcional, `Rel<Length>` por eixo e
+`MathMatrixExplicit { delim, align, augment, row_gap, column_gap }`. Manter
+wrapper interno compatível para callers antigos, elevando o seu subconjunto
+sem criar nova superfície de linguagem. Enum, igualdade, hash, debug, walkers,
+`plain_text` e todas as reconstruções preservam o carrier P1431. Casts,
+normalização, shorthand `gap` e retangularização pertencem à fronteira de
+avaliação; layout deriva cascata sem mutar o elemento.

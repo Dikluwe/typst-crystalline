@@ -1487,3 +1487,13 @@ posição superior/inferior é derivada do codepoint normalizado.
 children e reconstroem delimitadores, gap e os três bits de presença sem
 perda. Nenhuma reconstrução materializa rows antecipadamente, converte
 `None` em glifo ou marca campos vindos apenas da cascata como explícitos.
+
+## P1431 — despacho do carrier completo de matriz (PROPOSTO; gate ADR-0127)
+
+O match exaustivo permanece magro e estático (ADR-0109):
+`Content::MathMatrix(e)` delega a `matrix::layout(self, e, style)`. O módulo
+`matrix.rs` resolve temporariamente campos explícitos/cascata/defaults sem
+mutar o carrier. `GridAlign` continua helper mecânico comum e admite o
+alinhamento horizontal selecionado pelo elemento; boundaries introduzidos por
+`&` preservam a alternância P825. Reconstruções comuns preservam integralmente
+rows, delimitadores, align, augment, gaps e bits de presença.

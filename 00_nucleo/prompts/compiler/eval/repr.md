@@ -794,3 +794,21 @@ Imprimir `cases(delim?, reverse?, gap?, children: <tuple>)`. Zero children usa
 ausentes aparecem como `none`, nunca como sentinel; gap usa o repr relativo.
 Cascata não fabrica campos explícitos e a separação de `&` para layout não
 altera a morfologia armazenada.
+
+## P1431 — morfologia pública de `mat` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime apenas `matrix`. O vanilla imprime sempre `rows` como
+tuple de tuples retangular e inclui, na ordem, `delim`, `align`, `augment`,
+`row-gap` e `column-gap` somente quando causalmente explícitos. `gap` é
+projetado nos dois gaps, nunca como campo próprio. Augment vertical único com
+stroke auto usa forma inteira; os demais usam dict canônico.
+
+### Decisão proposta
+
+Projetar `mat(delim?, align?, augment?, row-gap?, column-gap?, rows: ...)`,
+preservando `none`, offsets assinados, stroke auto/customizado, células vazias
+de padding e explicitude igual ao default. Cascata não fabrica presença no
+carrier. A quebra horizontal/vertical segue o helper canônico de repr sem
+alterar a ordem dos campos.
