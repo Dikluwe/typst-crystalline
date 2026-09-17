@@ -12,4 +12,3 @@ hline/vline inclusive bordas e negativos, stroke auto/custom, delimitadores,
 estilo denominador e extents. Offsets fora da dimensão são diagnóstico, não
 clamp/ignore. Preservar controles P825/P912/P919/P923/P945/P1042 e wrapper
 legado. Frame, fonte, stroke ou geometria não atribuível é `Unknown` e bloqueia.
-

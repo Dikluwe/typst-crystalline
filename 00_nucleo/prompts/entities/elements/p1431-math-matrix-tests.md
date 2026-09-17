@@ -14,4 +14,3 @@ campos. `MathAlignPoint` permanece dentro da célula até layout.
 
 Zero ou múltiplos carriers, cascata não separável ou extração ilegível são
 `Unknown`; nunca contam como sucesso nem como mutante morto.
-

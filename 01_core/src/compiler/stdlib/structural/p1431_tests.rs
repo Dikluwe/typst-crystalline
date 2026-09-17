@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md
-//! @prompt-hash dd69ce55
+//! @prompt-hash aaca2d3e
 //! @layer L1
 #![cfg(test)]
 
@@ -256,6 +256,32 @@ fn p1431_augment_inteiro_dict_none_e_ordem_canonica() {
 }
 
 #[test]
+fn p1431_augment_ignora_chaves_desconhecidas_do_dicionario() {
+    let only_unknown = repr(named(
+        Args::positional(vec![]),
+        "augment",
+        dict(vec![("foo", Value::Int(1))]),
+    ));
+    assert_eq!(
+        only_unknown,
+        "mat(augment: (hline: (), vline: (), stroke: auto), rows: ((),))"
+    );
+
+    let known_and_unknown = repr(named(
+        Args::positional(vec![]),
+        "augment",
+        dict(vec![
+            ("hline", Value::Int(-1)),
+            ("vline", Value::Array(vec![Value::Int(1), Value::Int(2)])),
+            ("foo", Value::Int(7)),
+        ]),
+    ));
+    assert!(known_and_unknown.contains("hline"), "{known_and_unknown}");
+    assert!(known_and_unknown.contains("vline"), "{known_and_unknown}");
+    assert!(!known_and_unknown.contains("foo"), "{known_and_unknown}");
+}
+
+#[test]
 fn p1431_rejeita_modos_tipos_named_e_duplicados() {
     let vertical = Value::Align(Align2D { h: None, v: Some(VAlign::Top) });
     for (args, fragment) in [
@@ -289,14 +315,6 @@ fn p1431_rejeita_modos_tipos_named_e_duplicados() {
                 dict(vec![("hline", Value::Str("x".into()))]),
             ),
             "integer",
-        ),
-        (
-            named(
-                Args::positional(vec![]),
-                "augment",
-                dict(vec![("foo", Value::Int(1))]),
-            ),
-            "unexpected",
         ),
         (
             named(
@@ -347,26 +365,33 @@ fn p1431_carrier_default_e_explicito_default_nao_colapsam() {
 }
 
 #[test]
-fn p1431_identidade_binding_repr_e_execucao_opacos_falham_fechado() {
-    let classify = |identity: bool, binding: bool, repr: bool, execution: bool| {
-        if !identity {
-            "UNKNOWN_IDENTITY_MISMATCH"
-        } else if !binding {
-            "UNKNOWN_BINDING_OBSERVATION"
-        } else if !repr {
-            "UNKNOWN_REPR_OBSERVATION"
-        } else if !execution {
-            "UNKNOWN_EXECUTION_OR_BUDGET"
-        } else {
-            "PRESERVED"
-        }
-    };
-    for (inputs, expected) in [
-        ((false, true, true, true), "UNKNOWN_IDENTITY_MISMATCH"),
-        ((true, false, true, true), "UNKNOWN_BINDING_OBSERVATION"),
-        ((true, true, false, true), "UNKNOWN_REPR_OBSERVATION"),
-        ((true, true, true, false), "UNKNOWN_EXECUTION_OR_BUDGET"),
-    ] {
-        assert_eq!(classify(inputs.0, inputs.1, inputs.2, inputs.3), expected);
-    }
+fn p1431_runner_publico_falha_fechado_para_unknown_sem_credito() {
+    use std::process::Command;
+
+    let runner = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../00_nucleo/diagnosticos/p1431-mutations/runner.rb");
+    let identity = Command::new("sha256sum")
+        .arg(&runner)
+        .output()
+        .expect("U01: sha256sum do runner público deve ser executável");
+    assert!(identity.status.success(), "U01: identidade ilegível");
+    let identity = String::from_utf8(identity.stdout).expect("U01: SHA-256 UTF-8");
+    assert!(
+        identity.starts_with(
+            "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687"
+        ),
+        "U01 UNKNOWN_IDENTITY_MISMATCH: {identity}"
+    );
+
+    let output = Command::new("ruby")
+        .arg(&runner)
+        .args(["--mode", "policy-self-check"])
+        .output()
+        .expect("U09: runner público deve executar");
+    let stdout = String::from_utf8(output.stdout).expect("U09: saída UTF-8");
+    assert_eq!(output.status.code(), Some(3), "M27 concedeu crédito: {stdout}");
+    assert!(stdout.contains("\"classification\": \"Unknown\""), "{stdout}");
+    assert!(stdout.contains("UNKNOWN_EXECUTION_OR_BUDGET"), "{stdout}");
+    assert!(!stdout.contains("\"classification\": \"Preserved\""), "{stdout}");
+    assert!(!stdout.contains("\"mutation_credit\": true"), "{stdout}");
 }

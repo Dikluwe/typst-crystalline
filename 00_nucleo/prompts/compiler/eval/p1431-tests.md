@@ -12,4 +12,3 @@ posicional/named é avaliada uma vez em ordem causal; o primeiro erro termina a
 construção. Cascata não fabrica presença nem aparece no `repr`, e explícitos
 ganham por eixo. Parser, ordem ou contador não observável classifica
 `UNKNOWN_EVALUATION_OBSERVATION` e falha fechado.
-

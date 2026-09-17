@@ -17,11 +17,16 @@ implementação candidata. O fragmento é somente `math.mat`.
 Exercer a função publicada no módulo fechado `math`. Cobrir binding e nome;
 zero/scalar/arrays; retangularização; casts e cardinalidade de delimitadores;
 os cinco alinhamentos horizontais; shorthand e precedência dos gaps relativos;
-augment inteiro, dicionário e `none`; bits causais e `repr`; unknown named,
-`rows:`, duplicados e todos os tipos inválidos; validação equivalente em
-`#set math.mat`. Nenhum argumento pode ser descartado silenciosamente.
+augment inteiro, dicionário e `none`; bits causais e `repr`; chaves
+desconhecidas dentro do dicionário de augment aceites e ignoradas sem entrar
+no carrier/`repr`; unknown named da função, `rows:`, duplicados e todos os
+tipos inválidos dos campos conhecidos; validação equivalente em
+`#set math.mat`. Nenhum argumento da assinatura pode ser descartado
+silenciosamente.
 
 Resultados completos esperados são `Preserved`; divergências atribuíveis são
 `Violated`. Identidade, binding, carrier, cascade ou execução não atribuível é
-`Unknown`, com aceitação e crédito de mutação falsos.
-
+`Unknown`, com aceitação e crédito de mutação falsos. O controle U01/U09/M27
+verifica a identidade SHA-256 do runner público e o executa diretamente em
+`--mode policy-self-check`; a resposta `Unknown` deve sair sem aceitação nem
+crédito. Uma política mutada que aceite `Unknown` precisa falhar causalmente.
