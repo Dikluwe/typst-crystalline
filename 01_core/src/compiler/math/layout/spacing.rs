@@ -234,6 +234,11 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
     }
 }
 
+#[cfg(test)]
+pub(crate) fn p1436_boundary_classes(content: &Content) -> (MathClass, MathClass) {
+    node_math_class(content)
+}
+
 /// Promove `MathClass::Vary` para `MathClass::Binary` quando precedido por
 /// um item cuja `rclass` é `Normal | Alphabetic | Closing | Fence` — uso
 /// como operador binário (`a+b`) em vez de prefixo unário (`-x`). Paridade

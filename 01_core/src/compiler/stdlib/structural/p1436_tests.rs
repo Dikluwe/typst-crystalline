@@ -1,11 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1436-tests.md
-//! @prompt-hash d0844549
+//! @prompt-hash 1cd6d067
 //! @layer L1
 #![cfg(test)]
 
 use super::math::make_math_module;
+use crate::compiler::eval::p1436_math_lr_observation_differs;
 use crate::compiler::eval::{repr::repr_content, EvalContext};
+use crate::compiler::math::layout::{
+    p1436_boundary_classes, p1436_effective_size, p1436_target_pt,
+};
 use crate::contracts::world::World;
 use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::content::Content;
@@ -13,6 +17,8 @@ use crate::entities::elements::math_delimited::MathLrElem;
 use crate::entities::elements::Element;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
+use crate::entities::layout_types::Length;
+use crate::entities::math_class::MathClass;
 use crate::entities::rel::Rel;
 use crate::entities::source::Source;
 use crate::entities::source_result::SourceResult;
@@ -162,4 +168,39 @@ fn p1436_walker_preserva_size_e_presenca() {
     assert_eq!(mapped.body, Content::text("y"));
     assert_eq!(mapped.size, Rel::from_percent(150.0));
     assert!(mapped.size_explicit);
+}
+
+#[test]
+fn p1436_nested_repr_observation_spacing_cascade_e_shortfall() {
+    let inner = content(Args::positional(vec![cv("x")]));
+    let outer = content(Args::positional(vec![Value::Content(inner)]));
+    assert_eq!(repr_content(&outer), "lr(body: lr(body: [x]))");
+
+    let a = MathLrElem {
+        body: Content::MathText("+".into()),
+        size: Rel::from_percent(150.0),
+        size_explicit: true,
+    };
+    let b = MathLrElem { size: Rel::from_percent(175.0), ..a.clone() };
+    assert!(p1436_math_lr_observation_differs(&a, &b));
+    assert_eq!(
+        p1436_boundary_classes(&Content::MathLr(std::sync::Arc::new(a.clone()))),
+        (MathClass::Vary, MathClass::Vary)
+    );
+    assert_eq!(
+        p1436_effective_size(&a, Some(Rel::from_percent(200.0))),
+        Rel::from_percent(150.0)
+    );
+    let omitted = MathLrElem { size_explicit: false, ..a };
+    assert_eq!(
+        p1436_effective_size(&omitted, Some(Rel::from_percent(200.0))),
+        Rel::from_percent(200.0)
+    );
+    assert_eq!(p1436_effective_size(&omitted, None), Rel::from_percent(100.0));
+    assert!((p1436_target_pt(20.0, 10.0, Rel::from_percent(150.0)) - 29.0).abs() < 1e-9);
+    assert!(
+        (p1436_target_pt(20.0, 10.0, Rel { rel: 0.0, abs: Length::em(2.0) }) - 19.0)
+            .abs()
+            < 1e-9
+    );
 }

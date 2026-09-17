@@ -894,4 +894,14 @@ mod tests {
         assert_eq!(label.name.as_str(), "fig-one");
         assert!(matches!(label.body, Content::Figure(_)));
     }
+
+    #[test]
+    fn p1436_math_lr_permanece_terminal_para_query_textual_l3() {
+        let lr = Content::math_lr(
+            Content::text("hidden"),
+            typst_core::entities::rel::Rel::from_percent(100.0),
+            false,
+        );
+        assert!(!has_any_text(&lr));
+    }
 }

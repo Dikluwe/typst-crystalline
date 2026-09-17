@@ -15,6 +15,9 @@ derivam expectativas do patch produtivo.
 - múltiplos posicionais recebem vírgula matemática sem perder ordem;
 - `size` relativo conserva valor e presença, inclusive `100%` explícito;
 - `repr` usa `lr(size?, body: ...)` e cascata não fabrica campo;
+- `lr` aninhado preserva identidade e `ObservationEq` distingue `size`;
+- classe de borda herda o corpo, explícito vence cascata e omitido a herda;
+- o short-fall geométrico é exactamente `0.1em` para percentagem e `em`;
 - inteiro como body, tipo inválido de size, named desconhecido, `body:` e
   duplicado falham fechado;
 - igualdade e walker distinguem/preservam body, size e presença;

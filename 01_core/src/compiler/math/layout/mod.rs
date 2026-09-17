@@ -38,6 +38,11 @@ mod underline;
 mod underover;
 mod vec;
 
+#[cfg(test)]
+pub(crate) use delimited::{p1436_effective_size, p1436_target_pt};
+#[cfg(test)]
+pub(crate) use spacing::p1436_boundary_classes;
+
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
 /// `ascent` > 0 (acima da baseline), `descent` > 0 (abaixo da baseline).

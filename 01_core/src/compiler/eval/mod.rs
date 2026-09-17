@@ -2335,6 +2335,13 @@ impl ObservationEq for crate::entities::elements::math_delimited::MathLrElem {
             .and(self.size_explicit.observation_relation(&other.size_explicit))
     }
 }
+#[cfg(test)]
+pub(crate) fn p1436_math_lr_observation_differs(
+    left: &crate::entities::elements::math_delimited::MathLrElem,
+    right: &crate::entities::elements::math_delimited::MathLrElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
+}
 impl ObservationEq for crate::entities::elements::raw::RawElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self { text: _, lang: _, block: _ } = self;

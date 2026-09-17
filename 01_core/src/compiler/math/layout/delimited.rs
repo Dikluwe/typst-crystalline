@@ -18,6 +18,36 @@ use crate::entities::{
 
 use super::MathBox;
 
+fn effective_lr_size(elem: &MathLrElem, cascaded: Option<Rel<Length>>) -> Rel<Length> {
+    if elem.size_explicit {
+        elem.size
+    } else {
+        cascaded.unwrap_or_else(|| Rel::from_percent(100.0))
+    }
+}
+
+fn lr_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
+    let requested = size.resolve(Length::pt(body_height)).resolve_pt(font_size);
+    (requested - 0.1 * font_size).max(0.0)
+}
+
+#[cfg(test)]
+pub(crate) fn p1436_effective_size(
+    elem: &MathLrElem,
+    cascaded: Option<Rel<Length>>,
+) -> Rel<Length> {
+    effective_lr_size(elem, cascaded)
+}
+
+#[cfg(test)]
+pub(crate) fn p1436_target_pt(
+    body_height: f64,
+    font_size: f64,
+    size: Rel<Length>,
+) -> f64 {
+    lr_target_pt(body_height, font_size, size)
+}
+
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_lr(&self, elem: &MathLrElem, style: &TextStyle) -> MathBox {
         let cascaded = self
@@ -31,11 +61,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     panic!("invalid validated math.lr.size type: {}", other.type_name())
                 }
             });
-        let size = if elem.size_explicit {
-            elem.size
-        } else {
-            cascaded.unwrap_or_else(|| Rel::from_percent(100.0))
-        };
+        let size = effective_lr_size(elem, cascaded);
         match &elem.body {
             Content::MathDelimited(delimited) => self.layout_delimited_sized(
                 delimited.open,
@@ -84,10 +110,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let body_box = self.layout_node(body, style);
-        let requested = size
-            .resolve(Length::pt(body_box.height()))
-            .resolve_pt(style.size.val());
-        let target_pt = (requested - 0.1 * style.size.val()).max(0.0);
+        let target_pt = lr_target_pt(body_box.height(), style.size.val(), size);
         let target_du = if style.size.val() > 0.0 {
             target_pt * self.constants.upem / style.size.val()
         } else {
