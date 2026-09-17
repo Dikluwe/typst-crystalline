@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 773fef38
+//! @prompt-hash f80a6d2c
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -716,6 +716,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathDelimited(e) => {
                 self.layout_delimited(e.open, &e.body, e.close, style)
             }
+
+            Content::MathLr(e) => self.layout_lr(e, style),
 
             Content::MathMatrix(e) => self.layout_matrix_elem(e, style),
 
@@ -2099,6 +2101,9 @@ fn apply_math_default(body: &Content) -> Content {
         Content::MathDelimited(e) => {
             Content::math_delimited(e.open, apply_math_default(&e.body), e.close)
         }
+        Content::MathLr(e) => {
+            Content::math_lr(apply_math_default(&e.body), e.size, e.size_explicit)
+        }
         // **P961** — achado #5 de P906 + auditoria externa 2026-08-04: a
         // base de acentos (`hat(x)` etc.) nunca recebia o itálico por
         // defeito (caía em `other`). Recursão na base; o `accent` (combining
@@ -2314,6 +2319,11 @@ fn apply_math_style(
             e.open,
             apply_math_style(&e.body, kind, bold, italic),
             e.close,
+        ),
+        Content::MathLr(e) => Content::math_lr(
+            apply_math_style(&e.body, kind, bold, italic),
+            e.size,
+            e.size_explicit,
         ),
         Content::MathAccent(e) => Content::math_accent_full(
             apply_math_style(&e.base, kind, bold, italic),

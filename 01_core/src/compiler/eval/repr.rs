@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash eb02eb94
+//! @prompt-hash f2e1170d
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -238,6 +238,16 @@ fn repr_relative(rel: &Rel<Length>) -> String {
     } else {
         format!("{} + {}", pct, repr_length(&rel.abs))
     }
+}
+
+/// `math.lr.size` é declarado como `Rel<Length>` no vanilla; a morfologia
+/// do field conserva as duas componentes, inclusive quando uma delas é zero.
+fn repr_math_lr_size(rel: &Rel<Length>) -> String {
+    format!(
+        "{} + {}",
+        format_float_with_unit(rel.rel * 100.0, "%"),
+        repr_length(&rel.abs)
+    )
 }
 
 // ── P721 — repr Typst (paridade vanilla), não Debug do Rust ────────────────
@@ -593,6 +603,16 @@ fn repr_math_limits_body(content: &Content) -> String {
     }
 }
 
+fn repr_math_lr_body(content: &Content) -> String {
+    match content {
+        Content::MathSequence(nodes) => format!(
+            "sequence({})",
+            nodes.iter().map(repr_p1293_math_field).collect::<Vec<_>>().join(", ")
+        ),
+        other => repr_p1293_math_field(other),
+    }
+}
+
 fn repr_canonical_binom(
     delimited: &crate::entities::elements::math_delimited::MathDelimitedElem,
 ) -> Option<String> {
@@ -759,6 +779,14 @@ pub fn repr_content(c: &Content) -> String {
         },
         Content::MathDelimited(d) => repr_canonical_binom(d)
             .unwrap_or_else(|| format!("{}{}{}", d.open, repr_content(&d.body), d.close)),
+        Content::MathLr(lr) => {
+            let mut fields = Vec::with_capacity(2);
+            if lr.size_explicit {
+                fields.push(format!("size: {}", repr_math_lr_size(&lr.size)));
+            }
+            fields.push(format!("body: {}", repr_math_lr_body(&lr.body)));
+            format!("lr({})", fields.join(", "))
+        }
         Content::MathAlignPoint(_) => "&".to_string(),
         Content::Linebreak(e) => {
             if e.justify_explicit {

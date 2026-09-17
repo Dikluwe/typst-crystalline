@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d915d51c
+Hash do Código: de898b24
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715

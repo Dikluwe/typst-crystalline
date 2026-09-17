@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_delimited.md
-//! @prompt-hash 3b1e7942
+//! @prompt-hash 500d0140
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -11,6 +11,8 @@ use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
+use crate::entities::layout_types::Length;
+use crate::entities::rel::Rel;
 use crate::entities::source_result::SourceResult;
 
 /// Expressão entre delimitadores (`(...)`, `[...]`, `{...}`). `open`/`close`
@@ -21,6 +23,31 @@ pub struct MathDelimitedElem {
     pub open: char,
     pub body: Content,
     pub close: char,
+}
+
+/// Elemento público `math.lr`, distinto do carrier mecânico delimitado.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MathLrElem {
+    pub body: Content,
+    pub size: Rel<Length>,
+    pub size_explicit: bool,
+}
+
+impl std::hash::Hash for MathLrElem {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        fn bits(value: f64) -> u64 {
+            if value == 0.0 {
+                0
+            } else {
+                value.to_bits()
+            }
+        }
+        self.body.hash(state);
+        bits(self.size.rel).hash(state);
+        bits(self.size.abs.abs.0).hash(state);
+        bits(self.size.abs.em).hash(state);
+        self.size_explicit.hash(state);
+    }
 }
 
 impl Element for MathDelimitedElem {
@@ -45,6 +72,30 @@ impl Element for MathDelimitedElem {
     {
         // Terminal (math structural; não desce).
         Content::MathDelimited(Arc::new(self.clone()))
+    }
+}
+
+impl Element for MathLrElem {
+    fn plain_text(&self) -> String {
+        self.body.plain_text()
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::math_lr(
+            self.body.map_content(transform)?,
+            self.size,
+            self.size_explicit,
+        ))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathLr(Arc::new(self.clone()))
     }
 }
 

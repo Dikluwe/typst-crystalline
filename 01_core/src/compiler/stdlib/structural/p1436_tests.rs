@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1436-tests.md
-//! @prompt-hash 62035dcb
+//! @prompt-hash d0844549
 //! @layer L1
 #![cfg(test)]
 
@@ -18,21 +18,42 @@ use crate::entities::source::Source;
 use crate::entities::source_result::SourceResult;
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+use crate::entities::world_types::{
+    Bytes, Datetime, FileError, FileResult, Font, Library,
+};
 use std::num::NonZeroU16;
 
 #[derive(Default)]
-struct NullWorld { library: Library, book: FontBook }
-impl World for NullWorld {
-    fn library(&self) -> &Library { &self.library }
-    fn book(&self) -> &FontBook { &self.book }
-    fn main(&self) -> FileId { id() }
-    fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-    fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-    fn font(&self, _: usize) -> Option<Font> { None }
-    fn today(&self, _: Option<crate::entities::duration::Duration>) -> Option<Datetime> { None }
+struct NullWorld {
+    library: Library,
+    book: FontBook,
 }
-fn id() -> FileId { FileId::from_raw(NonZeroU16::new(1436).unwrap()) }
+impl World for NullWorld {
+    fn library(&self) -> &Library {
+        &self.library
+    }
+    fn book(&self) -> &FontBook {
+        &self.book
+    }
+    fn main(&self) -> FileId {
+        id()
+    }
+    fn source(&self, _: FileId) -> FileResult<Source> {
+        Err(FileError::NotFound)
+    }
+    fn file(&self, _: FileId) -> FileResult<Bytes> {
+        Err(FileError::NotFound)
+    }
+    fn font(&self, _: usize) -> Option<Font> {
+        None
+    }
+    fn today(&self, _: Option<crate::entities::duration::Duration>) -> Option<Datetime> {
+        None
+    }
+}
+fn id() -> FileId {
+    FileId::from_raw(NonZeroU16::new(1436).unwrap())
+}
 fn lr_func() -> crate::entities::func::Func {
     let Value::Module(module) = make_math_module() else { panic!("math module") };
     match module.scope().get("lr") {
@@ -42,7 +63,10 @@ fn lr_func() -> crate::entities::func::Func {
 }
 fn call(args: Args) -> SourceResult<Value> {
     lr_func().native_fn_addr().expect("math.lr native")(
-        &mut EvalContext::new(), &args, &NullWorld::default(), id(),
+        &mut EvalContext::new(),
+        &args,
+        &NullWorld::default(),
+        id(),
     )
 }
 fn content(args: Args) -> Content {
@@ -50,14 +74,24 @@ fn content(args: Args) -> Content {
     assert!(matches!(content, Content::MathLr(_)));
     content
 }
-fn cv(text: &str) -> Value { Value::Content(Content::text(text)) }
+fn cv(text: &str) -> Value {
+    Value::Content(Content::text(text))
+}
 fn named(mut args: Args, name: &str, value: Value) -> Args {
-    args.named.insert(name.into(), value); args
+    args.named.insert(name.into(), value);
+    args
 }
 fn occurrence(name: Option<&str>, value: Value) -> ArgOccurrence {
-    ArgOccurrence { name: name.map(Into::into), value, span: Span::detached(), value_span: Span::detached() }
+    ArgOccurrence {
+        name: name.map(Into::into),
+        value,
+        span: Span::detached(),
+        value_span: Span::detached(),
+    }
 }
-fn diagnostic(args: Args) -> String { call(args).unwrap_err()[0].message.clone() }
+fn diagnostic(args: Args) -> String {
+    call(args).unwrap_err()[0].message.clone()
+}
 
 #[test]
 fn p1436_binding_zero_um_muitos_e_repr() {
@@ -74,7 +108,9 @@ fn p1436_binding_zero_um_muitos_e_repr() {
 fn p1436_size_presenca_e_carrier_distinto() {
     let omitted = content(Args::positional(vec![cv("x")]));
     let explicit = content(named(
-        Args::positional(vec![cv("x")]), "size", Value::Relative(Rel::from_percent(100.0)),
+        Args::positional(vec![cv("x")]),
+        "size",
+        Value::Relative(Rel::from_percent(100.0)),
     ));
     assert_ne!(omitted, explicit);
     assert_eq!(repr_content(&omitted), "lr(body: [x])");
@@ -84,29 +120,45 @@ fn p1436_size_presenca_e_carrier_distinto() {
 
 #[test]
 fn p1436_diagnosticos_fechados() {
-    assert_eq!(diagnostic(Args::positional(vec![Value::Int(1)])), "expected content, found integer");
+    assert_eq!(
+        diagnostic(Args::positional(vec![Value::Int(1)])),
+        "expected content, found integer"
+    );
     assert_eq!(
         diagnostic(named(Args::positional(vec![]), "size", Value::Int(1))),
         "expected relative length, found integer"
     );
-    assert_eq!(diagnostic(named(Args::positional(vec![]), "body", cv("x"))), "unexpected argument: body");
-    assert_eq!(diagnostic(named(Args::positional(vec![]), "nope", Value::None)), "unexpected argument: nope");
-    let duplicate = Args::from_occurrences(Span::detached(), vec![
-        occurrence(Some("size"), Value::Relative(Rel::from_percent(100.0))),
-        occurrence(Some("size"), Value::Relative(Rel::from_percent(150.0))),
-    ]);
+    assert_eq!(
+        diagnostic(named(Args::positional(vec![]), "body", cv("x"))),
+        "unexpected argument: body"
+    );
+    assert_eq!(
+        diagnostic(named(Args::positional(vec![]), "nope", Value::None)),
+        "unexpected argument: nope"
+    );
+    let duplicate = Args::from_occurrences(
+        Span::detached(),
+        vec![
+            occurrence(Some("size"), Value::Relative(Rel::from_percent(100.0))),
+            occurrence(Some("size"), Value::Relative(Rel::from_percent(150.0))),
+        ],
+    );
     assert_eq!(diagnostic(duplicate), "duplicate argument: size");
 }
 
 #[test]
 fn p1436_walker_preserva_size_e_presenca() {
     let elem = MathLrElem {
-        body: Content::text("x"), size: Rel::from_percent(150.0), size_explicit: true,
+        body: Content::text("x"),
+        size: Rel::from_percent(150.0),
+        size_explicit: true,
     };
     let mut rewrite = |content: &Content| -> SourceResult<Option<Content>> {
         Ok(matches!(content, Content::Text(_)).then(|| Content::text("y")))
     };
-    let Content::MathLr(mapped) = elem.map_content(&mut rewrite).unwrap() else { panic!("MathLr") };
+    let Content::MathLr(mapped) = elem.map_content(&mut rewrite).unwrap() else {
+        panic!("MathLr")
+    };
     assert_eq!(mapped.body, Content::text("y"));
     assert_eq!(mapped.size, Rel::from_percent(150.0));
     assert!(mapped.size_explicit);

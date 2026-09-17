@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash 88e84e78
+//! @prompt-hash 64b95210
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -42,6 +42,7 @@ fn base_math_class(content: &Content) -> MathClass {
             .and_then(default_math_class)
             .unwrap_or(MathClass::Normal),
         Content::MathStyled(m) => base_math_class(&m.body),
+        Content::MathLr(e) => base_math_class(&e.body),
         Content::MathClassOverride(e) => e.class,
         // **P992** — `limits()`/`scripts()` não afectam classe/espaçamento
         // (transparente, ao contrário de `MathClassOverride`).
@@ -188,6 +189,7 @@ fn base_math_class(content: &Content) -> MathClass {
 /// opcional do vanilla — os dois delimitadores estão sempre presentes).
 pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
     match content {
+        Content::MathLr(e) => node_math_class(&e.body),
         Content::MathDelimited(e) => {
             let l = if matches!(e.open, '|' | '‖' | '∥') {
                 MathClass::Fence

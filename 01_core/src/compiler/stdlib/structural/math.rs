@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 4b856e17
+//! @prompt-hash ed9af73b
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1431,6 +1431,81 @@ pub fn native_math_cases(
     math_cases_content(args).map(Value::Content)
 }
 
+fn math_lr_content_value(value: &Value, span: Span) -> SourceResult<Content> {
+    match value {
+        Value::Content(content) => Ok(content.clone()),
+        Value::LocatedContent(content, _) => Ok(content.content().clone()),
+        Value::Str(text) => Ok(Content::text(text.as_str())),
+        Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
+        Value::None => Ok(Content::Empty),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected content, found {}", vanilla_type_name_class(other)),
+        )]),
+    }
+}
+
+/// Validação e construção compartilhada de `math.lr` e `lr(...)` bare.
+pub(crate) fn math_lr_from_args(args: &Args) -> SourceResult<Content> {
+    let size_occurrences = args
+        .occurrence_sequence()
+        .iter()
+        .filter(|occurrence| occurrence.name.as_deref() == Some("size"))
+        .count();
+    if size_occurrences > 1 {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "duplicate argument: size".to_string(),
+        )]);
+    }
+    for name in args.named.keys() {
+        if name != "size" {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("unexpected argument: {name}"),
+            )]);
+        }
+    }
+    let (size, size_explicit) = match args.named.get("size") {
+        None => (Rel::from_percent(100.0), false),
+        Some(Value::Relative(size)) => (*size, true),
+        Some(Value::Ratio(size)) => (Rel { rel: size.get(), abs: Length::ZERO }, true),
+        Some(Value::Length(size)) => (Rel { rel: 0.0, abs: *size }, true),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected relative length, found {}",
+                    vanilla_type_name_class(other)
+                ),
+            )])
+        }
+    };
+    let mut body =
+        Vec::with_capacity(args.items.len().saturating_mul(2).saturating_sub(1));
+    for (index, value) in args.items.iter().enumerate() {
+        if index > 0 {
+            body.push(Content::text(","));
+        }
+        body.push(math_lr_content_value(value, args.span)?);
+    }
+    let body = match body.len() {
+        0 => Content::Empty,
+        1 => body.pop().unwrap(),
+        _ => Content::MathSequence(body.into()),
+    };
+    Ok(Content::math_lr(body, size, size_explicit))
+}
+
+pub fn native_math_lr(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_lr_from_args(args).map(Value::Content)
+}
+
 fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
         Value::Content(content) => Ok(content.clone()),
@@ -2098,6 +2173,10 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "cases".into(),
         Value::Func(crate::entities::func::Func::native("cases", native_math_cases)),
+    );
+    dict.insert(
+        "lr".into(),
+        Value::Func(crate::entities::func::Func::native("lr", native_math_lr)),
     );
 
     // P1293-B — quatro membros próprios antes do espelho sym→math.

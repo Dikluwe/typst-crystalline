@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 3bfe7e36
+//! @prompt-hash ff2f8e34
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1012,25 +1012,8 @@ fn eval_math_expr(
                 // `math_delimited`. Scope-out: named `size:` (ver
                 // `compiler/eval.md` §P981).
                 "lr" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
-                    if pos_args.len() != 1 {
-                        return Err(vec![SourceDiagnostic::error(
-                            call.span(),
-                            format!(
-                                "lr espera exactamente 1 argumento, recebeu {}",
-                                pos_args.len()
-                            ),
-                        )]);
-                    }
-                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    Ok(rewrite_lr_body(body))
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_lr_from_args(&args)
                 }
 
                 // **P992** — `scripts(body)`/`limits(body, inline:)`: força
@@ -1517,56 +1500,6 @@ fn eval_math_expr(
             Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
         }
     }
-}
-
-use crate::entities::math_class::MathClass;
-
-/// **P981** — reescrita do corpo de `lr(...)`: uma `MathSequence` com
-/// ≥2 itens cujo primeiro e último são delimitadores (qualquer das classes
-/// Opening/Closing/Fence). O vanilla valida primeiro a natureza de
-/// delimitador e depois redefine o papel pelas posições — P1132r. A
-/// sequência é convertida em
-/// `MathDelimited(primeiro, meio, último)`. Qualquer outro corpo é
-/// devolvido inalterado (já delimitado ou sem delimitadores).
-fn rewrite_lr_body(body: Content) -> Content {
-    let Content::MathSequence(items) = &body else {
-        return body;
-    };
-    if items.len() < 2 {
-        return body;
-    }
-    let delimiter_classes = &[MathClass::Opening, MathClass::Closing, MathClass::Fence];
-    let open = lr_delim_char(&items[0], delimiter_classes);
-    let close = lr_delim_char(&items[items.len() - 1], delimiter_classes);
-    if let (Some(o), Some(c)) = (open, close) {
-        let middle: Vec<Content> = items[1..items.len() - 1].to_vec();
-        let mid = match middle.len() {
-            0 => Content::Empty,
-            1 => middle.into_iter().next().unwrap(),
-            _ => Content::MathSequence(middle.into()),
-        };
-        return Content::math_delimited(o, mid, c);
-    }
-    body
-}
-
-/// **P981** — o carácter de um item de 1 carácter se a sua classe math
-/// (`entities::math_class::default_math_class`) estiver em `classes`.
-fn lr_delim_char(item: &Content, classes: &[MathClass]) -> Option<char> {
-    let text = match item {
-        // P1132r: `\]`/`\[` escapados chegam como `Content::Text`; a
-        // exigência de um único carácter com classe delimitadora mantém a
-        // guarda estrita para texto comum.
-        Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => s.as_str(),
-        _ => return None,
-    };
-    let mut chars = text.chars();
-    let c = chars.next()?;
-    if chars.next().is_some() {
-        return None; // mais de um carácter — não é um delimitador solto
-    }
-    let class = crate::entities::math_class::default_math_class(c)?;
-    classes.contains(&class).then_some(c)
 }
 
 fn parse_delim_val(val: &Value) -> Option<(char, char)> {

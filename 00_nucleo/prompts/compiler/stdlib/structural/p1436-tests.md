@@ -1,7 +1,5 @@
 # Prompt L0 — testes independentes de `math.lr` P1436
 
-Hash do Código: PENDING
-
 **Camada**: L1 test-only  
 **Alvo**: `01_core/src/compiler/stdlib/structural/p1436_tests.rs`
 

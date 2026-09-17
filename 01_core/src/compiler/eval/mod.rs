@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 659a94d2
+//! @prompt-hash caa27136
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -359,6 +359,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathDelimited(a0) => match other {
                 Self::MathDelimited(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathLr(a0) => match other {
+                Self::MathLr(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -2318,6 +2324,15 @@ impl ObservationEq for crate::entities::elements::math_delimited::MathDelimitedE
             .and(self.open.observation_relation(&other.open))
             .and(self.body.observation_relation(&other.body))
             .and(self.close.observation_relation(&other.close))
+    }
+}
+impl ObservationEq for crate::entities::elements::math_delimited::MathLrElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, size: _, size_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.size.observation_relation(&other.size))
+            .and(self.size_explicit.observation_relation(&other.size_explicit))
     }
 }
 impl ObservationEq for crate::entities::elements::raw::RawElem {
