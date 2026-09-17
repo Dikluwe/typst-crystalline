@@ -1,0 +1,225 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/compiler/math/layout/p1429-tests.md
+//! @prompt-hash 4b398607
+//! @layer L1
+#![cfg(test)]
+
+use super::*;
+use crate::compiler::eval::EvalContext;
+use crate::compiler::layout::{FixedMetrics, FontMetrics};
+use crate::compiler::stdlib::native_accent;
+use crate::contracts::world::World;
+use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
+use crate::entities::font_book::FontBook;
+use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+use crate::entities::layout_types::Length;
+use crate::entities::location::Location;
+use crate::entities::rel::Rel;
+use crate::entities::source::Source;
+use crate::entities::style_chain::StyleChain;
+use crate::entities::value::Value;
+use crate::entities::world_types::{
+    Bytes, Datetime, FileError, FileResult, Font, Library,
+};
+use std::num::NonZeroU16;
+
+#[derive(Default)]
+struct NullWorld {
+    library: Library,
+    book: FontBook,
+}
+impl World for NullWorld {
+    fn library(&self) -> &Library {
+        &self.library
+    }
+    fn book(&self) -> &FontBook {
+        &self.book
+    }
+    fn main(&self) -> FileId {
+        id()
+    }
+    fn source(&self, _: FileId) -> FileResult<Source> {
+        Err(FileError::NotFound)
+    }
+    fn file(&self, _: FileId) -> FileResult<Bytes> {
+        Err(FileError::NotFound)
+    }
+    fn font(&self, _: usize) -> Option<Font> {
+        None
+    }
+    fn today(&self, _: Option<crate::entities::duration::Duration>) -> Option<Datetime> {
+        None
+    }
+}
+fn id() -> FileId {
+    FileId::from_raw(NonZeroU16::new(1429).unwrap())
+}
+fn style() -> TextStyle {
+    TextStyle::regular(Pt(12.0))
+}
+
+fn accent(base: &str, mark: char, size: Option<f64>, dotless: Option<bool>) -> Content {
+    let mut args = Args::positional(vec![
+        Value::Content(Content::MathText(base.into())),
+        Value::Str(mark.to_string().into()),
+    ]);
+    if let Some(percent) = size {
+        args.named
+            .insert("size".into(), Value::Relative(Rel::<Length>::from_percent(percent)));
+    }
+    if let Some(value) = dotless {
+        args.named.insert("dotless".into(), Value::Bool(value));
+    }
+    let Value::Content(content) =
+        native_accent(&mut EvalContext::new(), &args, &NullWorld::default(), id())
+            .unwrap()
+    else {
+        unreachable!()
+    };
+    content
+}
+
+fn text_items(items: &[FrameItem]) -> Vec<(String, f64)> {
+    items
+        .iter()
+        .filter_map(|item| match item {
+            #[allow(deprecated)]
+            FrameItem::Text { pos, text, .. }
+            | FrameItem::TextShaped { pos, text, .. } => {
+                Some((text.to_string(), pos.y.val()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+fn project<M: FontMetrics>(
+    metrics: &M,
+    content: &Content,
+    chain: &StyleChain,
+) -> Vec<FrameItem> {
+    let s = style();
+    let callbacks = callbacks::MathCallbackPassState::new(None);
+    MathLayouter::new_with_context(
+        metrics,
+        false,
+        &s,
+        Location::from_raw(0x1429),
+        Pt(200.0),
+        chain,
+        &callbacks,
+    )
+    .layout_equation(content, &s)
+}
+
+#[test]
+fn p1429_orientacao_superior_inferior_e_dotless() {
+    let chain = StyleChain::default_chain();
+    let upper =
+        text_items(&project(&FixedMetrics, &accent("i", '^', None, Some(true)), &chain));
+    assert!(
+        upper.iter().any(|(t, _)| t == "ı"),
+        "upper dotless morphology missing: {upper:?}"
+    );
+    let base_y = upper.iter().find(|(t, _)| t == "ı").unwrap().1;
+    let accent_y = upper.iter().find(|(t, _)| t == "\u{302}").unwrap().1;
+    assert!(accent_y < base_y, "upper accent not above base: {upper:?}");
+
+    let dotted =
+        text_items(&project(&FixedMetrics, &accent("i", '^', None, Some(false)), &chain));
+    assert!(
+        dotted.iter().any(|(t, _)| t == "i"),
+        "dotless=false removed dot: {dotted:?}"
+    );
+
+    for mark in ['\u{332}', '\u{23df}', '\u{23b5}', '\u{23dd}', '\u{23e1}'] {
+        let lower = text_items(&project(
+            &FixedMetrics,
+            &accent("i", mark, None, Some(true)),
+            &chain,
+        ));
+        let base_y = lower.iter().find(|(t, _)| t == "i").unwrap().1;
+        let accent_y =
+            lower.iter().find(|(t, _)| t.chars().next() == Some(mark)).unwrap().1;
+        assert!(accent_y > base_y, "lower accent {mark:?} not below base: {lower:?}");
+    }
+}
+
+struct VariantMetrics;
+impl FontMetrics for VariantMetrics {
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        FixedMetrics.advance(text, size, style)
+    }
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        FixedMetrics.vertical_metrics(size, style)
+    }
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+        FixedMetrics.cap_height(size, style)
+    }
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        FixedMetrics.text_edges(size, style)
+    }
+    fn horizontal_glyph_variants(&self, c: char, _: &TextStyle) -> GlyphVariants {
+        if c != '\u{20d7}' {
+            return GlyphVariants::default();
+        }
+        GlyphVariants {
+            variants: vec![
+                GlyphVariant {
+                    glyph_id: 142,
+                    advance: 1200.0,
+                    hor_advance: 1200.0,
+                    top_accent_attach: None,
+                },
+                GlyphVariant {
+                    glyph_id: 143,
+                    advance: 1800.0,
+                    hor_advance: 1800.0,
+                    top_accent_attach: None,
+                },
+            ],
+        }
+    }
+}
+
+fn arrow_width(content: &Content, chain: &StyleChain) -> f64 {
+    project(&VariantMetrics, content, chain)
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Glyph { base_char: '\u{20d7}', x_advance, .. } => {
+                Some(x_advance.val())
+            }
+            _ => None,
+        })
+        .expect("attributable stretched arrow glyph")
+}
+
+#[test]
+fn p1429_size_resolve_na_largura_e_precedencia_independente() {
+    let default = StyleChain::default_chain();
+    let base = accent("xx", '→', None, None);
+    let explicit = accent("xx", '→', Some(150.0), None);
+    let w100 = arrow_width(&base, &default);
+    let w150 = arrow_width(&explicit, &default);
+    assert!(w150 > w100, "150% did not select a wider variant: {w100} vs {w150}");
+
+    let cascade = StyleChain::default_chain()
+        .push_custom(
+            "math.accent.size",
+            Value::Relative(Rel::<Length>::from_percent(150.0)),
+        )
+        .push_custom("math.accent.dotless", Value::Bool(false));
+    assert_eq!(arrow_width(&base, &cascade), w150, "cascaded size was ignored");
+    assert_eq!(
+        arrow_width(&accent("xx", '→', Some(100.0), Some(true)), &cascade),
+        w100,
+        "cascade overrode explicit values"
+    );
+    let cascaded_i =
+        text_items(&project(&VariantMetrics, &accent("i", '^', None, None), &cascade));
+    assert!(
+        cascaded_i.iter().any(|(t, _)| t == "i"),
+        "cascaded dotless=false was ignored: {cascaded_i:?}"
+    );
+}

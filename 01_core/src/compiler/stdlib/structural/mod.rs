@@ -35,6 +35,10 @@ mod table_grid;
 mod table_lines;
 mod title;
 
+#[cfg(test)]
+#[path = "p1429_tests.rs"]
+mod p1429_tests;
+
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
 pub use document::{native_asset, native_document};

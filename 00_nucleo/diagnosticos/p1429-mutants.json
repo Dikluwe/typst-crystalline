@@ -1,0 +1,43 @@
+{
+  "schema": "tekt.materialization.mutations/v1",
+  "step": 1429,
+  "status": "preseal-catalogue",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": "agent:/root/p1429_adversary",
+  "inputs": {
+    "manifest_sha256": "3b1ee4d266cfdffb85f13555134c0b09dc36a7d89bd5f912d6eef101e0ca045a",
+    "contract_sha256": "99305a0f84ea13ad477702562d3aa032c67c9d9362f644ddb64389ae5f0a1e01",
+    "oracles_sha256": "9e5647d3c6c5ece776a27dee443b2eede0035cb5011a2c593f5d3eed9c9d422e",
+    "baseline_commit": "530bb5c4208ee82f815515d761517b818a949ee6",
+    "frozen_contract_commit": "aca9fa70b58aa7f8e2db4222b3c9115f8f45a9d7"
+  },
+  "policy": {
+    "valid_mutations": 12,
+    "required_classification": "Violated",
+    "unknown_receives_credit": false,
+    "required_mutation_score": 1.0,
+    "formula": "valid semantic mutations classified Violated / 12"
+  },
+  "mutants": [
+    {"id":"M01-drop-binding","class":"registration/signature","mutation":"Omit math.accent registration or bind a non-function.","killed_by":["p1429_binding_normalizacao_casts_e_presenca"],"witness":"missing callable math.accent"},
+    {"id":"M02-open-signature","class":"registration/signature","mutation":"Accept missing, extra, named positional, duplicate or unknown arguments.","killed_by":["p1429_assinatura_fechada_rejeita_casos_atribuiveis"],"witness":"frozen attributable diagnostic differs"},
+    {"id":"M03-skip-normalization","class":"normalization/cast","mutation":"Store ^, ~, . or arrow without canonical normalization.","killed_by":["p1429_binding_normalizacao_casts_e_presenca","p1429_walkers_preservam_carrier_e_descem_so_na_base"],"witness":"canonical repr/plain_text differs"},
+    {"id":"M04-accept-arbitrary-accent","class":"normalization/cast","mutation":"Accept multi-character, none or non-symbol content as accent.","killed_by":["p1429_assinatura_fechada_rejeita_casos_atribuiveis"],"witness":"invalid accent fails to reject with named reason"},
+    {"id":"M05-collapse-presence","class":"presence/cascade","mutation":"Infer explicitness from values or use one shared presence bit.","killed_by":["p1429_binding_normalizacao_casts_e_presenca","p1429_carrier_discrimina_valores_e_presenca_independentes"],"witness":"explicit defaults compare/hash/repr as absent"},
+    {"id":"M06-cascade-overrides-explicit","class":"presence/cascade","mutation":"Give cascaded size or dotless precedence over explicit fields.","killed_by":["p1429_size_resolve_na_largura_e_precedencia_independente"],"witness":"explicit 100%/true does not win"},
+    {"id":"M07-route-discards-options","class":"route convergence","mutation":"Bare accent or symbolic wrapper drops size/dotless or uses a generic carrier.","killed_by":["p1429_rotas_bare_qualificada_e_wrappers_convergem"],"witness":"canonical complete repr differs"},
+    {"id":"M08-walker-drops-field","class":"carrier/walker/observation/repr","mutation":"Omit a causal field from equality, hash, map_content, map_text or repr.","killed_by":["p1429_carrier_discrimina_valores_e_presenca_independentes","p1429_walkers_preservam_carrier_e_descem_so_na_base"],"witness":"distinct carriers collapse or reconstructed repr changes"},
+    {"id":"M09-always-upper","class":"upper/lower orientation","mutation":"Place Below-class and explicit bottom accents above or cramp/dotless their base.","killed_by":["p1429_orientacao_superior_inferior_e_dotless"],"witness":"lower accent y is not below base or lower i loses dot"},
+    {"id":"M10-ignore-relative-size","class":"relative size","mutation":"Ignore size, resolve against font size, or omit 0.5em short-fall.","killed_by":["p1429_size_resolve_na_largura_e_precedencia_independente"],"witness":"100% and 150% select the same attributable variant"},
+    {"id":"M11-invert-dotless","class":"dotless polarity and scope","mutation":"Ignore dotless, apply it when false, apply it below, or mutate public base.","killed_by":["p1429_orientacao_superior_inferior_e_dotless","p1429_walkers_preservam_carrier_e_descem_so_na_base"],"witness":"upper/lower i morphology or carrier differs"},
+    {"id":"M12-unknown-as-success","class":"Unknown credit","mutation":"Treat ambiguous identity/cardinality/cascade/glyph/layout or execution failure as Preserved.","killed_by":["verifier fail-closed harness U01-U06"],"witness":"Unknown receives acceptance or mutation credit"}
+  ],
+  "expected_discriminatory_result": {
+    "violated": 12,
+    "survived": 0,
+    "unknown_credit": 0,
+    "mutation_score": 1.0,
+    "note": "Catálogo pré-selo; execução física dos mutantes pertence ao verificador após integração. Cada mutação válida tem testemunha obrigatória, e Unknown nunca a mata."
+  }
+}
+
