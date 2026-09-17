@@ -8,8 +8,11 @@ Consumer único: `03_infra/src/export/p1431_line_cap_tests.rs`.
 
 Gerar linhas `Butt`, `Round` e `Square` pela fronteira pública de `math.mat`,
 isolar o item transportado e observar os exporters reais. No raster tiny-skia,
-os endpoints distinguem as três áreas cobertas e o augment automático coincide
-com um stroke `Square` equivalente. No PDF, os caminhos top-level e local
+os três witnesses explícitos usam a mesma espessura efetiva do stroke automático
+no tamanho de texto default congelado: `0.05 * 11pt = 0.55pt`. Os endpoints
+distinguem as áreas cobertas em ordem estrita `Butt < Round < Square`, numa
+asserção independente, e o augment automático coincide byte a byte com o witness
+explícito `Square`, noutra asserção. No PDF, os caminhos top-level e local
 emitem `1 J` para Round e `2 J` para Square dentro de `q/Q`; Butt omite `0 J`.
 Uma linha legada Butt conserva bytes determinísticos e não recebe operador
 redundante.

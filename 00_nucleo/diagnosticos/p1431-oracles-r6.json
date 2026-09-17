@@ -1,0 +1,261 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "revision": 6,
+  "authored_at": "2026-09-17T13:20:38-03:00",
+  "phase": "focused-p35-oracle-repair-after-unmutated-candidate-blocker",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "role": {
+    "authority": "oracle_and_independent_test_author",
+    "executor": "agent:/root/p1432_oracle",
+    "environment": "shared workspace; procedural separation, no isolation attestation",
+    "context_received": [
+      "00_nucleo/materialization/typst-passo-1432.md",
+      "unchanged P1431 revision-3 manifest and contract",
+      "public adversarial blocker and verifier non-seal reports",
+      "the P35 test-only L0 and its unique consumer"
+    ],
+    "read_capability": [
+      "public P1431/P1432 protocol artifacts and frozen identities",
+      "test-only L0 and independent tests",
+      "read-only productive line references already published by the public contract and blocker reports"
+    ],
+    "write_capability": [
+      "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md",
+      "03_infra/src/export/p1431_line_cap_tests.rs",
+      "00_nucleo/diagnosticos/p1431-oracles-r6.json"
+    ],
+    "forbidden_writes_respected": [
+      "productive implementation",
+      "manifest and contract",
+      "mutation design, recipes and runners",
+      "R5 oracle and preseal artifacts",
+      "adversarial and verifier reports",
+      "all other independent tests"
+    ]
+  },
+  "cause": {
+    "reason_code": "REPAIR_P35_OTHERWISE_EQUAL_THICKNESS",
+    "public_measurement": "P35 compared explicit Square at 0.60pt with matrix auto Square at 0.05em under the frozen 11pt default, i.e. 0.55pt; the byte comparison therefore changed thickness as well as provenance.",
+    "hypothesis": "Giving Butt, Round and Square explicit witnesses the same effective 0.05 * 11pt = 0.55pt thickness as matrix auto will restore an attributable cap-only comparison while preserving the independent area-order witness.",
+    "corrected_cases": ["P35"],
+    "regressed_cases": [],
+    "dominant_prior_reason_code": "BLOCK_UNMUTATED_ORACLE_RED"
+  },
+  "frozen_inputs": {
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1432.md",
+      "sha256": "0d85f06360e2f0230773d9c59cf19b5c57af2cf8bc4d276ff9448e7f2606f375"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1431-manifest.json",
+      "sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+      "revision": 3,
+      "status": "UNCHANGED"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1431-contract.json",
+      "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+      "revision": 3,
+      "status": "UNCHANGED"
+    },
+    "mutations": {
+      "path": "00_nucleo/diagnosticos/p1431-mutants.json",
+      "sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
+      "revision": 5,
+      "families": 30,
+      "status": "UNCHANGED"
+    },
+    "candidate": {
+      "commit": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+      "tree": "49dd65d31ee66db28f2e634beef78abe2e34384f",
+      "identity_check": "git show -s --format='%H %T' cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+      "result": "MATCH",
+      "post_candidate_committed_delta_before_R6": [
+        "A 00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json",
+        "A 00_nucleo/diagnosticos/p1431-verifier-nonseal.json",
+        "A 00_nucleo/materialization/typst-passo-1432.md"
+      ]
+    }
+  },
+  "invalidation": {
+    "rule": "The protected P35 oracle pair changed, so R5 and every later artifact that binds or classifies R5 is invalid from the oracle boundary. Manifest, contract, mutation design and candidate identities remain unchanged and are rebound above.",
+    "invalidated": [
+      {
+        "path": "00_nucleo/diagnosticos/p1431-oracles.json",
+        "sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad",
+        "revision": 5,
+        "reason": "superseded by this R6 oracle revision"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-preseal-r5.json",
+        "sha256": "8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7",
+        "reason": "binds the superseded R5 oracle hash"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json",
+        "sha256": "7a39275348b3a3a40f0a94c84a1902204aff552eae1b32f639cded26022dbc60",
+        "reason": "its P35 blocker classifies the superseded R5 fixture"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-verifier-nonseal.json",
+        "sha256": "49ca754f2e025832580b845550c07fbc69080b4bc3d2b82cd82f7a13ca7dfae5",
+        "reason": "its non-seal verdict binds the superseded R5 fixture and blocker"
+      }
+    ],
+    "not_invalidated": [
+      "00_nucleo/diagnosticos/p1431-manifest.json",
+      "00_nucleo/diagnosticos/p1431-contract.json",
+      "00_nucleo/diagnosticos/p1431-mutants.json",
+      "candidate cf92c3d07c05a564b9d089e005b04e9daf03cb62"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md",
+      "sha256": "9939c862445f50f30b2b63b817b7f99a767235ac062ab35e3dbd6f53b7db5c4d",
+      "consumer": "01_core/src/compiler/stdlib/structural/p1431_tests.rs",
+      "consumer_sha256": "b92cdf1cf76ddfa23265928de3bb4c2cc025b37fbf6d4839751117017cf707be",
+      "status": "UNCHANGED_FROM_R5"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/p1431-tests.md",
+      "sha256": "066b74f8aeb9970bf0fa081ae9ed9cd2c7565185c5e07323af35be9d54f02e30",
+      "consumer": "01_core/src/compiler/eval/p1431_tests.rs",
+      "consumer_sha256": "594f85e78a1905c974de1c23b2c2e31f5a6fa44136bba6164e1a3f731cbda567",
+      "status": "UNCHANGED_FROM_R5"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md",
+      "sha256": "00808d705291e46e2f2b7881461bec63cc8d60410a231727c76a8883bb6594d1",
+      "consumer": "01_core/src/entities/elements/p1431_math_matrix_tests.rs",
+      "consumer_sha256": "75575a7fbb44f995e239af47303d72add65058fc072d84743b5cee0dcdc0c1f1",
+      "status": "UNCHANGED_FROM_R5"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md",
+      "sha256": "7dbb6e6e32d830629e1b7eb1c3bf130bdf09c6bcc622ebb0546b5f60b67e50bd",
+      "consumer": "01_core/src/compiler/math/layout/p1431_tests.rs",
+      "consumer_sha256": "1545fee27674d1c8e7cf369cd767b6ade9edcf4b6fc9fdc15c0e501b9d02d205",
+      "status": "UNCHANGED_FROM_R5"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/p1431-line-cap-tests.md",
+      "sha256": "bb786fe120bde604ff28fecdb9f237ec975d80ffeefbacec63045724329bbe59",
+      "consumer": "01_core/src/entities/p1431_line_cap_tests.rs",
+      "consumer_sha256": "aaefcf455944f7e70c92a3479409caf408581b461c381b9e52e363e929a27ed8",
+      "status": "UNCHANGED_FROM_R5"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md",
+      "sha256": "559159efadb15663daa761b2e6add104b4fa9e47549c0460eaca46a60fe95d39",
+      "consumer": "03_infra/src/export/p1431_line_cap_tests.rs",
+      "consumer_sha256": "2680fecbdc621cb91b839078d80583e351c1654d05750c0cd8196253105df870",
+      "lineage_header": "559159ef",
+      "status": "REVISED_P35_ONLY"
+    }
+  ],
+  "focused_gate": {
+    "p35_release": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test --release -q -p typst-infra export::p1431_line_cap_tests::p1431_raster_mapeia_butt_round_square_e_auto_square -- --exact",
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "test_time_seconds": 6.06,
+      "assertions": [
+        "alpha area ordering Butt < Round < Square",
+        "matrix auto PNG bytes equal explicit Square PNG bytes"
+      ],
+      "result": "PRESERVED_RASTER_LINE_CAP"
+    },
+    "boundary_controls": [
+      {
+        "case": "P34",
+        "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core entities::p1431_line_cap_tests::p1431_auto_square_e_produtor_legado_butt_chegam_ao_frame -- --exact",
+        "exit": 0,
+        "passed": 1
+      },
+      {
+        "case": "P36",
+        "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local -- --exact",
+        "exit": 0,
+        "passed": 1
+      },
+      {
+        "case": "P36",
+        "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_legado_butt_preserva_bytes_sem_zero_j -- --exact",
+        "exit": 0,
+        "passed": 1
+      },
+      {
+        "case": "U10",
+        "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_export_opaco_falha_fechado -- --exact",
+        "exit": 0,
+        "passed": 1,
+        "classification": "Unknown",
+        "reason_code": "UNKNOWN_EXPORT_OBSERVATION",
+        "acceptance_credit": false,
+        "mutation_credit": false
+      }
+    ],
+    "debug_p35": {
+      "executed": false,
+      "reason": "The public blocker recorded pathological debug runtime; release-first focal success plus boundary controls satisfied the authorized budget."
+    }
+  },
+  "identity_and_hash_gate": {
+    "enumeration_commands": [
+      "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 -- --list",
+      "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra p1431 -- --list"
+    ],
+    "record": "UTF-8 <package>\\t<fully-qualified-test-id>\\n; LF after every record including the last",
+    "test_count": 34,
+    "forward_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
+    "reverse_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f",
+    "exactly_matches_r5_identity_records": true,
+    "identity_mismatches": [],
+    "artifact_pairs_checked": 6,
+    "unchanged_artifact_pairs_matching_r5": 5,
+    "expected_revised_artifact_pairs": 1,
+    "unexpected_hash_mismatches": [],
+    "lineage_check": {
+      "prompt_sha256": "559159efadb15663daa761b2e6add104b4fa9e47549c0460eaca46a60fe95d39",
+      "consumer_header": "559159ef",
+      "result": "MATCH"
+    }
+  },
+  "mechanical_gate": {
+    "commands": [
+      "cargo fmt --all -- --check",
+      "git diff --check"
+    ],
+    "exits": [0, 0],
+    "json_parse": "PASS"
+  },
+  "calibration": {
+    "revision": 6,
+    "positive_preserved": ["P35", "P34", "P36"],
+    "opaque_unknown": ["U10"],
+    "negative_violated": [],
+    "corrected_cases": ["P35"],
+    "regressed_cases": [],
+    "material_cost": "one focused release P35 run, four exact boundary-control runs, two test-list enumerations, six L0/consumer hash-pair checks, lineage, format and diff checks",
+    "result": "FOCUSED_REPAIR_GREEN_READY_FOR_NEW_PRESEAL_AND_UNMUTATED_34_TEST_GATE"
+  },
+  "next_gate": {
+    "authorized": true,
+    "owner": "preseal/adversary/verifier authorities",
+    "requirements": [
+      "publish a new preseal binding this R6 artifact",
+      "run the unchanged candidate against all 34 independent tests before M01",
+      "execute unchanged M01-M30 and the remaining final gates only after the unmutated vector is 34/34"
+    ],
+    "not_claimed_here": [
+      "a new preseal or final seal",
+      "unmutated full-corpus 34/34 execution",
+      "physical mutation score",
+      "final verifier verdict"
+    ]
+  },
+  "claim_boundary": "This R6 receipt attests only the P35 otherwise-equal fixture repair, its P34/P36/U10 boundary controls, unchanged 34-test identities, protected-input hashes and lineage recorded above. It makes no claim of general raster equivalence, general PDF equivalence, general Typst parity, physical mutation adequacy, final closure, or workspace/conversational isolation."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md
-//! @prompt-hash 015a31b1
+//! @prompt-hash 559159ef
 //! @layer L3
 #![cfg(test)]
 
@@ -63,6 +63,9 @@ fn cv(text: &str) -> Value {
     Value::Content(Content::text(text))
 }
 fn matrix_document(cap: Option<LineCap>) -> PagedDocument {
+    const AUTO_STROKE_EM: f64 = 0.05;
+    const DEFAULT_TEXT_SIZE_PT: f64 = 11.0;
+
     let Value::Module(module) = make_math_module() else { panic!("math module") };
     let Some(Value::Func(function)) = module.scope().get("mat") else {
         panic!("math.mat")
@@ -73,7 +76,7 @@ fn matrix_document(cap: Option<LineCap>) -> PagedDocument {
     augment.insert("vline".into(), Value::Int(1));
     if let Some(cap) = cap {
         let mut stroke = Stroke::default();
-        stroke.thickness = 0.6;
+        stroke.thickness = AUTO_STROKE_EM * DEFAULT_TEXT_SIZE_PT;
         stroke.cap = cap;
         stroke.specified.thickness = true;
         stroke.specified.cap = true;
