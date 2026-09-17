@@ -1,0 +1,20 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "step": 1436,
+  "protocol": "tekt-materializacao-segregada/1",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "baseline": {"commit":"bf96fe444","vanilla_commit":"586e1bd43fae6c9a973218163d3165c53ab8d16d"},
+  "prompt_root_sha256": "f3a5ce4e051cdb88157670160213ecd0d4fa8722157e13219cdc8d98e5edeb2b",
+  "scope": "math.lr binding, carrier, morphology, cascade, spacing and vertical stretch",
+  "unknown_policy": "fail_closed_no_credit",
+  "roles": {
+    "intent":"step and approved L0 only",
+    "contract":"manifest and public obligations; no candidate patch",
+    "oracle":"test-only consumers; no productive edits",
+    "adversary":"negative mutations only",
+    "implementer":"productive allowlist only after preseal",
+    "verifier":"receipts and certificate only"
+  },
+  "claim_boundary": "Frozen P1436 math.lr fragment only; no general Typst or math equivalence."
+}

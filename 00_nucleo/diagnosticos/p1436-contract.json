@@ -1,0 +1,23 @@
+{
+  "schema": "tekt.materialization.contract/v1",
+  "step": 1436,
+  "positive_obligations": [
+    "qualified and bare lr converge on MathLr",
+    "zero one and many positionals preserve canonical body",
+    "size presence distinguishes omitted from explicit 100%",
+    "explicit size overrides cascade which overrides 100%",
+    "repr is lr(size?, body: ...)",
+    "walkers and ObservationEq preserve body size and presence",
+    "spacing inherits body boundary classes",
+    "100% 150% and 2em produce attributable vertical targets"
+  ],
+  "negative_obligations": [
+    "invalid content or size is rejected",
+    "unknown body named and duplicate size are rejected",
+    "MathLr never collapses into MathDelimited",
+    "cascade never fabricates explicit presence",
+    "binom and mechanical MathDelimited remain unchanged"
+  ],
+  "opaque_cases": ["timeout","oom","swap","truncated_stream","identity_mismatch","unattributable_geometry"],
+  "required_mutation_score": 1.0
+}

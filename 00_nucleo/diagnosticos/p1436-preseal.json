@@ -1,0 +1,17 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "step": 1436,
+  "status": "AUTHORIZED_RED_TESTS_THEN_IMPLEMENTATION",
+  "attestation": "executed_without_isolation_attestation",
+  "state": {"commit":"bf96fe444","tracked_tree_clean":true},
+  "protected": {
+    "step_sha256":"f3a5ce4e051cdb88157670160213ecd0d4fa8722157e13219cdc8d98e5edeb2b",
+    "entity_prompt_sha256":"fd78e531c121d9f2f5199c392b3bacf18bb5b6e23dc4099767319ca8a0b1e5cf",
+    "content_prompt_sha256":"c15401124c4c2dfcd7bc6fb437b6ddbfb57a05177c0ee82a81ed37801c1f598b",
+    "stdlib_prompt_sha256":"869938131e6833938be865437d83ccb96abf433c36262cc9908c3a828b5bdebf",
+    "eval_math_prompt_sha256":"93569406c8fee232acfda74073f1bbacd9dcbea67ce6c83a079c7578f97207a4",
+    "repr_prompt_sha256":"9fa55e617edb551453d2e3d6f1e9321dea2221acadde15d0e0fc04a9a54d6c59"
+  },
+  "design_gate": {"valid_mutants":12,"required_score":1.0,"unknown_fail_closed":true},
+  "authorization": "Write independent test-only oracles, prove attributable RED, then edit only approved P1436 productive consumers."
+}
