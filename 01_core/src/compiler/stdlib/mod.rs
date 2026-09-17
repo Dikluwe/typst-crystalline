@@ -111,8 +111,9 @@ pub use crate::compiler::stdlib::state::{
     state_update, value_to_content,
 };
 pub(crate) use crate::compiler::stdlib::structural::{
-    equation_alt, equation_content, equation_number_align, equation_supplement,
-    math_accent_content, realize_outline_entry_page, sqrt_content,
+    apply_math_cases_option, equation_alt, equation_content, equation_number_align,
+    equation_supplement, math_accent_content, math_cases_delim,
+    realize_outline_entry_page, sqrt_content, MathCasesOptions,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,

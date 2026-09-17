@@ -3608,9 +3608,25 @@ impl<T: ObservationEq> ObservationEq for crate::entities::ptr_eq_arc::PtrEqArc<T
 }
 impl ObservationEq for crate::entities::elements::math_cases::MathCasesElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { rows: _, delim: _, reverse: _, gap: _ } = self;
+        let Self {
+            children: _,
+            delim: _,
+            reverse: _,
+            gap: _,
+            explicit: _,
+        } = self;
         ObservationRelation::Same
-            .and(self.rows.observation_relation(&other.rows))
+            .and(self.children.observation_relation(&other.children))
+            .and(self.delim.observation_relation(&other.delim))
+            .and(self.reverse.observation_relation(&other.reverse))
+            .and(self.gap.observation_relation(&other.gap))
+            .and(self.explicit.observation_relation(&other.explicit))
+    }
+}
+impl ObservationEq for crate::entities::elements::math_cases::MathCasesExplicit {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { delim: _, reverse: _, gap: _ } = self;
+        ObservationRelation::Same
             .and(self.delim.observation_relation(&other.delim))
             .and(self.reverse.observation_relation(&other.reverse))
             .and(self.gap.observation_relation(&other.gap))

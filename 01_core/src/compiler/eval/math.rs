@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash b1b27cec
+//! @prompt-hash 7dd93462
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1135,80 +1135,11 @@ fn eval_math_expr(
                     Ok(Content::math_vec_full(children, delim, align, gap, explicit))
                 }
 
-                // cases(...) — função por ramos (Passo 55): args separados por vírgula.
-                // `&` dentro de cada arg produz MathAlignPoint que parte as células.
-                // **P1047** — `delim`, `reverse` e `gap` lidos da chain e dos args nomeados.
+                // P1430 — `cases` bare e qualificado compartilham validação e
+                // conservam children/MathAlignPoint até ao layout.
                 "cases" => {
-                    let mut delim = match engine.styles.custom("math.cases.delim") {
-                        Some(v) => parse_delim_val(v).unwrap_or(('{', '}')),
-                        None => ('{', '}'),
-                    };
-                    let mut reverse = match engine.styles.custom("math.cases.reverse") {
-                        Some(Value::Bool(b)) => *b,
-                        _ => false,
-                    };
-                    let mut gap = match engine.styles.custom("math.cases.gap") {
-                        Some(Value::Length(l)) => Some(*l),
-                        _ => None,
-                    };
-
-                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
-                    for arg in call.args().items() {
-                        match arg {
-                            Arg::Pos(e) => pos_args.push(e),
-                            Arg::Named(n) => {
-                                let name = n.name().as_str();
-                                if let Ok(val) =
-                                    eval_math_arg_value(scopes, ctx, engine, n.expr())
-                                {
-                                    match name {
-                                        "delim" => {
-                                            if let Some(d) = parse_delim_val(&val) {
-                                                delim = d;
-                                            }
-                                        }
-                                        "reverse" => {
-                                            if let Value::Bool(b) = val {
-                                                reverse = b;
-                                            }
-                                        }
-                                        "gap" => {
-                                            if let Value::Length(l) = val {
-                                                gap = Some(l);
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            }
-                            _ => {} // neutro: N16[β] — argumentos posicionais em vec() não são delim e são avaliados como células math
-                        }
-                    }
-
-                    let mut rows: Vec<Vec<Content>> = Vec::new();
-                    for expr in pos_args {
-                        let content = eval_math_expr(scopes, ctx, engine, expr)?;
-                        let cells = match &content {
-                            Content::MathSequence(items) => {
-                                let mut cols: Vec<Vec<Content>> = vec![vec![]];
-                                for item in items.iter() {
-                                    match item {
-                                        Content::MathAlignPoint(_) => cols.push(vec![]),
-                                        other => {
-                                            cols.last_mut().unwrap().push(other.clone())
-                                        }
-                                    }
-                                }
-                                cols.retain(|c| !c.is_empty());
-                                cols.into_iter()
-                                    .map(|c| Content::MathSequence(c.into()))
-                                    .collect::<Vec<Content>>()
-                            }
-                            _ => vec![content],
-                        };
-                        rows.push(cells);
-                    }
-                    Ok(Content::math_cases(rows, delim, reverse, gap))
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    apply_p1293_math_constructor("cases", args, scopes, ctx, engine)
                 }
 
                 // mat(...) — matriz matemática (Passo 54)

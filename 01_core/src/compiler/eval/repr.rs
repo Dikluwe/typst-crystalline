@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash d4b6e69f
+//! @prompt-hash cc745b77
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -768,7 +768,61 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
         Content::MathMatrix(_) => "matrix".to_string(),
-        Content::MathCases(_) => "cases".to_string(),
+        Content::MathCases(cases) => {
+            fn repr_cases_child(content: &Content) -> String {
+                match content {
+                    Content::MathIdent(text)
+                    | Content::MathText(text)
+                    | Content::Text(text) => text.to_string(),
+                    Content::MathAlignPoint(_) => " & ".to_string(),
+                    Content::MathSequence(nodes) => {
+                        nodes.iter().map(repr_cases_child).collect::<String>()
+                    }
+                    other => repr_content(other),
+                }
+            }
+
+            let mut fields = Vec::new();
+            if cases.explicit.delim {
+                let repr_delim = |value: Option<char>| {
+                    value.map_or_else(
+                        || "none".to_string(),
+                        |value| format!("\"{}\"", value.escape_default()),
+                    )
+                };
+                fields.push(format!(
+                    "delim: ({}, {})",
+                    repr_delim(cases.delim.0),
+                    repr_delim(cases.delim.1)
+                ));
+            }
+            if cases.explicit.reverse {
+                fields.push(format!("reverse: {}", cases.reverse));
+            }
+            if cases.explicit.gap {
+                fields.push(format!(
+                    "gap: {} + {}",
+                    format_float_with_unit(cases.gap.rel * 100.0, "%"),
+                    repr_length(&cases.gap.abs)
+                ));
+            }
+            let children = cases
+                .children
+                .iter()
+                .map(|child| match child {
+                    Content::MathIdent(_) | Content::MathText(_) => {
+                        repr_cases_child(child)
+                    }
+                    Content::MathSequence(_) => repr_cases_child(child),
+                    other => repr_content(other),
+                })
+                .collect::<Vec<_>>();
+            fields.push(format!(
+                "children: {}",
+                pretty_array_like(&children, children.len() == 1)
+            ));
+            format!("cases({})", fields.join(", "))
+        }
         Content::MathAccent(a) => {
             let mut fields = vec![
                 format!("base: {}", repr_content(&a.base)),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 82e36bf9
+//! @prompt-hash 4a6db1bf
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -50,7 +50,7 @@ use crate::entities::elements::math_attach::{MathAttachElem, MathAttachSlot};
 use crate::entities::elements::math_cancel::{
     MathCancelAngle, MathCancelElem, MathCancelExplicit,
 };
-use crate::entities::elements::math_cases::MathCasesElem;
+use crate::entities::elements::math_cases::{MathCasesElem, MathCasesExplicit};
 use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
 use crate::entities::elements::math_frac::MathFracElem;
@@ -1690,7 +1690,49 @@ impl Content {
         reverse: bool,
         gap: Option<crate::entities::layout_types::Length>,
     ) -> Self {
-        Self::MathCases(Arc::new(MathCasesElem { rows, delim, reverse, gap }))
+        let children = rows
+            .into_iter()
+            .map(|row| {
+                let mut cells = row.into_iter();
+                let Some(first) = cells.next() else { return Content::Empty };
+                let mut items = vec![first];
+                for cell in cells {
+                    items.push(Content::math_align_point());
+                    items.push(cell);
+                }
+                Content::MathSequence(Arc::from(items.into_boxed_slice()))
+            })
+            .collect();
+        Self::math_cases_full(
+            children,
+            ((delim.0 != '\0').then_some(delim.0), (delim.1 != '\0').then_some(delim.1)),
+            reverse,
+            gap.map_or(
+                crate::entities::rel::Rel {
+                    rel: 0.0,
+                    abs: crate::entities::layout_types::Length::em(0.2),
+                },
+                |abs| crate::entities::rel::Rel { rel: 0.0, abs },
+            ),
+            MathCasesExplicit { delim: true, reverse: true, gap: gap.is_some() },
+        )
+    }
+
+    /// Construtor canónico de `MathCases`.
+    pub fn math_cases_full(
+        children: Vec<Content>,
+        delim: (Option<char>, Option<char>),
+        reverse: bool,
+        gap: crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        explicit: MathCasesExplicit,
+    ) -> Self {
+        Self::MathCases(Arc::new(MathCasesElem {
+            children,
+            delim,
+            reverse,
+            gap,
+            explicit,
+        }))
     }
     /// Construtor de `MathAccent`.
     pub fn math_accent(base: Content, accent: char) -> Self {
@@ -3631,7 +3673,16 @@ impl PartialEq for Content {
 // como tuple no hasher genérico.
 impl std::hash::Hash for Content {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        crate::entities::content_hash::hash_content(self).hash(state);
+        match self {
+            // `Content` has a deliberately compact `Debug` implementation,
+            // therefore the historical Debug-based fallback cannot observe
+            // the causal fields of this carrier.
+            Self::MathCases(elem) => {
+                std::mem::discriminant(self).hash(state);
+                elem.hash(state);
+            }
+            _ => crate::entities::content_hash::hash_content(self).hash(state),
+        }
     }
 }
 

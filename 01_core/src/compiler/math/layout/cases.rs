@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
-//! @prompt-hash 2a623fa5
+//! @prompt-hash 5396f07a
 //! @layer L1
 //! @updated 2026-08-14
 //!
@@ -10,7 +10,10 @@
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
     content::Content,
+    elements::math_cases::MathCasesElem,
     layout_types::{FrameItem, Length, Pt, TextStyle},
+    rel::Rel,
+    value::Value,
 };
 
 use super::GridAlign;
@@ -25,13 +28,72 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         gap: Option<Length>,
         style: &TextStyle,
     ) -> MathBox {
+        let content = Content::math_cases(rows.to_vec(), delim, reverse, gap);
+        let Content::MathCases(elem) = content else { unreachable!() };
+        self.layout_cases_elem(&elem, style)
+    }
+
+    pub(super) fn layout_cases_elem(
+        &self,
+        elem: &MathCasesElem,
+        style: &TextStyle,
+    ) -> MathBox {
+        let cascaded_delim = self
+            .lexical_styles
+            .and_then(|styles| styles.custom("math.cases.delim"))
+            .map(|value| {
+                crate::compiler::stdlib::math_cases_delim(
+                    value,
+                    crate::entities::span::Span::detached(),
+                )
+                .expect("validated math.cases.delim")
+            });
+        let cascaded_reverse = self
+            .lexical_styles
+            .and_then(|styles| styles.custom("math.cases.reverse"))
+            .map(|value| match value {
+                Value::Bool(value) => *value,
+                other => {
+                    panic!("invalid validated math.cases.reverse: {}", other.type_name())
+                }
+            });
+        let cascaded_gap = self
+            .lexical_styles
+            .and_then(|styles| styles.custom("math.cases.gap"))
+            .map(|value| match value {
+                Value::Relative(value) => *value,
+                Value::Ratio(value) => Rel { rel: value.get(), abs: Length::ZERO },
+                Value::Length(value) => Rel { rel: 0.0, abs: *value },
+                other => {
+                    panic!("invalid validated math.cases.gap: {}", other.type_name())
+                }
+            });
+        let delim = if elem.explicit.delim {
+            elem.delim
+        } else {
+            cascaded_delim.unwrap_or((Some('{'), Some('}')))
+        };
+        let reverse = if elem.explicit.reverse {
+            elem.reverse
+        } else {
+            cascaded_reverse.unwrap_or(false)
+        };
+        let gap = if elem.explicit.gap {
+            elem.gap
+        } else {
+            cascaded_gap.unwrap_or(Rel { rel: 0.0, abs: Length::em(0.2) })
+        };
+        let rows = elem
+            .children
+            .iter()
+            .cloned()
+            .map(|child| vec![child])
+            .collect::<Vec<_>>();
+
         // **P1042** — vanilla `resolve_cases` usa `Axes::with_y(elem.gap)` com `x = 0` (o espaçamento entre sub-colunas provém de `align_boundary_spacing`).
         let col_gap = self.metrics.advance(" ", style.size, style);
-        // **P1047** — `row_gap` resolvido contra `gap` se fornecido pelo elemento, ou fallback a `style.size * 0.2` (`DEFAULT_ROW_GAP = 0.2em` do vanilla).
-        let row_gap = match gap {
-            Some(g) => Pt(g.resolve_pt(style.size.val())),
-            None => style.size * 0.2,
-        };
+        let row_gap =
+            Pt(gap.resolve(Length::pt(style.size.val())).resolve_pt(style.size.val()));
 
         // **P923** — ramos de `cases` renderizados em estilo de denominador
         // (vanilla `resolve_cases` → `resolve_cells` aplica
@@ -47,7 +109,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let mut any_align = false;
         let mut split_rows: Vec<Vec<Content>> = Vec::with_capacity(rows.len());
         let mut align_boundaries: Vec<Vec<bool>> = Vec::with_capacity(rows.len());
-        for row in rows {
+        for row in &rows {
             let mut out_row: Vec<Content> = Vec::new();
             let mut marks: Vec<bool> = Vec::new();
             for cell in row {
@@ -74,18 +136,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 &cell_style,
             )
         } else {
-            self.layout_grid_rows(rows, GridAlign::Left, col_gap, row_gap, &cell_style)
+            self.layout_grid_rows(&rows, GridAlign::Left, col_gap, row_gap, &cell_style)
         };
 
         let min_height_du = self.grid_delim_target_du(&grid_box, style);
 
         // **P1047** — delimitador elástico de acordo com `reverse` (se `reverse`, usa `delim.1` à direita; caso contrário `delim.0` à esquerda).
         let delim_char = if reverse { delim.1 } else { delim.0 };
-        let delim_box = if delim_char != '\0' {
-            Some(self.layout_stretchy_delimiter(delim_char, min_height_du, style))
-        } else {
-            None
-        };
+        let delim_box = delim_char.map(|character| {
+            self.layout_stretchy_delimiter(character, min_height_du, style)
+        });
 
         // **P919** — centra APENAS a grelha no eixo matemático (vanilla
         // `table.rs:188`) — o delimitador já vem pré-centrado por

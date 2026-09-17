@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 2d0c20a1
+Hash do Código: 88814d1e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24

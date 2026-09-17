@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_cases.md
-//! @prompt-hash f6523d13
+//! @prompt-hash a468a807
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -13,36 +13,52 @@ use std::sync::Arc;
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::layout_types::Length;
+use crate::entities::rel::Rel;
 use crate::entities::source_result::SourceResult;
 
-/// Função definida por ramos (`cases(...)`). `rows`: lista de ramos; cada ramo
-/// é um array de células (separadas por `&`). `delim`: par de delimitadores (por
-/// defeito `('{', '}')`). `reverse`: se o delimitador fica à direita. `gap`: espaçamento vertical.
+/// Presença morfológica dos argumentos nomeados de `math.cases`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub struct MathCasesExplicit {
+    pub delim: bool,
+    pub reverse: bool,
+    pub gap: bool,
+}
+
+/// Função definida por ramos (`cases(...)`). Cada filho é um ramo e conserva
+/// os seus pontos de alinhamento até ao consumer de layout.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MathCasesElem {
-    pub rows: Vec<Vec<Content>>,
-    pub delim: (char, char),
+    pub children: Vec<Content>,
+    pub delim: (Option<char>, Option<char>),
     pub reverse: bool,
-    pub gap: Option<Length>,
+    pub gap: Rel<Length>,
+    pub explicit: MathCasesExplicit,
 }
 
 impl Hash for MathCasesElem {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.rows.hash(state);
+        fn bits(value: f64) -> u64 {
+            if value == 0.0 {
+                0
+            } else {
+                value.to_bits()
+            }
+        }
+        self.children.hash(state);
         self.delim.hash(state);
         self.reverse.hash(state);
-        if let Some(gap) = &self.gap {
-            gap.abs.0.to_bits().hash(state);
-            gap.em.to_bits().hash(state);
-        }
+        bits(self.gap.rel).hash(state);
+        bits(self.gap.abs.abs.0).hash(state);
+        bits(self.gap.abs.em).hash(state);
+        self.explicit.hash(state);
     }
 }
 
 impl Element for MathCasesElem {
     fn plain_text(&self) -> String {
-        self.rows
+        self.children
             .iter()
-            .map(|row| row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & "))
+            .map(Content::plain_text)
             .collect::<Vec<_>>()
             .join(", ")
     }
@@ -51,16 +67,17 @@ impl Element for MathCasesElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let rows: SourceResult<Vec<Vec<Content>>> = self
-            .rows
+        let children = self
+            .children
             .iter()
-            .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
-            .collect();
+            .map(|child| child.map_content(transform))
+            .collect::<SourceResult<Vec<_>>>()?;
         Ok(Content::MathCases(Arc::new(MathCasesElem {
-            rows: rows?,
+            children,
             delim: self.delim,
             reverse: self.reverse,
             gap: self.gap,
+            explicit: self.explicit,
         })))
     }
 
@@ -79,26 +96,24 @@ mod tests {
 
     fn ex() -> MathCasesElem {
         MathCasesElem {
-            rows: vec![
-                vec![Content::text("a"), Content::text("b")],
-                vec![Content::text("c")],
-            ],
-            delim: ('{', '}'),
+            children: vec![Content::text("ab"), Content::text("c")],
+            delim: (Some('{'), Some('}')),
             reverse: false,
-            gap: None,
+            gap: Rel { rel: 0.0, abs: Length::em(0.2) },
+            explicit: MathCasesExplicit::default(),
         }
     }
 
     #[test]
     fn plain_text_celulas_e_ramos() {
-        assert_eq!(ex().plain_text(), "a & b, c");
+        assert_eq!(ex().plain_text(), "ab, c");
     }
 
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
         let mut other = ex();
-        other.rows.pop();
+        other.children.pop();
         assert_ne!(ex(), other);
     }
 
@@ -112,7 +127,7 @@ mod tests {
         };
         let r = ex().map_content(&mut f).unwrap();
         match r {
-            Content::MathCases(e) => assert_eq!(e.plain_text(), "Z & b, c"),
+            Content::MathCases(e) => assert_eq!(e.plain_text(), "ab, c"),
             _ => panic!("esperado MathCases"),
         }
     }

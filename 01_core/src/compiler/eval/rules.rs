@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 3e9ca62c
+//! @prompt-hash 70110edd
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -283,7 +283,7 @@ fn eval_set_math_rule(
             // → `error: unexpected argument: lower`).
             return Err(vec![SourceDiagnostic::error(
                 named.name().to_untyped().span(),
-                if elem == "accent" {
+                if matches!(elem, "accent" | "cases") {
                     format!("unknown property: {nome}")
                 } else {
                     format!("unexpected argument: {nome}")
@@ -351,6 +351,16 @@ fn eval_set_math_rule(
                         }
                     ),
                 )]);
+            }
+            if elem == "cases" {
+                let mut options = crate::compiler::stdlib::MathCasesOptions::default();
+                crate::compiler::stdlib::apply_math_cases_option(
+                    &mut options,
+                    nome,
+                    &val,
+                    named.expr().span(),
+                    false,
+                )?;
             }
             *engine.styles =
                 engine.styles.push_custom(format!("math.{elem}.{nome}"), val);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash d9b0ca0f
+//! @prompt-hash ba644c58
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -726,9 +726,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 style,
             ),
 
-            Content::MathCases(e) => {
-                self.layout_cases(&e.rows, e.delim, e.reverse, e.gap, style)
-            }
+            Content::MathCases(e) => self.layout_cases_elem(e, style),
 
             // P296 — Math accent/cancel handlers dedicados.
             Content::MathAccent(e) => self.layout_accent_elem(e, style),
@@ -2052,14 +2050,12 @@ fn apply_math_default(body: &Content) -> Content {
             e.gap,
             e.augment,
         ),
-        Content::MathCases(e) => Content::math_cases(
-            e.rows
-                .iter()
-                .map(|row| row.iter().map(apply_math_default).collect())
-                .collect(),
+        Content::MathCases(e) => Content::math_cases_full(
+            e.children.iter().map(apply_math_default).collect(),
             e.delim,
             e.reverse,
             e.gap,
+            e.explicit,
         ),
         Content::MathFrac(e) => {
             // `MathText` é texto matemático já resolvido; identificadores
@@ -2284,16 +2280,15 @@ fn apply_math_style(
             e.gap,
             e.augment,
         ),
-        Content::MathCases(e) => Content::math_cases(
-            e.rows
+        Content::MathCases(e) => Content::math_cases_full(
+            e.children
                 .iter()
-                .map(|row| {
-                    row.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect()
-                })
+                .map(|child| apply_math_style(child, kind, bold, italic))
                 .collect(),
             e.delim,
             e.reverse,
             e.gap,
+            e.explicit,
         ),
         // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
         // via construtor ergonómico — mesma lógica recursiva.
