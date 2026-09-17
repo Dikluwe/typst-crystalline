@@ -1,0 +1,13 @@
+diff --git a/01_core/src/compiler/math/layout/cases.rs b/01_core/src/compiler/math/layout/cases.rs
+index 9472f3619..2e0254e91 100644
+--- a/01_core/src/compiler/math/layout/cases.rs
++++ b/01_core/src/compiler/math/layout/cases.rs
+@@ -172,7 +172,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+         let ascent = components.iter().map(|b| b.ascent).fold(0.0, f64::max);
+         let descent = components.iter().map(|b| b.descent).fold(0.0, f64::max);
+         let mut items: Vec<FrameItem> = Vec::new();
+-        let mut x = Pt(0.0);
++        let mut x = Pt(style.size.val() * 0.1);
+         for component in components {
+             for item in component.items {
+                 // P1132e: todas as MathBox já partilham y=0 na baseline;

@@ -1,0 +1,14 @@
+diff --git a/01_core/src/compiler/math/layout/cases.rs b/01_core/src/compiler/math/layout/cases.rs
+index 9472f3619..bbbbd01f3 100644
+--- a/01_core/src/compiler/math/layout/cases.rs
++++ b/01_core/src/compiler/math/layout/cases.rs
+@@ -92,8 +92,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+ 
+         // **P1042** — vanilla `resolve_cases` usa `Axes::with_y(elem.gap)` com `x = 0` (o espaçamento entre sub-colunas provém de `align_boundary_spacing`).
+         let col_gap = self.metrics.advance(" ", style.size, style);
+-        let row_gap =
+-            Pt(gap.resolve(Length::pt(style.size.val())).resolve_pt(style.size.val()));
++        let row_gap = Pt(0.2 * style.size.val());
+ 
+         // **P923** — ramos de `cases` renderizados em estilo de denominador
+         // (vanilla `resolve_cases` → `resolve_cells` aplica

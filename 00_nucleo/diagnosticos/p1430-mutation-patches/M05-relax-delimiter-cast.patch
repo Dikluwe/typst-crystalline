@@ -1,0 +1,25 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 2988fcd4b..51c9dd0a6 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -931,19 +931,7 @@ fn math_cases_delim_char(value: &Value, span: Span) -> SourceResult<Option<char>
+     if chars.next().is_some() {
+         return Err(vec![SourceDiagnostic::error(span, "expected a single delimiter")]);
+     }
+-    if !matches!(
+-        crate::entities::math_class::default_math_class(character),
+-        Some(
+-            crate::entities::math_class::MathClass::Opening
+-                | crate::entities::math_class::MathClass::Closing
+-                | crate::entities::math_class::MathClass::Fence
+-        )
+-    ) {
+-        return Err(vec![SourceDiagnostic::error(
+-            span,
+-            format!("invalid delimiter: \"{character}\""),
+-        )]);
+-    }
++    // P1430 physical mutant: arbitrary one-codepoint glyph accepted.
+     Ok(Some(character))
+ }
+ 
