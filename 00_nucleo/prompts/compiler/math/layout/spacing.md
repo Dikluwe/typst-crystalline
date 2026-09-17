@@ -429,3 +429,20 @@ expusesse.
 Se uma entrada alcançar a classificação matemática, ela recebe classe
 `Normal`; não introduz espaçamento especializado. A forma pública continua a
 ser conteúdo estrutural, não um átomo matemático novo.
+
+## P1436 — classes de fronteira de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `LrElem` resolve seu body e só as cercas realmente presentes nas
+extremidades assumem `Opening`/`Closing`; `math.lr([x])` não fabrica cercas.
+O fallback cristalino classificaria a nova variante inteira como `Normal` e
+apagaria classes assimétricas já presentes no body.
+
+### Decisão proposta
+
+`node_math_class(MathLr(e))` herda recursivamente as classes esquerda e
+direita de `e.body`. Assim um body delimitado conserva `Opening`/`Closing`,
+um body sem cercas conserva suas classes reais e nesting não fabrica um par
+fixo. O braço existente de `MathDelimited` permanece inalterado. A decisão é
+semântica de spacing; a recursão e a forma do match são mecânica.

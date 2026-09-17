@@ -482,3 +482,22 @@ O dict de `augment` segue a assimetria pública do vanilla ratificado: consome
 somente `hline`, `vline` e `stroke` e aceita/ignora chaves internas restantes.
 Isso não autoriza tipo inválido nos três campos conhecidos e não se confunde
 com named desconhecido no nível de `math.mat`, que continua erro.
+
+## P1436 — binding público completo `math.lr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `lr`. O vanilla registra `LrElem` com posicionais
+`Content` variádicos e somente `size: Rel<Length>` nomeado; zero posicionais
+forma body vazio e múltiplos são unidos por conteúdo de vírgula. `body:` não é
+campo nomeado público.
+
+### Decisão proposta
+
+Registrar `math.lr` antes do espelho de símbolos. A nativa avalia cada
+ocorrência uma vez, converte posicionais para conteúdo, intercala a vírgula
+matemática canônica e constrói `Content::MathLr`. `size` aceita relative
+length, preserva presença inclusive em `100%` e participa da cascata somente
+no layout. Rejeitar tipo inválido, named desconhecido, `body:` e duplicado;
+spread válido é expandido pelo builder canônico, nunca ignorado. A nativa não
+procura delimitadores nem executa stretch.

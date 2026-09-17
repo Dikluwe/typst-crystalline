@@ -42,3 +42,26 @@ pub struct MathDelimitedElem {
 
 `plain_text` `{open}{body}{close}`; `map_content` recurse só o body; `map_text`
 terminal; igualdade estrutural.
+
+## P1436 — carrier público `MathLrElem` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla pinado declara `LrElem { size: Rel<Length>, body: Content }`; o
+carrier cristalino deste owner representa apenas o par mecânico já separado
+`open/body/close`. Reutilizar `MathDelimitedElem` apagaria `lr` sem cercas,
+body variádico exato, cascata e presença explícita de `size`.
+
+### Decisão proposta
+
+Este consumer passa a possuir também `MathLrElem`, semanticamente distinto de
+`MathDelimitedElem`, com `body: Content`, `size: Rel<Length>` e
+`size_explicit: bool`. Derivar `Debug`, `Clone`, `PartialEq` e `Hash` sobre os
+três campos. `plain_text` delega ao body; `map_content` transforma somente o
+body e reconstrói tamanho/presença byte a byte; `map_text` permanece terminal
+como os demais carriers matemáticos estruturais. Cast, junção de posicionais,
+cascata e stretch não pertencem a esta entidade.
+
+`MathDelimitedElem` e seu constructor permanecem inalterados para usos
+mecânicos existentes. Não inferir `MathLrElem` a partir de igualdade de
+delimitadores.

@@ -173,3 +173,16 @@ não deduzida apenas de dois testes unitários verdes.
 | 2026-05-03 | P186D: `Content::Equation` move de não-locatable para locatable. Combinado com arm em `extract_payload` (P186C, ordem invertida pragmaticamente para evitar janela de invariante quebrada — embora a inversão tenha apenas invertido o sentido da quebra, vide P186C `.A.6` empírico). Repõe invariante `is_locatable ↔ extract_payload.is_some()` para Equation; sincronização Locator Layouter ↔ walk reposta. Cobertura `build_minimal_for_each_variant` em test de invariante estendida (lacuna pré-existente fechada). Suporte ao plano P186 (eixo 2 do bloqueio P183C C2). | `locatable.rs`, `locatable.md` |
 | 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo, `false` (mesmo tratamento das restantes variantes da família math: `MathAccent`, `MathCancel`, `MathClassOverride`, `MathOp`, etc.). Contagem "56 variants"/"46 não-locatable" desta secção já estava desactualizada antes deste passo (múltiplas variantes math adicionadas em passos anteriores sem actualização do total) — não recontada aqui, fora de escopo. | `locatable.rs`, `locatable.md` |
 | 2026-09-14 | P1402: `Content::OutlineEntry` é locatable porque `query(outline.entry)` devolve entradas públicas com identidade própria; o campo `element` preserva a identidade causal do heading. | `locatable.rs`, `locatable.md` |
+
+## P1436 — `MathLr` não-locatable (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`LrElem` é carrier matemático sem `ElementKind`, Location ou payload
+selecionável; as variantes matemáticas estruturais vizinhas retornam falso.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathLr(_)` como `false`. Isso preserva
+o invariante `is_locatable ↔ extract_payload.is_some()` e não impede a
+travessia estrutural do body pelo owner apropriado.

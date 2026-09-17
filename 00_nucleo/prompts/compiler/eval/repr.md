@@ -812,3 +812,20 @@ preservando `none`, offsets assinados, stroke auto/customizado, células vazias
 de padding e explicitude igual ao default. Cascata não fabrica presença no
 carrier. A quebra horizontal/vertical segue o helper canônico de repr sem
 alterar a ordem dos campos.
+
+## P1436 — morfologia pública de `lr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino perde a variante e imprime body ou delimitadores crus. O vanilla
+imprime sempre `lr(body: ...)` e inclui `size` antes do body somente quando o
+argumento foi explicitamente fornecido, inclusive `100%`.
+
+### Decisão proposta
+
+Projetar `MathLr` como `lr(size?: <relative>, body: <content>)`, nesta ordem.
+Body vazio usa `[]`; múltiplos preservam o `sequence` com vírgulas inseridas;
+um `lr` interior usa recursivamente seu formatter próprio. Valor vindo apenas
+de set rule não fabrica o campo `size`. Não reconhecer identidade `lr` por
+forma de `MathDelimited`, e manter prioritário o formatter canônico de
+`binom` sobre seu carrier mecânico atual.

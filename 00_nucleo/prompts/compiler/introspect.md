@@ -1756,3 +1756,18 @@ Locations, depth e filtro `outlined` já decididos; não insere nova ocorrência
 fixpoint limitado: candidato alterado é refeito a partir da entrada não
 transformada, e atingir o teto não é sucesso. Confirmação humana explícita
 recebida em 2026-09-15; o transporte está autorizado pelo gate ADR-0127.
+
+## P1436 — neutralidade introspectiva de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Os matches exaustivos tratam carriers matemáticos realizados como terminais
+nas fases de materialização e walk; a travessia estrutural do body já pertence
+ao walker de `Content`, não cria uma identidade locatável independente.
+
+### Decisão proposta
+
+Classificar `MathLr` junto das demais variantes matemáticas não-locatáveis e
+terminais para introspecção. Não emitir tags, locations ou ocorrências para o
+wrapper e não descer novamente no body nestes walkers, evitando dupla
+contagem. A preservação estrutural do body continua no owner `Content`.

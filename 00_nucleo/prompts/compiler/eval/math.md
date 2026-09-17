@@ -410,3 +410,21 @@ zero ou apenas escalares produzem uma linha; presença de array exige arrays em
 todos os posicionais; rows menores são completadas com `Content::Empty`.
 `MathAlignPoint` permanece na célula até ao consumer de layout. Nenhum cast,
 named desconhecido ou duplicado pode ser descartado silenciosamente.
+
+## P1436 — sintaxe bare de `lr` converge no carrier público (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O branch atual exige exatamente um positional, ignora named e chama
+`rewrite_lr_body`, que devolve o body ou o degrada a `MathDelimited`. Isso
+diverge do `LrElem` variádico e apaga `size`, identidade e nesting.
+
+### Decisão proposta
+
+`lr(...)` bare constrói `Args` math canônicos e delega à mesma nativa de
+`math.lr`. Zero, um e muitos posicionais seguem a mesma junção por vírgula;
+`size:` pode aparecer antes ou depois e valores de código como `#150%` chegam
+ao cast relativo sem serem convertidos em conteúdo. Avaliar cada ocorrência
+uma vez, preservar ordem, duplicados e spread, e remover a reescrita
+antecipada `rewrite_lr_body` desta rota. Delimitadores sintáticos interiores
+permanecem no body como seu próprio conteúdo `lr`, preservando nesting.

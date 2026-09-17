@@ -1497,3 +1497,19 @@ mutar o carrier. `GridAlign` continua helper mecânico comum e admite o
 alinhamento horizontal selecionado pelo elemento; boundaries introduzidos por
 `&` preservam a alternância P825. Reconstruções comuns preservam integralmente
 rows, delimitadores, align, augment, gaps e bits de presença.
+
+## P1436 — dispatch e reconstrução de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O match vigente conhece `MathDelimited`, mas não possui variante capaz de
+despachar e reconstruir a identidade pública `lr`; portanto qualquer
+reconstrução atual apaga `size` e presença juntamente com a própria variante.
+
+### Decisão proposta
+
+O match exaustivo permanece estático e magro: `Content::MathLr(e)` delega ao
+owner `delimited.rs`, distinto do braço mecânico `MathDelimited`. Tanto
+`apply_math_default` quanto `apply_math_style` transformam somente o body e
+reconstroem `size` e `size_explicit` sem perda. Nenhuma reconstrução procura
+delimitadores, absorve nesting, aplica cascata ou converte a variante.

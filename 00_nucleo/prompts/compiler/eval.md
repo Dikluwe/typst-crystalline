@@ -566,3 +566,18 @@ tratados como iguais apesar de poderem produzir morfologia/layout distintos.
 Comparar também estilo opcional e ambos os bits de deparenthesization. Não
 normalizar `None` para `Vertical`: ausência e vertical explícito divergem em
 `repr`. `line=false` permanece parte da observação para proteger `binom`.
+
+## P1436 — igualdade observável de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`ObservationEq` é exaustivo sobre `Content` e não possui a nova identidade.
+Delegar somente ao body faria `size` explícito/cascata e presença divergentes
+parecerem iguais apesar de alterarem `repr` ou geometria.
+
+### Decisão proposta
+
+Adicionar braço `MathLr` e implementação de `ObservationEq` que compare body,
+`Rel<Length>` e `size_explicit`. A comparação é estrutural dos observáveis do
+carrier; não resolve cascata, não executa layout e não equipara `100%`
+explícito a ausência.

@@ -3115,3 +3115,21 @@ sem criar nova superfície de linguagem. Enum, igualdade, hash, debug, walkers,
 `plain_text` e todas as reconstruções preservam o carrier P1431. Casts,
 normalização, shorthand `gap` e retangularização pertencem à fronteira de
 avaliação; layout deriva cascata sem mutar o elemento.
+
+# P1436 — variante pública `Content::MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+A sintaxe `lr` é hoje reduzida ao body ou a `MathDelimited`, por isso o enum
+não conserva identidade, tamanho relativo nem presença. No vanilla, `LrElem`
+continua observável mesmo sem delimitadores e com body vazio.
+
+### Contrato público proposto
+
+Adicionar `Content::MathLr(Arc<MathLrElem>)` e constructor completo que recebe
+`body`, `Rel<Length>` e `size_explicit`. O match fechado mantém braços
+estáticos para nome `lr`, debug, igualdade, hash, plain-text, filhos e walkers.
+`map_content` desce somente no body; `map_text` conserva a variante segundo a
+política estrutural math; reconstruções não podem converter `MathLr` em
+`MathDelimited` nem fabricar presença por cascata. O carrier mecânico
+`MathDelimited` continua variante separada.

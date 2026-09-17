@@ -499,3 +499,17 @@ segmentado direto usa estado local equivalente. A cauda fica vazia ao sair.
 
 Callbacks não usam esse estilo nem essa cauda. Primeira coluna sem candidata e
 configurações locais divergentes permanecem `Unknown`.
+
+## P1436 — encaminhamento geral de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral agrupa variantes `Math*` como conteúdo inline entregue ao
+layouter matemático; um novo braço ausente quebra a exaustividade, enquanto
+realizar `lr` aqui duplicaria o owner especializado.
+
+### Decisão proposta
+
+Encaminhar `Content::MathLr` pelo mesmo caminho inline das demais variantes
+matemáticas. Este owner não interpreta size, cercas ou cascata; toda lógica de
+produto permanece em `compiler/math/layout/delimited.rs`.

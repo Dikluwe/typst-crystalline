@@ -418,3 +418,17 @@ conter texto; ela também é selecionável por identidade própria antes da
 descida. Decisão: `has_any_text` consulta o `element`; `count_variant` desce no
 `element` e no `fill` somente depois do pre-check da própria entrada. Assim a
 superfície aproximada não perde morfologia nem duplica o match da entry.
+
+## P1436 — projeção aproximada de `MathLr` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers matemáticos estruturais como folhas para evitar
+contar novamente conteúdo já realizado pelo pipeline; `MathLr` não introduz
+`ElementKind` consultável nesta projeção aproximada.
+
+### Decisão proposta
+
+Adicionar `MathLr` aos braços terminais de `has_any_text`/`count_variant`, sem
+fabricar ocorrência própria nem recursão L3 no body. A semântica pública de
+repr e o walker L1 permanecem fora deste helper aproximado.
