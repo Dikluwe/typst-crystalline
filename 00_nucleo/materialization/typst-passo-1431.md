@@ -147,5 +147,6 @@ score exigido: `1.0`; `Unknown` é fail-closed.
 
 ## Confirmação do gate
 
-**Pendente de confirmação explícita do dono.** Nenhuma alteração produtiva de
-P1431 fica autorizada antes dessa confirmação.
+**Confirmado explicitamente pelo dono em 2026-09-17.** A materialização fica
+autorizada somente dentro do recorte completo de `math.mat` e dos oito L0
+proprietários atualizados; as outras 16 rotas math permanecem fora de escopo.
