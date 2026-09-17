@@ -122,3 +122,6 @@ pub mod symbol;
 pub mod frame_visitor {
     pub use super::layout_types::{walk_frame_items, FrameVisitor};
 }
+
+#[cfg(test)]
+mod p1431_line_cap_tests;

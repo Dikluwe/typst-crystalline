@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md
-//! @prompt-hash 038c2754
+//! @prompt-hash 9939c862
 //! @layer L1
 #![cfg(test)]
 
@@ -128,8 +128,8 @@ fn p1431_binding_rows_padding_e_repr_canonico() {
     assert_eq!(mat_func().name(), Some("mat"));
     assert_eq!(repr(Args::positional(vec![])), "mat(rows: ((),))");
     assert_eq!(
-        repr(Args::positional(vec![cv("x"), cv("y")])),
-        "mat(rows: (([x], [y]),))"
+        repr(Args::positional(vec![cv("x"), cv("y"), cv("z")])),
+        "mat(rows: (([x], [y], [z]),))"
     );
     assert_eq!(
         repr(Args::positional(vec![
@@ -213,6 +213,10 @@ fn p1431_delim_align_gaps_e_presenca_morfologica() {
 
 #[test]
 fn p1431_augment_inteiro_dict_none_e_ordem_canonica() {
+    assert_eq!(
+        repr(named(Args::positional(vec![]), "augment", Value::Int(2))),
+        "mat(augment: 2, rows: ((),))"
+    );
     assert_eq!(
         repr(named(Args::positional(vec![]), "augment", Value::Int(-1))),
         "mat(augment: -1, rows: ((),))"

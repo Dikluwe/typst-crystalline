@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md
-//! @prompt-hash a40dd9a0
+//! @prompt-hash 43283daf
 //! @layer L1
 #![cfg(test)]
 
@@ -13,7 +13,8 @@ use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
 use crate::entities::geometry::{LineCap, Stroke};
-use crate::entities::layout_types::{Align2D, HAlign, Length};
+use crate::entities::layout_types::{Align2D, Color, HAlign, Length};
+use crate::entities::paint::Paint;
 use crate::entities::rel::Rel;
 use crate::entities::source::Source;
 use crate::entities::source_result::SourceResult;
@@ -144,6 +145,10 @@ fn p1431_carrier_completo_preserva_valores_ordem_e_bits() {
 #[test]
 fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
     let base = call(Args::positional(vec![cv("x")]));
+    let distinct = |left: &Content, right: &Content, label: &str| {
+        assert_ne!(left, right, "equality omitted {label}");
+        assert_ne!(hash(left), hash(right), "hash omitted {label}");
+    };
     let cases = [
         ("delim", Value::None),
         ("align", Value::Align(Align2D { h: Some(HAlign::Center), v: None })),
@@ -155,8 +160,7 @@ fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
         let mut args = Args::positional(vec![cv("x")]);
         args.named.insert(name.into(), value);
         let changed = call(args);
-        assert_ne!(base, changed, "collapsed {name} presence/value");
-        assert_ne!(hash(&base), hash(&changed), "hash omitted {name}");
+        distinct(&base, &changed, name);
     }
     let mut ordered_a = Args::positional(vec![cv("x")]);
     ordered_a.named.insert(
@@ -168,7 +172,69 @@ fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
         "augment".into(),
         dict(vec![("hline", Value::Array(vec![2.into(), 1.into()]))]),
     );
-    assert_ne!(call(ordered_a), call(ordered_b));
+    distinct(&call(ordered_a), &call(ordered_b), "hline order");
+
+    distinct(
+        &call(Args::positional(vec![cv("x"), cv("y")])),
+        &call(Args::positional(vec![cv("y"), cv("x")])),
+        "row/cell order",
+    );
+    let delim = |left: Value, right: Value| {
+        let mut args = Args::positional(vec![cv("x")]);
+        args.named.insert("delim".into(), Value::Array(vec![left, right]));
+        call(args)
+    };
+    distinct(
+        &delim(Value::Str("[".into()), Value::None),
+        &delim(Value::None, Value::Str("]".into())),
+        "delimiter optional side",
+    );
+
+    let augment = |field: &str, offsets: Vec<Value>, stroke: Stroke| {
+        let mut args = Args::positional(vec![cv("x")]);
+        args.named.insert(
+            "augment".into(),
+            dict(vec![(field, Value::Array(offsets)), ("stroke", Value::Stroke(stroke))]),
+        );
+        call(args)
+    };
+    let mut round = Stroke::default();
+    round.thickness = 1.0;
+    round.cap = LineCap::Round;
+    let mut square = round.clone();
+    square.cap = LineCap::Square;
+    let mut thick = round.clone();
+    thick.thickness = 2.0;
+    let mut red = round.clone();
+    red.paint = Paint::Solid(Color::rgb(255, 0, 0));
+    distinct(
+        &augment("hline", vec![1.into(), 2.into()], round.clone()),
+        &augment("vline", vec![1.into(), 2.into()], round.clone()),
+        "augment axis",
+    );
+    distinct(
+        &augment("hline", vec![1.into(), 2.into()], round.clone()),
+        &augment("hline", vec![1.into(), 2.into()], square),
+        "augment stroke cap",
+    );
+    distinct(
+        &augment("hline", vec![1.into(), 2.into()], round.clone()),
+        &augment("hline", vec![1.into(), 2.into()], thick),
+        "augment stroke thickness",
+    );
+    distinct(
+        &augment("hline", vec![1.into(), 2.into()], round),
+        &augment("hline", vec![1.into(), 2.into()], red),
+        "augment stroke paint",
+    );
+
+    let mut row_gap = Args::positional(vec![cv("x")]);
+    row_gap.named.insert("row-gap".into(), Value::Length(Length::em(2.0)));
+    let mut column_gap = Args::positional(vec![cv("x")]);
+    column_gap
+        .named
+        .insert("column-gap".into(), Value::Length(Length::em(2.0)));
+    distinct(&call(row_gap), &call(column_gap), "gap axis/component");
 }
 
 #[test]

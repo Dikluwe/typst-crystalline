@@ -24,6 +24,8 @@ mod gradients;
 mod html;
 mod images;
 pub(crate) mod oracle;
+#[cfg(test)]
+mod p1431_line_cap_tests;
 pub mod pdf_defaults;
 mod render;
 mod stream;

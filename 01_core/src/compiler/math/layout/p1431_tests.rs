@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1431-tests.md
-//! @prompt-hash 088accba
+//! @prompt-hash aa1e4d01
 //! @layer L1
 #![cfg(test)]
 
@@ -10,8 +10,10 @@ use crate::compiler::layout::FixedMetrics;
 use crate::contracts::world::World;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
-use crate::entities::geometry::Stroke;
+use crate::entities::geometry::{LineCap, Stroke};
 use crate::entities::location::Location;
+use crate::entities::math_style::MathStyleKind;
+use crate::entities::paint::Paint;
 use crate::entities::source::Source;
 use crate::entities::source_result::SourceResult;
 use crate::entities::style_chain::StyleChain;
@@ -147,6 +149,13 @@ fn lines(box_: &MathBox) -> Vec<(f64, f64, f64, f64, f64)> {
         })
         .collect()
 }
+fn line_debugs(box_: &MathBox) -> Vec<String> {
+    box_.items
+        .iter()
+        .filter(|item| matches!(item, FrameItem::Line { .. }))
+        .map(|item| format!("{item:?}"))
+        .collect()
+}
 
 #[test]
 fn p1431_alinhamento_horizontal_move_celula_sem_mudar_coluna() {
@@ -184,6 +193,21 @@ fn p1431_gaps_relativos_afetam_somente_o_eixo_causal() {
     assert!((dx(&rows) - dx(&default)).abs() < 1e-9);
     assert!(dx(&cols) > dx(&default));
     assert!((dy(&cols) - dy(&default)).abs() < 1e-9);
+
+    let one_em = texts(&project(&matrix(
+        "$mat(delim: #none, row-gap: #1em, column-gap: #1em, (a, b), (c, d))$",
+    )));
+    let percent = texts(&project(&matrix(
+        "$mat(delim: #none, row-gap: #150%, column-gap: #150%, (a, b), (c, d))$",
+    )));
+    assert!(dx(&one_em) > dx(&default) && dy(&one_em) > dy(&default));
+    assert!(dx(&percent) > dx(&default) && dy(&percent) > dy(&default));
+    assert_ne!(
+        dx(&one_em),
+        dx(&percent),
+        "P27 relative and absolute column gaps collapsed"
+    );
+    assert_ne!(dy(&one_em), dy(&percent), "P27 relative and absolute row gaps collapsed");
 }
 
 #[test]
@@ -195,6 +219,42 @@ fn p1431_alignpoint_resolve_tarde_e_estilo_denominador_permanece() {
     for label in ["1", "2", "33", "4"] {
         assert!((text(&items, label).3 - 8.4).abs() < 1e-9, "{label}: {items:?}");
     }
+
+    let uneven = texts(&project(&matrix("$mat(delim: #none, (1 & + & 3,), (44 & 5,))$")));
+    for label in ["1", "+", "3", "44", "5"] {
+        let _ = text(&uneven, label);
+    }
+    assert!(text(&uneven, "+").1 <= text(&uneven, "5").1);
+    assert!(text(&uneven, "3").1 > text(&uneven, "+").1);
+
+    for (kind, expected_size) in [
+        (MathStyleKind::Display, 8.4),
+        (MathStyleKind::Inline, 8.4),
+        (MathStyleKind::Script, 6.0),
+        (MathStyleKind::SScript, 6.0),
+    ] {
+        let styled = Content::math_styled(
+            Some(kind),
+            None,
+            None,
+            matrix("$mat(delim: #none, x)$"),
+            None,
+        );
+        let observed = texts(&project(&styled));
+        assert!(
+            (text(&observed, "x").3 - expected_size).abs() < 1e-9,
+            "P31 {kind:?}: {observed:?}"
+        );
+    }
+    let cramped = Content::math_styled(
+        Some(MathStyleKind::Display),
+        None,
+        None,
+        matrix("$mat(delim: #none, x)$"),
+        Some(true),
+    );
+    let cramped_items = texts(&project(&cramped));
+    assert!((text(&cramped_items, "x").3 - 8.4).abs() < 1e-9);
 }
 
 #[test]
@@ -228,20 +288,67 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
     let rendered = project(&matrix(
         "$mat(delim: #none, augment: #(hline: 1, vline: 1, stroke: 2pt + red), (a, b), (c, d))$",
     ));
-    let lines = lines(&rendered);
-    assert_eq!(lines.len(), 2);
-    assert!(lines.iter().all(|line| (line.4 - 2.0).abs() < 1e-9));
+    let observed_lines = lines(&rendered);
+    assert_eq!(observed_lines.len(), 2);
+    assert!(observed_lines.iter().all(|line| (line.4 - 2.0).abs() < 1e-9));
     assert!(rendered
         .items
         .iter()
         .filter(|item| matches!(item, FrameItem::Line { .. }))
         .all(|item| { matches!(item, FrameItem::Line { color: Some(_), .. }) }));
+
+    let mut resolved = Stroke::default();
+    resolved.thickness = 3.0;
+    resolved.paint = Paint::Solid(Color::rgb(255, 0, 0));
+    resolved.cap = LineCap::Round;
+    let chain = StyleChain::default_chain()
+        .push_custom("math.mat.augment", augment_value(1, Some(resolved)));
+    let custom = project_with_chain(
+        &matrix("$mat(delim: #none, augment: #1, (a, b), (c, d))$"),
+        &chain,
+    );
+    assert!(lines(&custom).iter().all(|line| (line.4 - 3.0).abs() < 1e-9));
+    let debug = line_debugs(&custom).join(" | ");
+    assert!(
+        custom
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Line { color, .. } => *color,
+                _ => None,
+            })
+            .all(|color| color == Color::rgb(255, 0, 0)),
+        "P29 color: {debug}"
+    );
+    assert!(debug.contains("Round"), "P29/P34 custom cap: {debug}");
+
+    let mut butt_stroke = Stroke::default();
+    butt_stroke.thickness = 3.0;
+    butt_stroke.cap = LineCap::Butt;
+    let butt_chain = StyleChain::default_chain()
+        .push_custom("math.mat.augment", augment_value(1, Some(butt_stroke)));
+    let butt = project_with_chain(
+        &matrix("$mat(delim: #none, augment: #1, (a, b), (c, d))$"),
+        &butt_chain,
+    );
+    assert!(line_debugs(&butt).join(" | ").contains("Butt"), "P34 custom Butt");
+
+    let auto = project(&matrix(
+        "$mat(delim: #none, augment: #(hline: 1, vline: 1), (a, b), (c, d))$",
+    ));
+    let auto_debug = line_debugs(&auto).join(" | ");
+    assert!(auto_debug.contains("Square"), "P29/P34 auto cap: {auto_debug}");
 }
 
 #[test]
 fn p1431_augment_cascata_dobra_stroke_sem_substituir_offsets_e_none_limpa() {
     let mut outer_stroke = Stroke::default();
     outer_stroke.thickness = 2.0;
+    outer_stroke.paint = Paint::Solid(Color::rgb(255, 0, 0));
+    outer_stroke.cap = LineCap::Round;
+    outer_stroke.specified.paint = true;
+    outer_stroke.specified.thickness = true;
+    outer_stroke.specified.cap = true;
     let chain = StyleChain::default_chain()
         .push_custom("math.mat.augment", augment_value(1, Some(outer_stroke)));
     let omitted =
@@ -254,12 +361,27 @@ fn p1431_augment_cascata_dobra_stroke_sem_substituir_offsets_e_none_limpa() {
         &matrix("$mat(delim: #none, augment: #none, (a, b), (c, d))$"),
         &chain,
     );
+    let inner_custom = project_with_chain(
+        &matrix(
+            "$mat(delim: #none, augment: #(hline: 1, stroke: 3pt + blue), (a, b), (c, d))$",
+        ),
+        &chain,
+    );
     for rendered in [&omitted, &inner_auto] {
         let observed = lines(rendered);
         assert_eq!(observed.len(), 1);
         assert!((observed[0].4 - 2.0).abs() < 1e-9);
     }
     assert!(lines(&inner_none).is_empty());
+    let folded = lines(&inner_custom);
+    assert_eq!(folded.len(), 1);
+    assert!((folded[0].4 - 3.0).abs() < 1e-9, "inner thickness must win: {folded:?}");
+    let folded_debug = line_debugs(&inner_custom).join(" | ");
+    assert!(folded_debug.contains("Round"), "outer cap must fold: {folded_debug}");
+    assert!(
+        folded_debug.contains("255") || folded_debug.contains("blue"),
+        "inner paint: {folded_debug}"
+    );
 }
 
 #[test]
@@ -312,6 +434,14 @@ fn p1431_delimitadores_extents_e_centro_unico() {
     assert!(with.ascent >= without.ascent && with.descent >= without.descent);
     let items = texts(&with);
     assert!(text(&items, "(").1.abs() < 1e-9);
+
+    let left_only = project(&matrix("$mat(delim: #(\"[\", none), (1,), (2,), (3,))$"));
+    let right_only = project(&matrix("$mat(delim: #(none, \"]\"), (1,), (2,), (3,))$"));
+    assert!(left_only.width > without.width && right_only.width > without.width);
+    assert!(left_only.ascent >= without.ascent && left_only.descent >= without.descent);
+    assert!(right_only.ascent >= without.ascent && right_only.descent >= without.descent);
+    assert!(texts(&left_only).iter().any(|item| item.0 == "["));
+    assert!(texts(&right_only).iter().any(|item| item.0 == "]"));
 }
 
 #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1431-tests.md
-//! @prompt-hash d5cf0332
+//! @prompt-hash 066b74f8
 //! @layer L1
 #![cfg(test)]
 
@@ -127,6 +127,16 @@ fn p1431_bare_rows_arrays_padding_e_invalidos_usam_construtor_comum() {
         ("$mat(augment: #\"x\")$", "expected integer, dictionary, or none"),
         ("$mat(align: #top)$", "start"),
         ("$mat(row-gap: #1em, row-gap: #2em)$", "duplicate argument: row-gap"),
+        ("$mat(delim: #1)$", "expected array, none, symbol, or string"),
+        ("$mat(delim: #(\"[\",))$", "exactly two"),
+        ("$mat(delim: #(\"[\", \"]\", none))$", "exactly two"),
+        ("$mat(column-gap: #1)$", "expected relative length"),
+        ("$mat(augment: #(hline: \"x\"))$", "integer"),
+        ("$mat(delim: #none, delim: #\"[\")$", "duplicate argument: delim"),
+        ("$mat(align: #left, align: #right)$", "duplicate argument: align"),
+        ("$mat(augment: #none, augment: #1)$", "duplicate argument: augment"),
+        ("$mat(gap: #1em, gap: #2em)$", "duplicate argument: gap"),
+        ("$mat(column-gap: #1em, column-gap: #2em)$", "duplicate argument: column-gap"),
     ] {
         let errors = evaluate(source).unwrap_err();
         assert!(
@@ -138,6 +148,38 @@ fn p1431_bare_rows_arrays_padding_e_invalidos_usam_construtor_comum() {
 
 #[test]
 fn p1431_avaliacao_ocorre_uma_vez_e_na_ordem_causal() {
+    let successful = evaluate(
+        "#let calls = ()\n\
+         #let observed = math.mat(\
+             { calls.push(\"pos-1\"); [a] },\
+             delim: { calls.push(\"named-2\"); none },\
+             { calls.push(\"pos-3\"); [b] },\
+         )\n\
+         #let signal = calls",
+    )
+    .expect("P20: o sinal atribuível deve concluir com sucesso");
+    assert_eq!(
+        successful.scope().get("signal"),
+        Some(&Value::Array(vec![
+            Value::Str("pos-1".into()),
+            Value::Str("named-2".into()),
+            Value::Str("pos-3".into()),
+        ])),
+        "P20: cada ocorrência bem-sucedida deve executar exatamente uma vez em ordem"
+    );
+
+    let spread = evaluate(
+        "#let expanded = arguments([a], [b], [c])\n\
+         #let observed = math.mat(..expanded)\n\
+         #let spread-repr = repr(observed)",
+    )
+    .expect("P20: spread público separado deve concluir com sucesso");
+    assert_eq!(
+        spread.scope().get("spread-repr"),
+        Some(&Value::Str("mat(rows: (([a], [b], [c]),))".into())),
+        "P20: spread deve preservar valores e ordem, sem servir de contador"
+    );
+
     for (source, expected, forbidden) in [
         (
             "$mat(#panic(\"CELL-FIRST\"), gap: #panic(\"GAP-SECOND\"))$",
@@ -181,6 +223,21 @@ fn p1431_cascata_nao_fabrica_presenca_e_explicito_ganha_por_eixo() {
         repr::repr_content(&with_set),
         "mat(augment: none, column-gap: 0% + 3em, rows: ((x, y),))"
     );
+
+    let every_field = evaluated_mat(
+        "#set math.mat(delim: \"[\", align: left, augment: 1, row-gap: 2em, column-gap: 3em); \
+         $mat(delim: #(none, \"]\"), align: #right, augment: #2, row-gap: #4em, column-gap: #5em, x)$",
+    );
+    let every_repr = repr::repr_content(&every_field);
+    for expected in [
+        "delim: (none, \"]\")",
+        "align: right",
+        "augment: 2",
+        "row-gap: 0% + 4em",
+        "column-gap: 0% + 5em",
+    ] {
+        assert!(every_repr.contains(expected), "P16 missing {expected}: {every_repr}");
+    }
 }
 
 #[test]
