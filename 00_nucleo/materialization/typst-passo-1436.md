@@ -151,3 +151,23 @@ exigido: `1.0`; `Unknown` é fail-closed.
 autorizada somente dentro do recorte completo de `math.lr` e dos treze L0
 proprietários acima. `math.mid`, `math.abs`, `math.norm`, `math.round` e as
 demais rotas matemáticas residuais permanecem fora de escopo.
+
+## Fecho materializado
+
+P1436 foi implementado e selado em 2026-09-17 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível precedeu o
+candidato; o GREEN final contém cinco testes L1 e um teste L3. A campanha
+física cobriu 12 mutantes nas ordens direta, repetida e reversa: 36/36
+execuções eficazes foram mortas, score `1.0`, zero `Unknown`.
+
+A primeira materialização de M03 atingiu por engano outro braço zero anterior
+e foi preservada como recibo negativo; a receita corrigida selecionou a
+segunda ocorrência, dentro de `math_lr_from_args`, e foi morta 3/3. O agregado
+não atribui crédito à receita defeituosa. Certificado:
+`00_nucleo/diagnosticos/p1436-verifier-certificate.json`.
+
+Os gates finais `cargo fmt --all -- --check`, `git diff --check`, os testes
+focais, `cargo build --workspace` e `crystalline-lint .` terminaram com exit
+zero. O linter reportou zero drift/violations; warnings e infos históricos
+fora do recorte não foram convertidos em crédito. As rotas declaradas fora de
+escopo continuam abertas.
