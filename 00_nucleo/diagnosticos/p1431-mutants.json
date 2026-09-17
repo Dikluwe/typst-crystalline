@@ -1,7 +1,7 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 2,
-  "authored_at": "2026-09-17T09:14:23-03:00",
+  "revision": 3,
+  "authored_at": "2026-09-17T09:36:00-03:00",
   "phase": "adversarial-design-before-candidate",
   "status": "designed_not_executed",
   "regime": "full",
@@ -16,19 +16,25 @@
   },
   "oracles": {
     "path": "00_nucleo/diagnosticos/p1431-oracles.json",
-    "sha256": "0ce40af893bd51568eeb2bbf5ed83e6a789e60e796c32a284184d448ba21597b",
-    "revision": 2,
+    "sha256": "129e6fd161a4c1005e1bb4dcd35989d86e44859014dcb002b056260f3f1798ed",
+    "revision": 3,
+    "test_count": 28,
+    "forward_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776",
+    "reverse_ids_sha256": "c5338edc979bfaae86c7ef35ebf82d76b1e33f5abec49c3200abaa791916ddfa",
     "public_assertions_used": [
       "P33 accepts and ignores unknown augment dictionary keys",
-      "N08 and N10 continue rejecting invalid known-field values",
+      "N03, N06 and N08 exercise every frozen invalid subcase",
+      "N10 continues rejecting invalid known-field values",
+      "N15 directly rejects #set math.mat(column-gap: 1) and duplicate column-gap",
+      "U02 and U06 derive fail-closed Unknown from real opaque observations",
       "the public policy oracle invokes runner.rb --mode policy-self-check after checking runner SHA-256"
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "484eeeee8cf8edfc9940cbe746d30c7ef97bd5c5ff7c10b4e61b1f1e16fee07a",
-    "reason_code": "BLOCK_CONTRACT_VANILLA_DIVERGENCE_N09_M10",
-    "scope": "Mutation revision 1 is invalid. Revision 2 recalibrates M10 to the corrected unknown-key acceptance rule and makes M27 causally executable without violating the frozen runner identity. All other mutation semantics and recipes remain byte-identical.",
-    "downstream": "Any revision-1 preseal, seal, mutation result or certificate is invalid."
+    "supersedes_mutation_sha256": "1ce8212acbfbea7c80d746ded335e7da7e45cbc5a835207b9d0f61022a704f5d",
+    "reason_code": "BLOCK_ORACLE_COVERAGE_GAP_R3",
+    "scope": "Mutation revision 2 is invalidated at the oracle-identity/mapping boundary. Revision 3 binds the 28-test R3 identities and makes the direct #set math.mat(column-gap: 1) assertion the sole causal M14 killer; M01-M13 and M15-M27 semantics remain unchanged.",
+    "downstream": "Any revision-2 preseal, seal, mutation result or certificate is invalid."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -42,7 +48,7 @@
     "read_allowlist_used": [
       "approved P1431 step and eight owner L0 deltas",
       "corrected frozen manifesto and contract at e4ca7de01",
-      "published R2 oracle identities and assertions at c41e205c9",
+      "published R3 oracle identities and assertions at e798b71d0",
       "productive baseline blobs at f5aa8d72f",
       "ratified public vanilla identity"
     ],
@@ -62,9 +68,9 @@
   "runner": {
     "path": "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
-    "identity_preservation": "Runner bytes are deliberately unchanged in revision 2 because the frozen R2 oracle first asserts this exact SHA-256. M27 changes the effective policy path through its frozen Ruby preload; changing runner.rb itself would cause a non-causal identity failure before --mode policy-self-check executes.",
+    "identity_preservation": "Runner bytes are deliberately unchanged in revision 3 because the frozen R3 oracle first asserts this exact SHA-256. M27 changes the effective policy path through its frozen Ruby preload; changing runner.rb itself would cause a non-causal identity failure before --mode policy-self-check executes.",
     "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode verify-design",
-    "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, or dirty restoration is Unknown. The frozen public policy-self-check is the direct M27 observer; runner bytes stay identical to its R2 identity and M27 mutates the nested process policy through the frozen preload recipe.",
+    "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, or dirty restoration is Unknown. The frozen public policy-self-check is the direct M27 observer; runner bytes stay identical to its R3 identity and M27 mutates the nested process policy through the frozen preload recipe.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
   },
   "materialization_policy": {
@@ -82,8 +88,8 @@
     "family_rule": "M10 contains two required physical variants but remains one contract mutation family: it earns one numerator unit only if both variants are Violated and their known-field boundary controls retain the frozen classifications."
   },
   "focused_calibration": {
-    "measured_at": "2026-09-17T09:14:23-03:00",
-    "state": "shared workspace at oracle R2; no candidate implementation read or executed",
+    "measured_at": "2026-09-17T09:36:00-03:00",
+    "state": "shared workspace at oracle R3; no candidate implementation read or executed",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -92,13 +98,13 @@
       "mutation_credit": false
     },
     "m27_baseline": {
-      "command": "cargo test -p typst-core compiler::stdlib::structural::p1431_tests::p1431_runner_publico_falha_fechado_para_unknown_sem_credito -- --exact",
+      "command": "cargo test -q -p typst-core p1431_runner_publico_falha_fechado_para_unknown_sem_credito",
       "exit": 0,
       "passed": 1,
       "failed": 0
     },
     "m27_mutant": {
-      "command": "RUBYOPT=-r<exact-frozen-preload> cargo test -p typst-core compiler::stdlib::structural::p1431_tests::p1431_runner_publico_falha_fechado_para_unknown_sem_credito -- --exact",
+      "command": "RUBYOPT=-r<exact-frozen-preload> cargo test -q -p typst-core p1431_runner_publico_falha_fechado_para_unknown_sem_credito",
       "exit": 101,
       "passed": 0,
       "failed": 1,
@@ -106,12 +112,13 @@
       "classification": "Violated",
       "reason_code": "VIOLATED_UNKNOWN_POLICY"
     },
-    "m10": "Design-only recalibration: P33 is the mandatory positive killer for both reject-unknown and retain-unknown variants; P13, N08 and N10 are mandatory boundary controls. No candidate exists, so neither M10 variant was executed."
+    "m10": "Design-only recalibration: P33 is the mandatory positive killer for both reject-unknown and retain-unknown variants; P13, N08 and N10 are mandatory boundary controls. No candidate exists, so neither M10 variant was executed.",
+    "m14": "Design-only R3 recalibration: the direct #set math.mat(column-gap: 1) subcase inside p1431_set_rejeita_named_e_tipos_invalidos is the sole causal killer; P16, P17 and constructor-side N06 are boundary controls. No candidate exists, so M14 was not executed."
   },
   "execution_orders": [
-    {"id": "forward", "fresh_process": true, "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
-    {"id": "forward_repeat", "fresh_process": true, "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
-    {"id": "reverse", "fresh_process": true, "mutations": ["M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
+    {"id": "forward", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
+    {"id": "forward_repeat", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
+    {"id": "reverse", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "c5338edc979bfaae86c7ef35ebf82d76b1e33f5abec49c3200abaa791916ddfa", "mutations": ["M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
   ],
   "mutations": [
     {
@@ -208,10 +215,11 @@
     },
     {
       "id": "M14", "target": "O-SET-PRECEDENCE", "property": "set math.mat validates all six domains before insertion",
-      "precondition": "one math.mat set validation path exists", "patch": "insert column-gap without its cast",
+      "precondition": "one #set math.mat column-gap relative-length validation exists", "patch": "bypass only column-gap validation and insert integer 1 as valid",
       "target_files": ["01_core/src/compiler/eval/rules.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M14.json", "recipe_sha256": "46ce391807c39b0ee5b31315d409c58a3379ab62cbb2ef98980b7307e0bcc8f5",
-      "killer_cases": ["N15-set-invalids","P16-cascade-basic","P17-cascade-gap"], "boundary_cases": ["N06-gap-types"], "expected_reason_code": "VIOLATED_CASCADE"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M14.json", "recipe_sha256": "2344b2ecc8ce7029e4c1b344daef367640d93813be09d151031c08b5d933c320",
+      "killer_cases": ["N15-set-invalids"], "killer_test": "compiler::eval::p1431_tests::p1431_set_rejeita_named_e_tipos_invalidos", "killer_fixture": "#set math.mat(column-gap: 1); $mat()$",
+      "boundary_cases": ["P16-cascade-basic","P17-cascade-gap","N06-gap-types"], "expected_reason_code": "VIOLATED_CASCADE"
     },
     {
       "id": "M15", "target": "O-ROUTE-CONVERGENCE", "property": "bare mat delegates to the same strict constructor",
