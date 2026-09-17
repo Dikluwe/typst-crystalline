@@ -1,8 +1,8 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 7,
-  "authored_at": "2026-09-17T14:31:00-03:00",
-  "phase": "adversarial-design-repair-after-equivalent-m26",
+  "revision": 8,
+  "authored_at": "2026-09-17T15:40:00-03:00",
+  "phase": "adversarial-design-repair-after-invalid-m05-materialization",
   "status": "designed_not_executed",
   "regime": "full",
   "attestation": "executed_without_isolation_attestation",
@@ -42,10 +42,10 @@
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
-    "reason_code": "BLOCK_VALID_EQUIVALENT_MUTATION_SURVIVOR",
-    "scope": "Mutation revision 5 is invalid after the R6 campaign proved M26 equivalent at its frozen anchor. Revision 7 preserves M01-M25 and M27-M30 byte-identically, binds the existing 34 oracle IDs to R6, and replaces only M26 with the P1433-authorized omitted-to-explicit-zero call-site mutation.",
-    "downstream": "The R6 preseal, materialized patch set, partial receipt, adversarial result and nonseal verdict remain historical evidence but are not current authorization."
+    "supersedes_mutation_sha256": "e050efb35c837e7d221c7c0416d7c6841782e6c7beb268701c50b2b59a0711a7",
+    "reason_code": "BLOCK_UNKNOWN_INVALID_M05_MATERIALIZATION",
+    "scope": "Mutation revision 7 is invalid after its campaign proved the historical M05 patch non-attributable. Revision 8 preserves M01-M04, M06-M30 and M26 R7 byte-identically, binds the same 34 R6 oracle IDs, and revises only M05 to require deletion of the resize loop while retaining the live columns binding.",
+    "downstream": "The R7 preseal, partial receipt, adversarial result and nonseal verdict remain historical evidence but are not current authorization."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -62,7 +62,8 @@
       "published R6 oracle identities and assertions at f3f7e9aa3",
       "productive baseline blobs at f5aa8d72f",
       "ratified public vanilla identity",
-      "P1433 and the independently reproduced R6 M26 equivalence diagnosis"
+      "P1433 and the independently reproduced R6 M26 equivalence diagnosis",
+      "P1434 and the independently reproduced R7 M05 materialization diagnosis"
     ],
     "forbidden_reads_observed": [
       "private oracle reasoning",
@@ -80,8 +81,8 @@
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "public_policy_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "design_path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
-    "design_sha256": "607ee65d0ea51a83d586b2d5d000b02666575d2bd45f117c723e3f945bac5640",
-    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-7 design, reproduces the frozen R6 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
+    "design_sha256": "65492bb0873fd05fc941fc21524ac955e0f80eb726f8fc6e1ea3d1997cc0ff56",
+    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-8 design, reproduces the frozen R6 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
     "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
     "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, dirty restoration or missing export observation is Unknown. The frozen public policy-self-check remains the direct M27 observer.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
@@ -102,7 +103,7 @@
   },
   "focused_calibration": {
     "measured_at": "2026-09-17T11:09:21-03:00",
-    "state": "clean P1433 predecessor 4129ec282 over unchanged productive candidate cf92c3d07; R7 is a narrow post-candidate repair authorized by the independently reproduced equivalent M26 finding",
+    "state": "clean P1434 predecessor 80964cc11 over unchanged productive candidate cf92c3d07; R8 is a narrow post-candidate repair authorized by the independently reproduced invalid M05 materialization finding",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -221,9 +222,9 @@
     },
     {
       "id": "M05", "target": "O-PADDING", "property": "ragged rows append Empty to maximum width",
-      "precondition": "one rectangularization loop appends Empty", "patch": "disable Empty appends",
+      "precondition": "one rectangularization loop appends Empty and columns remains live for offset validation", "patch": "delete only the row.resize loop while preserving the columns binding and every neighboring statement",
       "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M05.json", "recipe_sha256": "036503788d5f30d9b2183afcba8907512e7dcdff20ad9832a987b0bddad649e2",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M05.json", "recipe_sha256": "1d2106a0d3fac1432f6649f6ff1ba047bf91fe5ef1505e6361e68aaa9a68b3be",
       "killer_cases": ["P05-ragged-padding","P06-empty-array-row","P23-repr-complete"], "boundary_cases": ["P04-array-rows"], "expected_reason_code": "VIOLATED_PADDING"
     },
     {

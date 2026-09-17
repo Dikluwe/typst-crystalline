@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# P1431 revision-7 design verifier and execution shim.
+# P1431 revision-8 design verifier and execution shim.
 # The public policy oracle freezes runner.rb at b31a7a...; changing that file
 # would make M27 fail on identity before exercising policy.  This shim verifies
-# the 30-family design, including the P1433 M26 repair and byte-exact R6
+# the 30-family design, including the P1433 M26 and P1434 M05 repairs and byte-exact R6
 # public oracle identity,
 # and delegates physical execution unchanged.
 
@@ -32,7 +32,7 @@ identity = identity_oracles.fetch("identity_serialization")
 expected_enumeration = "run cargo test -q -p typst-core p1431 -- --list, then typst-infra; retain lines ending exactly ': test'; strip that suffix; prefix the exact package name"
 expected_record = "UTF-8 bytes <package>\t<fully-qualified-test-id>\n; no BOM; LF after every record including the last"
 
-errors << "suite revision is not 7" unless suite.fetch("revision") == 7
+errors << "suite revision is not 8" unless suite.fetch("revision") == 8
 errors << "mutation count is not 30" unless mutations.length == 30
 errors << "mutation ids are not exhaustive and ordered" unless mutations.map { |m| m.fetch("id") } == expected_ids
 errors << "oracle revision is not 6" unless oracles.fetch("revision") == 6
@@ -75,7 +75,11 @@ mutations.each do |mutation|
   recipe = JSON.parse(File.read(recipe_path))
   errors << "#{mutation.fetch('id')}: recipe id mismatch" unless recipe.fetch("id") == mutation.fetch("id")
   errors << "#{mutation.fetch('id')}: target allowlist mismatch" unless recipe.fetch("target_files").sort == mutation.fetch("target_files").sort
-  expected_phase = mutation.fetch("id") == "M26" ? "post_candidate_equivalent_mutant_repair_p1433" : "design_without_candidate_then_mechanical_materialization"
+  expected_phase = case mutation.fetch("id")
+  when "M05" then "post_candidate_invalid_materialization_repair_p1434"
+  when "M26" then "post_candidate_equivalent_mutant_repair_p1433"
+  else "design_without_candidate_then_mechanical_materialization"
+  end
   errors << "#{mutation.fetch('id')}: phase rule mismatch" unless recipe.fetch("phase_rule") == expected_phase
 end
 
@@ -83,7 +87,7 @@ if errors.empty?
   puts JSON.pretty_generate(
     classification: "Preserved",
     reason_code: "PRESERVED_MUTATION_DESIGN",
-    revision: 7,
+    revision: 8,
     mutations: 30,
     oracle_tests: 34,
   )
