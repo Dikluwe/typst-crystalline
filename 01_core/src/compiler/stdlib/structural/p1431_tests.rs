@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md
-//! @prompt-hash aaca2d3e
+//! @prompt-hash 038c2754
 //! @layer L1
 #![cfg(test)]
 
@@ -294,6 +294,14 @@ fn p1431_rejeita_modos_tipos_named_e_duplicados() {
             named(Args::positional(vec![]), "delim", row(vec![Value::Str("[".into())])),
             "exactly two",
         ),
+        (
+            named(
+                Args::positional(vec![]),
+                "delim",
+                row(vec![Value::Str("[".into()), Value::Str("]".into()), Value::None]),
+            ),
+            "exactly two",
+        ),
         (named(Args::positional(vec![]), "delim", Value::Str("[[".into())), "single"),
         (
             named(Args::positional(vec![]), "delim", Value::Str("a".into())),
@@ -305,6 +313,14 @@ fn p1431_rejeita_modos_tipos_named_e_duplicados() {
             "expected relative length",
         ),
         (
+            named(Args::positional(vec![]), "row-gap", Value::Int(1)),
+            "expected relative length",
+        ),
+        (
+            named(Args::positional(vec![]), "column-gap", Value::Int(1)),
+            "expected relative length",
+        ),
+        (
             named(Args::positional(vec![]), "augment", Value::Str("x".into())),
             "expected integer, dictionary, or none",
         ),
@@ -313,6 +329,52 @@ fn p1431_rejeita_modos_tipos_named_e_duplicados() {
                 Args::positional(vec![]),
                 "augment",
                 dict(vec![("hline", Value::Str("x".into()))]),
+            ),
+            "integer",
+        ),
+        (
+            named(
+                Args::positional(vec![]),
+                "augment",
+                dict(vec![("hline", Value::Float(1.5))]),
+            ),
+            "integer",
+        ),
+        (
+            named(
+                Args::positional(vec![]),
+                "augment",
+                dict(vec![(
+                    "hline",
+                    Value::Array(vec![Value::Int(1), Value::Bool(true)]),
+                )]),
+            ),
+            "integer",
+        ),
+        (
+            named(
+                Args::positional(vec![]),
+                "augment",
+                dict(vec![("vline", Value::Str("x".into()))]),
+            ),
+            "integer",
+        ),
+        (
+            named(
+                Args::positional(vec![]),
+                "augment",
+                dict(vec![("vline", Value::Float(1.5))]),
+            ),
+            "integer",
+        ),
+        (
+            named(
+                Args::positional(vec![]),
+                "augment",
+                dict(vec![(
+                    "vline",
+                    Value::Array(vec![Value::Int(1), Value::Bool(true)]),
+                )]),
             ),
             "integer",
         ),
@@ -394,4 +456,31 @@ fn p1431_runner_publico_falha_fechado_para_unknown_sem_credito() {
     assert!(stdout.contains("UNKNOWN_EXECUTION_OR_BUDGET"), "{stdout}");
     assert!(!stdout.contains("\"classification\": \"Preserved\""), "{stdout}");
     assert!(!stdout.contains("\"mutation_credit\": true"), "{stdout}");
+
+    let Value::Module(module) = make_math_module() else { panic!("math module") };
+    let binding_observation = module.scope().get("__p1431_opaque_binding__");
+    let binding_verdict = if matches!(binding_observation, Some(Value::Func(_))) {
+        ("PRESERVED_BINDING", true, false)
+    } else {
+        ("UNKNOWN_BINDING_OBSERVATION", false, false)
+    };
+    assert_eq!(
+        binding_verdict,
+        ("UNKNOWN_BINDING_OBSERVATION", false, false),
+        "U02 binding opaco recebeu aceitação/crédito"
+    );
+
+    let actual_repr = repr_content(&Content::Empty);
+    let truncated_repr = actual_repr.get(..actual_repr.len().min(1));
+    let repr_verdict = match truncated_repr {
+        Some(value) if value.starts_with("mat(") && value.contains("rows:") => {
+            ("PRESERVED_REPR", true, false)
+        }
+        _ => ("UNKNOWN_REPR_OBSERVATION", false, false),
+    };
+    assert_eq!(
+        repr_verdict,
+        ("UNKNOWN_REPR_OBSERVATION", false, false),
+        "U06 repr truncado/opaco recebeu aceitação/crédito"
+    );
 }

@@ -24,6 +24,12 @@ tipos inválidos dos campos conhecidos; validação equivalente em
 `#set math.mat`. Nenhum argumento da assinatura pode ser descartado
 silenciosamente.
 
+N03 exerce arrays de delimitador com uma e três entradas. N06 exerce inteiro
+em `gap`, `row-gap` e `column-gap`. N08 exerce string, float e array com item
+inválido em ambos `hline` e `vline`. U02 observa lookup real sem identidade
+atribuível e U06 passa saída real de `repr` por um observador truncado; ambos
+classificam `Unknown` com aceitação e crédito falsos.
+
 Resultados completos esperados são `Preserved`; divergências atribuíveis são
 `Violated`. Identidade, binding, carrier, cascade ou execução não atribuível é
 `Unknown`, com aceitação e crédito de mutação falsos. O controle U01/U09/M27

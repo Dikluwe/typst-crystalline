@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1431-tests.md
-//! @prompt-hash db030dc5
+//! @prompt-hash d5cf0332
 //! @layer L1
 #![cfg(test)]
 
@@ -188,11 +188,18 @@ fn p1431_set_rejeita_named_e_tipos_invalidos() {
     for (source, fragment) in [
         ("#set math.mat(foo: 1); $mat()$", "unexpected argument: foo"),
         ("#set math.mat(rows: ((1,),)); $mat()$", "unexpected argument: rows"),
+        ("#set math.mat(delim: 1); $mat()$", "expected array, none, symbol, or string"),
         ("#set math.mat(gap: 1); $mat()$", "expected relative length"),
+        ("#set math.mat(row-gap: 1); $mat()$", "expected relative length"),
+        ("#set math.mat(column-gap: 1); $mat()$", "expected relative length"),
         ("#set math.mat(align: top); $mat()$", "start"),
         (
             "#set math.mat(augment: \"x\"); $mat()$",
             "expected integer, dictionary, or none",
+        ),
+        (
+            "#set math.mat(column-gap: 1em, column-gap: 2em); $mat()$",
+            "duplicate argument: column-gap",
         ),
     ] {
         let errors = evaluate(source).unwrap_err();

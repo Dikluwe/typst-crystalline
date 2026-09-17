@@ -1,7 +1,7 @@
 {
   "schema": "tekt.materialization.oracles/v1",
-  "revision": 2,
-  "authored_at": "2026-09-17T09:10:09-03:00",
+  "revision": 3,
+  "authored_at": "2026-09-17T09:32:18-03:00",
   "role": {
     "authority": "oracle_and_independent_test_author",
     "executor": "agent:/root/p1431_oracles",
@@ -13,6 +13,7 @@
       "the eight approved owner L0 prompts",
       "00_nucleo/diagnosticos/p1431-manifest.json",
       "00_nucleo/diagnosticos/p1431-contract.json",
+      "00_nucleo/diagnosticos/p1431-preseal-r2.json",
       "productive blobs at f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
       "ratified vanilla references at 586e1bd43fae6c9a973218163d3165c53ab8d16d"
     ],
@@ -43,23 +44,23 @@
     },
     "baseline_commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
     "baseline_tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
-    "oracle_parent_commit": "e4ca7de01b4075a96cc85dc0cdf1f8541eaa34d9",
-    "oracle_parent_tree": "e0dde43e03f97a7545a330bcc2e90aa62103e0da",
+    "oracle_parent_commit": "8a930c2edea30aec27e0036d2af450638cc5d180",
+    "oracle_parent_tree": "220f2523671bcbb578be54704025f0da9f42f631",
     "productive_baseline_rule": "All P1431 productive consumers remained byte-identical to the frozen baseline during oracle authoring and RED; only cfg(test) wiring and test-only files were written by this authority."
   },
   "artifacts": [
     {
       "path": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md",
-      "sha256": "aaca2d3eb4ba26cbcb2049faebfe61877e860c6fa178663affc9dc96247d4438",
+      "sha256": "038c2754019dc3df29d73a563328f96aa66712e285d49bcb2ccc82a44b1f3f26",
       "consumer": "01_core/src/compiler/stdlib/structural/p1431_tests.rs",
-      "consumer_sha256": "9c318836887a08dd3dfe191df5eeabdb1ff2fbaa4107c952121a75d207e557ec",
+      "consumer_sha256": "f9f0988c3af78e54f4c8743ad3411b4cc2eaa51d2ba04cb43053521ed57a81bd",
       "covers": ["P01-P18", "P33", "N01-N08", "N10-N13", "N15", "U01", "U02", "U06", "U09"]
     },
     {
       "path": "00_nucleo/prompts/compiler/eval/p1431-tests.md",
-      "sha256": "db030dc5926001b08386913a4b2715f52ac44a8cda5fa5c9d85cb422ce25e742",
+      "sha256": "d5cf0332c15282c4ac3be597533e9b95be68eea77042f7a9352083cd8bac121c",
       "consumer": "01_core/src/compiler/eval/p1431_tests.rs",
-      "consumer_sha256": "3041eb5e9ce6fd34cffa83ddf51cfc0cb8d7d2a5794374ba51de96da03e29c88",
+      "consumer_sha256": "800911c0fdf5bffe20c49b267adcfb8475570c408605a8c1939666bdc0662676",
       "covers": ["P16-P20", "N14", "N15", "U05"]
     },
     {
@@ -96,6 +97,14 @@
     "positive_cases": "P01-P33",
     "negative_cases": "N01-N08 and N10-N19; N09 was replaced by positive P33 in contract revision 2",
     "opaque_cases": "U01-U09",
+    "case_matrix_revision3": {
+      "N03": "delim rejects arrays with one and three entries",
+      "N06": "gap, row-gap and column-gap each reject integers",
+      "N08": "hline and vline each reject string, float and arrays containing an invalid item",
+      "N15": "set rejects invalid delim, row-gap and column-gap plus duplicate named fields; #set math.mat(column-gap: 1) is the direct M14 killer",
+      "U02": "a real missing math-module lookup is classified Unknown and receives neither acceptance nor credit",
+      "U06": "a real truncated Content::Empty repr observation is classified Unknown and receives neither acceptance nor credit"
+    },
     "mutation_killers": {
       "M01": "binding_rows_padding_e_repr_canonico",
       "M02-M05": "binding_rows_padding_e_repr_canonico + bare_rows_arrays_padding",
@@ -105,7 +114,7 @@
       "M10-M11": "augment_inteiro_dict_none + unknown-dict-key acceptance + invalid-known-field rejection",
       "M12": "augment_cascata_dobra_stroke",
       "M13": "carrier_default_e_explicito + carrier equality/hash",
-      "M14": "cascata + set_rejeita_invalidos",
+      "M14": "cascata + direct #set math.mat(column-gap: 1) rejection in set_rejeita_invalidos",
       "M15": "bare_e_qualificado_convergem",
       "M16": "avaliacao_uma_vez_ordem_causal",
       "M17": "igualdade_e_hash_discriminam",
@@ -123,20 +132,26 @@
   "orders": [
     {
       "id": "forward",
-      "definition": "the 27 fully-qualified P1431 tests in lexical contract-family order, each in a fresh libtest process or a single --test-threads=1 process"
+      "definition": "the 28 fully-qualified P1431 tests in lexical contract-family order, each in a fresh libtest process or a single --test-threads=1 process",
+      "ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776",
+      "vector": {"passed": 5, "failed": 23}
     },
     {
       "id": "forward_repeat",
-      "definition": "exact forward vector repeated in a second fresh process"
+      "definition": "exact forward vector repeated in a second fresh process",
+      "ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776",
+      "vector": {"passed": 5, "failed": 23}
     },
     {
       "id": "reverse",
-      "definition": "the exact same fully-qualified test IDs in reverse order, each selected with --exact in fresh processes"
+      "definition": "the exact same fully-qualified test IDs in reverse order, each selected with --exact in fresh processes",
+      "ids_sha256": "c5338edc979bfaae86c7ef35ebf82d76b1e33f5abec49c3200abaa791916ddfa",
+      "vector": {"passed": 5, "failed": 23}
     }
   ],
   "red_receipt": {
-    "measured_at": "2026-09-17T09:10:09-03:00",
-    "state": "working tree based on frozen contract revision-2 parent e4ca7de01; only reopened test-only oracle files are uncommitted; adversarial design was not read or edited",
+    "measured_at": "2026-09-17T09:32:18-03:00",
+    "state": "working tree based on blocked public preseal revision-2 parent 8a930c2ed; only reopened test-only oracle files are uncommitted; adversarial design and mutants were not read or edited",
     "command": "cargo test -q -p typst-core p1431 --no-fail-fast",
     "exit": 101,
     "vector": {"total": 28, "passed": 5, "failed": 23, "ignored": 0},
@@ -150,32 +165,32 @@
       "complete carrier presence/equality/hash/walkers/reconstruction absent"
     ],
     "controls": {
-      "command": "cargo test -p typst-core p1430 --no-fail-fast",
+      "command": "cargo test -q -p typst-core p1430 --no-fail-fast",
       "exit": 0,
       "vector": {"passed": 23, "failed": 0},
       "meaning": "nearest pre-existing matrix/cases geometry and evaluation controls remained green"
     },
     "policy_self_check": {
-      "command": "cargo test -p typst-core compiler::stdlib::structural::p1431_tests::p1431_runner_publico_falha_fechado_para_unknown_sem_credito -- --exact",
+      "command": "cargo test -q -p typst-core p1431_runner_publico_falha_fechado_para_unknown_sem_credito",
       "exit": 0,
       "vector": {"passed": 1, "failed": 0},
-      "witness": "runner SHA matched; policy-self-check returned exit 3, classification Unknown, UNKNOWN_EXECUTION_OR_BUDGET, no Preserved and no mutation_credit true"
+      "witness": "runner SHA matched; policy-self-check returned exit 3, classification Unknown, UNKNOWN_EXECUTION_OR_BUDGET, no Preserved and no mutation_credit true; real opaque binding lookup and truncated repr observations also remained fail-closed without acceptance or credit"
     },
     "format": {"command": "cargo fmt --all -- --check", "exit": 0},
     "classification": "RED_ATTRIBUTABLE",
     "unknown": 0
   },
   "calibration": {
-    "revision": 2,
-    "hypothesis": "revision-2 public binding, morphology, carrier and frame relations plus direct runner policy self-check discriminate every M01-M27 family without inspecting candidate code",
+    "revision": 3,
+    "hypothesis": "revision-3 public binding, morphology, carrier and frame relations plus direct runner policy self-check discriminate every M01-M27 family without inspecting candidate code",
     "positive_preserved_on_baseline": 1,
     "negative_violated_on_baseline": 0,
     "opaque_unknown_controls": 9,
     "red_failures": 23,
-    "corrected_cases": ["P33 replaces invalid N09 and proves unknown augment dictionary keys are ignored", "U01/U09/M27 now execute and identify the public runner rather than a local closure", "four test-only L0 EOF whitespace errors removed"],
+    "corrected_cases": ["N03 now executes delimiter arrays of cardinality one and three", "N06 now executes invalid gap, row-gap and column-gap values", "N08 now executes string, float and invalid-item-array values for hline and vline", "N15 now executes invalid set delim, row-gap, column-gap and duplicate fields; column-gap integer is a causal M14 killer", "U02 and U06 now derive Unknown from real opaque binding and repr observations and assert fail-closed acceptance/credit", "order metadata now matches the unchanged 28-test identity vector"],
     "regressed_cases": [],
     "dominant_reason_code": "VIOLATED_BINDING",
-    "material_cost": "one focused causal policy run, one full revision-2 RED run and one nearest-control run; within revision/run budget"
+    "material_cost": "one focused causal policy run, one full revision-3 RED run and one nearest-control run; within revision/run budget"
   },
   "claim_boundary": "These oracles discriminate only the frozen P1431 math.mat fragment. They do not classify a candidate yet, do not emit a seal or verdict, do not prove general Typst parity, and do not attest workspace or conversational isolation."
 }
