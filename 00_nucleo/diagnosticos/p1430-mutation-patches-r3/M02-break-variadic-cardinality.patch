@@ -1,0 +1,12 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 2988fcd4b..f0ed0021a 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -1090,6 +1090,7 @@ pub(crate) fn math_cases_content(args: &Args) -> SourceResult<Content> {
+     let children = args
+         .items
+         .iter()
++        .rev()
+         .map(|value| math_cases_child(value, args.span))
+         .collect::<SourceResult<Vec<_>>>()?;
+     Ok(Content::math_cases_full(

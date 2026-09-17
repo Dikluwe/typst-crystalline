@@ -1,0 +1,17 @@
+diff --git a/01_core/src/compiler/eval/math.rs b/01_core/src/compiler/eval/math.rs
+index ce6ddaa6f..487b7c631 100644
+--- a/01_core/src/compiler/eval/math.rs
++++ b/01_core/src/compiler/eval/math.rs
+@@ -1139,7 +1139,11 @@ fn eval_math_expr(
+                 // conservam children/MathAlignPoint até ao layout.
+                 "cases" => {
+                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+-                    apply_p1293_math_constructor("cases", args, scopes, ctx, engine)
++                    let content = apply_p1293_math_constructor("cases", args, scopes, ctx, engine)?;
++                    let Content::MathCases(elem) = content else { return Ok(content) };
++                    let mut children = elem.children.clone();
++                    children.pop();
++                    Ok(Content::math_cases_full(children, elem.delim, elem.reverse, elem.gap, elem.explicit))
+                 }
+ 
+                 // mat(...) — matriz matemática (Passo 54)

@@ -1,0 +1,13 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 2988fcd4b..410873462 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -949,7 +949,7 @@ fn math_cases_delim_char(value: &Value, span: Span) -> SourceResult<Option<char>
+ 
+ fn math_cases_matching_delim(character: char) -> char {
+     match character {
+-        '[' => ']',
++        '[' => '[',
+         ']' => '[',
+         '{' => '}',
+         '}' => '{',

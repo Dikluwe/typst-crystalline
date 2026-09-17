@@ -1,0 +1,17 @@
+diff --git a/01_core/src/compiler/math/layout/cases.rs b/01_core/src/compiler/math/layout/cases.rs
+index 9472f3619..8046fa59e 100644
+--- a/01_core/src/compiler/math/layout/cases.rs
++++ b/01_core/src/compiler/math/layout/cases.rs
+@@ -78,11 +78,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+         } else {
+             cascaded_reverse.unwrap_or(false)
+         };
+-        let gap = if elem.explicit.gap {
+-            elem.gap
+-        } else {
+-            cascaded_gap.unwrap_or(Rel { rel: 0.0, abs: Length::em(0.2) })
+-        };
++        let gap = cascaded_gap.unwrap_or(elem.gap);
+         let rows = elem
+             .children
+             .iter()

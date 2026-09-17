@@ -1,0 +1,271 @@
+{
+  "schema": "tekt.materialization.adversarial-campaign/v2",
+  "step": 1430,
+  "revision": "R2-complete-after-M21-refinement",
+  "measured_at": "2026-09-17T00:34:37.850743-03:00",
+  "candidate_commit": "f7dcbe86ca7618bf1e6d840e51ea168f7b1c3c8e",
+  "candidate_tree": "5662b502979fde09201fb3116fc240edbf4df1b7",
+  "attestation": "executado sem atestacao de isolamento",
+  "executor": "agent:/root/p1430_adversary",
+  "authorities": {
+    "manifest_r2": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc",
+    "contract_r2": "4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309",
+    "mutants_r3": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014",
+    "oracles_r2": "23747cac87e1682779fd3c8f36b5348a92eae9e506e3a49fce274878fe523728"
+  },
+  "baseline": {
+    "status": "GREEN",
+    "rust": "23/23",
+    "certification_policy": "V01-V05 PASS"
+  },
+  "orders": {
+    "status": "PASS",
+    "A": "28/28",
+    "B": "28/28",
+    "C": "28/28",
+    "identical_vectors": true
+  },
+  "physical_mutations": {
+    "status": "COMPLETE",
+    "killed": 21,
+    "survived": 0,
+    "unknown": 0,
+    "unknown_credit": 0,
+    "score": 1.0,
+    "required_score": 1.0
+  },
+  "m21": {
+    "target": "executed Unknown branch in evaluate_mutation",
+    "mutation": "mutation_credit and score_numerator_delta become int(valid)",
+    "baseline": "V01-V05 PASS",
+    "mutated": "exit 1 FAIL",
+    "attributable_vectors": [
+      "V03",
+      "V04"
+    ],
+    "classification": "KILLED"
+  },
+  "protected_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1430-manifest.json",
+      "expected_sha256": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc",
+      "actual_sha256": "b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1430-contract.json",
+      "expected_sha256": "4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309",
+      "actual_sha256": "4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1430-mutants.json",
+      "expected_sha256": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014",
+      "actual_sha256": "b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json",
+      "expected_sha256": "5be045de34e98afadc199c8129f11ec3479304af2e9356eb777772afbcbee45c",
+      "actual_sha256": "5be045de34e98afadc199c8129f11ec3479304af2e9356eb777772afbcbee45c",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1430-oracles.json",
+      "expected_sha256": "a9793703b002d8d85db02f2b7b3fe16bee33757325e3d76fb46053fbe28f6c27",
+      "actual_sha256": "a9793703b002d8d85db02f2b7b3fe16bee33757325e3d76fb46053fbe28f6c27",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1430.md",
+      "expected_sha256": "785e1dc6f0d4cca1ac4cc1fd68ac83255900424ca9998d83af11f6aa13ccbfa3",
+      "actual_sha256": "785e1dc6f0d4cca1ac4cc1fd68ac83255900424ca9998d83af11f6aa13ccbfa3",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md",
+      "expected_sha256": "89ee1062189ac4d0f1cd65d84f7520679bbf0f0c2a012157f878c98599b055b3",
+      "actual_sha256": "89ee1062189ac4d0f1cd65d84f7520679bbf0f0c2a012157f878c98599b055b3",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/p1430_tests.rs",
+      "expected_sha256": "5ecea98a03c05b4965adeaeb0ed068ccfe612eac873c3214fb479ecadab353f5",
+      "actual_sha256": "5ecea98a03c05b4965adeaeb0ed068ccfe612eac873c3214fb479ecadab353f5",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/mod.rs",
+      "expected_sha256": "752973289e5ac9f97e13bb31e47506eeef0f4c90381f4731cc1f890414469be7",
+      "actual_sha256": "752973289e5ac9f97e13bb31e47506eeef0f4c90381f4731cc1f890414469be7",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/p1430-tests.md",
+      "expected_sha256": "bcad6c38c08a792dfe6ea5cc166c34f70854d0a92ceb2d6bed6c992304a1e7a1",
+      "actual_sha256": "bcad6c38c08a792dfe6ea5cc166c34f70854d0a92ceb2d6bed6c992304a1e7a1",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/p1430_tests.rs",
+      "expected_sha256": "2a28ec9b253105c5928cd57e9249509296b2e7180e26392d587de196d3e43727",
+      "actual_sha256": "2a28ec9b253105c5928cd57e9249509296b2e7180e26392d587de196d3e43727",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "expected_sha256": "eae742515591ebf816fe6086bc1420b8d75a4bca36ca49a7cc92c773d2be93a5",
+      "actual_sha256": "eae742515591ebf816fe6086bc1420b8d75a4bca36ca49a7cc92c773d2be93a5",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/entities/elements/p1430-math-cases-tests.md",
+      "expected_sha256": "5ee8de6fcc6abf6d6959db1b8ff4e49ea5dcd5c195d999e5e0f84f4b26a2c738",
+      "actual_sha256": "5ee8de6fcc6abf6d6959db1b8ff4e49ea5dcd5c195d999e5e0f84f4b26a2c738",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/entities/elements/p1430_math_cases_tests.rs",
+      "expected_sha256": "e9b5cad39be34f1bde04f161d74cb19ea6051fdcdd32ab896f56a56c0c2dc233",
+      "actual_sha256": "e9b5cad39be34f1bde04f161d74cb19ea6051fdcdd32ab896f56a56c0c2dc233",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/entities/elements/mod.rs",
+      "expected_sha256": "8dfd01e3e82973fcf7e936d19da65e7cdc9d505a0107cae01e64f499548366a5",
+      "actual_sha256": "8dfd01e3e82973fcf7e936d19da65e7cdc9d505a0107cae01e64f499548366a5",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/p1430-tests.md",
+      "expected_sha256": "2fc1a1f5b3ce7ba4fa3d268b9dcdaaa3fe4ccabd3221683c424061b64d5d41c4",
+      "actual_sha256": "2fc1a1f5b3ce7ba4fa3d268b9dcdaaa3fe4ccabd3221683c424061b64d5d41c4",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/p1430_tests.rs",
+      "expected_sha256": "f15db6193d62c81c23b8e263489601736824c3c576499de68f3ceda8b04a59f6",
+      "actual_sha256": "f15db6193d62c81c23b8e263489601736824c3c576499de68f3ceda8b04a59f6",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/mod.rs",
+      "expected_sha256": "f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d",
+      "actual_sha256": "f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/structural/math.md",
+      "expected_sha256": "79e58bc5b31136a32910aee401718e199031bfaa59d40d353794ed0b4bdd3cde",
+      "actual_sha256": "79e58bc5b31136a32910aee401718e199031bfaa59d40d353794ed0b4bdd3cde",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/math.md",
+      "expected_sha256": "504cae827ee6aa56c76cb20a59936eadb6697b644d54cf8e3d300a4ee2b934f5",
+      "actual_sha256": "504cae827ee6aa56c76cb20a59936eadb6697b644d54cf8e3d300a4ee2b934f5",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/repr.md",
+      "expected_sha256": "f904de8372f7e92af5cd83b6ce24c47fb7995ab063ecfcdf60029c2852daaea7",
+      "actual_sha256": "f904de8372f7e92af5cd83b6ce24c47fb7995ab063ecfcdf60029c2852daaea7",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules.md",
+      "expected_sha256": "ebc181b54f7ec9aa11c5d2d34f69a519d54225cd9343bc5e44ec2837f597140d",
+      "actual_sha256": "ebc181b54f7ec9aa11c5d2d34f69a519d54225cd9343bc5e44ec2837f597140d",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/_comum.md",
+      "expected_sha256": "0801f3f3132d0cb6c6156d8b3c94831122c5ee1cdaefc77ed4c5f54eac5d3177",
+      "actual_sha256": "0801f3f3132d0cb6c6156d8b3c94831122c5ee1cdaefc77ed4c5f54eac5d3177",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/math/layout/cases.md",
+      "expected_sha256": "5fae95ecafc61eb7b40ac6990ae5f4c4bfebfecf2ec48ca31a2e31e0a9d460c5",
+      "actual_sha256": "5fae95ecafc61eb7b40ac6990ae5f4c4bfebfecf2ec48ca31a2e31e0a9d460c5",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/entities/content.md",
+      "expected_sha256": "c745c372ec38924de8443b05c50907b4d83be65e0db4e1af2d929dbda6b8dd9a",
+      "actual_sha256": "c745c372ec38924de8443b05c50907b4d83be65e0db4e1af2d929dbda6b8dd9a",
+      "unchanged": true
+    },
+    {
+      "path": "00_nucleo/prompts/entities/elements/math_cases.md",
+      "expected_sha256": "39eeb9c53c6b5a898df07f675fd2ba0f35f361329d571def65a80b558f24364c",
+      "actual_sha256": "39eeb9c53c6b5a898df07f675fd2ba0f35f361329d571def65a80b558f24364c",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math.rs",
+      "expected_sha256": "c82b8ff8c8743eba08119cad737caa759934148a39d502a88b76867be8279756",
+      "actual_sha256": "c82b8ff8c8743eba08119cad737caa759934148a39d502a88b76867be8279756",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/math.rs",
+      "expected_sha256": "a413b664e99485be2a77f9e3f2ea0e815661956d44a0a8c560c0fe12b7e0cff9",
+      "actual_sha256": "a413b664e99485be2a77f9e3f2ea0e815661956d44a0a8c560c0fe12b7e0cff9",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr.rs",
+      "expected_sha256": "6daff397e7ecbdd91f889e31b21fc0294aa191885fca04ef472168ccb3876930",
+      "actual_sha256": "6daff397e7ecbdd91f889e31b21fc0294aa191885fca04ef472168ccb3876930",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/eval/rules.rs",
+      "expected_sha256": "92472b1dacc052880ee5e3197c60027b78a79ac6f3a1272e29b3f4ab5816abfa",
+      "actual_sha256": "92472b1dacc052880ee5e3197c60027b78a79ac6f3a1272e29b3f4ab5816abfa",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/mod.rs",
+      "expected_sha256": "f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d",
+      "actual_sha256": "f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/cases.rs",
+      "expected_sha256": "1af8aa481faee4c0deca64e8c6f3928f346e0fa10300bc68958f7d7998ac4f70",
+      "actual_sha256": "1af8aa481faee4c0deca64e8c6f3928f346e0fa10300bc68958f7d7998ac4f70",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/entities/content.rs",
+      "expected_sha256": "ad0f0ead17586b71a7f1c36079c36ca16ae65b60dd73ac00304faeb5b73e77a1",
+      "actual_sha256": "ad0f0ead17586b71a7f1c36079c36ca16ae65b60dd73ac00304faeb5b73e77a1",
+      "unchanged": true
+    },
+    {
+      "path": "01_core/src/entities/elements/math_cases.rs",
+      "expected_sha256": "0e98a135372daaa3743d50f48c05e7bc536df8f60855434fa1776ffccb8f5734",
+      "actual_sha256": "0e98a135372daaa3743d50f48c05e7bc536df8f60855434fa1776ffccb8f5734",
+      "unchanged": true
+    }
+  ],
+  "protected_all_unchanged": true,
+  "productive_diff_from_candidate": [],
+  "artifacts": {
+    "p1430-baseline-green-r2.json": "afaf7f584272968394857a9f886e3bad14073861992c0a847ce1be3fa650d73f",
+    "p1430-order-results-r2.json": "4af47639a5119be954f660a4a1a0c87a1de4e846263249670b6b03e7251e0a37",
+    "p1430-physical-mutation-results-r3.json": "cdb05ebda437e6fd463da6b2d8030669e57104747194e40a9acfe50e73d6588c",
+    "p1430-mutation-runner-r3.py": "c5840d688448a8d34f88a25b56ae9a254dfdfabeb857af6419d3e44dc437e54c",
+    "p1430-order-runner-r2.py": "ea86978a28b943ceb1cdbd57c5cf8b8633aab3c779f4e73948e0f27978acf9c8"
+  },
+  "historical_evidence_preserved": [
+    "p1430-adversarial-campaign.json",
+    "p1430-physical-mutation-results-r1.json",
+    "p1430-physical-mutation-results.json",
+    "p1430-mutation-patches/"
+  ],
+  "final_verdict": "NOT_EMITTED_BY_ADVERSARY",
+  "next_gate": "independent verifier may evaluate replacement seal/certificate"
+}

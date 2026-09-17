@@ -1,0 +1,12 @@
+diff --git a/01_core/src/entities/content.rs b/01_core/src/entities/content.rs
+index 8474859bb..27373b374 100644
+--- a/01_core/src/entities/content.rs
++++ b/01_core/src/entities/content.rs
+@@ -1697,7 +1697,6 @@ impl Content {
+                 let Some(first) = cells.next() else { return Content::Empty };
+                 let mut items = vec![first];
+                 for cell in cells {
+-                    items.push(Content::math_align_point());
+                     items.push(cell);
+                 }
+                 Content::MathSequence(Arc::from(items.into_boxed_slice()))

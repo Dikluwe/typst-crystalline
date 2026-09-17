@@ -1,0 +1,16 @@
+diff --git a/01_core/src/compiler/math/layout/mod.rs b/01_core/src/compiler/math/layout/mod.rs
+index fe5c2d667..0fbc3603c 100644
+--- a/01_core/src/compiler/math/layout/mod.rs
++++ b/01_core/src/compiler/math/layout/mod.rs
+@@ -2054,7 +2054,10 @@ fn apply_math_default(body: &Content) -> Content {
+             e.children.iter().map(apply_math_default).collect(),
+             e.delim,
+             e.reverse,
+-            e.gap,
++            crate::entities::rel::Rel {
++                rel: 0.0,
++                abs: crate::entities::layout_types::Length::em(0.2),
++            },
+             e.explicit,
+         ),
+         Content::MathFrac(e) => {

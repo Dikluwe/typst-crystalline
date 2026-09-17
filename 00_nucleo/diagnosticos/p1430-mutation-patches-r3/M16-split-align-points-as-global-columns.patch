@@ -1,0 +1,12 @@
+diff --git a/01_core/src/compiler/math/layout/cases.rs b/01_core/src/compiler/math/layout/cases.rs
+index 9472f3619..9c9486a6a 100644
+--- a/01_core/src/compiler/math/layout/cases.rs
++++ b/01_core/src/compiler/math/layout/cases.rs
+@@ -127,6 +127,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+             align_boundaries.push(marks);
+         }
+ 
++        let any_align = false;
+         let grid_box = if any_align {
+             self.layout_grid_rows(
+                 &split_rows,
