@@ -1,0 +1,136 @@
+{
+  "schema": "tekt.materialization.verifier-nonseal/v1",
+  "verified_at": "2026-09-17T13:03:43-03:00",
+  "phase": "independent-final-verification-blocked-before-mutation-campaign",
+  "role": "verifier",
+  "executor": "agent:/root/p1431_blocker_verifier",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "read": [
+      "sealed P1431 artifacts",
+      "candidate commit",
+      "adversarial blocker receipt",
+      "reproducible test outputs"
+    ],
+    "write": [
+      "this verifier non-seal report only"
+    ],
+    "forbidden_writes_respected": [
+      "candidate code",
+      "prompts",
+      "manifest",
+      "contract",
+      "oracles and independent tests",
+      "mutation design",
+      "adversarial report"
+    ]
+  },
+  "identities": {
+    "candidate": {
+      "commit": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+      "tree": "49dd65d31ee66db28f2e634beef78abe2e34384f"
+    },
+    "adversarial_blocker": {
+      "commit": "dfe7f10b292a819bbfa0ba8c3456d14ed05124d9",
+      "tree": "0ee6241adaf209d49d22963310025c94a346502b",
+      "path": "00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json",
+      "sha256": "7a39275348b3a3a40f0a94c84a1902204aff552eae1b32f639cded26022dbc60"
+    },
+    "candidate_to_blocker_delta": [
+      "A 00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json"
+    ],
+    "tracked_tree_clean_before_verifier_report": true
+  },
+  "frozen_inputs": [
+    {
+      "path": "00_nucleo/diagnosticos/p1431-manifest.json",
+      "expected_sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+      "observed_sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+      "result": "MATCH"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1431-contract.json",
+      "expected_sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+      "observed_sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+      "result": "MATCH"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1431-oracles.json",
+      "expected_sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad",
+      "observed_sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad",
+      "result": "MATCH"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1431-mutants.json",
+      "expected_sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
+      "observed_sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
+      "result": "MATCH"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1431-preseal-r5.json",
+      "expected_sha256": "8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7",
+      "observed_sha256": "8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7",
+      "result": "MATCH"
+    }
+  ],
+  "minimal_reproduction": {
+    "core": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 --no-fail-fast",
+      "exit": 0,
+      "passed": 30,
+      "failed": 0
+    },
+    "infra_non_raster": {
+      "commands": [
+        "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local -- --exact",
+        "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_legado_butt_preserva_bytes_sem_zero_j -- --exact",
+        "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_export_opaco_falha_fechado -- --exact"
+      ],
+      "exits": [0, 0, 0],
+      "passed": 3,
+      "failed": 0
+    },
+    "raster": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test --release -q -p typst-infra export::p1431_line_cap_tests::p1431_raster_mapeia_butt_round_square_e_auto_square -- --exact",
+      "exit": 101,
+      "passed": 0,
+      "failed": 1,
+      "failed_assertion": "03_infra/src/export/p1431_line_cap_tests.rs:213: assert_eq!(auto, square), P35 matrix auto must rasterize as Square"
+    },
+    "aggregate_unmutated_vector": {
+      "passed": 33,
+      "failed": 1,
+      "unknown": 0,
+      "classification": "Violated",
+      "reason_code": "BLOCK_UNMUTATED_ORACLE_RED"
+    }
+  },
+  "causal_verification": {
+    "contract": "O-AUGMENT-GEOMETRY and P29 require auto stroke 0.05em with Square cap; P35 requires otherwise-equal cap witnesses.",
+    "candidate": "01_core/src/compiler/math/layout/matrix.rs:364-371 resolves auto to 0.05 * font and LineCap::Square.",
+    "default_style": "01_core/src/entities/style_chain.rs:299-310 and 486-499 resolve the fixture font size to 11.0pt.",
+    "auto_thickness_pt": 0.55,
+    "oracle_fixture": "03_infra/src/export/p1431_line_cap_tests.rs:65-80 sets every explicit cap witness, including Square, to 0.6pt.",
+    "explicit_square_thickness_pt": 0.6,
+    "finding": "The sealed byte-equality predicate compares two Square-capped paths with unequal thicknesses. It changes cap provenance and thickness simultaneously, so its failure cannot soundly show an incorrect Square-cap mapping and conflicts with the frozen 0.05em obligation at the default 11pt style."
+  },
+  "mutation_gate": {
+    "required_mutation_score": 1.0,
+    "mutations_required": 30,
+    "mutations_executed": 0,
+    "mutation_score": null,
+    "unknown_credit": 0,
+    "authorized_to_start": false,
+    "reason": "A mandatory unmutated positive oracle is RED. Mutating before the unmutated corpus is GREEN would destroy causal attribution."
+  },
+  "verdict": {
+    "classification": "BLOCKED_NO_SEAL",
+    "reason_code": "BLOCK_UNMUTATED_ORACLE_RED",
+    "success_seal_authorized": false,
+    "final_certificate_authorized": false,
+    "p1431_closed": false,
+    "required_resolution": "The contract/oracle authorities must reconcile the P35 fixture with the frozen 0.05em obligation, publish new protected hashes, and reseal from the first affected phase. Only after the unmutated candidate passes every mandatory oracle may the M01-M30 campaign and final verification resume.",
+    "claim_boundary": "This report certifies only that the current P1431 chain is not sealable. It does not classify general math.mat, raster or PDF equivalence and does not attest workspace or conversational isolation."
+  }
+}
