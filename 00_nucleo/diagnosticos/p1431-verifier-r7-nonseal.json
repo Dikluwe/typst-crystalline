@@ -1,0 +1,82 @@
+{
+  "schema": "tekt.materialization.verifier-nonseal/v1",
+  "verified_at": "2026-09-17T15:30:03-03:00",
+  "phase": "final-verification-after-r7-forward-blocker",
+  "subject_step": 1431,
+  "repair_step": 1433,
+  "role": "procedurally_separated_final_verifier",
+  "executor": "agent:/root",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "read": [
+      "committed P1433 and R7 protected inputs",
+      "R7 focused calibration and preseal",
+      "committed adversarial result and receipt",
+      "M05 recipe, materialized patch and productive anchor"
+    ],
+    "write": ["00_nucleo/diagnosticos/p1431-verifier-r7-nonseal.json"],
+    "verified_inputs_edited": false,
+    "productive_code_written": false,
+    "isolation_attested": false,
+    "limitation": "Verification was sequential in the shared root session; hashes and a single-file write boundary are recorded, but independent filesystem and conversational isolation are not attested."
+  },
+  "state": {
+    "verification_head_before_report": "15f9c3dd2e3e74bf7e0a79ba4ec1fe5264bdbafd",
+    "verification_tree_before_report": "23cf999af57e1bf0addd004287119a2cac6d4e2e",
+    "tracked_tree_clean_before_report": true,
+    "git_diff_check_before_report": "PASS"
+  },
+  "artifacts": {
+    "adversarial_report": {
+      "path": "00_nucleo/diagnosticos/p1431-adversarial-results-r7.json",
+      "sha256": "e7a942ad4e985fb84810040b82606449d95a6da1081383b322b86f780cfccae8"
+    },
+    "partial_receipt": {
+      "path": "00_nucleo/diagnosticos/p1431-mutations/receipts/6d38a1b86/forward-incomplete.json",
+      "sha256": "98f9a1ff73df13f0d9be6e013351fba9ecdad82966ea695d7cd75ff91a51f309"
+    },
+    "preseal_r7_sha256": "6116cb9aad817cb3673ea12331ab00b3564cfac5f67b241b3c882c42282ba776",
+    "m05_patch_sha256": "1befd1727dec2c69a5153c512c74a4e5c282cc47b5be8b2e25d2633a1bb64243"
+  },
+  "reproduction": {
+    "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode execute --mutation M05 --candidate 15f9c3dd2e3e74bf7e0a79ba4ec1fe5264bdbafd --patch 00_nucleo/diagnosticos/p1431-mutations/materialized/ad2732e0d/M05.patch --command \"RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 --no-fail-fast\" --witness p1431_ --timeout 480",
+    "runner_exit": 3,
+    "classification": "Unknown",
+    "reason_code": "UNKNOWN_EXECUTION_OR_BUDGET",
+    "detail": "non-zero command lacked attributable killer witness",
+    "tracked_tree_clean_after_reversal": true,
+    "git_diff_check_after_reversal": "PASS"
+  },
+  "causal_verification": {
+    "recipe": "M05 requires disabling only Empty-cell padding while preserving row parsing.",
+    "patch": "The patch deletes row.resize but also changes let columns to let _columns.",
+    "productive_use": "The candidate uses columns at structural/math.rs:1183 and :1187 to validate vertical offsets.",
+    "observed_effect": "Rust E0425 prevents the P1431 test binary from being built, so P05/P06/P23 cannot observe ragged-row semantics.",
+    "classification": "INVALID_NON_ATTRIBUTABLE_MATERIALIZATION",
+    "mutation_credit": false
+  },
+  "seal_authority": {
+    "required": {
+      "valid_mutation_survivors": 0,
+      "unexpected_unknown": 0,
+      "orders": ["forward", "forward_repeat", "reverse"],
+      "mutation_score": 1.0
+    },
+    "observed": {
+      "forward_attributable_kills": 4,
+      "forward_unexpected_unknown": 1,
+      "forward_not_executed": 25,
+      "forward_repeat": "ABSENT",
+      "reverse": "ABSENT",
+      "mutation_score": null
+    },
+    "classification": "BLOCKED_NO_SEAL",
+    "reason_code": "BLOCK_UNKNOWN_INVALID_M05_MATERIALIZATION",
+    "success_seal_authorized": false,
+    "final_certificate_authorized": false,
+    "p1431_closed": false,
+    "required_next_authority_action": "Revise M05 so the columns binding remains intact while only padding is disabled, calibrate the exact P05/P06/P23 witness, publish a new preseal and restart all three orders."
+  },
+  "claim_boundary": "This nonseal verifies the M05 R7 blocker only. It does not reject the productive candidate or the M26 R7 repair and does not attest general math.mat, Typst or export equivalence."
+}
