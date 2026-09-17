@@ -777,3 +777,20 @@ Imprimir `accent(base: <repr>, accent: <string escapada>)`, seguido por
 respectivos bits de presença estiverem ativos. Cascata aplicada no layout não
 fabrica presença no elemento. Posição superior/inferior e dotless realizado
 não aparecem como campos derivados.
+
+## P1430 — morfologia pública de `cases` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime apenas `cases`. O vanilla imprime sempre
+`children: (...)` e inclui `delim`, `reverse` e `gap`, nessa ordem, somente
+quando cada campo foi explicitamente fornecido; explicitude igual ao default
+continua observável.
+
+### Decisão proposta
+
+Imprimir `cases(delim?, reverse?, gap?, children: <tuple>)`. Zero children usa
+`()`, um usa a vírgula terminal e muitos preservam ordem. Delimitadores
+ausentes aparecem como `none`, nunca como sentinel; gap usa o repr relativo.
+Cascata não fabrica campos explícitos e a separação de `&` para layout não
+altera a morfologia armazenada.

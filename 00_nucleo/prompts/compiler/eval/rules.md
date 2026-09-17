@@ -243,3 +243,13 @@ Ligar ambos os pares em `MATH_SET_LIGADOS`. `size` aceita relative length e
 `dotless` aceita boolean, guardados em chaves canônicas da `StyleChain`.
 Argumento explícito no elemento vence cascata; cascata vence defaults
 `100%`/`true`. Regras não alteram os bits morfológicos de presença do elemento.
+
+## P1430 — cascata tipada de `math.cases` (PROPOSTO; gate ADR-0127)
+
+`#set math.cases` aceita somente `delim`, `reverse` e `gap`, com os mesmos
+domínios do constructor público: par de delimitadores opcionais, booleano e
+relative length. Validar antes de inserir no `StyleChain`; valor inválido ou
+named desconhecido é erro atribuível, nunca warning nem fallback. A chamada
+explícita prevalece sobre a cascata, que prevalece sobre os defaults
+`("{", "}")`, `false`, `0.2em`. Valores cascaded não ativam bits de presença
+morfológica no elemento.

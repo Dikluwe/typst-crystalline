@@ -40,3 +40,23 @@ Delimitador esquerdo `{` fixo; sem delimitador direito (no layout, inalterado).
 
 `plain_text` células `& ` e linhas `, `; `map_content` recurse na grelha;
 `map_text` terminal; igualdade estrutural.
+
+## P1430 — carrier completo (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier vigente já acumulou `delim`, `reverse` e `gap`, mas guarda rows
+pré-resolvidas, usa `(char, char)` obrigatório, `Option<Length>` e não conserva
+presença explícita. O vanilla guarda children variádicos, par opcional e gap
+relativo; a resolução de ramos pertence ao consumer.
+
+### Contrato público proposto
+
+`MathCasesElem` passa a guardar `children: Vec<Content>`,
+`delim: (Option<char>, Option<char>)`, `reverse: bool`,
+`gap: Rel<Length>` e `MathCasesExplicit { delim, reverse, gap }`. O tipo de
+presença é público, `Copy + Eq + Hash`. Elemento, explicitude, delimitadores e
+gap participam de igualdade/hash; floats relativos seguem a normalização dos
+carriers vigentes. `map_content` desce em cada child; `map_text` continua
+terminal; `plain_text` junta ramos com `, ` e deixa `MathAlignPoint` dentro do
+child. Toda reconstrução preserva valores, ordem e bits.

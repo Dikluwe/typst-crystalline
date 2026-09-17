@@ -3079,3 +3079,20 @@ que já possuem codepoint canônico, sem reintroduzir `Content` arbitrário como
 acento. Enum, walkers, igualdade, hash, debug, `plain_text` e todas as
 reconstruções preservam o carrier P1429. A fronteira de avaliação é a única
 dona de casts e normalização de entrada.
+
+# P1430 — construção completa de `MathCases` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O constructor atual recebe rows já separadas, par de chars obrigatório,
+booleano e `Option<Length>`. Ele não consegue preservar children públicos,
+`none` por lado, gap relativo nem a presença dos três named.
+
+### Contrato público proposto
+
+Adicionar constructor completo que recebe children, par de `Option<char>`,
+`reverse`, `Rel<Length>` e `MathCasesExplicit { delim, reverse, gap }`. Manter
+um wrapper compatível para callsites internos antigos, reconstruindo os
+boundaries sem alterar sua geometria. Enum, walkers, igualdade, hash, debug,
+`plain_text` e todas as reconstruções preservam o carrier P1430; casts e
+normalização pertencem exclusivamente à fronteira de avaliação.

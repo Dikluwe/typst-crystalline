@@ -374,3 +374,21 @@ elemento `AccentElem`, com codepoint canônico fixo e named `size`/`dotless`.
 codepoint normalizado e aceitam somente `size`/`dotless`; convergem no carrier
 completo e preservam presença. Não duplicar normalização, casts ou política de
 diagnósticos dentro do parser math.
+
+## P1430 — sintaxe bare de `cases` converge no carrier público (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O braço atual avalia children, separa `MathAlignPoint` em rows e ignora falhas
+de cast em named por usar apenas `if let Ok`. Isso perde a identidade causal
+que o vanilla conserva como children variádicos e diverge da futura função
+qualificada.
+
+### Decisão proposta
+
+Construir Args math canônicos, avaliando cada ocorrência uma vez, e delegar ao
+mesmo constructor/validador de `math.cases`. Não pré-resolver `&`, não descartar
+Spread/named/erros e não executar layout. Estilos cascaded fornecem defaults;
+argumentos explícitos prevalecem e ativam somente seu bit correspondente.
+Bare e qualificado devem produzir children, delimitadores, reverse, gap e
+presença idênticos para entradas equivalentes.

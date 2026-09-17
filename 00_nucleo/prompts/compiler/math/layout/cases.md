@@ -127,3 +127,13 @@ result_ascent − grid.ascent` introduzido por P1132.
 mantêm os seus items em coordenadas baseline-relativas, sem `dy`. O
 `MathBox` resultante continua a publicar `max(ascent)` e `max(descent)`, que
 foi a parte correta de P1132 e preserva a altura total da página.
+
+## P1430 — consumo do carrier público (PROPOSTO; gate ADR-0127)
+
+`layout_cases` recebe children em ordem, forma uma row inicial por child e só
+então separa `MathAlignPoint` em células. Resolve `gap: Rel<Length>` contra o
+estilo exterior; a cascata já aplicada no carrier prevalece sobre `0.2em`.
+Com `reverse=false`, usa apenas `delim.0` à esquerda; com `true`, apenas
+`delim.1` à direita; `None` omite o glifo. Estilo de denominador, alinhamento,
+stretch, centro no eixo, limites externos e ausência de padding redundante
+permanecem exatamente os contratos P919/P923/P945/P1042/P1132.

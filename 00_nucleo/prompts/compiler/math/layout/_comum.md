@@ -1479,3 +1479,11 @@ reconstroem `accent`, `size`, `dotless` e presença sem perda; a transformação
 dotless é contextual ao layout superior e não contamina o conteúdo público.
 O helper de stretch recebe o alvo resolvido de `size` e short-fall `0.5em`;
 posição superior/inferior é derivada do codepoint normalizado.
+
+## P1430 — despacho e reconstrução de `MathCases` (PROPOSTO; gate ADR-0127)
+
+`layout_node` delega children, par opcional, reverse e gap relativo ao owner
+`cases.rs`. `apply_math_default` e `apply_math_style` transformam somente os
+children e reconstroem delimitadores, gap e os três bits de presença sem
+perda. Nenhuma reconstrução materializa rows antecipadamente, converte
+`None` em glifo ou marca campos vindos apenas da cascata como explícitos.

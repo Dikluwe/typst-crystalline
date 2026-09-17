@@ -440,3 +440,21 @@ rejeita qualquer outro conteúdo. Preservar presença independente de `size` e
 `dotless`, inclusive quando iguais aos defaults. Aridade, positional-only,
 named desconhecido, duplicado e cast inválido seguem os diagnósticos medidos;
 nenhum argumento pode ser truncado ou ignorado.
+
+## P1430 — binding público completo `math.cases` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O registry cristalino omite `math.cases`, embora sintaxe, carrier e layout
+existam. O vanilla registra `CasesElem`: children `Content` variádicos, mais
+`delim`, `reverse` e `gap` nomeados, com zero children válido.
+
+### Decisão proposta
+
+Registrar `math.cases` antes do espelho de símbolos. A nativa aceita qualquer
+número de posicionais convertíveis a `Content` e somente `delim`, `reverse` e
+`gap`; normaliza delimitadores opcionais, valida boolean/relative length e
+preserva presença causal, ordem e duplicados. Ela constrói o carrier completo
+P1430 sem executar layout ou separar `&`. A sintaxe bare delega à mesma
+validação/construção. Named desconhecido ou `children:` são erros, nunca
+ignorados; set rule fornece somente defaults cascaded e não marca explicitude.
