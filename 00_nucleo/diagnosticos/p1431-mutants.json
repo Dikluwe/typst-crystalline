@@ -1,8 +1,8 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 5,
-  "authored_at": "2026-09-17T11:09:21-03:00",
-  "phase": "adversarial-design-before-candidate",
+  "revision": 7,
+  "authored_at": "2026-09-17T14:31:00-03:00",
+  "phase": "adversarial-design-repair-after-equivalent-m26",
   "status": "designed_not_executed",
   "regime": "full",
   "attestation": "executed_without_isolation_attestation",
@@ -15,9 +15,9 @@
     "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b"
   },
   "oracles": {
-    "path": "00_nucleo/diagnosticos/p1431-oracles.json",
-    "sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad",
-    "revision": 5,
+    "path": "00_nucleo/diagnosticos/p1431-oracles-r6.json",
+    "sha256": "b37af704bc605c63132edf0fffa0377f3f12d731740e445b03672961a5cf13fe",
+    "revision": 6,
     "case_count": 64,
     "test_count": 34,
     "forward_ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
@@ -42,10 +42,10 @@
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "bcfaefcc2215e5ff66b334749be751b8ca41c7a30689090e449a5f56c5d3fc2e",
-    "reason_code": "BLOCK_ORACLE_R5_SURVIVOR_WITNESSES",
-    "scope": "Mutation revision 4 is invalid. Revision 5 binds the same 64 cases and 34 oracle IDs to the byte-exact R5 identity serialization and aligns M17c/M17h, M23c/M23d, M25e, M26 and M30d with their strengthened public causal witnesses.",
-    "downstream": "Any revision-4 preseal, seal, mutation result or certificate is invalid."
+    "supersedes_mutation_sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
+    "reason_code": "BLOCK_VALID_EQUIVALENT_MUTATION_SURVIVOR",
+    "scope": "Mutation revision 5 is invalid after the R6 campaign proved M26 equivalent at its frozen anchor. Revision 7 preserves M01-M25 and M27-M30 byte-identically, binds the existing 34 oracle IDs to R6, and replaces only M26 with the P1433-authorized omitted-to-explicit-zero call-site mutation.",
+    "downstream": "The R6 preseal, materialized patch set, partial receipt, adversarial result and nonseal verdict remain historical evidence but are not current authorization."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -53,19 +53,18 @@
     "rule": "All source inspection used immutable baseline blobs. No candidate implementation existed or was read during this design."
   },
   "authority": {
-    "role": "adversary",
-    "executor": "agent:/root/p1431_adversary",
+    "role": "adversarial_design_repair_authority",
+    "executor": "agent:/root",
     "environment": "shared workspace; procedural separation only",
     "read_allowlist_used": [
       "approved P1431 step and eleven owner L0 deltas",
       "frozen revision-3 manifesto and contract at c0920e963",
-      "published R5 oracle identities and assertions at bc8ac42ca",
+      "published R6 oracle identities and assertions at f3f7e9aa3",
       "productive baseline blobs at f5aa8d72f",
-      "ratified public vanilla identity"
+      "ratified public vanilla identity",
+      "P1433 and the independently reproduced R6 M26 equivalence diagnosis"
     ],
     "forbidden_reads_observed": [
-      "candidate productive implementation",
-      "candidate test diff",
       "private oracle reasoning",
       "private verifier output"
     ],
@@ -81,8 +80,8 @@
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "public_policy_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "design_path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
-    "design_sha256": "6eb35469b66b1a729c5476cefbf4595d48d3a3dd5227ec1a255c6f58d2ed5690",
-    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-5 design, reproduces the frozen 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
+    "design_sha256": "607ee65d0ea51a83d586b2d5d000b02666575d2bd45f117c723e3f945bac5640",
+    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-7 design, reproduces the frozen R6 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
     "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
     "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, dirty restoration or missing export observation is Unknown. The frozen public policy-self-check remains the direct M27 observer.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
@@ -103,7 +102,7 @@
   },
   "focused_calibration": {
     "measured_at": "2026-09-17T11:09:21-03:00",
-    "state": "clean published oracle R5 commit bc8ac42ca7be4d959e938a7feae1bb59509cf6b3 (tree c45641fee42990129ac113994fdd91d18a092be4) over frozen productive baseline; no candidate implementation read or executed",
+    "state": "clean P1433 predecessor 4129ec282 over unchanged productive candidate cf92c3d07; R7 is a narrow post-candidate repair authorized by the independently reproduced equivalent M26 finding",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -175,9 +174,9 @@
         "witness": "baseline accepts the first invalid offset before reaching the non-square 2x3/3x2 axis controls; physical mutation classification remains deferred"
       },
       "m26": {
-        "command": "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_reconstrucoes_preservam_todos_os_campos_causais -- --exact",
-        "exit": 101,
-        "witness": "baseline fails the earlier reconstruction check because canonical repr lacks delim, before reaching the direct Content::math_matrix carrier and geometry/text comparison; the R5 M26 slice is present but physical mutation classification remains deferred"
+        "historical_r6_result": "The value-only default mutation survived because explicit.column_gap=false kept the inherited 0.5em effective.",
+        "r7_hypothesis": "Replacing only the wrapper call-site column_gap None with Some(Length::ZERO) makes explicit.column_gap=true through existing code and must change width/text positions observed by P32.",
+        "execution": "deferred until the R7 design commit and unique materialized patch exist"
       },
       "m30d": {
         "command": "cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local -- --exact",
@@ -375,10 +374,10 @@
       "killer_cases": ["P28-augment-lines","N16-hline-positive-out-of-range","N17-hline-negative-out-of-range","N18-vline-positive-out-of-range","N19-vline-negative-out-of-range"], "boundary_cases": ["P29-augment-stroke"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
     },
     {
-      "id": "M26", "target": "O-COMPATIBILITY", "property": "direct legacy wrapper preserves canonical carrier identity and common-constructor geometry/text",
-      "precondition": "one direct Content::math_matrix compatibility wrapper exists", "patch": "change only its default column gap to zero; kill via direct canonical repr and exact common-constructor geometry/text equivalence",
+      "id": "M26", "target": "O-COMPATIBILITY", "property": "direct legacy wrapper preserves omitted inherited column-gap and common-constructor geometry/text",
+      "precondition": "one direct Content::math_matrix compatibility wrapper passes omitted column_gap into math_matrix_full", "patch": "replace only the wrapper call-site column_gap None with explicit zero through Some(Length::ZERO); kill via exact common-constructor geometry/text equivalence",
       "target_files": ["01_core/src/entities/content.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "2066171c3a2bbbb522f75289b4fa253eadce6e1e61a5f8b2c9cf8caafd51d656",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "3231c9cd54a1bf3f9a8f6cd454284dbf58a45d23912dd8e13c91ece71d6270df",
       "killer_cases": ["P32-legacy-regressions"], "boundary_cases": ["P15-omitted-presence","P31-denominator-style","P34-line-cap-carrier","P36-pdf-line-cap"], "expected_reason_code": "VIOLATED_REGRESSION"
     },
     {
