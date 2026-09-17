@@ -1,0 +1,50 @@
+{
+  "schema": "tekt.materialization.mutation-receipt/v1",
+  "revision": 7,
+  "measured_at": "2026-09-17T15:28:19-03:00",
+  "subject_step": 1431,
+  "repair_step": 1433,
+  "attestation": "executed_without_isolation_attestation",
+  "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+  "execution_commit": "6d38a1b8647a74f445d9d004245c830dd844f806",
+  "order": "forward",
+  "status": "INCOMPLETE_FAIL_CLOSED",
+  "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 --no-fail-fast && RUSTFLAGS='-Awarnings' cargo test --release -q -p typst-infra p1431 --no-fail-fast",
+  "runs": [
+    {"mutation":"M01","classification":"Violated","reason_code":"VIOLATED_BINDING","runner_exit":0,"patch_sha256":"68330bc2345140a411a44c122ba96dc42eba7bfc21783d07d475dd0e8241e29e","elapsed_seconds":22.394,"runner_stdout_sha256":"f411fefd0907d5ba49dbe8c664347c4d048b5aaba954e0d26a224b3c693b2d99"},
+    {"mutation":"M02","classification":"Violated","reason_code":"VIOLATED_ROW_MODE","runner_exit":0,"patch_sha256":"0d032e78722a3338fcefea58cca0121fe35b50b42f7a58da3ae4077852c52c0e","elapsed_seconds":21.424,"runner_stdout_sha256":"a7f16ed5b1f7a1cbfa7d1b91e2ff8758f664c9de585bbe9afb2df853fb541851"},
+    {"mutation":"M03","classification":"Violated","reason_code":"VIOLATED_ROW_MODE","runner_exit":0,"patch_sha256":"2da70161a3d7668111d3372a0256541ccdde93d4553455ba2540b4db51ff600e","elapsed_seconds":20.240,"runner_stdout_sha256":"df58cf0e513e640c982a3597b0e4a5dde916c9b599d72850d07532ced98a8b1a"},
+    {"mutation":"M04","classification":"Violated","reason_code":"VIOLATED_EXPECTED_ARRAY","runner_exit":0,"patch_sha256":"2fccbd92e2c23742b7080d7740e45fd90528bb98f54802e73030d3a4ea6fd482","elapsed_seconds":20.117,"runner_stdout_sha256":"66bdc1265db3808c9e7e2ffafd88b73fe34b494b17a7649fe869c5612de452a4"},
+    {"mutation":"M05","classification":"Unknown","reason_code":"UNKNOWN_EXECUTION_OR_BUDGET","runner_exit":3,"patch_sha256":"1befd1727dec2c69a5153c512c74a4e5c282cc47b5be8b2e25d2633a1bb64243","elapsed_seconds":16.880,"runner_stdout_sha256":"d3921e615689dcd4466f47f0d9d9a345b4ffa7e4660b77fb54ce34c780117886"}
+  ],
+  "m05_diagnosis": {
+    "recipe_transform": "disable appending Empty cells to shorter rows while preserving row parsing",
+    "materialized_transform": "removes the resize loop and renames columns to _columns",
+    "observed_compile_errors": [
+      "E0425 cannot find value columns at structural/math.rs:1183",
+      "E0425 cannot find value columns at structural/math.rs:1187"
+    ],
+    "cause": "The candidate added downstream offset validation that consumes columns. The historical patch's _columns rename is now stale and breaks compilation before P05/P06/P23 execute.",
+    "classification": "INVALID_NON_ATTRIBUTABLE_MATERIALIZATION",
+    "credit": false,
+    "prohibited_reclassification": "A diagnostic rerun with witness regex '.' made the generic runner emit Violated, but this is not an attributable public killer and receives no mutation credit."
+  },
+  "operational_incident": {
+    "attempt": "The first invocation supplied an incorrect expanded preseal hash and stopped at M01 with UNKNOWN_IDENTITY_MISMATCH before patch application.",
+    "mutation_credit": false,
+    "state_change": false
+  },
+  "counts": {
+    "executed_with_exact_identity": 5,
+    "violated_attributably": 4,
+    "unknown": 1,
+    "survived": 0,
+    "not_executed": 25,
+    "mutation_score": null
+  },
+  "stopped_before": ["M06-M30 forward", "forward_repeat", "reverse"],
+  "clean_finish": {
+    "tracked_tree_clean": true,
+    "git_diff_check": "PASS"
+  }
+}
