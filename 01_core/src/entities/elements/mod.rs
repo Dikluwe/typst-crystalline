@@ -46,6 +46,9 @@ pub mod math_vec;
 mod p1429_math_accent_tests;
 #[cfg(test)]
 mod p1430_math_cases_tests;
+
+#[cfg(test)]
+mod p1431_math_matrix_tests;
 // Lote 3 P318 — família lista/termos (5 variantes element-shaped).
 pub mod enum_item;
 pub mod link;

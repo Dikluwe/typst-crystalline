@@ -1,0 +1,268 @@
+{
+  "schema": "tekt.materialization.mutations/v1",
+  "revision": 1,
+  "authored_at": "2026-09-17T09:17:00-03:00",
+  "phase": "adversarial-design-before-candidate",
+  "status": "designed_not_executed",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1431-manifest.json",
+    "sha256": "467fd61cbab8d98f302080ddb284f2222003a2ff4740cebe85cbbf1bb1749d16"
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1431-contract.json",
+    "sha256": "8f4bc00ce4025330e0d5c458dea3a84ec2bd6147de0924d5f926c5c3adfc1e9e"
+  },
+  "baseline": {
+    "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
+    "tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
+    "rule": "All source inspection used immutable baseline blobs. No candidate implementation existed or was read during this design."
+  },
+  "authority": {
+    "role": "adversary",
+    "executor": "agent:/root/p1431_adversary",
+    "environment": "shared workspace; procedural separation only",
+    "read_allowlist_used": [
+      "approved P1431 step and eight owner L0 deltas",
+      "frozen manifesto and contract at commit 4ee3e29d1",
+      "productive baseline blobs at f5aa8d72f",
+      "ratified public vanilla identity"
+    ],
+    "forbidden_reads_observed": [
+      "candidate productive implementation",
+      "candidate test diff",
+      "private oracle reasoning",
+      "private verifier output"
+    ],
+    "write_allowlist_used": [
+      "00_nucleo/diagnosticos/p1431-mutants.json",
+      "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
+      "00_nucleo/diagnosticos/p1431-mutations/patches/M01.json..M27.json"
+    ],
+    "verdict_authority": false
+  },
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
+    "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
+    "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode verify-design",
+    "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, or dirty restoration is Unknown.",
+    "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
+  },
+  "materialization_policy": {
+    "when": "Only after the candidate commit and published oracle identities exist.",
+    "how": "The adversary mechanically instantiates each frozen semantic recipe as exactly one unified diff under 00_nucleo/diagnosticos/p1431-mutations/materialized/<candidate>/Mxx.patch. It may select the unique candidate anchor but may not change target observable, transform, killers, boundary controls, target-file allowlist or Unknown policy.",
+    "ambiguity": "Zero or multiple valid anchors, a required semantic choice not fixed by the recipe, or a patch outside the target-file allowlist is Unknown and blocks the mutation gate.",
+    "receipt": "Every execution receipt records candidate commit/tree, recipe and patch SHA-256, command, order, elapsed time, stdout/stderr digest, classification and reason code."
+  },
+  "classification": {
+    "killed": "Violated with the mutation's attributable expected reason code and public killer witness.",
+    "survived": "Preserved/MUTATION_SURVIVED; blocks the score and seal.",
+    "unknown": "Unknown; receives no credit, remains in the denominator, and blocks preseal/final admission.",
+    "score_formula": "valid semantic mutations classified Violated / all 27 valid semantic mutations",
+    "required_score": 1.0
+  },
+  "execution_orders": [
+    {"id": "forward", "fresh_process": true, "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
+    {"id": "forward_repeat", "fresh_process": true, "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
+    {"id": "reverse", "fresh_process": true, "mutations": ["M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
+  ],
+  "mutations": [
+    {
+      "id": "M01", "target": "O-BINDING", "property": "qualified binding exists and constructs canonical MathMatrix",
+      "precondition": "one attributable math.mat registration exists", "patch": "delete only that registration",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M01.json", "recipe_sha256": "e9d0a3b35dfaa86f5bfa4e7de627211c219b81db6c44626485e529fec916d694",
+      "killer_cases": ["P01-qualified-binding"], "boundary_cases": ["N11-unknown-named","P19-route-convergence"], "expected_reason_code": "VIOLATED_BINDING"
+    },
+    {
+      "id": "M02", "target": "O-ROWS", "property": "zero positionals form one empty row",
+      "precondition": "one zero-positional normalization branch exists", "patch": "replace one empty row with zero outer rows",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M02.json", "recipe_sha256": "e256c6a2237871f86824b20c817e63fceeb116c2ef130e389ba607272f7a053c",
+      "killer_cases": ["P02-zero-rows"], "boundary_cases": ["P03-scalar-row","P04-array-rows"], "expected_reason_code": "VIOLATED_ROW_MODE"
+    },
+    {
+      "id": "M03", "target": "O-ROWS", "property": "all scalar positionals share one row",
+      "precondition": "one scalar-mode row assembly exists", "patch": "turn each scalar into a separate one-cell row",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M03.json", "recipe_sha256": "af8e2d77fa5c3f9cdbec3dea094bbfe7f1a1cb8d9aad5e4b323ad92cdffc3212",
+      "killer_cases": ["P03-scalar-row","P19-route-convergence"], "boundary_cases": ["P04-array-rows","P02-zero-rows"], "expected_reason_code": "VIOLATED_ROW_MODE"
+    },
+    {
+      "id": "M04", "target": "O-ROWS", "property": "array mode rejects every scalar positional",
+      "precondition": "one non-array cast failure exists in array mode", "patch": "wrap the scalar as a synthetic row instead of erroring",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M04.json", "recipe_sha256": "461381e2c1f766c518cedf1d7c2cc9eeae74f0986b0ae943e53d5fa3b51eb03a",
+      "killer_cases": ["N01-mixed-row-modes","N14-bare-invalids"], "boundary_cases": ["P03-scalar-row","P04-array-rows"], "expected_reason_code": "VIOLATED_EXPECTED_ARRAY"
+    },
+    {
+      "id": "M05", "target": "O-PADDING", "property": "ragged rows append Empty to maximum width",
+      "precondition": "one rectangularization loop appends Empty", "patch": "disable Empty appends",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M05.json", "recipe_sha256": "036503788d5f30d9b2183afcba8907512e7dcdff20ad9832a987b0bddad649e2",
+      "killer_cases": ["P05-ragged-padding","P06-empty-array-row","P23-repr-complete"], "boundary_cases": ["P04-array-rows"], "expected_reason_code": "VIOLATED_PADDING"
+    },
+    {
+      "id": "M06", "target": "O-DELIMITER", "property": "optional delimiter sides and pair inference remain distinct",
+      "precondition": "one delimiter parser preserves optional sides", "patch": "replace a supplied none side with an inferred/default glyph",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M06.json", "recipe_sha256": "5a06833e7ea0dbb9c0b3643ad4bdee702781647925019b32cb493588007cb369",
+      "killer_cases": ["P07-delimiter-forms","N03-delim-cardinality","N04-delim-codepoint-class"], "boundary_cases": ["P15-omitted-presence"], "expected_reason_code": "VIOLATED_DELIMITER"
+    },
+    {
+      "id": "M07", "target": "O-ALIGN", "property": "five horizontal alignments round-trip and affect geometry",
+      "precondition": "one align cast/placement dispatch exists", "patch": "map Right to Center after validation",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs","01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M07.json", "recipe_sha256": "74a9c998076fe1a1f2c5f34c3318f7394c8a745a936ac5ace5df1fe788d58d49",
+      "killer_cases": ["P08-align-domain","P25-horizontal-align-geometry","N05-align-invalid"], "boundary_cases": ["P26-ampersand-geometry"], "expected_reason_code": "VIOLATED_ALIGNMENT"
+    },
+    {
+      "id": "M08", "target": "O-GAPS", "property": "specific same-level gap axes override shorthand independent of order",
+      "precondition": "one shorthand expansion and specific override stage exists", "patch": "apply shorthand last so it overwrites both specific axes",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M08.json", "recipe_sha256": "d1a041620b55893bd96d8b161c8276de0c5d9af829b8ca7e9cc083362a388f5d",
+      "killer_cases": ["P09-gap-shorthand","P10-gap-specific-precedence"], "boundary_cases": ["P11-independent-relative-gaps","N13-duplicates"], "expected_reason_code": "VIOLATED_GAP_PRECEDENCE"
+    },
+    {
+      "id": "M09", "target": "O-GAPS", "property": "row/column Rel<Length> resolve on their own axes against exterior style",
+      "precondition": "one exterior-style resolution feeds the grid", "patch": "swap resolved row and column gaps",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M09.json", "recipe_sha256": "412adc569708c7d2c879da06b460f0cb830a1f07211657e6f3c0adafd72c58cf",
+      "killer_cases": ["P11-independent-relative-gaps","P27-relative-gap-geometry"], "boundary_cases": ["P09-gap-shorthand","P31-denominator-style"], "expected_reason_code": "VIOLATED_RELATIVE_LENGTH"
+    },
+    {
+      "id": "M10", "target": "O-AUGMENT-CAST", "property": "augment dictionary is closed and typed",
+      "precondition": "one unknown-key rejection exists", "patch": "ignore one unknown augment key",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M10.json", "recipe_sha256": "4e3f40ce1f3c4b358119be2e1395ab3a244e07df1039cf82515f6a92ce10acdc",
+      "killer_cases": ["N09-augment-dict-key","P13-augment-dict"], "boundary_cases": ["N08-augment-line-type","N10-augment-stroke-invalid"], "expected_reason_code": "VIOLATED_AUGMENT_DICT"
+    },
+    {
+      "id": "M11", "target": "O-AUGMENT-CAST", "property": "integer shorthand is used only for one auto-stroke vline",
+      "precondition": "one canonical augment repr branch exists", "patch": "print every non-empty vline augment as integer",
+      "target_files": ["01_core/src/compiler/eval/repr.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M11.json", "recipe_sha256": "355f220ea581c72e582f9f4cec41f7dea43ade5c4515d1b3179013dc20f062b4",
+      "killer_cases": ["P12-augment-integer","P13-augment-dict","P23-repr-complete"], "boundary_cases": ["P14-augment-none"], "expected_reason_code": "VIOLATED_REPR"
+    },
+    {
+      "id": "M12", "target": "O-AUGMENT-CASCADE", "property": "explicit none suppresses outer augment",
+      "precondition": "one effective augment fold exists", "patch": "return cascaded augment for local explicit none",
+      "target_files": ["01_core/src/compiler/eval/rules.rs","01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M12.json", "recipe_sha256": "55e4679494e5302a1324eb2a13d49de32bc278d7d1b14d229cd5484c7ac7d2bd",
+      "killer_cases": ["P18-cascade-augment-fold","P16-cascade-basic"], "boundary_cases": ["P14-augment-none","U04-cascade"], "expected_reason_code": "VIOLATED_CASCADE"
+    },
+    {
+      "id": "M13", "target": "O-EXPLICITNESS", "property": "gap sets both causal axis-presence bits",
+      "precondition": "one MathMatrixExplicit construction exists", "patch": "set only row_gap presence for gap",
+      "target_files": ["01_core/src/compiler/stdlib/structural/math.rs","01_core/src/entities/elements/math_matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M13.json", "recipe_sha256": "db909c117179ed93b41c0ac00700cc467fd8d9e9cf0bfb73e4adebc577316d3b",
+      "killer_cases": ["P09-gap-shorthand","P15-omitted-presence","P23-repr-complete"], "boundary_cases": ["P10-gap-specific-precedence","P14-augment-none"], "expected_reason_code": "VIOLATED_EXPLICITNESS"
+    },
+    {
+      "id": "M14", "target": "O-SET-PRECEDENCE", "property": "set math.mat validates all six domains before insertion",
+      "precondition": "one math.mat set validation path exists", "patch": "insert column-gap without its cast",
+      "target_files": ["01_core/src/compiler/eval/rules.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M14.json", "recipe_sha256": "46ce391807c39b0ee5b31315d409c58a3379ab62cbb2ef98980b7307e0bcc8f5",
+      "killer_cases": ["N15-set-invalids","P16-cascade-basic","P17-cascade-gap"], "boundary_cases": ["N06-gap-types"], "expected_reason_code": "VIOLATED_CASCADE"
+    },
+    {
+      "id": "M15", "target": "O-ROUTE-CONVERGENCE", "property": "bare mat delegates to the same strict constructor",
+      "precondition": "one bare delegation exists", "patch": "restore permissive extraction for one invalid named value",
+      "target_files": ["01_core/src/compiler/eval/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M15.json", "recipe_sha256": "535a014e610b037c2c9e6493df061e04ceadd51729fa94776a4170a87d9c0757",
+      "killer_cases": ["P19-route-convergence","N14-bare-invalids"], "boundary_cases": ["N13-duplicates","P03-scalar-row"], "expected_reason_code": "VIOLATED_ROUTE_DIVERGENCE"
+    },
+    {
+      "id": "M16", "target": "O-EVALUATION-ONCE", "property": "each occurrence evaluates once in source order",
+      "precondition": "one source-order math argument loop exists", "patch": "evaluate the first mat positional twice",
+      "target_files": ["01_core/src/compiler/eval/math.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M16.json", "recipe_sha256": "4b93ba6a01c97a517336dd540c7547bfab48bc787318aedca2420146f70d9853",
+      "killer_cases": ["P20-evaluation-once"], "boundary_cases": ["U05-evaluation","P19-route-convergence"], "expected_reason_code": "VIOLATED_EVALUATION_COUNT"
+    },
+    {
+      "id": "M17", "target": "O-CARRIER", "property": "hash includes every explicitness bit",
+      "precondition": "one manual MathMatrixElem hash exists", "patch": "omit explicit.column_gap from hash",
+      "target_files": ["01_core/src/entities/elements/math_matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M17.json", "recipe_sha256": "12ece15eb603b432aec3f0d8855d668e977d3f3a1e8150547fc75faaf42d2425",
+      "killer_cases": ["P21-carrier-discrimination"], "boundary_cases": ["P15-omitted-presence","P22-walkers"], "expected_reason_code": "VIOLATED_CARRIER"
+    },
+    {
+      "id": "M18", "target": "O-WALKERS", "property": "map_content visits every cell once row-major",
+      "precondition": "one row-major map_content exists", "patch": "skip the last cell in each non-empty row",
+      "target_files": ["01_core/src/entities/elements/math_matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M18.json", "recipe_sha256": "247a165b3bf60dd28679183f47bab180e4f221d46621931701faf2a17eeed848",
+      "killer_cases": ["P22-walkers"], "boundary_cases": ["P21-carrier-discrimination","P24-reconstruction"], "expected_reason_code": "VIOLATED_WALKER"
+    },
+    {
+      "id": "M19", "target": "O-REPR", "property": "canonical mat repr preserves all causal fields and rows",
+      "precondition": "one Content::MathMatrix repr branch exists", "patch": "emit legacy literal matrix",
+      "target_files": ["01_core/src/compiler/eval/repr.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M19.json", "recipe_sha256": "47f8148c431b0d9c53b7c37a3e75cfebe29abd20ff395da193d77e5b4643df0e",
+      "killer_cases": ["P02-zero-rows","P07-delimiter-forms","P23-repr-complete"], "boundary_cases": ["P19-route-convergence","P32-legacy-regressions"], "expected_reason_code": "VIOLATED_REPR"
+    },
+    {
+      "id": "M20", "target": "O-RECONSTRUCTION", "property": "exhaustive reconstruction preserves all non-content fields",
+      "precondition": "one matrix rebuild exists in apply_math_default/style", "patch": "reset align to Center during rebuild",
+      "target_files": ["01_core/src/compiler/math/layout/mod.rs","01_core/src/entities/content.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M20.json", "recipe_sha256": "f6c2bb45d0b02c93bb58323c2da894809cf4b97cf2507c68fd42668def5d9bff",
+      "killer_cases": ["P24-reconstruction","P25-horizontal-align-geometry"], "boundary_cases": ["P08-align-domain","P22-walkers"], "expected_reason_code": "VIOLATED_RECONSTRUCTION"
+    },
+    {
+      "id": "M21", "target": "O-ALIGN-POINT", "property": "ampersand boundaries retain alternating subcolumns and P825 spacing",
+      "precondition": "one MathAlignPoint split/alternating path exists", "patch": "force Center alignment for boundary cells",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M21.json", "recipe_sha256": "9a71fbc6aa9acbbb562f2e904adcedc00fd73e2616ec0930ca659e180527e7c5",
+      "killer_cases": ["P26-ampersand-geometry"], "boundary_cases": ["P25-horizontal-align-geometry","P32-legacy-regressions"], "expected_reason_code": "VIOLATED_ALIGN_POINT"
+    },
+    {
+      "id": "M22", "target": "O-LAYOUT-GEOMETRY", "property": "cells use denominator style and grid is centered once",
+      "precondition": "one denominator-style derivation exists", "patch": "layout cells with exterior style",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M22.json", "recipe_sha256": "bb1b40128d57273a12b6c29c31582a3acca7709dd7027d7e9a46a54725bd562b",
+      "killer_cases": ["P31-denominator-style","P30-delimiter-axis-extents"], "boundary_cases": ["P25-horizontal-align-geometry","P32-legacy-regressions"], "expected_reason_code": "VIOLATED_LAYOUT"
+    },
+    {
+      "id": "M23", "target": "O-AUGMENT-GEOMETRY", "property": "every ordered hline/vline offset draws one line including borders",
+      "precondition": "one full hline iteration exists", "patch": "draw only the first hline",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M23.json", "recipe_sha256": "18ee4b1fa39e0503332176e2d1ffd4d17407f1427a5b4a2b1ed793ad2a2ee18a",
+      "killer_cases": ["P28-augment-lines"], "boundary_cases": ["P13-augment-dict","N16-hline-positive-out-of-range"], "expected_reason_code": "VIOLATED_LAYOUT"
+    },
+    {
+      "id": "M24", "target": "O-AUGMENT-GEOMETRY", "property": "negative offsets normalize from end and stroke semantics survive",
+      "precondition": "one negative-offset normalization exists", "patch": "subtract one after negative normalization",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M24.json", "recipe_sha256": "6403e655809458e7160a87e4694916b9b9197e899aeddb37c392910452365b26",
+      "killer_cases": ["P28-augment-lines","P29-augment-stroke"], "boundary_cases": ["N17-hline-negative-out-of-range","N19-vline-negative-out-of-range"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
+    },
+    {
+      "id": "M25", "target": "O-OFFSET-VALIDATION", "property": "offset bounds are inclusive at 0 and dimension and reject beyond dimension",
+      "precondition": "one inclusive offset validator exists", "patch": "change upper boundary to strict interior-only",
+      "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M25.json", "recipe_sha256": "e9c1e5e74d5e8bd28a7b72ded0e5beabbe3fc3f6776f95ea4742899da29b3a6b",
+      "killer_cases": ["P28-augment-lines","N16-hline-positive-out-of-range","N18-vline-positive-out-of-range"], "boundary_cases": ["N17-hline-negative-out-of-range","N19-vline-negative-out-of-range"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
+    },
+    {
+      "id": "M26", "target": "O-COMPATIBILITY", "property": "legacy wrapper preserves certified old geometry",
+      "precondition": "one narrow compatibility wrapper exists", "patch": "change only its default column gap to zero",
+      "target_files": ["01_core/src/entities/content.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "8115e9e8a49fa828214445c138e403c93f8afae784fe080b31d9c5f9ed857cee",
+      "killer_cases": ["P32-legacy-regressions"], "boundary_cases": ["P15-omitted-presence","P31-denominator-style"], "expected_reason_code": "VIOLATED_REGRESSION"
+    },
+    {
+      "id": "M27", "target": "O-FAIL-CLOSED", "property": "Unknown blocks and receives no credit",
+      "precondition": "one fail_unknown path exists in a disposable runner copy", "patch": "return Preserved/success for Unknown",
+      "target_files": ["00_nucleo/diagnosticos/p1431-mutations/runner.rb"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M27.json", "recipe_sha256": "6e682895ce25019d618cbd234b2eed2bd157c2b79e878da68a03c3390dfd1d78",
+      "killer_cases": ["U01-identity","U09-execution"], "boundary_cases": ["P01-qualified-binding","N01-mixed-row-modes"], "expected_reason_code": "VIOLATED_UNKNOWN_POLICY"
+    }
+  ],
+  "preseal_statement": {
+    "candidate_classified": false,
+    "mutations_executed": 0,
+    "mutation_score": null,
+    "verdict_emitted": false,
+    "next_gate": "Independent verifier checks recipe exhaustiveness, hashes, killer adequacy, Unknown policy and oracle identity mapping before admitting candidate implementation."
+  }
+}
