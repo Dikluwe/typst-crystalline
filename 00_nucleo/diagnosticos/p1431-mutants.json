@@ -1,40 +1,47 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 3,
-  "authored_at": "2026-09-17T09:36:00-03:00",
+  "revision": 4,
+  "authored_at": "2026-09-17T10:31:45-03:00",
   "phase": "adversarial-design-before-candidate",
   "status": "designed_not_executed",
   "regime": "full",
   "attestation": "executed_without_isolation_attestation",
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1431-manifest.json",
-    "sha256": "737d9bc119502acfefff0d0a00bd00ac8371ee6dc237f452ebe5da3e8d846b40"
+    "sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445"
   },
   "contract": {
     "path": "00_nucleo/diagnosticos/p1431-contract.json",
-    "sha256": "e0ebf2840cef2d68fd8d03bc5e8cf6b7b45d05d16be71f4f4f938b5cb1c497ba"
+    "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b"
   },
   "oracles": {
     "path": "00_nucleo/diagnosticos/p1431-oracles.json",
-    "sha256": "129e6fd161a4c1005e1bb4dcd35989d86e44859014dcb002b056260f3f1798ed",
-    "revision": 3,
-    "test_count": 28,
-    "forward_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776",
-    "reverse_ids_sha256": "c5338edc979bfaae86c7ef35ebf82d76b1e33f5abec49c3200abaa791916ddfa",
+    "sha256": "0f2ac9dfebf1f8927f2be289244f48671dddc9585b2eeb0916b897c570d648f1",
+    "revision": 4,
+    "case_count": 64,
+    "test_count": 34,
+    "forward_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d",
+    "reverse_ids_sha256": "25168329eb5ad2caa34465339468a7c7601811eb254f4bfe571f2decb9f58620",
     "public_assertions_used": [
       "P33 accepts and ignores unknown augment dictionary keys",
       "N03, N06 and N08 exercise every frozen invalid subcase",
       "N10 continues rejecting invalid known-field values",
       "N15 directly rejects #set math.mat(column-gap: 1) and duplicate column-gap",
       "U02 and U06 derive fail-closed Unknown from real opaque observations",
+      "P20 uses a successful mutable-array occurrence signal plus a separate spread witness",
+      "P21 pairwise-discriminates every carrier component including stroke cap",
+      "P28-P29 observe all augment lines and complete stroke/cap transport",
+      "P34 observes Square/round/butt carrier semantics after full frame transport",
+      "P35 distinguishes raster Butt < Round < Square and auto equals Square",
+      "P36 checks scoped PDF 1 J/2 J in both paths and omission of legacy 0 J",
       "the public policy oracle invokes runner.rb --mode policy-self-check after checking runner SHA-256"
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "1ce8212acbfbea7c80d746ded335e7da7e45cbc5a835207b9d0f61022a704f5d",
-    "reason_code": "BLOCK_ORACLE_COVERAGE_GAP_R3",
-    "scope": "Mutation revision 2 is invalidated at the oracle-identity/mapping boundary. Revision 3 binds the 28-test R3 identities and makes the direct #set math.mat(column-gap: 1) assertion the sole causal M14 killer; M01-M13 and M15-M27 semantics remain unchanged.",
-    "downstream": "Any revision-2 preseal, seal, mutation result or certificate is invalid."
+    "supersedes_mutation_sha256": "b06857c635e64bbabc189d4c22e514d96b62180a52e6215ebee35535a178f1bd",
+    "reason_code": "BLOCK_CONTRACT_R3_LINE_CAP_AND_P20_EXPANSION",
+    "scope": "Mutation revision 3 is invalid. Revision 4 binds 64 cases and 34 R4 tests, strengthens M16/M17/M23-M26, and adds M28-M30 for line-cap carrier, raster and PDF transport. Unchanged mutation families retain their prior recipes.",
+    "downstream": "Any revision-3 preseal, seal, mutation result or certificate is invalid."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -46,9 +53,9 @@
     "executor": "agent:/root/p1431_adversary",
     "environment": "shared workspace; procedural separation only",
     "read_allowlist_used": [
-      "approved P1431 step and eight owner L0 deltas",
-      "corrected frozen manifesto and contract at e4ca7de01",
-      "published R3 oracle identities and assertions at e798b71d0",
+      "approved P1431 step and eleven owner L0 deltas",
+      "frozen revision-3 manifesto and contract at c0920e963",
+      "published R4 oracle identities and assertions at c1ccd75bc",
       "productive baseline blobs at f5aa8d72f",
       "ratified public vanilla identity"
     ],
@@ -60,17 +67,20 @@
     ],
     "write_allowlist_used": [
       "00_nucleo/diagnosticos/p1431-mutants.json",
-      "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
-      "00_nucleo/diagnosticos/p1431-mutations/patches/M01.json..M27.json"
+      "00_nucleo/diagnosticos/p1431-mutations/runner.rb and runner-r4.rb",
+      "00_nucleo/diagnosticos/p1431-mutations/patches/M01.json..M30.json"
     ],
     "verdict_authority": false
   },
   "runner": {
     "path": "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
-    "identity_preservation": "Runner bytes are deliberately unchanged in revision 3 because the frozen R3 oracle first asserts this exact SHA-256. M27 changes the effective policy path through its frozen Ruby preload; changing runner.rb itself would cause a non-causal identity failure before --mode policy-self-check executes.",
-    "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode verify-design",
-    "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, or dirty restoration is Unknown. The frozen public policy-self-check is the direct M27 observer; runner bytes stay identical to its R3 identity and M27 mutates the nested process policy through the frozen preload recipe.",
+    "public_policy_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
+    "design_path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
+    "design_sha256": "983a3080948a591afb76ca7aa76961628d6fea4f5ffa2ce4c514e9923e21d63d",
+    "identity_preservation": "runner.rb remains byte-identical because the frozen R4 oracle asserts this SHA before exercising M27. runner-r4.rb verifies the expanded 30-family design and delegates physical execution to the frozen reversible runner.",
+    "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
+    "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, dirty restoration or missing export observation is Unknown. The frozen public policy-self-check remains the direct M27 observer.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
   },
   "materialization_policy": {
@@ -83,13 +93,13 @@
     "killed": "Violated with the mutation's attributable expected reason code and public killer witness.",
     "survived": "Preserved/MUTATION_SURVIVED; blocks the score and seal.",
     "unknown": "Unknown; receives no credit, remains in the denominator, and blocks preseal/final admission.",
-    "score_formula": "valid semantic mutations classified Violated / all 27 valid semantic mutations",
+    "score_formula": "valid semantic mutations classified Violated / all 30 valid semantic mutation families",
     "required_score": 1.0,
-    "family_rule": "M10 contains two required physical variants but remains one contract mutation family: it earns one numerator unit only if both variants are Violated and their known-field boundary controls retain the frozen classifications."
+    "family_rule": "A family with multiple frozen physical variants earns one numerator unit only when every valid variant is Violated by its direct causal witness and all boundary controls retain their frozen classifications."
   },
   "focused_calibration": {
-    "measured_at": "2026-09-17T09:36:00-03:00",
-    "state": "shared workspace at oracle R3; no candidate implementation read or executed",
+    "measured_at": "2026-09-17T10:31:45-03:00",
+    "state": "shared workspace at oracle R4; no candidate implementation read or executed",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -113,12 +123,40 @@
       "reason_code": "VIOLATED_UNKNOWN_POLICY"
     },
     "m10": "Design-only recalibration: P33 is the mandatory positive killer for both reject-unknown and retain-unknown variants; P13, N08 and N10 are mandatory boundary controls. No candidate exists, so neither M10 variant was executed.",
-    "m14": "Design-only R3 recalibration: the direct #set math.mat(column-gap: 1) subcase inside p1431_set_rejeita_named_e_tipos_invalidos is the sole causal killer; P16, P17 and constructor-side N06 are boundary controls. No candidate exists, so M14 was not executed."
+    "m14": "Design-only R3 recalibration retained: the direct #set math.mat(column-gap: 1) subcase is the sole causal killer; P16, P17 and constructor-side N06 are boundary controls.",
+    "m16": {
+      "command": "cargo test -q -p typst-core p1431_avaliacao_ocorre_uma_vez_e_na_ordem_causal",
+      "exit": 101,
+      "classification": "RED_ATTRIBUTABLE",
+      "witness": "the successful occurrence-count fixture reached the frozen missing math.mat binding; it did not fail through an invalid counter observer",
+      "future_gate": "After candidate admission, duplicate/reorder variants must be killed by the successful signal and spread loss/reorder variants by the separate spread repr."
+    },
+    "m28": {
+      "command": "cargo test -q -p typst-core p1431_auto_square_e_produtor_legado_butt_chegam_ao_frame",
+      "exit": 101,
+      "classification": "RED_ATTRIBUTABLE",
+      "witness": "a real matrix FrameItem::Line was reached and its Debug output lacked cap; auto Square was not observed"
+    },
+    "m29": {
+      "command": "cargo test -q -p typst-infra p1431_raster_mapeia_butt_round_square_e_auto_square",
+      "exit": 101,
+      "classification": "RED_ATTRIBUTABLE_UPSTREAM_BINDING",
+      "witness": "the public raster oracle reached its matrix_document boundary and stopped at missing math.mat; raster mapping variants remain design-only until candidate admission"
+    },
+    "m30": {
+      "mapping_command": "cargo test -q -p typst-infra p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local",
+      "mapping_exit": 101,
+      "mapping_witness": "the public PDF mapping oracle stopped at missing math.mat; non-default J variants remain design-only until candidate admission",
+      "legacy_command": "cargo test -q -p typst-infra p1431_pdf_legado_butt_preserva_bytes_sem_zero_j",
+      "legacy_exit": 0,
+      "legacy_passed": 1,
+      "legacy_witness": "deterministic legacy Butt bytes and omitted 0 J are an active preserved boundary control"
+    }
   },
   "execution_orders": [
-    {"id": "forward", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
-    {"id": "forward_repeat", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "0746423c55b34ab1b795132f79a72aefba14ebebe6c3becadf2e3dbe9a16c776", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27"]},
-    {"id": "reverse", "fresh_process": true, "oracle_test_count": 28, "oracle_ids_sha256": "c5338edc979bfaae86c7ef35ebf82d76b1e33f5abec49c3200abaa791916ddfa", "mutations": ["M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
+    {"id": "forward", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
+    {"id": "forward_repeat", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
+    {"id": "reverse", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "25168329eb5ad2caa34465339468a7c7601811eb254f4bfe571f2decb9f58620", "mutations": ["M30","M29","M28","M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
   ],
   "mutations": [
     {
@@ -230,17 +268,19 @@
     },
     {
       "id": "M16", "target": "O-EVALUATION-ONCE", "property": "each occurrence evaluates once in source order",
-      "precondition": "one source-order math argument loop exists", "patch": "evaluate the first mat positional twice",
+      "precondition": "one successful source-order evaluation and spread-expansion path exists", "patch": "execute all frozen duplicate/reorder and spread loss/reorder variants",
       "target_files": ["01_core/src/compiler/eval/math.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M16.json", "recipe_sha256": "4b93ba6a01c97a517336dd540c7547bfab48bc787318aedca2420146f70d9853",
-      "killer_cases": ["P20-evaluation-once"], "boundary_cases": ["U05-evaluation","P19-route-convergence"], "expected_reason_code": "VIOLATED_EVALUATION_COUNT"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M16.json", "recipe_sha256": "32026a5fbb32236bac47b0d9bfd8ac7e6c35ab1c61d17906391bfb665d89006c",
+      "variants": ["M16a-duplicate-success","M16b-reorder-success","M16c-drop-spread-item","M16d-reorder-spread"],
+      "killer_cases": ["P20-evaluation-once"], "killer_test": "compiler::eval::p1431_tests::p1431_avaliacao_ocorre_uma_vez_e_na_ordem_causal", "boundary_cases": ["U05-evaluation","P19-route-convergence"], "expected_reason_code": "VIOLATED_EVALUATION_COUNT"
     },
     {
-      "id": "M17", "target": "O-CARRIER", "property": "hash includes every explicitness bit",
-      "precondition": "one manual MathMatrixElem hash exists", "patch": "omit explicit.column_gap from hash",
+      "id": "M17", "target": "O-CARRIER", "property": "equality and hash discriminate every carrier component",
+      "precondition": "one complete structural equality and manual hash exist", "patch": "execute nine frozen omission/conflation variants spanning rows through presence",
       "target_files": ["01_core/src/entities/elements/math_matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M17.json", "recipe_sha256": "12ece15eb603b432aec3f0d8855d668e977d3f3a1e8150547fc75faaf42d2425",
-      "killer_cases": ["P21-carrier-discrimination"], "boundary_cases": ["P15-omitted-presence","P22-walkers"], "expected_reason_code": "VIOLATED_CARRIER"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M17.json", "recipe_sha256": "7ae7c84c231b67db6416211e4ed31ec10b80bd97792ab395b2a04c008e122660",
+      "variants": ["M17a-row-order","M17b-delimiter-side","M17c-align","M17d-augment-axis-order","M17e-stroke-paint","M17f-stroke-thickness","M17g-stroke-cap","M17h-gap-component","M17i-presence"],
+      "killer_cases": ["P21-carrier-discrimination"], "boundary_cases": ["P15-omitted-presence","P22-walkers","P23-repr-complete"], "expected_reason_code": "VIOLATED_CARRIER"
     },
     {
       "id": "M18", "target": "O-WALKERS", "property": "map_content visits every cell once row-major",
@@ -279,31 +319,34 @@
     },
     {
       "id": "M23", "target": "O-AUGMENT-GEOMETRY", "property": "every ordered hline/vline offset draws one line including borders",
-      "precondition": "one full hline iteration exists", "patch": "draw only the first hline",
+      "precondition": "one full ordered hline/vline iteration and canonical placement exist", "patch": "execute first-only, ignore-axis, collapse-order, edge-placement and omit-border variants",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M23.json", "recipe_sha256": "18ee4b1fa39e0503332176e2d1ffd4d17407f1427a5b4a2b1ed793ad2a2ee18a",
-      "killer_cases": ["P28-augment-lines"], "boundary_cases": ["P13-augment-dict","N16-hline-positive-out-of-range"], "expected_reason_code": "VIOLATED_LAYOUT"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M23.json", "recipe_sha256": "732600a8de75a777c0cc3bb94dc5045b0050ca3068c41dda55ffd60cf3f50f00",
+      "variants": ["M23a-first-only","M23b-ignore-hline","M23c-collapse-order","M23d-cell-edge","M23e-omit-border"],
+      "killer_cases": ["P28-augment-lines"], "boundary_cases": ["P13-augment-dict","N16-hline-positive-out-of-range","N18-vline-positive-out-of-range"], "expected_reason_code": "VIOLATED_LAYOUT"
     },
     {
       "id": "M24", "target": "O-AUGMENT-GEOMETRY", "property": "negative offsets normalize from end and stroke semantics survive",
-      "precondition": "one negative-offset normalization exists", "patch": "subtract one after negative normalization",
+      "precondition": "negative normalization and complete auto/custom stroke resolution exist", "patch": "execute negative, auto thickness/cap and custom paint/thickness/cap variants",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M24.json", "recipe_sha256": "6403e655809458e7160a87e4694916b9b9197e899aeddb37c392910452365b26",
-      "killer_cases": ["P28-augment-lines","P29-augment-stroke"], "boundary_cases": ["N17-hline-negative-out-of-range","N19-vline-negative-out-of-range"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M24.json", "recipe_sha256": "3fa68f3ae99869cc9a63b4867da2808cc8ea4b9b3f34db358efa6e1568555dc0",
+      "variants": ["M24a-negative-off-by-one","M24b-auto-butt","M24c-auto-thickness","M24d-custom-thickness","M24e-custom-paint","M24f-custom-cap"],
+      "killer_cases": ["P28-augment-lines","P29-augment-stroke","P34-line-cap-carrier"], "boundary_cases": ["N17-hline-negative-out-of-range","N19-vline-negative-out-of-range","P35-raster-line-cap","P36-pdf-line-cap"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
     },
     {
       "id": "M25", "target": "O-OFFSET-VALIDATION", "property": "offset bounds are inclusive at 0 and dimension and reject beyond dimension",
-      "precondition": "one inclusive offset validator exists", "patch": "change upper boundary to strict interior-only",
+      "precondition": "one dimension-specific inclusive signed offset validator exists", "patch": "execute interior-only, accept/clamp/ignore overflow and swapped-dimension variants",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M25.json", "recipe_sha256": "e9c1e5e74d5e8bd28a7b72ded0e5beabbe3fc3f6776f95ea4742899da29b3a6b",
-      "killer_cases": ["P28-augment-lines","N16-hline-positive-out-of-range","N18-vline-positive-out-of-range"], "boundary_cases": ["N17-hline-negative-out-of-range","N19-vline-negative-out-of-range"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M25.json", "recipe_sha256": "66706039fc99f007343afc9e5d338287059c37239c5f04b057883823cf279de6",
+      "variants": ["M25a-interior-only","M25b-accept-overflow","M25c-clamp-overflow","M25d-ignore-overflow","M25e-swap-dimension"],
+      "killer_cases": ["P28-augment-lines","N16-hline-positive-out-of-range","N17-hline-negative-out-of-range","N18-vline-positive-out-of-range","N19-vline-negative-out-of-range"], "boundary_cases": ["P29-augment-stroke"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
     },
     {
       "id": "M26", "target": "O-COMPATIBILITY", "property": "legacy wrapper preserves certified old geometry",
       "precondition": "one narrow compatibility wrapper exists", "patch": "change only its default column gap to zero",
       "target_files": ["01_core/src/entities/content.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "8115e9e8a49fa828214445c138e403c93f8afae784fe080b31d9c5f9ed857cee",
-      "killer_cases": ["P32-legacy-regressions"], "boundary_cases": ["P15-omitted-presence","P31-denominator-style"], "expected_reason_code": "VIOLATED_REGRESSION"
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "ad1f6ae26a7290f099e373678a7379dded0a6ff434efd77ae10856b3211b9a25",
+      "killer_cases": ["P32-legacy-regressions"], "boundary_cases": ["P15-omitted-presence","P31-denominator-style","P34-line-cap-carrier","P36-pdf-line-cap"], "expected_reason_code": "VIOLATED_REGRESSION"
     },
     {
       "id": "M27", "target": "O-FAIL-CLOSED", "property": "Unknown blocks and receives no credit",
@@ -311,6 +354,30 @@
       "target_files": ["00_nucleo/diagnosticos/p1431-mutations/materialized/policy_credit_mutant.rb"],
       "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M27.json", "recipe_sha256": "3a1a90f13a7b26515449d54b3ddff59126a30cbce26ae44a94797023f8a3c53e",
       "killer_cases": ["U01-identity","U09-execution"], "boundary_cases": ["P01-qualified-binding","N01-mixed-row-modes"], "expected_reason_code": "VIOLATED_UNKNOWN_POLICY"
+    },
+    {
+      "id": "M28", "target": "O-LINE-CAP-CARRIER", "property": "FrameItem::Line transports auto/custom/legacy caps without reset",
+      "precondition": "cap exists on FrameItem::Line and all selected producers/reconstructions set or preserve it", "patch": "execute drop/reset, auto Butt, discarded custom, legacy non-Butt and reconstruction reset variants",
+      "target_files": ["01_core/src/entities/layout_types.rs","01_core/src/compiler/math/layout/matrix.rs","01_core/src/compiler/math/layout/frac.rs","01_core/src/compiler/math/layout/mod.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M28.json", "recipe_sha256": "be6484f76318fe1d30f7edeb442f8d80343a110377e724420eb0fa95b5fcbc2e",
+      "variants": ["M28a-drop-carrier","M28b-auto-butt","M28c-discard-custom","M28d-legacy-non-butt","M28e-reconstruction-butt"],
+      "killer_cases": ["P29-augment-stroke","P34-line-cap-carrier"], "boundary_cases": ["P32-legacy-regressions","P35-raster-line-cap","P36-pdf-line-cap","U10-export"], "expected_reason_code": "VIOLATED_LINE_CAP_CARRIER"
+    },
+    {
+      "id": "M29", "target": "O-RASTER-LINE-CAP", "property": "raster maps Butt/Round/Square homologously",
+      "precondition": "one raster line-cap mapping consumes the carried cap", "patch": "execute hard-coded Butt and swapped mapping variants",
+      "target_files": ["03_infra/src/export/render.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M29.json", "recipe_sha256": "9d5653a98ffad5e8b0b64ecd81bdf72b2db25496cc326c714f24bf048b71ab56",
+      "variants": ["M29a-hardcode-butt","M29b-swap-butt-round","M29c-swap-round-square"],
+      "killer_cases": ["P35-raster-line-cap"], "boundary_cases": ["P34-line-cap-carrier","P36-pdf-line-cap","U10-export"], "expected_reason_code": "VIOLATED_RASTER_LINE_CAP"
+    },
+    {
+      "id": "M30", "target": "O-PDF-LINE-CAP", "property": "PDF maps and scopes non-default J while omitting legacy Butt 0 J",
+      "precondition": "top-level and local PDF line paths share cap mapping and q/Q scoping", "patch": "execute omitted/mis-mapped/divergent/leaked J and redundant 0 J variants",
+      "target_files": ["03_infra/src/export/stream.rs"],
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M30.json", "recipe_sha256": "1f4e75483b8bd9f06ad8660cc847ad2ad569ebd3792d983660156b7edbe85c3e",
+      "variants": ["M30a-omit-round","M30b-mismap-square","M30c-local-divergence","M30d-leak-state","M30e-redundant-butt"],
+      "killer_cases": ["P36-pdf-line-cap"], "boundary_cases": ["P32-legacy-regressions","P34-line-cap-carrier","P35-raster-line-cap","U10-export"], "expected_reason_code": "VIOLATED_PDF_LINE_CAP"
     }
   ],
   "preseal_statement": {
@@ -318,6 +385,6 @@
     "mutations_executed": 0,
     "mutation_score": null,
     "verdict_emitted": false,
-    "next_gate": "Independent verifier checks recipe exhaustiveness, hashes, killer adequacy, Unknown policy and oracle identity mapping before admitting candidate implementation."
+    "next_gate": "Independent verifier checks 30-family recipe exhaustiveness, hashes, killer adequacy, 64-case/34-test mapping, Unknown policy and three orders before admitting candidate implementation."
   }
 }
