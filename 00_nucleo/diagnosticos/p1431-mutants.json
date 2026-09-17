@@ -1,8 +1,8 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 8,
-  "authored_at": "2026-09-17T15:40:00-03:00",
-  "phase": "adversarial-design-repair-after-invalid-m05-materialization",
+  "revision": 9,
+  "authored_at": "2026-09-17T16:14:00-03:00",
+  "phase": "adversarial-design-repair-after-surviving-m21",
   "status": "designed_not_executed",
   "regime": "full",
   "attestation": "executed_without_isolation_attestation",
@@ -15,9 +15,9 @@
     "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b"
   },
   "oracles": {
-    "path": "00_nucleo/diagnosticos/p1431-oracles-r6.json",
-    "sha256": "b37af704bc605c63132edf0fffa0377f3f12d731740e445b03672961a5cf13fe",
-    "revision": 6,
+    "path": "00_nucleo/diagnosticos/p1431-oracles-r9.json",
+    "sha256": "00b707d8487dc21cadb9f7de46813b9776f3d0b39cdcab9a486526748965cbc6",
+    "revision": 9,
     "case_count": 64,
     "test_count": 34,
     "forward_ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
@@ -42,10 +42,10 @@
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "e050efb35c837e7d221c7c0416d7c6841782e6c7beb268701c50b2b59a0711a7",
-    "reason_code": "BLOCK_UNKNOWN_INVALID_M05_MATERIALIZATION",
-    "scope": "Mutation revision 7 is invalid after its campaign proved the historical M05 patch non-attributable. Revision 8 preserves M01-M04, M06-M30 and M26 R7 byte-identically, binds the same 34 R6 oracle IDs, and revises only M05 to require deletion of the resize loop while retaining the live columns binding.",
-    "downstream": "The R7 preseal, partial receipt, adversarial result and nonseal verdict remain historical evidence but are not current authorization."
+    "supersedes_mutation_sha256": "6432f32d98905ea8b78abbba80ad30161a4e10b9914ca9e98adda038744f52fc",
+    "reason_code": "BLOCK_RELEVANT_M21_SURVIVOR",
+    "scope": "Mutation revision 8 is invalid after M21 survived its weak P26 witness. Revision 9 preserves M01-M20 and M22-M30, binds R9, and revises only M21 to one exact Alternating-to-Center substitution observed by independent asymmetric coordinate equations.",
+    "downstream": "The R8 preseal, partial receipt, adversarial result and nonseal verdict remain historical evidence but are not current authorization."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -59,11 +59,12 @@
     "read_allowlist_used": [
       "approved P1431 step and eleven owner L0 deltas",
       "frozen revision-3 manifesto and contract at c0920e963",
-      "published R6 oracle identities and assertions at f3f7e9aa3",
+      "published R9 oracle identities and assertions at 0217493e3",
       "productive baseline blobs at f5aa8d72f",
       "ratified public vanilla identity",
       "P1433 and the independently reproduced R6 M26 equivalence diagnosis",
-      "P1434 and the independently reproduced R7 M05 materialization diagnosis"
+      "P1434 and the independently reproduced R7 M05 materialization diagnosis",
+      "P1435 and the independently reproduced R8 M21 survivor diagnosis"
     ],
     "forbidden_reads_observed": [
       "private oracle reasoning",
@@ -81,8 +82,8 @@
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "public_policy_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "design_path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
-    "design_sha256": "65492bb0873fd05fc941fc21524ac955e0f80eb726f8fc6e1ea3d1997cc0ff56",
-    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-8 design, reproduces the frozen R6 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
+    "design_sha256": "14fd334a49fd1f703a984095a714bca1eb7b4fad30315f34bd11be1fc1063e4d",
+    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-9 design, reproduces the frozen R9 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
     "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
     "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, dirty restoration or missing export observation is Unknown. The frozen public policy-self-check remains the direct M27 observer.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
@@ -103,7 +104,7 @@
   },
   "focused_calibration": {
     "measured_at": "2026-09-17T11:09:21-03:00",
-    "state": "clean P1434 predecessor 80964cc11 over unchanged productive candidate cf92c3d07; R8 is a narrow post-candidate repair authorized by the independently reproduced invalid M05 materialization finding",
+    "state": "clean P1435 oracle commit 0217493e3 over unchanged productive candidate cf92c3d07; R9 is a narrow post-candidate repair authorized by the independently reproduced M21 survivor",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -338,9 +339,9 @@
     },
     {
       "id": "M21", "target": "O-ALIGN-POINT", "property": "ampersand boundaries retain alternating subcolumns and P825 spacing",
-      "precondition": "one MathAlignPoint split/alternating path exists", "patch": "force Center alignment for boundary cells",
+      "precondition": "one unique any_align branch selects Alternating and passes computed boundaries", "patch": "replace only Alternating with Center; preserve boundaries and all other statements",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M21.json", "recipe_sha256": "9a71fbc6aa9acbbb562f2e904adcedc00fd73e2616ec0930ca659e180527e7c5",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M21.json", "recipe_sha256": "8c8c4da61271ba7c0bd2b96e3c653224e73e6f53cd64f9a148a1757dba652c7d",
       "killer_cases": ["P26-ampersand-geometry"], "boundary_cases": ["P25-horizontal-align-geometry","P32-legacy-regressions"], "expected_reason_code": "VIOLATED_ALIGN_POINT"
     },
     {

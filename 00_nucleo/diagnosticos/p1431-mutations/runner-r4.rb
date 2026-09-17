@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# P1431 revision-8 design verifier and execution shim.
+# P1431 revision-9 design verifier and execution shim.
 # The public policy oracle freezes runner.rb at b31a7a...; changing that file
 # would make M27 fail on identity before exercising policy.  This shim verifies
-# the 30-family design, including the P1433 M26 and P1434 M05 repairs and byte-exact R6
-# public oracle identity,
+# the 30-family design, including the P1433 M26, P1434 M05 and P1435 M21
+# repairs and byte-exact R9 public oracle identity,
 # and delegates physical execution unchanged.
 
 require "digest"
@@ -15,7 +15,7 @@ require "rbconfig"
 ROOT = File.expand_path("../../..", __dir__)
 SUITE_PATH = File.join(ROOT, "00_nucleo/diagnosticos/p1431-mutants.json")
 PUBLIC_RUNNER = File.join(__dir__, "runner.rb")
-ORACLES_PATH = File.join(ROOT, "00_nucleo/diagnosticos/p1431-oracles-r6.json")
+ORACLES_PATH = File.join(ROOT, "00_nucleo/diagnosticos/p1431-oracles-r9.json")
 IDENTITY_ORACLES_PATH = File.join(ROOT, "00_nucleo/diagnosticos/p1431-oracles.json")
 
 unless ARGV == ["--mode", "verify-design"]
@@ -32,11 +32,11 @@ identity = identity_oracles.fetch("identity_serialization")
 expected_enumeration = "run cargo test -q -p typst-core p1431 -- --list, then typst-infra; retain lines ending exactly ': test'; strip that suffix; prefix the exact package name"
 expected_record = "UTF-8 bytes <package>\t<fully-qualified-test-id>\n; no BOM; LF after every record including the last"
 
-errors << "suite revision is not 8" unless suite.fetch("revision") == 8
+errors << "suite revision is not 9" unless suite.fetch("revision") == 9
 errors << "mutation count is not 30" unless mutations.length == 30
 errors << "mutation ids are not exhaustive and ordered" unless mutations.map { |m| m.fetch("id") } == expected_ids
-errors << "oracle revision is not 6" unless oracles.fetch("revision") == 6
-errors << "R6 oracle identity hash mismatch" unless oracles.dig("identity_and_hash_gate", "forward_sha256") == identity.fetch("forward_sha256")
+errors << "oracle revision is not 9" unless oracles.fetch("revision") == 9
+errors << "R9 oracle identity hash mismatch" unless oracles.dig("identity_gate", "forward_sha256") == identity.fetch("forward_sha256")
 errors << "oracle count is not 34" unless suite.dig("oracles", "test_count") == 34
 errors << "public runner identity mismatch" unless Digest::SHA256.file(PUBLIC_RUNNER).hexdigest == suite.dig("runner", "public_policy_sha256")
 errors << "identity serialization version mismatch" unless identity.fetch("version") == 1
@@ -77,6 +77,7 @@ mutations.each do |mutation|
   errors << "#{mutation.fetch('id')}: target allowlist mismatch" unless recipe.fetch("target_files").sort == mutation.fetch("target_files").sort
   expected_phase = case mutation.fetch("id")
   when "M05" then "post_candidate_invalid_materialization_repair_p1434"
+  when "M21" then "post_candidate_surviving_oracle_repair_p1435"
   when "M26" then "post_candidate_equivalent_mutant_repair_p1433"
   else "design_without_candidate_then_mechanical_materialization"
   end
@@ -87,7 +88,7 @@ if errors.empty?
   puts JSON.pretty_generate(
     classification: "Preserved",
     reason_code: "PRESERVED_MUTATION_DESIGN",
-    revision: 8,
+    revision: 9,
     mutations: 30,
     oracle_tests: 34,
   )
