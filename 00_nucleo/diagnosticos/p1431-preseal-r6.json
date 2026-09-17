@@ -1,0 +1,298 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1432,
+  "subject_step": 1431,
+  "revision": 6,
+  "measured_at": "2026-09-17T13:27:21-03:00",
+  "status": "AUTHORIZED_POST_CANDIDATE_MUTATION_EXECUTION",
+  "verdict": "AUTHORIZE_M01_M30_AFTER_UNMUTATED_34_OF_34",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "executor": "agent:/root/p1432_preseal",
+    "role": "independent_preseal_authority",
+    "workspace": "shared",
+    "context_inherited": "public P1431/P1432 task context and committed artifacts through f3f7e9aa3540e73c5d0dafbcb84c8546fef40c4b",
+    "isolation_attested": false,
+    "productive_source_written": false,
+    "verified_inputs_edited": false,
+    "write_allowlist_used": [
+      "00_nucleo/diagnosticos/p1431-preseal-r6.json"
+    ],
+    "forbidden_writes_respected": [
+      "existing protocol artifacts",
+      "prompts and independent tests",
+      "mutation design, recipes and runners",
+      "candidate and productive code"
+    ]
+  },
+  "state": {
+    "verification_head": "f3f7e9aa3540e73c5d0dafbcb84c8546fef40c4b",
+    "verification_tree": "21dc7b637986963c2b46f2bbfcfa0b2b168bb9e8",
+    "candidate_commit": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "candidate_tree": "49dd65d31ee66db28f2e634beef78abe2e34384f",
+    "working_tree_before_receipt": "clean",
+    "regime": "full",
+    "regime_reason": "P1431 changes observable language, carrier, layout and export semantics and requires an independently checked adversarial mutation campaign. The shared workspace permits procedural separation only, so no isolation attestation is claimed."
+  },
+  "protected_identity_gate": {
+    "result": "PASS",
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1432.md",
+      "sha256": "0d85f06360e2f0230773d9c59cf19b5c57af2cf8bc4d276ff9448e7f2606f375"
+    },
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1431-manifest.json",
+      "sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+      "revision": 3,
+      "status": "UNCHANGED"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1431-contract.json",
+      "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+      "revision": 3,
+      "status": "UNCHANGED"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1431-oracles-r6.json",
+      "sha256": "b37af704bc605c63132edf0fffa0377f3f12d731740e445b03672961a5cf13fe",
+      "revision": 6
+    },
+    "mutations": {
+      "path": "00_nucleo/diagnosticos/p1431-mutants.json",
+      "sha256": "43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c",
+      "revision": 5,
+      "status": "UNCHANGED"
+    },
+    "public_runner": {
+      "path": "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
+      "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
+      "status": "UNCHANGED"
+    },
+    "design_runner": {
+      "path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
+      "sha256": "6eb35469b66b1a729c5476cefbf4595d48d3a3dd5227ec1a255c6f58d2ed5690",
+      "status": "UNCHANGED"
+    },
+    "superseded_history": {
+      "path": "00_nucleo/diagnosticos/p1431-preseal-r5.json",
+      "sha256": "8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7",
+      "use": "identity and historical design evidence only; not a current authorization"
+    },
+    "checks": {
+      "historical_manifest_protected_inputs_verified_at_pre_candidate_commit": 12,
+      "baseline_productive_blobs_verified_at_frozen_baseline": 11,
+      "vanilla_source_and_font_hashes_matching": 4,
+      "oracle_l0_and_consumer_pairs_matching": 6,
+      "mutation_recipe_hashes_matching": 30,
+      "mutation_recipe_ids_and_target_allowlists_matching": 30,
+      "unexpected_hash_mismatches": []
+    },
+    "commands": [
+      "sha256sum over P1432, manifest, contract, R6 oracles, mutation design, R5 history and both runners",
+      "Ruby JSON/SHA-256 verification of the twelve manifest-protected inputs at 86f71ce9f and eleven productive baseline blobs at f5aa8d72f",
+      "Ruby JSON/SHA-256 verification of the six current test-only L0/consumer pairs and all M01-M30 recipes",
+      "git show -s --format='%H %T' cf92c3d07c05a564b9d089e005b04e9daf03cb62"
+    ]
+  },
+  "candidate_identity_gate": {
+    "result": "PASS",
+    "candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "tree": "49dd65d31ee66db28f2e634beef78abe2e34384f",
+    "post_candidate_head": "f3f7e9aa3540e73c5d0dafbcb84c8546fef40c4b",
+    "post_candidate_delta": [
+      "A 00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json",
+      "A 00_nucleo/diagnosticos/p1431-oracles-r6.json",
+      "A 00_nucleo/diagnosticos/p1431-verifier-nonseal.json",
+      "A 00_nucleo/materialization/typst-passo-1432.md",
+      "M 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md",
+      "M 03_infra/src/export/p1431_line_cap_tests.rs"
+    ],
+    "productive_candidate_unchanged": true,
+    "witness": "The only Rust delta after cf92c3d07 is the cfg(test)-only P35 consumer authorized by P1432. No productive source changed after the candidate commit."
+  },
+  "invalidation_gate": {
+    "result": "PASS_RESTARTED_AT_ORACLE_BOUNDARY",
+    "rule": "The P35 L0/consumer pair changed, so R5 oracles, R5 preseal and every later classification binding R5 are superseded. Manifest, contract, mutation design and candidate identity remain unchanged.",
+    "invalidated": [
+      {
+        "path": "00_nucleo/diagnosticos/p1431-oracles.json",
+        "sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-preseal-r5.json",
+        "sha256": "8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-adversarial-post-candidate-blocker.json",
+        "sha256": "7a39275348b3a3a40f0a94c84a1902204aff552eae1b32f639cded26022dbc60"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1431-verifier-nonseal.json",
+        "sha256": "49ca754f2e025832580b845550c07fbc69080b4bc3d2b82cd82f7a13ca7dfae5"
+      }
+    ],
+    "not_invalidated": [
+      "00_nucleo/diagnosticos/p1431-manifest.json",
+      "00_nucleo/diagnosticos/p1431-contract.json",
+      "00_nucleo/diagnosticos/p1431-mutants.json",
+      "candidate cf92c3d07c05a564b9d089e005b04e9daf03cb62"
+    ],
+    "current_rebinding": "00_nucleo/diagnosticos/p1431-oracles-r6.json"
+  },
+  "focused_repair_gate": {
+    "result": "PASS",
+    "diff_boundary": "Only the P35 test-only L0 and its unique cfg(test) consumer changed semantically; the consumer lineage hash changed from 015a31b1 to 559159ef.",
+    "repair": "Explicit Butt, Round and Square witnesses now use 0.05 * 11pt = 0.55pt, equal to the matrix auto stroke, while auto continues through the public boundary without explicit stroke.",
+    "assertions_preserved": [
+      "strict alpha-area ordering Butt < Round < Square",
+      "matrix auto PNG bytes equal explicit Square PNG bytes"
+    ],
+    "focused_command": "RUSTFLAGS='-Awarnings' cargo test --release -q -p typst-infra export::p1431_line_cap_tests::p1431_raster_mapeia_butt_round_square_e_auto_square -- --exact",
+    "focused_exit": 0,
+    "boundary_controls": [
+      {
+        "case": "P34",
+        "test": "entities::p1431_line_cap_tests::p1431_auto_square_e_produtor_legado_butt_chegam_ao_frame",
+        "result": "PASS_IN_FULL_CORPUS"
+      },
+      {
+        "case": "P36",
+        "test": "export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local",
+        "result": "PASS_IN_FULL_CORPUS"
+      },
+      {
+        "case": "P36",
+        "test": "export::p1431_line_cap_tests::p1431_pdf_legado_butt_preserva_bytes_sem_zero_j",
+        "result": "PASS_IN_FULL_CORPUS"
+      },
+      {
+        "case": "U10",
+        "test": "export::p1431_line_cap_tests::p1431_export_opaco_falha_fechado",
+        "classification": "Unknown",
+        "acceptance_credit": false,
+        "mutation_credit": false,
+        "result": "PASS_IN_FULL_CORPUS"
+      }
+    ],
+    "debug_raster_executed": false,
+    "debug_raster_reason": "Release execution is explicitly acceptable and avoids the previously measured pathological debug runtime."
+  },
+  "oracle_identity_gate": {
+    "result": "PASS_EXACT_34_TEST_IDENTITY",
+    "commands": [
+      "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 -- --list",
+      "RUSTFLAGS='-Awarnings' cargo test -q -p typst-infra p1431 -- --list"
+    ],
+    "serialization": "UTF-8 <package>\\t<fully-qualified-test-id>\\n; LF after every record including the last",
+    "test_count": 34,
+    "core_tests": 30,
+    "infra_tests": 4,
+    "forward_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
+    "reverse_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f",
+    "matches_r5_identity_records": true,
+    "identity_mismatches": []
+  },
+  "contract_and_mutation_design_gate": {
+    "result": "PASS",
+    "observables": 26,
+    "cases": {
+      "positive": 36,
+      "negative": 18,
+      "opaque": 10,
+      "total": 64
+    },
+    "mutation_families": 30,
+    "mutation_ids": "M01-M30 exhaustive and ordered",
+    "recipe_integrity": "All thirty recipe hashes, ids, target allowlists and design_without_candidate_then_mechanical_materialization phase rules match the unchanged mutation design.",
+    "coverage_integrity": "Every mutation target names a contract observable; every killer and boundary case names one of the 64 contract cases; contract and suite mutation targets agree for M01-M30.",
+    "execution_orders": [
+      "forward",
+      "forward_repeat",
+      "reverse"
+    ],
+    "design_command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
+    "design_exit": 0,
+    "design_classification": "Preserved",
+    "design_reason_code": "PRESERVED_MUTATION_DESIGN",
+    "physical_mutations_executed": 0,
+    "mutation_score": null,
+    "limitation": "This gate establishes design integrity and direct killer coverage only. Physical mutation execution, zero survivors, zero unexpected Unknown and score 1.0 remain post-preseal obligations."
+  },
+  "unknown_gate": {
+    "result": "PASS_FAIL_CLOSED",
+    "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
+    "exit": 3,
+    "classification": "Unknown",
+    "reason_code": "UNKNOWN_EXECUTION_OR_BUDGET",
+    "credit_rule": "Unknown never counts as Preserved, earns no acceptance or mutation numerator credit, remains in the valid-mutation denominator and blocks every mandatory case or valid mutation.",
+    "opaque_cases": 10,
+    "focused_u10_preserved": true
+  },
+  "unmutated_candidate_gate": {
+    "result": "PASS_34_OF_34",
+    "classification": "Preserved",
+    "candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "productive_candidate_unchanged_at_verification_head": true,
+    "core": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1431 --no-fail-fast",
+      "exit": 0,
+      "selected": 30,
+      "passed": 30,
+      "failed": 0,
+      "test_time_seconds": 0.15
+    },
+    "infra": {
+      "command": "RUSTFLAGS='-Awarnings' cargo test --release -q -p typst-infra p1431 --no-fail-fast",
+      "exit": 0,
+      "selected": 4,
+      "passed": 4,
+      "failed": 0,
+      "test_time_seconds": 5.72,
+      "profile_reason": "The raster witness is release-only for this gate to avoid pathological debug runtime."
+    },
+    "aggregate": {
+      "selected": 34,
+      "passed": 34,
+      "failed": 0,
+      "unknown": 0
+    }
+  },
+  "mechanical_gate": {
+    "commands": [
+      "cargo fmt --all -- --check",
+      "Ruby JSON parse of all P1431 protocol JSON and M01-M30 recipes",
+      "git diff --check"
+    ],
+    "json_files_parsed_including_receipt": 43,
+    "exits": [
+      0,
+      0,
+      0
+    ],
+    "result": "PASS"
+  },
+  "blocking_findings": [],
+  "mutation_execution_admission": {
+    "authorized": true,
+    "fail_closed": true,
+    "reason_code": "AUTHORIZE_M01_M30_AFTER_UNMUTATED_34_OF_34",
+    "candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "oracle_revision": 6,
+    "mutations": "M01-M30",
+    "conditions": [
+      "Execute each unchanged mutation alone against the cf92c3d07 productive candidate with the R6 oracle pair present; do not mutate or silently relabel the candidate, oracle, contract or mutation design.",
+      "Require unique application within each recipe target allowlist, an attributable direct killer, and clean reversal before the next mutation.",
+      "Run all three frozen orders and require zero survivors, zero unexpected Unknown and mutation_score = 1.0.",
+      "Any protected hash, exact test identity, candidate productive projection or reversal mismatch invalidates this preseal and restarts at the first affected phase.",
+      "After the campaign, run the remaining regression, build, crystalline-lint and independent final-verifier gates before any seal or certificate."
+    ],
+    "not_authorized": [
+      "editing the candidate or productive code",
+      "editing prompts, independent tests, manifesto, contract, oracle R6 or mutation design",
+      "granting credit to Unknown, timeout, crash, ambiguous identity, non-attributable failure or surviving mutation",
+      "publishing a final seal, certificate or general parity claim from this receipt"
+    ]
+  },
+  "claim_boundary": "This R6 preseal records protected identities, the focused P35 repair and boundary controls, exact 34-test identity, unchanged M01-M30 design integrity, fail-closed Unknown policy and a reproduced unmutated 34/34 gate. It narrowly authorizes post-candidate physical M01-M30 execution against the cf92c3d07 productive candidate under R6. It is not a final seal or certificate, claims no physical mutation score, does not close P1431, proves no general Typst/raster/PDF equivalence and does not attest workspace or conversational isolation."
+}
