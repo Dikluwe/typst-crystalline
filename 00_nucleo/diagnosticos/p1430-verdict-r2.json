@@ -1,0 +1,29 @@
+{
+  "schema": "tekt.materialization.verdict/v2",
+  "step": 1430,
+  "revision": "R2-final",
+  "issued_at": "2026-09-17T00:39:06-03:00",
+  "authority": "agent:/root/p1430_verifier",
+  "attestation": "executado sem atestação de isolamento",
+  "candidate": "d3b08225a",
+  "refinement_head": "7429ad5ef384b4437621f3223b1293e3f5ff1198",
+  "verification": {
+    "path": "00_nucleo/diagnosticos/p1430-verification-r2.json",
+    "sha256": "629564c6e88fe117158cf5a01ee647a6943bf6528d5bde29e019b416d72c49e5"
+  },
+  "replacement_seal": {
+    "path": "00_nucleo/diagnosticos/p1430-seal-r2.json",
+    "sha256": "2a5fdf4c8612d6082e3c72354ecabb23d34d2eca9f35f9f7949ee49ccb8decd9"
+  },
+  "gates": {
+    "protected_identity": "PASS: 34/34",
+    "focused_orders": "PASS: three identical vectors, 23/23 Rust and V01-V05 in each",
+    "regressions": "PASS: P1047 7/7, P945 11/11, math_cases 6/6",
+    "physical_mutations": "PASS: 21/21 killed, score 1.0, 0 Unknown, 0 survivors",
+    "m21": "PASS: executed Unknown scoring branch independently reproduced and killed by V03/V04",
+    "architecture": "PASS: cargo fmt, cargo build, crystalline-lint, git diff --check"
+  },
+  "blocking_findings": [],
+  "verdict": "PASS",
+  "claim_boundary": "The verdict is limited to the frozen P1430 math.cases contract and the executable fail-closed policy at the recorded identities. It is not a claim of general Typst math parity or formal isolation."
+}

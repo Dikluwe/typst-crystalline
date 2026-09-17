@@ -1,0 +1,121 @@
+{
+  "schema": "tekt.materialization.verification/v2",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1430,
+  "revision": "R2-final-after-M21-refinement",
+  "verdict": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "verified_at": "2026-09-17T00:39:06-03:00",
+  "verifier": {
+    "authority": "agent:/root/p1430_verifier",
+    "role": "independent_final_verifier",
+    "workspace": "shared main checkout; temporary local copy only for independent M21 reproduction",
+    "isolation_attested": false,
+    "productive_code_edited": false,
+    "rust_tests_edited": false,
+    "l0_edited": false,
+    "verified_artifacts_edited": false,
+    "allowed_outputs_only": true
+  },
+  "causal_state": {
+    "candidate_implementation_commit": "d3b08225a",
+    "candidate_implementation_tree": "c118a8f37ef35547ebcdab56ea671a12b6b9c2a0",
+    "adversarial_candidate_commit": "f7dcbe86ca7618bf1e6d840e51ea168f7b1c3c8e",
+    "adversarial_candidate_tree": "5662b502979fde09201fb3116fc240edbf4df1b7",
+    "refinement_head": "7429ad5ef384b4437621f3223b1293e3f5ff1198",
+    "refinement_tree_before_verifier_outputs": "0ac178252068d96e8f032bbc607edb7bf39a5970",
+    "productive_diff_candidate_to_refinement_head": [],
+    "working_tree_before_verifier_outputs": "clean"
+  },
+  "sealed_chain": {
+    "manifest_r2": {"path":"00_nucleo/diagnosticos/p1430-manifest.json","sha256":"b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc"},
+    "contract_r2": {"path":"00_nucleo/diagnosticos/p1430-contract.json","sha256":"4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309"},
+    "oracles_r2": {"path":"00_nucleo/diagnosticos/p1430-oracles-r2.json","sha256":"23747cac87e1682779fd3c8f36b5348a92eae9e506e3a49fce274878fe523728"},
+    "mutants_r3": {"path":"00_nucleo/diagnosticos/p1430-mutants.json","sha256":"b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014"},
+    "seal_r1_invalidation": {"path":"00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json","sha256":"5be045de34e98afadc199c8129f11ec3479304af2e9356eb777772afbcbee45c"},
+    "policy": {"path":"00_nucleo/diagnosticos/p1430-certification-policy.py","sha256":"d0d38b639e0946a7204571455b884c6fd7623f87175c286ce1194136f4312803"},
+    "policy_oracle": {"path":"00_nucleo/diagnosticos/p1430-certification-policy-oracle.py","sha256":"ab70286dd8bd13ded18c75b9b4449a4bc362be97e524d6f5dbd1649c15b0351c"},
+    "baseline_green_r2": {"path":"00_nucleo/diagnosticos/p1430-baseline-green-r2.json","sha256":"afaf7f584272968394857a9f886e3bad14073861992c0a847ce1be3fa650d73f"},
+    "order_results_r2": {"path":"00_nucleo/diagnosticos/p1430-order-results-r2.json","sha256":"4af47639a5119be954f660a4a1a0c87a1de4e846263249670b6b03e7251e0a37"},
+    "physical_results_r3": {"path":"00_nucleo/diagnosticos/p1430-physical-mutation-results-r3.json","sha256":"cdb05ebda437e6fd463da6b2d8030669e57104747194e40a9acfe50e73d6588c"},
+    "adversarial_campaign_r2": {"path":"00_nucleo/diagnosticos/p1430-adversarial-campaign-r2.json","sha256":"fa8368eeabd8796f75964e64fd46f75f198c1abfa710e975f071cf9a4e5e4f53"},
+    "r1_status": "INVALIDATED_AND_EXCLUDED_FROM_FINAL_CREDIT"
+  },
+  "identity_gate": {
+    "campaign_protected_inputs_checked": 34,
+    "campaign_protected_inputs_mismatched": 0,
+    "manifest_contract_oracle_mutant_policy_hashes": "MATCH",
+    "productive_consumers_unchanged_since_candidate": true,
+    "result": "PASS"
+  },
+  "independent_execution_orders": [
+    {
+      "id": "A-forward",
+      "started_at": "2026-09-17T00:37:14.034123241-03:00",
+      "ended_at": "2026-09-17T00:37:15.190828972-03:00",
+      "order": ["stdlib", "eval", "entities", "layout", "policy-V01-V05"],
+      "rust": "23/23 PASS",
+      "policy": "V01-V05 PASS",
+      "exit_code": 0
+    },
+    {
+      "id": "A-forward-repeat",
+      "started_at": "2026-09-17T00:37:25.780376405-03:00",
+      "ended_at": "2026-09-17T00:37:26.815914022-03:00",
+      "order": ["stdlib", "eval", "entities", "layout", "policy-V01-V05"],
+      "rust": "23/23 PASS",
+      "policy": "V01-V05 PASS",
+      "exit_code": 0
+    },
+    {
+      "id": "B-reverse",
+      "started_at": "2026-09-17T00:37:37.025571694-03:00",
+      "ended_at": "2026-09-17T00:37:38.057064005-03:00",
+      "order": ["policy-V01-V05", "layout", "entities", "eval", "stdlib"],
+      "rust": "23/23 PASS",
+      "policy": "V01-V05 PASS",
+      "exit_code": 0
+    }
+  ],
+  "functional_gate": {
+    "identical_vectors": true,
+    "mandatory_unknown": 0,
+    "opaque_controls": "U01-U06 classified Unknown with zero acceptance and mutation credit",
+    "policy_vectors": "V01-V05 PASS",
+    "result": "PASS"
+  },
+  "regressions": [
+    {"command":"cargo test -p typst-core p1047 -- --nocapture --test-threads=1","tests":"7/7 PASS","exit_code":0},
+    {"command":"cargo test -p typst-core p945 -- --nocapture --test-threads=1","tests":"11/11 PASS","exit_code":0},
+    {"command":"cargo test -p typst-core math_cases -- --nocapture --test-threads=1","tests":"6/6 PASS","exit_code":0}
+  ],
+  "mutation_gate": {
+    "receipt_rows": 21,
+    "unique_ids": 21,
+    "patch_hashes_matching_receipt": 21,
+    "killed": 21,
+    "survived": 0,
+    "unknown": 0,
+    "unknown_credit": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "m21": {
+      "target": "executed classification == Unknown branch in evaluate_mutation",
+      "change": "valid Unknown gains mutation_credit and score_numerator_delta",
+      "unmutated_policy": "V01-V05 PASS",
+      "independent_temp_reproduction_exit_code": 1,
+      "attributable_failures": ["V03", "V04"],
+      "classification": "KILLED"
+    },
+    "result": "PASS"
+  },
+  "mechanical_gates": [
+    {"command":"cargo fmt --all -- --check","started_at":"2026-09-17T00:37:56.096557178-03:00","ended_at":"2026-09-17T00:37:58.310674357-03:00","exit_code":0,"result":"PASS"},
+    {"command":"cargo build","started_at":"2026-09-17T00:38:02.864544747-03:00","ended_at":"2026-09-17T00:38:05.112839382-03:00","exit_code":0,"result":"PASS"},
+    {"command":"crystalline-lint .","started_at":"2026-09-17T00:38:09.248243970-03:00","ended_at":"2026-09-17T00:38:11.731516118-03:00","exit_code":0,"result":"PASS"},
+    {"command":"git diff --check","measured_at":"2026-09-17T00:39:06-03:00","exit_code":0,"result":"PASS"}
+  ],
+  "blocking_findings": [],
+  "final_result": "PASS",
+  "claim_boundary": "PASS certifies only the frozen P1430 math.cases fragment and its executable fail-closed certification policy against the 21 concrete R3 mutations. It does not attest the other seventeen residual math routes, general math parity, render-byte equality, exhaustive mutation adequacy, or formal workspace isolation."
+}

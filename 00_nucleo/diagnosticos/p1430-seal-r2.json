@@ -1,0 +1,89 @@
+{
+  "schema": "tekt.materialization.seal/v2",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1430,
+  "revision": 2,
+  "sealed_at": "2026-09-17T00:39:06-03:00",
+  "status": "sealed-final",
+  "verdict": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "authority": {
+    "executor": "agent:/root/p1430_verifier",
+    "role": "independent_final_verifier",
+    "workspace": "shared",
+    "isolation_attested": false,
+    "candidate_tests_l0_or_verified_inputs_edited": false,
+    "writes": [
+      "00_nucleo/diagnosticos/p1430-verification-r2.json",
+      "00_nucleo/diagnosticos/p1430-seal-r2.json",
+      "00_nucleo/diagnosticos/p1430-verdict-r2.json",
+      "00_nucleo/diagnosticos/p1430-report-r2.md"
+    ]
+  },
+  "candidate": {
+    "implementation_commit": "d3b08225a",
+    "implementation_tree": "c118a8f37ef35547ebcdab56ea671a12b6b9c2a0",
+    "refinement_head": "7429ad5ef384b4437621f3223b1293e3f5ff1198",
+    "productive_diff_after_candidate": []
+  },
+  "supersedes": {
+    "seal_r1": {"path":"00_nucleo/diagnosticos/p1430-seal.json","sha256":"ff4ae5cc7a6cf97dab95077890d924c60cc8515f24095a23980312362f3ba110","status":"invalidated"},
+    "invalidation": {"path":"00_nucleo/diagnosticos/p1430-seal-r1-invalidation.json","sha256":"5be045de34e98afadc199c8129f11ec3479304af2e9356eb777772afbcbee45c"},
+    "rule": "R1 admitted implementation only and is excluded from final mutation credit; R2 is the sole final seal."
+  },
+  "protected_chain": [
+    {"kind":"manifest_r2","path":"00_nucleo/diagnosticos/p1430-manifest.json","sha256":"b7119a8a29786c1a8da91cd08e705e3983514062bd935c639e3ff9a8f67e7adc"},
+    {"kind":"contract_r2","path":"00_nucleo/diagnosticos/p1430-contract.json","sha256":"4fe68f16f4d9af0a9fb491963736c99241c63db201d6b284f098f2d31b73f309"},
+    {"kind":"oracles_r2","path":"00_nucleo/diagnosticos/p1430-oracles-r2.json","sha256":"23747cac87e1682779fd3c8f36b5348a92eae9e506e3a49fce274878fe523728"},
+    {"kind":"mutants_r3","path":"00_nucleo/diagnosticos/p1430-mutants.json","sha256":"b8f02c9db02ab87b47c51f05bc71b956fb1878fbe69b205321e52798c8d82014"},
+    {"kind":"policy","path":"00_nucleo/diagnosticos/p1430-certification-policy.py","sha256":"d0d38b639e0946a7204571455b884c6fd7623f87175c286ce1194136f4312803"},
+    {"kind":"policy_oracle","path":"00_nucleo/diagnosticos/p1430-certification-policy-oracle.py","sha256":"ab70286dd8bd13ded18c75b9b4449a4bc362be97e524d6f5dbd1649c15b0351c"},
+    {"kind":"baseline_green_r2","path":"00_nucleo/diagnosticos/p1430-baseline-green-r2.json","sha256":"afaf7f584272968394857a9f886e3bad14073861992c0a847ce1be3fa650d73f"},
+    {"kind":"order_results_r2","path":"00_nucleo/diagnosticos/p1430-order-results-r2.json","sha256":"4af47639a5119be954f660a4a1a0c87a1de4e846263249670b6b03e7251e0a37"},
+    {"kind":"physical_results_r3","path":"00_nucleo/diagnosticos/p1430-physical-mutation-results-r3.json","sha256":"cdb05ebda437e6fd463da6b2d8030669e57104747194e40a9acfe50e73d6588c"},
+    {"kind":"adversarial_campaign_r2","path":"00_nucleo/diagnosticos/p1430-adversarial-campaign-r2.json","sha256":"fa8368eeabd8796f75964e64fd46f75f198c1abfa710e975f071cf9a4e5e4f53"},
+    {"kind":"verification_r2","path":"00_nucleo/diagnosticos/p1430-verification-r2.json","sha256":"629564c6e88fe117158cf5a01ee647a6943bf6528d5bde29e019b416d72c49e5"}
+  ],
+  "identity_gate": {
+    "protected_entries_checked": 34,
+    "mismatches": 0,
+    "productive_candidate_preserved": true,
+    "result": "PASS"
+  },
+  "functional_gate": {
+    "orders": ["A-forward", "A-forward-repeat", "B-reverse"],
+    "vectors_identical": true,
+    "rust_each_order": "23/23 PASS",
+    "policy_each_order": "V01-V05 PASS",
+    "mandatory_unknown": 0,
+    "result": "PASS"
+  },
+  "physical_mutation_gate": {
+    "valid_mutations": 21,
+    "patch_hashes_verified": 21,
+    "killed": 21,
+    "survived": 0,
+    "unknown": 0,
+    "unknown_credit": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "m21_executed_branch_reproduced": true,
+    "result": "PASS"
+  },
+  "regression_gate": {
+    "p1047": "7/7 PASS",
+    "p945": "11/11 PASS",
+    "math_cases": "6/6 PASS",
+    "result": "PASS"
+  },
+  "mechanical_gate": {
+    "cargo_fmt_check": "PASS",
+    "cargo_build": "PASS",
+    "crystalline_lint": "PASS",
+    "git_diff_check": "PASS",
+    "result": "PASS"
+  },
+  "unknown_policy": "Unknown earns zero acceptance and mutation credit, never enters the numerator, remains in the denominator for valid mutations, and blocks mandatory or valid-mutation gates. Only U01-U06 are expected opaque controls.",
+  "invalidation": "Any byte change to the R2/R3 protected chain, 34 protected campaign inputs, candidate productive files, policy, execution-order definition, physical receipts, verifier receipt, or this seal invalidates R2 from the first affected phase.",
+  "claim_boundary": "This R2 seal attests only the frozen P1430 math.cases fragment and executable fail-closed certification policy against M01-M21. It does not attest the other seventeen residual math routes, general math parity, render-byte equality, exhaustive mutation adequacy, or formal workspace isolation."
+}
