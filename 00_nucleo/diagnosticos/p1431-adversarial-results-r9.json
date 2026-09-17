@@ -1,0 +1,52 @@
+{
+  "schema": "tekt.materialization.adversarial-results/v1",
+  "revision": 9,
+  "measured_at": "2026-09-17T16:50:55-03:00",
+  "subject_step": 1431,
+  "repair_step": 1435,
+  "role": "adversarial_campaign_executor",
+  "executor": "agent:/root",
+  "attestation": "executed_without_isolation_attestation",
+  "status": "COMPLETE_MUTATION_SCORE_1",
+  "final_verdict_authority": false,
+  "frozen_inputs": {
+    "preseal_r9_sha256": "f3f430daf08e6538b3b881c409c780edf1ab707ee5ead433bffb4c43ad7ba0b2",
+    "oracles_r9_sha256": "00b707d8487dc21cadb9f7de46813b9776f3d0b39cdcab9a486526748965cbc6",
+    "mutation_design_r9_sha256": "028d97d009388a660d67d688851b52e5bdac3d0e00ce040170548044c5c221c9",
+    "execution_commit": "4656747bd920d373ebc08132a40a64a9efa09f99"
+  },
+  "pre_campaign_gates": {
+    "unmutated": "PASS_34_OF_34",
+    "design": "PASS_REVISION_9_30_FAMILIES",
+    "m21_focused": "VIOLATED_ALIGN_POINT",
+    "patch_apply_checks": "PASS_30_OF_30",
+    "unknown_policy": "PASS_FAIL_CLOSED"
+  },
+  "execution": {
+    "receipt": "00_nucleo/diagnosticos/p1431-mutations/receipts/4656747bd/campaign.json",
+    "receipt_sha256": "273d1dd684b8637e3878084d9368c1e19229d3d11a6f731ffbc653e0dd001e87",
+    "forward": {"executed":30,"violated":30,"survived":0,"unknown":0},
+    "forward_repeat": {"executed":30,"violated":30,"survived":0,"unknown":0},
+    "reverse": {"executed":30,"violated":30,"survived":0,"unknown":0},
+    "mutation_score": 1.0
+  },
+  "repair_chain": {
+    "M05": "R8 exact padding mutation killed in all three R9 orders",
+    "M21": "R9 exact Alternating-to-Center mutation killed by independent P26 coordinate equation in all three orders",
+    "M26": "R7 omitted-to-explicit-zero mutation killed in all three R9 orders",
+    "M27": "Recipe-required RUBYOPT preload used in all credited orders; killed by the public fail-closed policy oracle"
+  },
+  "determinism": {
+    "forward_vs_repeat_classifications_equal": true,
+    "forward_vs_reverse_per_family_classifications_equal": true,
+    "reason_codes_equal_per_family": true,
+    "clean_reversal_after_every_run": true
+  },
+  "verdict": {
+    "classification": "ADVERSARIAL_CAMPAIGN_PASS",
+    "score": 1.0,
+    "final_verification_authorized": true,
+    "final_certificate_authorized": false
+  },
+  "claim_boundary": "The campaign proves discriminatory adequacy only for the frozen 30-family P1431 fragment under R9. It is not a general Typst, math.mat, raster or PDF equivalence proof and does not attest workspace isolation."
+}
