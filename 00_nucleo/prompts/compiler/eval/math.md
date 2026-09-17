@@ -411,7 +411,7 @@ todos os posicionais; rows menores são completadas com `Content::Empty`.
 `MathAlignPoint` permanece na célula até ao consumer de layout. Nenhum cast,
 named desconhecido ou duplicado pode ser descartado silenciosamente.
 
-## P1436 — sintaxe bare de `lr` converge no carrier público (PROPOSTO; gate ADR-0127)
+## P1436 — sintaxe bare de `lr` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

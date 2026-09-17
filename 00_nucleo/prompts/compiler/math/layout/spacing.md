@@ -430,7 +430,7 @@ Se uma entrada alcançar a classificação matemática, ela recebe classe
 `Normal`; não introduz espaçamento especializado. A forma pública continua a
 ser conteúdo estrutural, não um átomo matemático novo.
 
-## P1436 — classes de fronteira de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — classes de fronteira de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

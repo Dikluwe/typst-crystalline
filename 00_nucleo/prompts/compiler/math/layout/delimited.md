@@ -50,7 +50,7 @@ devolve `result` directamente.
 baseline (mesmo Y), antes e depois desta mudança (remoção de um no-op, não correcção de
 comportamento visível).
 
-## P1436 — layout de `MathLrElem` (PROPOSTO; gate ADR-0127)
+## P1436 — layout de `MathLrElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

@@ -174,7 +174,7 @@ não deduzida apenas de dois testes unitários verdes.
 | 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo, `false` (mesmo tratamento das restantes variantes da família math: `MathAccent`, `MathCancel`, `MathClassOverride`, `MathOp`, etc.). Contagem "56 variants"/"46 não-locatable" desta secção já estava desactualizada antes deste passo (múltiplas variantes math adicionadas em passos anteriores sem actualização do total) — não recontada aqui, fora de escopo. | `locatable.rs`, `locatable.md` |
 | 2026-09-14 | P1402: `Content::OutlineEntry` é locatable porque `query(outline.entry)` devolve entradas públicas com identidade própria; o campo `element` preserva a identidade causal do heading. | `locatable.rs`, `locatable.md` |
 
-## P1436 — `MathLr` não-locatable (PROPOSTO; gate ADR-0127)
+## P1436 — `MathLr` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

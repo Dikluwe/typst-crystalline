@@ -483,7 +483,7 @@ somente `hline`, `vline` e `stroke` e aceita/ignora chaves internas restantes.
 Isso não autoriza tipo inválido nos três campos conhecidos e não se confunde
 com named desconhecido no nível de `math.mat`, que continua erro.
 
-## P1436 — binding público completo `math.lr` (PROPOSTO; gate ADR-0127)
+## P1436 — binding público completo `math.lr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

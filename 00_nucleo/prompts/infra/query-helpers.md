@@ -419,7 +419,7 @@ descida. Decisão: `has_any_text` consulta o `element`; `count_variant` desce no
 `element` e no `fill` somente depois do pre-check da própria entrada. Assim a
 superfície aproximada não perde morfologia nem duplica o match da entry.
 
-## P1436 — projeção aproximada de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — projeção aproximada de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

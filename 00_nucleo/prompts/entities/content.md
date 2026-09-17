@@ -3116,7 +3116,7 @@ sem criar nova superfície de linguagem. Enum, igualdade, hash, debug, walkers,
 normalização, shorthand `gap` e retangularização pertencem à fronteira de
 avaliação; layout deriva cascata sem mutar o elemento.
 
-# P1436 — variante pública `Content::MathLr` (PROPOSTO; gate ADR-0127)
+# P1436 — variante pública `Content::MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

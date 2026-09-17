@@ -1757,7 +1757,7 @@ fixpoint limitado: candidato alterado é refeito a partir da entrada não
 transformada, e atingir o teto não é sucesso. Confirmação humana explícita
 recebida em 2026-09-15; o transporte está autorizado pelo gate ADR-0127.
 
-## P1436 — neutralidade introspectiva de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — neutralidade introspectiva de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

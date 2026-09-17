@@ -567,7 +567,7 @@ Comparar também estilo opcional e ambos os bits de deparenthesization. Não
 normalizar `None` para `Vertical`: ausência e vertical explícito divergem em
 `repr`. `line=false` permanece parte da observação para proteger `binom`.
 
-## P1436 — igualdade observável de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — igualdade observável de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

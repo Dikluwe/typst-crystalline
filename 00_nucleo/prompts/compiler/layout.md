@@ -500,7 +500,7 @@ segmentado direto usa estado local equivalente. A cauda fica vazia ao sair.
 Callbacks não usam esse estilo nem essa cauda. Primeira coluna sem candidata e
 configurações locais divergentes permanecem `Unknown`.
 
-## P1436 — encaminhamento geral de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — encaminhamento geral de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

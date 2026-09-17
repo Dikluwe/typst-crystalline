@@ -1498,7 +1498,7 @@ alinhamento horizontal selecionado pelo elemento; boundaries introduzidos por
 `&` preservam a alternância P825. Reconstruções comuns preservam integralmente
 rows, delimitadores, align, augment, gaps e bits de presença.
 
-## P1436 — dispatch e reconstrução de `MathLr` (PROPOSTO; gate ADR-0127)
+## P1436 — dispatch e reconstrução de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

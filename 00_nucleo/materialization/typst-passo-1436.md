@@ -144,3 +144,10 @@ exigido: `1.0`; `Unknown` é fail-closed.
 - três ordens determinísticas e hashes selados intactos;
 - `cargo fmt --all -- --check`, testes focais, `cargo build`,
   `crystalline-lint .` e `git diff --check` verdes.
+
+## Confirmação do gate
+
+**Confirmado explicitamente pelo dono em 2026-09-17.** A materialização fica
+autorizada somente dentro do recorte completo de `math.lr` e dos treze L0
+proprietários acima. `math.mid`, `math.abs`, `math.norm`, `math.round` e as
+demais rotas matemáticas residuais permanecem fora de escopo.

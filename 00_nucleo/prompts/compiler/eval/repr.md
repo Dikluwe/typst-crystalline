@@ -813,7 +813,7 @@ de padding e explicitude igual ao default. Cascata não fabrica presença no
 carrier. A quebra horizontal/vertical segue o helper canônico de repr sem
 alterar a ordem dos campos.
 
-## P1436 — morfologia pública de `lr` (PROPOSTO; gate ADR-0127)
+## P1436 — morfologia pública de `lr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

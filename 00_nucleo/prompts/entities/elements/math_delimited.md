@@ -43,7 +43,7 @@ pub struct MathDelimitedElem {
 `plain_text` `{open}{body}{close}`; `map_content` recurse só o body; `map_text`
 terminal; igualdade estrutural.
 
-## P1436 — carrier público `MathLrElem` (PROPOSTO; gate ADR-0127)
+## P1436 — carrier público `MathLrElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 
