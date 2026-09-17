@@ -1,0 +1,40 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1429,
+  "revision": "R3-final-adversarial-revision",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": "agent:/root/p1429_adversary",
+  "measured_at": "2026-09-16T21:22:39-03:00",
+  "head": "7c05e0eb29bec528646a0ac021fd9a9e546e2f8e",
+  "baseline": "530bb5c4208ee82f815515d761517b818a949ee6",
+  "command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1429 -- --nocapture",
+  "result": "RED_ATTRIBUTABLE",
+  "exit_code": 101,
+  "counts": {"selected": 10, "passed": 1, "failed": 9, "ignored": 0, "filtered_out": 5785},
+  "m10_discriminant": {
+    "base_target_du": 1200,
+    "base_glyph_advance_du": 600,
+    "first_variant_du": 750,
+    "second_variant_du": 1300,
+    "short_fall_0_4": "target 800du; must select second variant glyph 143 and fail",
+    "short_fall_0_5": "target 700du; must select first variant glyph 142 and pass",
+    "short_fall_0_6": "target 600du; must keep base glyph and fail attributable glyph extraction",
+    "conclusion": "The test now kills both adjacent 0.4em and 0.6em mutants and directly discriminates exactly 0.5em."
+  },
+  "passed_controls": ["p1429_unknown_u01_u06_falha_fechado_sem_credito"],
+  "red_causes": [
+    "math.accent is absent from the closed math module",
+    "legacy P296 rejects named size",
+    "legacy P296 rejects named dotless"
+  ],
+  "classification": "The crate compiled and ran. All nine failures are attributable P1429 RED; none is Unknown or build-only.",
+  "hashes": {
+    "layout_test_l0": "d5724bfb9c6faac7611eac53bbbfba0c907ee4680baabaa8584d5343e52b8988",
+    "layout_suite": "67b1a714c9932b6a30b3f1b3908af38c24a4cd385ee01cf39bad6b3dce782fca",
+    "mutants": "dd76a12c28ebc736008ea26b7dd540c002c0867f3696866fda10a2e5822b452c"
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "git_diff_check": "PASS"
+  }
+}

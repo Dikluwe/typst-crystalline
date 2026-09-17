@@ -26,6 +26,8 @@ Fonte, variante, glyph, frame, cascata ou geometria não atribuível produzem
 
 A reconstrução por `apply_math_default` e `apply_math_style` deve preservar
 todos os campos causais. A morfologia dotless cobre `i` e `j` nas duas
-polaridades. A métrica sintética coloca uma variante entre os alvos com
-short-fall de `0.5em` e sem ele: assim, escolher a variante correta prova o
-short-fall, não apenas a diferença genérica entre 100% e 150%.
+polaridades. Para base de `1200du`, a métrica sintética põe a primeira
+variante em `750du`: short-fall correto `0.5em` produz alvo `700du` e escolhe
+essa variante; `0.4em` produz `800du` e escolhe a maior; `0.6em` produz
+`600du` e conserva o glifo-base. Assim o teste discrimina diretamente o
+limiar exato, não apenas a diferença genérica entre 100% e 150%.

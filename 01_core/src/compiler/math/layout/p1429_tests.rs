@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1429-tests.md
-//! @prompt-hash d29400ea
+//! @prompt-hash d5724bfb
 //! @layer L1
 #![cfg(test)]
 
@@ -177,8 +177,8 @@ impl FontMetrics for VariantMetrics {
             variants: vec![
                 GlyphVariant {
                     glyph_id: 142,
-                    advance: 900.0,
-                    hor_advance: 900.0,
+                    advance: 750.0,
+                    hor_advance: 750.0,
                     top_accent_attach: None,
                 },
                 GlyphVariant {
@@ -218,7 +218,7 @@ fn p1429_size_resolve_na_largura_e_precedencia_independente() {
     assert_eq!(
         arrow_glyph(&base, &default).0,
         142,
-        "100% target must subtract exactly the 0.5em accent short-fall"
+        "100% target 1200du minus 0.5em must be 700du and select 750du; 0.4em would select 1300du and 0.6em would keep the base glyph"
     );
     assert_eq!(
         arrow_glyph(&explicit, &default).0,
