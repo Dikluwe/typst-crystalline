@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# P1431 revision-4 design verifier and execution shim.
+# P1431 revision-5 design verifier and execution shim.
 # The public policy oracle freezes runner.rb at b31a7a...; changing that file
 # would make M27 fail on identity before exercising policy.  This shim verifies
-# the expanded 30-family design and delegates physical execution unchanged.
+# the expanded 30-family design, including byte-exact public oracle identity,
+# and delegates physical execution unchanged.
 
 require "digest"
 require "json"
@@ -24,13 +25,28 @@ suite = JSON.parse(File.read(SUITE_PATH))
 oracles = JSON.parse(File.read(ORACLES_PATH))
 mutations = suite.fetch("mutations")
 expected_ids = (1..30).map { |n| format("M%02d", n) }
+identity = oracles.fetch("identity_serialization")
+expected_enumeration = "run cargo test -q -p typst-core p1431 -- --list, then typst-infra; retain lines ending exactly ': test'; strip that suffix; prefix the exact package name"
+expected_record = "UTF-8 bytes <package>\t<fully-qualified-test-id>\n; no BOM; LF after every record including the last"
 
-errors << "suite revision is not 4" unless suite.fetch("revision") == 4
+errors << "suite revision is not 5" unless suite.fetch("revision") == 5
 errors << "mutation count is not 30" unless mutations.length == 30
 errors << "mutation ids are not exhaustive and ordered" unless mutations.map { |m| m.fetch("id") } == expected_ids
-errors << "oracle revision is not 4" unless oracles.fetch("revision") == 4
+errors << "oracle revision is not 5" unless oracles.fetch("revision") == 5
 errors << "oracle count is not 34" unless suite.dig("oracles", "test_count") == 34
 errors << "public runner identity mismatch" unless Digest::SHA256.file(PUBLIC_RUNNER).hexdigest == suite.dig("runner", "public_policy_sha256")
+errors << "identity serialization version mismatch" unless identity.fetch("version") == 1
+errors << "identity enumeration algorithm mismatch" unless identity.fetch("enumeration") == expected_enumeration
+errors << "identity record algorithm mismatch" unless identity.fetch("record") == expected_record
+
+forward_records = identity.fetch("forward_records")
+errors << "identity record count is not 34" unless forward_records.length == 34
+forward_digest = Digest::SHA256.hexdigest(forward_records.map { |record| "#{record}\n" }.join)
+reverse_digest = Digest::SHA256.hexdigest(forward_records.reverse.map { |record| "#{record}\n" }.join)
+errors << "oracle forward identity hash mismatch" unless forward_digest == identity.fetch("forward_sha256")
+errors << "oracle reverse identity hash mismatch" unless reverse_digest == identity.fetch("reverse_sha256")
+errors << "suite forward identity hash mismatch" unless forward_digest == suite.dig("oracles", "forward_ids_sha256")
+errors << "suite reverse identity hash mismatch" unless reverse_digest == suite.dig("oracles", "reverse_ids_sha256")
 
 oracle_digest = Digest::SHA256.file(ORACLES_PATH).hexdigest
 errors << "oracle hash mismatch" unless oracle_digest == suite.dig("oracles", "sha256")
@@ -40,6 +56,8 @@ errors << "execution orders differ from contract" unless orders.map { |o| o.fetc
 orders.each do |order|
   errors << "#{order.fetch('id')}: oracle count mismatch" unless order.fetch("oracle_test_count") == 34
   errors << "#{order.fetch('id')}: mutation vector mismatch" unless order.fetch("mutations").sort == expected_ids.sort
+  expected_order_digest = order.fetch("id") == "reverse" ? reverse_digest : forward_digest
+  errors << "#{order.fetch('id')}: oracle identity hash mismatch" unless order.fetch("oracle_ids_sha256") == expected_order_digest
 end
 
 mutations.each do |mutation|
@@ -60,7 +78,7 @@ if errors.empty?
   puts JSON.pretty_generate(
     classification: "Preserved",
     reason_code: "PRESERVED_MUTATION_DESIGN",
-    revision: 4,
+    revision: 5,
     mutations: 30,
     oracle_tests: 34,
   )

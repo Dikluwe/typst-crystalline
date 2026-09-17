@@ -1,7 +1,7 @@
 {
   "schema": "tekt.materialization.mutations/v1",
-  "revision": 4,
-  "authored_at": "2026-09-17T10:31:45-03:00",
+  "revision": 5,
+  "authored_at": "2026-09-17T11:09:21-03:00",
   "phase": "adversarial-design-before-candidate",
   "status": "designed_not_executed",
   "regime": "full",
@@ -16,12 +16,12 @@
   },
   "oracles": {
     "path": "00_nucleo/diagnosticos/p1431-oracles.json",
-    "sha256": "0f2ac9dfebf1f8927f2be289244f48671dddc9585b2eeb0916b897c570d648f1",
-    "revision": 4,
+    "sha256": "aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad",
+    "revision": 5,
     "case_count": 64,
     "test_count": 34,
-    "forward_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d",
-    "reverse_ids_sha256": "25168329eb5ad2caa34465339468a7c7601811eb254f4bfe571f2decb9f58620",
+    "forward_ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
+    "reverse_ids_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f",
     "public_assertions_used": [
       "P33 accepts and ignores unknown augment dictionary keys",
       "N03, N06 and N08 exercise every frozen invalid subcase",
@@ -29,19 +29,23 @@
       "N15 directly rejects #set math.mat(column-gap: 1) and duplicate column-gap",
       "U02 and U06 derive fail-closed Unknown from real opaque observations",
       "P20 uses a successful mutable-array occurrence signal plus a separate spread witness",
-      "P21 pairwise-discriminates every carrier component including stroke cap",
-      "P28-P29 observe all augment lines and complete stroke/cap transport",
+      "P21 pairwise-discriminates every carrier component; M17c uses same-presence Left/Right and M17h isolates relative/absolute components on both gap axes",
+      "P28 preserves duplicate/out-of-order line multiplicity and independently derives gap-midpoint and border coordinates for M23c/M23d",
+      "N16-N19 plus non-square 2x3/3x2 valid controls discriminate the M25e axis swap",
+      "P32 directly invokes Content::math_matrix and compares canonical carrier repr plus geometry/text positions with the common constructor",
+      "P29 observes complete stroke/cap transport",
       "P34 observes Square/round/butt carrier semantics after full frame transport",
       "P35 distinguishes raster Butt < Round < Square and auto equals Square",
-      "P36 checks scoped PDF 1 J/2 J in both paths and omission of legacy 0 J",
+      "P36 tokenizes balanced q/Q, attributes the sole J inside the innermost line-paint scope before m/l/S, rejects outer leakage/unbalanced scope, and omits legacy 0 J",
+      "34 exact oracle identities use the frozen package-tab-ID-LF serialization, with forward and reverse SHA-256 recorded",
       "the public policy oracle invokes runner.rb --mode policy-self-check after checking runner SHA-256"
     ]
   },
   "invalidation": {
-    "supersedes_mutation_sha256": "b06857c635e64bbabc189d4c22e514d96b62180a52e6215ebee35535a178f1bd",
-    "reason_code": "BLOCK_CONTRACT_R3_LINE_CAP_AND_P20_EXPANSION",
-    "scope": "Mutation revision 3 is invalid. Revision 4 binds 64 cases and 34 R4 tests, strengthens M16/M17/M23-M26, and adds M28-M30 for line-cap carrier, raster and PDF transport. Unchanged mutation families retain their prior recipes.",
-    "downstream": "Any revision-3 preseal, seal, mutation result or certificate is invalid."
+    "supersedes_mutation_sha256": "bcfaefcc2215e5ff66b334749be751b8ca41c7a30689090e449a5f56c5d3fc2e",
+    "reason_code": "BLOCK_ORACLE_R5_SURVIVOR_WITNESSES",
+    "scope": "Mutation revision 4 is invalid. Revision 5 binds the same 64 cases and 34 oracle IDs to the byte-exact R5 identity serialization and aligns M17c/M17h, M23c/M23d, M25e, M26 and M30d with their strengthened public causal witnesses.",
+    "downstream": "Any revision-4 preseal, seal, mutation result or certificate is invalid."
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -55,7 +59,7 @@
     "read_allowlist_used": [
       "approved P1431 step and eleven owner L0 deltas",
       "frozen revision-3 manifesto and contract at c0920e963",
-      "published R4 oracle identities and assertions at c1ccd75bc",
+      "published R5 oracle identities and assertions at bc8ac42ca",
       "productive baseline blobs at f5aa8d72f",
       "ratified public vanilla identity"
     ],
@@ -77,8 +81,8 @@
     "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "public_policy_sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687",
     "design_path": "00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb",
-    "design_sha256": "983a3080948a591afb76ca7aa76961628d6fea4f5ffa2ce4c514e9923e21d63d",
-    "identity_preservation": "runner.rb remains byte-identical because the frozen R4 oracle asserts this SHA before exercising M27. runner-r4.rb verifies the expanded 30-family design and delegates physical execution to the frozen reversible runner.",
+    "design_sha256": "6eb35469b66b1a729c5476cefbf4595d48d3a3dd5227ec1a255c6f58d2ed5690",
+    "identity_preservation": "runner.rb remains byte-identical because the frozen public oracle asserts this SHA before exercising M27. runner-r4.rb verifies the 30-family revision-5 design, reproduces the frozen 34-record identity serialization and its forward/reverse hashes, and delegates physical execution to the reversible public runner.",
     "design_check": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner-r4.rb --mode verify-design",
     "execution_contract": "A future unified diff is admitted only for the exact candidate HEAD, a clean tracked tree, unique git-apply, and recipe target paths. A focused command kills only with a non-zero result plus an attributable public witness. Success is a survivor. Timeout, crash, ambiguous or absent patch, path escape, missing witness, identity mismatch, application/reversal failure, dirty restoration or missing export observation is Unknown. The frozen public policy-self-check remains the direct M27 observer.",
     "reversibility": "Each mutation is applied alone; ensure reverses its exact unified diff and requires a clean tracked tree before the next mutation."
@@ -98,8 +102,8 @@
     "family_rule": "A family with multiple frozen physical variants earns one numerator unit only when every valid variant is Violated by its direct causal witness and all boundary controls retain their frozen classifications."
   },
   "focused_calibration": {
-    "measured_at": "2026-09-17T10:31:45-03:00",
-    "state": "shared workspace at oracle R4; no candidate implementation read or executed",
+    "measured_at": "2026-09-17T11:09:21-03:00",
+    "state": "clean published oracle R5 commit bc8ac42ca7be4d959e938a7feae1bb59509cf6b3 (tree c45641fee42990129ac113994fdd91d18a092be4) over frozen productive baseline; no candidate implementation read or executed",
     "runner_direct": {
       "command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
       "exit": 3,
@@ -151,12 +155,41 @@
       "legacy_exit": 0,
       "legacy_passed": 1,
       "legacy_witness": "deterministic legacy Butt bytes and omitted 0 J are an active preserved boundary control"
+    },
+    "r5_focused": {
+      "classification": "RED_ATTRIBUTABLE_DESIGN_CALIBRATION",
+      "candidate_credit": false,
+      "m17c_m17h": {
+        "command": "cargo test -q -p typst-core entities::elements::p1431_math_matrix_tests::p1431_igualdade_e_hash_discriminam_campos_e_presenca -- --exact",
+        "exit": 101,
+        "witness": "baseline stops at the missing math.mat binding before the same-presence Align2D and independent row/column Rel component pairs; physical mutation classification remains deferred"
+      },
+      "m23c_m23d": {
+        "command": "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_augment_emite_todas_as_linhas_bordas_e_negativos -- --exact",
+        "exit": 101,
+        "witness": "baseline emits zero augment lines versus six before the duplicate/order and independently derived midpoint assertions; the public causal slices are present but mutation classification remains deferred"
+      },
+      "m25e": {
+        "command": "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_offsets_fora_da_dimensao_sao_diagnosticos -- --exact",
+        "exit": 101,
+        "witness": "baseline accepts the first invalid offset before reaching the non-square 2x3/3x2 axis controls; physical mutation classification remains deferred"
+      },
+      "m26": {
+        "command": "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_reconstrucoes_preservam_todos_os_campos_causais -- --exact",
+        "exit": 101,
+        "witness": "baseline fails the earlier reconstruction check because canonical repr lacks delim, before reaching the direct Content::math_matrix carrier and geometry/text comparison; the R5 M26 slice is present but physical mutation classification remains deferred"
+      },
+      "m30d": {
+        "command": "cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local -- --exact",
+        "exit": 101,
+        "witness": "the synthetic outer-scope leakage and unbalanced-q controls both fail as intended under catch_unwind, then the real export slice stops at missing math.mat; physical mutation classification remains deferred"
+      }
     }
   },
   "execution_orders": [
-    {"id": "forward", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
-    {"id": "forward_repeat", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
-    {"id": "reverse", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "25168329eb5ad2caa34465339468a7c7601811eb254f4bfe571f2decb9f58620", "mutations": ["M30","M29","M28","M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
+    {"id": "forward", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
+    {"id": "forward_repeat", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da", "mutations": ["M01","M02","M03","M04","M05","M06","M07","M08","M09","M10","M11","M12","M13","M14","M15","M16","M17","M18","M19","M20","M21","M22","M23","M24","M25","M26","M27","M28","M29","M30"]},
+    {"id": "reverse", "fresh_process": true, "oracle_test_count": 34, "oracle_ids_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f", "mutations": ["M30","M29","M28","M27","M26","M25","M24","M23","M22","M21","M20","M19","M18","M17","M16","M15","M14","M13","M12","M11","M10","M09","M08","M07","M06","M05","M04","M03","M02","M01"]}
   ],
   "mutations": [
     {
@@ -276,9 +309,9 @@
     },
     {
       "id": "M17", "target": "O-CARRIER", "property": "equality and hash discriminate every carrier component",
-      "precondition": "one complete structural equality and manual hash exist", "patch": "execute nine frozen omission/conflation variants spanning rows through presence",
+      "precondition": "one complete structural equality and manual hash cover same-presence value changes", "patch": "execute nine frozen omission/conflation variants; M17c isolates Left/Right and M17h independently isolates relative/absolute components on both gap axes",
       "target_files": ["01_core/src/entities/elements/math_matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M17.json", "recipe_sha256": "7ae7c84c231b67db6416211e4ed31ec10b80bd97792ab395b2a04c008e122660",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M17.json", "recipe_sha256": "d6f748c26cf00c6e94396de8d29095c1fc4a6283f8b6cb7a38b0079450714e8a",
       "variants": ["M17a-row-order","M17b-delimiter-side","M17c-align","M17d-augment-axis-order","M17e-stroke-paint","M17f-stroke-thickness","M17g-stroke-cap","M17h-gap-component","M17i-presence"],
       "killer_cases": ["P21-carrier-discrimination"], "boundary_cases": ["P15-omitted-presence","P22-walkers","P23-repr-complete"], "expected_reason_code": "VIOLATED_CARRIER"
     },
@@ -319,9 +352,9 @@
     },
     {
       "id": "M23", "target": "O-AUGMENT-GEOMETRY", "property": "every ordered hline/vline offset draws one line including borders",
-      "precondition": "one full ordered hline/vline iteration and canonical placement exist", "patch": "execute first-only, ignore-axis, collapse-order, edge-placement and omit-border variants",
+      "precondition": "one full ordered iteration preserves duplicate/source order and canonical placement is independently derivable from cell extents", "patch": "execute first-only, ignore-axis, collapse-order, edge-placement and omit-border variants against the R5 sequence/midpoint witnesses",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M23.json", "recipe_sha256": "732600a8de75a777c0cc3bb94dc5045b0050ca3068c41dda55ffd60cf3f50f00",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M23.json", "recipe_sha256": "f39d35a6cf7f683dc1179f20a5f028d4a814ba337fe1dda5d933ee84dd2e0a21",
       "variants": ["M23a-first-only","M23b-ignore-hline","M23c-collapse-order","M23d-cell-edge","M23e-omit-border"],
       "killer_cases": ["P28-augment-lines"], "boundary_cases": ["P13-augment-dict","N16-hline-positive-out-of-range","N18-vline-positive-out-of-range"], "expected_reason_code": "VIOLATED_LAYOUT"
     },
@@ -335,17 +368,17 @@
     },
     {
       "id": "M25", "target": "O-OFFSET-VALIDATION", "property": "offset bounds are inclusive at 0 and dimension and reject beyond dimension",
-      "precondition": "one dimension-specific inclusive signed offset validator exists", "patch": "execute interior-only, accept/clamp/ignore overflow and swapped-dimension variants",
+      "precondition": "one inclusive validator uses rows for hline and columns for vline on non-square matrices", "patch": "execute interior-only, accept/clamp/ignore overflow and swapped-dimension variants, with M25e requiring 2x3 and 3x2 valid/invalid controls",
       "target_files": ["01_core/src/compiler/math/layout/matrix.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M25.json", "recipe_sha256": "66706039fc99f007343afc9e5d338287059c37239c5f04b057883823cf279de6",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M25.json", "recipe_sha256": "675cb81698e403df848e3f4cf8a9aef6fdb0ff727c06a5a4dfc7f210e237c1bc",
       "variants": ["M25a-interior-only","M25b-accept-overflow","M25c-clamp-overflow","M25d-ignore-overflow","M25e-swap-dimension"],
       "killer_cases": ["P28-augment-lines","N16-hline-positive-out-of-range","N17-hline-negative-out-of-range","N18-vline-positive-out-of-range","N19-vline-negative-out-of-range"], "boundary_cases": ["P29-augment-stroke"], "expected_reason_code": "VIOLATED_AUGMENT_OFFSET"
     },
     {
-      "id": "M26", "target": "O-COMPATIBILITY", "property": "legacy wrapper preserves certified old geometry",
-      "precondition": "one narrow compatibility wrapper exists", "patch": "change only its default column gap to zero",
+      "id": "M26", "target": "O-COMPATIBILITY", "property": "direct legacy wrapper preserves canonical carrier identity and common-constructor geometry/text",
+      "precondition": "one direct Content::math_matrix compatibility wrapper exists", "patch": "change only its default column gap to zero; kill via direct canonical repr and exact common-constructor geometry/text equivalence",
       "target_files": ["01_core/src/entities/content.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "ad1f6ae26a7290f099e373678a7379dded0a6ff434efd77ae10856b3211b9a25",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M26.json", "recipe_sha256": "2066171c3a2bbbb522f75289b4fa253eadce6e1e61a5f8b2c9cf8caafd51d656",
       "killer_cases": ["P32-legacy-regressions"], "boundary_cases": ["P15-omitted-presence","P31-denominator-style","P34-line-cap-carrier","P36-pdf-line-cap"], "expected_reason_code": "VIOLATED_REGRESSION"
     },
     {
@@ -373,9 +406,9 @@
     },
     {
       "id": "M30", "target": "O-PDF-LINE-CAP", "property": "PDF maps and scopes non-default J while omitting legacy Butt 0 J",
-      "precondition": "top-level and local PDF line paths share cap mapping and q/Q scoping", "patch": "execute omitted/mis-mapped/divergent/leaked J and redundant 0 J variants",
+      "precondition": "top-level/local PDF paths share cap mapping and balanced innermost line q/Q attribution", "patch": "execute omitted/mis-mapped/divergent/leaked J and redundant 0 J variants; M30d moves J outside the selected scope or after path start",
       "target_files": ["03_infra/src/export/stream.rs"],
-      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M30.json", "recipe_sha256": "1f4e75483b8bd9f06ad8660cc847ad2ad569ebd3792d983660156b7edbe85c3e",
+      "recipe": "00_nucleo/diagnosticos/p1431-mutations/patches/M30.json", "recipe_sha256": "268c815795bb89c852c6d457f2fa08d78cfce288dbcfe4e236af7278f16a9a9e",
       "variants": ["M30a-omit-round","M30b-mismap-square","M30c-local-divergence","M30d-leak-state","M30e-redundant-butt"],
       "killer_cases": ["P36-pdf-line-cap"], "boundary_cases": ["P32-legacy-regressions","P34-line-cap-carrier","P35-raster-line-cap","U10-export"], "expected_reason_code": "VIOLATED_PDF_LINE_CAP"
     }
