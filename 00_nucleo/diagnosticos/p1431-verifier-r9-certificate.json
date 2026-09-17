@@ -1,0 +1,80 @@
+{
+  "schema": "tekt.materialization.certificate/v1",
+  "certified_at": "2026-09-17T16:54:35-03:00",
+  "phase": "final-verification-after-r9-complete-campaign",
+  "subject_step": 1431,
+  "repair_step": 1435,
+  "role": "procedurally_separated_final_verifier",
+  "executor": "agent:/root",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1431-verifier-r9-certificate.json"
+    ],
+    "verified_inputs_edited": false,
+    "productive_code_written": false,
+    "isolation_attested": false,
+    "limitation": "Sequential role execution in a shared root session; protected hashes, commits and write boundaries are recorded, but independent workspace isolation is not attested."
+  },
+  "state": {
+    "verification_head_before_certificate": "ad12cde3489fccb68490544dddc31718e6289d42",
+    "verification_tree_before_certificate": "7119dba74b78cf4b291e1bbc14cbdb402ba61a9c",
+    "tracked_tree_clean_before_certificate": true,
+    "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+    "productive_candidate_tree": "49dd65d31ee66db28f2e634beef78abe2e34384f"
+  },
+  "protected_inputs": {
+    "step_sha256": "2a9766da0627a51f7b936a17fcacc17852c84592501a0719d068f55049d5ec0f",
+    "manifest_sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445",
+    "contract_sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b",
+    "oracles_r9_sha256": "00b707d8487dc21cadb9f7de46813b9776f3d0b39cdcab9a486526748965cbc6",
+    "mutation_design_r9_sha256": "028d97d009388a660d67d688851b52e5bdac3d0e00ce040170548044c5c221c9",
+    "preseal_r9_sha256": "f3f430daf08e6538b3b881c409c780edf1ab707ee5ead433bffb4c43ad7ba0b2",
+    "campaign_receipt_sha256": "273d1dd684b8637e3878084d9368c1e19229d3d11a6f731ffbc653e0dd001e87",
+    "adversarial_results_r9_sha256": "a9cb58e1e99f64af54731e2e6b50d8bf67d7c2be9b1e40519df33168135d04e7"
+  },
+  "lineage_verification": {
+    "l0_test_prompt_sha256": "9319a8fefd7b21d92fdb13abcdf85ab37e82ebc23fd9df99b8ec9e3bc2c81f7e",
+    "test_consumer_sha256": "9533c0f3b79e16c8c8b45e1a0f00ac402ad8a491149681056e6ef7c823eafff7",
+    "consumer_prompt_hash_prefix": "9319a8fe",
+    "productive_projection": "BYTE_IDENTICAL_TO_CF92C3D07",
+    "post_candidate_rust_delta": "CFG_TEST_ONLY"
+  },
+  "oracle_verification": {
+    "unmutated_core": "PASS_30_OF_30",
+    "unmutated_infra_release": "PASS_4_OF_4",
+    "unmutated_total": "PASS_34_OF_34",
+    "p26_observation": "Independent left right-edge and right left-edge equations distinguish alternating alignment from centering.",
+    "m21_focused": "VIOLATED_ALIGN_POINT",
+    "design_gate": "PRESERVED_MUTATION_DESIGN_REVISION_9_30_FAMILIES_34_ORACLES"
+  },
+  "physical_campaign": {
+    "execution_commit": "4656747bd920d373ebc08132a40a64a9efa09f99",
+    "orders": {
+      "forward": {"executed": 30, "violated": 30, "survived": 0, "unknown": 0, "run_sha256": "ce0ac58f3bffbe2a9a20436eef4024316f39165892936428735d46afb80b86ff"},
+      "forward_repeat": {"executed": 30, "violated": 30, "survived": 0, "unknown": 0, "run_sha256": "8ce2070be5e789fa99736f9ea6653781d37dd0488cb42e891d799dfe3eb06b35"},
+      "reverse": {"executed": 30, "violated": 30, "survived": 0, "unknown": 0, "run_sha256": "ac64dbc5564cf044bac2562b3e6ffd12270c2e35717180324727cf7535564749"}
+    },
+    "executions": 90,
+    "violated": 90,
+    "survived": 0,
+    "unknown": 0,
+    "mutation_score": 1.0,
+    "clean_reversal_after_every_run": true,
+    "deterministic_classifications_and_reason_codes": true
+  },
+  "final_gates": {
+    "cargo_fmt_check": "PASS",
+    "cargo_build": "PASS",
+    "crystalline_lint": "PASS_ZERO_VIOLATIONS",
+    "git_diff_check": "PASS"
+  },
+  "verdict": {
+    "classification": "PASS_SEALED_FRAGMENT",
+    "success_seal_authorized": true,
+    "final_certificate_emitted": true,
+    "p1431_closed": true
+  },
+  "claim_boundary": "This certificate closes only the frozen 30-family, 34-oracle P1431 fragment under revision 9. It proves neither general Typst or math.mat equivalence nor raster/PDF equivalence, and it does not attest workspace isolation."
+}
