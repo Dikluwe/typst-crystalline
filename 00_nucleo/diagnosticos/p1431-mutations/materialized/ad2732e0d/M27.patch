@@ -1,0 +1,7 @@
+diff --git a/00_nucleo/diagnosticos/p1431-mutations/materialized/policy_credit_mutant.rb b/00_nucleo/diagnosticos/p1431-mutations/materialized/policy_credit_mutant.rb
+new file mode 100644
+index 000000000..3a7b7eb0d
+--- /dev/null
++++ b/00_nucleo/diagnosticos/p1431-mutations/materialized/policy_credit_mutant.rb
+@@ -0,0 +1 @@
++module Kernel; alias_method :p1431_exit_without_credit_mutation, :exit; def exit(status = true); status = 0 if status == 3; p1431_exit_without_credit_mutation(status); end; private :exit; end

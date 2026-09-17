@@ -1,0 +1,31 @@
+diff --git a/01_core/src/compiler/eval/math.rs b/01_core/src/compiler/eval/math.rs
+index 08a936b42..235b7d4f1 100644
+--- a/01_core/src/compiler/eval/math.rs
++++ b/01_core/src/compiler/eval/math.rs
+@@ -473,12 +473,19 @@ fn eval_p1431_mat_args(
+                     });
+                 }
+             }
+-            Arg::Named(named) => occurrences.push(ArgOccurrence {
+-                name: Some(named.name().as_str().into()),
+-                value: eval_math_arg_value(scopes, ctx, engine, named.expr())?,
+-                span: named.span(),
+-                value_span: named.expr().span(),
+-            }),
++            Arg::Named(named) => {
++                let value = eval_math_arg_value(scopes, ctx, engine, named.expr())?;
++                let invalid_align = matches!(&value, Value::Align(align)
++                    if align.h.is_none() || align.v.is_some());
++                if !(named.name().as_str() == "align" && invalid_align) {
++                    occurrences.push(ArgOccurrence {
++                        name: Some(named.name().as_str().into()),
++                        value,
++                        span: named.span(),
++                        value_span: named.expr().span(),
++                    });
++                }
++            }
+             Arg::Spread(spread) => {
+                 let value = eval_math_arg_value(scopes, ctx, engine, spread.expr())?;
+                 match value {
+

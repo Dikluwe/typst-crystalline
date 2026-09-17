@@ -1,0 +1,14 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 25635c3f4..9a7cb0971 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -1161,7 +1161,7 @@ pub(crate) fn math_matrix_content(args: &Args) -> SourceResult<Content> {
+             })
+             .collect::<SourceResult<Vec<_>>>()?
+     } else {
+-        vec![args.items.iter().map(math_matrix_cell).collect()]
++        args.items.iter().map(|value| vec![math_matrix_cell(value)]).collect()
+     };
+     let columns = rows.iter().map(Vec::len).max().unwrap_or(0);
+     for row in &mut rows {
+

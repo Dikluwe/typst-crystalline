@@ -1,0 +1,19 @@
+diff --git a/01_core/src/entities/elements/math_matrix.rs b/01_core/src/entities/elements/math_matrix.rs
+index 99fe1f454..ff4b5510d 100644
+--- a/01_core/src/entities/elements/math_matrix.rs
++++ b/01_core/src/entities/elements/math_matrix.rs
+@@ -90,7 +90,12 @@ impl Element for MathMatrixElem {
+         let rows = self
+             .rows
+             .iter()
+-            .map(|row| row.iter().map(|cell| cell.map_content(transform)).collect())
++            .map(|row| {
++                row.iter()
++                    .take(row.len().saturating_sub(1))
++                    .map(|cell| cell.map_content(transform))
++                    .collect()
++            })
+             .collect::<SourceResult<Vec<Vec<_>>>>()?;
+         Ok(Content::MathMatrix(Arc::new(Self {
+             rows,
+

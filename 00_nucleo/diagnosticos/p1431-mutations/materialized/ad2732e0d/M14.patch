@@ -1,0 +1,28 @@
+diff --git a/01_core/src/compiler/eval/rules.rs b/01_core/src/compiler/eval/rules.rs
+index 722b8ad40..6656b7749 100644
+--- a/01_core/src/compiler/eval/rules.rs
++++ b/01_core/src/compiler/eval/rules.rs
+@@ -378,13 +378,15 @@ fn eval_set_math_rule(
+             }
+             if elem == "mat" {
+                 let mut options = crate::compiler::stdlib::MathMatrixOptions::default();
+-                crate::compiler::stdlib::apply_math_matrix_option(
+-                    &mut options,
+-                    nome,
+-                    &val,
+-                    named.expr().span(),
+-                    false,
+-                )?;
++                if !(nome == "column-gap" && matches!(val, Value::Int(1))) {
++                    crate::compiler::stdlib::apply_math_matrix_option(
++                        &mut options,
++                        nome,
++                        &val,
++                        named.expr().span(),
++                        false,
++                    )?;
++                }
+             }
+             *engine.styles =
+                 engine.styles.push_custom(format!("math.{elem}.{nome}"), val);
+

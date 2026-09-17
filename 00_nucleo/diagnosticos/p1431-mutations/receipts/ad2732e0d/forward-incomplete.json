@@ -1,0 +1,368 @@
+{
+  "schema": "tekt.materialization.mutation-receipts/v1",
+  "revision": 6,
+  "attestation": "executed_without_isolation_attestation",
+  "productive_candidate": "cf92c3d07c05a564b9d089e005b04e9daf03cb62",
+  "productive_candidate_tree": "49dd65d31ee66db28f2e634beef78abe2e34384f",
+  "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+  "order": "forward",
+  "status": "INCOMPLETE_FAIL_CLOSED",
+  "command_policy": "full core p1431 corpus for all families; full release infra p1431 corpus additionally for M24/M26/M28-M30; M27 with frozen RUBYOPT preload",
+  "elapsed_and_output_digest": null,
+  "receipt_limitation": "public runner emits only classification/reason/candidate/patch hash; external elapsed and stdout/stderr digest were not retained, so this aggregate is not a complete final campaign receipt",
+  "runs": [
+    {
+      "mutation": "M01",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_BINDING",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "68330bc2345140a411a44c122ba96dc42eba7bfc21783d07d475dd0e8241e29e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "68330bc2345140a411a44c122ba96dc42eba7bfc21783d07d475dd0e8241e29e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M02",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_ROW_MODE",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "0d032e78722a3338fcefea58cca0121fe35b50b42f7a58da3ae4077852c52c0e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "0d032e78722a3338fcefea58cca0121fe35b50b42f7a58da3ae4077852c52c0e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M03",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_ROW_MODE",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "2da70161a3d7668111d3372a0256541ccdde93d4553455ba2540b4db51ff600e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "2da70161a3d7668111d3372a0256541ccdde93d4553455ba2540b4db51ff600e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M04",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_EXPECTED_ARRAY",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "2fccbd92e2c23742b7080d7740e45fd90528bb98f54802e73030d3a4ea6fd482",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "2fccbd92e2c23742b7080d7740e45fd90528bb98f54802e73030d3a4ea6fd482",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M05",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_PADDING",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "1befd1727dec2c69a5153c512c74a4e5c282cc47b5be8b2e25d2633a1bb64243",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "1befd1727dec2c69a5153c512c74a4e5c282cc47b5be8b2e25d2633a1bb64243",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M06",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_DELIMITER",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "9915fd140f26516079b185d84e0c8f0bbf51148cd7436e8259ef1239244de198",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "9915fd140f26516079b185d84e0c8f0bbf51148cd7436e8259ef1239244de198",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M07",
+      "classification": "Preserved",
+      "reason_code": "MUTATION_SURVIVED",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "ffb8ea203efb1381d7e48396c89c5bebf8d9a98e4f92b219dd03bd720fa1e936",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "c605c5053898506a2ec1624f92f525c8ab4b7fbffc9930ca8c89b519748f419a",
+      "current_patch_matches_executed": false
+    },
+    {
+      "mutation": "M08",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_GAP_PRECEDENCE",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "eb699d38b44718fb01fc2ab6dcecf2c96808dc09833db822c5fa9f117a03d476",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "eb699d38b44718fb01fc2ab6dcecf2c96808dc09833db822c5fa9f117a03d476",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M09",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_RELATIVE_LENGTH",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "b0f55ff45b5e752f6e77f33b79ed93e9962750167aad9ce78faeb037a01558e3",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "b0f55ff45b5e752f6e77f33b79ed93e9962750167aad9ce78faeb037a01558e3",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M10",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_AUGMENT_DICT",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "2de00c1c4163e4b29936b207b331a8b36a1cd89bd23907469eb43e87092fca9e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "2de00c1c4163e4b29936b207b331a8b36a1cd89bd23907469eb43e87092fca9e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M11",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_REPR",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "ea477976a2fad2c514e0a01d0f5c872ddbe8334fe95f764531b29ff0ecfd9060",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "ea477976a2fad2c514e0a01d0f5c872ddbe8334fe95f764531b29ff0ecfd9060",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M12",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_CASCADE",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "7bd6909ede4f2eda05f6742b9355d03855e8015e10ceaffd737b1b3bc46e9134",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "7bd6909ede4f2eda05f6742b9355d03855e8015e10ceaffd737b1b3bc46e9134",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M13",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_EXPLICITNESS",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "d1165e58330e266990919e8d6168bcd2dbc0e17633f65512dde468e11f3e7ce3",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "d1165e58330e266990919e8d6168bcd2dbc0e17633f65512dde468e11f3e7ce3",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M14",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_CASCADE",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "227ac2464f5578f8354a7d146086cb792c33a0daaa79b57b584bd855beec32b9",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "227ac2464f5578f8354a7d146086cb792c33a0daaa79b57b584bd855beec32b9",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M15",
+      "classification": "Preserved",
+      "reason_code": "MUTATION_SURVIVED",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "1c05181ec14d06e6e2429cb752e5df85fc0a853659b49b4a643922762b26414b",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "8b50732eb4e86c8f9f65e92f42ca65e4b5cd5bed518d0ac427f5ed7230c9323c",
+      "current_patch_matches_executed": false
+    },
+    {
+      "mutation": "M16",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_EVALUATION_COUNT",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "8c391349cd81f3fb183cdb1dc002b1c179b21648d568dad8e7db0297c2163767",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "8c391349cd81f3fb183cdb1dc002b1c179b21648d568dad8e7db0297c2163767",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M17",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_CARRIER",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "28b0dcd51408cfb7df9233d54ed92ca4946c4723b5e1c14ca1c5c8d64c21303e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "28b0dcd51408cfb7df9233d54ed92ca4946c4723b5e1c14ca1c5c8d64c21303e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M18",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_WALKER",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "54d23f26eb364acf605b93cd377dc7cd9a02a6881a9e60c9bb33a9fb886f89a2",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "54d23f26eb364acf605b93cd377dc7cd9a02a6881a9e60c9bb33a9fb886f89a2",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M19",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_REPR",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "fd2794081427d6c1878182a2559e9e159452454c336021394daca048e0560600",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "fd2794081427d6c1878182a2559e9e159452454c336021394daca048e0560600",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M20",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_RECONSTRUCTION",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "180eb85381bfce05d4c1ad9d5099ee0cb33981bafe9b5d2bf70286f9bc9f545e",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "180eb85381bfce05d4c1ad9d5099ee0cb33981bafe9b5d2bf70286f9bc9f545e",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M21",
+      "classification": "Preserved",
+      "reason_code": "MUTATION_SURVIVED",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "3c94d31151a44317ab8abefab4716e4c870baae4d638215c926725f36c72c696",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "f39e997d1552e81e94e2696de32d2d96fed6ef464d5823ae7d93670e8f04af3b",
+      "current_patch_matches_executed": false
+    },
+    {
+      "mutation": "M22",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_LAYOUT",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "eef47520223b136828b0a9addb667790b3ef7d7f151449734a041f6ec87f3b99",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "eef47520223b136828b0a9addb667790b3ef7d7f151449734a041f6ec87f3b99",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M23",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_LAYOUT",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "42fc222812d4a27495fe045e3c442c4558c09609cd6eebe28b7bdccebf16d460",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "42fc222812d4a27495fe045e3c442c4558c09609cd6eebe28b7bdccebf16d460",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M24",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_AUGMENT_OFFSET",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "83552475e154581575aec53a8ca90de2978f728b6a765792aa6dc9699b653cb5",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "83552475e154581575aec53a8ca90de2978f728b6a765792aa6dc9699b653cb5",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M25",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_AUGMENT_OFFSET",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "8aaa2a79c94686888bb69999c2d678fb58767b9d112bb6598b8d3d0c04b9c11b",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "8aaa2a79c94686888bb69999c2d678fb58767b9d112bb6598b8d3d0c04b9c11b",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M26",
+      "classification": "Preserved",
+      "reason_code": "MUTATION_SURVIVED",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "8081a37fa45e21ecc8c27daf96a76c0218033e433dfdce9832bb4e7057447fc6",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "8081a37fa45e21ecc8c27daf96a76c0218033e433dfdce9832bb4e7057447fc6",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M27",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_UNKNOWN_POLICY",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "8c4958591e2d218c9983109c22f822e79977abf148dedf29d66b8b570581a4f1",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "8c4958591e2d218c9983109c22f822e79977abf148dedf29d66b8b570581a4f1",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M28",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_LINE_CAP_CARRIER",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "89b17b48f20cda78b4fb6079be84426fec24dd8f2fd3fa6c62beb22990cb02f3",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "89b17b48f20cda78b4fb6079be84426fec24dd8f2fd3fa6c62beb22990cb02f3",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M29",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_RASTER_LINE_CAP",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "cfd04e1e25eafcc9e28a926d50587280bae1466ead971d2c0d17917a30f9c395",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "cfd04e1e25eafcc9e28a926d50587280bae1466ead971d2c0d17917a30f9c395",
+      "current_patch_matches_executed": true
+    },
+    {
+      "mutation": "M30",
+      "classification": "Violated",
+      "reason_code": "VIOLATED_PDF_LINE_CAP",
+      "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "patch_sha256": "b580b9eac813251aa3b6727a3b1b975c7d658f740c317e5658b4a1b11b55aaea",
+      "order": "forward",
+      "execution_commit": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+      "current_patch_sha256": "b580b9eac813251aa3b6727a3b1b975c7d658f740c317e5658b4a1b11b55aaea",
+      "current_patch_matches_executed": true
+    }
+  ],
+  "focused_m26": {
+    "mutation": "M26",
+    "classification": "Preserved",
+    "reason_code": "MUTATION_SURVIVED",
+    "candidate": "ad2732e0d8fa0d9b05799276b8e86e291175e24e",
+    "patch_sha256": "8081a37fa45e21ecc8c27daf96a76c0218033e433dfdce9832bb4e7057447fc6",
+    "order": "focused_reproduction",
+    "command": "RUSTFLAGS=-Awarnings cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_reconstrucoes_preservam_todos_os_campos_causais -- --exact",
+    "runner_exit": 2,
+    "tracked_clean_after": true
+  },
+  "forward_counts": {
+    "executed": 30,
+    "killed": 26,
+    "survived": 4,
+    "unexpected_unknown": 0
+  },
+  "stopped_before": [
+    "forward_repeat",
+    "reverse"
+  ],
+  "stop_reason": "M26 exact frozen transform survived; adding explicit.column_gap=true would be an unauthorized second mutation"
+}
+

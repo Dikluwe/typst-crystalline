@@ -1,0 +1,20 @@
+diff --git a/03_infra/src/export/stream.rs b/03_infra/src/export/stream.rs
+index 0843de3ff..b64592e9d 100644
+--- a/03_infra/src/export/stream.rs
++++ b/03_infra/src/export/stream.rs
+@@ -578,10 +578,10 @@ pub(super) fn line_rg_prefix(
+ 
+ fn line_cap_prefix(cap: LineCap) -> &'static str {
+     match cap {
+-        // Omitir `0 J` preserva os bytes históricos dos produtores Butt.
+-        LineCap::Butt => "",
+-        LineCap::Round => "1 J ",
+-        LineCap::Square => "2 J ",
++        // M30: omissão/mapeamento/legado todos corrompidos.
++        LineCap::Butt => "0 J ",
++        LineCap::Round => "",
++        LineCap::Square => "1 J ",
+     }
+ }
+ 
+

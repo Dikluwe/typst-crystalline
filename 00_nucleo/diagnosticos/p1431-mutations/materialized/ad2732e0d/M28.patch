@@ -1,0 +1,51 @@
+diff --git a/01_core/src/compiler/math/layout/frac.rs b/01_core/src/compiler/math/layout/frac.rs
+index 3fabd294c..e19d3e9a4 100644
+--- a/01_core/src/compiler/math/layout/frac.rs
++++ b/01_core/src/compiler/math/layout/frac.rs
+@@ -342,7 +342,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+             thickness: rule_thickness,
+             // P285: math frac sem stroke explícito — preserva preto bit-exact.
+             color: None,
+-            cap: crate::entities::geometry::LineCap::Butt,
++            cap: crate::entities::geometry::LineCap::Square,
+         });
+ 
+         for item in den_box.items {
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..c30cc1590 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -366,8 +366,8 @@ fn augment_stroke(
+     font: f64,
+ ) -> (f64, Option<crate::entities::layout_types::Color>, LineCap) {
+     match &augment.stroke {
+-        Some(stroke) => (stroke.thickness, Some(stroke.paint.to_color()), stroke.cap),
+-        None => (0.05 * font, None, LineCap::Square),
++        Some(stroke) => (stroke.thickness, Some(stroke.paint.to_color()), LineCap::Square),
++        None => (0.05 * font, None, LineCap::Butt),
+     }
+ }
+ 
+diff --git a/01_core/src/compiler/math/layout/mod.rs b/01_core/src/compiler/math/layout/mod.rs
+index c7dfb2fa3..1f4c5d4e3 100644
+--- a/01_core/src/compiler/math/layout/mod.rs
++++ b/01_core/src/compiler/math/layout/mod.rs
+@@ -157,7 +157,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
+                 units_per_em,
+             }
+         }
+-        FrameItem::Line { start, end, thickness, color, cap } => FrameItem::Line {
++        FrameItem::Line { start, end, thickness, color, cap: _ } => FrameItem::Line {
+             start: Point {
+                 x: Pt(start.x.val() + dx.val()),
+                 y: Pt(start.y.val() + dy.val()),
+@@ -169,7 +169,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
+             thickness,
+             // P285: reflector preserva cor original (translação não afecta paint).
+             color,
+-            cap,
++            cap: crate::entities::geometry::LineCap::Butt,
+         },
+         FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+             FrameItem::Glyph {
+

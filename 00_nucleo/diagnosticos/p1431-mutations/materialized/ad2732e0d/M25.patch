@@ -1,0 +1,23 @@
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..99ffe2eca 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -470,7 +470,7 @@ impl GridGeometry {
+     }
+ 
+     fn vertical_boundary(&self, offset: i64) -> Option<f64> {
+-        let index = Self::normalize(offset, self.col_widths.len())?;
++        let index = Self::normalize(offset, self.row_baselines.len())?;
+         if index == 0 {
+             return Some(0.0);
+         }
+@@ -487,7 +487,7 @@ impl GridGeometry {
+     }
+ 
+     fn horizontal_boundary(&self, offset: i64, interior_shift: f64) -> Option<f64> {
+-        let index = Self::normalize(offset, self.row_baselines.len())?;
++        let index = Self::normalize(offset, self.col_widths.len())?;
+         if index == 0 {
+             return Some(0.0);
+         }
+

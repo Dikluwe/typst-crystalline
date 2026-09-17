@@ -1,0 +1,15 @@
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..04001fb04 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -267,7 +267,8 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+         }
+         if elem.explicit.augment {
+             effective.augment = match (&elem.augment, &inherited.augment) {
+-                (None, _) => None,
++                (None, Some(outer)) => Some(outer.clone()),
++                (None, None) => None,
+                 (Some(inner), Some(outer)) => Some(fold_augment(inner, outer)),
+                 (Some(inner), None) => Some(inner.clone()),
+             };
+

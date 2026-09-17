@@ -1,0 +1,15 @@
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..75e0c787e 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -114,8 +114,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+         } else {
+             match effective.align {
+                 HAlign::Start | HAlign::Left => GridAlign::Left,
+-                HAlign::Center => GridAlign::Center,
+-                HAlign::Right | HAlign::End => GridAlign::Right,
++                HAlign::Center | HAlign::Right | HAlign::End => GridAlign::Center,
+             }
+         };
+         let geometry = GridGeometry::measure(
+

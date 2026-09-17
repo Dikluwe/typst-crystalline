@@ -1,0 +1,23 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 25635c3f4..834625ef9 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -1123,14 +1123,14 @@ pub(crate) fn math_matrix_content(args: &Args) -> SourceResult<Content> {
+     }
+ 
+     let mut options = MathMatrixOptions::default();
+-    if let Some(value) = args.named.get("gap") {
+-        apply_math_matrix_option(&mut options, "gap", value, args.span, true)?;
+-    }
+     for name in ["delim", "align", "augment", "row-gap", "column-gap"] {
+         if let Some(value) = args.named.get(name) {
+             apply_math_matrix_option(&mut options, name, value, args.span, true)?;
+         }
+     }
++    if let Some(value) = args.named.get("gap") {
++        apply_math_matrix_option(&mut options, "gap", value, args.span, true)?;
++    }
+ 
+     let array_mode = args.items.iter().any(|value| matches!(value, Value::Array(_)));
+     let delimited_mode = args
+

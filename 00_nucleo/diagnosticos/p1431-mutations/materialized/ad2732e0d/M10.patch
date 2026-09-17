@@ -1,0 +1,21 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+index 25635c3f4..6b8a8ccfa 100644
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -961,6 +961,15 @@ pub(crate) fn math_matrix_augment(
+             stroke: None,
+         })),
+         Value::Dict(dict) => {
++            let unknown = dict.iter().find(|(name, _)| {
++                !matches!(name.as_str(), "hline" | "vline" | "stroke")
++            });
++            if dict.get("hline").is_none() && unknown.is_some() {
++                return Err(vec![SourceDiagnostic::error(
++                    span,
++                    "unexpected augment dictionary key".to_string(),
++                )]);
++            }
+             let hline = dict
+                 .get("hline")
+                 .map(|value| math_matrix_offsets(value, span))
+

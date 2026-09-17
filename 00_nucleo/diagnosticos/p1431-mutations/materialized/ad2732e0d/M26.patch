@@ -1,0 +1,14 @@
+diff --git a/01_core/src/entities/content.rs b/01_core/src/entities/content.rs
+index 27b1a5732..9167c2fef 100644
+--- a/01_core/src/entities/content.rs
++++ b/01_core/src/entities/content.rs
+@@ -1692,7 +1692,7 @@ impl Content {
+                 stroke: None,
+             }),
+             to_rel(row_gap.or(gap), 0.2),
+-            to_rel(column_gap.or(gap), 0.5),
++            to_rel(column_gap.or(gap), 0.0),
+             MathMatrixExplicit {
+                 delim: true,
+                 align: false,
+

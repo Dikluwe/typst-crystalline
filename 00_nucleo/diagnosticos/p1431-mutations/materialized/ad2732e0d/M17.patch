@@ -1,0 +1,24 @@
+diff --git a/01_core/src/entities/elements/math_matrix.rs b/01_core/src/entities/elements/math_matrix.rs
+index 99fe1f454..fd6848cc2 100644
+--- a/01_core/src/entities/elements/math_matrix.rs
++++ b/01_core/src/entities/elements/math_matrix.rs
+@@ -61,16 +61,8 @@ impl Hash for MathMatrixElem {
+                 value.to_bits()
+             }
+         }
+-        self.rows.hash(state);
+-        self.delim.hash(state);
+-        self.align.hash(state);
+-        self.augment.hash(state);
+-        for gap in [self.row_gap, self.column_gap] {
+-            bits(gap.rel).hash(state);
+-            bits(gap.abs.abs.0).hash(state);
+-            bits(gap.abs.em).hash(state);
+-        }
+-        self.explicit.hash(state);
++        let _ = bits;
++        0u8.hash(state);
+     }
+ }
+ 
+

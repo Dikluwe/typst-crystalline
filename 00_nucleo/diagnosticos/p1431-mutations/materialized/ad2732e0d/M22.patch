@@ -1,0 +1,14 @@
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..b607edbfc 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -61,7 +61,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+         let font = style.size.val();
+         let col_gap = resolve_gap(effective.column_gap, font);
+         let row_gap = resolve_gap(effective.row_gap, font);
+-        let cell_style = self.denominator_style(style);
++        let cell_style = style.clone();
+ 
+         let mut any_align = false;
+         let mut split_rows = Vec::new();
+

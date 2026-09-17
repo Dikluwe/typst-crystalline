@@ -1,0 +1,14 @@
+diff --git a/01_core/src/compiler/math/layout/mod.rs b/01_core/src/compiler/math/layout/mod.rs
+index c7dfb2fa3..490495733 100644
+--- a/01_core/src/compiler/math/layout/mod.rs
++++ b/01_core/src/compiler/math/layout/mod.rs
+@@ -2048,7 +2048,7 @@ fn apply_math_default(body: &Content) -> Content {
+                 .map(|row| row.iter().map(apply_math_default).collect())
+                 .collect(),
+             e.delim,
+-            e.align,
++            crate::entities::layout_types::HAlign::Center,
+             e.augment.clone(),
+             e.row_gap,
+             e.column_gap,
+

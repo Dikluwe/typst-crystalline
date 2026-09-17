@@ -1,0 +1,15 @@
+diff --git a/01_core/src/compiler/math/layout/matrix.rs b/01_core/src/compiler/math/layout/matrix.rs
+index 474144fac..13a68d607 100644
+--- a/01_core/src/compiler/math/layout/matrix.rs
++++ b/01_core/src/compiler/math/layout/matrix.rs
+@@ -130,8 +130,8 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+         let grid_box = self.layout_grid_boxes(
+             measured,
+             align,
+-            Pt(col_gap),
+             Pt(row_gap),
++            Pt(col_gap),
+             boundaries,
+             &cell_style,
+         );
+
