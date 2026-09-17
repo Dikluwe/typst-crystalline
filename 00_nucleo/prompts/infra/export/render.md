@@ -86,3 +86,23 @@ Teste compara saída visual com/sem wrapper.
 - Comparação visual (RMSE) contra vanilla para casos simples.
 - `radius: 1em` não degenera para canto quadrado; o raster usa o valor absoluto
   transportado pelo frame.
+
+## P1431 — cap de `FrameItem::Line` no raster
+
+### Medição anterior à decisão
+
+`render_line` cria sempre `tiny_skia::Stroke` com `LineCap::Butt`
+(`03_infra/src/export/render.rs:350-367`), logo o cap Square do augment vanilla
+não pode chegar aos pixels. O `FrameItem::Line` P1431 passa a transportar
+`entities::geometry::LineCap`.
+
+### Decisão
+
+Ao rasterizar `FrameItem::Line`, mapear `Butt`, `Round` e `Square` para os três
+valores homónimos de `tiny_skia::LineCap`, preservando espessura, cor,
+transformação e coordenadas. Linhas legadas continuam `Butt`; augment auto de
+matriz chega como `Square`; stroke customizado conserva o cap escolhido.
+
+Este L0 não altera `FrameItem::Shape`, SVG, PDF nem outros targets. Aceitação
+mede endpoints/pixels suficientes para distinguir Butt de Square numa linha
+determinística e confirma que uma linha legada Butt não mudou.

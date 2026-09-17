@@ -529,3 +529,25 @@ emite recursivamente seus items e fecha com `EMC`; o MCID vem da tabela
 precomputada pelo builder. Com tags desabilitadas, o envelope não emite
 operadores mas os items internos continuam desenhados. StreamMode não altera
 essa semântica.
+
+## P1431 — line cap no content stream PDF
+
+### Medição anterior à decisão
+
+Os dois caminhos de `FrameItem::Line` em `03_infra/src/export/stream.rs:
+1315-1328,2061-2074` emitem cor, largura, path e `S`, mas nenhum operador de
+line cap. Como o estado gráfico PDF inicia em Butt, a saída anterior só
+representa esse default. O vanilla P1431 usa Square para augment auto e
+preserva o cap de stroke customizado.
+
+### Decisão
+
+Consumir `FrameItem::Line.cap` simetricamente no caminho top-level e local.
+Mapeamento PDF: `Butt → 0`, `Round → 1`, `Square → 2`. Para `Round` e `Square`,
+emitir `<n> J` dentro do `q ... Q` da própria linha antes de `m/l/S`. Para
+`Butt`, omitir `0 J` quando o estado já nasce no default, preservando os bytes
+legados sempre que possível; a isolação por `q/Q` impede fuga entre linhas.
+Cor, largura, coordenadas e modo verbose/compact permanecem inalterados.
+
+SVG e outros exporters ficam fora do observável deste L0. Mudanças neles são
+permitidas apenas como reparos mecânicos para aceitar/ignorar o novo campo.

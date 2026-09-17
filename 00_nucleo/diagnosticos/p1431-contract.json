@@ -1,22 +1,22 @@
 {
   "schema": "tekt.materialization.contract/v1",
-  "revision": 2,
+  "revision": 3,
   "authored_at": "2026-09-17T08:34:40-03:00",
-  "revised_at": "2026-09-17T09:05:16-03:00",
+  "revised_at": "2026-09-17T09:59:37-03:00",
   "revises": {
-    "contract_sha256": "8f4bc00ce4025330e0d5c458dea3a84ec2bd6147de0924d5f926c5c3adfc1e9e",
-    "reason_code": "BLOCK_CONTRACT_VANILLA_DIVERGENCE_N09_M10",
-    "reason": "The pinned source and binary accept and ignore unknown keys inside an augment dictionary; revision 1 incorrectly required rejection.",
-    "scope": "O-AUGMENT-CAST, the former negative N09, M10 and dependent hashes/claims only. Known-field invalid types and top-level unknown named arguments remain rejected."
+    "contract_sha256": "e0ebf2840cef2d68fd8d03bc5e8cf6b7b45d05d16be71f4f4f938b5cb1c497ba",
+    "reason_code": "HUMAN_APPROVED_OWNER_EXPANSION_LINE_CAP",
+    "reason": "The human explicitly approved the architectural expansion required to carry vanilla Square/custom matrix line caps through FrameItem, raster and PDF after preseal R3.",
+    "scope": "Adds three productive owners, three cap observables, positive cases P34-P36, mutations M28-M30, explicit mechanical reconstruction allowlists, and calibrates P20/M16 so attributable evaluation count and spread are separate witnesses. All unrelated revision-2 obligations remain unchanged."
   },
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1431-manifest.json",
-    "sha256": "737d9bc119502acfefff0d0a00bd00ac8371ee6dc237f452ebe5da3e8d846b40"
+    "sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445"
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
     "tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
-    "approved_step_sha256": "8f6af4ada6158184e248d5024331b3985377517d0442484c111b11cd7125509c"
+    "approved_step_sha256": "9cd8d5002233d22fc5e92eb8f7fce7111a36b4bdb8d3c3c686914e83a5d14fd0"
   },
   "classification": {
     "Preserved": "Every observation required by the case is established from the frozen identity with an attributable public-language or approved carrier witness.",
@@ -32,7 +32,8 @@
       "PRESERVED_EVALUATION_ONCE", "PRESERVED_CARRIER",
       "PRESERVED_WALKERS", "PRESERVED_REPR", "PRESERVED_RECONSTRUCTION",
       "PRESERVED_ALIGN_POINT", "PRESERVED_LAYOUT", "PRESERVED_OFFSETS",
-      "PRESERVED_REGRESSION"
+      "PRESERVED_LINE_CAP_CARRIER", "PRESERVED_RASTER_LINE_CAP",
+      "PRESERVED_PDF_LINE_CAP", "PRESERVED_REGRESSION"
     ],
     "violated": [
       "VIOLATED_BINDING", "VIOLATED_UNEXPECTED_ARGUMENT",
@@ -45,7 +46,8 @@
       "VIOLATED_CASCADE", "VIOLATED_ROUTE_DIVERGENCE",
       "VIOLATED_EVALUATION_COUNT", "VIOLATED_CARRIER",
       "VIOLATED_WALKER", "VIOLATED_REPR", "VIOLATED_RECONSTRUCTION",
-      "VIOLATED_ALIGN_POINT", "VIOLATED_LAYOUT", "VIOLATED_REGRESSION",
+      "VIOLATED_ALIGN_POINT", "VIOLATED_LAYOUT", "VIOLATED_LINE_CAP_CARRIER",
+      "VIOLATED_RASTER_LINE_CAP", "VIOLATED_PDF_LINE_CAP", "VIOLATED_REGRESSION",
       "VIOLATED_UNKNOWN_POLICY"
     ],
     "unknown": [
@@ -53,6 +55,7 @@
       "UNKNOWN_CARRIER_CARDINALITY", "UNKNOWN_STYLE_CASCADE",
       "UNKNOWN_EVALUATION_OBSERVATION", "UNKNOWN_REPR_OBSERVATION",
       "UNKNOWN_LAYOUT_OBSERVATION", "UNKNOWN_STROKE_OBSERVATION",
+      "UNKNOWN_EXPORT_OBSERVATION",
       "UNKNOWN_EXECUTION_OR_BUDGET"
     ]
   },
@@ -69,7 +72,7 @@
     "O-EXPLICITNESS": "The carrier has independent delim, align, augment, row_gap and column_gap presence bits. Each constructor named occurrence sets exactly the causal field bits: gap sets both gap-axis bits, an axis-specific argument sets only that axis, and specific overrides do not clear the other bit. augment:none and values equal to defaults remain explicit. Set-derived values never set element bits.",
     "O-SET-PRECEDENCE": "#set math.mat validates the same six named domains as the constructor, rejects unknown and duplicates, expands set gap to both axes with same-level specific overrides, and supplies cascade values without rewriting stored element fields. Effective values are element explicit, then cascade, then defaults; augment follows O-AUGMENT-CASCADE.",
     "O-ROUTE-CONVERGENCE": "Qualified math.mat and bare mat delegate to one typed constructor and create equal complete carriers for equivalent occurrences. Neither route keeps a permissive legacy parser, pre-resolves layout, loses presence, nor changes the row-mode rule.",
-    "O-EVALUATION-ONCE": "Each syntactic positional and named value is evaluated exactly once in source order before common construction. Errors and spreads propagate; casts do not retry evaluation, and rejected arguments are not silently discarded.",
+    "O-EVALUATION-ONCE": "Each syntactic positional and named value is evaluated exactly once in source order before common construction. Exact-once is established only by a successful attributable occurrence-count signal. Spread expansion is a separate witness that must preserve source order and values; errors propagate and casts do not retry evaluation.",
     "O-CARRIER": "MathMatrix stores rectangular rows, optional delimiter sides, HAlign, optional typed augment with ordered signed hline/vline offsets and optional stroke, relative row and column gaps, and MathMatrixExplicit with five independent bits. Equality and hash include every stored value, nested order, optional side, stroke component and presence bit.",
     "O-WALKERS": "Clone preserves the complete carrier. map_content recurses once through every cell in row-major order and preserves all non-content fields. map_text remains terminal. plain_text joins cells with comma-space and rows with semicolon-space without resolving cascade, offsets, stroke auto or MathAlignPoint.",
     "O-REPR": "Canonical repr is mat(delim?, align?, augment?, row-gap?, column-gap?, rows: tuple-of-tuples), in that field order. Optional fields appear only from causal element presence; rows always appear. Zero input is rows: ((),). Padded cells appear empty. gap never appears. A single auto-stroke vline and no hline uses integer shorthand; other augment values use a canonical dict with ordered hline, vline and stroke, including explicit none.",
@@ -77,9 +80,12 @@
     "O-ALIGN-POINT": "MathAlignPoint remains structurally inside its source cell until matrix layout. The consumer splits each cell into alternating subcolumns, preserves P825 class-sensitive boundary spacing and aligns boundaries across rows. Explicit horizontal align applies when there is no boundary and does not erase ampersand behavior.",
     "O-LAYOUT-GEOMETRY": "The layout uses denominator-style cells, resolves row/column gaps against the exterior style, places all rectangular cells, applies effective start|left|center|right|end alignment, centers the grid exactly once on the math axis, stretches each optional delimiter to the complete grid, and includes delimiter and grid extents without redundant padding.",
     "O-AUGMENT-GEOMETRY": "Every effective horizontal and vertical augment offset produces one line at the middle of the corresponding inter-cell gap or accepted boundary. Negative offsets count from the end. Offsets 0 and n are valid borders. Auto stroke is 0.05em with square caps; a custom stroke preserves its resolved thickness, color and cap. Multiple lines and their declared order are not collapsed.",
+    "O-LINE-CAP-CARRIER": "FrameItem::Line carries LineCap. Matrix auto augment emits Square; a custom matrix stroke emits its resolved Butt, Round or Square cap. Every pre-P1431 producer and mechanical reconstruction supplies or preserves Butt so legacy behavior does not change.",
+    "O-RASTER-LINE-CAP": "Raster export maps FrameItem LineCap Butt, Round and Square to the homologous tiny-skia cap for each line; it never hard-codes Butt after transport.",
+    "O-PDF-LINE-CAP": "Both top-level and nested/local PDF line paths map Butt, Round and Square to PDF line-cap values 0, 1 and 2. Round and Square emit the appropriate J operator inside the line's saved graphics state. Legacy Butt omits redundant 0 J when the default state suffices, preserving prior bytes where possible.",
     "O-OFFSET-VALIDATION": "For a matrix with n rows or columns, an offset is accepted exactly when its positive value is at most n and its absolute value is at most n. Out-of-range horizontal and vertical offsets produce attributable dimension-specific diagnostics before drawing; no invalid line is clamped or ignored.",
     "O-COMPATIBILITY": "The internal legacy constructor remains non-language surface and elevates old rows/delimiter/gap/augment inputs into the complete carrier without altering established old call-site geometry. The named P825/P912/P919/P923/P945/P1042 contracts remain intact.",
-    "O-FAIL-CLOSED": "Identity mismatch, opaque binding/carrier/cascade/evaluation/repr/layout/stroke observation, unsupported extraction, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown. Unknown receives no acceptance or mutation credit, remains in every valid-mutation denominator and blocks mandatory and valid-mutation gates."
+    "O-FAIL-CLOSED": "Identity mismatch, opaque binding/carrier/cascade/evaluation/repr/layout/stroke/export observation, unsupported extraction, unreadable or truncated output, timeout, crash, OOM, swap, missing dependency or exhausted budget is Unknown. Unknown receives no acceptance or mutation credit, remains in every valid-mutation denominator and blocks mandatory and valid-mutation gates."
   },
   "cases": [
     {"id": "P01-qualified-binding", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_BINDING", "requires": ["O-BINDING", "O-SIGNATURE"], "fixture": "repr(type(math.mat))", "witness": "The closed module exposes a callable function named mat."},
@@ -102,7 +108,7 @@
     {"id": "P17-cascade-gap", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_CASCADE", "requires": ["O-GAPS", "O-SET-PRECEDENCE"], "fixture": "set gap plus set row-gap/column-gap and element-specific override", "witness": "Same-level specific axes beat shorthand, and element-explicit axes beat cascade independently."},
     {"id": "P18-cascade-augment-fold", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_CASCADE", "requires": ["O-AUGMENT-CASCADE", "O-SET-PRECEDENCE"], "fixture": "outer custom stroke with inner auto/custom augment and inner none", "witness": "Inner offsets survive; auto inherits outer stroke, custom folds with outer, and explicit none suppresses outer augment."},
     {"id": "P19-route-convergence", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_ROUTE_CONVERGENCE", "requires": ["O-ROUTE-CONVERGENCE", "O-CARRIER"], "fixture": "equivalent bare mat and qualified math.mat for scalar, row-array and full named forms", "witness": "Complete carriers and public repr are equal across routes."},
-    {"id": "P20-evaluation-once", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_EVALUATION_ONCE", "requires": ["O-EVALUATION-ONCE"], "fixture": "stateful positional/named expressions and spreads with observable sequence", "witness": "Every occurrence executes once in source order and construction consumes the resulting Args once."},
+    {"id": "P20-evaluation-once", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_EVALUATION_ONCE", "requires": ["O-EVALUATION-ONCE"], "fixture": "successful positional and named expressions whose attributable outputs encode both occurrence count and source order, plus a separate public spread fixture", "witness": "The successful count signal proves each positional and named occurrence executes once in source order. The separate spread witness proves expansion and order without being used as count evidence."},
     {"id": "P21-carrier-discrimination", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_CARRIER", "requires": ["O-CARRIER"], "fixture": "carrier pairs differing in each row/cell, delimiter side, align, augment list/order/stroke, gap component and explicitness bit", "witness": "Equality and hash discriminate each independent difference."},
     {"id": "P22-walkers", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_WALKERS", "requires": ["O-WALKERS"], "fixture": "complete non-default carrier with row-major marked cells", "witness": "Clone is exact; map_content visits once row-major and changes cells only; map_text is terminal; plain_text separators are stable."},
     {"id": "P23-repr-complete", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_REPR", "requires": ["O-REPR", "O-EXPLICITNESS"], "fixture": "all explicit fields, ragged input after padding, asymmetric delim and dict augment", "witness": "Canonical order is delim, align, augment, row-gap, column-gap, rows; exact nested row and padding morphology is retained."},
@@ -115,6 +121,9 @@
     {"id": "P30-delimiter-axis-extents", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_LAYOUT", "requires": ["O-DELIMITER", "O-LAYOUT-GEOMETRY", "O-COMPATIBILITY"], "fixture": "x + mat with two optional delimiters and tall grid using frozen font", "witness": "Grid is centered once, delimiters stretch to it without redundant padding, and complete extents are reported."},
     {"id": "P31-denominator-style", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_REGRESSION", "requires": ["O-LAYOUT-GEOMETRY", "O-COMPATIBILITY"], "fixture": "matrix cells observed at Display, Text, Script and ScriptScript sizes", "witness": "P945 denominator-level descent and cramped behavior remain, with gaps resolved against exterior style."},
     {"id": "P32-legacy-regressions", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_REGRESSION", "requires": ["O-COMPATIBILITY"], "fixture": "frozen P825/P912/P919/P923/P945/P1042 controls and legacy constructor call sites", "witness": "All named contracts and prior matrix geometry remain green."},
+    {"id": "P34-line-cap-carrier", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_LINE_CAP_CARRIER", "requires": ["O-AUGMENT-GEOMETRY", "O-LINE-CAP-CARRIER", "O-COMPATIBILITY"], "fixture": "frame observation for auto matrix augment, custom Round and Butt matrix strokes, and a representative legacy line producer", "witness": "Auto is Square, custom cap survives resolution, legacy is Butt, and mechanical reconstructions preserve the carried cap."},
+    {"id": "P35-raster-line-cap", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_RASTER_LINE_CAP", "requires": ["O-LINE-CAP-CARRIER", "O-RASTER-LINE-CAP"], "fixture": "deterministic raster witnesses for otherwise equal Butt, Round and Square lines including matrix auto Square", "witness": "Rendered endpoints distinguish all three homologous tiny-skia cap mappings; matrix auto is not rasterized as Butt."},
+    {"id": "P36-pdf-line-cap", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_PDF_LINE_CAP", "requires": ["O-LINE-CAP-CARRIER", "O-PDF-LINE-CAP", "O-COMPATIBILITY"], "fixture": "top-level and nested/local PDF streams containing Butt, Round and Square lines", "witness": "Round and Square emit 1 J and 2 J within the line graphics state in both paths; legacy Butt omits redundant 0 J and retains prior bytes when the default state suffices."},
 
     {"id": "N01-mixed-row-modes", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_EXPECTED_ARRAY", "requires": ["O-ROWS"], "fixture": "math.mat((1, 2), [x])", "witness": "Rejected with expected array, found content; scalar is not silently wrapped."},
     {"id": "N02-delim-type", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_CAST", "requires": ["O-DELIMITER"], "fixture": "delim: 1", "witness": "Rejected with expected array, none, symbol, or string, found integer."},
@@ -142,8 +151,9 @@
     {"id": "U05-evaluation", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_EVALUATION_OBSERVATION", "requires": ["O-EVALUATION-ONCE", "O-FAIL-CLOSED"], "fixture": "observer cannot attribute occurrence count or order", "witness": "UNKNOWN_EVALUATION_OBSERVATION"},
     {"id": "U06-repr", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_REPR_OBSERVATION", "requires": ["O-REPR", "O-FAIL-CLOSED"], "fixture": "repr output is unavailable, truncated or not attributable to the matrix", "witness": "UNKNOWN_REPR_OBSERVATION"},
     {"id": "U07-layout", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_LAYOUT_OBSERVATION", "requires": ["O-ALIGN-POINT", "O-LAYOUT-GEOMETRY", "O-OFFSET-VALIDATION", "O-FAIL-CLOSED"], "fixture": "frame tree, font identity, delimiter glyph or geometry is unavailable or ambiguous", "witness": "UNKNOWN_LAYOUT_OBSERVATION"},
-    {"id": "U08-stroke", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_STROKE_OBSERVATION", "requires": ["O-AUGMENT-CASCADE", "O-AUGMENT-GEOMETRY", "O-FAIL-CLOSED"], "fixture": "line identity or resolved thickness/color/cap cannot be attributed", "witness": "UNKNOWN_STROKE_OBSERVATION"},
-    {"id": "U09-execution", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_EXECUTION_OR_BUDGET", "requires": ["O-FAIL-CLOSED"], "fixture": "unreadable/truncated stream, timeout, crash, OOM, swap, missing dependency or exhausted budget", "witness": "UNKNOWN_EXECUTION_OR_BUDGET"}
+    {"id": "U08-stroke", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_STROKE_OBSERVATION", "requires": ["O-AUGMENT-CASCADE", "O-AUGMENT-GEOMETRY", "O-LINE-CAP-CARRIER", "O-FAIL-CLOSED"], "fixture": "line identity or resolved thickness/color/cap cannot be attributed", "witness": "UNKNOWN_STROKE_OBSERVATION"},
+    {"id": "U09-execution", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_EXECUTION_OR_BUDGET", "requires": ["O-FAIL-CLOSED"], "fixture": "unreadable/truncated stream, timeout, crash, OOM, swap, missing dependency or exhausted budget", "witness": "UNKNOWN_EXECUTION_OR_BUDGET"},
+    {"id": "U10-export", "category": "opaque", "mandatory": false, "expected": "Unknown", "reason_code": "UNKNOWN_EXPORT_OBSERVATION", "requires": ["O-RASTER-LINE-CAP", "O-PDF-LINE-CAP", "O-FAIL-CLOSED"], "fixture": "raster endpoints or PDF graphics-state operators cannot be attributed to the selected FrameItem::Line", "witness": "UNKNOWN_EXPORT_OBSERVATION"}
   ],
   "mutation_requirements": [
     {"id": "M01", "target": "O-BINDING", "mutation": "remove math.mat registration, register a non-function, or construct generic/pre-resolved content"},
@@ -161,7 +171,7 @@
     {"id": "M13", "target": "O-EXPLICITNESS", "mutation": "infer any presence bit from effective value, conflate augment omitted/none, or have gap set only one axis bit"},
     {"id": "M14", "target": "O-SET-PRECEDENCE", "mutation": "accept invalid set values, ignore a set property, mutate element presence, or let cascade override explicit fields"},
     {"id": "M15", "target": "O-ROUTE-CONVERGENCE", "mutation": "retain permissive bare parsing, use a different row algorithm, or discard errors/duplicates on one route"},
-    {"id": "M16", "target": "O-EVALUATION-ONCE", "mutation": "evaluate an occurrence twice, reorder it, retry a cast expression or swallow a spread/error"},
+    {"id": "M16", "target": "O-EVALUATION-ONCE", "mutation": "evaluate a successfully observed positional or named occurrence twice, reorder successful occurrences, retry a cast expression, or separately drop/reorder spread expansion"},
     {"id": "M17", "target": "O-CARRIER", "mutation": "omit any field, nested order, stroke component or explicitness bit from equality or hash"},
     {"id": "M18", "target": "O-WALKERS", "mutation": "skip/reorder/double-visit a cell, mutate a non-content field, descend through map_text or alter plain_text separators"},
     {"id": "M19", "target": "O-REPR", "mutation": "emit matrix, omit rows, print gap, reorder fields, hide explicit defaults/none, expose cascaded values or lose padded empties"},
@@ -172,7 +182,10 @@
     {"id": "M24", "target": "O-AUGMENT-GEOMETRY", "mutation": "mis-normalize negative offsets, use non-square auto caps, wrong auto thickness, or discard custom stroke thickness/color/cap"},
     {"id": "M25", "target": "O-OFFSET-VALIDATION", "mutation": "use strict interior-only bounds, accept magnitude above dimension, clamp, ignore, or validate hline against columns/vline against rows"},
     {"id": "M26", "target": "O-COMPATIBILITY", "mutation": "break a P825/P912/P919/P923/P945/P1042 control or change old wrapper geometry"},
-    {"id": "M27", "target": "O-FAIL-CLOSED", "mutation": "grant Unknown acceptance/mutation credit, remove it from the valid denominator or fail to block a mandatory/valid-mutation gate"}
+    {"id": "M27", "target": "O-FAIL-CLOSED", "mutation": "grant Unknown acceptance/mutation credit, remove it from the valid denominator or fail to block a mandatory/valid-mutation gate"},
+    {"id": "M28", "target": "O-LINE-CAP-CARRIER", "mutation": "remove/reset FrameItem::Line cap, emit Butt for matrix auto, discard a custom cap, choose a non-Butt legacy default, or lose cap in an allowlisted mechanical reconstruction"},
+    {"id": "M29", "target": "O-RASTER-LINE-CAP", "mutation": "hard-code tiny-skia Butt or swap any Butt/Round/Square raster mapping"},
+    {"id": "M30", "target": "O-PDF-LINE-CAP", "mutation": "omit or mis-map PDF J for Round/Square, disagree between top-level and local paths, leak cap state outside q/Q, or emit redundant 0 J that changes a legacy Butt stream"}
   ],
   "exhaustive_wiring": {
     "consumers": [
@@ -183,19 +196,30 @@
       {"file": "01_core/src/compiler/math/layout/matrix.rs", "owner_l0": "00_nucleo/prompts/compiler/math/layout/matrix.md", "obligation": "resolve complete carrier, align/gaps/ampersands, validate and render augment lines/stroke, preserve established geometry"},
       {"file": "01_core/src/compiler/math/layout/mod.rs", "owner_l0": "00_nucleo/prompts/compiler/math/layout/_comum.md", "obligation": "keep static thin dispatch and reconstruct the complete matrix carrier without field loss"},
       {"file": "01_core/src/entities/content.rs", "owner_l0": "00_nucleo/prompts/entities/content.md", "obligation": "provide complete constructor plus narrow legacy wrapper and preserve carrier in exhaustive Content operations"},
-      {"file": "01_core/src/entities/elements/math_matrix.rs", "owner_l0": "00_nucleo/prompts/entities/elements/math_matrix.md", "obligation": "define complete rows/delim/align/augment/gaps/explicit carrier with equality, hash and walkers"}
+      {"file": "01_core/src/entities/elements/math_matrix.rs", "owner_l0": "00_nucleo/prompts/entities/elements/math_matrix.md", "obligation": "define complete rows/delim/align/augment/gaps/explicit carrier with equality, hash and walkers"},
+      {"file": "01_core/src/entities/layout_types.rs", "owner_l0": "00_nucleo/prompts/entities/layout_types.md", "obligation": "add LineCap to FrameItem::Line; legacy producers use Butt while matrix auto/custom lines carry Square/resolved cap"},
+      {"file": "03_infra/src/export/render.rs", "owner_l0": "00_nucleo/prompts/infra/export/render.md", "obligation": "map every carried Butt/Round/Square line cap to the homologous tiny-skia cap"},
+      {"file": "03_infra/src/export/stream.rs", "owner_l0": "00_nucleo/prompts/infra/export/stream.md", "obligation": "emit scoped PDF J for non-default Round/Square in top-level and local line paths and preserve legacy Butt bytes when default state suffices"}
     ],
-    "fail_closed": "Any additional productive consumer, non-mechanical existing-test repair, wildcard suppressing review, missing owner L0, public alternative row carrier, generalized delimiter/stroke expansion or semantic change outside the eight-consumer allowlist invalidates admission until obligation authority reviews the expanded surface. Mechanical call-site repairs may use only the compatibility wrapper and must preserve public behavior."
+    "mechanical_reconstruction_allowlist": [
+      "01_core/src/compiler/layout/cursor.rs", "01_core/src/compiler/layout/equation.rs", "01_core/src/compiler/layout/footnote_flush.rs", "01_core/src/compiler/layout/helpers.rs", "01_core/src/compiler/layout/slicing.rs", "01_core/src/compiler/layout/decorations.rs",
+      "01_core/src/compiler/math/layout/cancel.rs", "01_core/src/compiler/math/layout/frac.rs", "01_core/src/compiler/math/layout/mod.rs", "01_core/src/compiler/math/layout/root.rs", "01_core/src/compiler/math/layout/underline.rs",
+      "03_infra/src/export/svg.rs"
+    ],
+    "mechanical_rule": "The listed files may only add or preserve FrameItem::Line.cap. Existing line producers select Butt. The SVG exporter may bind and ignore cap solely to restore exhaustive matching; no SVG line-cap semantics or output change is authorized. Existing test fixtures may add Butt or preserve cap only when assertions and semantic coverage remain unchanged.",
+    "fail_closed": "Any additional productive consumer, semantic edit in the mechanical allowlist, non-mechanical existing-test repair, wildcard suppressing review, missing owner L0, public alternative row carrier, generalized delimiter/stroke expansion, SVG semantic change or semantic change outside the eleven-consumer allowlist invalidates admission until obligation authority reviews the expanded surface."
   },
   "required_independent_tests": [
     {"path": "01_core/src/compiler/stdlib/structural/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md", "covers": ["P01-P18", "P33", "N01-N08", "N10-N13", "N15"]},
     {"path": "01_core/src/compiler/eval/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/eval/p1431-tests.md", "covers": ["P19-P20", "N14", "U05"]},
     {"path": "01_core/src/entities/elements/p1431_math_matrix_tests.rs", "test_only_l0": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md", "covers": ["P02-P15", "P21-P24", "U03-U04"]},
-    {"path": "01_core/src/compiler/math/layout/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md", "covers": ["P25-P32", "N16-N19", "U07-U08"]}
+    {"path": "01_core/src/compiler/math/layout/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md", "covers": ["P25-P34", "N16-N19", "U07-U08"]},
+    {"path": "01_core/src/entities/p1431_line_cap_tests.rs", "test_only_l0": "00_nucleo/prompts/entities/p1431-line-cap-tests.md", "covers": ["P34", "U08"]},
+    {"path": "03_infra/src/export/p1431_line_cap_tests.rs", "test_only_l0": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md", "covers": ["P35-P36", "U10"]}
   ],
   "execution_orders": ["forward", "forward_repeat", "reverse"],
   "calibration": {
-    "budget": {"wall_clock_minutes": 150, "max_revisions": 2, "max_focused_runs_per_revision": 24, "full_corpus_runs": 3, "per_case_timeout_seconds": 240},
+    "budget": {"wall_clock_minutes": 180, "max_revisions": 3, "max_focused_runs_per_revision": 30, "full_corpus_runs": 3, "per_case_timeout_seconds": 240},
     "per_revision_receipt": ["hypothesis", "positive_preserved", "negative_violated", "opaque_unknown", "corrected_cases", "regressed_cases", "dominant_reason_code", "material_cost"],
     "focused_first": "Run only affected cases plus nearest positive/negative/opaque boundary controls until the changed slice passes.",
     "full_gate": "Run the whole corpus only after focal success, before sealing, and during final verification in all three frozen orders.",
@@ -213,8 +237,8 @@
       "unknown_remains_in_valid_denominator": true,
       "orders_must_have_identical_vectors": true
     },
-    "red": ["binding and row/padding/carrier tests fail attributable to the frozen baseline", "casts, duplicates, explicitness and gap precedence fail attributable", "augment integer/dict/none, ignored unknown dict keys, offsets/stroke and cascade fail attributable", "alignment/gap/augment geometry and ampersand tests fail attributable", "preexisting controls remain green"],
-    "final": ["all P1431 independent tests", "P825/P912/P919/P923/P945/P1042 regression controls", "three deterministic execution orders", "physical mutation campaign M01-M27 at score 1.0", "protected hashes unchanged", "cargo fmt --all -- --check", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15 and V26 clear"]
+    "red": ["binding and row/padding/carrier tests fail attributable to the frozen baseline", "casts, duplicates, explicitness and gap precedence fail attributable", "augment integer/dict/none, ignored unknown dict keys, offsets/stroke and cascade fail attributable", "successful evaluation-count and separate spread witnesses fail attributable", "alignment/gap/augment geometry and ampersand tests fail attributable", "line-cap carrier, raster mapping and PDF J witnesses fail attributable", "preexisting controls remain green including legacy Butt PDF bytes"],
+    "final": ["all P1431 independent tests including P34-P36", "P825/P912/P919/P923/P945/P1042 regression controls", "three deterministic execution orders", "physical mutation campaign M01-M30 at score 1.0", "protected hashes unchanged", "cargo fmt --all -- --check", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15 and V26 clear"]
   },
-  "claim_boundary": "This corrected contract discriminates only the approved P1431 math.mat fragment, including the pinned behavior that unknown keys inside augment dictionaries are accepted and ignored while known-field invalid types remain rejected. It invalidates revision 1 and its downstream oracle/mutation/preseal identities, does not classify a future candidate, emit a seal or verdict, authorize another math route or generalized delimiter/stroke carrier, prove general Typst or render-byte equivalence, treat Rust mechanics as language observables, or attest workspace isolation."
+  "claim_boundary": "This revision discriminates only the approved P1431 math.mat fragment and the minimum confirmed line-cap transport through FrameItem::Line, raster and PDF needed to preserve matrix augment Square/custom caps. It includes legacy Butt producer compatibility and legacy Butt PDF-byte preservation where the default graphics state suffices. SVG and every other target are semantically excluded; the explicit mechanical allowlist may only restore exhaustive construction/matching without output change. It invalidates manifest/contract revision 2 and oracle/mutation/preseal revision 3, does not classify a future candidate, emit a seal or verdict, authorize another math route or generalized stroke carrier, prove general raster/PDF equivalence, treat unobserved Rust mechanics as language semantics, or attest workspace isolation."
 }

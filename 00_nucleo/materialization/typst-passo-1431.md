@@ -133,7 +133,7 @@ carrier e amplia comportamento por default/cascata/layout. Incide nos itens
 
 Fluxo obrigatório:
 
-1. atualizar antes do código os oito L0 proprietários afetados;
+1. atualizar antes do código os onze L0 proprietários afetados;
 2. commitar esta proposta e os L0s;
 3. **PARAR sem alterar L1/L3 nem headers de linhagem**;
 4. continuar somente após confirmação explícita do dono;
@@ -164,5 +164,43 @@ score exigido: `1.0`; `Unknown` é fail-closed.
 ## Confirmação do gate
 
 **Confirmado explicitamente pelo dono em 2026-09-17.** A materialização fica
-autorizada somente dentro do recorte completo de `math.mat` e dos oito L0
+autorizada somente dentro do recorte completo de `math.mat` e dos onze L0
 proprietários atualizados; as outras 16 rotas math permanecem fora de escopo.
+
+## Expansão arquitetural confirmada após o pré-selo R3
+
+**Confirmada explicitamente pelo dono em 2026-09-17**, após o pré-selo R3
+`d75cf13cd99cdd7a72e3a67e1aa04bfccbf2b4ca`. Os onze owners produtivos são os
+oito originais mais `entities/layout_types`, `infra/export/render` e
+`infra/export/stream`.
+
+Medição em `2026-09-17T09:55:17-03:00`, HEAD
+`d75cf13cd99cdd7a72e3a67e1aa04bfccbf2b4ca`, tree
+`788d604ac74884b560cda3a3b6156e766cab0585`:
+
+- vanilla pinado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
+  `lab/typst-original/crates/typst-layout/src/math/table.rs:36-53`: stroke
+  auto `0.05em` com `LineCap::Square`, e custom mantém `FixedStroke` completo;
+- `01_core/src/entities/layout_types.rs:395-402`: `FrameItem::Line` não possui
+  cap;
+- `03_infra/src/export/render.rs:350-367`: raster força Butt;
+- `03_infra/src/export/stream.rs:1315-1328,2061-2074`: PDF não emite `J`.
+
+Decisão mínima confirmada: `FrameItem::Line` ganha `cap: LineCap`; todos os
+produtores legados usam Butt; matrix augment auto usa Square; custom propaga
+cap; raster mapeia para tiny-skia; PDF mapeia Butt/Round/Square para `0/1/2 J`
+e omite `0 J` no caso legado para preservar bytes quando possível. SVG e
+outros targets ficam semanticamente fora de escopo.
+
+Allowlist mecânica explícita para adicionar/preservar Butt/cap sem nova lógica
+de produto: `compiler/layout/{cursor,equation,footnote_flush,helpers,slicing,
+decorations}.rs`, `compiler/math/layout/{cancel,frac,mod,root,underline}.rs` e
+`infra/export/svg.rs`. No SVG, o reparo apenas aceita/ignora `cap`; não promete
+saída SVG diferenciada. Testes e fixtures podem receber somente ajustes
+mecânicos de construção/pattern matching, sem alterar expectativas seladas.
+
+P20 também fica calibrado: a obrigação é “cada ocorrência avaliada uma vez em
+ordem”, demonstrada por um sinal atribuível de contagem numa avaliação que
+termina com sucesso. Spread tem witness público separado (`math.mat(..data)`,
+vanilla `math/matrix.rs:189-194`) e não serve como substituto da prova de
+contagem. Esta formulação não exige usar `state()` de walk-time.

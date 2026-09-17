@@ -184,7 +184,7 @@ Coordenada 2D e tamanho 2D em `Pt`.
 ### `FrameItem`
 Variantes:
 - `Text { pos, text, style }`
-- `Line { start, end, thickness, color }`
+- `Line { start, end, thickness, color, cap }`
 - `Glyph { pos, glyph_id, x_advance, size }`
 - `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`
 - `Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit }` (Passo 76)
@@ -199,6 +199,27 @@ Activa o `stroke` parseado em `Content::Underline`/`Strike`/`Overline`
 (P284 §5.4 — pendência registada e agora resolvida). Regra de herança
 no consumer Layouter: `color = stroke.or(self.style.fill)` (utilizador
 explícito > herança do texto corrente > default preto).
+
+### P1431 — `FrameItem::Line.cap` para augment de matriz
+
+Medição anterior à decisão: `FrameItem::Line` transporta apenas posição,
+espessura e cor no consumer produtivo (`01_core/src/entities/layout_types.rs:
+395-402`), embora `Stroke` já possua `LineCap` (`entities/geometry.rs:10-15,
+75-86`). A fonte vanilla pinada conserva o `FixedStroke` completo nas linhas
+de augment e fixa `LineCap::Square` no stroke automático
+(`typst-layout/src/math/table.rs:36-53`).
+
+Adicionar `cap: LineCap` a `FrameItem::Line`. O campo é parte do contrato
+L1→L3 e deve sobreviver a translação, slicing, grupos e reconstruções sem ser
+recalculado. Todos os produtores legados de `Line` usam `LineCap::Butt`,
+preservando o comportamento anterior; somente consumidores com intenção
+explícita diferente escolhem outro valor. P1431 usa `Square` no augment auto e
+propaga o cap do stroke customizado.
+
+O escopo semântico deste refino inclui somente raster e PDF pelos L0s
+proprietários P1431. SVG e demais targets não ganham promessa de cap neste
+passo; adaptações necessárias para exaustividade compilável devem ignorar o
+novo campo sem alterar a saída.
 
 `Image`: representa uma imagem a renderizar na página.
 - `pos`: canto superior esquerdo em coordenadas de página (pt).

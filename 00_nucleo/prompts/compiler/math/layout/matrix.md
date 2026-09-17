@@ -199,3 +199,9 @@ aceitar bordas 0/n, rejeitar magnitude fora da dimensão e desenhar todas as
 linhas no meio do gap correspondente. Stroke auto usa 0.05em, cap quadrado;
 stroke explícito preserva espessura/cor/cap. Delimitador, eixo, piso de linha,
 descida de estilo e extents mantêm P912/P919/P923/P945/P1042.
+
+Após a confirmação de expansão P1431, cada linha de augment materializa
+`FrameItem::Line.cap`: auto usa `LineCap::Square` e stroke customizado usa o
+cap resolvido do próprio `Stroke`. O layout não assa comportamento específico
+de raster/PDF; apenas transporta o valor. Produtores de linhas fora de
+`math.mat` permanecem Butt por compatibilidade.
