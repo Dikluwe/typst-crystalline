@@ -1,21 +1,46 @@
 {
   "schema": "tekt.materialization.manifest/v1",
-  "revision": 1,
+  "revision": 2,
   "authored_at": "2026-09-17T08:34:40-03:00",
+  "revised_at": "2026-09-17T09:05:16-03:00",
   "protocol": {
     "version": "tekt-materializacao-segregada/1",
     "regime": "full",
     "attestation": "executed_without_isolation_attestation",
-    "phase": "contract-candidate-before-oracles-and-implementation",
-    "invalidation": "Any byte change to the approved step, one of the eight owner L0 prompts, frozen baseline identity, this manifesto, the contract, future oracle or mutation suites, capability assignments, or execution-order definition invalidates the chain from the first affected phase."
+    "phase": "contract-reopened-after-fail-closed-preseal",
+    "invalidation": "Revision 2 invalidates revision 1 and every downstream P1431 oracle, mutation and preseal identity from the contract boundary. Any further byte change to the corrected step, one of the eight owner L0 prompts, frozen baseline identity, this manifesto, the contract, replacement oracle or mutation suites, capability assignments, or execution-order definition invalidates the chain from the first affected phase."
   },
   "artifacts": {
     "manifest": "00_nucleo/diagnosticos/p1431-manifest.json",
     "contract": "00_nucleo/diagnosticos/p1431-contract.json",
-    "oracles_planned": "00_nucleo/diagnosticos/p1431-oracles.json",
-    "mutations_planned": "00_nucleo/diagnosticos/p1431-mutants.json",
-    "preseal_planned": "00_nucleo/diagnosticos/p1431-preseal.json",
+    "oracles_invalidated": "00_nucleo/diagnosticos/p1431-oracles.json",
+    "mutations_invalidated": "00_nucleo/diagnosticos/p1431-mutants.json",
+    "preseal_blocker": "00_nucleo/diagnosticos/p1431-preseal.json",
     "seal_planned": "00_nucleo/diagnosticos/p1431-seal.json"
+  },
+  "revision_cause": {
+    "trigger_commit": "c8858270d94b3b5dbbc7e76fdd4187f58ccb9f27",
+    "trigger_tree": "cd34e67a5db0a6c0ecd03614865b06bb69503b78",
+    "trigger_preseal_sha256": "aef7790923236a29fb8406adc9348d99df5568cbdf86eeca9e90648ae41ad77c",
+    "reason_code": "BLOCK_CONTRACT_VANILLA_DIVERGENCE_N09_M10",
+    "prior_manifest_sha256": "467fd61cbab8d98f302080ddb284f2222003a2ff4740cebe85cbbf1bb1749d16",
+    "prior_contract_sha256": "8f4bc00ce4025330e0d5c458dea3a84ec2bd6147de0924d5f926c5c3adfc1e9e",
+    "invalidated_oracles_sha256": "dbb58a5ea324841a5af73a93df3d203afab0eee8a17198710ca6af53d3b1ae42",
+    "invalidated_mutations_sha256": "484eeeee8cf8edfc9940cbe746d30c7ef97bd5c5ff7c10b4e61b1f1e16fee07a",
+    "scope": "O-AUGMENT-CAST, N09 and M10 only: unknown keys inside an augment dictionary are accepted and ignored; known-field invalid types remain errors. All unrelated P1431 obligations are preserved."
+  },
+  "contract_reentry_measurement": {
+    "measured_at": "2026-09-17T09:05:16-03:00",
+    "workspace_head": "c8858270d94b3b5dbbc7e76fdd4187f58ccb9f27",
+    "workspace_tree": "cd34e67a5db0a6c0ecd03614865b06bb69503b78",
+    "vanilla_pin": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "command": "/usr/local/bin/typst eval 'repr(math.mat(augment: (foo: 1)))'",
+    "exit": 0,
+    "stdout_exact": "\"mat(\n  augment: (hline: (), vline: (), stroke: auto),\n  rows: ((),),\n)\"",
+    "stdout_normalized": "mat(augment: (hline: (), vline: (), stroke: auto), rows: ((),))",
+    "source_witness": "lab/typst-original/crates/typst-library/src/math/matrix.rs:428-438 removes only hline, vline and stroke through Dict::take and constructs Augment without rejecting residual keys",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "source_sha256": "fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f"
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
@@ -34,11 +59,11 @@
     ]
   },
   "protected_inputs": [
-    {"path": "00_nucleo/materialization/typst-passo-1431.md", "sha256": "cbca85ae7e439e548d809cfd9c3e672b9529c395b945b6c41d2415784be33525"},
-    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "sha256": "4607ac34172665d39e774613fba12f91abda076ded3274f57177345d1e6a81b0"},
+    {"path": "00_nucleo/materialization/typst-passo-1431.md", "sha256": "8f6af4ada6158184e248d5024331b3985377517d0442484c111b11cd7125509c"},
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/math.md", "sha256": "ff0f319f92e3870247d83787305e2951fbecdf6d93b08c9bd90cdc091219be75"},
     {"path": "00_nucleo/prompts/compiler/eval/math.md", "sha256": "03d6aaa3e5735b8dbc30c0cf1a6d077ebc85db297cbbd45accc381eb37d6322e"},
     {"path": "00_nucleo/prompts/compiler/eval/repr.md", "sha256": "1d6c948345d9698d62acc4508e65ac54b7d146edee2884faf4e496602a369a6e"},
-    {"path": "00_nucleo/prompts/compiler/eval/rules.md", "sha256": "640e0abffe559dbf1f299d5c9e08c86edade1db7284fbad0692e27a7516214b0"},
+    {"path": "00_nucleo/prompts/compiler/eval/rules.md", "sha256": "9c6950c4aa7c3dd48be1a7387bf11a71e0f8abe4f0fa7d3968b437fe8b8632f8"},
     {"path": "00_nucleo/prompts/compiler/math/layout/matrix.md", "sha256": "7204a891e13e2ba7f43ac75552249a3060a182884eaf5f7d54f44990ffa1067e"},
     {"path": "00_nucleo/prompts/compiler/math/layout/_comum.md", "sha256": "2bae4395e67ad6bf07b6dad52a5d4e0b48dae418028ccbf33a2794c27d7b85a6"},
     {"path": "00_nucleo/prompts/entities/content.md", "sha256": "94a1c1b7fc442aa112116695095c9f675cb9babb78bd96a6af11401e0466a085"},
@@ -143,7 +168,7 @@
     }
   ],
   "claim_boundary": {
-    "attests": "Only the approved P1431 math.mat fragment: public binding and signature, row formation and padding, typed fields and duplicates, delimiter/alignment/gaps, cascade and explicitness, complete augment representation and geometry, carrier/walkers/repr/reconstruction, ampersand behavior, offset diagnostics and named regression controls.",
+    "attests": "Only the corrected P1431 math.mat fragment: public binding and signature, row formation and padding, typed fields and duplicates, delimiter/alignment/gaps, cascade and explicitness, complete augment representation and geometry, vanilla-compatible acceptance and ignoring of unknown keys inside augment dictionaries, carrier/walkers/repr/reconstruction, ampersand behavior, offset diagnostics and named regression controls.",
     "does_not_attest": ["the other sixteen residual math routes", "math.vec or math.cases", "general math parity", "render-byte equality", "Rust representation or loop order as language observables", "diagnostic spans or formatting outside measured witnesses", "the full stroke language outside matrix augment", "a generalized DelimiterPair carrier", "workspace or conversational isolation"]
   }
 }

@@ -54,7 +54,20 @@ Sondas públicas diretas no binário ratificado mediram:
 | align vertical | lista fechada `start|left|center|right|end` |
 | gap inteiro | `expected relative length, found integer` |
 | augment string | `expected integer, dictionary, or none, found string` |
+| `augment: (foo: 1)` | aceite; chave interna desconhecida é ignorada e o augment fica com `hline: ()`, `vline: ()`, `stroke: auto` |
 | named desconhecido/`rows:`/duplicado | `unexpected argument` / `duplicate argument` |
+
+Correção contínua de paridade medida em `2026-09-17T09:05:16-03:00`, sobre
+HEAD `c8858270d94b3b5dbbc7e76fdd4187f58ccb9f27`, tree
+`cd34e67a5db0a6c0ecd03614865b06bb69503b78`. O comando pinado
+`/usr/local/bin/typst eval 'repr(math.mat(augment: (foo: 1)))'` terminou com
+exit `0` e produziu `mat(augment: (hline: (), vline: (), stroke: auto), rows:
+((),))` (quebrado em múltiplas linhas pelo repr). A fonte ratificada
+`lab/typst-original/crates/typst-library/src/math/matrix.rs:428-438` retira só
+`hline`, `vline` e `stroke` via `Dict::take` e constrói `Augment` sem rejeitar
+as entradas restantes. Portanto, chave desconhecida **dentro** do dict de
+augment é aceite e ignorada; isso não relaxa os casts dos três campos
+conhecidos nem a rejeição de named desconhecido no nível de `math.mat`.
 
 O estado cristalino diverge em cinco pontos observáveis. `make_math_module`
 não registra `mat`; o braço bare usa `if let Ok` e ignora erros; `MathMatrixElem`
@@ -77,6 +90,9 @@ válidas com assinatura ou morfologia incompatível.
    augment completo e bits de presença para os cinco campos materializados;
 2. representar augment como offsets horizontais/verticais assinados e stroke
    opcional (`None = auto`), distinguindo augment omitido de `none` explícito;
+   no dict de augment, consumir somente `hline`, `vline` e `stroke`, ignorando
+   chaves internas restantes como o vanilla, mas continuando a rejeitar tipos
+   inválidos nos três campos conhecidos;
 3. registrar `math.mat` com posicionais variádicos e somente `delim`, `align`,
    `augment`, `gap`, `row-gap`, `column-gap`; `rows:` não é campo nomeado;
 4. aplicar o algoritmo vanilla de rows: zero ou escalares formam uma linha,

@@ -477,3 +477,8 @@ named específicos prevalecem. Delimitador, alinhamento horizontal, relative
 length, augment inteiro/dict/none, offsets e stroke são validados sem truncar,
 ignorar named ou reavaliar children. Duplicados e tipos inválidos propagam os
 diagnósticos medidos. A nativa não executa layout nem separa `&`.
+
+O dict de `augment` segue a assimetria pública do vanilla ratificado: consome
+somente `hline`, `vline` e `stroke` e aceita/ignora chaves internas restantes.
+Isso não autoriza tipo inválido nos três campos conhecidos e não se confunde
+com named desconhecido no nível de `math.mat`, que continua erro.

@@ -1,15 +1,22 @@
 {
   "schema": "tekt.materialization.contract/v1",
-  "revision": 1,
+  "revision": 2,
   "authored_at": "2026-09-17T08:34:40-03:00",
+  "revised_at": "2026-09-17T09:05:16-03:00",
+  "revises": {
+    "contract_sha256": "8f4bc00ce4025330e0d5c458dea3a84ec2bd6147de0924d5f926c5c3adfc1e9e",
+    "reason_code": "BLOCK_CONTRACT_VANILLA_DIVERGENCE_N09_M10",
+    "reason": "The pinned source and binary accept and ignore unknown keys inside an augment dictionary; revision 1 incorrectly required rejection.",
+    "scope": "O-AUGMENT-CAST, the former negative N09, M10 and dependent hashes/claims only. Known-field invalid types and top-level unknown named arguments remain rejected."
+  },
   "manifest": {
     "path": "00_nucleo/diagnosticos/p1431-manifest.json",
-    "sha256": "467fd61cbab8d98f302080ddb284f2222003a2ff4740cebe85cbbf1bb1749d16"
+    "sha256": "737d9bc119502acfefff0d0a00bd00ac8371ee6dc237f452ebe5da3e8d846b40"
   },
   "baseline": {
     "commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
     "tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
-    "approved_step_sha256": "cbca85ae7e439e548d809cfd9c3e672b9529c395b945b6c41d2415784be33525"
+    "approved_step_sha256": "8f6af4ada6158184e248d5024331b3985377517d0442484c111b11cd7125509c"
   },
   "classification": {
     "Preserved": "Every observation required by the case is established from the frozen identity with an attributable public-language or approved carrier witness.",
@@ -20,7 +27,7 @@
     "preserved": [
       "PRESERVED_BINDING", "PRESERVED_SIGNATURE", "PRESERVED_ROWS",
       "PRESERVED_PADDING", "PRESERVED_DELIMITER", "PRESERVED_ALIGN",
-      "PRESERVED_GAPS", "PRESERVED_AUGMENT", "PRESERVED_EXPLICITNESS",
+      "PRESERVED_GAPS", "PRESERVED_AUGMENT", "PRESERVED_AUGMENT_UNKNOWN_KEY", "PRESERVED_EXPLICITNESS",
       "PRESERVED_CASCADE", "PRESERVED_ROUTE_CONVERGENCE",
       "PRESERVED_EVALUATION_ONCE", "PRESERVED_CARRIER",
       "PRESERVED_WALKERS", "PRESERVED_REPR", "PRESERVED_RECONSTRUCTION",
@@ -57,7 +64,7 @@
     "O-DELIMITER": "delim accepts none, a valid one-codepoint delimiter string or symbol with matching-pair inference, or an array of exactly two optional valid delimiters. It rejects invalid type, cardinality, codepoint count and non-delimiter math class. Optional sides and order remain distinct; defaults are ('(', ')').",
     "O-ALIGN": "align accepts only horizontal start, left, center, right and end, preserves the chosen value and rejects vertical or unrelated alignments. The default is center. Without an ampersand boundary it positions each cell horizontally according to the effective alignment.",
     "O-GAPS": "gap is an external shorthand expanded at construction or set-rule boundaries into row_gap and column_gap; it is never stored independently. A same-level row-gap or column-gap overrides shorthand only on its own axis regardless of named order. Both axes retain Rel<Length>, resolve against the exterior style, and default independently to 0.2em and 0.5em.",
-    "O-AUGMENT-CAST": "augment accepts none, a signed integer shorthand for one vertical offset with auto stroke, or a dictionary containing only hline, vline and stroke. Each line field accepts a signed integer or an ordered array of signed integers. Missing line fields are empty; missing stroke is auto. Unknown dictionary keys, invalid line values and invalid stroke values are rejected. Integer shorthand remains canonically distinguishable in repr when eligible.",
+    "O-AUGMENT-CAST": "augment accepts none, a signed integer shorthand for one vertical offset with auto stroke, or a dictionary from which hline, vline and stroke are consumed. Each line field accepts a signed integer or an ordered array of signed integers. Missing line fields are empty; missing stroke is auto. Remaining unknown dictionary keys are accepted and ignored, so they do not enter the carrier or repr; invalid values in the three known fields are still rejected. Integer shorthand remains canonically distinguishable in repr when eligible.",
     "O-AUGMENT-CASCADE": "Effective augment is derived without mutating the carrier. Omitted augment inherits the cascaded value. Explicit none removes any outer augment. Explicit integer/dict keeps its own hline/vline offsets and folds only its stroke with the outer stroke: a custom inner stroke folds with a custom outer stroke, while inner auto takes the outer stroke. Default is none.",
     "O-EXPLICITNESS": "The carrier has independent delim, align, augment, row_gap and column_gap presence bits. Each constructor named occurrence sets exactly the causal field bits: gap sets both gap-axis bits, an axis-specific argument sets only that axis, and specific overrides do not clear the other bit. augment:none and values equal to defaults remain explicit. Set-derived values never set element bits.",
     "O-SET-PRECEDENCE": "#set math.mat validates the same six named domains as the constructor, rejects unknown and duplicates, expands set gap to both axes with same-level specific overrides, and supplies cascade values without rewriting stored element fields. Effective values are element explicit, then cascade, then defaults; augment follows O-AUGMENT-CASCADE.",
@@ -88,6 +95,7 @@
     {"id": "P11-independent-relative-gaps", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_GAPS", "requires": ["O-GAPS", "O-LAYOUT-GEOMETRY"], "fixture": "row-gap: 150%, column-gap: 2em", "witness": "Relative and absolute components remain distinct and resolve on the correct axes against exterior size."},
     {"id": "P12-augment-integer", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_AUGMENT", "requires": ["O-AUGMENT-CAST", "O-EXPLICITNESS", "O-REPR"], "fixture": "augment: 2 and augment: -1", "witness": "Each becomes one signed vline with empty hline and auto stroke; eligible repr is the signed integer."},
     {"id": "P13-augment-dict", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_AUGMENT", "requires": ["O-AUGMENT-CAST", "O-REPR"], "fixture": "augment: (hline: (1, -1), vline: (1, 2), stroke: custom)", "witness": "Ordered signed offsets and custom stroke round-trip in canonical dict form."},
+    {"id": "P33-augment-unknown-dict-key", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_AUGMENT_UNKNOWN_KEY", "requires": ["O-AUGMENT-CAST", "O-REPR"], "fixture": "math.mat(augment: (foo: 1)) and the same dictionary with valid known fields plus foo", "witness": "Construction succeeds; foo is ignored, does not enter the carrier/repr, and known fields retain their validated values. The empty-known-fields form reprs as augment: (hline: (), vline: (), stroke: auto)."},
     {"id": "P14-augment-none", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_EXPLICITNESS", "requires": ["O-AUGMENT-CAST", "O-EXPLICITNESS", "O-REPR"], "fixture": "augment: none", "witness": "Carrier value is None, augment presence is true, and repr includes augment: none."},
     {"id": "P15-omitted-presence", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_EXPLICITNESS", "requires": ["O-EXPLICITNESS", "O-CARRIER"], "fixture": "constructor with all named omitted", "witness": "All five bits are false while stored defaults are parentheses, center, none, 0.2em and 0.5em."},
     {"id": "P16-cascade-basic", "category": "positive", "mandatory": true, "expected": "Preserved", "reason_code": "PRESERVED_CASCADE", "requires": ["O-SET-PRECEDENCE", "O-EXPLICITNESS"], "fixture": "#set math.mat with every field, then omitted and selectively explicit elements", "witness": "Omitted fields inherit; each explicit field wins independently; stored bits and repr reflect only element arguments."},
@@ -116,7 +124,6 @@
     {"id": "N06-gap-types", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_RELATIVE_LENGTH", "requires": ["O-GAPS"], "fixture": "integer supplied to gap, row-gap and column-gap", "witness": "Each rejects as expected relative length; no axis falls back silently."},
     {"id": "N07-augment-type", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_AUGMENT_TYPE", "requires": ["O-AUGMENT-CAST"], "fixture": "augment: 'x'", "witness": "Rejected with expected integer, dictionary, or none, found string."},
     {"id": "N08-augment-line-type", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_AUGMENT_OFFSET", "requires": ["O-AUGMENT-CAST"], "fixture": "hline/vline string, float or arrays containing non-integers", "witness": "Rejected at the offending line value; valid neighbors are not retained as partial success."},
-    {"id": "N09-augment-dict-key", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_AUGMENT_DICT", "requires": ["O-AUGMENT-CAST"], "fixture": "augment dictionary with unknown key", "witness": "Rejected rather than ignoring the key."},
     {"id": "N10-augment-stroke-invalid", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_AUGMENT_STROKE", "requires": ["O-AUGMENT-CAST"], "fixture": "invalid stroke value", "witness": "Rejected by stroke cast; auto is not substituted."},
     {"id": "N11-unknown-named", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_UNEXPECTED_ARGUMENT", "requires": ["O-SIGNATURE"], "fixture": "math.mat(foo: 1)", "witness": "Rejected as unexpected argument."},
     {"id": "N12-rows-named", "category": "negative", "mandatory": true, "expected": "Violated", "reason_code": "VIOLATED_UNEXPECTED_ARGUMENT", "requires": ["O-SIGNATURE"], "fixture": "math.mat(rows: ((1, 2),))", "witness": "Rejected; rows are variadic positional only."},
@@ -148,7 +155,7 @@
     {"id": "M07", "target": "O-ALIGN", "mutation": "accept vertical align, collapse one horizontal variant or always center"},
     {"id": "M08", "target": "O-GAPS", "mutation": "store gap redundantly, apply it to one axis only, let shorthand override a specific axis or make precedence depend on named order"},
     {"id": "M09", "target": "O-GAPS", "mutation": "collapse Rel<Length> to Length, swap row/column gaps or resolve against cell style"},
-    {"id": "M10", "target": "O-AUGMENT-CAST", "mutation": "drop signedness/order, collapse hline and vline, accept unknown dict keys or substitute auto after invalid stroke"},
+    {"id": "M10", "target": "O-AUGMENT-CAST", "mutation": "reject an unknown augment-dictionary key or retain it in carrier/repr, drop signedness/order, collapse hline and vline, accept an invalid known-field type, or substitute auto after invalid stroke"},
     {"id": "M11", "target": "O-AUGMENT-CAST", "mutation": "lose integer shorthand identity or print a multi-line/custom augment as an integer"},
     {"id": "M12", "target": "O-AUGMENT-CASCADE", "mutation": "let outer offsets replace explicit offsets, fail to inherit outer stroke for inner auto, or let outer augment survive explicit none"},
     {"id": "M13", "target": "O-EXPLICITNESS", "mutation": "infer any presence bit from effective value, conflate augment omitted/none, or have gap set only one axis bit"},
@@ -181,7 +188,7 @@
     "fail_closed": "Any additional productive consumer, non-mechanical existing-test repair, wildcard suppressing review, missing owner L0, public alternative row carrier, generalized delimiter/stroke expansion or semantic change outside the eight-consumer allowlist invalidates admission until obligation authority reviews the expanded surface. Mechanical call-site repairs may use only the compatibility wrapper and must preserve public behavior."
   },
   "required_independent_tests": [
-    {"path": "01_core/src/compiler/stdlib/structural/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md", "covers": ["P01-P18", "N01-N13", "N15"]},
+    {"path": "01_core/src/compiler/stdlib/structural/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md", "covers": ["P01-P18", "P33", "N01-N08", "N10-N13", "N15"]},
     {"path": "01_core/src/compiler/eval/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/eval/p1431-tests.md", "covers": ["P19-P20", "N14", "U05"]},
     {"path": "01_core/src/entities/elements/p1431_math_matrix_tests.rs", "test_only_l0": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md", "covers": ["P02-P15", "P21-P24", "U03-U04"]},
     {"path": "01_core/src/compiler/math/layout/p1431_tests.rs", "test_only_l0": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md", "covers": ["P25-P32", "N16-N19", "U07-U08"]}
@@ -206,8 +213,8 @@
       "unknown_remains_in_valid_denominator": true,
       "orders_must_have_identical_vectors": true
     },
-    "red": ["binding and row/padding/carrier tests fail attributable to the frozen baseline", "casts, duplicates, explicitness and gap precedence fail attributable", "augment integer/dict/none, offsets/stroke and cascade fail attributable", "alignment/gap/augment geometry and ampersand tests fail attributable", "preexisting controls remain green"],
+    "red": ["binding and row/padding/carrier tests fail attributable to the frozen baseline", "casts, duplicates, explicitness and gap precedence fail attributable", "augment integer/dict/none, ignored unknown dict keys, offsets/stroke and cascade fail attributable", "alignment/gap/augment geometry and ampersand tests fail attributable", "preexisting controls remain green"],
     "final": ["all P1431 independent tests", "P825/P912/P919/P923/P945/P1042 regression controls", "three deterministic execution orders", "physical mutation campaign M01-M27 at score 1.0", "protected hashes unchanged", "cargo fmt --all -- --check", "cargo build", "crystalline-lint .", "git diff --check", "V5, V15 and V26 clear"]
   },
-  "claim_boundary": "This contract discriminates only the approved P1431 math.mat fragment. It does not classify a future candidate, emit a seal or verdict, authorize another math route or generalized delimiter/stroke carrier, prove general Typst or render-byte equivalence, treat Rust mechanics as language observables, or attest workspace isolation."
+  "claim_boundary": "This corrected contract discriminates only the approved P1431 math.mat fragment, including the pinned behavior that unknown keys inside augment dictionaries are accepted and ignored while known-field invalid types remain rejected. It invalidates revision 1 and its downstream oracle/mutation/preseal identities, does not classify a future candidate, emit a seal or verdict, authorize another math route or generalized delimiter/stroke carrier, prove general Typst or render-byte equivalence, treat Rust mechanics as language observables, or attest workspace isolation."
 }

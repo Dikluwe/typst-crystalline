@@ -263,3 +263,8 @@ vence cascata, que vence defaults `()`, `center`, `none`, `0.2em`, `0.5em`.
 Augment explícito dobra o stroke cascaded segundo a regra vanilla, mas preserva
 os próprios offsets; `none` explícito apaga augment externo. Valores de set
 rule nunca ativam bits morfológicos de presença no elemento.
+
+No valor dict de `augment`, somente `hline`, `vline` e `stroke` são consumidos;
+chaves internas desconhecidas são aceites e ignoradas, conforme o pin. Os tipos
+inválidos desses três campos continuam erro. Esta tolerância interna não altera
+a lista fechada de named da própria set rule.
