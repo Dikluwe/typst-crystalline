@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md
-//! @prompt-hash db758b4e
+//! @prompt-hash 015a31b1
 //! @layer L3
 #![cfg(test)]
 
@@ -148,12 +148,53 @@ fn page_stream(page: typst_core::entities::layout_types::Page) -> String {
     let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     extract_page_content_streams_text(&pdf)
 }
-fn assert_scoped(stream: &str, operator: &str) {
-    let at = stream
-        .find(operator)
-        .unwrap_or_else(|| panic!("missing {operator}: {stream}"));
-    assert!(stream[..at].rfind('q').is_some(), "{operator} outside q: {stream}");
-    assert!(stream[at..].find('Q').is_some(), "{operator} outside Q: {stream}");
+fn assert_line_cap_scope(stream: &str, expected: Option<&str>) {
+    let tokens: Vec<_> = stream.split_ascii_whitespace().collect();
+    let mut stack = Vec::new();
+    let mut scopes = Vec::new();
+    for (index, token) in tokens.iter().enumerate() {
+        match *token {
+            "q" => stack.push(index),
+            "Q" => {
+                let start =
+                    stack.pop().unwrap_or_else(|| panic!("unbalanced Q: {stream}"));
+                scopes.push((start, index));
+            }
+            _ => {}
+        }
+    }
+    assert!(stack.is_empty(), "unclosed q: {stream}");
+
+    let line_scopes: Vec<_> = scopes
+        .iter()
+        .filter_map(|&(start, end)| {
+            let body = &tokens[start + 1..end];
+            let is_innermost = !body.iter().any(|token| matches!(*token, "q" | "Q"));
+            let is_line =
+                ["w", "m", "l", "S"].iter().all(|operator| body.contains(operator));
+            (is_innermost && is_line).then_some(body)
+        })
+        .collect();
+    assert_eq!(line_scopes.len(), 1, "one attributable innermost line scope: {stream}");
+    let line = line_scopes[0];
+    let all_j: Vec<_> = tokens
+        .windows(2)
+        .filter(|pair| pair[1] == "J")
+        .map(|pair| pair[0])
+        .collect();
+    match expected {
+        None => assert!(all_j.is_empty(), "Butt leaked/redundant J: {stream}"),
+        Some(value) => {
+            assert_eq!(all_j, vec![value], "exactly one attributed J: {stream}");
+            let j = line.windows(2).position(|pair| pair == [value, "J"]).unwrap_or_else(
+                || panic!("{value} J outside selected line scope: {stream}"),
+            );
+            let m = line.iter().position(|token| *token == "m").unwrap();
+            let l = line.iter().position(|token| *token == "l").unwrap();
+            let s = line.iter().position(|token| *token == "S").unwrap();
+            assert!(j < m && m < l && l < s, "J not attributed to line path: {line:?}");
+        }
+    }
 }
 
 #[test]
@@ -174,6 +215,21 @@ fn p1431_raster_mapeia_butt_round_square_e_auto_square() {
 
 #[test]
 fn p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local() {
+    assert_line_cap_scope("q q 1 w 1 J 0 0 m 1 1 l S Q Q", Some("1"));
+    assert!(
+        std::panic::catch_unwind(|| {
+            assert_line_cap_scope("q q 1 w 0 0 m 1 1 l S Q 1 J Q", Some("1"));
+        })
+        .is_err(),
+        "M30d: J leaked to an outer scope must not be attributed to the line"
+    );
+    assert!(
+        std::panic::catch_unwind(|| {
+            assert_line_cap_scope("q 1 w 1 J 0 0 m 1 1 l S", Some("1"));
+        })
+        .is_err(),
+        "M30d: an unbalanced line scope must fail closed"
+    );
     for local in [false, true] {
         let butt_doc = matrix_document(Some(LineCap::Butt));
         let round_doc = matrix_document(Some(LineCap::Round));
@@ -181,12 +237,9 @@ fn p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local() {
         let butt = page_stream(isolated_page(&butt_doc, local));
         let round = page_stream(isolated_page(&round_doc, local));
         let square = page_stream(isolated_page(&square_doc, local));
-        assert!(
-            !butt.contains("0 J") && !butt.contains("1 J") && !butt.contains("2 J"),
-            "P36 Butt: {butt}"
-        );
-        assert_scoped(&round, "1 J");
-        assert_scoped(&square, "2 J");
+        assert_line_cap_scope(&butt, None);
+        assert_line_cap_scope(&round, Some("1"));
+        assert_line_cap_scope(&square, Some("2"));
     }
 }
 

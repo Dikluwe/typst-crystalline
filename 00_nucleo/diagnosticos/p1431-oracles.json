@@ -1,34 +1,34 @@
 {
   "schema": "tekt.materialization.oracles/v1",
-  "revision": 4,
-  "authored_at": "2026-09-17T10:22:59-03:00",
+  "revision": 5,
+  "authored_at": "2026-09-17T10:59:19-03:00",
   "role": {
     "authority": "oracle_and_independent_test_author",
     "executor": "agent:/root/p1431_oracles",
     "environment": "shared workspace; procedural separation, no isolation attestation",
     "attestation": "executed_without_isolation_attestation",
     "regime": "full_protocol_oracle_phase",
-    "context_received": "frozen revision-3 manifesto/contract, approved P1431 step and eleven owner L0s, frozen baseline and ratified vanilla references",
+    "context_received": "public P1431 preseal R4, frozen revision-3 manifesto/contract, approved owner L0s, frozen baseline and ratified vanilla references",
     "forbidden_reads_respected": ["candidate productive implementation diffs", "private adversary output", "private mutation design"],
-    "writes": ["six P1431 test-only L0 prompts", "six independent P1431 test modules", "six cfg(test)-only wiring declarations", "00_nucleo/diagnosticos/p1431-oracles.json"]
+    "writes": ["three revised P1431 test-only L0 prompts", "three revised independent P1431 test modules", "00_nucleo/diagnosticos/p1431-oracles.json"]
   },
   "frozen_inputs": {
     "manifest": {"path": "00_nucleo/diagnosticos/p1431-manifest.json", "sha256": "06a659fd072e4a1a99c12afa3e6adb4c54221ecdc9d658399e57911f28de9445"},
     "contract": {"path": "00_nucleo/diagnosticos/p1431-contract.json", "sha256": "6354844b247e2369852ea7be5c9432ff636aa5f304ff55814fe3d041bc57665b"},
     "baseline_commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
     "baseline_tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
-    "oracle_parent_commit": "c0920e9631490e47d9c71994934ac9e7de2e46bd",
-    "oracle_parent_tree": "43798317ffc6556129c8f0c2c990e8734beef55d",
+    "oracle_parent_commit": "46d8352152f7016fdb74ddfcfad03c72bfaededa",
+    "oracle_parent_tree": "4939d64ff44d79c7231a65b636d9423f914297c6",
     "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
-    "productive_baseline_rule": "No productive file was edited by the oracle authority; all new wiring is cfg(test)-only."
+    "productive_baseline_rule": "No productive file was edited by the oracle authority; all existing wiring remains cfg(test)-only."
   },
   "artifacts": [
-    {"path": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md", "sha256": "9939c862445f50f30b2b63b817b7f99a767235ac062ab35e3dbd6f53b7db5c4d", "consumer": "01_core/src/compiler/stdlib/structural/p1431_tests.rs", "consumer_sha256": "b92cdf1cf76ddfa23265928de3bb4c2cc025b37fbf6d4839751117017cf707be", "covers": ["P01-P18", "P33", "N01-N08", "N10-N13", "N15", "U01", "U02", "U06", "U09"]},
-    {"path": "00_nucleo/prompts/compiler/eval/p1431-tests.md", "sha256": "066b74f8aeb9970bf0fa081ae9ed9cd2c7565185c5e07323af35be9d54f02e30", "consumer": "01_core/src/compiler/eval/p1431_tests.rs", "consumer_sha256": "594f85e78a1905c974de1c23b2c2e31f5a6fa44136bba6164e1a3f731cbda567", "covers": ["P19-P20", "N14-N15", "U05"]},
-    {"path": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md", "sha256": "43283daf8bf46f61d4a37f1536757a761c23622dbb1ce26f74a935a6adf43bb7", "consumer": "01_core/src/entities/elements/p1431_math_matrix_tests.rs", "consumer_sha256": "189aab6f8b2880f0e30042c77a3594ac7a053e97f73cb6ca09714c41d86b1491", "covers": ["P02-P15", "P21-P24", "U03-U04"]},
-    {"path": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md", "sha256": "aa1e4d01bcc2dad7085db4a2004c0a71376b28215224a8c556b1fa23a856c2de", "consumer": "01_core/src/compiler/math/layout/p1431_tests.rs", "consumer_sha256": "298bbe0f170c8d804b791614edafb13d3f17c9cb5cee55a6fcf937ca9afd911c", "covers": ["P25-P34", "N16-N19", "U07-U08"]},
-    {"path": "00_nucleo/prompts/entities/p1431-line-cap-tests.md", "sha256": "bb786fe120bde604ff28fecdb9f237ec975d80ffeefbacec63045724329bbe59", "consumer": "01_core/src/entities/p1431_line_cap_tests.rs", "consumer_sha256": "aaefcf455944f7e70c92a3479409caf408581b461c381b9e52e363e929a27ed8", "covers": ["P34", "U08"]},
-    {"path": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md", "sha256": "db758b4e2423d459d7eb78c9ecd95a2678c5077a5fd034c154d93d484ce6ba8f", "consumer": "03_infra/src/export/p1431_line_cap_tests.rs", "consumer_sha256": "413aeb8c368a9eceb737322b91456f5cb7ebc0833012cc5fe021cdb655f64fc0", "covers": ["P35-P36", "U10"]}
+    {"path": "00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md", "sha256": "9939c862445f50f30b2b63b817b7f99a767235ac062ab35e3dbd6f53b7db5c4d", "consumer": "01_core/src/compiler/stdlib/structural/p1431_tests.rs", "consumer_sha256": "b92cdf1cf76ddfa23265928de3bb4c2cc025b37fbf6d4839751117017cf707be"},
+    {"path": "00_nucleo/prompts/compiler/eval/p1431-tests.md", "sha256": "066b74f8aeb9970bf0fa081ae9ed9cd2c7565185c5e07323af35be9d54f02e30", "consumer": "01_core/src/compiler/eval/p1431_tests.rs", "consumer_sha256": "594f85e78a1905c974de1c23b2c2e31f5a6fa44136bba6164e1a3f731cbda567"},
+    {"path": "00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md", "sha256": "00808d705291e46e2f2b7881461bec63cc8d60410a231727c76a8883bb6594d1", "consumer": "01_core/src/entities/elements/p1431_math_matrix_tests.rs", "consumer_sha256": "75575a7fbb44f995e239af47303d72add65058fc072d84743b5cee0dcdc0c1f1", "covers": ["M17c", "M17h"]},
+    {"path": "00_nucleo/prompts/compiler/math/layout/p1431-tests.md", "sha256": "7dbb6e6e32d830629e1b7eb1c3bf130bdf09c6bcc622ebb0546b5f60b67e50bd", "consumer": "01_core/src/compiler/math/layout/p1431_tests.rs", "consumer_sha256": "1545fee27674d1c8e7cf369cd767b6ade9edcf4b6fc9fdc15c0e501b9d02d205", "covers": ["M23c", "M23d", "M25e", "M26"]},
+    {"path": "00_nucleo/prompts/entities/p1431-line-cap-tests.md", "sha256": "bb786fe120bde604ff28fecdb9f237ec975d80ffeefbacec63045724329bbe59", "consumer": "01_core/src/entities/p1431_line_cap_tests.rs", "consumer_sha256": "aaefcf455944f7e70c92a3479409caf408581b461c381b9e52e363e929a27ed8"},
+    {"path": "00_nucleo/prompts/infra/export/p1431-line-cap-tests.md", "sha256": "015a31b14f68386181d491a3dfa902f8f1ff2839285dd733303f0923100ac173", "consumer": "03_infra/src/export/p1431_line_cap_tests.rs", "consumer_sha256": "3969ebe04e583a5af2da313f4e7783edde2bb93f4bc6774f4600ff9d2b4b6675", "covers": ["M30d"]}
   ],
   "wiring": [
     {"path": "01_core/src/compiler/stdlib/structural/mod.rs", "sha256": "0c399b59707845f61b64f235738149f58d103e8f30e6011395ba9959ca6ab2a0", "kind": "cfg(test)-only"},
@@ -40,56 +40,102 @@
   ],
   "coverage": {
     "case_count": {"positive": 36, "negative": 18, "opaque": 10, "total": 64},
-    "positive_cases": "P01-P36, including P33-P36",
+    "positive_cases": "P01-P36",
     "negative_cases": "N01-N08 and N10-N19",
     "opaque_cases": "U01-U10",
+    "test_count": 34,
     "mutation_count": 30,
-    "mutation_killers": {
-      "M01-M06": "binding, scalar/array rows, ragged/empty padding and delimiter morphology/negative casts",
-      "M07-M09": "five alignments and independent relative gap precedence/geometry",
-      "M10-M13": "typed augment, ignored unknown keys, canonical repr, cascade and causal presence",
-      "M14-M15": "full set validation/precedence and bare/qualified convergence including N14",
-      "M16": "successful mutable-array occurrence signal kills duplicate/reorder; separate arguments spread witness kills spread loss/reorder",
-      "M17": "pairwise equality/hash discrimination for every row, optional side, align, augment axis/order/stroke component, gap component and presence bit",
-      "M18-M20": "walkers, canonical repr and complete reconstruction",
-      "M21": "unequal align-point counts with mixed math classes and late carrier split",
-      "M22": "five alignments, default/1em/150% gaps, optional delimiters/extents and Display/Inline/Script/SScript denominator descent",
-      "M23-M25": "all ordered augment lines, borders/negative offsets, thickness/color/cap and dimension-specific invalid offsets",
-      "M26": "P1430 plus named legacy geometry controls and deterministic legacy Butt PDF bytes",
-      "M27": "direct public policy self-check and causal opaque observations deny Unknown acceptance/credit",
-      "M28": "matrix auto Square, custom Round/Butt and legacy Butt observed after full frame transport",
-      "M29": "isolated raster alpha endpoints strictly distinguish Butt < Round < Square and auto bytes equal equivalent Square",
-      "M30": "top-level and local PDF streams require scoped 1 J/2 J, omit Butt 0 J and preserve deterministic legacy Butt output"
+    "revised_killers": {
+      "M17c_M17h": "same-presence carrier pairs change Eq and Hash for isolated align plus relative and absolute components of row-gap and column-gap",
+      "M23c_M23d": "ordered line emission preserves duplicate and out-of-order offsets; independent cell geometry proves interior lines exactly at gap midpoints and border offsets at frame boundaries",
+      "M25e": "non-square 2x3 and 3x2 witnesses distinguish hline rows from vline columns for valid and invalid offsets",
+      "M26": "direct Content::math_matrix legacy wrapper invocation preserves carrier/repr and matches common-constructor geometry/text positions",
+      "M30d": "tokenized balanced q/Q parsing selects the innermost line-paint scope, attributes its sole non-Butt J before m/l/S, rejects outer-scope leakage and omits Butt J"
     }
   },
+  "identity_serialization": {
+    "version": 1,
+    "enumeration": "run cargo test -q -p typst-core p1431 -- --list, then typst-infra; retain lines ending exactly ': test'; strip that suffix; prefix the exact package name",
+    "record": "UTF-8 bytes <package>\t<fully-qualified-test-id>\n; no BOM; LF after every record including the last",
+    "forward_records": [
+      "typst-core\tcompiler::eval::p1431_tests::p1431_avaliacao_ocorre_uma_vez_e_na_ordem_causal",
+      "typst-core\tcompiler::eval::p1431_tests::p1431_bare_e_qualificado_convergem_sem_pre_resolver_alignpoint",
+      "typst-core\tcompiler::eval::p1431_tests::p1431_bare_rows_arrays_padding_e_invalidos_usam_construtor_comum",
+      "typst-core\tcompiler::eval::p1431_tests::p1431_cascata_nao_fabrica_presenca_e_explicito_ganha_por_eixo",
+      "typst-core\tcompiler::eval::p1431_tests::p1431_observacao_de_ordem_opaca_falha_fechado",
+      "typst-core\tcompiler::eval::p1431_tests::p1431_set_rejeita_named_e_tipos_invalidos",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_alignpoint_resolve_tarde_e_estilo_denominador_permanece",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_alinhamento_horizontal_move_celula_sem_mudar_coluna",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_augment_cascata_dobra_stroke_sem_substituir_offsets_e_none_limpa",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_augment_emite_todas_as_linhas_bordas_e_negativos",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_augment_stroke_custom_chega_a_todas_as_linhas",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_delimitadores_extents_e_centro_unico",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_gaps_relativos_afetam_somente_o_eixo_causal",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_layout_e_stroke_opacos_falham_fechado",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_offsets_fora_da_dimensao_sao_diagnosticos",
+      "typst-core\tcompiler::math::layout::p1431_tests::p1431_reconstrucoes_preservam_todos_os_campos_causais",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_augment_ignora_chaves_desconhecidas_do_dicionario",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_augment_inteiro_dict_none_e_ordem_canonica",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_binding_rows_padding_e_repr_canonico",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_carrier_default_e_explicito_default_nao_colapsam",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_delim_align_gaps_e_presenca_morfologica",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_rejeita_modos_tipos_named_e_duplicados",
+      "typst-core\tcompiler::stdlib::structural::p1431_tests::p1431_runner_publico_falha_fechado_para_unknown_sem_credito",
+      "typst-core\tentities::elements::p1431_math_matrix_tests::p1431_alignpoint_permanece_na_celula_do_carrier",
+      "typst-core\tentities::elements::p1431_math_matrix_tests::p1431_carrier_completo_preserva_valores_ordem_e_bits",
+      "typst-core\tentities::elements::p1431_math_matrix_tests::p1431_igualdade_e_hash_discriminam_campos_e_presenca",
+      "typst-core\tentities::elements::p1431_math_matrix_tests::p1431_opacidade_de_carrier_e_cascata_falha_fechado",
+      "typst-core\tentities::elements::p1431_math_matrix_tests::p1431_walkers_visitam_celulas_row_major_sem_perder_carrier",
+      "typst-core\tentities::p1431_line_cap_tests::p1431_auto_square_e_produtor_legado_butt_chegam_ao_frame",
+      "typst-core\tentities::p1431_line_cap_tests::p1431_cap_opaco_falha_fechado",
+      "typst-infra\texport::p1431_line_cap_tests::p1431_export_opaco_falha_fechado",
+      "typst-infra\texport::p1431_line_cap_tests::p1431_pdf_legado_butt_preserva_bytes_sem_zero_j",
+      "typst-infra\texport::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local",
+      "typst-infra\texport::p1431_line_cap_tests::p1431_raster_mapeia_butt_round_square_e_auto_square"
+    ],
+    "forward_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da",
+    "reverse_definition": "exact forward_records array reversed; identical record serialization",
+    "reverse_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f"
+  },
   "orders": [
-    {"id": "forward", "definition": "34 fully-qualified P1431 tests across typst-core then typst-infra, each in a fresh exact process", "command_template": "cargo test -q -p <typst-core|typst-infra> <fully-qualified-test-id> -- --exact", "ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "vector": {"passed": 8, "failed": 26}},
-    {"id": "forward_repeat", "definition": "exact forward identity vector repeated in fresh processes", "command_template": "cargo test -q -p <typst-core|typst-infra> <fully-qualified-test-id> -- --exact", "ids_sha256": "c71cde4de84d3cde29eeb46d20e10bf446892844dff843d11758357e7a60945d", "vector": {"passed": 8, "failed": 26}},
-    {"id": "reverse", "definition": "the exact same package/test identities in reverse order and fresh exact processes", "command_template": "cargo test -q -p <typst-core|typst-infra> <fully-qualified-test-id> -- --exact", "ids_sha256": "25168329eb5ad2caa34465339468a7c7601811eb254f4bfe571f2decb9f58620", "vector": {"passed": 8, "failed": 26}}
+    {"id": "forward", "definition": "identity_serialization.forward_records, each in a fresh exact process", "command_template": "cargo test -q -p <package> <fully-qualified-test-id> -- --exact", "ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da", "result_record": "UTF-8 <package>\t<id>\t<pass|fail>\t<exit>\n", "receipt_sha256": "a1627cd4a42bc6145a30dc6fa188b107bd8b9f4ab74b76b41668733e61d72bfa", "vector": {"passed": 8, "failed": 26}},
+    {"id": "forward_repeat", "definition": "exact forward identity vector repeated in fresh processes", "command_template": "cargo test -q -p <package> <fully-qualified-test-id> -- --exact", "ids_sha256": "d5c7d9d18503f6b5d0955e5aaa47560292cac0c3ddca9ee27cf4788a572ea9da", "result_record": "UTF-8 <package>\t<id>\t<pass|fail>\t<exit>\n", "receipt_sha256": "a1627cd4a42bc6145a30dc6fa188b107bd8b9f4ab74b76b41668733e61d72bfa", "vector": {"passed": 8, "failed": 26}},
+    {"id": "reverse", "definition": "exact identity_serialization.forward_records reversed, each in a fresh exact process", "command_template": "cargo test -q -p <package> <fully-qualified-test-id> -- --exact", "ids_sha256": "f2c9b3141fcf87e824df2019cab1f40fadd3a214a917bda7d07f00ff813e402f", "result_record": "UTF-8 <package>\t<id>\t<pass|fail>\t<exit>\n", "receipt_sha256": "e0795997bdeb0f04602059bd4ede4c0c1241604d493feb371a340e0271cd182e", "vector": {"passed": 8, "failed": 26}}
   ],
   "red_receipt": {
-    "measured_at": "2026-09-17T10:22:59-03:00",
-    "state": "uncommitted oracle-only working tree based on frozen R3 parent c0920e963; no candidate or private adversary/mutant material read",
+    "measured_at": "2026-09-17T10:59:19-03:00",
+    "state": "uncommitted oracle-only working tree based on frozen public R4 parent 46d835215; no candidate or private adversary/mutant material read",
+    "working_tree_stat": "6 files changed, 226 insertions(+), 15 deletions(-) before this receipt update; exactly three test-only L0s and their three test consumers",
+    "focused": {
+      "result": "all six requested slices satisfactory and attributable before full corpus",
+      "commands": [
+        "cargo test -q -p typst-core entities::elements::p1431_math_matrix_tests::p1431_igualdade_e_hash_discriminam_campos_e_presenca -- --exact",
+        "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_augment_emite_todas_as_linhas_bordas_e_negativos -- --exact",
+        "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_offsets_fora_da_dimensao_sao_diagnosticos -- --exact",
+        "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_reconstrucoes_preservam_todos_os_campos_causais -- --exact",
+        "cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_mapeia_caps_nos_caminhos_top_level_e_local -- --exact",
+        "identity and receipt serialization hash reproduction for 34 exact processes in forward, forward_repeat and reverse"
+      ],
+      "exits": [101, 101, 101, 101, 101, 0],
+      "witnesses": ["M17c/M17h same-presence isolated Eq/Hash pairs", "M23c/M23d duplicate and out-of-order lines plus independent gap-midpoint/border coordinates", "M25e 2x3/3x2 axis validation", "M26 direct Content::math_matrix wrapper carrier and geometry", "M30d balanced token scope and leaked-J negative control", "exact ID and result serialization hashes"]
+    },
+    "focused_controls": {"commands": ["cargo test -q -p typst-core entities::elements::p1431_math_matrix_tests::p1431_opacidade_de_carrier_e_cascata_falha_fechado -- --exact", "cargo test -q -p typst-core compiler::math::layout::p1431_tests::p1431_layout_e_stroke_opacos_falham_fechado -- --exact", "cargo test -q -p typst-infra export::p1431_line_cap_tests::p1431_pdf_legado_butt_preserva_bytes_sem_zero_j -- --exact"], "exits": [0, 0, 0]},
     "core": {"command": "cargo test -q -p typst-core p1431 --no-fail-fast", "exit": 101, "vector": {"total": 30, "passed": 6, "failed": 24}},
     "infra": {"command": "cargo test -q -p typst-infra p1431 --no-fail-fast", "exit": 101, "vector": {"total": 4, "passed": 2, "failed": 2}},
     "combined": {"total": 34, "passed": 8, "failed": 26, "ignored": 0},
-    "focused": {"result": "satisfactory attributable RED before full corpus", "witnesses": ["P20 successful count fixture reaches the frozen missing-math.mat boundary, not an invalid observer", "P34 reaches a real matrix FrameItem::Line and fails because its Debug observation has no cap", "P35/P36 fail at the missing public math.mat route", "U10 and the deterministic legacy Butt PDF control remain green"]},
     "controls": {"command": "cargo test -q -p typst-core p1430 --no-fail-fast", "exit": 0, "vector": {"passed": 23, "failed": 0}},
     "format": {"command": "cargo fmt --all -- --check", "exit": 0},
+    "validation": {"commands": ["git diff --check", "git show --check --oneline HEAD", "Ruby JSON parse plus SHA-256 verification for every artifact, consumer, wiring file and the two identity serializations", "count #[test] across the six P1431 modules"], "exits": [0, 0, 0, 0], "test_count": 34},
     "classification": "RED_ATTRIBUTABLE",
     "unknown": 0
   },
   "calibration": {
-    "revision": 4,
-    "hypothesis": "R4 adds successful causal evaluation counting, complete named case witnesses and observable cap transport/export outputs sufficient to discriminate M01-M30 without candidate access",
-    "positive_preserved_on_baseline": 1,
-    "negative_violated_on_baseline": 0,
-    "opaque_unknown_controls": 10,
+    "revision": 5,
+    "hypothesis": "R5 closes the public R4 preseal gaps with same-presence Eq/Hash pairs, independent line coordinates, non-square axis validation, a direct legacy wrapper witness, scoped PDF parsing and byte-exact order receipts, without candidate access",
     "red_failures": 26,
-    "corrected_cases": ["P03", "P12", "P16", "P18", "P20", "P21", "P26", "P27", "P29", "P30", "P31", "N14", "P34", "P35", "P36", "U10"],
+    "corrected_cases": ["M17c", "M17h", "M23c", "M23d", "M25e", "M26", "M30d", "identity serialization"],
     "regressed_cases": [],
-    "dominant_reason_code": "VIOLATED_BINDING_AND_LINE_CAP_TRANSPORT",
-    "material_cost": "focused core/export runs, one P1430 control, two full crate corpus runs and three 34-process identity orders; within revision-3 budget"
+    "material_cost": "five focal RED runs, three focused controls, one P1430 control, two full crate corpus runs and three 34-process identity orders"
   },
-  "claim_boundary": "These R4 oracles cover only the 64 frozen P1431 cases and M01-M30 fragment, including minimum line-cap transport through FrameItem, raster and PDF. They do not classify a candidate, emit a seal/verdict, prove general Typst/export parity, or attest workspace/conversational isolation."
+  "claim_boundary": "These R5 oracles cover only the 64 frozen P1431 cases and M01-M30 fragment. They do not classify a candidate, emit a seal/verdict, prove general Typst/export parity, or attest workspace/conversational isolation."
 }

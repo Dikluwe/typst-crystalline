@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md
-//! @prompt-hash 43283daf
+//! @prompt-hash 00808d70
 //! @layer L1
 #![cfg(test)]
 
@@ -161,6 +161,35 @@ fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
         args.named.insert(name.into(), value);
         let changed = call(args);
         distinct(&base, &changed, name);
+    }
+    let aligned = |value: HAlign| {
+        let mut args = Args::positional(vec![cv("x")]);
+        args.named
+            .insert("align".into(), Value::Align(Align2D { h: Some(value), v: None }));
+        call(args)
+    };
+    distinct(
+        &aligned(HAlign::Left),
+        &aligned(HAlign::Right),
+        "align value with identical presence",
+    );
+
+    let gap = |name: &str, rel: f64, abs: Length| {
+        let mut args = Args::positional(vec![cv("x")]);
+        args.named.insert(name.into(), Value::Relative(Rel { rel, abs }));
+        call(args)
+    };
+    for name in ["row-gap", "column-gap"] {
+        distinct(
+            &gap(name, 1.0, Length::em(1.0)),
+            &gap(name, 1.5, Length::em(1.0)),
+            &format!("{name} relative component with identical presence"),
+        );
+        distinct(
+            &gap(name, 1.0, Length::em(1.0)),
+            &gap(name, 1.0, Length::em(2.0)),
+            &format!("{name} absolute component with identical presence"),
+        );
     }
     let mut ordered_a = Args::positional(vec![cv("x")]);
     ordered_a.named.insert(

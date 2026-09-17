@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1431-tests.md
-//! @prompt-hash aa1e4d01
+//! @prompt-hash 7dbb6e6e
 //! @layer L1
 #![cfg(test)]
 
@@ -281,6 +281,73 @@ fn p1431_augment_emite_todas_as_linhas_bordas_e_negativos() {
         );
     }
     assert!(all.iter().all(|line| (line.4 - 0.6).abs() < 1e-9));
+
+    let unordered = project(&matrix(
+        "$mat(delim: #none, augment: #(hline: (2, 0, 2, 1), vline: (1, 2, 1, 0)), (a, b), (c, d))$",
+    ));
+    let unordered_lines = lines(&unordered);
+    assert_eq!(unordered_lines.len(), 8, "M23 duplicate offsets were collapsed");
+    let hcoords: Vec<_> = unordered_lines
+        .iter()
+        .filter(|(_, y1, _, y2, _)| (y1 - y2).abs() < 1e-9)
+        .map(|line| line.1)
+        .collect();
+    let vcoords: Vec<_> = unordered_lines
+        .iter()
+        .filter(|(x1, _, x2, _, _)| (x1 - x2).abs() < 1e-9)
+        .map(|line| line.0)
+        .collect();
+    assert_eq!(hcoords.len(), 4);
+    assert_eq!(vcoords.len(), 4);
+    assert!((hcoords[0] - hcoords[2]).abs() < 1e-9 && hcoords[0] != hcoords[1]);
+    assert!((vcoords[0] - vcoords[2]).abs() < 1e-9 && vcoords[0] != vcoords[1]);
+
+    let middle = project(&matrix(
+        "$mat(delim: #none, augment: #(hline: 1, vline: 1), (a, b), (c, d))$",
+    ));
+    let middle_text = texts(&middle);
+    let cell = project(&Content::text("a"));
+    let expected_h = ((text(&middle_text, "a").2 + cell.descent)
+        + (text(&middle_text, "c").2 - cell.ascent))
+        / 2.0;
+    let expected_v =
+        ((text(&middle_text, "a").1 + cell.width) + text(&middle_text, "b").1) / 2.0;
+    let middle_lines = lines(&middle);
+    let observed_h = middle_lines
+        .iter()
+        .find(|(_, y1, _, y2, _)| (y1 - y2).abs() < 1e-9)
+        .expect("one horizontal middle-gap line")
+        .1;
+    let observed_v = middle_lines
+        .iter()
+        .find(|(x1, _, x2, _, _)| (x1 - x2).abs() < 1e-9)
+        .expect("one vertical middle-gap line")
+        .0;
+    assert!(
+        (observed_h - expected_h).abs() < 1e-9,
+        "M23 hline edge/midpoint: {observed_h} vs {expected_h}"
+    );
+    assert!(
+        (observed_v - expected_v).abs() < 1e-9,
+        "M23 vline edge/midpoint: {observed_v} vs {expected_v}"
+    );
+
+    let horizontal: Vec<_> = all
+        .iter()
+        .filter(|(_, y1, _, y2, _)| (y1 - y2).abs() < 1e-9)
+        .map(|line| line.1)
+        .collect();
+    let vertical: Vec<_> = all
+        .iter()
+        .filter(|(x1, _, x2, _, _)| (x1 - x2).abs() < 1e-9)
+        .map(|line| line.0)
+        .collect();
+    assert!(horizontal.iter().any(|y| y.abs() < 1e-9));
+    assert!(horizontal
+        .iter()
+        .any(|y| (*y - (positive.ascent + positive.descent)).abs() < 1e-9));
+    assert!(vertical.iter().any(|x| x.abs() < 1e-9));
+    assert!(vertical.iter().any(|x| (*x - positive.width).abs() < 1e-9));
 }
 
 #[test]
@@ -403,6 +470,32 @@ fn p1431_reconstrucoes_preservam_todos_os_campos_causais() {
         )),
         expected
     );
+
+    let legacy = Content::math_matrix(
+        vec![
+            vec![Content::text("a"), Content::text("b")],
+            vec![Content::text("c"), Content::text("d")],
+        ],
+        ('(', ')'),
+    );
+    let legacy_repr = repr_content(&legacy);
+    assert!(
+        legacy_repr.starts_with("mat("),
+        "M26 wrapper carrier identity: {legacy_repr}"
+    );
+    for witness in ["rows:", "a", "b", "c", "d"] {
+        assert!(
+            legacy_repr.contains(witness),
+            "M26 wrapper missing {witness}: {legacy_repr}"
+        );
+    }
+    let common = matrix("$mat((a, b), (c, d))$");
+    let legacy_box = project(&legacy);
+    let common_box = project(&common);
+    assert!((legacy_box.width - common_box.width).abs() < 1e-9);
+    assert!((legacy_box.ascent - common_box.ascent).abs() < 1e-9);
+    assert!((legacy_box.descent - common_box.descent).abs() < 1e-9);
+    assert_eq!(texts(&legacy_box), texts(&common_box), "M26 legacy wrapper geometry");
 }
 
 #[test]
@@ -412,6 +505,8 @@ fn p1431_offsets_fora_da_dimensao_sao_diagnosticos() {
         ("$mat(augment: #(hline: -3), (a, b), (c, d))$", "-3", "2"),
         ("$mat(augment: #(vline: 3), (a, b), (c, d))$", "3", "2"),
         ("$mat(augment: #(vline: -3), (a, b), (c, d))$", "-3", "2"),
+        ("$mat(augment: #(hline: 3), (a, b, c), (d, e, f))$", "3", "2"),
+        ("$mat(augment: #(vline: 4), (a, b, c), (d, e, f))$", "4", "3"),
     ] {
         let errors = evaluate(source).unwrap_err();
         let message = errors
@@ -424,6 +519,23 @@ fn p1431_offsets_fora_da_dimensao_sao_diagnosticos() {
             "{source}: {message}"
         );
     }
+
+    let wide = project(&matrix(
+        "$mat(delim: #none, augment: #(hline: 2, vline: 3), (a, b, c), (d, e, f))$",
+    ));
+    assert_eq!(
+        lines(&wide).len(),
+        2,
+        "2x3 bounds must use rows for hline and columns for vline"
+    );
+    let tall = project(&matrix(
+        "$mat(delim: #none, augment: #(hline: 3, vline: 2), (a, b), (c, d), (e, f))$",
+    ));
+    assert_eq!(
+        lines(&tall).len(),
+        2,
+        "3x2 bounds must use rows for hline and columns for vline"
+    );
 }
 
 #[test]

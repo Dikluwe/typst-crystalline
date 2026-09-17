@@ -17,5 +17,10 @@ lado opcional do delimiter, alinhamento, eixo/ordem de offsets, componente de
 stroke inclusive cap, eixo/componente de gap e cada bit de presença. Tanto
 igualdade quanto hash devem discriminar cada par.
 
+Contra M17c/M17h, há pares adicionais com presença idêntica e diferença única:
+`align:left` versus `align:right`; para cada `row-gap` e `column-gap`, varia-se
+separadamente o componente relativo e o absoluto. Tanto `Eq` quanto `Hash`
+devem mudar sem apoio discriminatório dos bits de presença.
+
 Zero ou múltiplos carriers, cascata não separável ou extração ilegível são
 `Unknown`; nunca contam como sucesso nem como mutante morto.

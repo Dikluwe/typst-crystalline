@@ -20,3 +20,10 @@ componentes. P30 inclui delimitadores opcionais esquerdo e direito em grid
 alto. P31 percorre Display, Text/Inline, Script e ScriptScript, mantendo a
 descida de denominador. P34 observa Square automático, cap customizado e Butt
 legado no `FrameItem::Line` final.
+
+M23 exige offsets duplicados e fora de ordem, preservando quantidade e ordem
+das coordenadas, e calcula o midpoint interior a partir das métricas independentes
+das células; bordas 0/n coincidem com os limites completos da caixa. M25 usa
+matrizes 2x3 e 3x2, válidas e inválidas, para hline validar rows e vline validar
+columns. M26 chama diretamente `Content::math_matrix`, exige carrier `mat`
+completo e compara sua geometria com a rota comum equivalente.
