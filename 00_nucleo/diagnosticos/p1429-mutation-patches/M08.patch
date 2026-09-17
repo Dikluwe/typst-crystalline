@@ -1,0 +1,11 @@
+diff --git a/01_core/src/entities/elements/math_accent.rs b/01_core/src/entities/elements/math_accent.rs
+--- a/01_core/src/entities/elements/math_accent.rs
++++ b/01_core/src/entities/elements/math_accent.rs
+@@ -37,6 +37,5 @@ impl PartialEq for MathAccentElem {
+             && self.accent == other.accent
+             && self.size == other.size
+-            && self.dotless == other.dotless
+-            && self.explicit == other.explicit
++            && self.dotless == other.dotless
+     }
+ }

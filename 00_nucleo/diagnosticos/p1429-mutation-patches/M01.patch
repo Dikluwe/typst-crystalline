@@ -1,0 +1,13 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -1525,9 +1525,5 @@ pub fn make_math_module() -> Value {
+         "frac".into(),
+         Value::Func(crate::entities::func::Func::native("math.frac", native_math_frac)),
+     );
+-    dict.insert(
+-        "accent".into(),
+-        Value::Func(crate::entities::func::Func::native("accent", native_accent)),
+-    );
+ 
+     // P1292-A — a função canónica existente também é membro de `math`.

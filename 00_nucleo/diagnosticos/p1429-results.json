@@ -1,0 +1,17 @@
+{
+  "schema": "p1429-results/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1429,
+  "revision": "R4-final",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict": "PASS",
+  "head": "925f63ba06d85050fc00d9926b63a370d1e501b5",
+  "head_tree": "66afa18b8f36cbcfb9649311656b219dee138ad2",
+  "measured_at": "2026-09-16T22:32:19-03:00",
+  "integrity": {"replacement_seal":"00_nucleo/diagnosticos/p1429-seal-r4.json","seal_r4_sha256":"f9a7096d1056e7b0c3f717ae63460c5162f45063c4da6feaebbbb1313f5cfd1b","r3_not_used_as_evidence":true,"sealed_inputs_checked":28,"sealed_inputs_matching":28,"candidate_identity":"PASS"},
+  "execution_orders": {"receipt":"00_nucleo/diagnosticos/p1429-order-results.json","fresh_processes":6,"forward":{"selected":10,"passed":10,"failed":0,"exit_code":0},"forward_repeat":{"selected":10,"passed":10,"failed":0,"exit_code":0},"reverse_suite_order":{"selected":10,"passed":10,"failed":0,"exit_codes":[0,0,0,0]},"mandatory_unknown":0,"opaque_unknown_credit":0,"baseline_non_attributable_failures":[],"result":"PASS"},
+  "mutation_gate": {"receipt":"00_nucleo/diagnosticos/p1429-final-mutation-results.json","independent_raw_sha256":"0e1e4dc24e9c9627ae0d8fc87c1ffc6abe7c3357db778f3626014eb07cd07b8f","fresh_clones":12,"valid":12,"violated":12,"preserved":0,"unknown":0,"survived":0,"mutation_score":1.0,"required_score":1.0,"unknown_credit":0,"result":"PASS"},
+  "gates": {"cargo_fmt_all_check":"PASS","cargo_test_focal":"PASS in A/B/C","cargo_build":"PASS with non-blocking warnings","crystalline_lint":"PASS; exit 0 with non-blocking warnings and infos","v5_v15_v26":"CLEAR by exit-0 crystalline-lint","git_diff_check":"PASS","r4_json_syntax":"PASS"},
+  "blocking_findings": [],
+  "limitations": ["The workspace and inherited context are shared; there is no formal isolation attestation.","The PASS covers only the frozen P1429 math.accent fragment and twelve concrete mutations.","No general math parity, exhaustive mutation adequacy or render-byte equality is claimed."]
+}

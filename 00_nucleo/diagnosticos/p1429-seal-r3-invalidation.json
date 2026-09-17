@@ -1,0 +1,9 @@
+{
+  "schema": "tekt.materialization.seal-invalidation/v1",
+  "step": 1429,
+  "invalidated_seal": "00_nucleo/diagnosticos/p1429-seal.json",
+  "invalidated_revision": "R3",
+  "reason": "The final verifier established that p1429-mutants.json was only a catalogue; no physical execution of the twelve required mutations existed.",
+  "effect": "R3 cannot support a mutation score or final certificate. The adversarial phase is reopened at R4. Contract, productive L0s and candidate remain frozen.",
+  "replacement_gate": "All twelve versioned patches must apply to isolated clones of candidate 925f63ba06d85050fc00d9926b63a370d1e501b5, their frozen killers must execute, Unknown receives no credit, and physical mutation_score must equal 1.0."
+}

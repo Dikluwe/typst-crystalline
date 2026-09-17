@@ -1,0 +1,54 @@
+{
+  "schema": "tekt.materialization.physical-mutation-results/v1",
+  "step": 1429,
+  "revision": "R4",
+  "status": "PASS",
+  "attestation": "executado sem atestação formal de isolamento; isolamento de fonte imposto mecanicamente por clone local separado para cada mutante",
+  "candidate": {
+    "commit": "925f63ba06d85050fc00d9926b63a370d1e501b5",
+    "workspace_preserved": true
+  },
+  "r3_invalidation": "00_nucleo/diagnosticos/p1429-seal-r3-invalidation.json",
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1429-mutation-runner.py",
+    "sha256": "2d9251f802e1747583eebbf26fa53ba50ffe62a11dd77a1d1780eb825917debc",
+    "method": "git clone --shared --no-checkout; checkout detached candidate; git apply --check; git apply; cargo test focused killer",
+    "source_isolation": "one temporary clone per mutant",
+    "cache": "the main target directory was shared only as Cargo artifact cache; no source or git state was shared",
+    "fail_closed": "only an identified one-test run ending in test result: FAILED counts as Violated; patch/build/disk/timeout failures are Unknown"
+  },
+  "commands": [
+    "python3 00_nucleo/diagnosticos/p1429-mutation-runner.py --repo . --output /tmp/p1429-r4-results-final.json",
+    "python3 00_nucleo/diagnosticos/p1429-mutation-runner.py --repo . --output /tmp/p1429-r4-results-focused.json --mutant M04 --mutant M07 --mutant M08"
+  ],
+  "campaign_provenance": {
+    "full_run_sha256": "5eee30cac3d2da16955e72018c9ba2562d3e255b4b90278fc445db371417d746",
+    "focused_repair_run_sha256": "b44b7105e93bea1f07192296df65ca6cd1b47d44bdc0d330609fef29386f11fa",
+    "combination_rule": "Use the valid full-run result for M01-M03 and M05-M12, and the later focused result after envelope repair for M04, M07 and M08. Earlier Unknown attempts receive no credit."
+  },
+  "physical_mutants": [
+    {"id":"M01","instance":"remove math.accent registration","patch_sha256":"553e3dbcdf4d6139df41e6bb9635fce987aca1ca13d791ffdcf0a0954100bb88","killer":"p1429_binding_normalizacao_casts_e_presenca","exit_code":101,"classification":"Violated","seconds":37.088},
+    {"id":"M02","instance":"accept positional arguments after the first two","patch_sha256":"036bd99ab3e4cf72986ec88ee2859fcf5e5060407c0310d272af9e677e9f9ecf","killer":"p1429_assinatura_fechada_rejeita_casos_atribuiveis","exit_code":101,"classification":"Violated","seconds":51.004},
+    {"id":"M03","instance":"return direct accent codepoint before alias normalization","patch_sha256":"5471b5bdf6ce0de25a28e64ab735607082936e8f08e0fd4a785a2bd52ba39a23","killer":"p1429_binding_normalizacao_casts_e_presenca","exit_code":101,"classification":"Violated","seconds":38.623},
+    {"id":"M04","instance":"accept arbitrary Content::Text accent by taking its first codepoint","patch_sha256":"ac32fece9c39efa46ff395ea56eb7a5cb3c246853a8441768cde821888f08f2e","killer":"p1429_assinatura_fechada_rejeita_casos_atribuiveis","exit_code":101,"classification":"Violated","seconds":37.304},
+    {"id":"M05","instance":"drop explicit-size presence bit","patch_sha256":"cd239b6e22f2b9ec6cad5bb1542196ae50a7bf0b62dc2b02941e38fa0dadfec1","killer":"p1429_carrier_discrimina_valores_e_presenca_independentes","exit_code":101,"classification":"Violated","seconds":37.538},
+    {"id":"M06","instance":"let cascaded size override explicit size","patch_sha256":"507bfe8bf22137f4a8ea0efd9d56f9e77ac5a566f9fcad32dfdc9cc03599ca64","killer":"p1429_size_resolve_na_largura_e_precedencia_independente","exit_code":101,"classification":"Violated","seconds":37.669},
+    {"id":"M07","instance":"discard all named arguments in symbolic accent wrappers","patch_sha256":"b556ca2cc4f01853413e94618c5a5082d1bf188541a49acbc5bb3cac4a929314","killer":"p1429_rotas_bare_qualificada_e_wrappers_convergem","exit_code":101,"classification":"Violated","seconds":37.654},
+    {"id":"M08","instance":"omit explicitness from MathAccent structural equality","patch_sha256":"455c1c6d14d0c0fa5145f81d25154a2259487c613d56d91fcc39db84aff682ae","killer":"p1429_carrier_discrimina_valores_e_presenca_independentes","exit_code":101,"classification":"Violated","seconds":38.211},
+    {"id":"M09","instance":"force all accents into upper orientation","patch_sha256":"17c618d45222b3e89702eaaee149a785cb85a1f224cd9f148094f7a84cbcf312","killer":"p1429_orientacao_superior_inferior_e_dotless","exit_code":101,"classification":"Violated","seconds":44.517},
+    {"id":"M10","instance":"change accent short-fall from 0.5em to 0.4em","patch_sha256":"14fdb7c9509b01be8a838c1168420387830bebd08d64337061d876145650ca57","killer":"p1429_size_resolve_na_largura_e_precedencia_independente","exit_code":101,"classification":"Violated","seconds":39.042},
+    {"id":"M11","instance":"invert upper-dotless polarity","patch_sha256":"217a471fa0f49f6c0d9f9a4284548e5a8ef3b1ccc3f0ba9137e234aff5c2a357","killer":"p1429_orientacao_superior_inferior_e_dotless","exit_code":101,"classification":"Violated","seconds":37.027},
+    {"id":"M12","instance":"physically change frozen fail-closed harness identity mismatch from Unknown/no-credit to Preserved/credit","patch_sha256":"750c332bc8c3da71e3607dddf819e19172b5981bc310ddc7df27e6257d52bd88","killer":"p1429_unknown_u01_u06_falha_fechado_sem_credito","exit_code":101,"classification":"Violated","seconds":37.117,"scope_note":"Protocol-harness mutation; no productive analogue exists. This is a physical patch to the frozen acceptance harness, not a parallel simulated implementation."}
+  ],
+  "result": {
+    "valid_mutations": 12,
+    "violated": 12,
+    "preserved": 0,
+    "unknown": 0,
+    "unknown_credit": 0,
+    "mutation_score": 1.0,
+    "required_score": 1.0,
+    "verdict": "PASS"
+  },
+  "claim_boundary": "This receipt proves physical rejection of the twelve concrete P1429 mutation instances only. It does not establish general math parity or formal process isolation."
+}

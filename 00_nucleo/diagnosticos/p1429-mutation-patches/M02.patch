@@ -1,0 +1,24 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -484,15 +484,16 @@ pub(crate) fn math_accent_content(args: &Args) -> SourceResult<Content> {
+             )]);
+         }
+     }
+-    let [base, accent] = args.items.as_slice() else {
++    if args.items.len() < 2 {
+         return Err(vec![SourceDiagnostic::error(
+             args.span,
+             match args.items.len() {
+                 0 => "missing argument: base",
+-                1 => "missing argument: accent",
+-                _ => "unexpected argument",
++                _ => "missing argument: accent",
+             },
+         )]);
+-    };
++    }
++    let base = &args.items[0];
++    let accent = &args.items[1];
+ 
+     let mut size = Rel::from_percent(100.0);

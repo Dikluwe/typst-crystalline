@@ -1,0 +1,36 @@
+{
+  "schema": "p1429-verification/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1429,
+  "revision": "R4-final",
+  "verdict": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "verifier": "agent:/root/p1429_final_verifier",
+  "independence": {
+    "candidate_repaired": false,
+    "sealed_inputs_edited": false,
+    "productive_code_edited": false,
+    "contract_tests_adversarial_inputs_or_seal_edited": false,
+    "allowed_outputs_only": true,
+    "source_isolation_for_mutants": "one temporary local clone per mutant; shared Cargo target was cache only"
+  },
+  "causal_state": {"candidate_commit":"925f63ba06d85050fc00d9926b63a370d1e501b5","candidate_tree":"66afa18b8f36cbcfb9649311656b219dee138ad2","measured_at":"2026-09-16T22:32:19-03:00"},
+  "sealed_chain": {"replacement_seal":"00_nucleo/diagnosticos/p1429-seal-r4.json","replacement_seal_sha256":"f9a7096d1056e7b0c3f717ae63460c5162f45063c4da6feaebbbb1313f5cfd1b","r3_invalidated":true,"protected_artifacts_and_patches_checked":28,"byte_integrity":"PASS"},
+  "evidence": {
+    "functional_orders": "A 10/10, B 10/10, C reverse-suite 10/10; all exit 0",
+    "opaque_policy": "U01-U06 remained Unknown, acceptance=false, mutation_credit=false",
+    "baseline_non_attributable_failures": [],
+    "physical_mutations": "12/12 concrete patches applied in separate clones and rejected by exactly one frozen killer each",
+    "mutation_score": 1.0,
+    "mutation_unknown": 0,
+    "mutation_survivors": 0,
+    "independent_raw_result_sha256": "0e1e4dc24e9c9627ae0d8fc87c1ffc6abe7c3357db778f3626014eb07cd07b8f",
+    "cargo_fmt_check": "PASS",
+    "cargo_build": "PASS",
+    "crystalline_lint": "PASS; V5/V15/V26 clear",
+    "git_diff_check": "PASS"
+  },
+  "score": {"valid_mutations":12,"violated":12,"unknown":0,"unknown_credit":0,"final_physical_mutation_score":1.0,"required_score":1.0},
+  "blocking_findings": [],
+  "claim_boundary": "PASS certifies revision 925f63ba0 only for the frozen P1429 math.accent observables and twelve concrete R4 mutations. It does not attest general math parity, exhaustive mutation adequacy, byte-identical rendering or formal isolation."
+}

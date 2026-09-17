@@ -1,7 +1,7 @@
 {
   "schema": "tekt.materialization.mutations/v1",
   "step": 1429,
-  "status": "preseal-catalogue",
+  "status": "physically-executed-r4",
   "revision": "R2 after blocked preseal; closes P19, P20, P25, M10 short-fall and executable U01-U06/M12",
   "attestation": "executado sem atestação de isolamento",
   "executor": "agent:/root/p1429_adversary",
@@ -38,6 +38,7 @@
     "survived": 0,
     "unknown_credit": 0,
     "mutation_score": 1.0,
-    "note": "Catálogo pré-selo; execução física dos mutantes pertence ao verificador após integração. Cada mutação válida tem testemunha obrigatória, e Unknown nunca a mata."
+    "note": "R4 executou fisicamente cada patch em clone isolado do candidato. Todos os doze killers classificaram Violated; Unknown não recebeu crédito.",
+    "physical_receipt": "00_nucleo/diagnosticos/p1429-physical-mutation-results-r4.json"
   }
 }

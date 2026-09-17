@@ -1,0 +1,45 @@
+{
+  "schema": "tekt.materialization.order-results/v1",
+  "step": 1429,
+  "revision": "R4-final",
+  "status": "PASS",
+  "attestation": "executado sem atestação de isolamento",
+  "measured_at": "2026-09-16T22:32:19-03:00",
+  "state": {
+    "candidate_commit": "925f63ba06d85050fc00d9926b63a370d1e501b5",
+    "candidate_tree": "66afa18b8f36cbcfb9649311656b219dee138ad2",
+    "seal_r4_sha256": "f9a7096d1056e7b0c3f717ae63460c5162f45063c4da6feaebbbb1313f5cfd1b"
+  },
+  "runs": [
+    {"id":"forward","command":"env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1429 -- --nocapture","fresh_processes":1,"selected":10,"passed":10,"failed":0,"exit_code":0,"duration_seconds":0.24},
+    {"id":"forward_repeat","command":"env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core p1429 -- --nocapture","fresh_processes":1,"selected":10,"passed":10,"failed":0,"exit_code":0,"duration_seconds":0.24},
+    {
+      "id": "reverse_suite_order",
+      "suite_order": ["layout", "eval", "entities", "stdlib"],
+      "commands": [
+        "env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core compiler::math::layout::p1429_tests:: -- --nocapture",
+        "env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core compiler::eval::p1429_observation_tests:: -- --nocapture",
+        "env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core entities::elements::p1429_math_accent_tests:: -- --nocapture",
+        "env RUSTFLAGS='-Awarnings' cargo test -q -p typst-core compiler::stdlib::structural::p1429_tests:: -- --nocapture"
+      ],
+      "fresh_processes": 4,
+      "selected_by_process": [3, 1, 2, 4],
+      "selected_total": 10,
+      "passed": 10,
+      "failed": 0,
+      "exit_codes": [0, 0, 0, 0],
+      "duration_seconds_by_process": [0.15, 0.15, 0.15, 0.23]
+    }
+  ],
+  "audit": {
+    "forward_repeat_same_result_vector": true,
+    "reverse_suite_order_complete": true,
+    "mandatory_failures": 0,
+    "mandatory_unknown": 0,
+    "baseline_non_attributable_failures": [],
+    "opaque_control": "U01-U06 remained Unknown with acceptance=false and mutation_credit=false",
+    "unknown_credit": 0,
+    "result": "PASS"
+  },
+  "claim_boundary": "This receipt covers the frozen P1429 focused suite in forward, repeated-forward and reverse-suite orders only."
+}

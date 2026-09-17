@@ -1,0 +1,11 @@
+diff --git a/01_core/src/compiler/math/layout/accent.rs b/01_core/src/compiler/math/layout/accent.rs
+--- a/01_core/src/compiler/math/layout/accent.rs
++++ b/01_core/src/compiler/math/layout/accent.rs
+@@ -79,6 +79,4 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+         };
+         let accent = Content::MathText(elem.accent.to_string().into());
+-        let bottom =
+-            matches!(elem.accent, '\u{23df}' | '\u{23b5}' | '\u{23dd}' | '\u{23e1}')
+-                || has_below_combining_class(elem.accent);
++        let bottom = false;
+         let base =

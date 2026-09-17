@@ -1,0 +1,11 @@
+diff --git a/01_core/src/compiler/eval/math.rs b/01_core/src/compiler/eval/math.rs
+--- a/01_core/src/compiler/eval/math.rs
++++ b/01_core/src/compiler/eval/math.rs
+@@ -785,5 +785,6 @@ fn eval_math_expr(
+                         "dot.double" => '\u{0308}',
+                         _ => unreachable!(),
+                     };
+-                    let mut occurrences = args.occurrence_sequence();
++                    let mut occurrences = args.occurrence_sequence();
++                    occurrences.retain(|occurrence| occurrence.name.is_none());
+                     let base_position = occurrences

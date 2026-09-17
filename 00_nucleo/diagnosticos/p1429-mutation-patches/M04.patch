@@ -1,0 +1,10 @@
+diff --git a/01_core/src/compiler/stdlib/structural/math.rs b/01_core/src/compiler/stdlib/structural/math.rs
+--- a/01_core/src/compiler/stdlib/structural/math.rs
++++ b/01_core/src/compiler/stdlib/structural/math.rs
+@@ -441,5 +441,6 @@ fn math_accent_char(value: &Value, span: Span) -> SourceResult<char> {
+                 vec![SourceDiagnostic::error(span, "expected exactly one character")]
+             })
+         }
++        Value::Content(Content::Text(text)) => Ok(text.chars().next().unwrap_or('\0')),
+         Value::Content(Content::MathText(text)) => normalize_math_accent(text.as_str())
+             .ok_or_else(|| {
