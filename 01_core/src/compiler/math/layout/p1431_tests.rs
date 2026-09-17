@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1431-tests.md
-//! @prompt-hash 7dbb6e6e
+//! @prompt-hash 9319a8fe
 //! @layer L1
 #![cfg(test)]
 
 use super::*;
 use crate::compiler::eval::{eval_for_test, repr::repr_content};
-use crate::compiler::layout::FixedMetrics;
+use crate::compiler::layout::{FixedMetrics, FontMetrics};
 use crate::contracts::world::World;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
@@ -215,6 +215,19 @@ fn p1431_alignpoint_resolve_tarde_e_estilo_denominador_permanece() {
     let input = matrix("$mat(delim: #none, (1 & 2,), (33 & 4,))$");
     assert!(repr_content(&input).contains("1 & 2"));
     let items = texts(&project(&input));
+    let one = text(&items, "1");
+    let thirty_three = text(&items, "33");
+    let one_style = TextStyle::regular(Pt(one.3));
+    let thirty_three_style = TextStyle::regular(Pt(thirty_three.3));
+    let one_right = one.1 + FixedMetrics.text_width("1", Pt(one.3), &one_style).val();
+    let thirty_three_right = thirty_three.1
+        + FixedMetrics
+            .text_width("33", Pt(thirty_three.3), &thirty_three_style)
+            .val();
+    assert!(
+        (one_right - thirty_three_right).abs() < 1e-9,
+        "P26 left subcolumn must right-align: {items:?}"
+    );
     assert_eq!(text(&items, "2").1, text(&items, "4").1);
     for label in ["1", "2", "33", "4"] {
         assert!((text(&items, label).3 - 8.4).abs() < 1e-9, "{label}: {items:?}");
