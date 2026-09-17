@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1436,
+  "measured_at": "2026-09-17T17:20:00-03:00",
+  "candidate": "baseline-before-P1436",
+  "command": "cargo test -p typst-core p1436 --no-run",
+  "exit_code": 101,
+  "classification": "ATTRIBUTABLE_RED",
+  "primary_witness": "E0432: no MathLrElem in entities::elements::math_delimited",
+  "secondary_witnesses": ["Content::MathLr absent", "math.lr binding absent"],
+  "harness_fault": false,
+  "implementation_authorized": true,
+  "attestation": "executed_without_isolation_attestation"
+}
