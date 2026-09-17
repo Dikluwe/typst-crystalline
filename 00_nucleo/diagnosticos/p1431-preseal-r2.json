@@ -1,0 +1,264 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1431,
+  "revision": 2,
+  "measured_at": "2026-09-17T09:24:58-03:00",
+  "status": "BLOCKED_FAIL_CLOSED",
+  "verdict": "DO_NOT_ADMIT_IMPLEMENTATION",
+  "attestation": "executed_without_isolation_attestation",
+  "authority": {
+    "executor": "agent:/root/p1431_preseal_r2",
+    "role": "independent_preseal_verifier",
+    "workspace": "shared",
+    "isolation_attested": false,
+    "productive_source_written": false,
+    "verified_inputs_edited": false,
+    "write_allowlist_used": [
+      "00_nucleo/diagnosticos/p1431-preseal-r2.json"
+    ]
+  },
+  "state": {
+    "verification_head": "f61b7b497f6ddb57e82e58fac6999a8247948de9",
+    "verification_tree": "93ac3651fd57bd8cafde4cb4e987c681d978b5ff",
+    "productive_baseline_commit": "f5aa8d72f4d897cd1cd7ffa01e7822c082967173",
+    "productive_baseline_tree": "907ed26822bb0aea43e23c41748a883a73dbdbcb",
+    "working_tree_before_receipt": "clean"
+  },
+  "protected_identity_gate": {
+    "result": "PASS",
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1431-manifest.json",
+      "sha256": "737d9bc119502acfefff0d0a00bd00ac8371ee6dc237f452ebe5da3e8d846b40"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1431-contract.json",
+      "sha256": "e0ebf2840cef2d68fd8d03bc5e8cf6b7b45d05d16be71f4f4f938b5cb1c497ba"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1431-oracles.json",
+      "sha256": "0ce40af893bd51568eeb2bbf5ed83e6a789e60e796c32a284184d448ba21597b"
+    },
+    "mutations": {
+      "path": "00_nucleo/diagnosticos/p1431-mutants.json",
+      "sha256": "1ce8212acbfbea7c80d746ded335e7da7e45cbc5a835207b9d0f61022a704f5d"
+    },
+    "runner": {
+      "path": "00_nucleo/diagnosticos/p1431-mutations/runner.rb",
+      "sha256": "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687"
+    },
+    "protected_manifest_entries_matching": true,
+    "baseline_productive_blobs_matching": true,
+    "vanilla_binary_sources_and_font_matching": true,
+    "oracle_l0_test_and_wiring_hashes_matching": true,
+    "mutation_recipe_hashes_matching": 27,
+    "test_only_wiring_delta": true,
+    "unexpected_productive_changes": []
+  },
+  "allowlist_gate": {
+    "result": "PASS_WITHOUT_ISOLATION_ATTESTATION",
+    "commands": [
+      "git diff --name-status f5aa8d72f..f61b7b497",
+      "git show --format='%H %s' --name-status --no-renames 4ee3e29d1 c8858270d e4ca7de01 c41e205c9 f61b7b497",
+      "git diff f5aa8d72f -- 01_core/src/compiler/stdlib/structural/mod.rs 01_core/src/compiler/eval/mod.rs 01_core/src/entities/elements/mod.rs 01_core/src/compiler/math/layout/mod.rs"
+    ],
+    "witness": "Every change to a productive Rust module since the frozen baseline is one cfg(test)-only P1431 module declaration. Contract R2, oracle R2 and mutation R2 commits touch their declared artifact families; no candidate productive implementation exists.",
+    "limitation": "The shared workspace and inherited conversation do not provide an isolation attestation; this gate verifies committed paths and deltas only."
+  },
+  "contract_shape_gate": {
+    "result": "PASS_SHAPE_ONLY",
+    "observables": 23,
+    "positive_cases": 33,
+    "negative_cases": 18,
+    "opaque_cases": 9,
+    "declared_mutations": 27,
+    "declared_orders": [
+      "forward",
+      "forward_repeat",
+      "reverse"
+    ],
+    "unknown_fail_closed": true,
+    "note": "The JSON contract has the requested cardinalities and fail-closed policy, but executable coverage and order identity fail below."
+  },
+  "vanilla_p33_gate": {
+    "result": "PASS",
+    "command": "/usr/local/bin/typst eval 'repr(math.mat(augment: (foo: 1)))'",
+    "exit": 0,
+    "stdout_exact": "\"mat(\\n  augment: (hline: (), vline: (), stroke: auto),\\n  rows: ((),),\\n)\"",
+    "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "source_sha256": "fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f",
+    "source_witness": "lab/typst-original/crates/typst-library/src/math/matrix.rs:428-438 consumes hline, vline and stroke with Dict::take and does not reject residual keys.",
+    "conclusion": "P33 correctly reflects the ratified vanilla behavior: unknown augment-dictionary keys are accepted and ignored."
+  },
+  "red_gate": {
+    "compile_command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1431 --no-run",
+    "compile_exit": 0,
+    "run_command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1431 -- --nocapture",
+    "run_exit": 101,
+    "run_output_sha256": "90e3dc45fe9dbaf1f92bf2a3546359ed2f5bba820d21cac37c8c0717ab3bf1b6",
+    "selected": 28,
+    "passed_controls": 5,
+    "failed_attributably": 23,
+    "unexpected_unknown": 0,
+    "result": "RED_ATTRIBUTABLE_REPRODUCED"
+  },
+  "regression_control": {
+    "command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1430 -- --nocapture",
+    "exit": 0,
+    "output_sha256": "ef987a4b612b443d731869d34980d201f9950c7b80a0574b36c9fd6bef683f04",
+    "selected": 23,
+    "passed": 23,
+    "failed": 0,
+    "result": "PASS"
+  },
+  "execution_order_gate": {
+    "result": "FAIL_DECLARED_CARDINALITY",
+    "command": "Enumerate cargo test -q -p typst-core p1431 -- --list, then run every fully-qualified id with --exact --test-threads=1 in forward, a fresh forward_repeat, and exact reverse order",
+    "actual_test_ids": 28,
+    "declared_test_ids_in_oracle_order_definition": 27,
+    "actual_vector": {
+      "passed": 5,
+      "failed": 23,
+      "forward_equals_forward_repeat_by_id_and_exit": true,
+      "forward_equals_reverse_by_id_and_exit": true
+    },
+    "reason_code": "BLOCK_ORACLE_ORDER_CARDINALITY_MISMATCH",
+    "effect": "The actual 28-test classification vector is deterministic, but it is not the frozen 27-test vector claimed by the oracle artifact; the order identity is therefore ambiguous and cannot be sealed."
+  },
+  "coverage_gate": {
+    "result": "FAIL",
+    "declared": {
+      "positive": "P01-P33",
+      "negative": "N01-N08 and N10-N19",
+      "opaque": "U01-U09"
+    },
+    "verified_present": {
+      "positive_p33": true,
+      "opaque_u01_u09_runner_observer": true,
+      "opaque_u03_u04_u05_u07_u08_local_fail_closed_controls": true
+    },
+    "missing_or_incomplete_executable_witnesses": [
+      {
+        "case": "N03-delim-cardinality",
+        "contract": "reject one-entry and three-entry arrays",
+        "observed_test": "only the one-entry array is asserted"
+      },
+      {
+        "case": "N06-gap-types",
+        "contract": "reject integer for gap, row-gap and column-gap",
+        "observed_test": "only constructor gap: integer is asserted"
+      },
+      {
+        "case": "N08-augment-line-type",
+        "contract": "reject hline/vline string, float and arrays containing non-integers",
+        "observed_test": "only hline: string is asserted"
+      },
+      {
+        "case": "N15-set-invalids",
+        "contract": "reject every invalid field type, unknown, rows and duplicates in #set math.mat",
+        "observed_test": "unknown, rows, gap, align and augment are asserted; delimiter, row-gap, column-gap and duplicate coverage is absent"
+      },
+      {
+        "case": "U02-binding",
+        "contract": "opaque binding observation classifies Unknown",
+        "observed_test": "no executable U02 Unknown classifier is present"
+      },
+      {
+        "case": "U06-repr",
+        "contract": "unavailable or unattributable repr classifies Unknown",
+        "observed_test": "no executable U06 Unknown classifier is present"
+      }
+    ],
+    "reason_code": "BLOCK_ORACLE_CASE_COVERAGE_OVERCLAIM",
+    "effect": "The asserted 33P+18N+9U coverage cannot be accepted from labels alone; mandatory negative subcases and two declared opaque controls lack executable witnesses."
+  },
+  "mutation_design_gate": {
+    "design_command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode verify-design",
+    "design_exit": 0,
+    "design_output_sha256": "15be7419768870ff75ea00aadf1ce0b379ae3a7f8ae164a0f2d45745e570a79d",
+    "recipe_identity_result": "PASS",
+    "m10": {
+      "result": "PASS_DESIGN_DISCRIMINATION",
+      "recipe_sha256": "4fba5fefd86037550387146efaeea57473ae9b22ea5e2e68afc3f375bf0fc253",
+      "variants": [
+        "M10a-reject-unknown",
+        "M10b-retain-unknown"
+      ],
+      "killer": "P33 asserts both successful acceptance and absence of the unknown key from canonical repr; the first variant errors and the second changes repr. P13, N08 and N10 remain boundary controls for known fields.",
+      "vanilla_alignment": "PASS"
+    },
+    "m27": {
+      "result": "PASS_CAUSAL_DESIGN",
+      "recipe_sha256": "3a1a90f13a7b26515449d54b3ddff59126a30cbce26ae44a94797023f8a3c53e",
+      "baseline_command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core compiler::stdlib::structural::p1431_tests::p1431_runner_publico_falha_fechado_para_unknown_sem_credito -- --exact",
+      "baseline_exit": 0,
+      "runner_policy_command": "ruby 00_nucleo/diagnosticos/p1431-mutations/runner.rb --mode policy-self-check",
+      "runner_policy_exit": 3,
+      "runner_policy_output_sha256": "cf726319f925499d46ee725210fd145bd00d9a83d9c5feefc18b3a16f4fba043",
+      "causal_probe_command": "Load the frozen runner in a Ruby process with only Kernel.exit changed so status 3 becomes 0, preserving runner bytes",
+      "causal_probe_exit": 0,
+      "witness": "The unchanged runner still emits classification Unknown and UNKNOWN_EXECUTION_OR_BUDGET, but the mutated exit policy returns success. The frozen Rust oracle directly asserts runner SHA and exit Some(3), so this exact policy mutation is causally rejected."
+    },
+    "m14": {
+      "result": "FAIL_NO_CAUSAL_KILLER",
+      "recipe": "skip validation for column-gap in #set math.mat",
+      "declared_killers": [
+        "N15-set-invalids",
+        "P16-cascade-basic",
+        "P17-cascade-gap"
+      ],
+      "witness": "The N15 test contains no invalid #set math.mat(column-gap: ...) case. P16 and P17 use valid cascade values and cannot distinguish removal of the invalid column-gap cast. N06 tests only constructor gap: integer.",
+      "reason_code": "BLOCK_M14_NO_CAUSAL_EXECUTABLE_KILLER"
+    },
+    "physical_mutations_executed": 0,
+    "mutation_score": null,
+    "unknown_credit": 0,
+    "orders": "NOT_CREDITED_BECAUSE_DISCRIMINATORY_DESIGN_FAILS"
+  },
+  "mechanical_gate": {
+    "cargo_fmt_command": "cargo fmt --all -- --check",
+    "cargo_fmt_exit": 0,
+    "working_tree_diff_check_command": "git diff --check",
+    "working_tree_diff_check_exit": 0,
+    "frozen_commits_diff_check_commands": [
+      "git show --check --format=oneline e4ca7de01",
+      "git show --check --format=oneline c41e205c9",
+      "git show --check --format=oneline f61b7b497"
+    ],
+    "frozen_commits_diff_check_exit": 0,
+    "result": "PASS"
+  },
+  "blocking_findings": [
+    {
+      "reason_code": "BLOCK_ORACLE_CASE_COVERAGE_OVERCLAIM",
+      "first_affected_phase": "oracle",
+      "effect": "The frozen R2 oracle identity does not execute all subcases it claims for N03, N06, N08, N15, U02 and U06."
+    },
+    {
+      "reason_code": "BLOCK_M14_NO_CAUSAL_EXECUTABLE_KILLER",
+      "first_affected_phase": "oracle_and_adversary_design",
+      "effect": "The frozen M14 transform can remove #set column-gap validation without any declared killer exercising that invalid input; 27/27 rejection is not established."
+    },
+    {
+      "reason_code": "BLOCK_ORACLE_ORDER_CARDINALITY_MISMATCH",
+      "first_affected_phase": "oracle",
+      "effect": "The frozen order definition says 27 fully-qualified tests while cargo enumerates 28; the actual deterministic vector is not the declared vector."
+    }
+  ],
+  "implementation_admission": {
+    "admitted": false,
+    "fail_closed": true,
+    "reason_codes": [
+      "BLOCK_ORACLE_CASE_COVERAGE_OVERCLAIM",
+      "BLOCK_M14_NO_CAUSAL_EXECUTABLE_KILLER",
+      "BLOCK_ORACLE_ORDER_CARDINALITY_MISMATCH"
+    ],
+    "required_reentry": [
+      "Reopen the oracle phase and add executable witnesses for every declared N03, N06, N08 and N15 subcase plus U02 and U06, or narrow the contract only with obligation-author authority.",
+      "Add a causal invalid #set math.mat(column-gap: integer) killer for M14 and re-freeze oracle and adversarial identities.",
+      "Correct the frozen order cardinality to the actual complete test set and rerun forward, fresh forward_repeat and reverse.",
+      "Repeat hashes, RED, P1430 control, verify-design, M10/M27 calibration, fmt and diff-check before implementation admission."
+    ]
+  },
+  "claim_boundary": "This R2 fail-closed preseal verifies identities, allowlisted committed deltas, ratified P33 behavior, attributable RED, the P1430 control, deterministic actual test execution, and M10/M27 causal design. It blocks implementation because oracle coverage, M14 discrimination and frozen order cardinality are insufficient. It emits no final verdict, no seal, no mutation-score claim, no implementation authorization, no general Typst parity claim, and no workspace or conversational isolation attestation."
+}
