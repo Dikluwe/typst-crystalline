@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1429-tests.md
-//! @prompt-hash 4b398607
+//! @prompt-hash d29400ea
 //! @layer L1
 #![cfg(test)]
 
 use super::*;
-use crate::compiler::eval::EvalContext;
+use crate::compiler::eval::{repr::repr_content, EvalContext};
 use crate::compiler::layout::{FixedMetrics, FontMetrics};
 use crate::compiler::stdlib::native_accent;
 use crate::contracts::world::World;
@@ -15,6 +15,7 @@ use crate::entities::font_book::FontBook;
 use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
 use crate::entities::layout_types::Length;
 use crate::entities::location::Location;
+use crate::entities::math_style::MathStyleKind;
 use crate::entities::rel::Rel;
 use crate::entities::source::Source;
 use crate::entities::style_chain::StyleChain;
@@ -116,22 +117,30 @@ fn project<M: FontMetrics>(
 #[test]
 fn p1429_orientacao_superior_inferior_e_dotless() {
     let chain = StyleChain::default_chain();
-    let upper =
-        text_items(&project(&FixedMetrics, &accent("i", '^', None, Some(true)), &chain));
-    assert!(
-        upper.iter().any(|(t, _)| t == "ı"),
-        "upper dotless morphology missing: {upper:?}"
-    );
-    let base_y = upper.iter().find(|(t, _)| t == "ı").unwrap().1;
-    let accent_y = upper.iter().find(|(t, _)| t == "\u{302}").unwrap().1;
-    assert!(accent_y < base_y, "upper accent not above base: {upper:?}");
+    for (base, dotless_base) in [("i", "ı"), ("j", "ȷ")] {
+        let upper = text_items(&project(
+            &FixedMetrics,
+            &accent(base, '^', None, Some(true)),
+            &chain,
+        ));
+        assert!(
+            upper.iter().any(|(t, _)| t == dotless_base),
+            "upper {base} dotless morphology missing: {upper:?}"
+        );
+        let base_y = upper.iter().find(|(t, _)| t == dotless_base).unwrap().1;
+        let accent_y = upper.iter().find(|(t, _)| t == "\u{302}").unwrap().1;
+        assert!(accent_y < base_y, "upper accent not above {base}: {upper:?}");
 
-    let dotted =
-        text_items(&project(&FixedMetrics, &accent("i", '^', None, Some(false)), &chain));
-    assert!(
-        dotted.iter().any(|(t, _)| t == "i"),
-        "dotless=false removed dot: {dotted:?}"
-    );
+        let dotted = text_items(&project(
+            &FixedMetrics,
+            &accent(base, '^', None, Some(false)),
+            &chain,
+        ));
+        assert!(
+            dotted.iter().any(|(t, _)| t == base),
+            "dotless=false removed {base} dot: {dotted:?}"
+        );
+    }
 
     for mark in ['\u{332}', '\u{23df}', '\u{23b5}', '\u{23dd}', '\u{23e1}'] {
         let lower = text_items(&project(
@@ -168,14 +177,14 @@ impl FontMetrics for VariantMetrics {
             variants: vec![
                 GlyphVariant {
                     glyph_id: 142,
-                    advance: 1200.0,
-                    hor_advance: 1200.0,
+                    advance: 900.0,
+                    hor_advance: 900.0,
                     top_accent_attach: None,
                 },
                 GlyphVariant {
                     glyph_id: 143,
-                    advance: 1800.0,
-                    hor_advance: 1800.0,
+                    advance: 1300.0,
+                    hor_advance: 1300.0,
                     top_accent_attach: None,
                 },
             ],
@@ -183,16 +192,20 @@ impl FontMetrics for VariantMetrics {
     }
 }
 
-fn arrow_width(content: &Content, chain: &StyleChain) -> f64 {
+fn arrow_glyph(content: &Content, chain: &StyleChain) -> (u16, f64) {
     project(&VariantMetrics, content, chain)
         .iter()
         .find_map(|item| match item {
-            FrameItem::Glyph { base_char: '\u{20d7}', x_advance, .. } => {
-                Some(x_advance.val())
+            FrameItem::Glyph { base_char: '\u{20d7}', glyph_id, x_advance, .. } => {
+                Some((*glyph_id, x_advance.val()))
             }
             _ => None,
         })
         .expect("attributable stretched arrow glyph")
+}
+
+fn arrow_width(content: &Content, chain: &StyleChain) -> f64 {
+    arrow_glyph(content, chain).1
 }
 
 #[test]
@@ -202,6 +215,16 @@ fn p1429_size_resolve_na_largura_e_precedencia_independente() {
     let explicit = accent("xx", '→', Some(150.0), None);
     let w100 = arrow_width(&base, &default);
     let w150 = arrow_width(&explicit, &default);
+    assert_eq!(
+        arrow_glyph(&base, &default).0,
+        142,
+        "100% target must subtract exactly the 0.5em accent short-fall"
+    );
+    assert_eq!(
+        arrow_glyph(&explicit, &default).0,
+        143,
+        "150% target must remain above the 0.5em-shortened first variant"
+    );
     assert!(w150 > w100, "150% did not select a wider variant: {w100} vs {w150}");
 
     let cascade = StyleChain::default_chain()
@@ -222,4 +245,32 @@ fn p1429_size_resolve_na_largura_e_precedencia_independente() {
         cascaded_i.iter().any(|(t, _)| t == "i"),
         "cascaded dotless=false was ignored: {cascaded_i:?}"
     );
+}
+
+fn causal_suffix(content: &Content) -> String {
+    let repr = repr_content(content);
+    repr.split_once(", accent:")
+        .map(|(_, suffix)| suffix.to_string())
+        .unwrap_or_else(|| panic!("not an attributable accent repr: {repr}"))
+}
+
+#[test]
+fn p1429_reconstrutores_preservam_campos_causais() {
+    for input in [
+        accent("x", '^', None, None),
+        accent("x", '~', Some(150.0), Some(false)),
+        accent("x", '.', Some(100.0), Some(true)),
+    ] {
+        let expected = causal_suffix(&input);
+        assert_eq!(causal_suffix(&apply_math_default(&input)), expected);
+        assert_eq!(
+            causal_suffix(&apply_math_style(
+                &input,
+                Some(MathStyleKind::DoubleStruck),
+                Some(true),
+                Some(false),
+            )),
+            expected
+        );
+    }
 }

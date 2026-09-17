@@ -23,3 +23,8 @@ e nunca imprime cascata efetiva ou orientação derivada.
 Zero ou múltiplos `MathAccent` atribuíveis, extração ambígua ou identidade
 protegida divergente são `Unknown`, sem crédito de aceitação ou mutação.
 
+## Revisão R2
+
+Clone e hash são exercidos sobre carriers completos. Pares que diferem
+isoladamente em acento, tamanho, dotless, bit de presença de tamanho ou bit
+de presença de dotless não podem colapsar em igualdade ou hash causal.

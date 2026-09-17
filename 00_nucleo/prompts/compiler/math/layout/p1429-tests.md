@@ -21,3 +21,11 @@ explícito > cascata > default, sem fabricar presença no carrier.
 
 Fonte, variante, glyph, frame, cascata ou geometria não atribuível produzem
 `Unknown`; `Unknown` falha fechado nos casos obrigatórios e não mata mutantes.
+
+## Revisão R2
+
+A reconstrução por `apply_math_default` e `apply_math_style` deve preservar
+todos os campos causais. A morfologia dotless cobre `i` e `j` nas duas
+polaridades. A métrica sintética coloca uma variante entre os alvos com
+short-fall de `0.5em` e sem ele: assim, escolher a variante correta prova o
+short-fall, não apenas a diferença genérica entre 100% e 150%.

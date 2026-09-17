@@ -1,0 +1,39 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1429,
+  "revision": "R2",
+  "attestation": "executado sem atestação de isolamento",
+  "executor": "agent:/root/p1429_adversary",
+  "measured_at": "2026-09-16T21:18:49-03:00",
+  "head": "33223fbcef24af6629e8df5a0d4ccdc45b140ba3",
+  "baseline": "530bb5c4208ee82f815515d761517b818a949ee6",
+  "command": "RUSTFLAGS='-Awarnings' cargo test -p typst-core p1429 -- --nocapture",
+  "result": "RED_ATTRIBUTABLE",
+  "exit_code": 101,
+  "counts": {"selected": 10, "passed": 1, "failed": 9, "ignored": 0, "filtered_out": 5785},
+  "closed_preseal_gaps": {
+    "P19": "clone/hash plus apply_math_default/apply_math_style have executable independent assertions",
+    "P20": "accent/size/dotless/size-bit/dotless-bit pairs require symmetric Same/Different",
+    "P25": "upper j is checked with dotless true and false",
+    "M10": "900du/1300du variants discriminate the exact 0.5em short-fall threshold",
+    "U01_U06_M12": "executable harness passed: every opaque cause is Unknown with acceptance=false and mutation_credit=false"
+  },
+  "passed_controls": ["p1429_unknown_u01_u06_falha_fechado_sem_credito"],
+  "red_causes": [
+    "math.accent is absent from the closed math module",
+    "legacy P296 rejects named size",
+    "legacy P296 rejects named dotless"
+  ],
+  "classification": "The test crate compiled and ran. All nine failures are attributable to frozen P1429 obligations; none is Unknown or build-only.",
+  "unknown_policy": "Unknown never counts as acceptance and never receives mutation credit.",
+  "suite_hashes": {
+    "structural": "ff7792ab1310644548eca5549401d794b57bc4a8a413ffffe4589dc621258bf1",
+    "carrier": "178ad902c29a7432af77144236f17259973708a930ca26f90363f34299bfe806",
+    "layout": "80331e653c7ec9ccb5dda1b2cec90fa9bf3cda842ef1d2a2ffbb2e4199275851",
+    "observation": "de4d05a8f61ad84064eea9e157aa00818008498e4e480a3b697d03efa8cce848"
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "git_diff_check": "PASS"
+  }
+}

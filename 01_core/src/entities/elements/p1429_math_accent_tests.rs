@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/p1429-math-accent-tests.md
-//! @prompt-hash 345b637c
+//! @prompt-hash ad756cbd
 //! @layer L1
 #![cfg(test)]
 
@@ -56,10 +56,10 @@ fn id() -> FileId {
     FileId::from_raw(NonZeroU16::new(1429).unwrap())
 }
 
-fn carrier(size: Option<Rel<Length>>, dotless: Option<bool>) -> Content {
+fn carrier(mark: char, size: Option<Rel<Length>>, dotless: Option<bool>) -> Content {
     let mut args = Args::positional(vec![
         Value::Content(Content::text("x")),
-        Value::Str("^".into()),
+        Value::Str(mark.to_string().into()),
     ]);
     if let Some(v) = size {
         args.named.insert("size".into(), Value::Relative(v));
@@ -84,14 +84,25 @@ fn hash(value: &Content) -> u64 {
 
 #[test]
 fn p1429_carrier_discrimina_valores_e_presenca_independentes() {
-    let absent = carrier(None, None);
-    let explicit_defaults = carrier(Some(Rel::from_percent(100.0)), Some(true));
-    let size = carrier(Some(Rel::from_percent(150.0)), None);
-    let dotless = carrier(None, Some(false));
-    assert_ne!(absent, explicit_defaults, "presence bits collapsed");
-    assert_ne!(absent, size, "size absent from equality");
-    assert_ne!(absent, dotless, "dotless absent from equality");
-    assert_ne!(hash(&absent), hash(&explicit_defaults), "presence absent from hash");
+    let absent = carrier('^', None, None);
+    let accent = carrier('~', None, None);
+    let size = carrier('^', Some(Rel::from_percent(150.0)), None);
+    let dotless = carrier('^', None, Some(false));
+    let size_bit = carrier('^', Some(Rel::from_percent(100.0)), None);
+    let dotless_bit = carrier('^', None, Some(true));
+    let explicit_defaults = carrier('^', Some(Rel::from_percent(100.0)), Some(true));
+
+    assert_eq!(absent.clone(), absent, "clone changed complete carrier");
+    for (label, changed) in [
+        ("accent", &accent),
+        ("size", &size),
+        ("dotless", &dotless),
+        ("size presence", &size_bit),
+        ("dotless presence", &dotless_bit),
+    ] {
+        assert_ne!(&absent, changed, "{label} absent from equality");
+        assert_ne!(hash(&absent), hash(changed), "{label} absent from hash");
+    }
     assert_eq!(repr_content(&absent), "accent(base: [x], accent: \"\\u{302}\")");
     assert_eq!(
         repr_content(&explicit_defaults),
@@ -101,7 +112,7 @@ fn p1429_carrier_discrimina_valores_e_presenca_independentes() {
 
 #[test]
 fn p1429_walkers_preservam_carrier_e_descem_so_na_base() {
-    let input = carrier(Some(Rel::from_percent(150.0)), Some(false));
+    let input = carrier('^', Some(Rel::from_percent(150.0)), Some(false));
     let Content::MathAccent(elem) = &input else {
         panic!("exactly one MathAccent expected")
     };
