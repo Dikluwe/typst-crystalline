@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: ef6793f3
+Hash do Código: e9226fa9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -642,7 +642,7 @@ Construir argumentos math canônicos e delegar ao builder de
 `math.underparen`, preservando ordem, spread, avaliação única e diagnósticos.
 Não criar U+23DD nem executar layout na avaliação; `undershell` não muda.
 
-## P1451 — forma bare `undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — forma bare `undershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: ec512f08
+Hash do Código: c9e2000a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -984,7 +984,7 @@ O cristalino não possui repr próprio; o vanilla imprime
 Projetar `MathUnderparen` como `underparen(body: <content>, annotation?:
 <content-ou-none>)`, nessa ordem; nesting preserva identidade.
 
-## P1451 — morfologia pública de `undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — morfologia pública de `undershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

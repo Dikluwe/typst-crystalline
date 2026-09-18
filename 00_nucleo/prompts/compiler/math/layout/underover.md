@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: a57e6dfb
+Hash do Código: 040cd462
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -423,7 +423,7 @@ Adicionar free function/método fino que reduz localmente para
 `layout_underover(body, Some(U+23DD), None)`, envolvida por annotation inferior
 quando presente. O paren, não a annotation, recebe stretch (ADR-0109).
 
-## P1451 — realização de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — realização de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

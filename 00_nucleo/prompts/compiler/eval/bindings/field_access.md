@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 724e7675
+Hash do Código: 0a7414ce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1268,7 +1268,7 @@ No vanilla, `body` está sempre assente; annotation omitida não aparece em
 Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
 ordem declarada, preservando `Value::None` e a função pública.
 
-## P1451 — reflexão causal de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — reflexão causal de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

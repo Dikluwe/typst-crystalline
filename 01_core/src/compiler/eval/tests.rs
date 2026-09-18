@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash b5ab2ba3
+//! @prompt-hash 82fe8122
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9871,6 +9871,53 @@ mod tests {
             (r#"#repr(math.underparen([x], none).has("annotation"))"#, "true"),
             (r#"#repr(math.underparen([x], [n]).at("annotation"))"#, "[n]"),
             ("#repr(math.underparen([x]).func() == math.underparen)", "true"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1451_undershell_bare_preserva_identidade_e_anotacao() {
+        fn find_undershell(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathUndershellElem>
+        {
+            match c {
+                Content::MathUndershell(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_undershell)
+                }
+                Content::Equation(elem) => find_undershell(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ undershell(x, n) $");
+        let content = extract_math_content(&world);
+        let undershell = find_undershell(&content)
+            .expect("undershell(x, n) deve produzir MathUndershell");
+        assert_eq!(undershell.body.plain_text(), "x");
+        assert_eq!(
+            undershell.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(undershell.annotation_explicit);
+    }
+
+    #[test]
+    fn p1451_undershell_reflexao_preserva_campos_e_presenca() {
+        let cases = [
+            ("#repr(math.undershell([x]).fields())", "(body: [x])"),
+            (
+                "#repr(math.undershell([x], none).fields())",
+                "(body: [x], annotation: none)",
+            ),
+            (r#"#repr(math.undershell([x]).has("annotation"))"#, "false"),
+            (r#"#repr(math.undershell([x], none).has("annotation"))"#, "true"),
+            (r#"#repr(math.undershell([x], [n]).at("annotation"))"#, "[n]"),
+            ("#repr(math.undershell([x]).func() == math.undershell)", "true"),
         ];
 
         for (source, expected) in cases {

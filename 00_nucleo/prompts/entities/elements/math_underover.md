@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_underover` — `MathUnderoverElem`
-Hash do Código: 9125e99b
+Hash do Código: ebd80816
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_underover.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
@@ -159,7 +159,7 @@ Adicionar `MathUnderparenElem { body, annotation, annotation_explicit }`.
 `plain_text` segue `body + ⏝ + annotation`; walkers transformam ambos os
 filhos e preservam variante/presença; igualdade/hash incluem os três campos.
 
-## P1451 — carrier público `MathUndershellElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — carrier público `MathUndershellElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

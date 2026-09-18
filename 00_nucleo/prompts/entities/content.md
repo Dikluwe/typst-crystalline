@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 60ac2e92
+Hash do Código: b9d89e5b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3294,7 +3294,7 @@ Adicionar `Content::MathUnderparen(Arc<MathUnderparenElem>)`. Nome, debug,
 igualdade, hash, plain-text, filhos e reconstruções preservam identidade e
 presença; nunca inferir a variante de U+23DD.
 
-# P1451 — variante pública `Content::MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+# P1451 — variante pública `Content::MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 9697dc2a
+//! @prompt-hash b66478ea
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -407,6 +407,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathUnderparen(a0) => match other {
                 Self::MathUnderparen(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathUndershell(a0) => match other {
+                Self::MathUndershell(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -4189,6 +4195,28 @@ impl ObservationEq for crate::entities::elements::math_underover::MathUnderparen
 pub(crate) fn p1450_math_underparen_observation_differs(
     left: &crate::entities::elements::math_underover::MathUnderparenElem,
     right: &crate::entities::elements::math_underover::MathUnderparenElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
+}
+
+impl ObservationEq for crate::entities::elements::math_underover::MathUndershellElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, annotation: _, annotation_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.annotation.observation_relation(&other.annotation))
+            .and(
+                (self.annotation_explicit == other.annotation_explicit)
+                    .then_some(ObservationRelation::Same)
+                    .unwrap_or(ObservationRelation::Different),
+            )
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn p1451_math_undershell_observation_differs(
+    left: &crate::entities::elements::math_underover::MathUndershellElem,
+    right: &crate::entities::elements::math_underover::MathUndershellElem,
 ) -> bool {
     left.observation_relation(right) == ObservationRelation::Different
 }

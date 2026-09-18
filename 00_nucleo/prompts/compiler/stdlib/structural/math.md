@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: d1cd883a
+Hash do Código: b0f8ef17
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -722,7 +722,7 @@ Registrar `math.underparen`; a nativa avalia uma vez, aplica casts e
 diagnósticos medidos e constrói `Content::MathUnderparen` com presença causal.
 Não criar U+23DD nem executar layout aqui; `undershell` fica fora do recorte.
 
-## P1451 — construtor público `math.undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — construtor público `math.undershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

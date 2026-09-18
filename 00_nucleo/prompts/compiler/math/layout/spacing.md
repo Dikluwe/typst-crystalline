@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 71dc5794
+Hash do Código: b31ba2f7
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -582,7 +582,7 @@ a classe pública do composto.
 Herdar recursivamente as classes esquerda/direita de `body`; annotation e
 U+23DD não participam das fronteiras.
 
-## P1451 — classe herdada de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — classe herdada de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

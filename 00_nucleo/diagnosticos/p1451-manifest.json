@@ -1,0 +1,25 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "step": 1451,
+  "protocol": "tekt-materializacao-segregada/1",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "baseline": {
+    "proposal_commit": "89544dadd",
+    "preproposal_commit": "c2813b6f775172a63bf4da2ffe1b41ab54fbe238",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+  },
+  "prompt_root_sha256": "d61c2a30ff196771008525fc3d9351e72d21ffed5be2268d070000728a14244f",
+  "scope": "math.undershell qualified and bare identity over mature MathUnderover geometry",
+  "unknown_policy": "fail_closed_no_credit",
+  "calibration_budget": {"full_campaigns": 3, "revisions_per_cause": 2, "mutation_families": 13},
+  "roles": {
+    "intent": "approved P1451 step and productive L0 prompts",
+    "contract": "P1451 test-only prompt and public obligations",
+    "oracle": "P1451 tests frozen before productive implementation",
+    "adversary": "negative mutations only",
+    "implementer": "productive files after attributable RED",
+    "verifier": "receipts and certificate; same workspace, no isolation claim"
+  },
+  "claim_boundary": "Frozen P1451 math.undershell fragment only; no general Typst or math equivalence."
+}

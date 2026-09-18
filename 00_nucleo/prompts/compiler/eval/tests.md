@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 9c046c9b
+Hash do Código: bb43110c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -297,5 +297,12 @@ na árvore; não aceitam equivalência por `plain_text`, U+23B5 ou estrutura
 
 Após aprovação ADR-0127, testar que a forma bare preserva
 `Content::MathUnderparen`, body, annotation e presença causal; testar também
+`fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
+Esses oráculos são congelados antes do candidato produtivo.
+
+## P1451 — oráculos `math.undershell`
+
+Após aprovação ADR-0127, testar que a forma bare preserva
+`Content::MathUndershell`, body, annotation e presença causal; testar também
 `fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
 Esses oráculos são congelados antes do candidato produtivo.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underover.md
-//! @prompt-hash 9b759383
+//! @prompt-hash 4d4fac90
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -54,6 +54,15 @@ pub struct MathUnderbracketElem {
 /// a realização geométrica permanece no owner de layout under/over.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathUnderparenElem {
+    pub body: Content,
+    pub annotation: Option<Content>,
+    pub annotation_explicit: bool,
+}
+
+/// Elemento público `math.undershell`: identidade e presença são preservadas;
+/// a realização geométrica permanece no owner de layout under/over.
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct MathUndershellElem {
     pub body: Content,
     pub annotation: Option<Content>,
     pub annotation_explicit: bool,
@@ -313,6 +322,46 @@ impl Element for MathUnderparenElem {
         F: FnMut(&str) -> String,
     {
         Content::MathUnderparen(Arc::new(self.clone()))
+    }
+
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "body" => Some(Value::Content(self.body.clone())),
+            "annotation" if self.annotation_explicit => {
+                Some(self.annotation.clone().map(Value::Content).unwrap_or(Value::None))
+            }
+            _ => None,
+        }
+    }
+}
+
+impl Element for MathUndershellElem {
+    fn plain_text(&self) -> String {
+        let annotation =
+            self.annotation.as_ref().map(Content::plain_text).unwrap_or_default();
+        format!("{}⏡{}", self.body.plain_text(), annotation)
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::MathUndershell(Arc::new(MathUndershellElem {
+            body: self.body.map_content(transform)?,
+            annotation: self
+                .annotation
+                .as_ref()
+                .map(|content| content.map_content(transform))
+                .transpose()?,
+            annotation_explicit: self.annotation_explicit,
+        })))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathUndershell(Arc::new(self.clone()))
     }
 
     fn get_field(&self, field: &str) -> Option<Value> {

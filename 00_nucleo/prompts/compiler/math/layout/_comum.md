@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: eb6479d5
+Hash do Código: 4f66513e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -1660,7 +1660,7 @@ O match estático delega a `underover.rs`; reconstruções de default/style
 transformam body/annotation e preservam presença e variante. A redução
 mecânica ocorre apenas no owner de layout (ADR-0109).
 
-## P1451 — dispatch e reconstrução de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1451 — dispatch e reconstrução de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
