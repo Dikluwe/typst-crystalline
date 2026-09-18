@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 61d30bde
+Hash do Código: 989476e4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -487,7 +487,7 @@ Adicionar `MathOverline` aos braços terminais de
 `has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 no
 body. O walker estrutural e o `repr` permanecem donos desses observáveis.
 
-## P1442 — projeção aproximada de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — projeção aproximada de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

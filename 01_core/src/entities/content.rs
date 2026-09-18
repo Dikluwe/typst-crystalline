@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash c0e14099
+//! @prompt-hash 7349a40a
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -64,7 +64,7 @@ use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
 use crate::entities::elements::math_underline::{MathOverlineElem, MathUnderlineElem};
 use crate::entities::elements::math_underover::{
-    MathOverbraceElem, MathOverbracketElem, MathUnderoverElem,
+    MathOverbraceElem, MathOverbracketElem, MathOverparenElem, MathUnderoverElem,
 };
 use crate::entities::elements::math_vec::{MathVecElem, MathVecExplicit};
 // Lote 3 P318 — família lista/termos (5 variantes).
@@ -261,6 +261,9 @@ pub enum Content {
 
     /// Barra horizontal superior pública com anotação opcional.
     MathOverbracket(Arc<MathOverbracketElem>),
+
+    /// Parêntesis horizontal superior público com anotação opcional.
+    MathOverparen(Arc<MathOverparenElem>),
 
     /// Ponto de alinhamento em equações matemáticas (`&`).
     /// Separa colunas no layout de grelha (Passo 51).
@@ -1252,6 +1255,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathOverbracket(overbracket) => {
             write!(f, "math.overbracket({:?})", overbracket)
         }
+        Content::MathOverparen(overparen) => write!(f, "math.overparen({:?})", overparen),
         Content::MathAlignPoint(_) => write!(f, "math.align.point"),
         Content::Linebreak(_) => write!(f, "linebreak"),
         Content::MathMatrix(_) => write!(f, "math.matrix"),
@@ -1381,6 +1385,7 @@ impl Content {
             Self::MathMid(_) => "mid",
             Self::MathOverbrace(_) => "overbrace",
             Self::MathOverbracket(_) => "overbracket",
+            Self::MathOverparen(_) => "overparen",
             Self::MathAlignPoint(_) => "math.align.point",
             Self::Linebreak(_) => "linebreak",
             Self::MathMatrix(_) => "math.matrix",
@@ -1719,6 +1724,18 @@ impl Content {
         annotation_explicit: bool,
     ) -> Self {
         Self::MathOverbracket(Arc::new(MathOverbracketElem {
+            body,
+            annotation,
+            annotation_explicit,
+        }))
+    }
+    /// Construtor canônico do elemento público `math.overparen`.
+    pub fn math_overparen(
+        body: Content,
+        annotation: Option<Content>,
+        annotation_explicit: bool,
+    ) -> Self {
+        Self::MathOverparen(Arc::new(MathOverparenElem {
             body,
             annotation,
             annotation_explicit,
@@ -3119,6 +3136,7 @@ impl Content {
             | Self::MathMid(_)
             | Self::MathOverbrace(_)
             | Self::MathOverbracket(_)
+            | Self::MathOverparen(_)
             | Self::MathAlignPoint(_)
             | Self::Linebreak(_)
             | Self::MathMatrix(_)
@@ -3452,6 +3470,7 @@ impl Content {
             Self::MathMid(e) => e.plain_text(),
             Self::MathOverbrace(e) => e.plain_text(),
             Self::MathOverbracket(e) => e.plain_text(),
+            Self::MathOverparen(e) => e.plain_text(),
             Self::MathAlignPoint(e) => e.plain_text(),
             Self::Linebreak(e) => e.plain_text(),
             Self::MathMatrix(e) => e.plain_text(),
@@ -3599,6 +3618,7 @@ impl PartialEq for Content {
             (Self::MathMid(a), Self::MathMid(b)) => a == b,
             (Self::MathOverbrace(a), Self::MathOverbrace(b)) => a == b,
             (Self::MathOverbracket(a), Self::MathOverbracket(b)) => a == b,
+            (Self::MathOverparen(a), Self::MathOverparen(b)) => a == b,
             (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
             (Self::Linebreak(a), Self::Linebreak(b)) => a == b,
             (Self::MathMatrix(a), Self::MathMatrix(b)) => a == b,
@@ -3950,6 +3970,7 @@ impl Content {
             Content::MathMid(e) => e.map_content(transform)?,
             Content::MathOverbrace(e) => e.map_content(transform)?,
             Content::MathOverbracket(e) => e.map_content(transform)?,
+            Content::MathOverparen(e) => e.map_content(transform)?,
             Content::MathMatrix(e)    => e.map_content(transform)?,
             Content::MathCases(e)     => e.map_content(transform)?,
             Content::MathAccent(e)    => e.map_content(transform)?,
@@ -4292,6 +4313,7 @@ impl Content {
             | Content::MathMid(_)
             | Content::MathOverbrace(_)
             | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
             | Content::MathMatrix(_)
             | Content::MathCases(_)
             | Content::MathAccent(_)

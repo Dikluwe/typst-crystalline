@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_underover` — `MathUnderoverElem`
-Hash do Código: 15cf7342
+Hash do Código: 7a85fbe1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_underover.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
@@ -78,7 +78,7 @@ preserva presença. `plain_text` segue a ordem visual `annotation + ⎴ + body`;
 Igualdade/hash incluem os três campos. Os carriers `MathOverbraceElem` e
 `MathUnderoverElem` permanecem identidades separadas.
 
-## P1442 — identidade pública `MathOverparenElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — identidade pública `MathOverparenElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

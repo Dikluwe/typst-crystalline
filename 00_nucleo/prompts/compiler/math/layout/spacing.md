@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 7556f007
+Hash do Código: 354799fa
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -500,7 +500,7 @@ superior não cria operador nem diacrítico de fronteira.
 herdam recursivamente as classes do `e.body`. Não fixar `Normal`, não usar a
 classe da decoração textual e não derivar spacing da regra renderizada.
 
-## P1442 — classe herdada de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — classe herdada de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

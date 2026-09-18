@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 7521340d
+Hash do Código: 46ab419c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -582,7 +582,7 @@ vez, exige exatamente um body convertível em conteúdo e constrói
 `Content::MathOverline`. Reproduzir spread e diagnósticos medidos; não criar
 regra, aplicar cramped ou executar layout aqui.
 
-## P1442 — binding público completo `math.overparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — binding público completo `math.overparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

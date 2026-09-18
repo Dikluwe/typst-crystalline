@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: d5c58492
+Hash do Código: 93f34508
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -236,7 +236,7 @@ payload de localização.
 O match exaustivo classifica `Content::MathOverline(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
 
-## P1442 — `MathOverparen` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — `MathOverparen` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

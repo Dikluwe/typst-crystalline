@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: b9df9f6c
+Hash do Código: 0cd9e693
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -191,3 +191,16 @@ Avaliar `$ overline(x) $` e exigir `Content::MathOverline` com body `x`, sem
 aceitar `Content::Overline`, `MathUnderline` ou normalização para conteúdo
 textual. Validação detalhada de assinatura, `repr` e geometria pertence ao
 owner test-only P1441.
+
+## P1442 — regressão bare de `overparen` preserva identidade e annotation
+
+### Medição anterior à decisão
+
+A sintaxe `$ overparen(x, n) $` projeta hoje uma forma opaca e concatena a
+annotation sem carrier público; o vanilla conserva `OverparenElem`.
+
+### Aceitação
+
+Avaliar `$ overparen(x, n) $` e exigir `Content::MathOverparen` com body `x`,
+annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
+redução permanente para `MathUnderover` falham o teste.

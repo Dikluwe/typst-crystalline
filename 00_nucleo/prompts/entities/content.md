@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: c9292461
+Hash do Código: 17eee074
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3194,7 +3194,7 @@ preserva nome, debug, igualdade, hash, plain-text e body. `map_content`
 transforma o body; `map_text` mantém a variante. Não equiparar a
 `MathUnderline`, `Overline` textual ou regra física de layout.
 
-## P1442 — variante pública `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — variante pública `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

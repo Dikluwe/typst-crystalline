@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 24329802
+Hash do Código: a47b15d1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -1571,7 +1571,7 @@ O match permanece estático e magro: `Content::MathOverline(e)` delega a
 transformam o body e preservam a variante; cramped pertence somente à free
 function de layout e nunca é assado no conteúdo público.
 
-## P1442 — dispatch e reconstrução de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — dispatch e reconstrução de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

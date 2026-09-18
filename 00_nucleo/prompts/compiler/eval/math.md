@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: b5e8c9f2
+Hash do Código: ea0be6ba
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -505,7 +505,7 @@ de `math.overline`. Preservar spread e avaliação única; exigir exatamente um
 body posicional e propagar diagnósticos medidos. Não chamar a nativa textual
 nem executar layout na avaliação.
 
-## P1442 — sintaxe bare de `overparen` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — sintaxe bare de `overparen` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

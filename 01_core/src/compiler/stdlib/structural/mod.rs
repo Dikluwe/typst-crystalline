@@ -70,6 +70,9 @@ mod p1440_tests;
 #[cfg(test)]
 #[path = "p1441_tests.rs"]
 mod p1441_tests;
+#[cfg(test)]
+#[path = "p1442_tests.rs"]
+mod p1442_tests;
 
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
@@ -83,7 +86,7 @@ pub(crate) use math::{
     equation_number_align, equation_supplement, math_accent_content, math_cases_delim,
     math_lr_from_args, math_matrix_augment, math_mid_from_args, math_norm_from_args,
     math_overbrace_from_args, math_overbracket_from_args, math_overline_from_args,
-    sqrt_content, MathCasesOptions, MathMatrixOptions,
+    math_overparen_from_args, sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
 pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,

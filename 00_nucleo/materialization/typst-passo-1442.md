@@ -1,6 +1,6 @@
 # Passo 1442 — Materializar `math.overparen` com identidade e spreader superior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
+**Estado:** MATERIALIZADO E SELADO
 **Data da medição:** 2026-09-18T10:26:30-03:00
 **Commit medido:** `2eb37dc53d32cb9e73f942cd63a02cfc7af2bd66`
 **Árvore medida:** limpa (`git status --short` e `git diff HEAD --stat` sem saída)
@@ -137,3 +137,31 @@ Testes, código e resselo começam somente após confirmação humana explícita
    focal/completa, `git diff --check` e `crystalline-lint .`, registrando
    proveniência.
 
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `84a990d65d002a6eb08c05ae2e2e2c5c23c3d489`. A cadeia RED→GREEN,
+ataques, resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização e veredito
+
+Medição final em `2026-09-18T10:55:48-03:00`, sobre working tree não
+commitado derivado do commit de proposta
+`84a990d65d002a6eb08c05ae2e2e2c5c23c3d489`; o estado exato está descrito
+por `git diff HEAD --stat` e pelos artefatos `p1442-*` deste passo.
+
+- RED atribuível: nove erros de compilação pela ausência do carrier, variant
+  e helpers congelados.
+- GREEN focal: 4 passados, 0 falhados.
+- Ataques: 12 famílias em ordens direta, repetida e inversa; 36/36 mortos,
+  score 1,0 e zero `Unknown`.
+- Paridade pública: função qualificada, casts, presença causal, `repr`,
+  nesting, forma bare, diagnósticos, classe herdada e lowering U+23DC
+  preservados.
+- Gates: `cargo fmt --check`, `git diff --check`, `cargo build --workspace`
+  e `crystalline-lint .` passaram; V5/V15/V26 = 0.
+- Suíte integral: 5871 passados e os mesmos 8 falhados históricos, sem falha
+  atribuível a P1442.
+
+Veredito limitado: `Preserved` para o fragmento `math.overparen`; não declara
+equivalência Typst geral nem fecha as rotas residuais de P1422.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 6758dd33
+Hash do Código: bfd129f1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -635,7 +635,7 @@ Adicionar braço `MathOverline` e comparar exclusivamente o body. Não comparar
 regra, constantes ou estilo cramped derivados e não igualar a
 `MathUnderline` nem ao `Overline` textual.
 
-## P1442 — igualdade observável de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1442 — igualdade observável de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
