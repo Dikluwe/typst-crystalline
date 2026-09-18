@@ -1,0 +1,40 @@
+{
+  "schema": "tekt.materialization.verifier-certificate/v1",
+  "step": 1441,
+  "status": "SEALED",
+  "attestation": "executed_without_isolation_attestation",
+  "verified_at": "2026-09-18T13:18:32Z",
+  "candidate_commit": "401941f0df32f8f6fd736737645be01fc6a0d13d",
+  "candidate_tree": "6b66e4a28dd661604f2c2defa4e04bc6ec4538a1",
+  "inputs": {
+    "manifest_sha256": "7ceb0ff314c8b4f5a560d86940de57c8500de48d65a2fcd4767dd3128ff12c69",
+    "contract_sha256": "7677210ecac764d5897b980e49bbd92360f7fba7448e154c9a829f41f4b040de",
+    "oracles_sha256": "75efa7dc6a98ef060499dfa8ab52f42d52795a445da2ecf8f5125f288455edf5",
+    "mutants_sha256": "0cdf036d2e4007e65bc63d04d1ccba3b2c33ac7287d8020ba13e9592339709d0",
+    "campaign_sha256": "dcbc0c48d4e9895d85b032efa6e48edb500b6cabdcea54b6466f8dc5ac347a35",
+    "test_prompt_sha256": "eb1a5ffe64acdf75eb8e77e36c81849ab9da73c6c425fc5a829db89d3d74e666",
+    "p1441_tests_sha256": "f085470db73aaee0a34d233b0d9f08616f6537e822045d7aded0cdc5a3f78621",
+    "eval_tests_sha256": "d2192815d8325b0bb9283d07326bffb8d71f9777b7fc43a8490e180a8728c1c7"
+  },
+  "red": "ATTRIBUTABLE_RED",
+  "green": {"typst_core_p1441": {"passed": 5, "failed": 0}},
+  "mutation": {"families": 13, "logical_executions": 39, "killed": 39, "score": 1.0, "unknown": 0},
+  "public_parity": {
+    "qualified_function_and_repr": "PASS",
+    "bare_identity_and_repr": "PASS",
+    "none_string_spread_and_nesting": "PASS",
+    "five_negative_diagnostics": "PASS"
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "git_diff_check": "PASS",
+    "cargo_build_workspace": "PASS",
+    "crystalline_lint_exit": 0,
+    "prompt_drift": 0,
+    "v15_v26": 0,
+    "cargo_test_workspace": "BASELINE_FAILURES: 5867 passed, 8 failed, 0 attributable to P1441"
+  },
+  "verdict": "Preserved",
+  "claim_boundary": "P1441 math.overline fragment only; no general Typst equivalence.",
+  "scope_out": ["eight historical full-suite failures", "remaining P1422 math routes including math.abs"]
+}
