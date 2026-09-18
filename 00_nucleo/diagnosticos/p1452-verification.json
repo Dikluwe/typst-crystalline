@@ -1,0 +1,100 @@
+{
+  "schema": "tekt-final-verification/v1",
+  "step": 1452,
+  "role": "verificador final",
+  "verified_at": "2026-09-18T20:54:25-03:00",
+  "protocol_result": "PASS",
+  "diagnostic_verdict": "INCONCLUSIVE",
+  "attestation": "executado sem atestação de isolamento",
+  "verdict_reason": "O protocolo executou integralmente e de forma estável, mas o critério de fecho 66/66 não foi satisfeito: 65 rotas ficaram MATCH e html.frame ficou DIFFERENCE sob a projeção SVG de árvore completa congelada por P1420.",
+  "claim_boundary": "Verifica somente as 66 rotas P1420, as identidades P1452 e os observáveis congelados. Não prova paridade geral nem reclassifica html.frame.",
+  "candidate": {
+    "commit": "613721db562436ff6e16ff2de911e2f1537613e6",
+    "tree": "a5d199ea909ec4b49fc79b7d301083d56d0f7358",
+    "product_modified": false,
+    "l0_modified": false
+  },
+  "artifacts": {
+    "step_sha256": "5559511e160d6feca247cbb429044b0b421e236b6eb7f5bc05c3bec285c52653",
+    "manifest_sha256": "88ec936973bef35b62331c755cd1abf118c344af819d23519611b929ad6ae395",
+    "contract_sha256": "603245eb6fafc22fad2f9b84c89db13f64b94e21b52a37bb85cadf96b79cb997",
+    "oracles_sha256": "80707bbf5e38a5b1cfc5a5cd70ac6785b383cb9c0e54909aa24895931d9f5786",
+    "mutants_sha256": "3e7c572ad0f35d5def6a46b54f6ed0ed765b0b4a49a66b201414a35a8700fcac",
+    "preseal_sha256": "c37e8452fd53efc3cf390718e0c3af443535d351915716992441166ccf458470",
+    "runner_sha256": "e5a3b360723d97a611ea897cc105a3814475d8ef3a2c6509278d4155f98ca803",
+    "results_sha256": "769cd0feba8293a7bc030c1b511e48b9338aef30b80bafd1c0b42ffd1040b6f4",
+    "backlog_sha256": "d64569e939e3f8d8e27eb931f203f7d014500f87dd34ed19ff6065e42d0b66b3",
+    "report_sha256": "bd5704119ec91d7c3f838033dd0b60889b96cfecfe108d32a0024dfa345ac57f",
+    "focal_sha256": "2c089a1ca7c383272b9b17f95e18434bb25bcf66c9e709dca58d9d32badf86ca",
+    "full_repeat_sha256": "45b298daf9b3b29c7c0327182b999f3717eb3f5eafdb260042b103c86becdb38"
+  },
+  "sealed_inputs": {
+    "all_preseal_hashes_match": true,
+    "authoritative_p1420_payload_unchanged": true,
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_binary_sha256": "4c55affaa6486683165d91af507b03f99e0041f18ce5a4fc062cbc6e2b2d05de"
+  },
+  "validation_gate": {
+    "result": "PASS",
+    "route_count": 66,
+    "html_count": 44,
+    "math_count": 22,
+    "route_probes_per_order": 154,
+    "controls_per_order": 12
+  },
+  "discriminatory_gate": {
+    "result": "PASS",
+    "valid_negative": 27,
+    "violated": 27,
+    "positive": 8,
+    "preserved": 8,
+    "opaque": 9,
+    "unknown": 9,
+    "mutation_score": 1.0,
+    "order_invariant": true
+  },
+  "campaign": {
+    "focal": {"result":"PASS","routes":{"MATCH":2}},
+    "route_states": {"MATCH":65,"DIFFERENCE":1},
+    "qualified_states": {"MATCH":65,"DIFFERENCE":1},
+    "alternative_states": {"MATCH":58,"DIFFERENCE":8},
+    "unknown_count": 0,
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "order_invariant": true,
+    "independent_full_repeat_equal": true,
+    "open_route": "html.frame"
+  },
+  "argv_and_resource_audit": {
+    "result": "PASS",
+    "process_receipts_per_full_execution": 996,
+    "route_probe_receipts": 924,
+    "control_receipts": 72,
+    "timeouts": 0,
+    "truncations": 0,
+    "max_swap_kib": 0,
+    "max_rss_kib": 39596,
+    "rlimit_as_kib": 524288,
+    "stream_limit_bytes": 65536,
+    "parallelism": 1
+  },
+  "calibration": {
+    "runner_revisions": 1,
+    "failed_product_measurements": 0,
+    "change": "The adapter supplied and then removed the legacy inventory_sha256 field required internally by the P1420 executor.",
+    "protected_input_changed": false,
+    "full_corpus_repeated_before_fix": false
+  },
+  "final_gates": [
+    {"command":"python3 -m py_compile lab/parity/p1452_route_recertify.py","result":"PASS"},
+    {"command":"python3 lab/parity/p1452_route_recertify.py --validate-only","result":"PASS"},
+    {"command":"python3 lab/parity/p1452_route_recertify.py --gate","result":"PASS"},
+    {"command":"cargo fmt --all -- --check","result":"PASS"},
+    {"command":"crystalline-lint .","result":"PASS","exit_code":0},
+    {"command":"git diff --check","result":"PASS"}
+  ],
+  "limitations": [
+    "Papéis compartilharam sessão, contexto e filesystem; não há atestação técnica de isolamento.",
+    "A projeção P1420 de html.frame compara detalhes privados do renderer excluídos pelo L0 P1424.",
+    "Nenhum expected foi alterado depois da observação; P1453 precisa selar uma projeção refinada antes de nova execução."
+  ]
+}
