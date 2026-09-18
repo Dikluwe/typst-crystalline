@@ -154,3 +154,8 @@ e 8 falhas históricas já presentes no estado HEAD (quatro expectativas P981
 anteriores ao carrier P1436, uma de `repr vec`, uma de `cases` e duas de
 `html.frame`); nenhuma toca arquivos ou observáveis P1437. Elas ficam
 registradas como baseline e não recebem crédito de sucesso.
+
+O candidato produtivo e os recibos foram fixados no commit
+`e64b7faebcaae6a661c3cb0aab33c0adfa55a2df`, árvore
+`331904221159d452cc18935be2a7423f16baa45e`. O certificado limitado ao
+fragmento P1437 é `diagnosticos/p1437-verifier-certificate.json`.
