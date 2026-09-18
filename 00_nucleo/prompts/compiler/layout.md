@@ -566,3 +566,16 @@ confundida com a decoração textual homônima.
 Encaminhar `Content::MathOverline` pelo caminho inline math. Este owner não
 interpreta cramped, constantes, classe nem posição da regra; a lógica
 permanece em `compiler/math/layout/underline.rs` e no spacing matemático.
+
+## P1442 — encaminhamento geral de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
+variante exige braço exaustivo, mas sua realização não pertence a este nível.
+
+### Decisão proposta
+
+Encaminhar `Content::MathOverparen` pelo caminho inline math. Este owner não
+interpreta U+23DC, annotation, classe ou stretch; a lógica permanece em
+`compiler/math/layout/underover.rs` e no spacing matemático.

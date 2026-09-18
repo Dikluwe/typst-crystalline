@@ -235,3 +235,15 @@ payload de localização.
 
 O match exaustivo classifica `Content::MathOverline(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
+
+## P1442 — `MathOverparen` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`OverparenElem` não possui `ElementKind`, Location ou payload selecionável;
+body e annotation não tornam o wrapper locatável.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathOverparen(_)` como `false`,
+preservando `is_locatable ↔ extract_payload.is_some()`.

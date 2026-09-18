@@ -486,3 +486,17 @@ ocorrência própria para wrappers matemáticos.
 Adicionar `MathOverline` aos braços terminais de
 `has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 no
 body. O walker estrutural e o `repr` permanecem donos desses observáveis.
+
+## P1442 — projeção aproximada de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers math realizados como folhas; `MathOverparen`
+não introduz `ElementKind` consultável nesta projeção.
+
+### Decisão proposta
+
+Adicionar `MathOverparen` aos braços terminais de
+`has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 em
+body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
+observáveis.

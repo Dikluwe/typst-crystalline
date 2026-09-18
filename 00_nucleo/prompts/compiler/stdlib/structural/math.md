@@ -581,3 +581,18 @@ Registrar `math.overline` antes do espelho de símbolos. A nativa avalia uma
 vez, exige exatamente um body convertível em conteúdo e constrói
 `Content::MathOverline`. Reproduzir spread e diagnósticos medidos; não criar
 regra, aplicar cramped ou executar layout aqui.
+
+## P1442 — binding público completo `math.overparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `overparen`. No vanilla, body é posicional obrigatório
+e annotation é o único segundo positional opcional; named e excedentes são
+rejeitados. Omissão e `none` explícito permanecem distintos no `repr`.
+
+### Decisão proposta
+
+Registrar `math.overparen` antes do espelho de símbolos. A nativa avalia uma
+vez, exige body convertível em conteúdo, aceita no máximo uma annotation e
+constrói `Content::MathOverparen` com bit de presença. Reproduzir casts,
+spread e diagnostics medidos; não criar U+23DC nem executar layout aqui.

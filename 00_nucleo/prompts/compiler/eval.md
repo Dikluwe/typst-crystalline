@@ -634,3 +634,17 @@ textual nem caixa de layout em seu contrato.
 Adicionar braço `MathOverline` e comparar exclusivamente o body. Não comparar
 regra, constantes ou estilo cramped derivados e não igualar a
 `MathUnderline` nem ao `Overline` textual.
+
+## P1442 — igualdade observável de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
+o match exaustivo ainda não possui essa identidade.
+
+### Decisão proposta
+
+Adicionar braço `MathOverparen` e comparar body, annotation e
+`annotation_explicit`. Não comparar glifo ou caixas derivadas, não equiparar
+omissão a `none` explícito e não igualar a outro spreader nem ao
+`MathUnderover` mecânico.

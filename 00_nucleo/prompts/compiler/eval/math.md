@@ -504,3 +504,18 @@ vanilla produz o mesmo elemento matemático de `math.overline([x])`.
 de `math.overline`. Preservar spread e avaliação única; exigir exatamente um
 body posicional e propagar diagnósticos medidos. Não chamar a nativa textual
 nem executar layout na avaliação.
+
+## P1442 — sintaxe bare de `overparen` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A forma bare atual projeta `overparen(x)` e concatena annotation como texto,
+apagando identidade, campos e presença. O vanilla usa o mesmo elemento
+público nas formas bare e qualificada.
+
+### Decisão proposta
+
+`overparen(...)` bare constrói `Args` math canônicos e delega ao mesmo builder
+de `math.overparen`. Preservar ordem, spread e avaliação única; exigir body,
+aceitar somente annotation posicional opcional e propagar os diagnostics
+medidos. Não montar U+23DC nem executar layout na avaliação.

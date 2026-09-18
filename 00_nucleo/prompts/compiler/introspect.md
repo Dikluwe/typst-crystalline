@@ -1824,3 +1824,16 @@ walker estrutural owner da entidade.
 Classificar `MathOverline` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida no body,
 evitando dupla contagem.
+
+## P1442 — neutralidade introspectiva de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`OverparenElem` é carrier matemático sem identidade locatável. Body e
+annotation já pertencem ao walker estrutural do conteúdo.
+
+### Decisão proposta
+
+Classificar `MathOverparen` entre variantes math não-locatáveis e terminais
+nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
+filhos, evitando dupla contagem.

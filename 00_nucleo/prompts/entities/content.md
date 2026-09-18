@@ -3193,3 +3193,18 @@ Adicionar `Content::MathOverline(Arc<MathOverlineElem>)`. O match fechado
 preserva nome, debug, igualdade, hash, plain-text e body. `map_content`
 transforma o body; `map_text` mantém a variante. Não equiparar a
 `MathUnderline`, `Overline` textual ou regra física de layout.
+
+## P1442 — variante pública `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A morfologia bare atual não produz um carrier público e a redução para
+`MathUnderover` perderia identidade e presença explícita da annotation.
+
+### Decisão proposta
+
+Adicionar `Content::MathOverparen(Arc<MathOverparenElem>)`. O match fechado
+preserva nome, debug, igualdade, hash, plain-text e filhos. `map_content`
+transforma body e annotation preservando `annotation_explicit`; `map_text`
+mantém a variante. Não inferir `overparen` de U+23DC nem confundi-lo com os
+outros spreaders ou com `MathUnderover`.

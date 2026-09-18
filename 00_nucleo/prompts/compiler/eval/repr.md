@@ -885,3 +885,18 @@ O vanilla projeta `overline(body: [x])`; a forma cristalina atual
 Projetar `MathOverline` sempre como `overline(body: <content>)`. Nesting
 recorre ao mesmo formatter e a identidade nunca é inferida de
 `Content::Overline`, de `MathUnderline` ou da geometria renderizada.
+
+## P1442 — morfologia pública de `overparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime uma forma opaca `overparen(x)` sem campos; o vanilla
+imprime `overparen(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathOverparen` como `overparen(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. O campo só aparece quando
+`annotation_explicit` for verdadeiro; seu valor explícito `none` não se
+confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
+é inferida de U+23DC ou do carrier genérico.

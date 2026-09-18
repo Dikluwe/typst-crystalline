@@ -1570,3 +1570,17 @@ O match permanece estático e magro: `Content::MathOverline(e)` delega a
 `underline::layout_overline(self, e, style)`. Reconstruções de default/style
 transformam o body e preservam a variante; cramped pertence somente à free
 function de layout e nunca é assado no conteúdo público.
+
+## P1442 — dispatch e reconstrução de `MathOverparen` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match exaustivo não conhece a nova identidade; baixar cedo ao carrier
+genérico apagaria identidade e presença explícita da annotation.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathOverparen(e)` delega a
+`underover.rs`. Reconstruções de default/style transformam body e annotation
+e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
+dentro do owner de layout e nunca retorna ao conteúdo público.
