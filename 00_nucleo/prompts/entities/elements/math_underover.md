@@ -60,3 +60,20 @@ preserva presença. `plain_text` segue a ordem visual `annotation + ⏞ + body`;
 `map_content` desce no body e na anotação; `map_text` conserva a variante.
 Igualdade/hash incluem os três campos. O carrier genérico `MathUnderoverElem`
 permanece separado e não ganha identidade inferida.
+
+## P1440 — identidade pública `MathOverbracketElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado representa a geometria, mas apaga a função pública
+`overbracket` e não distingue anotação omitida de `annotation: none`. O
+vanilla preserva ambos os estados e usa U+23B4 acima do body.
+
+### Decisão proposta
+
+No mesmo owner coeso, adicionar `MathOverbracketElem { body: Content,
+annotation: Option<Content>, annotation_explicit: bool }` com constructor que
+preserva presença. `plain_text` segue a ordem visual `annotation + ⎴ + body`;
+`map_content` desce no body e na anotação; `map_text` conserva a variante.
+Igualdade/hash incluem os três campos. Os carriers `MathOverbraceElem` e
+`MathUnderoverElem` permanecem identidades separadas.

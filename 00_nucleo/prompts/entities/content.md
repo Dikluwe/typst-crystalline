@@ -3163,3 +3163,18 @@ preserva nome, debug, igualdade, hash, plain-text e filhos. `map_content`
 transforma body e anotação preservando `annotation_explicit`; `map_text`
 mantém a variante. Não inferir `overbrace` a partir de U+23DE nem converter o
 carrier público permanentemente em `MathUnderover`.
+
+# P1440 — variante pública `Content::MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A redução atual para `MathUnderover` perde identidade e presença explícita da
+anotação, embora a geometria mecânica já exista.
+
+### Contrato público proposto
+
+Adicionar `Content::MathOverbracket(Arc<MathOverbracketElem>)`. O match
+fechado preserva nome, debug, igualdade, hash, plain-text e filhos.
+`map_content` transforma body e anotação preservando `annotation_explicit`;
+`map_text` mantém a variante. Não inferir `overbracket` a partir de U+23B4,
+nem confundi-lo com `MathOverbrace` ou com o carrier `MathUnderover`.

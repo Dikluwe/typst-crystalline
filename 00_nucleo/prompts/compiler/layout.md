@@ -540,3 +540,16 @@ variante exige braço exaustivo, mas sua realização não pertence a este níve
 Encaminhar `Content::MathOverbrace` pelo caminho inline math. Este owner não
 interpreta U+23DE, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
+
+## P1440 — encaminhamento geral de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
+variante exige braço exaustivo, mas sua realização não pertence a este nível.
+
+### Decisão proposta
+
+Encaminhar `Content::MathOverbracket` pelo caminho inline math. Este owner não
+interpreta U+23B4, annotation, classe ou stretch; a lógica permanece em
+`compiler/math/layout/underover.rs` e no spacing matemático.

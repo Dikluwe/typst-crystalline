@@ -857,3 +857,18 @@ Projetar `MathOverbrace` como `overbrace(body: <content>, annotation?:
 `annotation_explicit` for verdadeiro; seu valor explícito `none` não se
 confunde com omissão. Nesting recorre ao mesmo formatter e identidade nunca é
 inferida do glifo U+23DE ou do carrier genérico.
+
+## P1440 — morfologia pública de `overbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime `xover("⎴")` ou `xover("⎴")over(n)`. O vanilla imprime
+`overbracket(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathOverbracket` como `overbracket(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. O campo annotation só aparece quando
+`annotation_explicit` for verdadeiro; seu valor explícito `none` não se
+confunde com omissão. Nesting recorre ao mesmo formatter e identidade nunca é
+inferida do glifo U+23B4, de `MathOverbrace` ou do carrier genérico.

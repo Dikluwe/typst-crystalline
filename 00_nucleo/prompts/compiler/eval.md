@@ -607,3 +607,17 @@ o match exaustivo ainda não possui essa identidade.
 Adicionar braço `MathOverbrace` e comparar body, annotation e
 `annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
 omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.
+
+## P1440 — igualdade observável de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
+o match exaustivo ainda não possui essa identidade.
+
+### Decisão proposta
+
+Adicionar braço `MathOverbracket` e comparar body, annotation e
+`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
+omissão a `none` explícito e não igualar a `MathOverbrace` nem ao
+`MathUnderover` mecânico.

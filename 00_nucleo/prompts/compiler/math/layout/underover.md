@@ -315,3 +315,22 @@ a anotação, recebe stretch para cobrir o body; a anotação usa estilo de
 superscript e pode ampliar o frame sem redefinir a largura-alvo da chave.
 Conservar attachment e largura exata existentes, sem copiar `AccentItem` ou
 `ScriptsItem` vanilla e sem mover lógica ao struct de dados (ADR-0109).
+
+## P1440 — owner de layout de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve `overbracket` como U+23B4 diacrítico acima do body, stretch
+horizontal de 100%, shortfall zero e largura exata; a anotação opcional é
+script superior. A geometria cristalina e o padrão P1439 já existem, mas não
+recebem a identidade pública própria.
+
+### Decisão proposta
+
+Adicionar free function/método fino neste owner que realiza localmente
+`MathOverbracket` pela composição madura: `layout_underover(body, None,
+Some(U+23B4))`, envolvida por anotação superior quando presente. A barra, não
+a anotação, recebe stretch para cobrir o body; a anotação usa estilo de
+superscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
+attachment e largura exata existentes, sem copiar `AccentItem` ou
+`ScriptsItem` vanilla e sem mover lógica ao struct de dados (ADR-0109).

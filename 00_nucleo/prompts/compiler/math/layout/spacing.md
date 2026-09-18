@@ -473,3 +473,16 @@ a chave é `Diacritic`, mas não substitui a classe pública do composto.
 `node_math_class(MathOverbrace(e))` herda recursivamente as classes esquerda
 e direita de `e.body`. Annotation e U+23DE não participam das fronteiras. Não
 fixar `Normal`, `Diacritic` ou uma classe derivada da altura renderizada.
+
+## P1440 — classe herdada de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`AccentItem::create` vanilla constrói as propriedades com `base.raw_class()`;
+a barra é `Diacritic`, mas não substitui a classe pública do composto.
+
+### Decisão proposta
+
+`node_math_class(MathOverbracket(e))` herda recursivamente as classes esquerda
+e direita de `e.body`. Annotation e U+23B4 não participam das fronteiras. Não
+fixar `Normal`, `Diacritic` ou uma classe derivada da altura renderizada.

@@ -550,3 +550,19 @@ Registrar `math.overbrace` antes do espelho de símbolos. A nativa avalia uma
 vez, exige body convertível em conteúdo, aceita no máximo uma annotation e
 constrói `Content::MathOverbrace` com bit de presença. Reproduzir casts,
 spread e diagnósticos medidos; não criar U+23DE nem executar layout aqui.
+
+## P1440 — binding público completo `math.overbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `overbracket`. No vanilla, body é posicional
+obrigatório e annotation é o único segundo positional opcional; named e
+excedentes são rejeitados. Omissão e `none` explícito permanecem distintos no
+`repr`.
+
+### Decisão proposta
+
+Registrar `math.overbracket` antes do espelho de símbolos. A nativa avalia
+uma vez, exige body convertível em conteúdo, aceita no máximo uma annotation
+e constrói `Content::MathOverbracket` com bit de presença. Reproduzir casts,
+spread e diagnósticos medidos; não criar U+23B4 nem executar layout aqui.

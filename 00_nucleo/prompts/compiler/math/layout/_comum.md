@@ -1541,3 +1541,18 @@ O match permanece estático e magro: `Content::MathOverbrace(e)` delega a
 `underover.rs`. Reconstruções de default/style transformam body e annotation
 e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
 dentro do owner de layout e nunca retorna ao conteúdo público.
+
+## P1440 — dispatch e reconstrução de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match exaustivo só conhece a identidade `MathOverbrace` e o carrier
+genérico; baixar cedo `overbracket` para qualquer dos dois apagaria identidade
+ou produziria a identidade errada.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathOverbracket(e)` delega a
+`underover.rs`. Reconstruções de default/style transformam body e annotation
+e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
+dentro do owner de layout e nunca retorna ao conteúdo público.
