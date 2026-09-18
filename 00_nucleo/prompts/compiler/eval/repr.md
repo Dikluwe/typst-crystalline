@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: c9ef88c5
+Hash do Código: 685b2959
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -901,7 +901,7 @@ Projetar `MathOverparen` como `overparen(body: <content>, annotation?:
 confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
 é inferida de U+23DC ou do carrier genérico.
 
-## P1443 — morfologia pública de `overshell` (PROPOSTA — AGUARDA GATE ADR-0127)
+## P1443 — morfologia pública de `overshell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

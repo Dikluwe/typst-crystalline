@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash 43d4bb90
+//! @prompt-hash 37358f47
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -41,6 +41,15 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let lowered = super::lower_math_overparen(elem);
+        self.layout_node(&lowered, style)
+    }
+
+    pub(super) fn layout_overshell(
+        &self,
+        elem: &crate::entities::elements::math_underover::MathOvershellElem,
+        style: &TextStyle,
+    ) -> MathBox {
+        let lowered = super::lower_math_overshell(elem);
         self.layout_node(&lowered, style)
     }
 

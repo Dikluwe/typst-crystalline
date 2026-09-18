@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: ea0be6ba
+Hash do Código: d662b437
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -520,7 +520,7 @@ de `math.overparen`. Preservar ordem, spread e avaliação única; exigir body,
 aceitar somente annotation posicional opcional e propagar os diagnostics
 medidos. Não montar U+23DC nem executar layout na avaliação.
 
-## P1443 — sintaxe bare de `overshell` converge no carrier público (PROPOSTA — AGUARDA GATE ADR-0127)
+## P1443 — sintaxe bare de `overshell` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,6 +1,6 @@
 # Passo 1443 — Materializar `math.overshell` com identidade e spreader superior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
+**Estado:** MATERIALIZADO E SELADO
 **Data da medição:** 2026-09-18T11:16:14-03:00
 **Commit medido:** `13f6a76a5a9392644920346f15043323f012805b`
 **Árvore medida:** limpa (`git status --short` e `git diff HEAD --stat` sem saída)
@@ -135,3 +135,37 @@ Testes, código e resselo começam somente após confirmação humana explícita
 6. Validar `cargo fmt --check`, `cargo build --workspace`, suítes
    focal/completa, `git diff --check` e `crystalline-lint .`, registrando
    proveniência.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `d616cace141bf64f02137ed002dadce019aff0fa`. A cadeia RED→GREEN,
+ataques, resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização e veredito
+
+Medição final em `2026-09-18T11:43:59-03:00`, sobre working tree não
+commitado derivado do commit de proposta
+`d616cace141bf64f02137ed002dadce019aff0fa`; o estado exato está descrito
+por `git diff HEAD --stat` e pelos artefatos `p1443-*` deste passo.
+
+- RED atribuível: nove erros de compilação pela ausência do carrier, variant
+  e helpers congelados.
+- GREEN focal: 4 passados, 0 falhados.
+- Ataques: 12 famílias em ordens direta, repetida e inversa; 36/36 mortos,
+  score 1,0 e zero `Unknown`.
+- Paridade pública positiva: função qualificada, casts, presença causal,
+  `repr`, nesting, forma bare pelo seu body, classe herdada e lowering U+23E0
+  preservados.
+- Nos sete negativos, status e mensagem primária coincidem com o vanilla. A
+  ancoragem de span e o hint de `body:` continuam na limitação diagnóstica
+  global do carrier simplificado e não recebem crédito de equivalência
+  integral neste passo.
+- Gates: `cargo fmt --check`, `git diff --check`, `cargo build --workspace`
+  e `crystalline-lint .` passaram; V5/V15/V26 = 0.
+- Suíte integral: 5875 passados e os mesmos 8 falhados históricos, sem falha
+  atribuível a P1443.
+
+Veredito limitado: `Preserved` para o fragmento `math.overshell` descrito;
+não declara equivalência Typst geral, paridade integral de apresentação dos
+diagnósticos nem fecha as rotas residuais de P1422.

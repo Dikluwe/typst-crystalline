@@ -1,0 +1,20 @@
+{
+  "schema": "tekt.materialization.mutants/v1",
+  "step": 1443,
+  "families": [
+    {"id":"M01","change":"remove overshell module binding","expected":"Violated"},
+    {"id":"M02","change":"return MathUnderover or another spreader identity","expected":"Violated"},
+    {"id":"M03","change":"erase explicit annotation presence","expected":"Violated"},
+    {"id":"M04","change":"omit annotation from repr","expected":"Violated"},
+    {"id":"M05","change":"accept named annotation","expected":"Violated"},
+    {"id":"M06","change":"accept zero positionals","expected":"Violated"},
+    {"id":"M07","change":"accept third positional","expected":"Violated"},
+    {"id":"M08","change":"accept integer body","expected":"Violated"},
+    {"id":"M09","change":"replace U+23E0 by U+23E1","expected":"Violated"},
+    {"id":"M10","change":"place shell below body","expected":"Violated"},
+    {"id":"M11","change":"force Normal boundary class","expected":"Violated"},
+    {"id":"M12","change":"leave bare overshell in historical opaque route","expected":"Violated"}
+  ],
+  "positive_controls": ["unmutated candidate", "other spreaders and generic MathUnderover remain distinct"],
+  "opaque_controls": ["identity mismatch", "resource exhaustion", "unsupported observation"]
+}

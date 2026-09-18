@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 3b170149
+//! @prompt-hash d1a45c13
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -389,6 +389,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathOverparen(a0) => match other {
                 Self::MathOverparen(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathOvershell(a0) => match other {
+                Self::MathOvershell(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -4128,6 +4134,19 @@ impl ObservationEq for crate::entities::elements::math_underover::MathOverparenE
     }
 }
 
+impl ObservationEq for crate::entities::elements::math_underover::MathOvershellElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, annotation: _, annotation_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.annotation.observation_relation(&other.annotation))
+            .and(
+                self.annotation_explicit
+                    .observation_relation(&other.annotation_explicit),
+            )
+    }
+}
+
 #[cfg(test)]
 pub(crate) fn p1439_math_overbrace_observation_differs(
     left: &crate::entities::elements::math_underover::MathOverbraceElem,
@@ -4147,6 +4166,13 @@ pub(crate) fn p1440_math_overbracket_observation_differs(
 pub(crate) fn p1442_math_overparen_observation_differs(
     left: &crate::entities::elements::math_underover::MathOverparenElem,
     right: &crate::entities::elements::math_underover::MathOverparenElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
+}
+#[cfg(test)]
+pub(crate) fn p1443_math_overshell_observation_differs(
+    left: &crate::entities::elements::math_underover::MathOvershellElem,
+    right: &crate::entities::elements::math_underover::MathOvershellElem,
 ) -> bool {
     left.observation_relation(right) == ObservationRelation::Different
 }

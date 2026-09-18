@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1443,
+  "measured_at": "2026-09-18T11:25:17-03:00",
+  "candidate": "proposal-baseline-before-P1443-product",
+  "command": "cargo test -p typst-core p1443_ -- --nocapture",
+  "exit_code": 101,
+  "classification": "ATTRIBUTABLE_RED",
+  "primary_witness": "nine compile errors centered on absent MathOvershellElem, Content::MathOvershell and P1443 helpers",
+  "secondary_witnesses": ["test harness reached rustc", "unrelated warnings only"],
+  "harness_fault": false,
+  "implementation_authorized": true,
+  "attestation": "executed_without_isolation_attestation"
+}

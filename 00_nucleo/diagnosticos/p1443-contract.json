@@ -1,0 +1,16 @@
+{
+  "schema": "tekt.materialization.contract/v1",
+  "step": 1443,
+  "manifest": "00_nucleo/diagnosticos/p1443-manifest.json",
+  "observables": [
+    "qualified and bare callable identity",
+    "one required body plus one optional positional annotation and fail-closed diagnostics",
+    "annotation value and causal presence including explicit none",
+    "overshell(body:, annotation?:) representation and nesting",
+    "body and annotation structural traversal and observable equality",
+    "non-locatable identity and boundary classes inherited from body",
+    "U+23E0 above body with optional annotation above the completed spreader"
+  ],
+  "unknown_policy": "Unknown blocks sealing",
+  "required_mutation_score": 1.0
+}

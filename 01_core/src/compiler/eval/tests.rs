@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash d2326a46
+//! @prompt-hash dfc69787
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9768,6 +9768,34 @@ mod tests {
             Some("n")
         );
         assert!(overparen.annotation_explicit);
+    }
+
+    #[test]
+    fn p1443_overshell_bare_preserva_identidade_e_anotacao() {
+        fn find_overshell(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathOvershellElem>
+        {
+            match c {
+                Content::MathOvershell(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overshell)
+                }
+                Content::Equation(elem) => find_overshell(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ overshell(x, n) $");
+        let content = extract_math_content(&world);
+        let overshell = find_overshell(&content)
+            .expect("overshell(x, n) deve produzir MathOvershell");
+        assert_eq!(overshell.body.plain_text(), "x");
+        assert_eq!(
+            overshell.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(overshell.annotation_explicit);
     }
 
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {

@@ -1,0 +1,12 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1443,
+  "revision": 0,
+  "hypothesis": "the frozen P1443 oracle discriminates public overshell identity, ABI, presence, lowering position and inherited boundary class",
+  "before": {"attributable_red_compile_errors": 9},
+  "change": "implement the approved carrier and route without revising the frozen oracle",
+  "after": {"focal_passed": 4, "executions": 36, "killed": 36, "score": 1.0, "unknown": 0},
+  "regressions": 0,
+  "cost": "one focal GREEN run and one credited three-order mutation campaign",
+  "basis": "ratified vanilla observables and the mature MathUnderover geometry"
+}

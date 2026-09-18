@@ -1,0 +1,15 @@
+{
+  "schema": "tekt.materialization.mutation-report-summary/v1",
+  "step": 1443,
+  "regime": "executed_without_isolation_attestation",
+  "campaign": {
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "executions": 36,
+    "killed": 36,
+    "score": 1.0,
+    "unknown": 0,
+    "verdict": "SEALED",
+    "receipt": "00_nucleo/diagnosticos/p1443-mutations/receipts/campaign-final.json"
+  },
+  "protected_suite_note": "the test prompt and P1443 oracle sources retained their frozen hashes throughout the credited campaign"
+}

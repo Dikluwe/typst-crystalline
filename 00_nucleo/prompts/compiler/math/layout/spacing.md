@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 354799fa
+Hash do Código: 459e6b23
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -513,7 +513,7 @@ U+23DC é `Diacritic`, mas não substitui a classe pública do composto.
 herdam recursivamente as classes esquerda e direita de `e.body`. Annotation e
 U+23DC não participam das fronteiras; não derivar classe da geometria.
 
-## P1443 — classe herdada de `MathOvershell` (PROPOSTA — AGUARDA GATE ADR-0127)
+## P1443 — classe herdada de `MathOvershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
