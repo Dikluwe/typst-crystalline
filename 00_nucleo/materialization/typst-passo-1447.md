@@ -169,3 +169,9 @@ Pré-veredito limitado: `Preserved` para o fragmento `math.abs` descrito; não
 declara equivalência Typst geral, igualdade integral do pretty-printer nem
 fecha as demais rotas residuais P1422. O commit produtivo e o certificado são
 fixados somente depois dos gates finais reproduzíveis.
+
+O candidato produtivo e os recibos foram fixados no commit
+`9c8fe777b6f5538d7193f995453aa117c0edaacb`, árvore
+`d2dc02b898dfc59f4632c03bbeb0fc01c4b153a9`. O certificado limitado ao
+fragmento P1447 é
+`00_nucleo/diagnosticos/p1447-verifier-certificate.json`.
