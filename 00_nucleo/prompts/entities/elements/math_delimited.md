@@ -65,3 +65,19 @@ cascata e stretch não pertencem a esta entidade.
 `MathDelimitedElem` e seu constructor permanecem inalterados para usos
 mecânicos existentes. Não inferir `MathLrElem` a partir de igualdade de
 delimitadores.
+
+## P1437 — carrier público `MathMidElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla pinado declara `MidElem { body: Content }`: um único campo público,
+obrigatório e posicional. A identidade persiste no `repr` e participa da
+resolução do `lr` mais próximo; não equivale a `MathDelimitedElem` nem ao
+body nu.
+
+### Decisão proposta
+
+Este consumer passa a possuir `MathMidElem { body: Content }`, com `Debug`,
+`Clone`, `PartialEq` e `Hash`. `plain_text` delega ao body;
+`map_content` transforma só o body; `map_text` permanece terminal. Cast,
+classe `Relation` e stretch pertencem a avaliação e layout.

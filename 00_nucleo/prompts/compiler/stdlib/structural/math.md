@@ -501,3 +501,19 @@ length, preserva presença inclusive em `100%` e participa da cascata somente
 no layout. Rejeitar tipo inválido, named desconhecido, `body:` e duplicado;
 spread válido é expandido pelo builder canônico, nunca ignorado. A nativa não
 procura delimitadores nem executa stretch.
+
+## P1437 — binding público completo `math.mid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `mid`. No vanilla, `MidElem` exige exatamente um
+`body: Content` posicional; `body:`, positional extra, named desconhecido e
+tipo não convertível são rejeitados. `none`, string e spread canônico seguem
+cast/expansão geral para conteúdo.
+
+### Decisão proposta
+
+Registrar `math.mid` antes do espelho de símbolos. A nativa avalia uma vez,
+exige exatamente um positional convertível em conteúdo e constrói
+`Content::MathMid`. Rejeitar ausência, extra, named e tipo incompatível pelos
+diagnósticos canônicos. Não classificar, resolver `lr` ou executar stretch.

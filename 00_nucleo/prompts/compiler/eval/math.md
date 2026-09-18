@@ -428,3 +428,17 @@ ao cast relativo sem serem convertidos em conteúdo. Avaliar cada ocorrência
 uma vez, preservar ordem, duplicados e spread, e remover a reescrita
 antecipada `rewrite_lr_body` desta rota. Delimitadores sintáticos interiores
 permanecem no body como seu próprio conteúdo `lr`, preservando nesting.
+
+## P1437 — sintaxe bare de `mid` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Hoje `mid(...)` bare cai na interpretação textual. O vanilla produz o mesmo
+`MidElem` da forma qualificada, preservando identidade, nesting, aridade e
+erros do builder público.
+
+### Decisão proposta
+
+`mid(...)` bare constrói `Args` math canônicos e delega à nativa de
+`math.mid`. Exigir um positional; preservar spread, ordem e avaliação única;
+rejeitar named/tipos inválidos. Não procurar cercas nem executar stretch.

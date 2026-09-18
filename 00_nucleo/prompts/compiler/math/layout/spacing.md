@@ -446,3 +446,17 @@ direita de `e.body`. Assim um body delimitado conserva `Opening`/`Closing`,
 um body sem cercas conserva suas classes reais e nesting não fabrica um par
 fixo. O braço existente de `MathDelimited` permanece inalterado. A decisão é
 semântica de spacing; a recursão e a forma do match são mecânica.
+
+## P1437 — classe `Relation` de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O resolver vanilla força `Relation` em cada item do body de `MidElem`; o
+fallback cristalino seria `Normal` ou herdaria classes do glifo.
+
+### Decisão proposta
+
+`node_math_class(MathMid(_))` expõe `(Relation, Relation)` e o owner aplica
+`Relation` a cada item efetivo do body. Isso independe de estar em `lr`: o
+contexto controla stretch, não a classe. Não inferir classe por texto,
+delimitador mecânico ou altura resultante.

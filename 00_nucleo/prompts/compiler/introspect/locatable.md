@@ -186,3 +186,16 @@ selecionável; as variantes matemáticas estruturais vizinhas retornam falso.
 O match exaustivo classifica `Content::MathLr(_)` como `false`. Isso preserva
 o invariante `is_locatable ↔ extract_payload.is_some()` e não impede a
 travessia estrutural do body pelo owner apropriado.
+
+## P1437 — `MathMid` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`MidElem` não possui `ElementKind`, Location ou payload selecionável; sua
+relação com `lr` é de layout matemático, não de introspecção.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathMid(_)` como `false`, preservando
+`is_locatable ↔ extract_payload.is_some()` e a travessia do body pelo owner
+estrutural apropriado.

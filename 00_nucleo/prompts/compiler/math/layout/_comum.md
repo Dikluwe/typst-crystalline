@@ -1513,3 +1513,17 @@ owner `delimited.rs`, distinto do braço mecânico `MathDelimited`. Tanto
 `apply_math_default` quanto `apply_math_style` transformam somente o body e
 reconstroem `size` e `size_explicit` sem perda. Nenhuma reconstrução procura
 delimitadores, absorve nesting, aplica cascata ou converte a variante.
+
+## P1437 — dispatch e reconstrução de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match exaustivo não despacha nem reconstrói `mid`; reduzir ao body apagaria
+sua ligação ao contexto `lr`.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathMid(e)` delega ao owner
+`delimited.rs`, distinto de `MathDelimited` e `MathLr`. Reconstruções de
+default/style transformam somente o body e preservam a variante; não resolvem
+grupo exterior, não executam stretch e não convertem o carrier.

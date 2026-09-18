@@ -581,3 +581,16 @@ Adicionar braço `MathLr` e implementação de `ObservationEq` que compare body,
 `Rel<Length>` e `size_explicit`. A comparação é estrutural dos observáveis do
 carrier; não resolve cascata, não executa layout e não equipara `100%`
 explícito a ausência.
+
+## P1437 — igualdade observável de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`ObservationEq` é exaustivo e precisa preservar a nova identidade. O único
+estado próprio de `MidElem` é o body; o vínculo ao `lr` é contexto de layout.
+
+### Decisão proposta
+
+Adicionar braço `MathMid` e comparar somente o body. Não resolver contexto,
+classe ou stretch; `MathMid(body)` nunca é igual ao body nu nem a um
+`MathDelimited` semelhante.

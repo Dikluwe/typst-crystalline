@@ -1771,3 +1771,17 @@ Classificar `MathLr` junto das demais variantes matemáticas não-locatáveis e
 terminais para introspecção. Não emitir tags, locations ou ocorrências para o
 wrapper e não descer novamente no body nestes walkers, evitando dupla
 contagem. A preservação estrutural do body continua no owner `Content`.
+
+## P1437 — neutralidade introspectiva de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`MidElem` é carrier matemático sem identidade locatável própria. A travessia
+do body já pertence ao walker estrutural de `Content`; repeti-la nos walkers
+de materialização duplicaria ocorrências.
+
+### Decisão proposta
+
+Classificar `MathMid` entre variantes matemáticas não-locatáveis e terminais.
+Não emitir tag, location ou ocorrência para o wrapper e não descer novamente
+no body nestes walkers.

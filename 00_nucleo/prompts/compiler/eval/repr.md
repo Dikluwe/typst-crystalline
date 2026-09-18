@@ -829,3 +829,16 @@ um `lr` interior usa recursivamente seu formatter próprio. Valor vindo apenas
 de set rule não fabrica o campo `size`. Não reconhecer identidade `lr` por
 forma de `MathDelimited`, e manter prioritário o formatter canônico de
 `binom` sobre seu carrier mecânico atual.
+
+## P1437 — morfologia pública de `mid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino perde a identidade bare e não possui forma qualificada. O vanilla
+imprime sempre `mid(body: <content>)`, inclusive vazio, sequência e nesting.
+
+### Decisão proposta
+
+Projetar `MathMid` exatamente como `mid(body: <content>)`. Body vazio usa
+`[]`; conteúdo composto preserva seu formatter; `mid` interior recorre ao
+mesmo formatter. Não inferir identidade por glifo, classe ou posição em `lr`.

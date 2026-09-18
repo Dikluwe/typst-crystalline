@@ -432,3 +432,17 @@ contar novamente conteúdo já realizado pelo pipeline; `MathLr` não introduz
 Adicionar `MathLr` aos braços terminais de `has_any_text`/`count_variant`, sem
 fabricar ocorrência própria nem recursão L3 no body. A semântica pública de
 repr e o walker L1 permanecem fora deste helper aproximado.
+
+## P1437 — projeção aproximada de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers math estruturais como folhas para evitar contar
+novamente conteúdo já realizado; `MathMid` não introduz `ElementKind`
+consultável nesta projeção.
+
+### Decisão proposta
+
+Adicionar `MathMid` aos braços terminais de `has_any_text` e
+`count_variant`, sem ocorrência própria nem recursão L3 no body. A travessia
+pública permanece no walker L1 e o vínculo ao `lr` pertence ao layout.

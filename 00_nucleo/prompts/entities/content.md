@@ -3133,3 +3133,18 @@ estáticos para nome `lr`, debug, igualdade, hash, plain-text, filhos e walkers.
 política estrutural math; reconstruções não podem converter `MathLr` em
 `MathDelimited` nem fabricar presença por cascata. O carrier mecânico
 `MathDelimited` continua variante separada.
+
+# P1437 — variante pública `Content::MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A forma bare degrada `mid(...)` a texto e a forma qualificada inexiste; o enum
+não conserva identidade, body nem ligação ao `lr` mais próximo. O vanilla
+preserva `mid` inclusive aninhado e com body vazio.
+
+### Contrato público proposto
+
+Adicionar `Content::MathMid(Arc<MathMidElem>)` e constructor por body. O match
+fechado mantém nome, debug, igualdade, hash, plain-text, filhos e walkers.
+`map_content` desce só no body; `map_text` conserva a variante. Não reduzir
+ao body, converter em delimitador ou assar stretch.

@@ -513,3 +513,17 @@ realizar `lr` aqui duplicaria o owner especializado.
 Encaminhar `Content::MathLr` pelo mesmo caminho inline das demais variantes
 matemáticas. Este owner não interpreta size, cercas ou cascata; toda lógica de
 produto permanece em `compiler/math/layout/delimited.rs`.
+
+## P1437 — encaminhamento geral de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral agrupa variantes `Math*` como conteúdo inline entregue ao
+layouter matemático; a nova variante exige braço exaustivo, mas realizar `mid`
+neste nível duplicaria seu owner especializado.
+
+### Decisão proposta
+
+Encaminhar `Content::MathMid` pelo mesmo caminho inline das variantes math.
+Este owner não interpreta classe `Relation`, grupo `lr` nem stretch; a lógica
+permanece em `compiler/math/layout/delimited.rs` e no spacing matemático.

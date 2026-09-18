@@ -72,3 +72,20 @@ tamanho no carrier. `layout_delimited` mecânico existente permanece estável.
 Aceitação geométrica discrimina `100%`, `150%`, `2em` e cascata com witnesses
 independentes de altura/posição; igualdade de boxes internas ou bytes de
 render não é requisito.
+
+## P1437 — layout de `MathMidElem` no `lr` mais próximo (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No pin, `MidElem` marca cada item real, força classe `Relation` e permite que
+`resolve_lr` aplique a meta de stretch do grupo. Fora de `lr`, o body mantém
+tamanho natural. Um `lr` aninhado estabelece a fronteira mais próxima.
+
+### Decisão proposta
+
+Adicionar free function para `MathMidElem` neste owner (forma B, ADR-0109).
+Resolver o body e classificar cada item como `Relation`. Sem contexto `lr`,
+conservar geometria natural. No `lr` mais próximo, reutilizar a meta vertical
+do exterior, incluindo `size` explícito/cascata e short-fall `0.1em`; não
+calcular alvo independente nem atravessar `lr` interior. Aceitação usa
+witnesses para fora/dentro, `100%`, `150%`, `2em` e nesting.
