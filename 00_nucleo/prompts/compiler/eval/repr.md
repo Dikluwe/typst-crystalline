@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 7626efc5
+Hash do Código: 0d4e19b6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -843,7 +843,7 @@ Projetar `MathMid` exatamente como `mid(body: <content>)`. Body vazio usa
 `[]`; conteúdo composto preserva seu formatter; `mid` interior recorre ao
 mesmo formatter. Não inferir identidade por glifo, classe ou posição em `lr`.
 
-## P1439 — morfologia pública de `overbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — morfologia pública de `overbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

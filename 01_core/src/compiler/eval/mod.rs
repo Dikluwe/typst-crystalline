@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 480f6378
+//! @prompt-hash e5f5237f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -371,6 +371,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathMid(a0) => match other {
                 Self::MathMid(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathOverbrace(a0) => match other {
+                Self::MathOverbrace(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -4050,6 +4056,26 @@ impl ObservationEq for crate::entities::elements::math_underover::MathUnderoverE
             .and(self.under.observation_relation(&other.under))
             .and(self.over.observation_relation(&other.over))
     }
+}
+impl ObservationEq for crate::entities::elements::math_underover::MathOverbraceElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, annotation: _, annotation_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.annotation.observation_relation(&other.annotation))
+            .and(
+                self.annotation_explicit
+                    .observation_relation(&other.annotation_explicit),
+            )
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn p1439_math_overbrace_observation_differs(
+    left: &crate::entities::elements::math_underover::MathOverbraceElem,
+    right: &crate::entities::elements::math_underover::MathOverbraceElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
 }
 impl ObservationEq for crate::entities::elements::list_item::ListItemElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {

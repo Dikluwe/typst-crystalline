@@ -1,0 +1,12 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1439,
+  "revision": 1,
+  "hypothesis": "the oracle accidentally asserted Normal for textual body x despite the frozen inherited-class obligation",
+  "before": {"passed": 3, "failed": 1, "dominant_reason": "oracle expected Normal; implementation returned inherited Alphabetic"},
+  "change": "replace expected boundary class Normal with Alphabetic",
+  "after": {"passed": 4, "failed": 0, "unknown": 0},
+  "regressions": 0,
+  "cost": "one focal rerun",
+  "basis": "vanilla AccentItem::create uses base.raw_class and P1439 L0 requires recursive body inheritance"
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 0bee68e8
+Hash do Código: 066d7d00
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3149,7 +3149,7 @@ fechado mantém nome, debug, igualdade, hash, plain-text, filhos e walkers.
 `map_content` desce só no body; `map_text` conserva a variante. Não reduzir
 ao body, converter em delimitador ou assar stretch.
 
-# P1439 — variante pública `Content::MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+# P1439 — variante pública `Content::MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

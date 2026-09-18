@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: f3438c69
+Hash do Código: c46e54ad
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -595,7 +595,7 @@ Adicionar braço `MathMid` e comparar somente o body. Não resolver contexto,
 classe ou stretch; `MathMid(body)` nunca é igual ao body nu nem a um
 `MathDelimited` semelhante.
 
-## P1439 — igualdade observável de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — igualdade observável de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

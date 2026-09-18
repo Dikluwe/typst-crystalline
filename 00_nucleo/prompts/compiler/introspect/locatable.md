@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 4b09aeea
+Hash do Código: 4247d4e9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -200,7 +200,7 @@ O match exaustivo classifica `Content::MathMid(_)` como `false`, preservando
 `is_locatable ↔ extract_payload.is_some()` e a travessia do body pelo owner
 estrutural apropriado.
 
-## P1439 — `MathOverbrace` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — `MathOverbrace` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

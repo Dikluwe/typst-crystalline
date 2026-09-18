@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 4e293a07
+Hash do Código: d9c9044e
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -297,7 +297,7 @@ a peça. Para assembly, `piece_attach = piece.width / 2`, logo a compensação �
 naturalmente zero. Toda a geometria deriva das métricas MATH da fonte; não há
 constante posicional ou medida copiada do PDF.
 
-## P1439 — owner de layout de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — owner de layout de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

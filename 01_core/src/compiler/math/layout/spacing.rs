@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash 2208b22f
+//! @prompt-hash d633902c
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -44,6 +44,7 @@ fn base_math_class(content: &Content) -> MathClass {
         Content::MathStyled(m) => base_math_class(&m.body),
         Content::MathLr(e) => base_math_class(&e.body),
         Content::MathMid(_) => MathClass::Relation,
+        Content::MathOverbrace(e) => base_math_class(&e.body),
         Content::MathClassOverride(e) => e.class,
         // **P992** — `limits()`/`scripts()` não afectam classe/espaçamento
         // (transparente, ao contrário de `MathClassOverride`).
@@ -192,6 +193,7 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
     match content {
         Content::MathLr(e) => node_math_class(&e.body),
         Content::MathMid(_) => (MathClass::Relation, MathClass::Relation),
+        Content::MathOverbrace(e) => node_math_class(&e.body),
         Content::MathDelimited(e) => {
             let l = if matches!(e.open, '|' | '‖' | '∥') {
                 MathClass::Fence
@@ -238,6 +240,11 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
 
 #[cfg(test)]
 pub(crate) fn p1437_boundary_classes(content: &Content) -> (MathClass, MathClass) {
+    node_math_class(content)
+}
+
+#[cfg(test)]
+pub(crate) fn p1439_boundary_classes(content: &Content) -> (MathClass, MathClass) {
     node_math_class(content)
 }
 

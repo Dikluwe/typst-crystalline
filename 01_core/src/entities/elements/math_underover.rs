@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underover.md
-//! @prompt-hash 687ad761
+//! @prompt-hash 9b689a90
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -20,6 +20,45 @@ pub struct MathUnderoverElem {
     pub base: Content,
     pub under: Option<Content>,
     pub over: Option<Content>,
+}
+
+/// Elemento público `math.overbrace`: identidade e presença são preservadas;
+/// a realização geométrica permanece no owner de layout under/over.
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct MathOverbraceElem {
+    pub body: Content,
+    pub annotation: Option<Content>,
+    pub annotation_explicit: bool,
+}
+
+impl Element for MathOverbraceElem {
+    fn plain_text(&self) -> String {
+        let annotation =
+            self.annotation.as_ref().map(Content::plain_text).unwrap_or_default();
+        format!("{}⏞{}", annotation, self.body.plain_text())
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::MathOverbrace(Arc::new(MathOverbraceElem {
+            body: self.body.map_content(transform)?,
+            annotation: self
+                .annotation
+                .as_ref()
+                .map(|content| content.map_content(transform))
+                .transpose()?,
+            annotation_explicit: self.annotation_explicit,
+        })))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathOverbrace(Arc::new(self.clone()))
+    }
 }
 
 impl Element for MathUnderoverElem {

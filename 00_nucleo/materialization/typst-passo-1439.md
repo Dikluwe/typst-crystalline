@@ -135,3 +135,32 @@ Testes, código e resselo começam somente após confirmação humana explícita
 5. Exigir score `1.0` para os mutantes definidos; resselo somente após V15/V26.
 6. Validar `cargo fmt --check`, `cargo build --workspace`, suítes focal/completa,
    `git diff --check` e `crystalline-lint .`, registrando proveniência.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 após o commit de proposta
+`1476196c1b327cf9fdc18f54685fe51cc1eb249e`. A cadeia RED→GREEN, ataques,
+resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização
+
+P1439 foi materializado em 2026-09-18 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível apresentou nove
+erros de compilação centrados na ausência de `MathOverbraceElem`,
+`Content::MathOverbrace` e helpers P1439. O candidato fechou quatro testes
+focais e duas expectativas legadas P906 sincronizadas com a nova identidade.
+
+A primeira revisão de oráculo corrigiu a expectativa `Normal` para
+`Alphabetic`, pois o contrato congelado exige herança da classe do body. Uma
+tentativa adversarial abortou sem crédito após sete execuções por receita M08
+ambígua. Reancorada a receita, a campanha matou 36/36 mutantes. A posterior
+sincronização do arquivo protegido `compiler/eval/tests.rs` invalidou esse
+selo; a recampanha final repetiu as ordens direta, direta repetida e reversa e
+matou novamente 36/36, score `1.0`, zero `Unknown`.
+
+O binário cristalino reproduziu as formas qualificadas e bare, annotation
+omitida/presente/`none`, nesting e sete diagnósticos negativos medidos no
+vanilla. `cargo fmt --check`, `git diff --check`, `cargo build --workspace` e
+`crystalline-lint .` terminaram verdes. A suíte completa executou 5.866 testes
+L1: 5.858 verdes e oito falhas históricas já presentes no baseline P1438;
+nenhuma toca arquivos ou observáveis P1439.

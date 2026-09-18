@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 27c20bd3
+Hash do Código: 1df4a33b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -536,7 +536,7 @@ body. Ausência, extra, `body:`, named desconhecido e cast inválido propagam os
 diagnósticos canônicos; spread válido é expandido sem reavaliação. O builder
 não usa `MathDelimited`, não resolve cascata e não executa layout.
 
-## P1439 — binding público completo `math.overbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — binding público completo `math.overbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

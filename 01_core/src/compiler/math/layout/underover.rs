@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash 1f0c4d20
+//! @prompt-hash 1599b04d
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -17,6 +17,15 @@ use crate::entities::{
 use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    pub(super) fn layout_overbrace(
+        &self,
+        elem: &crate::entities::elements::math_underover::MathOverbraceElem,
+        style: &TextStyle,
+    ) -> MathBox {
+        let lowered = super::lower_math_overbrace(elem);
+        self.layout_node(&lowered, style)
+    }
+
     /// **P297** — Layout underover: empilha `over` (topo), `base`
     /// (meio), `under` (fundo). Cada Option é skipped se `None`.
     /// Width final = max das 3 partes; cada parte centrada

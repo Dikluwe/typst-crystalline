@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 3f957eda
+Hash do Código: 0c2e8d16
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -461,7 +461,7 @@ fallback cristalino seria `Normal` ou herdaria classes do glifo.
 contexto controla stretch, não a classe. Não inferir classe por texto,
 delimitador mecânico ou altura resultante.
 
-## P1439 — classe herdada de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — classe herdada de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

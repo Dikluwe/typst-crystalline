@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 38c4e93f
+//! @prompt-hash a998e293
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -789,6 +789,19 @@ pub fn repr_content(c: &Content) -> String {
         }
         Content::MathMid(mid) => {
             format!("mid(body: {})", repr_math_lr_body(&mid.body))
+        }
+        Content::MathOverbrace(overbrace) => {
+            let mut fields =
+                vec![format!("body: {}", repr_math_lr_body(&overbrace.body))];
+            if overbrace.annotation_explicit {
+                let value = overbrace
+                    .annotation
+                    .as_ref()
+                    .map(repr_math_lr_body)
+                    .unwrap_or_else(|| "none".to_string());
+                fields.push(format!("annotation: {value}"));
+            }
+            format!("overbrace({})", fields.join(", "))
         }
         Content::MathAlignPoint(_) => "&".to_string(),
         Content::Linebreak(e) => {

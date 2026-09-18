@@ -1,0 +1,376 @@
+{
+  "schema": "tekt.materialization.mutation-report/v1",
+  "step": 1439,
+  "regime": "executed_without_isolation_attestation",
+  "orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "executions": 36,
+  "killed": 36,
+  "mutation_score": 1.0,
+  "unknown": 0,
+  "results": [
+    {
+      "order": "forward",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:03:32.553741Z",
+      "finished_at": "2026-09-18T02:03:42.519168Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "thread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (632) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:67:18:\nmath.overbrace callable: None\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:03:42.520702Z",
+      "finished_at": "2026-09-18T02:03:52.357623Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (1261) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:03:52.358823Z",
+      "finished_at": "2026-09-18T02:04:01.505269Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (1891) panicked at 01_core/src/compiler/eval/tests.rs:9685:9:\nassertion failed: overbrace.annotation_explicit\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:04:01.506760Z",
+      "finished_at": "2026-09-18T02:04:16.689948Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: \"overbrace(body: [x])\"\n right: \"overbrace(body: [x], annotation: [n])\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:04:16.691293Z",
+      "finished_at": "2026-09-18T02:04:45.925141Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (3152) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:04:45.926512Z",
+      "finished_at": "2026-09-18T02:05:01.514959Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (3782) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:01.516434Z",
+      "finished_at": "2026-09-18T02:05:10.846680Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (4412) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: Some(text(\"n\")), annotation_explicit: true }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:10.848385Z",
+      "finished_at": "2026-09-18T02:05:20.774072Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (5042) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:20.775227Z",
+      "finished_at": "2026-09-18T02:05:29.923592Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(\"⏟\")\n right: Some(\"⏞\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:29.982186Z",
+      "finished_at": "2026-09-18T02:05:39.126522Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(math.text(\"⏞\"))\n right: None\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:39.127532Z",
+      "finished_at": "2026-09-18T02:05:48.374343Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: (Normal, Normal)\n right: (Alphabetic, Alphabetic)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:48.375235Z",
+      "finished_at": "2026-09-18T02:05:57.853893Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (7561) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:05:57.854997Z",
+      "finished_at": "2026-09-18T02:06:07.908592Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (8192) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:67:18:\nmath.overbrace callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:06:07.909794Z",
+      "finished_at": "2026-09-18T02:06:17.848577Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (8821) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:06:17.850120Z",
+      "finished_at": "2026-09-18T02:06:27.161095Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (9451) panicked at 01_core/src/compiler/eval/tests.rs:9685:9:\nassertion failed: overbrace.annotation_explicit\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:06:27.162399Z",
+      "finished_at": "2026-09-18T02:06:42.027241Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: \"overbrace(body: [x])\"\n right: \"overbrace(body: [x], annotation: [n])\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:06:42.028299Z",
+      "finished_at": "2026-09-18T02:06:58.635314Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (10712) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:06:58.636578Z",
+      "finished_at": "2026-09-18T02:07:14.220124Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (11342) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:07:14.221228Z",
+      "finished_at": "2026-09-18T02:07:24.035039Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (11972) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: Some(text(\"n\")), annotation_explicit: true }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:07:24.036405Z",
+      "finished_at": "2026-09-18T02:07:35.385736Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (12602) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:07:35.392004Z",
+      "finished_at": "2026-09-18T02:07:45.696635Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(\"⏟\")\n right: Some(\"⏞\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:07:45.755546Z",
+      "finished_at": "2026-09-18T02:07:56.179300Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(math.text(\"⏞\"))\n right: None\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:07:56.180513Z",
+      "finished_at": "2026-09-18T02:08:06.943997Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: (Normal, Normal)\n right: (Alphabetic, Alphabetic)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:06.947252Z",
+      "finished_at": "2026-09-18T02:08:17.542418Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (15121) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:17.543611Z",
+      "finished_at": "2026-09-18T02:08:27.543608Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (15751) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:27.544627Z",
+      "finished_at": "2026-09-18T02:08:38.248652Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: (Normal, Normal)\n right: (Alphabetic, Alphabetic)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:38.260795Z",
+      "finished_at": "2026-09-18T02:08:47.954441Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(math.text(\"⏞\"))\n right: None\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:48.013869Z",
+      "finished_at": "2026-09-18T02:08:57.468625Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: Some(\"⏟\")\n right: Some(\"⏞\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_carrier_walker_observation_classe_e_lowering\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:08:57.470094Z",
+      "finished_at": "2026-09-18T02:09:07.026878Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (18272) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:09:07.083687Z",
+      "finished_at": "2026-09-18T02:09:17.469137Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (18902) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: Some(text(\"n\")), annotation_explicit: true }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:09:17.470127Z",
+      "finished_at": "2026-09-18T02:09:26.699317Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (19532) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: empty, annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:09:26.700583Z",
+      "finished_at": "2026-09-18T02:09:42.458672Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (20162) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:98:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.overbrace(MathOverbraceElem { body: text(\"x\"), annotation: None, annotation_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:09:42.459668Z",
+      "finished_at": "2026-09-18T02:09:59.276294Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "assertion `left == right` failed\n  left: \"overbrace(body: [x])\"\n right: \"overbrace(body: [x], annotation: [n])\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:09:59.277270Z",
+      "finished_at": "2026-09-18T02:10:13.785779Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (21421) panicked at 01_core/src/compiler/eval/tests.rs:9685:9:\nassertion failed: overbrace.annotation_explicit\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:10:13.792933Z",
+      "finished_at": "2026-09-18T02:10:24.144022Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao' (22051) panicked at 01_core/src/compiler/eval/tests.rs:9679:14:\noverbrace(x, n) deve produzir MathOverbrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1439_overbrace_bare_preserva_identidade_e_anotacao\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T02:10:24.145379Z",
+      "finished_at": "2026-09-18T02:10:35.279010Z",
+      "command": "cargo test -q -p typst-core p1439_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado' (22682) panicked at 01_core/src/compiler/stdlib/structural/p1439_tests.rs:67:18:\nmath.overbrace callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1439_tests::p1439_assinatura_falha_fechado\n    compiler::stdlib::structural::p1439_tests::p1439_binding_cast_repr_presenca_e_nesting\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5862 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    }
+  ]
+}

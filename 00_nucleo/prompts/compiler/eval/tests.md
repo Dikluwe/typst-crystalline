@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 5428eeaa
+Hash do Código: 2b1930ec
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -145,3 +145,18 @@ Separar `norm` do loop legado sem alterar as expectativas de
 com body de três nós `‖`, conteúdo, `‖`, tamanho default não explícito e
 nenhum `MathDelimited` exterior. O teste não duplica layout nem concede
 paridade às demais rotas residuais.
+
+## P1439 — regressão bare de `overbrace` preserva identidade
+
+### Medição anterior à decisão
+
+O teste histórico não detecta que o braço agregado baixa `overbrace` para
+`MathUnderover`, ignora argumentos e perde presença. O vanilla conserva o
+elemento público na sintaxe matemática.
+
+### Aceitação
+
+Avaliar `$ overbrace(x, n) $` e exigir `Content::MathOverbrace` com body `x`,
+annotation `n` e presença verdadeira. Nenhum `MathUnderover` exterior pode
+substituir a identidade; validação detalhada da assinatura pertence ao owner
+test-only P1439.

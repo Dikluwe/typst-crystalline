@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 992231c9
+//! @prompt-hash 8a4cf0b9
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9657,6 +9657,34 @@ mod tests {
         assert!(!norm.size_explicit);
     }
 
+    #[test]
+    fn p1439_overbrace_bare_preserva_identidade_e_anotacao() {
+        fn find_overbrace(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathOverbraceElem>
+        {
+            match c {
+                Content::MathOverbrace(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overbrace)
+                }
+                Content::Equation(elem) => find_overbrace(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ overbrace(x, n) $");
+        let content = extract_math_content(&world);
+        let overbrace = find_overbrace(&content)
+            .expect("overbrace(x, n) deve produzir MathOverbrace");
+        assert_eq!(overbrace.body.plain_text(), "x");
+        assert_eq!(
+            overbrace.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(overbrace.annotation_explicit);
+    }
+
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {
         match c {
             Content::MathMatrix(e) => Some((
@@ -16096,6 +16124,20 @@ mod tests {
             }
         }
 
+        fn find_overbrace_in(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathOverbraceElem>
+        {
+            match c {
+                Content::MathOverbrace(e) => Some(e),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overbrace_in)
+                }
+                Content::Equation(e) => find_overbrace_in(&e.body),
+                _ => None,
+            }
+        }
+
         /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
         /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
         /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
@@ -16213,43 +16255,24 @@ mod tests {
         fn p906_overbrace_com_anotacao_produz_mathunderover_aninhado() {
             let world = MockWorld::new(r#"$ overbrace(a+b+c, "soma") $"#);
             let content = extract_math_content(&world);
-            let outer = find_mathunderover_in(&content);
+            let overbrace = find_overbrace_in(&content)
+                .expect("overbrace(a+b+c, soma) deve preservar MathOverbrace");
             assert!(
-                outer.is_some(),
-                "overbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
-                content
+                overbrace
+                    .annotation
+                    .as_ref()
+                    .is_some_and(|annotation| annotation.plain_text().contains("soma")),
+                "annotation deve conter soma"
             );
-            let (outer_base, outer_under, outer_over) = outer.unwrap();
-            assert!(outer_under.is_none(), "nível externo não deve ter under");
-            let outer_over = outer_over.expect("nível externo deve ter over = anotação");
+            assert!(overbrace.annotation_explicit);
+            let body = overbrace.body.plain_text();
             assert!(
-                outer_over.plain_text().contains("soma"),
-                "over externo deve conter a anotação 'soma': {:?}",
-                outer_over.plain_text()
+                body.contains('a') && body.contains('b') && body.contains('c'),
+                "body deve preservar a+b+c: {body:?}"
             );
-
-            let inner = find_mathunderover_in(&outer_base);
-            assert!(
-            inner.is_some(),
-            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
-            outer_base
-        );
-            let (inner_base, inner_under, inner_over) = inner.unwrap();
-            assert!(inner_under.is_none(), "nível interno não deve ter under");
-            let inner_over = inner_over.expect("nível interno deve ter over = chave ⏞");
-            assert_eq!(
-                inner_over.plain_text().chars().next(),
-                Some('\u{23DE}'),
-                "over interno deve ser exactamente U+23DE"
-            );
-            let inner_base_text = inner_base.plain_text();
-            assert!(
-            inner_base_text.contains('a')
-                && inner_base_text.contains('b')
-                && inner_base_text.contains('c'),
-            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
-            inner_base_text
-        );
+            let projected =
+                Content::MathOverbrace(std::sync::Arc::new(overbrace.clone()));
+            assert!(projected.plain_text().contains('\u{23DE}'));
         }
 
         /// **P906 D5** — confirma os 4 chars exactos por codepoint (não
@@ -16269,6 +16292,18 @@ mod tests {
                 let src = format!("$ {name}(a+b+c) $");
                 let world = MockWorld::new(&src);
                 let content = extract_math_content(&world);
+                if name == "overbrace" {
+                    let overbrace = find_overbrace_in(&content)
+                        .expect("overbrace deve preservar MathOverbrace");
+                    assert!(!overbrace.annotation_explicit);
+                    let projected =
+                        Content::MathOverbrace(std::sync::Arc::new(overbrace.clone()));
+                    assert_eq!(
+                        projected.plain_text().chars().find(|c| *c == expected_char),
+                        Some(expected_char)
+                    );
+                    continue;
+                }
                 let found = find_mathunderover_in(&content);
                 assert!(
                     found.is_some(),

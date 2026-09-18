@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 63b92af2
+//! @prompt-hash 73d4a889
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -43,7 +43,29 @@ pub(crate) use delimited::{p1436_effective_size, p1436_target_pt};
 #[cfg(test)]
 pub(crate) use delimited::{p1437_lr_mid_height, p1437_mid_target_pt};
 #[cfg(test)]
+pub(crate) use spacing::p1439_boundary_classes;
+#[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
+
+fn lower_math_overbrace(
+    elem: &crate::entities::elements::math_underover::MathOverbraceElem,
+) -> Content {
+    let brace = Content::MathText("⏞".into());
+    let inner = Content::math_underover(elem.body.clone(), None, Some(brace));
+    match &elem.annotation {
+        Some(annotation) => {
+            Content::math_underover(inner, None, Some(annotation.clone()))
+        }
+        None => inner,
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn p1439_overbrace_lowering(
+    elem: &crate::entities::elements::math_underover::MathOverbraceElem,
+) -> Content {
+    lower_math_overbrace(elem)
+}
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -730,6 +752,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathLr(e) => self.layout_lr(e, style),
 
             Content::MathMid(e) => self.layout_mid(e, style),
+
+            Content::MathOverbrace(e) => self.layout_overbrace(e, style),
 
             Content::MathMatrix(e) => self.layout_matrix_elem(e, style),
 
@@ -2117,6 +2141,11 @@ fn apply_math_default(body: &Content) -> Content {
             Content::math_lr(apply_math_default(&e.body), e.size, e.size_explicit)
         }
         Content::MathMid(e) => Content::math_mid(apply_math_default(&e.body)),
+        Content::MathOverbrace(e) => Content::math_overbrace(
+            apply_math_default(&e.body),
+            e.annotation.as_ref().map(apply_math_default),
+            e.annotation_explicit,
+        ),
         // **P961** — achado #5 de P906 + auditoria externa 2026-08-04: a
         // base de acentos (`hat(x)` etc.) nunca recebia o itálico por
         // defeito (caía em `other`). Recursão na base; o `accent` (combining
@@ -2341,6 +2370,13 @@ fn apply_math_style(
         Content::MathMid(e) => {
             Content::math_mid(apply_math_style(&e.body, kind, bold, italic))
         }
+        Content::MathOverbrace(e) => Content::math_overbrace(
+            apply_math_style(&e.body, kind, bold, italic),
+            e.annotation
+                .as_ref()
+                .map(|annotation| apply_math_style(annotation, kind, bold, italic)),
+            e.annotation_explicit,
+        ),
         Content::MathAccent(e) => Content::math_accent_full(
             apply_math_style(&e.base, kind, bold, italic),
             e.accent,

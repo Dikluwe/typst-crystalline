@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 615efb09
+//! @prompt-hash b3115945
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1203,7 +1203,12 @@ fn eval_math_expr(
                 // interno a chave estica só sobre o body, e no nível externo a
                 // anotação (texto normal) fica centrada sob/sobre o conjunto
                 // já composto — ver `compiler/layout.md` §P906.
-                "underbrace" | "overbrace" | "underbracket" | "overbracket" => {
+                "overbrace" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_overbrace_from_args(&args)
+                }
+
+                "underbrace" | "underbracket" | "overbracket" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
                         .items()

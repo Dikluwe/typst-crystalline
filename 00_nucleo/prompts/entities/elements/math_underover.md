@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_underover` — `MathUnderoverElem`
-Hash do Código: 7deb7b91
+Hash do Código: 93cbc70d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_underover.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
@@ -44,7 +44,7 @@ pub struct MathUnderoverElem {
 `plain_text` `over‖base‖under`; `map_content` recurse os 3 preservando `None`;
 `map_text` terminal; igualdade estrutural.
 
-## P1439 — identidade pública `MathOverbraceElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — identidade pública `MathOverbraceElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

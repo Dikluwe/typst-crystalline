@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 81f45e27
+Hash do Código: ccc1636f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -528,7 +528,7 @@ Encaminhar `Content::MathMid` pelo mesmo caminho inline das variantes math.
 Este owner não interpreta classe `Relation`, grupo `lr` nem stretch; a lógica
 permanece em `compiler/math/layout/delimited.rs` e no spacing matemático.
 
-## P1439 — encaminhamento geral de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — encaminhamento geral de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 

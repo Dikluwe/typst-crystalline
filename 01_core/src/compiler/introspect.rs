@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 436f3d30
+//! @prompt-hash 5d9b8d0a
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1016,6 +1016,7 @@ fn materialize_time(
         | Content::MathDelimited(_)
         | Content::MathLr(_)
         | Content::MathMid(_)
+        | Content::MathOverbrace(_)
         | Content::MathMatrix(_)
         | Content::MathCases(_)
         // P296 — Math accent/cancel terminais em materialize_time
@@ -1643,6 +1644,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::MathDelimited(_)
         | Content::MathLr(_)
         | Content::MathMid(_)
+        | Content::MathOverbrace(_)
         | Content::MathAlignPoint(_)
         | Content::Linebreak(_)
         | Content::MathMatrix(_)
@@ -2223,6 +2225,7 @@ pub(crate) fn walk(
         | Content::MathDelimited(_)
         | Content::MathLr(_)
         | Content::MathMid(_)
+        | Content::MathOverbrace(_)
         | Content::MathMatrix(_)
         | Content::MathCases(_)
         // P296 — Math accent/cancel sem children non-math em walk

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: 9fe9690a
+Hash do Código: f96f2aaf
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -461,7 +461,7 @@ duplicados, casts e named inválidos. O resultado é sempre `Content::MathLr`
 com body `MathSequence([‖, body, ‖])`; não reescrever para `MathDelimited` nem
 executar layout.
 
-## P1439 — sintaxe bare de `overbrace` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1439 — sintaxe bare de `overbrace` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 
 ### Medição anterior à decisão
 
