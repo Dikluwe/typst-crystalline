@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash dfc69787
+//! @prompt-hash 3ba02e82
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9796,6 +9796,54 @@ mod tests {
             Some("n")
         );
         assert!(overshell.annotation_explicit);
+    }
+
+    #[test]
+    fn p1444_primes_sintaticos_preservam_carrier_slots_e_nesting() {
+        fn equation_body(source: &str) -> Content {
+            let world = MockWorld::new(source);
+            extract_math_content(&world)
+        }
+        fn outer_attach(
+            content: &Content,
+        ) -> &crate::entities::elements::math_attach::MathAttachElem {
+            match content {
+                Content::MathAttach(elem) => elem,
+                Content::MathSequence(items) | Content::Sequence(items)
+                    if items.len() == 1 =>
+                {
+                    outer_attach(&items[0])
+                }
+                Content::Equation(elem) => outer_attach(&elem.body),
+                other => panic!("MathAttach externo: {other:?}"),
+            }
+        }
+        fn prime_count(slot: &MathAttachSlot) -> Option<usize> {
+            match slot {
+                MathAttachSlot::Present(Content::MathPrimes(elem)) => Some(elem.count),
+                _ => None,
+            }
+        }
+
+        let both = equation_body("$ x'''^2 $");
+        let both = outer_attach(&both);
+        assert!(matches!(&both.t, MathAttachSlot::Present(c) if c.plain_text() == "2"));
+        assert_eq!(prime_count(&both.tr), Some(3));
+        assert!(matches!(both.b, MathAttachSlot::Omitted));
+        assert!(matches!(both.br, MathAttachSlot::Omitted));
+
+        let prime_as_hat = equation_body("$ x^''' $");
+        let prime_as_hat = outer_attach(&prime_as_hat);
+        assert_eq!(prime_count(&prime_as_hat.t), Some(3));
+        assert!(matches!(prime_as_hat.tr, MathAttachSlot::Omitted));
+
+        let nested = equation_body("$ x^2''' $");
+        let nested = outer_attach(&nested);
+        let MathAttachSlot::Present(Content::MathAttach(top)) = &nested.t else {
+            panic!("primes devem permanecer aninhados no sobrescrito: {nested:?}")
+        };
+        assert_eq!(top.base.plain_text(), "2");
+        assert_eq!(prime_count(&top.tr), Some(3));
     }
 
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {

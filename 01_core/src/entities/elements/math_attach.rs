@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_attach.md
-//! @prompt-hash b29224f0
+//! @prompt-hash 31504e7c
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -11,6 +11,51 @@ use std::sync::Arc;
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
+
+/// Grupo semântico de primes matemáticos produzido por apóstrofos ou
+/// `math.primes(count)`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct MathPrimesElem {
+    pub count: usize,
+}
+
+impl MathPrimesElem {
+    pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        match field {
+            "count" => {
+                i64::try_from(self.count).ok().map(crate::entities::value::Value::Int)
+            }
+            _ => None,
+        }
+    }
+}
+
+impl Element for MathPrimesElem {
+    fn plain_text(&self) -> String {
+        match self.count {
+            0 => String::new(),
+            1 => "′".to_string(),
+            2 => "″".to_string(),
+            3 => "‴".to_string(),
+            4 => "⁗".to_string(),
+            count => "′".repeat(count),
+        }
+    }
+
+    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::MathPrimes(Arc::new(self.clone())))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathPrimes(Arc::new(self.clone()))
+    }
+}
 
 /// Base com anexos de limites (t/b) e/ou scripts nos 4 cantos (tl/bl/tr/br).
 #[derive(Debug, Clone, PartialEq, Hash)]

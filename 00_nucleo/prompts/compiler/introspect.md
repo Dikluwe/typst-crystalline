@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 28186e18
+Hash do Código: 2d172d34
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1851,7 +1851,7 @@ Classificar `MathOvershell` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
 filhos, evitando dupla contagem.
 
-## P1444 — neutralidade introspectiva de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — neutralidade introspectiva de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

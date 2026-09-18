@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash ebcdad7a
+//! @prompt-hash c268fe6f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -763,6 +763,7 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
         Content::MathAttach(a) => repr_math_attach(a),
+        Content::MathPrimes(p) => format!("primes(count: {})", p.count),
         Content::MathRoot(r) => match (&r.index, r.index_explicit) {
             (Some(index), true) => format!(
                 "root(index: {}, radicand: {})",

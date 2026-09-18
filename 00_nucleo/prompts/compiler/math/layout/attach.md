@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: d548a73c
+Hash do Código: ca8cf78f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -458,7 +458,7 @@ conteúdo, ordem, classes math, baseline e posições relativas.
 Casos com nenhum slot, `none`, markup vazio, pre-scripts, post-scripts e
 combinações dos seis slots devem permanecer coerentes com a linguagem.
 
-## P1444 — geometria de primes agrupados (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — geometria de primes agrupados (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

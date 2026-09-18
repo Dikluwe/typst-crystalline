@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash d1a45c13
+//! @prompt-hash 6e85dd41
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -347,6 +347,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathAttach(a0) => match other {
                 Self::MathAttach(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathPrimes(a0) => match other {
+                Self::MathPrimes(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -4567,6 +4573,19 @@ impl ObservationEq for crate::entities::elements::math_attach::MathAttachElem {
             .and(self.tr.observation_relation(&other.tr))
             .and(self.br.observation_relation(&other.br))
     }
+}
+impl ObservationEq for crate::entities::elements::math_attach::MathPrimesElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { count: _ } = self;
+        ObservationRelation::Same.and(self.count.observation_relation(&other.count))
+    }
+}
+#[cfg(test)]
+pub(crate) fn p1444_math_primes_observation_differs(
+    left: &crate::entities::elements::math_attach::MathPrimesElem,
+    right: &crate::entities::elements::math_attach::MathPrimesElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
 }
 impl ObservationEq for crate::entities::elements::math_attach::MathAttachSlot {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {

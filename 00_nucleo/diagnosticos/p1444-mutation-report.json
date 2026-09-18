@@ -1,0 +1,16 @@
+{
+  "schema": "tekt.materialization.mutation-report-summary/v1",
+  "step": 1444,
+  "regime": "executed_without_isolation_attestation",
+  "campaign": {
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "executions": 36,
+    "killed": 36,
+    "score": 1.0,
+    "unknown": 0,
+    "verdict": "SEALED",
+    "receipt": "00_nucleo/diagnosticos/p1444-mutations/receipts/campaign-final.json"
+  },
+  "calibration": "the first campaign killed 33/36; one productive boundary helper revision killed M11 focally and the second full campaign killed 36/36",
+  "protected_suite_note": "test bodies retained their frozen semantics; cargo fmt and lineage resealing changed only formatting/header bytes recorded in p1444-calibration.json"
+}

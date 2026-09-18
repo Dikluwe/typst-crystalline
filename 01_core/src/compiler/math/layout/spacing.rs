@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash f66fbd41
+//! @prompt-hash 71a0fe02
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -69,6 +69,7 @@ fn base_math_class(content: &Content) -> MathClass {
         // `Large`, não `Normal`. Recursivo: cobre também `x^2` (herda
         // Alphabetic de `x`) e `sum_(i=1)^n` (herda Large de `∑`).
         Content::MathAttach(e) => base_math_class(&e.base),
+        Content::MathPrimes(_) => MathClass::Normal,
         // **P903** — texto literal entre aspas (`"texto"` bare em modo math,
         // produzido por `value_to_display_content(Value::Str)` →
         // `Content::Text`, distinto de `Content::MathText`) tem classe
@@ -201,6 +202,7 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
         Content::MathOverbracket(e) => node_math_class(&e.body),
         Content::MathOverparen(e) => node_math_class(&e.body),
         Content::MathOvershell(e) => node_math_class(&e.body),
+        Content::MathPrimes(_) => (MathClass::Normal, MathClass::Normal),
         Content::MathDelimited(e) => {
             let l = if matches!(e.open, '|' | '‖' | '∥') {
                 MathClass::Fence
@@ -274,6 +276,11 @@ pub(crate) fn p1442_boundary_classes(content: &Content) -> (MathClass, MathClass
 #[cfg(test)]
 pub(crate) fn p1443_boundary_classes(content: &Content) -> (MathClass, MathClass) {
     node_math_class(content)
+}
+
+#[cfg(test)]
+pub(crate) fn p1444_boundary_classes(content: &Content) -> (MathClass, MathClass) {
+    (base_math_class(content), node_math_class(content).1)
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 1df706d8
+//! @prompt-hash 436fe01e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -598,6 +598,7 @@ fn eval_math_expr(
             MathTextKind::Grapheme(s) => Ok(Content::MathIdent(s.into())),
             MathTextKind::Number(s) => Ok(Content::MathText(s.into())),
         },
+        Expr::MathPrimes(primes) => Ok(Content::math_primes(primes.count())),
         Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
         Expr::MathFrac(frac) => {
             let num_deparenthesized =
@@ -626,40 +627,17 @@ fn eval_math_expr(
                 .map(|e| eval_math_expr(scopes, ctx, engine, e))
                 .transpose()?;
 
-            // Primes (′ ″ ‴ ⁗) — convertidos para superscript.
-            // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
             let prime_count = attach.primes().map(|p| p.count()).unwrap_or(0);
-            let prime_char: Option<Content> = if prime_count == 0 {
-                None
-            } else {
-                let s: EcoString = match prime_count {
-                    1 => "′".into(),           // U+2032
-                    2 => "″".into(),           // U+2033
-                    3 => "‴".into(),           // U+2034
-                    4 => "⁗".into(),           // U+2057
-                    n => "′".repeat(n).into(), // U+2032 × n para n > 4
-                };
-                Some(Content::MathText(s))
-            };
-
-            // Merge prime com sup existente: primes primeiro, depois o sup original.
-            let sup_final: Option<Content> = match (prime_char, sup) {
-                (Some(p), None) => Some(p),
-                (None, Some(s)) => Some(s),
-                (Some(p), Some(s)) => {
-                    Some(Content::MathSequence(std::sync::Arc::from(vec![p, s])))
-                }
-                (None, None) => None,
-            };
+            let primes = (prime_count > 0).then(|| Content::math_primes(prime_count));
 
             Ok(Content::math_attach(
                 base,
-                MathAttachSlot::Omitted,
-                MathAttachSlot::Omitted,
-                MathAttachSlot::Omitted,
-                MathAttachSlot::Omitted,
-                sup_final.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
+                sup.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
                 sub.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                primes.map_or(MathAttachSlot::Omitted, MathAttachSlot::Present),
+                MathAttachSlot::Omitted,
             ))
         }
         Expr::MathRoot(root) => {

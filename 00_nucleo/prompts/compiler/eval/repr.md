@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 685b2959
+Hash do Código: 8689a398
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -916,7 +916,7 @@ Projetar `MathOvershell` como `overshell(body: <content>, annotation?:
 confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
 é inferida de U+23E0 ou do carrier genérico.
 
-## P1444 — morfologia pública de `primes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — morfologia pública de `primes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

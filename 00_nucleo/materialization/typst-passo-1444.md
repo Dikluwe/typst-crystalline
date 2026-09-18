@@ -151,3 +151,37 @@ humana explícita.
 6. Executar `cargo fmt --check`, `git diff --check`,
    `cargo build --workspace`, suítes focal/integral e `crystalline-lint .`,
    registrando proveniência e as falhas históricas separadamente.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `d28d22d2e5db92339b63e8d805bbc9b75f53622d`. A cadeia RED→GREEN,
+ataques, resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização e veredito
+
+Medição final em `2026-09-18T13:20:16-03:00`, sobre working tree não
+commitado derivado do commit de proposta
+`d28d22d2e5db92339b63e8d805bbc9b75f53622d`; o estado exato está descrito
+por `git diff HEAD --stat` e pelos artefatos `p1444-*` deste passo.
+
+- RED atribuível: sete erros de compilação pela ausência do carrier, variante
+  e helpers congelados.
+- GREEN focal: 4 passados, 0 falhados.
+- Ataques: a primeira campanha matou 33/36 e revelou um ponto cego do helper
+  de classe. A revisão focal passou; a segunda campanha completa matou 36/36
+  em ordens direta, repetida e inversa, score 1,0 e zero `Unknown`.
+- Paridade pública positiva: função qualificada, count/campo, `repr`,
+  igualdade, carrier sintático, separação `t`/`tr`, nesting, classe Normal,
+  não-locatabilidade e receita geométrica 0/1–4/>4 preservados.
+- Nos sete negativos, status e mensagem primária coincidem com o vanilla. A
+  ancoragem de span e o hint de remoção de `count:` continuam na limitação
+  diagnóstica global do carrier simplificado e não recebem crédito integral.
+- Gates: `cargo fmt --check`, `git diff --check`, `cargo build --workspace`
+  e `crystalline-lint .` passaram; V5/V15/V26 = 0.
+- Suíte integral: 5879 passados e os mesmos 8 falhados históricos, sem falha
+  atribuível a P1444.
+
+Veredito limitado: `Preserved` para o fragmento `math.primes` descrito; não
+declara equivalência Typst geral, paridade integral de apresentação dos
+diagnósticos nem fecha as rotas residuais de P1422.

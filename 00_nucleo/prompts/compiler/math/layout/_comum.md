@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 28db7805
+Hash do Código: 7acff6a8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -111,7 +111,7 @@ O transcript de cancel foi selado/materializado em P1291. As novas identidades
 e o contrato de vec P1292 continuam bloqueados até o novo selo explícito dos
 prompts proprietários; não há nova mudança de fase em P1292.
 
-## P1444 — despacho de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — despacho de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

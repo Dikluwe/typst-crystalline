@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_attach` — `MathAttachElem`
-Hash do Código: 82736684
+Hash do Código: cfd2ab46
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -66,7 +66,7 @@ imprime `none` para `ExplicitNone` e `[]` para conteúdo vazio presente.
 Layout materializa somente `Present`; por isso markup vazio ainda reserva
 `SpaceAfterScript`, enquanto omissão e `none` são equivalentes no layout.
 
-## P1444 — carrier público de primes (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — carrier público de primes (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

@@ -1,0 +1,376 @@
+{
+  "schema": "tekt.materialization.mutation-report/v1",
+  "step": 1444,
+  "regime": "executed_without_isolation_attestation",
+  "orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "executions": 36,
+  "killed": 36,
+  "mutation_score": 1.0,
+  "unknown": 0,
+  "results": [
+    {
+      "order": "forward",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:07:05.683860Z",
+      "finished_at": "2026-09-18T16:07:22.803115Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "thread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (632) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:67:18:\nmath.primes callable: None\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:07:22.804640Z",
+      "finished_at": "2026-09-18T16:07:40.020121Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:07:40.021687Z",
+      "finished_at": "2026-09-18T16:07:51.059785Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: Some(4)\n right: Some(3)\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:07:51.061423Z",
+      "finished_at": "2026-09-18T16:08:03.187374Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"primes(count: 0)\"\n right: \"primes(count: 1)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:08:03.188673Z",
+      "finished_at": "2026-09-18T16:08:15.507726Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: count\"\n right: \"the argument `count` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:08:15.544412Z",
+      "finished_at": "2026-09-18T16:08:27.278049Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"number is too large\"\n right: \"number must be at least zero\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:08:27.279403Z",
+      "finished_at": "2026-09-18T16:08:46.604535Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (4412) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:92:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.primes(MathPrimesElem { count: 3 }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:08:46.606620Z",
+      "finished_at": "2026-09-18T16:09:05.314445Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: ['″']\n right: ['‴']\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:09:05.315430Z",
+      "finished_at": "2026-09-18T16:09:22.090980Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: 0\n right: 1\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:09:22.099448Z",
+      "finished_at": "2026-09-18T16:09:37.716279Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting' (6301) panicked at 01_core/src/compiler/eval/tests.rs:9830:9:\nassertion failed: matches!(&both.t, MathAttachSlot::Present(c) if c.plain_text() == \"2\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:09:37.717431Z",
+      "finished_at": "2026-09-18T16:09:49.272393Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: (Alphabetic, Normal)\n right: (Normal, Normal)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:09:49.273461Z",
+      "finished_at": "2026-09-18T16:10:13.896828Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:10:13.897955Z",
+      "finished_at": "2026-09-18T16:10:32.962113Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (8192) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:67:18:\nmath.primes callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.05s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:10:32.963903Z",
+      "finished_at": "2026-09-18T16:10:51.895139Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:10:51.896869Z",
+      "finished_at": "2026-09-18T16:11:03.187693Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: Some(4)\n right: Some(3)\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:11:03.189558Z",
+      "finished_at": "2026-09-18T16:11:14.484401Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"primes(count: 0)\"\n right: \"primes(count: 1)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:11:14.485770Z",
+      "finished_at": "2026-09-18T16:11:25.662040Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: count\"\n right: \"the argument `count` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:11:25.695363Z",
+      "finished_at": "2026-09-18T16:11:36.511457Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"number is too large\"\n right: \"number must be at least zero\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:11:36.544204Z",
+      "finished_at": "2026-09-18T16:11:53.779019Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (11972) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:92:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.primes(MathPrimesElem { count: 3 }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:11:53.779967Z",
+      "finished_at": "2026-09-18T16:12:10.746346Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: ['″']\n right: ['‴']\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:12:10.747378Z",
+      "finished_at": "2026-09-18T16:12:24.442728Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: 0\n right: 1\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:12:24.443798Z",
+      "finished_at": "2026-09-18T16:12:38.201420Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting' (13861) panicked at 01_core/src/compiler/eval/tests.rs:9830:9:\nassertion failed: matches!(&both.t, MathAttachSlot::Present(c) if c.plain_text() == \"2\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:12:38.202657Z",
+      "finished_at": "2026-09-18T16:12:49.119676Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: (Alphabetic, Normal)\n right: (Normal, Normal)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:12:49.120573Z",
+      "finished_at": "2026-09-18T16:13:04.043722Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M12",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:13:04.088336Z",
+      "finished_at": "2026-09-18T16:13:14.634547Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M11",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:13:14.635593Z",
+      "finished_at": "2026-09-18T16:13:30.706118Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: (Alphabetic, Normal)\n right: (Normal, Normal)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:13:30.707086Z",
+      "finished_at": "2026-09-18T16:13:43.093882Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting' (17011) panicked at 01_core/src/compiler/eval/tests.rs:9830:9:\nassertion failed: matches!(&both.t, MathAttachSlot::Present(c) if c.plain_text() == \"2\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:13:43.094882Z",
+      "finished_at": "2026-09-18T16:13:58.702500Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: 0\n right: 1\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:13:58.736461Z",
+      "finished_at": "2026-09-18T16:14:14.249744Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: ['″']\n right: ['‴']\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_carrier_walker_observation_classe_e_receita\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:14:14.250962Z",
+      "finished_at": "2026-09-18T16:14:32.417694Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (18902) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:92:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.primes(MathPrimesElem { count: 3 }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:14:32.450875Z",
+      "finished_at": "2026-09-18T16:14:50.461584Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"number is too large\"\n right: \"number must be at least zero\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:14:50.462826Z",
+      "finished_at": "2026-09-18T16:15:01.513388Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: count\"\n right: \"the argument `count` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:15:01.514635Z",
+      "finished_at": "2026-09-18T16:15:12.968075Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: \"primes(count: 0)\"\n right: \"primes(count: 1)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:15:12.969448Z",
+      "finished_at": "2026-09-18T16:15:24.334496Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: Some(4)\n right: Some(3)\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:15:24.336308Z",
+      "finished_at": "2026-09-18T16:15:35.312965Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(3)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T16:15:35.314808Z",
+      "finished_at": "2026-09-18T16:15:53.623233Z",
+      "command": "cargo test -q -p typst-core p1444_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado' (22682) panicked at 01_core/src/compiler/stdlib/structural/p1444_tests.rs:67:18:\nmath.primes callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1444_tests::p1444_assinatura_falha_fechado\n    compiler::stdlib::structural::p1444_tests::p1444_binding_count_field_repr_e_identidade\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5883 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    }
+  ]
+}

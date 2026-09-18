@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 6618cc7d
+//! @prompt-hash 40d1316d
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1012,6 +1012,7 @@ fn materialize_time(
         | Content::MathSequence(_)
         | Content::MathFrac(_)
         | Content::MathAttach(_)
+        | Content::MathPrimes(_)
         | Content::MathRoot(_)
         | Content::MathDelimited(_)
         | Content::MathLr(_)
@@ -1644,6 +1645,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::MathText(_)
         | Content::MathFrac(_)
         | Content::MathAttach(_)
+        | Content::MathPrimes(_)
         | Content::MathRoot(_)
         | Content::MathDelimited(_)
         | Content::MathLr(_)
@@ -2229,6 +2231,7 @@ pub(crate) fn walk(
         | Content::MathText(_)
         | Content::MathFrac(_)
         | Content::MathAttach(_)
+        | Content::MathPrimes(_)
         | Content::MathRoot(_)
         | Content::MathDelimited(_)
         | Content::MathLr(_)

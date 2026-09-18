@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 3b79e5cf
+Hash do Código: 57c167eb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -612,7 +612,7 @@ vez, exige body convertível em conteúdo, aceita no máximo uma annotation e
 constrói `Content::MathOvershell` com bit de presença. Reproduzir casts,
 spread e diagnostics medidos; não criar U+23E0 nem executar layout aqui.
 
-## P1444 — binding público `math.primes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — binding público `math.primes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

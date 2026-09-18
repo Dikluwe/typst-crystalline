@@ -1,0 +1,18 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "step": 1444,
+  "test_prompt_sha256": "76c986ee70bbfabce2c6ff2826c7adaa8721c0c9b1520afd6c2b4ddee015669a",
+  "protected_inputs": {
+    "p1444_tests_sha256": "98912e82f0bde93f5307f926fe9d00f3178313db57b2ff2430b2328d5e49452f",
+    "eval_tests_sha256": "dc8e406a188d58b179d489b6c1ed1dfa6bc5284a88d78f74856d737f12d72bf9"
+  },
+  "suites": [
+    "01_core/src/compiler/stdlib/structural/p1444_tests.rs",
+    "01_core/src/compiler/eval/tests.rs::p1444_primes_sintaticos_preservam_carrier_slots_e_nesting"
+  ],
+  "frozen_before_candidate": "semantic content frozen before candidate; byte hashes refreshed after cargo fmt only",
+  "positive": ["binding/count/field/repr/identity", "carrier/walker/equality/class/recipe", "apostrophe slots and nesting"],
+  "negative": ["missing/extra/named/negative/type diagnostics", "twelve mutation families"],
+  "opaque": ["build failure unrelated to mutant", "timeout", "identity mismatch"],
+  "opaque_expected": "Unknown"
+}

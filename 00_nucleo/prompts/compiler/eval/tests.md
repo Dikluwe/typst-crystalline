@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: d8b94616
+Hash do Código: 52dbab3c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -217,3 +217,17 @@ annotation sem carrier público; o vanilla conserva `OvershellElem`.
 Avaliar `$ overshell(x, n) $` e exigir `Content::MathOvershell` com body `x`,
 annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
 redução permanente para `MathUnderover` falham o teste.
+## P1444 — oráculos sintáticos de primes (APROVADO; GATE ADR-0127 CONFIRMADO)
+
+### Medição anterior à decisão
+
+O cristalino funde primes em texto com o sobrescrito e usa `tr`/`br` para
+hat/underscore. O vanilla conserva `MathPrimes(count)` separado em `tr`, usa
+`t`/`b` para hat/underscore e deixa a precedência da AST determinar nesting.
+
+### Decisão
+
+Adicionar oráculos que extraem a árvore avaliada e distinguem `t` de `tr`:
+`x'''^2` deve preservar `t: [2]` e `tr: primes(count: 3)`; `x^'''` deve
+preservar o carrier em `t`; `x^2'''` deve preservá-lo aninhado no conteúdo de
+`t`. Não aceitar equivalência por `plain_text`, glyph ou concatenação.

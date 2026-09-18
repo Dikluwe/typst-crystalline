@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: f86d475e
+Hash do Código: 8cfdca98
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -593,7 +593,7 @@ Encaminhar `Content::MathOvershell` pelo caminho inline math. Este owner não
 interpreta U+23E0, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
 
-## P1444 — encaminhamento geral de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — encaminhamento geral de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

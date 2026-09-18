@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash e0697455
+//! @prompt-hash e0531ac0
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -46,7 +46,9 @@ use crate::entities::elements::Element;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 use crate::entities::elements::math_accent::{MathAccentElem, MathAccentExplicit};
 use crate::entities::elements::math_align_point::MathAlignPointElem;
-use crate::entities::elements::math_attach::{MathAttachElem, MathAttachSlot};
+use crate::entities::elements::math_attach::{
+    MathAttachElem, MathAttachSlot, MathPrimesElem,
+};
 use crate::entities::elements::math_cancel::{
     MathCancelAngle, MathCancelElem, MathCancelExplicit,
 };
@@ -240,6 +242,9 @@ pub enum Content {
     /// `sub`/`sup` = scripts à direita.
     /// **Modelo D (Lote 2 P317)**: `entities::elements::math_attach::MathAttachElem`.
     MathAttach(Arc<MathAttachElem>),
+
+    /// Grupo semântico de primes (`math.primes` e apóstrofos matemáticos).
+    MathPrimes(Arc<MathPrimesElem>),
 
     /// Raiz matemática (`√x`, `∛x`, `∜x`).
     /// `index`: None = raiz quadrada, Some(n) = raiz n-ésima.
@@ -1251,6 +1256,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathText(s) => write!(f, "math.text({:?})", s),
         Content::MathFrac(fr) => write!(f, "math.frac({:?})", fr),
         Content::MathAttach(a) => write!(f, "math.attach({:?})", a),
+        Content::MathPrimes(p) => write!(f, "math.primes({:?})", p),
         Content::MathRoot(r) => write!(f, "math.root({:?})", r),
         Content::MathDelimited(d) => write!(f, "math.delimited({:?})", d),
         Content::MathLr(lr) => write!(f, "math.lr({:?})", lr),
@@ -1384,6 +1390,7 @@ impl Content {
             Self::MathText(_) => "math.text",
             Self::MathFrac(_) => "math.frac",
             Self::MathAttach(_) => "math.attach",
+            Self::MathPrimes(_) => "primes",
             Self::MathRoot(_) => "math.root",
             Self::MathDelimited(_) => "math.delimited",
             Self::MathLr(_) => "lr",
@@ -1686,6 +1693,11 @@ impl Content {
         br: MathAttachSlot,
     ) -> Self {
         Self::MathAttach(Arc::new(MathAttachElem { base, t, b, tl, bl, tr, br }))
+    }
+
+    /// Construtor de `MathPrimes`.
+    pub fn math_primes(count: usize) -> Self {
+        Self::MathPrimes(Arc::new(MathPrimesElem { count }))
     }
     /// Construtor de `MathRoot` (`index: None` = raiz quadrada).
     pub fn math_root(
@@ -3148,6 +3160,7 @@ impl Content {
             | Self::MathText(_)
             | Self::MathFrac(_)
             | Self::MathAttach(_)
+            | Self::MathPrimes(_)
             | Self::MathRoot(_)
             | Self::MathDelimited(_)
             | Self::MathLr(_)
@@ -3483,6 +3496,7 @@ impl Content {
             // Modelo D (Lote 2 P317): família math delega ao elemento.
             Self::MathFrac(e) => e.plain_text(),
             Self::MathAttach(e) => e.plain_text(),
+            Self::MathPrimes(e) => e.plain_text(),
             Self::MathRoot(e) => e.plain_text(),
             Self::MathDelimited(e) => e.plain_text(),
             Self::MathLr(e) => e.plain_text(),
@@ -3632,6 +3646,7 @@ impl PartialEq for Content {
             // (PartialEq estrutural derivado em cada `…Elem`).
             (Self::MathFrac(a), Self::MathFrac(b)) => a == b,
             (Self::MathAttach(a), Self::MathAttach(b)) => a == b,
+            (Self::MathPrimes(a), Self::MathPrimes(b)) => a == b,
             (Self::MathRoot(a), Self::MathRoot(b)) => a == b,
             (Self::MathDelimited(a), Self::MathDelimited(b)) => a == b,
             (Self::MathLr(a), Self::MathLr(b)) => a == b,
@@ -3875,6 +3890,7 @@ impl Content {
             (Content::Linebreak(e), f) => e.get_field(f),
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             (Content::Equation(e), f) => e.get_field(f),
+            (Content::MathPrimes(e), f) => e.get_field(f),
             (Content::PdfArtifact(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {
                 let key = match f {
@@ -3985,6 +4001,7 @@ impl Content {
             // (cada `…Elem::map_content` recurse nos filhos e re-embrulha).
             Content::MathFrac(e)      => e.map_content(transform)?,
             Content::MathAttach(e)    => e.map_content(transform)?,
+            Content::MathPrimes(e)    => e.map_content(transform)?,
             Content::MathRoot(e)      => e.map_content(transform)?,
             Content::MathDelimited(e) => e.map_content(transform)?,
             Content::MathLr(e) => e.map_content(transform)?,
@@ -4329,6 +4346,7 @@ impl Content {
             | Content::MathAlignPoint(_)
             | Content::MathFrac(_)
             | Content::MathAttach(_)
+            | Content::MathPrimes(_)
             | Content::MathRoot(_)
             | Content::MathDelimited(_)
             | Content::MathLr(_)

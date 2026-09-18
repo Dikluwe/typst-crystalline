@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/attach.md
-//! @prompt-hash 1ceaa155
+//! @prompt-hash 21756944
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -17,7 +17,90 @@ use crate::entities::{
 use super::symbols;
 use super::{offset_item, MathBox};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct PrimesRecipe {
+    glyphs: Vec<char>,
+    half_width_extent: usize,
+    half_width_offsets: Vec<usize>,
+}
+
+fn primes_recipe(count: usize) -> PrimesRecipe {
+    match count {
+        1 => PrimesRecipe {
+            glyphs: vec!['′'],
+            half_width_extent: 2,
+            half_width_offsets: vec![0],
+        },
+        2 => PrimesRecipe {
+            glyphs: vec!['″'],
+            half_width_extent: 2,
+            half_width_offsets: vec![0],
+        },
+        3 => PrimesRecipe {
+            glyphs: vec!['‴'],
+            half_width_extent: 2,
+            half_width_offsets: vec![0],
+        },
+        4 => PrimesRecipe {
+            glyphs: vec!['⁗'],
+            half_width_extent: 2,
+            half_width_offsets: vec![0],
+        },
+        count => PrimesRecipe {
+            glyphs: vec!['′'; count],
+            half_width_extent: count + 1,
+            half_width_offsets: (0..count).collect(),
+        },
+    }
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct P1444PrimesRecipe {
+    pub glyphs: Vec<char>,
+    pub half_width_extent: usize,
+    pub half_width_offsets: Vec<usize>,
+}
+
+#[cfg(test)]
+pub(crate) fn p1444_primes_recipe(count: usize) -> P1444PrimesRecipe {
+    let recipe = primes_recipe(count);
+    P1444PrimesRecipe {
+        glyphs: recipe.glyphs,
+        half_width_extent: recipe.half_width_extent,
+        half_width_offsets: recipe.half_width_offsets,
+    }
+}
+
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    pub(super) fn layout_primes(
+        &self,
+        elem: &crate::entities::elements::math_attach::MathPrimesElem,
+        style: &TextStyle,
+    ) -> MathBox {
+        let recipe = primes_recipe(elem.count);
+        if recipe.glyphs.len() == 1 && recipe.half_width_extent == 2 {
+            return self.layout_text_node(&recipe.glyphs[0].to_string().into(), style);
+        }
+
+        let prime = self.layout_text_node(&"′".into(), style);
+        let half = prime.width / 2.0;
+        let mut items = Vec::with_capacity(prime.items.len() * recipe.glyphs.len());
+        for half_offset in recipe.half_width_offsets {
+            items.extend(
+                prime.items.iter().cloned().map(|item| {
+                    offset_item(item, Pt(half * half_offset as f64), Pt(0.0))
+                }),
+            );
+        }
+        MathBox {
+            width: half * recipe.half_width_extent as f64,
+            ascent: prime.ascent,
+            descent: prime.descent,
+            items,
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(super) fn layout_attach_slots(
         &self,

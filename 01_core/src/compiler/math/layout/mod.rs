@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash e092141e
+//! @prompt-hash 021bd808
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -39,6 +39,8 @@ mod underover;
 mod vec;
 
 #[cfg(test)]
+pub(crate) use attach::p1444_primes_recipe;
+#[cfg(test)]
 pub(crate) use delimited::{p1436_effective_size, p1436_target_pt};
 #[cfg(test)]
 pub(crate) use delimited::{p1437_lr_mid_height, p1437_mid_target_pt};
@@ -52,6 +54,8 @@ pub(crate) use spacing::p1441_boundary_classes;
 pub(crate) use spacing::p1442_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::p1443_boundary_classes;
+#[cfg(test)]
+pub(crate) use spacing::p1444_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
 
@@ -899,6 +903,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathAttach(e) => self.layout_attach_slots(
                 &e.base, &e.t, &e.b, &e.tl, &e.bl, &e.tr, &e.br, style,
             ),
+
+            Content::MathPrimes(e) => self.layout_primes(e, style),
 
             Content::MathRoot(e) => {
                 self.layout_root(e.index.as_ref(), &e.radicand, style)

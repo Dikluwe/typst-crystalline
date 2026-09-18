@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 102c3caa
+//! @prompt-hash 09833af5
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -1982,6 +1982,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathText(_)
             | Content::MathFrac(_)
             | Content::MathAttach(_)
+            | Content::MathPrimes(_)
             | Content::MathRoot(_)
             | Content::MathDelimited(_)
             | Content::MathLr(_)

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 819ec8d4
+Hash do Código: 727f98ef
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -515,7 +515,7 @@ Adicionar `MathOvershell` aos braços terminais de
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
 
-## P1444 — projeção aproximada de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — projeção aproximada de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

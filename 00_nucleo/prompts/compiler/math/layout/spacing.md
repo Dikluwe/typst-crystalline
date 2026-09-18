@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 459e6b23
+Hash do Código: 113b880b
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -526,7 +526,7 @@ U+23E0 é `Diacritic`, mas não substitui a classe pública do composto.
 herdam recursivamente as classes esquerda e direita de `e.body`. Annotation e
 U+23E0 não participam das fronteiras; não derivar classe da geometria.
 
-## P1444 — classe de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — classe de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

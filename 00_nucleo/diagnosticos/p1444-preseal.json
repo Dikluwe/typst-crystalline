@@ -1,0 +1,32 @@
+{
+  "schema": "tekt.materialization.preseal/v1",
+  "step": 1444,
+  "status": "SEALED_FOR_PRODUCT_COMMIT",
+  "measured_at": "2026-09-18T13:20:16-03:00",
+  "attestation": "executed_without_isolation_attestation",
+  "proposal_commit": "d28d22d2e5db92339b63e8d805bbc9b75f53622d",
+  "red": "ATTRIBUTABLE_RED: seven missing-carrier/variant/helper compile errors",
+  "green": {"typst_core_p1444": {"passed": 4, "failed": 0}},
+  "mutation": {"families": 12, "final_executions": 36, "killed": 36, "score": 1.0, "unknown": 0},
+  "protected_inputs": {
+    "test_prompt_sha256": "76c986ee70bbfabce2c6ff2826c7adaa8721c0c9b1520afd6c2b4ddee015669a",
+    "p1444_tests_sha256": "98912e82f0bde93f5307f926fe9d00f3178313db57b2ff2430b2328d5e49452f",
+    "eval_tests_sha256": "dc8e406a188d58b179d489b6c1ed1dfa6bc5284a88d78f74856d737f12d72bf9",
+    "campaign_receipt_sha256": "0270f8a94f54f4ea7a6e1cfe327cbdb25e45a14cb4af5d377198664425432a6a"
+  },
+  "public_parity": {
+    "qualified_function_count_field_repr_and_equality": "PASS",
+    "apostrophe_identity_slots_and_nesting": "PASS",
+    "zero_dedicated_glyphs_and_half_width_recipe": "PASS",
+    "seven_negative_status_and_primary_messages": "PASS",
+    "diagnostic_span_and_named_hint": "SCOPE_OUT: global simplified diagnostic carrier"
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "git_diff_check": "PASS",
+    "cargo_build_workspace": "PASS",
+    "crystalline_lint": "PASS: exit 0; V5=0, V15=0, V26=0",
+    "cargo_test_workspace": "BASELINE_FAILURES: 5879 passed, 8 failed, 0 attributable to P1444"
+  },
+  "claim_boundary": "P1444 math.primes fragment only; no general Typst equivalence or integral diagnostic-presentation equivalence."
+}

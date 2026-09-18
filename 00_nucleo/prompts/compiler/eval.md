@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 623523f2
+Hash do Código: cd262070
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -663,7 +663,7 @@ Adicionar braço `MathOvershell` e comparar body, annotation e
 omissão a `none` explícito e não igualar a outro spreader nem ao
 `MathUnderover` mecânico.
 
-## P1444 — igualdade observável de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — igualdade observável de `MathPrimes` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 3d4564de
+Hash do Código: 7b29536d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -260,7 +260,7 @@ body e annotation não tornam o wrapper locatável.
 O match exaustivo classifica `Content::MathOvershell(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
 
-## P1444 — `MathPrimes` não-locatable (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — `MathPrimes` não-locatable (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: d662b437
+Hash do Código: a373808c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -535,7 +535,7 @@ de `math.overshell`. Preservar ordem, spread e avaliação única; exigir body,
 aceitar somente annotation posicional opcional e propagar os diagnostics
 medidos. Não montar U+23E0 nem executar layout na avaliação.
 
-## P1444 — primes sintáticos conservam carrier e slots (PROPOSTO; AGUARDA GATE ADR-0127)
+## P1444 — primes sintáticos conservam carrier e slots (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
