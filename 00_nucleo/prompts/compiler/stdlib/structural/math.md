@@ -535,3 +535,18 @@ duplicada e constrói o carrier P1436 `Content::MathLr` com as duas cercas no
 body. Ausência, extra, `body:`, named desconhecido e cast inválido propagam os
 diagnósticos canônicos; spread válido é expandido sem reavaliação. O builder
 não usa `MathDelimited`, não resolve cascata e não executa layout.
+
+## P1439 — binding público completo `math.overbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `overbrace`. No vanilla, body é posicional obrigatório
+e annotation é o único segundo positional opcional; named e excedentes são
+rejeitados. Omissão e `none` explícito permanecem distintos no `repr`.
+
+### Decisão proposta
+
+Registrar `math.overbrace` antes do espelho de símbolos. A nativa avalia uma
+vez, exige body convertível em conteúdo, aceita no máximo uma annotation e
+constrói `Content::MathOverbrace` com bit de presença. Reproduzir casts,
+spread e diagnósticos medidos; não criar U+23DE nem executar layout aqui.

@@ -296,3 +296,22 @@ legenda não repete essa expansão: a compensação pertence ao nível que cont�
 a peça. Para assembly, `piece_attach = piece.width / 2`, logo a compensação é
 naturalmente zero. Toda a geometria deriva das métricas MATH da fonte; não há
 constante posicional ou medida copiada do PDF.
+
+## P1439 — owner de layout de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve `overbrace` como U+23DE diacrítico acima do body, stretch
+horizontal de 100%, shortfall zero e largura exata; a anotação opcional é
+script superior. A implementação cristalina agregada já possui geometria
+equivalente, mas não recebe uma identidade pública.
+
+### Decisão proposta
+
+Adicionar free function/método fino neste owner que realiza localmente
+`MathOverbrace` pela composição madura: `layout_underover(body, None,
+Some(U+23DE))`, envolvida por anotação superior quando presente. A chave, não
+a anotação, recebe stretch para cobrir o body; a anotação usa estilo de
+superscript e pode ampliar o frame sem redefinir a largura-alvo da chave.
+Conservar attachment e largura exata existentes, sem copiar `AccentItem` ou
+`ScriptsItem` vanilla e sem mover lógica ao struct de dados (ADR-0109).

@@ -594,3 +594,16 @@ estado próprio de `MidElem` é o body; o vínculo ao `lr` é contexto de layout
 Adicionar braço `MathMid` e comparar somente o body. Não resolver contexto,
 classe ou stretch; `MathMid(body)` nunca é igual ao body nu nem a um
 `MathDelimited` semelhante.
+
+## P1439 — igualdade observável de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
+o match exaustivo ainda não possui essa identidade.
+
+### Decisão proposta
+
+Adicionar braço `MathOverbrace` e comparar body, annotation e
+`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
+omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.

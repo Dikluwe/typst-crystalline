@@ -1527,3 +1527,17 @@ O match permanece estático e magro: `Content::MathMid(e)` delega ao owner
 `delimited.rs`, distinto de `MathDelimited` e `MathLr`. Reconstruções de
 default/style transformam somente o body e preservam a variante; não resolvem
 grupo exterior, não executam stretch e não convertem o carrier.
+
+## P1439 — dispatch e reconstrução de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match exaustivo só conhece o carrier genérico; baixar cedo para ele apagaria
+identidade e presença explícita da annotation.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathOverbrace(e)` delega a
+`underover.rs`. Reconstruções de default/style transformam body e annotation
+e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
+dentro do owner de layout e nunca retorna ao conteúdo público.

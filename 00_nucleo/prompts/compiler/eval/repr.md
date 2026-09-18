@@ -842,3 +842,18 @@ imprime sempre `mid(body: <content>)`, inclusive vazio, sequência e nesting.
 Projetar `MathMid` exatamente como `mid(body: <content>)`. Body vazio usa
 `[]`; conteúdo composto preserva seu formatter; `mid` interior recorre ao
 mesmo formatter. Não inferir identidade por glifo, classe ou posição em `lr`.
+
+## P1439 — morfologia pública de `overbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime `xover("⏞")` ou `xover("⏞")over(n)`. O vanilla imprime
+`overbrace(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathOverbrace` como `overbrace(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. O campo annotation só aparece quando
+`annotation_explicit` for verdadeiro; seu valor explícito `none` não se
+confunde com omissão. Nesting recorre ao mesmo formatter e identidade nunca é
+inferida do glifo U+23DE ou do carrier genérico.

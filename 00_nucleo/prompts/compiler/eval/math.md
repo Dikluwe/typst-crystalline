@@ -460,3 +460,18 @@ preservar ordem e spread, aceitar somente `size:` e um positional e propagar
 duplicados, casts e named inválidos. O resultado é sempre `Content::MathLr`
 com body `MathSequence([‖, body, ‖])`; não reescrever para `MathDelimited` nem
 executar layout.
+
+## P1439 — sintaxe bare de `overbrace` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço agregado atual ignora named/excedentes e baixa a chamada para
+`MathUnderover`, apagando identidade e presença. O vanilla usa o mesmo
+elemento público nas formas bare e qualificada.
+
+### Decisão proposta
+
+`overbrace(...)` bare constrói `Args` math canônicos e delega ao mesmo builder
+de `math.overbrace`. Preservar ordem, spread e avaliação única; exigir body,
+aceitar somente annotation posicional opcional e propagar os diagnósticos
+medidos. Não montar o glifo nem executar layout na avaliação.

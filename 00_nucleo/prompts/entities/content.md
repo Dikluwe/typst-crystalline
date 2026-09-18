@@ -3148,3 +3148,18 @@ Adicionar `Content::MathMid(Arc<MathMidElem>)` e constructor por body. O match
 fechado mantém nome, debug, igualdade, hash, plain-text, filhos e walkers.
 `map_content` desce só no body; `map_text` conserva a variante. Não reduzir
 ao body, converter em delimitador ou assar stretch.
+
+# P1439 — variante pública `Content::MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A redução atual para `MathUnderover` perde identidade e presença explícita da
+anotação, embora a geometria mecânica já exista.
+
+### Contrato público proposto
+
+Adicionar `Content::MathOverbrace(Arc<MathOverbraceElem>)`. O match fechado
+preserva nome, debug, igualdade, hash, plain-text e filhos. `map_content`
+transforma body e anotação preservando `annotation_explicit`; `map_text`
+mantém a variante. Não inferir `overbrace` a partir de U+23DE nem converter o
+carrier público permanentemente em `MathUnderover`.

@@ -43,3 +43,20 @@ pub struct MathUnderoverElem {
 
 `plain_text` `over‖base‖under`; `map_content` recurse os 3 preservando `None`;
 `map_text` terminal; igualdade estrutural.
+
+## P1439 — identidade pública `MathOverbraceElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado vigente representa a geometria, mas apaga a função pública
+`overbrace` e não distingue anotação omitida de `annotation: none`. O vanilla
+preserva ambos os estados e usa U+23DE acima do body.
+
+### Decisão proposta
+
+No mesmo owner coeso, adicionar `MathOverbraceElem { body: Content,
+annotation: Option<Content>, annotation_explicit: bool }` com constructor que
+preserva presença. `plain_text` segue a ordem visual `annotation + ⏞ + body`;
+`map_content` desce no body e na anotação; `map_text` conserva a variante.
+Igualdade/hash incluem os três campos. O carrier genérico `MathUnderoverElem`
+permanece separado e não ganha identidade inferida.

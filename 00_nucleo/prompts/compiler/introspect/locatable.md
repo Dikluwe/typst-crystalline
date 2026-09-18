@@ -199,3 +199,15 @@ relação com `lr` é de layout matemático, não de introspecção.
 O match exaustivo classifica `Content::MathMid(_)` como `false`, preservando
 `is_locatable ↔ extract_payload.is_some()` e a travessia do body pelo owner
 estrutural apropriado.
+
+## P1439 — `MathOverbrace` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`OverbraceElem` não possui `ElementKind`, Location ou payload selecionável;
+body e annotation não tornam o wrapper locatável.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathOverbrace(_)` como `false`,
+preservando `is_locatable ↔ extract_payload.is_some()`.

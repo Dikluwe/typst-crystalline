@@ -1785,3 +1785,16 @@ de materialização duplicaria ocorrências.
 Classificar `MathMid` entre variantes matemáticas não-locatáveis e terminais.
 Não emitir tag, location ou ocorrência para o wrapper e não descer novamente
 no body nestes walkers.
+
+## P1439 — neutralidade introspectiva de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`OverbraceElem` é carrier matemático sem identidade locatável. Body e
+annotation já pertencem ao walker estrutural do conteúdo.
+
+### Decisão proposta
+
+Classificar `MathOverbrace` entre variantes math não-locatáveis e terminais
+nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
+filhos, evitando dupla contagem.

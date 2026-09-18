@@ -460,3 +460,16 @@ fallback cristalino seria `Normal` ou herdaria classes do glifo.
 `Relation` a cada item efetivo do body. Isso independe de estar em `lr`: o
 contexto controla stretch, não a classe. Não inferir classe por texto,
 delimitador mecânico ou altura resultante.
+
+## P1439 — classe herdada de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`AccentItem::create` vanilla constrói as propriedades com `base.raw_class()`;
+a chave é `Diacritic`, mas não substitui a classe pública do composto.
+
+### Decisão proposta
+
+`node_math_class(MathOverbrace(e))` herda recursivamente as classes esquerda
+e direita de `e.body`. Annotation e U+23DE não participam das fronteiras. Não
+fixar `Normal`, `Diacritic` ou uma classe derivada da altura renderizada.

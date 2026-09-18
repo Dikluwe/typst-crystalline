@@ -527,3 +527,16 @@ neste nível duplicaria seu owner especializado.
 Encaminhar `Content::MathMid` pelo mesmo caminho inline das variantes math.
 Este owner não interpreta classe `Relation`, grupo `lr` nem stretch; a lógica
 permanece em `compiler/math/layout/delimited.rs` e no spacing matemático.
+
+## P1439 — encaminhamento geral de `MathOverbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
+variante exige braço exaustivo, mas sua realização não pertence a este nível.
+
+### Decisão proposta
+
+Encaminhar `Content::MathOverbrace` pelo caminho inline math. Este owner não
+interpreta U+23DE, annotation, classe ou stretch; a lógica permanece em
+`compiler/math/layout/underover.rs` e no spacing matemático.
