@@ -655,3 +655,23 @@ falham como no vanilla ratificado. O default é `100%`, com
 `size_explicit=false`; qualquer argumento fornecido, inclusive `100%`, liga a
 presença. Chamada qualificada e bare reutilizam um único construtor validado e
 produzem `MathStretch`, nunca aplicação genérica textual.
+
+## P1447 — binding público completo `math.abs` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `abs`. No vanilla ratificado, `abs` é função pública
+com `body: Content` posicional obrigatório e somente
+`size: Rel<Length>` nomeado. Ela retorna o carrier público `LrElem`, cujo body
+é `sequence(|, body, |)`; a presença de `size` é conservada, inclusive quando
+o valor explícito é `100%`, e `.func()` do resultado permanece `lr`.
+
+### Decisão proposta
+
+Registrar `math.abs` antes do espelho de símbolos. A nativa exige exatamente
+um positional convertível a conteúdo, aceita somente `size`, detecta
+ocorrência duplicada e constrói o carrier P1436 `Content::MathLr` com duas
+barras `|`. Ausência, extra, `body:`, named desconhecido e cast inválido
+propagam os diagnósticos canônicos; spread válido é expandido sem reavaliação.
+O builder não cria `MathAbs`, não usa `MathDelimited`, não resolve cascata e
+não executa layout. As demais rotas residuais P1422 ficam fora deste recorte.

@@ -577,3 +577,22 @@ tipada de `math.stretch`. A forma sem `#` continua sujeita às regras normais de
 conteúdo matemático; não reinterpretar conteúdo como length. O resultado é o
 carrier `MathStretch`, preservando nesting, body e presença causal de `size`.
 Não alterar parser, AST nem fase do pipeline.
+
+## P1447 — sintaxe bare de `abs` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço agregado atual exige um positional, ignora named e devolve
+`MathDelimited('|', body, '|')`. O vanilla produz o mesmo `LrElem` da função
+qualificada, conserva `size`, identidade, campos e nesting e rejeita
+argumentos fora da assinatura pública.
+
+### Decisão proposta
+
+`abs(...)` bare constrói `Args` math canônicos e delega ao mesmo
+parser/construtor de `math.abs`. Avaliar cada ocorrência exatamente uma vez,
+preservar ordem e spread, aceitar somente `size:` e um positional e propagar
+duplicados, casts e named inválidos. O resultado é sempre
+`Content::MathLr` com body `MathSequence([|, body, |])`; não reescrever para
+`MathDelimited`, não criar novo carrier e não executar layout. Os braços
+`floor`, `ceil` e `bar` permanecem inalterados.
