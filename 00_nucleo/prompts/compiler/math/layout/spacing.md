@@ -569,3 +569,15 @@ não substitui a classe pública do composto.
 `node_math_class(MathUnderbracket(e))` herda recursivamente as classes esquerda
 e direita de `e.body`. Annotation e U+23B5 não participam das fronteiras; não
 fixar `Normal` ou `Diacritic`.
+
+## P1450 — classe herdada de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla conserva a classe bruta do body; U+23DD é diacrítico, mas não troca
+a classe pública do composto.
+
+### Decisão proposta
+
+Herdar recursivamente as classes esquerda/direita de `body`; annotation e
+U+23DD não participam das fronteiras.

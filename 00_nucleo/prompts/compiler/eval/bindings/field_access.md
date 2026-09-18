@@ -1255,3 +1255,15 @@ Delegar `Content::MathUnderbracket` ao owner: expor `body` sempre e
 `annotation` somente quando `annotation_explicit`, preservando `Value::None`.
 Manter a ordem `body`, `annotation`; não inferir presença pelo valor convertido
 nem pela redução geométrica.
+
+## P1450 — reflexão causal de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `body` está sempre assente; annotation omitida não aparece em
+`fields()`, `annotation: none` aparece e `func()` devolve `underparen`.
+
+### Decisão proposta
+
+Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
+ordem declarada, preservando `Value::None` e a função pública.

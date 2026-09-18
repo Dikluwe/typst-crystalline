@@ -212,6 +212,17 @@ body e annotation não tornam o wrapper locatável.
 O match exaustivo classifica `Content::MathOverbrace(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
 
+## P1450 — `MathUnderparen` não-locatable (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O elemento não possui `ElementKind`, Location ou payload selecionável.
+
+### Decisão proposta
+
+Classificar `Content::MathUnderparen(_)` como `false`, preservando a
+equivalência entre locatabilidade e payload.
+
 ## P1440 — `MathOverbracket` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão

@@ -541,6 +541,18 @@ Encaminhar `Content::MathOverbrace` pelo caminho inline math. Este owner não
 interpreta U+23DE, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
 
+## P1450 — encaminhamento geral de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral exige braço exaustivo para a identidade nova, mas não é
+dono da realização geométrica.
+
+### Decisão proposta
+
+Encaminhar `Content::MathUnderparen` pelo caminho inline math; U+23DD,
+annotation, classe e stretch permanecem nos owners matemáticos.
+
 ## P1440 — encaminhamento geral de `MathOverbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão

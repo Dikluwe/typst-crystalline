@@ -1893,3 +1893,15 @@ annotation já pertencem ao walker estrutural do conteúdo.
 
 Classificar `MathUnderbracket` entre variantes math não-locatáveis e terminais.
 Não emitir ocorrência do wrapper nem repetir descida nos filhos.
+
+## P1450 — neutralidade introspectiva de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O wrapper não possui identidade locatável; seus filhos pertencem ao walker
+estrutural de conteúdo.
+
+### Decisão proposta
+
+Classificar `MathUnderparen` entre variantes math não-locatáveis e terminais,
+sem ocorrência própria nem dupla descida.

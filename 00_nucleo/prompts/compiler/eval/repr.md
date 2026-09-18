@@ -971,3 +971,15 @@ Projetar `MathUnderbracket` como `underbracket(body: <content>, annotation?:
 <content-ou-none>)`, nessa ordem. Annotation aparece somente quando
 explicitamente fornecida; nesting recorre ao formatter e identidade nunca é
 inferida de U+23B5 ou do carrier genérico.
+
+## P1450 — morfologia pública de `underparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino não possui repr próprio; o vanilla imprime
+`underparen(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathUnderparen` como `underparen(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem; nesting preserva identidade.

@@ -707,3 +707,17 @@ cada argumento uma vez, exige body convertível em conteúdo, aceita no máximo
 uma annotation posicional e constrói `Content::MathUnderbracket` com bit de
 presença. Reproduzir casts, spread e diagnósticos medidos; não criar U+23B5
 nem executar layout aqui. `underparen` e `undershell` ficam fora do recorte.
+
+## P1450 — construtor público `math.underparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo omite `underparen`; no vanilla body é positional obrigatório e
+annotation o único segundo positional opcional. Named e excedentes falham;
+omissão e `none` explícito diferem.
+
+### Decisão proposta
+
+Registrar `math.underparen`; a nativa avalia uma vez, aplica casts e
+diagnósticos medidos e constrói `Content::MathUnderparen` com presença causal.
+Não criar U+23DD nem executar layout aqui; `undershell` fica fora do recorte.

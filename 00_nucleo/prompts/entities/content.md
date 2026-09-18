@@ -3280,3 +3280,16 @@ fechado preserva nome, debug, igualdade, hash, plain-text e filhos.
 `map_content` transforma body e annotation preservando presença; `map_text`
 mantém a variante. Não inferir `underbracket` de U+23B5 nem converter o carrier
 público permanentemente em `MathUnderover`.
+
+# P1450 — variante pública `Content::MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A rota bare atual perde identidade, fields e presença, embora a geometria
+mecânica comum já exista.
+
+### Contrato público proposto
+
+Adicionar `Content::MathUnderparen(Arc<MathUnderparenElem>)`. Nome, debug,
+igualdade, hash, plain-text, filhos e reconstruções preservam identidade e
+presença; nunca inferir a variante de U+23DD.

@@ -409,3 +409,16 @@ Some(U+23B5), None)`, envolvida por annotation inferior quando presente. O
 bracket, não a annotation, recebe stretch; conservar attachment e largura
 existentes sem copiar a mecânica IR vanilla nem mover lógica ao struct de
 dados (ADR-0109).
+
+## P1450 — realização de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla realiza U+23DD abaixo do body, stretch horizontal de 100%, shortfall
+zero e annotation inferior; a geometria cristalina comum já existe.
+
+### Decisão proposta
+
+Adicionar free function/método fino que reduz localmente para
+`layout_underover(body, Some(U+23DD), None)`, envolvida por annotation inferior
+quando presente. O paren, não a annotation, recebe stretch (ADR-0109).

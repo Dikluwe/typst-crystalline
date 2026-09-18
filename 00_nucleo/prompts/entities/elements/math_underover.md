@@ -145,3 +145,16 @@ a ordem visual `body + ⎵ + annotation`; `map_content` desce no body e na
 annotation; `map_text` conserva a variante. Igualdade/hash incluem os três
 campos. Os outros spreaders públicos e `MathUnderoverElem` permanecem
 identidades separadas.
+
+## P1450 — carrier público `MathUnderparenElem` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado não preserva função pública nem distingue omissão de
+`annotation: none`; o vanilla preserva ambos e usa U+23DD abaixo do body.
+
+### Decisão proposta
+
+Adicionar `MathUnderparenElem { body, annotation, annotation_explicit }`.
+`plain_text` segue `body + ⏝ + annotation`; walkers transformam ambos os
+filhos e preservam variante/presença; igualdade/hash incluem os três campos.

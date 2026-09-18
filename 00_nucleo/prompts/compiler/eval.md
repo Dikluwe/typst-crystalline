@@ -709,3 +709,16 @@ match exaustivo não possui a identidade `underbracket`.
 Adicionar braço `MathUnderbracket` e comparar body, annotation e
 `annotation_explicit`. Não comparar U+23B5 ou caixas derivadas, não colapsar
 omissão com `none` explícito e não equiparar ao `MathUnderover` mecânico.
+
+## P1450 — igualdade observável de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, annotation e presença explícita alteram morfologia, fields ou repr; o
+match exaustivo não possui a identidade `underparen`.
+
+### Decisão proposta
+
+Adicionar braço `MathUnderparen` e comparar body, annotation e
+`annotation_explicit`. Não comparar U+23DD ou caixas derivadas, não colapsar
+omissão com `none` explícito nem equiparar ao `MathUnderover` mecânico.

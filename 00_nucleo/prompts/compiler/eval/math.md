@@ -628,3 +628,16 @@ builder de `math.underbracket`. Preservar ordem, spread e avaliação única;
 exigir body, aceitar somente annotation posicional opcional e propagar os
 diagnósticos medidos. Não montar U+23B5 nem executar layout na avaliação.
 `underparen` e `undershell` permanecem inalterados.
+
+## P1450 — forma bare `underparen` (PROPOSTA; REQUER GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A rota atual perde identidade, mantém positional excedente e silencia named;
+o vanilla usa o mesmo elemento nas formas bare e qualificada.
+
+### Decisão proposta
+
+Construir argumentos math canônicos e delegar ao builder de
+`math.underparen`, preservando ordem, spread, avaliação única e diagnósticos.
+Não criar U+23DD nem executar layout na avaliação; `undershell` não muda.
