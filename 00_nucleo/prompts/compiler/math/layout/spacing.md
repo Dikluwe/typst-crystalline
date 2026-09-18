@@ -538,3 +538,8 @@ de uma base, pois a associação ocorre no `MathAttach` exterior.
 `base_math_class(MathPrimes(_))` e `node_math_class(MathPrimes(_))` devolvem
 `Normal` nas duas fronteiras. Não classificar como `Alphabetic`, operador ou
 diacrítico e não derivar classe do codepoint escolhido.
+## P1446 — classe de `MathStretch` (PROPOSTA; gate ADR-0127)
+
+`MathStretch` não fabrica classe. `base_math_class` e `node_math_class`
+delegam às fronteiras do body resolvido, preservando operador/relação/
+delimitador após esticamento. O wrapper não é `Normal` por conveniência.

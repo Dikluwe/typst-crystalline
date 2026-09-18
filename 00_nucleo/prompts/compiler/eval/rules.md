@@ -268,3 +268,10 @@ No valor dict de `augment`, somente `hline`, `vline` e `stroke` são consumidos;
 chaves internas desconhecidas são aceites e ignoradas, conforme o pin. Os tipos
 inválidos desses três campos continuam erro. Esta tolerância interna não altera
 a lista fechada de named da própria set rule.
+## P1446 — propriedade settable `math.stretch.size` (PROPOSTA; gate ADR-0127)
+
+Ligar o par já reconhecido `("stretch", "size")` ao transporte efetivo.
+Validar `Rel<Length>` antes de inserir a chave `math.stretch.size` na
+StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
+argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
+altera `size_explicit`, fields ou repr do carrier.

@@ -676,3 +676,10 @@ mesma identidade.
 Adicionar braço `MathPrimes` e comparar exclusivamente `count`. Não comparar
 glyph, largura ou frame derivados e não equiparar o carrier a `MathText` ou
 `MathSequence`.
+## P1446 — igualdade observacional de `MathStretch` (PROPOSTA; gate ADR-0127)
+
+`Value::Content(MathStretch)` participa da igualdade observacional por body,
+tamanho e presença causal. Omitido e `100%` explícito não são colapsados para
+fins de representação/fields, ainda que o alvo geométrico efetivo coincida.
+Adicionar braços exaustivos sem wildcard e preservar o carrier nas passagens
+de avaliação.

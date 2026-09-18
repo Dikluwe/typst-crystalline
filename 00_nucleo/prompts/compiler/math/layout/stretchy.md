@@ -220,3 +220,17 @@ variante estendida), soma dinamicamente
 `FontMetrics::char_italics_correction(base_char, size, style)` ao advance e
 à largura. Variantes posteriores/assemblies não recebem IC, espelhando
 `!extended_shape`. Nenhuma constante do corpus entra no layout.
+## P1446 — aplicação pública de stretch (PROPOSTA; gate ADR-0127)
+
+Fornecer a primitiva usada pela feature `MathStretch`: resolver o body
+natural, identificar o único eixo extensível do glifo e aplicar
+`target = size.rel × dimensão-de-referência + size.abs(font-size)`, com
+short-fall zero. A dimensão de referência inclui a dimensão máxima do glifo e
+attachments conforme o observável vanilla. Preservar keep-base, seleção de
+variante, keep-largest/assembly e métricas de tinta já especificados neste
+owner; nunca simular stretch por escala contínua.
+
+Se o body não resultar num glifo extensível, conservar o fallback natural e
+o diagnóstico observável aplicável. Casos com ambos os eixos declarados ou
+attachments divergentes do pin exigem witness e não podem ser decididos por
+conveniência mecânica.

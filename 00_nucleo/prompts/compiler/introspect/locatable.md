@@ -271,3 +271,8 @@ campo count não cria identidade espacial.
 
 O match exaustivo classifica `Content::MathPrimes(_)` como `false`, preservando
 `is_locatable ↔ extract_payload.is_some()`.
+## P1446 — não-locatabilidade de `MathStretch` (PROPOSTA; gate ADR-0127)
+
+`MathStretch` não cria localização própria e não é candidato consultável.
+Adicionar braço exaustivo não-locatável; não herdar localização do body nem
+fabricar elemento dinâmico.

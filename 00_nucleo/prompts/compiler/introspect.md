@@ -1862,3 +1862,9 @@ não ocorrência estrutural.
 
 Classificar `MathPrimes` como variante math terminal e não-locatável nestes
 walkers. Não emitir ocorrência, tag ou location e não fabricar filho textual.
+## P1446 — `MathStretch` nos walkers (PROPOSTA; gate ADR-0127)
+
+Tratar `MathStretch` como carrier matemático estrutural terminal nas rotas de
+tempo, referência e counters, em paralelo aos wrappers math vigentes. A
+recursão semântica de transformação pertence a `Element::map_content`; estes
+walkers não materializam nem consultam o body separadamente.

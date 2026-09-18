@@ -224,3 +224,9 @@ migrarem. O hub encolhe lote a lote.
 
 O hub declara o módulo proprietário `outline_entry`. O tipo, os campos e a
 lógica de `body` permanecem no arquivo da unidade; o hub não os replica.
+## P1446 — registro do owner `math_stretch` (PROPOSTA; gate ADR-0127)
+
+O hub declara somente `pub mod math_stretch`; trait, defaults e topologia não
+mudam. O consumer novo possui exatamente o Prompt L0
+`entities/elements/math_stretch.md`. Não reexportar tipos nem alojar lógica da
+feature no hub.

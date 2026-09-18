@@ -605,3 +605,9 @@ geometria dos glyphs agrupados.
 Encaminhar `Content::MathPrimes` pelo caminho inline math. Este owner não
 interpreta count, codepoint, sobreposição ou attachment; a realização pertence
 a `compiler/math/layout/attach.rs`.
+## P1446 — roteamento geral de `MathStretch` (PROPOSTA; gate ADR-0127)
+
+Fora de `Equation`, `MathStretch` segue o mesmo fallback matemático dos demais
+carriers. Dentro da equação, somente `MathLayouter` o resolve. O Layouter
+geral não interpreta `size`, não estica frames e não duplica a lógica da
+feature.

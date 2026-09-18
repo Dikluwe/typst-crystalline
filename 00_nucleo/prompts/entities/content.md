@@ -3237,3 +3237,10 @@ Adicionar `Content::MathPrimes(Arc<MathPrimesElem>)` e
 `Content::math_primes(count)`. Nome/debug/igualdade/hash/plain-text/get_field e
 walkers preservam a identidade e o count. A variante não tem filhos e não é
 inferida de U+2032/U+2033/U+2034/U+2057 ou de repetição textual.
+## P1446 — variante pública `MathStretch` (PROPOSTA; gate ADR-0127)
+
+Adicionar `Content::MathStretch(Arc<MathStretchElem>)` e constructor canônico
+com `body`, `Rel<Length>` e `size_explicit`. Integrar exaustivamente Debug,
+nome, igualdade, hash, `plain_text`, field dispatch e walkers de conteúdo.
+`map_content` recursa pelo owner; `map_text` preserva o carrier. Nunca
+normalizar `MathStretch` para texto, `MathLr` ou body nu.

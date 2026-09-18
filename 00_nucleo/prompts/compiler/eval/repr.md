@@ -929,3 +929,10 @@ e não possui binding qualificado.
 Projetar `MathPrimes` sempre como `primes(count: <inteiro>)`. Não substituir
 por glyph, string, sequence ou Debug e não inferir count do texto. Dentro de
 `MathAttach`, cada slot recorre normalmente ao formatter e conserva nesting.
+## P1446 — `repr` de `math.stretch` (PROPOSTA; gate ADR-0127)
+
+Representar `MathStretch` como `stretch(body: <content>)`; quando
+`size_explicit`, acrescentar `, size: <relative-length>` depois do body. O
+default omitido não fabrica campo, enquanto `size: 100%` explícito permanece
+visível. Usar a forma canônica `rel% + abs` já vigente para relative lengths e
+a morfologia de content dos carriers math, preservando nesting.

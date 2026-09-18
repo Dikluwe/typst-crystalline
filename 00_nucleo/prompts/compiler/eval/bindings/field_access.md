@@ -1208,3 +1208,9 @@ Quando o receptor é `Content::OutlineEntry` (direto ou localizado), o campo
 `body` vincula o receptor ao interceptor dedicado. Os campos materiais
 `level`, `element` e `fill` continuam a ser lidos pelo caminho comum de
 `Content`; nenhum outro conteúdo ganha esse método.
+## P1446 — campos de `math.stretch` (PROPOSTA; gate ADR-0127)
+
+`body` está sempre disponível. `size` existe em acesso, `fields`, `has` e
+`at` somente quando o argumento foi explicitamente fornecido; a cascata e o
+default geométrico não fabricam presença. `func()` devolve a função nativa
+`stretch`. Campo desconhecido conserva o diagnóstico global.

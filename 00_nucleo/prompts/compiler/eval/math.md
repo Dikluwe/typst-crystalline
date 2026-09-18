@@ -570,3 +570,10 @@ duplicados, casts e named inválidos. O resultado é sempre `Content::MathLr`
 com body `MathSequence([⌊, body, ⌉])`; não reescrever para `MathDelimited` nem
 executar layout. Os braços `abs`, `floor`, `ceil` e `bar` permanecem
 inalterados.
+## P1446 — convergência bare de `stretch` (PROPOSTA; gate ADR-0127)
+
+No modo matemático, `stretch(body, size: #valor)` resolve pela mesma função
+tipada de `math.stretch`. A forma sem `#` continua sujeita às regras normais de
+conteúdo matemático; não reinterpretar conteúdo como length. O resultado é o
+carrier `MathStretch`, preservando nesting, body e presença causal de `size`.
+Não alterar parser, AST nem fase do pipeline.

@@ -526,3 +526,8 @@ estrutural nem `ElementKind` consultável nesta projeção.
 
 Adicionar `MathPrimes` aos braços terminais de `has_any_text` e
 `count_variant`, sem ocorrência própria e sem fabricar conteúdo textual.
+## P1446 — aproximações L3 para `MathStretch` (PROPOSTA; gate ADR-0127)
+
+Adicionar a variante aos matches exaustivos de helpers de query como carrier
+math não-locatável/terminal. Não expor `body` como ocorrência independente,
+não inferir texto consultável novo e não duplicar a semântica L1.

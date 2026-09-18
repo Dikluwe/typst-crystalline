@@ -1612,3 +1612,10 @@ O match permanece estático e magro: `Content::MathOverparen(e)` delega a
 `underover.rs`. Reconstruções de default/style transformam body e annotation
 e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
 dentro do owner de layout e nunca retorna ao conteúdo público.
+## P1446 — despacho e estilo de `MathStretch` (PROPOSTA; gate ADR-0127)
+
+O match exaustivo delega `MathStretch` a uma free function de feature. Antes
+do layout, as reconstruções de default/estilo recursam no body e preservam
+`size`/`size_explicit`. A função escolhe tamanho efetivo por explícito >
+`math.stretch.size` cascaded > `100%` e passa font-size causal. Não mover
+lógica para a entidade nem introduzir despacho dinâmico (ADR-0109).

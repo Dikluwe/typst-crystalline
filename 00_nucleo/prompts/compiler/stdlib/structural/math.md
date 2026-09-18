@@ -646,3 +646,12 @@ duplicada e constrói o carrier P1436 `Content::MathLr` com cercas assimétricas
 propagam os diagnósticos canônicos; spread válido é expandido sem reavaliação.
 O builder não usa `MathDelimited`, não resolve cascata e não executa layout.
 `math.abs`, `floor`, `ceil` e `bar` permanecem fora deste recorte.
+## P1446 — binding `math.stretch` (PROPOSTO; gate ADR-0127)
+
+Registrar função-elemento pública `stretch`. Aceita um único body posicional
+castável a `Content` e `size: Rel<Length>` named opcional. Ausência de body,
+body named, named desconhecido, duplicado, tipo inválido e argumento extra
+falham como no vanilla ratificado. O default é `100%`, com
+`size_explicit=false`; qualquer argumento fornecido, inclusive `100%`, liga a
+presença. Chamada qualificada e bare reutilizam um único construtor validado e
+produzem `MathStretch`, nunca aplicação genérica textual.
