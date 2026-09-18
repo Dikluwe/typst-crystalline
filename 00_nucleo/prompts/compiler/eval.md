@@ -696,3 +696,16 @@ repr; o match exaustivo ainda não possui essa identidade.
 Adicionar braço `MathUnderbrace` e comparar body, annotation e
 `annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
 omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.
+
+## P1449 — igualdade observável de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, annotation e presença explícita alteram morfologia, fields ou repr; o
+match exaustivo não possui a identidade `underbracket`.
+
+### Decisão proposta
+
+Adicionar braço `MathUnderbracket` e comparar body, annotation e
+`annotation_explicit`. Não comparar U+23B5 ou caixas derivadas, não colapsar
+omissão com `none` explícito e não equiparar ao `MathUnderover` mecânico.

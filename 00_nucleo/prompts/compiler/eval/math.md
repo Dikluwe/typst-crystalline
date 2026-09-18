@@ -612,3 +612,19 @@ de `math.underbrace`. Preservar ordem, spread e avaliação única; exigir body,
 aceitar somente annotation posicional opcional e propagar os diagnósticos
 medidos. Não montar o glifo nem executar layout na avaliação. Os outros braços
 `under*` permanecem inalterados.
+
+## P1449 — sintaxe bare de `underbracket` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço agregado atual ignora named/excedentes e baixa para `MathUnderover`,
+apagando identidade e presença. O vanilla usa o mesmo elemento público nas
+formas bare e qualificada.
+
+### Decisão proposta
+
+`underbracket(...)` bare constrói argumentos math canônicos e delega ao mesmo
+builder de `math.underbracket`. Preservar ordem, spread e avaliação única;
+exigir body, aceitar somente annotation posicional opcional e propagar os
+diagnósticos medidos. Não montar U+23B5 nem executar layout na avaliação.
+`underparen` e `undershell` permanecem inalterados.

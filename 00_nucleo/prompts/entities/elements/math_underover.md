@@ -128,3 +128,20 @@ preserva presença. `plain_text` segue a ordem visual `body + ⏟ + annotation`;
 `map_content` desce no body e na annotation; `map_text` conserva a variante.
 Igualdade/hash incluem os três campos. Os outros spreaders públicos e
 `MathUnderoverElem` permanecem identidades separadas.
+
+## P1449 — identidade pública `MathUnderbracketElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado vigente realiza a geometria, mas apaga a função pública
+`underbracket` e não distingue annotation omitida de `annotation: none`. O
+vanilla preserva ambos e usa U+23B5 abaixo do body.
+
+### Decisão proposta
+
+No mesmo owner coeso, adicionar `MathUnderbracketElem { body: Content,
+annotation: Option<Content>, annotation_explicit: bool }`. `plain_text` segue
+a ordem visual `body + ⎵ + annotation`; `map_content` desce no body e na
+annotation; `map_text` conserva a variante. Igualdade/hash incluem os três
+campos. Os outros spreaders públicos e `MathUnderoverElem` permanecem
+identidades separadas.

@@ -1633,3 +1633,17 @@ O match permanece estático e magro: `Content::MathUnderbrace(e)` delega a
 `underover.rs`. Reconstruções de default/style transformam body e annotation
 e preservam `annotation_explicit` e a variante. A redução mecânica ocorre
 somente dentro do owner de layout e nunca retorna ao conteúdo público.
+
+## P1449 — dispatch e reconstrução de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Baixar cedo para o carrier genérico apagaria identidade, fields e presença
+explícita da annotation.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathUnderbracket(e)` delega a
+`underover.rs`. Reconstruções de default/style transformam body e annotation,
+preservam `annotation_explicit` e a variante. A redução mecânica ocorre apenas
+dentro do owner de layout (ADR-0109).

@@ -544,3 +544,17 @@ não introduz `ElementKind` consultável nesta projeção.
 Adicionar `MathUnderbrace` aos braços terminais de `has_any_text` e
 `count_variant`, sem ocorrência própria nem recursão L3 em body/annotation.
 Os walkers estruturais e repr permanecem donos desses observáveis.
+
+## P1449 — projeção aproximada de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers math realizados como folhas;
+`MathUnderbracket` não introduz `ElementKind` consultável.
+
+### Decisão proposta
+
+Adicionar `MathUnderbracket` aos braços terminais de
+`has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 em
+body/annotation. Walkers estruturais e repr permanecem donos desses
+observáveis.

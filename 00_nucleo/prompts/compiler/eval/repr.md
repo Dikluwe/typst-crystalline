@@ -957,3 +957,17 @@ Projetar `MathUnderbrace` como `underbrace(body: <content>, annotation?:
 `annotation_explicit` for verdadeiro; `none` explícito não se confunde com
 omissão. Nesting recorre ao mesmo formatter e identidade nunca é inferida do
 glifo U+23DF ou do carrier genérico.
+
+## P1449 — morfologia pública de `underbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime `xunder("⎵")` ou `xunder("⎵")under(n)`. O vanilla imprime
+`underbracket(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathUnderbracket` como `underbracket(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. Annotation aparece somente quando
+explicitamente fornecida; nesting recorre ao formatter e identidade nunca é
+inferida de U+23B5 ou do carrier genérico.

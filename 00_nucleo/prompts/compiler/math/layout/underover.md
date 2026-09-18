@@ -391,3 +391,21 @@ annotation, recebe stretch para cobrir o body; a annotation usa estilo de
 subscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
 attachment e largura exata existentes, sem copiar `AccentItem`/`ScriptsItem`
 vanilla e sem mover lógica ao struct de dados (ADR-0109).
+
+## P1449 — owner de layout de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve `underbracket` como U+23B5 diacrítico abaixo do body,
+stretch horizontal de 100%, shortfall zero e largura exata; a annotation
+opcional é script inferior. A geometria cristalina existe sem identidade
+pública própria.
+
+### Decisão proposta
+
+Adicionar free function/método fino neste owner que realiza localmente
+`MathUnderbracket` pela composição madura: `layout_underover(body,
+Some(U+23B5), None)`, envolvida por annotation inferior quando presente. O
+bracket, não a annotation, recebe stretch; conservar attachment e largura
+existentes sem copiar a mecânica IR vanilla nem mover lógica ao struct de
+dados (ADR-0109).

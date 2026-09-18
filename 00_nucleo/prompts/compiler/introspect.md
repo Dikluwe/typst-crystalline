@@ -1881,3 +1881,15 @@ annotation já pertencem ao walker estrutural do conteúdo.
 Classificar `MathUnderbrace` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
 filhos, evitando dupla contagem.
+
+## P1449 — neutralidade introspectiva de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`MathUnderbracketElem` é carrier matemático sem identidade locatável; body e
+annotation já pertencem ao walker estrutural do conteúdo.
+
+### Decisão proposta
+
+Classificar `MathUnderbracket` entre variantes math não-locatáveis e terminais.
+Não emitir ocorrência do wrapper nem repetir descida nos filhos.

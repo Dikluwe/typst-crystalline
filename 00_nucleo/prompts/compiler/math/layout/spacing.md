@@ -556,3 +556,16 @@ a chave é `Diacritic`, mas não substitui a classe pública do composto.
 `node_math_class(MathUnderbrace(e))` herda recursivamente as classes esquerda
 e direita de `e.body`. Annotation e U+23DF não participam das fronteiras. Não
 fixar `Normal`, `Diacritic` ou classe derivada da altura renderizada.
+
+## P1449 — classe herdada de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla cria o acento com a classe bruta do body; U+23B5 é diacrítico, mas
+não substitui a classe pública do composto.
+
+### Decisão proposta
+
+`node_math_class(MathUnderbracket(e))` herda recursivamente as classes esquerda
+e direita de `e.body`. Annotation e U+23B5 não participam das fronteiras; não
+fixar `Normal` ou `Diacritic`.

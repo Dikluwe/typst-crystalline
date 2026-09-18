@@ -1240,3 +1240,18 @@ sempre e `annotation` somente quando `annotation_explicit` for verdadeiro,
 preservando `Value::None` como valor assente. `content_set_fields` mantém a
 ordem `body`, `annotation`; não inferir presença pelo `Option` convertido nem
 pela geometria `MathUnderover`.
+
+## P1449 — reflexão causal de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `body` está sempre assente; `annotation` omitida não aparece em
+`fields()` e `annotation: none` aparece como campo assente. `func()` conserva
+a função pública `underbracket`.
+
+### Decisão proposta
+
+Delegar `Content::MathUnderbracket` ao owner: expor `body` sempre e
+`annotation` somente quando `annotation_explicit`, preservando `Value::None`.
+Manter a ordem `body`, `annotation`; não inferir presença pelo valor convertido
+nem pela redução geométrica.
