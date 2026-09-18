@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 88ecb001
+//! @prompt-hash 65481138
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -3905,6 +3905,7 @@ impl Content {
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             (Content::Equation(e), f) => e.get_field(f),
             (Content::MathPrimes(e), f) => e.get_field(f),
+            (Content::MathLr(e), f) => e.get_field(f),
             (Content::MathStretch(e), f) => e.get_field(f),
             (Content::PdfArtifact(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {

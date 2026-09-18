@@ -1,11 +1,19 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 22240d8c
+Hash do Código: bb153c76
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 
 **Camada:** L1 test-only
 **Ficheiro alvo exclusivo:** `01_core/src/compiler/eval/tests.rs`
+
+## P1447 — oráculo bare de `math.abs`
+
+O teste P1447 avalia `$ abs(x) $` pelo pipeline real e exige
+`Content::MathLr` com body de três nós `|`, `x`, `|` e `size_explicit=false`.
+Ele rejeita a aproximação histórica `MathDelimited` e não concede crédito por
+texto visual semelhante. A assinatura, os casts e a presença causal de
+`size` são cobertos pela suíte estrutural independente P1447.
 
 ## Propriedade
 

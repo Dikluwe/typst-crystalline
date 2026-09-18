@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: bae65d75
+Hash do Código: 785c2125
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1214,3 +1214,12 @@ Quando o receptor é `Content::OutlineEntry` (direto ou localizado), o campo
 `at` somente quando o argumento foi explicitamente fornecido; a cascata e o
 default geométrico não fabricam presença. `func()` devolve a função nativa
 `stretch`. Campo desconhecido conserva o diagnóstico global.
+
+## P1447 — campos do carrier `MathLr`
+
+Para `Content::MathLr`, `fields()` enumera `size` antes de `body` quando o
+tamanho foi explicitamente fornecido e somente `body` quando foi omitido.
+`body`, `size`, `has` e `at` usam a projeção do owner
+`entities/elements/math_delimited.md`; defaults e cascata não fabricam
+presença. `func()` continua resolvendo a identidade pública `lr`, inclusive
+quando o carrier foi construído por `math.abs`.

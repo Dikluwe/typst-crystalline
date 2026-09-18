@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash f7abb73e
+//! @prompt-hash 8e42f58f
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9585,31 +9585,24 @@ mod tests {
         }
     }
 
-    /// **P899 (Parte B)** — `abs`/`floor`/`ceil`/`round`/`bar` são
-    /// funções nativas em vanilla (`typst-library/src/math/lr.rs::abs/
-    /// floor/ceil`, `frac.rs` para `round` via a mesma `delimited()` —
-    /// medido no `lab/typst-original`), cada uma um wrapper fino de
-    /// `delimited(body, open, close, size)` — não estavam registadas em
-    /// cristalino de nenhuma forma (nem scope global, nem módulo `math`,
-    /// nem `SYM_SIMPLE`/`SYM_GROUPS`), caindo no fallback de texto literal
-    /// (`abs(x)` renderizava `"abs(𝑥)"`). Reaproveita directamente
+    /// **P899 (Parte B)** — `floor`/`ceil`/`bar` continuam na aproximação
+    /// `MathDelimited`. `abs` foi supersedido por P1447 e `round` por P1445:
+    /// ambos agora usam o carrier público `MathLr` do vanilla. As três rotas
+    /// residuais não estavam registadas em cristalino de nenhuma forma (nem
+    /// scope global, nem módulo `math`, nem `SYM_SIMPLE`/`SYM_GROUPS`),
+    /// caindo no fallback de texto literal. Reaproveitam directamente
     /// `Content::math_delimited` (mesmo construtor que já produz o
     /// `MathDelimited` de `(x)`/`[x]` literais e do fallback `sin(x)` — o
     /// stretch vertical à altura do conteúdo, se já existir, aplica-se sem
-    /// mudança de layout). `round` usa o par assimétrico `⌊`/`⌉`
-    /// (arredondamento — paridade vanilla `frac.rs::round`, medido:
-    /// `⌊`+`⌉`, não `⌊`+`⌋`). `bar` — apesar de listado como "Parte A"
+    /// mudança de layout). `bar` — apesar de listado como "Parte A"
     /// (acento) na materialização do passo — confirmado no vanilla real
     /// como delimitador `|x|`, não acento (ver `p899_hat_tilde_dot_dot_double_
     /// produzem_mathaccent`, que documenta a correcção do catálogo).
     #[test]
-    fn p899_abs_floor_ceil_bar_produzem_mathdelimited() {
-        for (call, open, close) in [
-            ("abs(x)", '|', '|'),
-            ("floor(x)", '⌊', '⌋'),
-            ("ceil(x)", '⌈', '⌉'),
-            ("bar(x)", '|', '|'),
-        ] {
+    fn p899_floor_ceil_bar_produzem_mathdelimited() {
+        for (call, open, close) in
+            [("floor(x)", '⌊', '⌋'), ("ceil(x)", '⌈', '⌉'), ("bar(x)", '|', '|')]
+        {
             let src_text = format!("$ {call} $");
             let world = MockWorld::new(&src_text);
             let content = extract_math_content(&world);
@@ -9684,6 +9677,36 @@ mod tests {
         assert_eq!(nodes[1].plain_text(), "x");
         assert_eq!(nodes[2].plain_text(), "⌉");
         assert!(!round.size_explicit);
+    }
+
+    /// P1447 — `abs` deixa a aproximação P899 e converge no carrier
+    /// público `MathLr`, como a função qualificada do vanilla ratificado.
+    #[test]
+    fn p1447_abs_bare_produz_mathlr_com_barras() {
+        fn find_mathlr(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_delimited::MathLrElem> {
+            match c {
+                Content::MathLr(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathlr)
+                }
+                Content::Equation(elem) => find_mathlr(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ abs(x) $");
+        let content = extract_math_content(&world);
+        let abs = find_mathlr(&content).expect("abs(x) deve produzir MathLr");
+        let Content::MathSequence(nodes) = &abs.body else {
+            panic!("body de abs deve preservar a sequência de barras")
+        };
+        assert_eq!(nodes.len(), 3);
+        assert_eq!(nodes[0].plain_text(), "|");
+        assert_eq!(nodes[1].plain_text(), "x");
+        assert_eq!(nodes[2].plain_text(), "|");
+        assert!(!abs.size_explicit);
     }
 
     #[test]

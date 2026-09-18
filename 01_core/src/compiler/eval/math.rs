@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash fe0b96f0
+//! @prompt-hash a2aae100
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1009,6 +1009,11 @@ fn eval_math_expr(
                     crate::compiler::stdlib::math_round_from_args(&args)
                 }
 
+                "abs" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_abs_from_args(&args)
+                }
+
                 "stretch" => {
                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
                     crate::compiler::stdlib::math_stretch_from_args(&args)
@@ -1136,7 +1141,7 @@ fn eval_math_expr(
                     apply_p1293_math_constructor("attach", args, scopes, ctx, engine)
                 }
 
-                "abs" | "floor" | "ceil" | "bar" => {
+                "floor" | "ceil" | "bar" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
                         .items()
@@ -1156,7 +1161,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let (open, close) = match name.as_str() {
-                        "abs" | "bar" => ('|', '|'),
+                        "bar" => ('|', '|'),
                         "norm" => ('‖', '‖'),
                         "floor" => ('⌊', '⌋'),
                         "ceil" => ('⌈', '⌉'),

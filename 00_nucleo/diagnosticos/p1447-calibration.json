@@ -1,0 +1,24 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1447,
+  "budget": {"full_campaigns": 3, "revisions_per_cause": 2, "final_mutation_families": 11},
+  "revisions": [
+    {
+      "revision": 1,
+      "hypothesis": "the existing MathLr carrier already projected the vanilla body/size fields",
+      "before": {"killed": 30, "executions": 30, "score": 1.0, "unknown": 0},
+      "new_witness": "bilateral CLI probe: crystalline rejected x.body while vanilla returned the three-node sequence",
+      "change": "update the MathLr/content/field-access L0 owners, add causal field tests and M11",
+      "result": "hypothesis refuted; focused field RED then GREEN; prior campaign invalidated"
+    },
+    {
+      "revision": 2,
+      "hypothesis": "testing MathLrElem::get_field directly was sufficient for public field access",
+      "before": {"killed": 33, "executions": 33, "score": 1.0, "unknown": 0},
+      "new_witness": "CLI still rejected x.body because Content::get_field did not delegate MathLr",
+      "change": "test through Content::get_field and add the missing delegation",
+      "result": "hypothesis refuted; public fields passed and the final 33-execution campaign was rerun"
+    }
+  ],
+  "final": {"killed": 33, "executions": 33, "score": 1.0, "unknown": 0}
+}

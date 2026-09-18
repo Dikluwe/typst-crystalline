@@ -129,3 +129,43 @@ humana explícita.
    `Unknown` não criado explicitamente como opaco bloqueia o selo.
 6. Validar fmt, diff-check, build, suítes focal/integral e
    `crystalline-lint .`, com proveniência completa e certificado separado.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18, após o
+commit de proposta `91a6fee083e743ed60f966b39c1250d8365ad89b`. A cadeia
+contrato → RED → implementação → ataques → veredito fica autorizada somente
+para o recorte desta proposta.
+
+## 8. Materialização e pré-veredito
+
+Medição final em 2026-09-18T17:34:33-03:00, sobre working tree não commitado
+derivado do commit de proposta `91a6fee083e743ed60f966b39c1250d8365ad89b`;
+o estado exato é enumerado por `git status --short` e
+`git diff HEAD --stat`.
+
+- RED atribuível: quatro testes estruturais falharam pelo binding ausente, um
+  teste do pipeline bare falhou pelo carrier histórico e uma sonda focada
+  posterior falhou pela projeção de campos ausente em `MathLr`.
+- GREEN focal: 6 passados, 0 falhados.
+- A medição bilateral de campos refutou duas hipóteses de reuso e invalidou
+  formalmente as campanhas anteriores; após atualizar os L0s e o teste pela
+  delegação pública real, a campanha final matou 33/33 execuções nas ordens
+  direta, repetida e inversa, score 1,0 e zero `Unknown`.
+- Paridade pública: binding, casts, barras, nesting, presença de `size`,
+  `body/size/fields/has/at`, `.func() == lr` e convergência bare/qualificada
+  foram preservados. A serialização global compacta de conteúdo retornado por
+  campo difere do pretty-printer multiline do vanilla e permanece fora deste
+  fragmento; os valores e a morfologia do carrier coincidem.
+- Oito negativos coincidem em status e mensagem primária; spans seguem a
+  limitação diagnóstica global.
+- Gates: fmt, diff-check, build do workspace e `crystalline-lint .` passaram;
+  V5/V15/V26 = 0.
+- Suíte integral: 5.895 passados e os mesmos oito falhados históricos,
+  nenhuma falha atribuível a P1447. A expectativa P899 de `abs` como
+  `MathDelimited` foi explicitamente supersedida pelo contrato P1447.
+
+Pré-veredito limitado: `Preserved` para o fragmento `math.abs` descrito; não
+declara equivalência Typst geral, igualdade integral do pretty-printer nem
+fecha as demais rotas residuais P1422. O commit produtivo e o certificado são
+fixados somente depois dos gates finais reproduzíveis.

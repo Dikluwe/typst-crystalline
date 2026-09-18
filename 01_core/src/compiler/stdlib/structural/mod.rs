@@ -81,6 +81,8 @@ mod p1444_tests;
 mod p1445_tests;
 #[cfg(test)]
 mod p1446_tests;
+#[cfg(test)]
+mod p1447_tests;
 
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
@@ -91,11 +93,12 @@ pub use lists::{native_enum, native_list, native_terms};
 pub use markup::{native_emph, native_link, native_raw, native_strong};
 pub(crate) use math::{
     apply_math_cases_option, apply_math_matrix_option, equation_alt, equation_content,
-    equation_number_align, equation_supplement, math_accent_content, math_cases_delim,
-    math_lr_from_args, math_matrix_augment, math_mid_from_args, math_norm_from_args,
-    math_overbrace_from_args, math_overbracket_from_args, math_overline_from_args,
-    math_overparen_from_args, math_overshell_from_args, math_round_from_args,
-    math_stretch_from_args, sqrt_content, MathCasesOptions, MathMatrixOptions,
+    equation_number_align, equation_supplement, math_abs_from_args, math_accent_content,
+    math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
+    math_norm_from_args, math_overbrace_from_args, math_overbracket_from_args,
+    math_overline_from_args, math_overparen_from_args, math_overshell_from_args,
+    math_round_from_args, math_stretch_from_args, sqrt_content, MathCasesOptions,
+    MathMatrixOptions,
 };
 pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,

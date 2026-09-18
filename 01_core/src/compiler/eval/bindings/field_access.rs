@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 8ff6280f
+//! @prompt-hash 5d3f2385
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1106,6 +1106,8 @@ fn content_set_fields(
         Content::Heading(_) => &["level", "depth", "outlined", "bookmarked", "body"],
         Content::Equation(_) => &["block", "body"],
         Content::MathPrimes(_) => &["count"],
+        Content::MathLr(e) if e.size_explicit => &["size", "body"],
+        Content::MathLr(_) => &["body"],
         Content::MathStretch(e) if e.size_explicit => &["body", "size"],
         Content::MathStretch(_) => &["body"],
         Content::Styled(child, _) if equation_descendant(child).is_some() => {

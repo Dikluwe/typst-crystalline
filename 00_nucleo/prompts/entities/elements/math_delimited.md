@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_delimited` — `MathDelimitedElem`
-Hash do Código: 7a4a91de
+Hash do Código: d4226a69
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_delimited.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
@@ -65,6 +65,14 @@ cascata e stretch não pertencem a esta entidade.
 `MathDelimitedElem` e seu constructor permanecem inalterados para usos
 mecânicos existentes. Não inferir `MathLrElem` a partir de igualdade de
 delimitadores.
+
+### P1447 — projeção pública dos campos de `MathLrElem`
+
+O carrier expõe `body` sempre e `size` somente quando `size_explicit=true`.
+O valor de `size` é `Value::Relative(self.size)` e o body é o próprio conteúdo
+armazenado. O default e a cascata geométrica não fabricam presença. Esta
+projeção serve todas as construções `MathLr`, inclusive `math.abs`; não cria
+campos próprios de `abs` nem altera `MathDelimitedElem`.
 
 ## P1437 — carrier público `MathMidElem` (PROPOSTA; AGUARDA GATE ADR-0127)
 

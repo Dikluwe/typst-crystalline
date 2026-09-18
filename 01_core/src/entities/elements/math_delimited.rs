@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_delimited.md
-//! @prompt-hash fbbd3468
+//! @prompt-hash ce303859
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -14,6 +14,7 @@ use crate::entities::elements::Element;
 use crate::entities::layout_types::Length;
 use crate::entities::rel::Rel;
 use crate::entities::source_result::SourceResult;
+use crate::entities::value::Value;
 
 /// Expressão entre delimitadores (`(...)`, `[...]`, `{...}`). `open`/`close`
 /// são os caracteres delimitadores; variante própria para selecção de variantes
@@ -102,6 +103,14 @@ impl Element for MathLrElem {
         F: FnMut(&str) -> String,
     {
         Content::MathLr(Arc::new(self.clone()))
+    }
+
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "body" => Some(Value::Content(self.body.clone())),
+            "size" if self.size_explicit => Some(Value::Relative(self.size)),
+            _ => None,
+        }
     }
 }
 

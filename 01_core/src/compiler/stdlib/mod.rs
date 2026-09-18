@@ -112,12 +112,12 @@ pub use crate::compiler::stdlib::state::{
 };
 pub(crate) use crate::compiler::stdlib::structural::{
     apply_math_cases_option, apply_math_matrix_option, equation_alt, equation_content,
-    equation_number_align, equation_supplement, math_accent_content, math_cases_delim,
-    math_lr_from_args, math_matrix_augment, math_mid_from_args, math_norm_from_args,
-    math_overbrace_from_args, math_overbracket_from_args, math_overline_from_args,
-    math_overparen_from_args, math_overshell_from_args, math_round_from_args,
-    math_stretch_from_args, realize_outline_entry_page, sqrt_content, MathCasesOptions,
-    MathMatrixOptions,
+    equation_number_align, equation_supplement, math_abs_from_args, math_accent_content,
+    math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
+    math_norm_from_args, math_overbrace_from_args, math_overbracket_from_args,
+    math_overline_from_args, math_overparen_from_args, math_overshell_from_args,
+    math_round_from_args, math_stretch_from_args, realize_outline_entry_page,
+    sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,

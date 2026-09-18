@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d95a5bcf
+Hash do Código: 5bf9d70f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3244,3 +3244,9 @@ com `body`, `Rel<Length>` e `size_explicit`. Integrar exaustivamente Debug,
 nome, igualdade, hash, `plain_text`, field dispatch e walkers de conteúdo.
 `map_content` recursa pelo owner; `map_text` preserva o carrier. Nunca
 normalizar `MathStretch` para texto, `MathLr` ou body nu.
+
+## P1447 — delegação de campos de `MathLr`
+
+`Content::get_field` delega `Content::MathLr` ao seu elemento proprietário,
+como já faz para carriers tipados equivalentes. A delegação não assenta
+defaults, não altera nome/igualdade/walkers e não afeta `MathDelimited`.

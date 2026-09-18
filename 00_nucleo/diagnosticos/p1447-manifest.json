@@ -1,0 +1,23 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "step": 1447,
+  "protocol": "tekt-materializacao-segregada/1",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "baseline": {
+    "proposal_commit": "91a6fee083e743ed60f966b39c1250d8365ad89b",
+    "preproposal_commit": "9e1c891fe31d732b3f0b926cb1343f63a97e07f8",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+  },
+  "scope": "math.abs qualified and bare binding over the existing MathLr carrier",
+  "unknown_policy": "fail_closed_no_credit",
+  "roles": {
+    "intent": "approved P1447 step and productive L0 prompts",
+    "contract": "P1447 test-only prompt and public obligations",
+    "oracle": "P1447 tests frozen before productive implementation",
+    "adversary": "negative mutations only",
+    "implementer": "productive files after attributable RED",
+    "verifier": "receipts and certificate; same workspace, no isolation claim"
+  },
+  "claim_boundary": "Frozen P1447 math.abs fragment only; no general Typst or math equivalence."
+}
