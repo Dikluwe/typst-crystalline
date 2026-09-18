@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 1ce69592
+Hash do Código: 68a17b08
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -684,7 +684,7 @@ fins de representação/fields, ainda que o alvo geométrico efetivo coincida.
 Adicionar braços exaustivos sem wildcard e preservar o carrier nas passagens
 de avaliação.
 
-## P1448 — igualdade observável de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — igualdade observável de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

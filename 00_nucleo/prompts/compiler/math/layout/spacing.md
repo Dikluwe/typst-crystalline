@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 32de45fa
+Hash do Código: 78ceca13
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -544,7 +544,7 @@ diacrítico e não derivar classe do codepoint escolhido.
 delegam às fronteiras do body resolvido, preservando operador/relação/
 delimitador após esticamento. O wrapper não é `Normal` por conveniência.
 
-## P1448 — classe herdada de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — classe herdada de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underover.md
-//! @prompt-hash 27e2362f
+//! @prompt-hash 045103f4
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -12,6 +12,7 @@ use std::sync::Arc;
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
+use crate::entities::value::Value;
 
 /// Anotações verticais sobre/sob conteúdo matemático — variant agregado P297
 /// (ADR-0054 graded). Layouter empilha verticalmente conforme presença de cada.
@@ -26,6 +27,15 @@ pub struct MathUnderoverElem {
 /// a realização geométrica permanece no owner de layout under/over.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathOverbraceElem {
+    pub body: Content,
+    pub annotation: Option<Content>,
+    pub annotation_explicit: bool,
+}
+
+/// Elemento público `math.underbrace`: identidade e presença são preservadas;
+/// a realização geométrica permanece no owner de layout under/over.
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct MathUnderbraceElem {
     pub body: Content,
     pub annotation: Option<Content>,
     pub annotation_explicit: bool,
@@ -175,6 +185,46 @@ impl Element for MathOverbraceElem {
         F: FnMut(&str) -> String,
     {
         Content::MathOverbrace(Arc::new(self.clone()))
+    }
+}
+
+impl Element for MathUnderbraceElem {
+    fn plain_text(&self) -> String {
+        let annotation =
+            self.annotation.as_ref().map(Content::plain_text).unwrap_or_default();
+        format!("{}⏟{}", self.body.plain_text(), annotation)
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::MathUnderbrace(Arc::new(MathUnderbraceElem {
+            body: self.body.map_content(transform)?,
+            annotation: self
+                .annotation
+                .as_ref()
+                .map(|content| content.map_content(transform))
+                .transpose()?,
+            annotation_explicit: self.annotation_explicit,
+        })))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathUnderbrace(Arc::new(self.clone()))
+    }
+
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "body" => Some(Value::Content(self.body.clone())),
+            "annotation" if self.annotation_explicit => {
+                Some(self.annotation.clone().map(Value::Content).unwrap_or(Value::None))
+            }
+            _ => None,
+        }
     }
 }
 

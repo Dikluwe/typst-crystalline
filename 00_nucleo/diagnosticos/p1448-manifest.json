@@ -1,0 +1,25 @@
+{
+  "schema": "tekt.materialization.manifest/v1",
+  "step": 1448,
+  "protocol": "tekt-materializacao-segregada/1",
+  "regime": "full",
+  "attestation": "executed_without_isolation_attestation",
+  "baseline": {
+    "proposal_commit": "1483f9f2ceb6b1574581d15ad725a50ab71a3bf3",
+    "preproposal_commit": "661c9b021be4b543d4a5f5770709c94e8445b14e",
+    "vanilla_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d"
+  },
+  "prompt_root_sha256": "45ed9fcd171f24ff8fce2a6f9b8d7215cf338ea291859d19be10db5a012efcd2",
+  "scope": "math.underbrace qualified and bare identity over mature MathUnderover geometry",
+  "unknown_policy": "fail_closed_no_credit",
+  "calibration_budget": {"full_campaigns": 3, "revisions_per_cause": 2, "mutation_families": 13},
+  "roles": {
+    "intent": "approved P1448 step and productive L0 prompts",
+    "contract": "P1448 test-only prompt and public obligations",
+    "oracle": "P1448 tests frozen before productive implementation",
+    "adversary": "negative mutations only",
+    "implementer": "productive files after attributable RED",
+    "verifier": "receipts and certificate; same workspace, no isolation claim"
+  },
+  "claim_boundary": "Frozen P1448 math.underbrace fragment only; no general Typst or math equivalence."
+}

@@ -83,6 +83,8 @@ mod p1445_tests;
 mod p1446_tests;
 #[cfg(test)]
 mod p1447_tests;
+#[cfg(test)]
+mod p1448_tests;
 
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
@@ -97,8 +99,8 @@ pub(crate) use math::{
     math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
     math_norm_from_args, math_overbrace_from_args, math_overbracket_from_args,
     math_overline_from_args, math_overparen_from_args, math_overshell_from_args,
-    math_round_from_args, math_stretch_from_args, sqrt_content, MathCasesOptions,
-    MathMatrixOptions,
+    math_round_from_args, math_stretch_from_args, math_underbrace_from_args,
+    sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
 pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,

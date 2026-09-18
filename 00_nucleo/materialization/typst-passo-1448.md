@@ -1,6 +1,6 @@
 # Passo 1448 — Materializar `math.underbrace` com identidade e geometria de spreader inferior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
+**Estado:** IMPLEMENTADO E SELADO EM PRODUTO
 **Data da medição:** 2026-09-18T17:45:17-03:00
 **Commit medido:** `661c9b021be4b543d4a5f5770709c94e8445b14e`
 **Árvore medida:** `c30281033c134100b141682b05e64afe004cb5ba`, limpa (`git status --short` e `git diff HEAD --stat` sem saída)
@@ -147,3 +147,11 @@ Testes, código e resselo começam somente após confirmação humana explícita
 5. Exigir score `1.0` para os mutantes definidos; resselo após V15/V26.
 6. Validar `cargo fmt --check`, `cargo build --workspace`, suítes focal e
    completa, `git diff --check` e `crystalline-lint .`, com proveniência.
+
+## 7. Execução confirmada
+
+Gate humano aprovado em 2026-09-18. O RED focal produziu 9 erros atribuíveis
+aos símbolos P1448 ausentes. Após implementação, 5 oráculos ficaram GREEN,
+incluindo reflexão de fields/presença. A campanha adversarial rejeitou 39/39
+execuções (13 mutantes, forward + repetição + reverse), score `1.0` e zero
+`Unknown`. Recibos e certificado ficam em `00_nucleo/diagnosticos/p1448-*`.

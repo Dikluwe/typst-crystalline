@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 2f380dc7
+Hash do Código: 461a3ae7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -676,7 +676,7 @@ propagam os diagnósticos canônicos; spread válido é expandido sem reavaliaç
 O builder não cria `MathAbs`, não usa `MathDelimited`, não resolve cascata e
 não executa layout. As demais rotas residuais P1422 ficam fora deste recorte.
 
-## P1448 — binding público completo `math.underbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — binding público completo `math.underbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

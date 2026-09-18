@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 053e5725
+//! @prompt-hash be01e49d
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -389,6 +389,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathOverbrace(a0) => match other {
                 Self::MathOverbrace(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathUnderbrace(a0) => match other {
+                Self::MathUnderbrace(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -4127,6 +4133,26 @@ impl ObservationEq for crate::entities::elements::math_underover::MathOverbraceE
                     .observation_relation(&other.annotation_explicit),
             )
     }
+}
+impl ObservationEq for crate::entities::elements::math_underover::MathUnderbraceElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, annotation: _, annotation_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.annotation.observation_relation(&other.annotation))
+            .and(
+                self.annotation_explicit
+                    .observation_relation(&other.annotation_explicit),
+            )
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn p1448_math_underbrace_observation_differs(
+    left: &crate::entities::elements::math_underover::MathUnderbraceElem,
+    right: &crate::entities::elements::math_underover::MathUnderbraceElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
 }
 
 impl ObservationEq for crate::entities::elements::math_underover::MathOverbracketElem {

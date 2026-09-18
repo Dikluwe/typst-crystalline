@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1448,
+  "measured_at": "2026-09-18T17:51:51-03:00",
+  "candidate": "proposal-baseline-before-P1448-product",
+  "command": "cargo test -p typst-core p1448_ -- --nocapture",
+  "exit_code": 101,
+  "classification": "ATTRIBUTABLE_RED",
+  "primary_witness": "nine compile errors centered on absent MathUnderbraceElem, Content::MathUnderbrace and P1448 helpers",
+  "secondary_witnesses": ["test harness reached rustc", "unrelated warnings only"],
+  "harness_fault": false,
+  "implementation_authorized": true,
+  "attestation": "executed_without_isolation_attestation"
+}

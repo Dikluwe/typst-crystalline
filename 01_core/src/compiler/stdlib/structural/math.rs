@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 145fcd07
+//! @prompt-hash 937f1543
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1603,6 +1603,56 @@ pub fn native_math_overbrace(
     math_overbrace_from_args(args).map(Value::Content)
 }
 
+/// Validação e construção compartilhada de `math.underbrace` e da forma bare.
+pub(crate) fn math_underbrace_from_args(args: &Args) -> SourceResult<Content> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let (body, annotation, annotation_explicit) = match args.items.as_slice() {
+        [body] => (math_lr_content_value(body, args.span)?, None, false),
+        [body, Value::None] => (math_lr_content_value(body, args.span)?, None, true),
+        [body, annotation @ (Value::Content(_)
+        | Value::LocatedContent(_, _)
+        | Value::Str(_)
+        | Value::Symbol(_))] => (
+            math_lr_content_value(body, args.span)?,
+            Some(math_lr_content_value(annotation, args.span)?),
+            true,
+        ),
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        [_, _] | [_, _, ..] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+    Ok(Content::math_underbrace(body, annotation, annotation_explicit))
+}
+
+pub fn native_math_underbrace(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_underbrace_from_args(args).map(Value::Content)
+}
+
 /// Validação e construção compartilhada de `math.overbracket` e da forma bare.
 pub(crate) fn math_overbracket_from_args(args: &Args) -> SourceResult<Content> {
     if args.named.contains_key("body") {
@@ -2709,6 +2759,13 @@ pub fn make_math_module() -> Value {
         Value::Func(crate::entities::func::Func::native(
             "overbrace",
             native_math_overbrace,
+        )),
+    );
+    dict.insert(
+        "underbrace".into(),
+        Value::Func(crate::entities::func::Func::native(
+            "underbrace",
+            native_math_underbrace,
         )),
     );
     dict.insert(

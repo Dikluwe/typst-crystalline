@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash 37358f47
+//! @prompt-hash 86252aa7
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -23,6 +23,15 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let lowered = super::lower_math_overbrace(elem);
+        self.layout_node(&lowered, style)
+    }
+
+    pub(super) fn layout_underbrace(
+        &self,
+        elem: &crate::entities::elements::math_underover::MathUnderbraceElem,
+        style: &TextStyle,
+    ) -> MathBox {
+        let lowered = super::lower_math_underbrace(elem);
         self.layout_node(&lowered, style)
     }
 

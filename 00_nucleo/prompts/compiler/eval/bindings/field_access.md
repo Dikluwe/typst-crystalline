@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 785c2125
+Hash do Código: 8f03e815
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1223,3 +1223,20 @@ tamanho foi explicitamente fornecido e somente `body` quando foi omitido.
 `entities/elements/math_delimited.md`; defaults e cascata não fabricam
 presença. `func()` continua resolvendo a identidade pública `lr`, inclusive
 quando o carrier foi construído por `math.abs`.
+
+## P1448 — reflexão causal de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
+
+### Medição anterior à decisão
+
+No vanilla, `body` está sempre assente; `annotation` omitida não aparece em
+`fields()` e faz `has("annotation")` devolver falso, enquanto `annotation:
+none` aparece como campo assente com valor `none`. `func()` conserva a função
+pública `math.underbrace`.
+
+### Decisão
+
+Delegar `Content::MathUnderbrace` ao `get_field` do elemento. Expor `body`
+sempre e `annotation` somente quando `annotation_explicit` for verdadeiro,
+preservando `Value::None` como valor assente. `content_set_fields` mantém a
+ordem `body`, `annotation`; não inferir presença pelo `Option` convertido nem
+pela geometria `MathUnderover`.

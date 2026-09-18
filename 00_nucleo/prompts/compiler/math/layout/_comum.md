@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 17ed0d79
+Hash do Código: 09cb69ac
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -1620,7 +1620,7 @@ do layout, as reconstruções de default/estilo recursam no body e preservam
 `math.stretch.size` cascaded > `100%` e passa font-size causal. Não mover
 lógica para a entidade nem introduzir despacho dinâmico (ADR-0109).
 
-## P1448 — dispatch e reconstrução de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — dispatch e reconstrução de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

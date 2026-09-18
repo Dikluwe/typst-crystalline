@@ -1,0 +1,16 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "step": 1448,
+  "test_prompt_sha256": "6cc085f57f8870fc067eb11ba795d74ab4bcca69d918984345a68f2df639e96e",
+  "suites": [
+    "01_core/src/compiler/stdlib/structural/p1448_tests.rs",
+    "01_core/src/compiler/eval/tests.rs::p1448_underbrace_bare_preserva_identidade_e_anotacao"
+  ],
+  "frozen_before_candidate": true,
+  "positive": ["binding/casts/repr/presence/nesting", "carrier/walker/equality/class/lowering", "bare identity"],
+  "negative": ["missing/extra/named/type diagnostics", "thirteen mutation families"],
+  "opaque": ["build failure unrelated to mutant", "timeout", "identity mismatch"],
+  "opaque_expected": "Unknown",
+  "initial_suite_frozen_before_candidate": true,
+  "reflection_revision_after_candidate_before_seal": true
+}

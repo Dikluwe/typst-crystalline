@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: bb153c76
+Hash do Código: b171cc9c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -256,3 +256,23 @@ Separar `round` do loop legado sem alterar as expectativas de
 de três nós `⌊`, conteúdo, `⌉`, tamanho default não explícito e nenhum
 `MathDelimited` exterior. O teste não duplica layout nem concede paridade às
 demais rotas residuais.
+
+## P1448 — regressão bare de `underbrace` preserva identidade pública
+
+### Medição anterior à decisão
+
+O braço P906 atual produz `MathUnderover` diretamente e aceita silenciosamente
+named/excedentes. O vanilla bare produz o mesmo `UnderbraceElem` da função
+qualificada, com body, annotation e presença causal observáveis.
+
+### Aceitação
+
+Avaliar `$ underbrace(x, n) $` deve produzir `Content::MathUnderbrace` com body
+`x`, annotation `n` e `annotation_explicit = true`. O teste procura a variante
+na árvore avaliada; não aceita equivalência por `plain_text`, glifo U+23DF ou
+estrutura `MathUnderover` semelhante.
+
+Os oráculos legados P906 deixam de exigir `MathUnderover` diretamente para
+`underbrace`: passam a exigir o carrier público e sua projeção U+23DF. As
+expectativas de `underbracket` e dos spreaders superiores permanecem próprias;
+nenhum teste recebe crédito por igualdade apenas visual.

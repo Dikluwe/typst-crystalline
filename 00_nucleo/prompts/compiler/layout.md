@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 19589f0f
+Hash do Código: c57040b7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -612,7 +612,7 @@ carriers. Dentro da equação, somente `MathLayouter` o resolve. O Layouter
 geral não interpreta `size`, não estica frames e não duplica a lógica da
 feature.
 
-## P1448 — encaminhamento geral de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — encaminhamento geral de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: 009bd4bb
+Hash do Código: ce40b9af
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -597,7 +597,7 @@ duplicados, casts e named inválidos. O resultado é sempre
 `MathDelimited`, não criar novo carrier e não executar layout. Os braços
 `floor`, `ceil` e `bar` permanecem inalterados.
 
-## P1448 — sintaxe bare de `underbrace` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — sintaxe bare de `underbrace` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

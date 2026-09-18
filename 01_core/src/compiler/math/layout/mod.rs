@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 76b950c3
+//! @prompt-hash 49060ad2
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -58,6 +58,8 @@ pub(crate) use spacing::p1443_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::p1444_boundary_classes;
 #[cfg(test)]
+pub(crate) use spacing::p1448_boundary_classes;
+#[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
 
 fn lower_math_overbrace(
@@ -68,6 +70,19 @@ fn lower_math_overbrace(
     match &elem.annotation {
         Some(annotation) => {
             Content::math_underover(inner, None, Some(annotation.clone()))
+        }
+        None => inner,
+    }
+}
+
+fn lower_math_underbrace(
+    elem: &crate::entities::elements::math_underover::MathUnderbraceElem,
+) -> Content {
+    let brace = Content::MathText("⏟".into());
+    let inner = Content::math_underover(elem.body.clone(), Some(brace), None);
+    match &elem.annotation {
+        Some(annotation) => {
+            Content::math_underover(inner, Some(annotation.clone()), None)
         }
         None => inner,
     }
@@ -117,6 +132,13 @@ pub(crate) fn p1439_overbrace_lowering(
     elem: &crate::entities::elements::math_underover::MathOverbraceElem,
 ) -> Content {
     lower_math_overbrace(elem)
+}
+
+#[cfg(test)]
+pub(crate) fn p1448_underbrace_lowering(
+    elem: &crate::entities::elements::math_underover::MathUnderbraceElem,
+) -> Content {
+    lower_math_underbrace(elem)
 }
 
 #[cfg(test)]
@@ -922,6 +944,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathMid(e) => self.layout_mid(e, style),
 
             Content::MathOverbrace(e) => self.layout_overbrace(e, style),
+
+            Content::MathUnderbrace(e) => self.layout_underbrace(e, style),
 
             Content::MathOverbracket(e) => self.layout_overbracket(e, style),
 
@@ -2324,6 +2348,11 @@ fn apply_math_default(body: &Content) -> Content {
             e.annotation.as_ref().map(apply_math_default),
             e.annotation_explicit,
         ),
+        Content::MathUnderbrace(e) => Content::math_underbrace(
+            apply_math_default(&e.body),
+            e.annotation.as_ref().map(apply_math_default),
+            e.annotation_explicit,
+        ),
         Content::MathOverbracket(e) => Content::math_overbracket(
             apply_math_default(&e.body),
             e.annotation.as_ref().map(apply_math_default),
@@ -2570,6 +2599,13 @@ fn apply_math_style(
             Content::math_mid(apply_math_style(&e.body, kind, bold, italic))
         }
         Content::MathOverbrace(e) => Content::math_overbrace(
+            apply_math_style(&e.body, kind, bold, italic),
+            e.annotation
+                .as_ref()
+                .map(|annotation| apply_math_style(annotation, kind, bold, italic)),
+            e.annotation_explicit,
+        ),
+        Content::MathUnderbrace(e) => Content::math_underbrace(
             apply_math_style(&e.body, kind, bold, italic),
             e.annotation
                 .as_ref()

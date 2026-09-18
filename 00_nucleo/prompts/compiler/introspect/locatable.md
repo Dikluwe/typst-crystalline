@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 7f0fad0b
+Hash do Código: 97571578
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -277,7 +277,7 @@ O match exaustivo classifica `Content::MathPrimes(_)` como `false`, preservando
 Adicionar braço exaustivo não-locatável; não herdar localização do body nem
 fabricar elemento dinâmico.
 
-## P1448 — `MathUnderbrace` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1448 — `MathUnderbrace` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
