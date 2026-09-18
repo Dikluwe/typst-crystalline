@@ -611,3 +611,16 @@ Fora de `Equation`, `MathStretch` segue o mesmo fallback matemático dos demais
 carriers. Dentro da equação, somente `MathLayouter` o resolve. O Layouter
 geral não interpreta `size`, não estica frames e não duplica a lógica da
 feature.
+
+## P1448 — encaminhamento geral de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
+variante exige braço exaustivo, mas sua realização não pertence a este nível.
+
+### Decisão proposta
+
+Encaminhar `Content::MathUnderbrace` pelo caminho inline math. Este owner não
+interpreta U+23DF, annotation, classe ou stretch; a lógica permanece em
+`compiler/math/layout/underover.rs` e no spacing matemático.

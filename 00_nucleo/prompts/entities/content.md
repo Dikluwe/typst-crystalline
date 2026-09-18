@@ -3250,3 +3250,18 @@ normalizar `MathStretch` para texto, `MathLr` ou body nu.
 `Content::get_field` delega `Content::MathLr` ao seu elemento proprietário,
 como já faz para carriers tipados equivalentes. A delegação não assenta
 defaults, não altera nome/igualdade/walkers e não afeta `MathDelimited`.
+
+# P1448 — variante pública `Content::MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A redução bare atual para `MathUnderover` perde identidade, fields e presença
+explícita da annotation, embora a geometria mecânica já exista.
+
+### Contrato público proposto
+
+Adicionar `Content::MathUnderbrace(Arc<MathUnderbraceElem>)`. O match fechado
+preserva nome, debug, igualdade, hash, plain-text e filhos. `map_content`
+transforma body e annotation preservando `annotation_explicit`; `map_text`
+mantém a variante. Não inferir `underbrace` a partir de U+23DF nem converter o
+carrier público permanentemente em `MathUnderover`.

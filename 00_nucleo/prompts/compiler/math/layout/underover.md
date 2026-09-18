@@ -372,3 +372,22 @@ não a annotation, recebe stretch para cobrir o body; annotation usa estilo de
 superscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
 attachment e largura exata sem copiar a mecânica IR vanilla e sem mover
 lógica ao struct de dados (ADR-0109).
+
+## P1448 — owner de layout de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve `underbrace` como U+23DF diacrítico abaixo do body, stretch
+horizontal de 100%, shortfall zero e largura exata; a annotation opcional é
+script inferior. A implementação cristalina agregada já possui geometria
+equivalente, mas não recebe uma identidade pública.
+
+### Decisão proposta
+
+Adicionar free function/método fino neste owner que realiza localmente
+`MathUnderbrace` pela composição madura: `layout_underover(body, Some(U+23DF),
+None)`, envolvida por annotation inferior quando presente. A chave, não a
+annotation, recebe stretch para cobrir o body; a annotation usa estilo de
+subscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
+attachment e largura exata existentes, sem copiar `AccentItem`/`ScriptsItem`
+vanilla e sem mover lógica ao struct de dados (ADR-0109).

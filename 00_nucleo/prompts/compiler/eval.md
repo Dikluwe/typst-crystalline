@@ -683,3 +683,16 @@ tamanho e presença causal. Omitido e `100%` explícito não são colapsados par
 fins de representação/fields, ainda que o alvo geométrico efetivo coincida.
 Adicionar braços exaustivos sem wildcard e preservar o carrier nas passagens
 de avaliação.
+
+## P1448 — igualdade observável de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Body, valor da annotation e presença explícita alteram morfologia, fields ou
+repr; o match exaustivo ainda não possui essa identidade.
+
+### Decisão proposta
+
+Adicionar braço `MathUnderbrace` e comparar body, annotation e
+`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
+omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.

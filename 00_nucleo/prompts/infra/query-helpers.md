@@ -531,3 +531,16 @@ Adicionar `MathPrimes` aos braços terminais de `has_any_text` e
 Adicionar a variante aos matches exaustivos de helpers de query como carrier
 math não-locatável/terminal. Não expor `body` como ocorrência independente,
 não inferir texto consultável novo e não duplicar a semântica L1.
+
+## P1448 — projeção aproximada de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers math realizados como folhas; `MathUnderbrace`
+não introduz `ElementKind` consultável nesta projeção.
+
+### Decisão proposta
+
+Adicionar `MathUnderbrace` aos braços terminais de `has_any_text` e
+`count_variant`, sem ocorrência própria nem recursão L3 em body/annotation.
+Os walkers estruturais e repr permanecem donos desses observáveis.

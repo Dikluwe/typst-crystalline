@@ -11,7 +11,7 @@
 
 P1446 fechou `P1420-MATH-018` (`math.stretch`) e deixou explicitamente
 `math.abs` e as rotas `under*` no residual. O inventário P1422 identifica
-`math.abs` como `P1420-MATH-017`; ela é a próxima unidade autocontida. Este
+`math.abs` como `P1420-MATH-001`; ela é a próxima unidade autocontida. Este
 passo não concede crédito a `floor`, `ceil`, `bar`, `underbrace`,
 `underbracket`, `underparen` ou `undershell`.
 

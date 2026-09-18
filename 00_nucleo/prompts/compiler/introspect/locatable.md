@@ -276,3 +276,15 @@ O match exaustivo classifica `Content::MathPrimes(_)` como `false`, preservando
 `MathStretch` não cria localização própria e não é candidato consultável.
 Adicionar braço exaustivo não-locatável; não herdar localização do body nem
 fabricar elemento dinâmico.
+
+## P1448 — `MathUnderbrace` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`MathUnderbraceElem` não possui `ElementKind`, Location ou payload
+selecionável; body e annotation não tornam o wrapper locatável.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathUnderbrace(_)` como `false`,
+preservando `is_locatable ↔ extract_payload.is_some()`.

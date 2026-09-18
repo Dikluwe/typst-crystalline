@@ -1619,3 +1619,17 @@ do layout, as reconstruções de default/estilo recursam no body e preservam
 `size`/`size_explicit`. A função escolhe tamanho efetivo por explícito >
 `math.stretch.size` cascaded > `100%` e passa font-size causal. Não mover
 lógica para a entidade nem introduzir despacho dinâmico (ADR-0109).
+
+## P1448 — dispatch e reconstrução de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match exaustivo só conhece o carrier genérico; baixar cedo para ele apagaria
+identidade, fields e presença explícita da annotation.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathUnderbrace(e)` delega a
+`underover.rs`. Reconstruções de default/style transformam body e annotation
+e preservam `annotation_explicit` e a variante. A redução mecânica ocorre
+somente dentro do owner de layout e nunca retorna ao conteúdo público.

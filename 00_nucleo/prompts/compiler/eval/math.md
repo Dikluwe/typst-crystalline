@@ -596,3 +596,19 @@ duplicados, casts e named inválidos. O resultado é sempre
 `Content::MathLr` com body `MathSequence([|, body, |])`; não reescrever para
 `MathDelimited`, não criar novo carrier e não executar layout. Os braços
 `floor`, `ceil` e `bar` permanecem inalterados.
+
+## P1448 — sintaxe bare de `underbrace` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço agregado atual ignora named/excedentes e baixa a chamada para
+`MathUnderover`, apagando identidade e presença. O vanilla usa o mesmo elemento
+público nas formas bare e qualificada.
+
+### Decisão proposta
+
+`underbrace(...)` bare constrói `Args` math canônicos e delega ao mesmo builder
+de `math.underbrace`. Preservar ordem, spread e avaliação única; exigir body,
+aceitar somente annotation posicional opcional e propagar os diagnósticos
+medidos. Não montar o glifo nem executar layout na avaliação. Os outros braços
+`under*` permanecem inalterados.

@@ -942,3 +942,18 @@ Medição adicional pós-RED: `repr(50% + 0pt)` no vanilla conserva
 `Value::Relative` representa causalmente `Rel<Length>` e imprime sempre as
 duas componentes, inclusive absoluto zero. Isto faz fields/dicts manterem o
 tipo relativo sem introduzir variante ad hoc.
+
+## P1448 — morfologia pública de `underbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime `xunder("⏟")` ou `xunder("⏟")under(n)`. O vanilla imprime
+`underbrace(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathUnderbrace` como `underbrace(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. O campo annotation só aparece quando
+`annotation_explicit` for verdadeiro; `none` explícito não se confunde com
+omissão. Nesting recorre ao mesmo formatter e identidade nunca é inferida do
+glifo U+23DF ou do carrier genérico.

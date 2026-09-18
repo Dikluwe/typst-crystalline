@@ -1868,3 +1868,16 @@ Tratar `MathStretch` como carrier matemático estrutural terminal nas rotas de
 tempo, referência e counters, em paralelo aos wrappers math vigentes. A
 recursão semântica de transformação pertence a `Element::map_content`; estes
 walkers não materializam nem consultam o body separadamente.
+
+## P1448 — neutralidade introspectiva de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`MathUnderbraceElem` é carrier matemático sem identidade locatável. Body e
+annotation já pertencem ao walker estrutural do conteúdo.
+
+### Decisão proposta
+
+Classificar `MathUnderbrace` entre variantes math não-locatáveis e terminais
+nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
+filhos, evitando dupla contagem.

@@ -543,3 +543,16 @@ diacrítico e não derivar classe do codepoint escolhido.
 `MathStretch` não fabrica classe. `base_math_class` e `node_math_class`
 delegam às fronteiras do body resolvido, preservando operador/relação/
 delimitador após esticamento. O wrapper não é `Normal` por conveniência.
+
+## P1448 — classe herdada de `MathUnderbrace` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`AccentItem::create` vanilla constrói as propriedades com `base.raw_class()`;
+a chave é `Diacritic`, mas não substitui a classe pública do composto.
+
+### Decisão proposta
+
+`node_math_class(MathUnderbrace(e))` herda recursivamente as classes esquerda
+e direita de `e.body`. Annotation e U+23DF não participam das fronteiras. Não
+fixar `Normal`, `Diacritic` ou classe derivada da altura renderizada.
