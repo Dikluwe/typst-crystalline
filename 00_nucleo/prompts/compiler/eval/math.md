@@ -442,3 +442,21 @@ erros do builder público.
 `mid(...)` bare constrói `Args` math canônicos e delega à nativa de
 `math.mid`. Exigir um positional; preservar spread, ordem e avaliação única;
 rejeitar named/tipos inválidos. Não procurar cercas nem executar stretch.
+
+## P1438 — sintaxe bare de `norm` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço comum atual exige um positional, ignora named e devolve
+`MathDelimited('‖', body, '‖')`. O vanilla produz o mesmo `LrElem` da função
+qualificada, conserva `size`, identidade e nesting e rejeita argumentos fora
+da assinatura pública.
+
+### Decisão proposta
+
+`norm(...)` bare constrói `Args` math canônicos e delega ao mesmo
+parser/construtor de `math.norm`. Avaliar cada ocorrência exatamente uma vez,
+preservar ordem e spread, aceitar somente `size:` e um positional e propagar
+duplicados, casts e named inválidos. O resultado é sempre `Content::MathLr`
+com body `MathSequence([‖, body, ‖])`; não reescrever para `MathDelimited` nem
+executar layout.
