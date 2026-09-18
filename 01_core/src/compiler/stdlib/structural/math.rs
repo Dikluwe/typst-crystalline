@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash c04d20d0
+//! @prompt-hash 6c9d3a1d
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1888,6 +1888,49 @@ pub fn native_math_norm(
     math_norm_from_args(args).map(Value::Content)
 }
 
+/// Validação e construção compartilhada de `math.round` e `round(...)` bare.
+pub(crate) fn math_round_from_args(args: &Args) -> SourceResult<Content> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+    let (size, size_explicit) = math_lr_size_from_args(args)?;
+    let body = match args.items.as_slice() {
+        [value] => math_lr_content_value(value, args.span)?,
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+    Ok(Content::math_lr(
+        Content::MathSequence(
+            vec![Content::MathText("⌊".into()), body, Content::MathText("⌉".into())]
+                .into(),
+        ),
+        size,
+        size_explicit,
+    ))
+}
+
+pub fn native_math_round(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_round_from_args(args).map(Value::Content)
+}
+
 fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
         Value::Content(content) => Ok(content.clone()),
@@ -2567,6 +2610,10 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "norm".into(),
         Value::Func(crate::entities::func::Func::native("norm", native_math_norm)),
+    );
+    dict.insert(
+        "round".into(),
+        Value::Func(crate::entities::func::Func::native("round", native_math_round)),
     );
     dict.insert(
         "overbrace".into(),

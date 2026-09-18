@@ -1,0 +1,316 @@
+{
+  "schema": "tekt.materialization.mutation-report/v1",
+  "step": 1445,
+  "regime": "executed_without_isolation_attestation",
+  "orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "executions": 30,
+  "killed": 30,
+  "mutation_score": 1.0,
+  "unknown": 0,
+  "results": [
+    {
+      "order": "forward",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:39:34.653545Z",
+      "finished_at": "2026-09-18T18:39:45.522595Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "math.round callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:39:45.524183Z",
+      "finished_at": "2026-09-18T18:39:56.381064Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "round(x) deve produzir MathLr\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:39:56.438980Z",
+      "finished_at": "2026-09-18T18:40:07.226521Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: 3\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:40:07.228414Z",
+      "finished_at": "2026-09-18T18:40:16.911781Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: \"⌉\"\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:40:16.913631Z",
+      "finished_at": "2026-09-18T18:40:27.086314Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left != right` failed\n  left: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n right: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:40:27.146375Z",
+      "finished_at": "2026-09-18T18:40:37.399134Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:40:37.457466Z",
+      "finished_at": "2026-09-18T18:40:50.143525Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (4418) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:40:50.197173Z",
+      "finished_at": "2026-09-18T18:41:02.026096Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (5049) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:02.027385Z",
+      "finished_at": "2026-09-18T18:41:13.998955Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (5680) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:14.000465Z",
+      "finished_at": "2026-09-18T18:41:25.304948Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas' (6310) panicked at 01_core/src/compiler/eval/tests.rs:9678:43:\nround(x) deve produzir MathLr\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:25.306074Z",
+      "finished_at": "2026-09-18T18:41:36.830189Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "math.round callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:36.888939Z",
+      "finished_at": "2026-09-18T18:41:47.483089Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "round(x) deve produzir MathLr\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:47.484366Z",
+      "finished_at": "2026-09-18T18:41:58.094795Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: 3\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:41:58.153577Z",
+      "finished_at": "2026-09-18T18:42:08.956734Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: \"⌉\"\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:42:09.016591Z",
+      "finished_at": "2026-09-18T18:42:19.014625Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left != right` failed\n  left: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n right: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:42:19.016230Z",
+      "finished_at": "2026-09-18T18:42:29.399908Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:42:29.401227Z",
+      "finished_at": "2026-09-18T18:42:40.771102Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (10728) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:42:40.828636Z",
+      "finished_at": "2026-09-18T18:42:50.968422Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (11359) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:42:50.969871Z",
+      "finished_at": "2026-09-18T18:43:02.042771Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (11990) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:02.043888Z",
+      "finished_at": "2026-09-18T18:43:12.649680Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas' (12620) panicked at 01_core/src/compiler/eval/tests.rs:9678:43:\nround(x) deve produzir MathLr\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:12.706620Z",
+      "finished_at": "2026-09-18T18:43:22.454702Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas' (13251) panicked at 01_core/src/compiler/eval/tests.rs:9678:43:\nround(x) deve produzir MathLr\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:22.456054Z",
+      "finished_at": "2026-09-18T18:43:33.023239Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (13883) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:33.024624Z",
+      "finished_at": "2026-09-18T18:43:44.318809Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (14514) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:44.377816Z",
+      "finished_at": "2026-09-18T18:43:54.764943Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado' (15145) panicked at 01_core/src/compiler/stdlib/structural/p1445_tests.rs:100:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), empty, math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:43:54.823953Z",
+      "finished_at": "2026-09-18T18:44:05.962811Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:44:05.964355Z",
+      "finished_at": "2026-09-18T18:44:16.138762Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "assertion `left != right` failed\n  left: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n right: math.lr(MathLrElem { body: math.sequence([math.text(\"⌊\"), text(\"x\"), math.text(\"⌉\")]), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:44:16.196436Z",
+      "finished_at": "2026-09-18T18:44:26.807138Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: \"⌉\"\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:44:26.866164Z",
+      "finished_at": "2026-09-18T18:44:36.550088Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": " right: 3\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:44:36.551561Z",
+      "finished_at": "2026-09-18T18:44:47.035899Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "round(x) deve produzir MathLr\n\n\nfailures:\n    compiler::eval::tests::tests::p1445_round_bare_produz_mathlr_com_cercas_assimetricas\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T18:44:47.094515Z",
+      "finished_at": "2026-09-18T18:44:57.812422Z",
+      "command": "cargo test -q -p typst-core p1445_",
+      "tail": "math.round callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1445_tests::p1445_assinatura_e_diagnosticos_falham_fechado\n    compiler::stdlib::structural::p1445_tests::p1445_binding_casts_morfologia_e_repr\n    compiler::stdlib::structural::p1445_tests::p1445_cercas_sao_folhas_do_body_math_lr\n    compiler::stdlib::structural::p1445_tests::p1445_size_presenca_carrier_e_nesting\n\ntest result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 5887 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 436fe01e
+//! @prompt-hash d10fa68c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1004,6 +1004,11 @@ fn eval_math_expr(
                     crate::compiler::stdlib::math_norm_from_args(&args)
                 }
 
+                "round" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_round_from_args(&args)
+                }
+
                 // **P992** — `scripts(body)`/`limits(body, inline:)`: força
                 // o discriminador `is_limits` do `MathAttach` pai (lateral
                 // vs empilhado). Vanilla: `ScriptsElem`/`LimitsElem`
@@ -1126,7 +1131,7 @@ fn eval_math_expr(
                     apply_p1293_math_constructor("attach", args, scopes, ctx, engine)
                 }
 
-                "abs" | "floor" | "ceil" | "round" | "bar" => {
+                "abs" | "floor" | "ceil" | "bar" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
                         .items()
@@ -1150,7 +1155,6 @@ fn eval_math_expr(
                         "norm" => ('‖', '‖'),
                         "floor" => ('⌊', '⌋'),
                         "ceil" => ('⌈', '⌉'),
-                        "round" => ('⌊', '⌉'),
                         _ => unreachable!(),
                     };
                     let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;

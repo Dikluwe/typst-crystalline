@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 52dbab3c
+Hash do Código: 22240d8c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -231,3 +231,20 @@ Adicionar oráculos que extraem a árvore avaliada e distinguem `t` de `tr`:
 `x'''^2` deve preservar `t: [2]` e `tr: primes(count: 3)`; `x^'''` deve
 preservar o carrier em `t`; `x^2'''` deve preservá-lo aninhado no conteúdo de
 `t`. Não aceitar equivalência por `plain_text`, glyph ou concatenação.
+
+## P1445 — regressão bare de `round` acompanha o carrier público
+
+### Medição anterior à decisão
+
+O teste histórico P899 ainda agrupa `round` com wrappers cristalinos
+materializados como `MathDelimited`. P1445 mediu no vanilla ratificado que
+`round` retorna `LrElem` e o gate aprovado substitui essa aproximação. Manter
+a expectativa antiga transformaria a divergência conhecida em falso contrato.
+
+### Aceitação
+
+Separar `round` do loop legado sem alterar as expectativas de
+`abs`/`floor`/`ceil`/`bar`. A regressão P1445 exige `Content::MathLr` com body
+de três nós `⌊`, conteúdo, `⌉`, tamanho default não explícito e nenhum
+`MathDelimited` exterior. O teste não duplica layout nem concede paridade às
+demais rotas residuais.

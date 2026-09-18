@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.red/v1",
+  "step": 1445,
+  "measured_at": "2026-09-18T13:36:00-03:00",
+  "candidate": "proposal-baseline-before-P1445-product",
+  "command": "cargo test -p typst-core p1445_ -- --nocapture",
+  "exit_code": 101,
+  "classification": "ATTRIBUTABLE_RED",
+  "primary_witness": "four qualified tests failed only on missing math.round binding; bare test failed only because round(x) was not MathLr",
+  "secondary_witnesses": ["test harness compiled and ran five tests", "unrelated warnings only"],
+  "harness_fault": false,
+  "implementation_authorized": true,
+  "attestation": "executed_without_isolation_attestation"
+}

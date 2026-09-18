@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 3ba02e82
+//! @prompt-hash f7abb73e
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9603,12 +9603,11 @@ mod tests {
     /// como delimitador `|x|`, não acento (ver `p899_hat_tilde_dot_dot_double_
     /// produzem_mathaccent`, que documenta a correcção do catálogo).
     #[test]
-    fn p899_abs_floor_ceil_round_produzem_mathdelimited() {
+    fn p899_abs_floor_ceil_bar_produzem_mathdelimited() {
         for (call, open, close) in [
             ("abs(x)", '|', '|'),
             ("floor(x)", '⌊', '⌋'),
             ("ceil(x)", '⌈', '⌉'),
-            ("round(x)", '⌊', '⌉'),
             ("bar(x)", '|', '|'),
         ] {
             let src_text = format!("$ {call} $");
@@ -9655,6 +9654,36 @@ mod tests {
         assert_eq!(nodes[1].plain_text(), "x");
         assert_eq!(nodes[2].plain_text(), "‖");
         assert!(!norm.size_explicit);
+    }
+
+    /// P1445 — `round` deixa a aproximação P899 e converge no carrier
+    /// público `MathLr`, como a função qualificada do vanilla ratificado.
+    #[test]
+    fn p1445_round_bare_produz_mathlr_com_cercas_assimetricas() {
+        fn find_mathlr(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_delimited::MathLrElem> {
+            match c {
+                Content::MathLr(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathlr)
+                }
+                Content::Equation(elem) => find_mathlr(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ round(x) $");
+        let content = extract_math_content(&world);
+        let round = find_mathlr(&content).expect("round(x) deve produzir MathLr");
+        let Content::MathSequence(nodes) = &round.body else {
+            panic!("body de round deve preservar a sequência de cercas")
+        };
+        assert_eq!(nodes.len(), 3);
+        assert_eq!(nodes[0].plain_text(), "⌊");
+        assert_eq!(nodes[1].plain_text(), "x");
+        assert_eq!(nodes[2].plain_text(), "⌉");
+        assert!(!round.size_explicit);
     }
 
     #[test]

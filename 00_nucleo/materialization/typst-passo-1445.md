@@ -125,3 +125,38 @@ headers e resselo começam apenas após confirmação humana explícita.
    `cargo build --workspace`, suíte integral e `crystalline-lint .`, separando
    as oito falhas históricas do baseline P1444 de qualquer regressão P1445.
 
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `b90adbee7a315b420d51b393f882cacbb7f78579`. A cadeia RED→GREEN,
+ataques, resselo e veredito fica autorizada somente no recorte `math.round`
+descrito acima.
+
+## 8. Materialização e veredito
+
+Medição final em `2026-09-18T15:46:41-03:00`, sobre working tree não
+commitado derivado do commit de proposta
+`b90adbee7a315b420d51b393f882cacbb7f78579`. O estado exato é enumerado por
+`git status --short`; `git diff HEAD --stat` registra nove ficheiros rastreados
+com 119 inserções e 14 remoções, e os novos artefatos P1445 constam no mesmo
+status.
+
+- RED atribuível: cinco testes executaram e falharam somente por binding
+  qualificado ausente e carrier bare ainda `MathDelimited`.
+- GREEN focal: 5 passados, 0 falhados.
+- Ataques: 30/30 execuções eficazes mortas nas ordens direta, repetida e
+  inversa; score 1,0, zero `Unknown`, todos M01–M10 mortos 3/3.
+- Paridade pública positiva: função, cast, `none`, string, nesting, presença
+  de `size`, cercas `⌊…⌉` e convergência bare/qualificada preservados. A
+  quebra multilinha do pretty-printer global difere para representações
+  longas e permanece fora deste recorte; conteúdo semântico e morfologia são
+  iguais.
+- Nos sete negativos, status e mensagem primária coincidem com o vanilla.
+- Gates: `cargo fmt --check`, `git diff --check`, `cargo build --workspace` e
+  `crystalline-lint .` passaram; V5/V15/V26 = 0.
+- Suíte integral: 5.884 passados e os mesmos oito falhados históricos do
+  baseline, nenhuma falha atribuível a P1445.
+
+Veredito limitado: `Preserved` para o fragmento `math.round` descrito; não
+declara equivalência Typst geral, paridade integral do pretty-printer nem
+fecha as rotas residuais de P1422.
