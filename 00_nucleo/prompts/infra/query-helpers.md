@@ -473,3 +473,16 @@ Adicionar `MathOverbracket` aos braços terminais de
 `has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 em
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
+
+## P1441 — neutralidade L3 de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers aproximados L3 não são o walker estrutural e não devem inventar
+ocorrência própria para wrappers matemáticos.
+
+### Decisão proposta
+
+Adicionar `MathOverline` aos braços terminais de
+`has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 no
+body. O walker estrutural e o `repr` permanecem donos desses observáveis.

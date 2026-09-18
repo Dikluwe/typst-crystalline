@@ -49,3 +49,20 @@ exclusivamente a `compiler/math/layout/underline.md`, e a variante ao owner
 `math.underline == underline` permanece `false`. Falta, excesso, tipo inválido
 e named desconhecido coincidem com as mensagens medidas no recibo vanilla
 P1292; não se aceita argumento ignorado.
+
+## P1441 — identidade pública `MathOverlineElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla declara `OverlineElem` matemático body-only, separado tanto de
+`UnderlineElem` matemático quanto da decoração textual `overline` com stroke,
+offset e extent. O cristalino possui as duas famílias adjacentes, mas ainda
+não a identidade math superior.
+
+### Decisão proposta
+
+No mesmo owner coeso, adicionar `MathOverlineElem { body: Content }`.
+`plain_text` delega ao body; `map_content` desce no body e reconstrói
+`MathOverline`; `map_text` conserva a variante; igualdade/hash incluem body.
+É proibido reutilizar `Content::Overline` textual ou inferir esta identidade
+da presença de uma regra acima.

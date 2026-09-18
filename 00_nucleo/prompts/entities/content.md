@@ -3178,3 +3178,18 @@ fechado preserva nome, debug, igualdade, hash, plain-text e filhos.
 `map_content` transforma body e anotação preservando `annotation_explicit`;
 `map_text` mantém a variante. Não inferir `overbracket` a partir de U+23B4,
 nem confundi-lo com `MathOverbrace` ou com o carrier `MathUnderover`.
+
+## P1441 — variante pública `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`Content::Overline` é decoração textual e transporta campos que não existem
+no elemento matemático vanilla. O enum fechado ainda não representa a
+identidade matemática body-only.
+
+### Decisão proposta
+
+Adicionar `Content::MathOverline(Arc<MathOverlineElem>)`. O match fechado
+preserva nome, debug, igualdade, hash, plain-text e body. `map_content`
+transforma o body; `map_text` mantém a variante. Não equiparar a
+`MathUnderline`, `Overline` textual ou regra física de layout.

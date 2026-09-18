@@ -490,3 +490,17 @@ elemento público nas formas bare e qualificada.
 builder de `math.overbracket`. Preservar ordem, spread e avaliação única;
 exigir body, aceitar somente annotation posicional opcional e propagar os
 diagnósticos medidos. Não montar U+23B4 nem executar layout na avaliação.
+
+## P1441 — forma bare `overline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`$ overline(x) $` cai hoje na decoração textual e produz `overline[x]`; no
+vanilla produz o mesmo elemento matemático de `math.overline([x])`.
+
+### Decisão proposta
+
+`overline(...)` bare constrói `Args` math canônicos e delega ao mesmo builder
+de `math.overline`. Preservar spread e avaliação única; exigir exatamente um
+body posicional e propagar diagnósticos medidos. Não chamar a nativa textual
+nem executar layout na avaliação.

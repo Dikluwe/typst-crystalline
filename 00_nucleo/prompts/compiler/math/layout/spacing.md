@@ -486,3 +486,16 @@ a barra é `Diacritic`, mas não substitui a classe pública do composto.
 `node_math_class(MathOverbracket(e))` herda recursivamente as classes esquerda
 e direita de `e.body`. Annotation e U+23B4 não participam das fronteiras. Não
 fixar `Normal`, `Diacritic` ou uma classe derivada da altura renderizada.
+
+## P1441 — classes de fronteira de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O `LineItem` vanilla conserva as propriedades matemáticas do body; a regra
+superior não cria operador nem diacrítico de fronteira.
+
+### Decisão proposta
+
+`base_math_class(MathOverline(e))` e `node_math_class(MathOverline(e))`
+herdam recursivamente as classes do `e.body`. Não fixar `Normal`, não usar a
+classe da decoração textual e não derivar spacing da regra renderizada.

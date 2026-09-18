@@ -1811,3 +1811,16 @@ annotation já pertencem ao walker estrutural do conteúdo.
 Classificar `MathOverbracket` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
 filhos, evitando dupla contagem.
+
+## P1441 — walkers introspectivos de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O wrapper matemático não é uma ocorrência locatável; seu body continua sob o
+walker estrutural owner da entidade.
+
+### Decisão proposta
+
+Classificar `MathOverline` entre variantes math não-locatáveis e terminais
+nestes walkers. Não emitir ocorrência do wrapper nem repetir descida no body,
+evitando dupla contagem.

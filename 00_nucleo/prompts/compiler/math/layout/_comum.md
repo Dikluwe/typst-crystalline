@@ -1556,3 +1556,17 @@ O match permanece estático e magro: `Content::MathOverbracket(e)` delega a
 `underover.rs`. Reconstruções de default/style transformam body e annotation
 e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
 dentro do owner de layout e nunca retorna ao conteúdo público.
+
+## P1441 — dispatch e reconstruções de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A variante nova precisa atravessar os matches fechados sem cair no layout de
+decoração textual nem perder o default/style matemático no body.
+
+### Decisão proposta
+
+O match permanece estático e magro: `Content::MathOverline(e)` delega a
+`underline::layout_overline(self, e, style)`. Reconstruções de default/style
+transformam o body e preservam a variante; cramped pertence somente à free
+function de layout e nunca é assado no conteúdo público.

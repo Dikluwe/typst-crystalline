@@ -566,3 +566,18 @@ Registrar `math.overbracket` antes do espelho de símbolos. A nativa avalia
 uma vez, exige body convertível em conteúdo, aceita no máximo uma annotation
 e constrói `Content::MathOverbracket` com bit de presença. Reproduzir casts,
 spread e diagnósticos medidos; não criar U+23B4 nem executar layout aqui.
+
+## P1441 — binding público completo `math.overline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `overline`. No vanilla, body é o único positional
+obrigatório; string e `none` convertem para conteúdo, enquanto named,
+excedente e tipo incompatível são rejeitados.
+
+### Decisão proposta
+
+Registrar `math.overline` antes do espelho de símbolos. A nativa avalia uma
+vez, exige exatamente um body convertível em conteúdo e constrói
+`Content::MathOverline`. Reproduzir spread e diagnósticos medidos; não criar
+regra, aplicar cramped ou executar layout aqui.

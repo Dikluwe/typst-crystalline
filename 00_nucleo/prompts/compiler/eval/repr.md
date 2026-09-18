@@ -872,3 +872,16 @@ Projetar `MathOverbracket` como `overbracket(body: <content>, annotation?:
 `annotation_explicit` for verdadeiro; seu valor explícito `none` não se
 confunde com omissão. Nesting recorre ao mesmo formatter e identidade nunca é
 inferida do glifo U+23B4, de `MathOverbrace` ou do carrier genérico.
+
+## P1441 — `repr` de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla projeta `overline(body: [x])`; a forma cristalina atual
+`overline[x]` identifica a decoração textual e não é equivalente.
+
+### Decisão proposta
+
+Projetar `MathOverline` sempre como `overline(body: <content>)`. Nesting
+recorre ao mesmo formatter e a identidade nunca é inferida de
+`Content::Overline`, de `MathUnderline` ou da geometria renderizada.

@@ -223,3 +223,15 @@ body e annotation não tornam o wrapper locatável.
 
 O match exaustivo classifica `Content::MathOverbracket(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
+
+## P1441 — não-locatabilidade de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O elemento matemático body-only não possui identidade locatável própria nem
+payload de localização.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathOverline(_)` como `false`,
+preservando `is_locatable ↔ extract_payload.is_some()`.

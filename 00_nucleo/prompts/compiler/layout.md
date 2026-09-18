@@ -553,3 +553,16 @@ variante exige braço exaustivo, mas sua realização não pertence a este níve
 Encaminhar `Content::MathOverbracket` pelo caminho inline math. Este owner não
 interpreta U+23B4, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
+
+## P1441 — encaminhamento genérico de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sem braço explícito, a variante nova pode cair em caminho genérico ou ser
+confundida com a decoração textual homônima.
+
+### Decisão proposta
+
+Encaminhar `Content::MathOverline` pelo caminho inline math. Este owner não
+interpreta cramped, constantes, classe nem posição da regra; a lógica
+permanece em `compiler/math/layout/underline.rs` e no spacing matemático.

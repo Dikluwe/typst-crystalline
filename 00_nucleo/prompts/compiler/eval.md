@@ -621,3 +621,16 @@ Adicionar braço `MathOverbracket` e comparar body, annotation e
 `annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
 omissão a `none` explícito e não igualar a `MathOverbrace` nem ao
 `MathUnderover` mecânico.
+
+## P1441 — igualdade observacional de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A identidade nova é estrutural e body-only; não existe campo cosmético
+textual nem caixa de layout em seu contrato.
+
+### Decisão proposta
+
+Adicionar braço `MathOverline` e comparar exclusivamente o body. Não comparar
+regra, constantes ou estilo cramped derivados e não igualar a
+`MathUnderline` nem ao `Overline` textual.

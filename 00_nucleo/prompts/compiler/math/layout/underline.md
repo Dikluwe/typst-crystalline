@@ -75,3 +75,21 @@ Refutam esta regra: root/frame acompanhar `line_width`, correção negativa ser
 clampada ao body, a regra usar largura de tinta em vez de largura lógica, ou
 qualquer ajuste horizontal mudar ascent/descent. Não há constante em pt nem
 dependência nova; o owner continua exclusivamente este módulo.
+
+## P1441 — owner de layout de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve o body em estilo cramped e acrescenta a regra acima usando
+`overbar_vertical_gap`, `overbar_rule_thickness` e
+`overbar_extra_ascender`. A largura da regra é a largura lógica do body, sem o
+ajuste itálico específico do underline.
+
+### Decisão proposta
+
+Adicionar free function `layout_overline` neste owner. Ela aplica cramped ao
+body, preserva sua largura e propriedades matemáticas, desloca-o para baixo e
+emite a regra superior com as constantes MATH `overbar_*` e fill vigente. A
+regra não altera largura, classe, text-like ou correção itálica herdada. Não
+usar decoração textual, constantes em pt nem lógica no struct de dados
+(ADR-0109).
