@@ -3293,3 +3293,16 @@ mecânica comum já exista.
 Adicionar `Content::MathUnderparen(Arc<MathUnderparenElem>)`. Nome, debug,
 igualdade, hash, plain-text, filhos e reconstruções preservam identidade e
 presença; nunca inferir a variante de U+23DD.
+
+# P1451 — variante pública `Content::MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A rota bare atual perde identidade, fields e presença, embora a geometria
+mecânica comum já exista.
+
+### Contrato público proposto
+
+Adicionar `Content::MathUndershell(Arc<MathUndershellElem>)`. Nome, debug,
+igualdade, hash, plain-text, filhos e reconstruções preservam identidade e
+presença; nunca inferir a variante de U+23E1.

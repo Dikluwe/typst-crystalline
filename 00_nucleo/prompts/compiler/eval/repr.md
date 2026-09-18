@@ -983,3 +983,15 @@ O cristalino não possui repr próprio; o vanilla imprime
 
 Projetar `MathUnderparen` como `underparen(body: <content>, annotation?:
 <content-ou-none>)`, nessa ordem; nesting preserva identidade.
+
+## P1451 — morfologia pública de `undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino não possui repr próprio; o vanilla imprime
+`undershell(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathUndershell` como `undershell(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem; nesting preserva identidade.

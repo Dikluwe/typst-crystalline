@@ -581,3 +581,15 @@ a classe pública do composto.
 
 Herdar recursivamente as classes esquerda/direita de `body`; annotation e
 U+23DD não participam das fronteiras.
+
+## P1451 — classe herdada de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla conserva a classe bruta do body; U+23E1 é diacrítico, mas não troca
+a classe pública do composto.
+
+### Decisão proposta
+
+Herdar recursivamente as classes esquerda/direita de `body`; annotation e
+U+23E1 não participam das fronteiras.

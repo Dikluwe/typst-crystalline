@@ -641,3 +641,16 @@ o vanilla usa o mesmo elemento nas formas bare e qualificada.
 Construir argumentos math canônicos e delegar ao builder de
 `math.underparen`, preservando ordem, spread, avaliação única e diagnósticos.
 Não criar U+23DD nem executar layout na avaliação; `undershell` não muda.
+
+## P1451 — forma bare `undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A rota atual perde identidade, mantém positional excedente e silencia named;
+o vanilla usa o mesmo elemento nas formas bare e qualificada.
+
+### Decisão proposta
+
+Construir argumentos math canônicos e delegar ao builder de
+`math.undershell`, preservando ordem, spread, avaliação única e diagnósticos.
+Não criar U+23E1 nem executar layout na avaliação.

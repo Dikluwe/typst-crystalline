@@ -474,6 +474,18 @@ Adicionar `MathOverbracket` aos braços terminais de
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
 
+## P1451 — projeção aproximada de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Helpers L3 tratam carriers math realizados como folhas e o wrapper não possui
+`ElementKind` consultável.
+
+### Decisão proposta
+
+Adicionar `MathUndershell` aos braços terminais de `has_any_text` e
+`count_variant`, sem ocorrência própria nem recursão L3 nos filhos.
+
 ## P1450 — projeção aproximada de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão

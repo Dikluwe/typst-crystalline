@@ -1905,3 +1905,15 @@ estrutural de conteúdo.
 
 Classificar `MathUnderparen` entre variantes math não-locatáveis e terminais,
 sem ocorrência própria nem dupla descida.
+
+## P1451 — neutralidade introspectiva de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O wrapper não possui identidade locatável; seus filhos pertencem ao walker
+estrutural de conteúdo.
+
+### Decisão proposta
+
+Classificar `MathUndershell` entre variantes math não-locatáveis e terminais,
+sem ocorrência própria nem dupla descida.

@@ -158,3 +158,16 @@ O carrier agregado não preserva função pública nem distingue omissão de
 Adicionar `MathUnderparenElem { body, annotation, annotation_explicit }`.
 `plain_text` segue `body + ⏝ + annotation`; walkers transformam ambos os
 filhos e preservam variante/presença; igualdade/hash incluem os três campos.
+
+## P1451 — carrier público `MathUndershellElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado não preserva função pública nem distingue omissão de
+`annotation: none`; o vanilla preserva ambos e usa U+23E1 abaixo do body.
+
+### Decisão proposta
+
+Adicionar `MathUndershellElem { body, annotation, annotation_explicit }`.
+`plain_text` segue `body + ⏡ + annotation`; walkers transformam ambos os
+filhos e preservam variante/presença; igualdade/hash incluem os três campos.

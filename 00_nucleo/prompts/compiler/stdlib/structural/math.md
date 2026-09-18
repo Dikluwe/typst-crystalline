@@ -721,3 +721,17 @@ omissão e `none` explícito diferem.
 Registrar `math.underparen`; a nativa avalia uma vez, aplica casts e
 diagnósticos medidos e constrói `Content::MathUnderparen` com presença causal.
 Não criar U+23DD nem executar layout aqui; `undershell` fica fora do recorte.
+
+## P1451 — construtor público `math.undershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo omite `undershell`; no vanilla body é positional obrigatório e
+annotation o único segundo positional opcional. Named e excedentes falham;
+omissão e `none` explícito diferem.
+
+### Decisão proposta
+
+Registrar `math.undershell`; a nativa avalia uma vez, aplica casts e
+diagnósticos medidos e constrói `Content::MathUndershell` com presença causal.
+Não criar U+23E1 nem executar layout aqui.

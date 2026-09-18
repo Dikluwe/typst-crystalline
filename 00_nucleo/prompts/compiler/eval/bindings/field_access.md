@@ -1267,3 +1267,15 @@ No vanilla, `body` está sempre assente; annotation omitida não aparece em
 
 Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
 ordem declarada, preservando `Value::None` e a função pública.
+
+## P1451 — reflexão causal de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `body` está sempre assente; annotation omitida não aparece em
+`fields()`, `annotation: none` aparece e `func()` devolve `undershell`.
+
+### Decisão proposta
+
+Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
+ordem declarada, preservando `Value::None` e a função pública.

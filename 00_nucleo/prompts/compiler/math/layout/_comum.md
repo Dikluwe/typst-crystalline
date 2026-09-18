@@ -1659,3 +1659,15 @@ Baixar cedo ao carrier genérico apagaria identidade, fields e presença.
 O match estático delega a `underover.rs`; reconstruções de default/style
 transformam body/annotation e preservam presença e variante. A redução
 mecânica ocorre apenas no owner de layout (ADR-0109).
+
+## P1451 — dispatch e reconstrução de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Baixar cedo ao carrier genérico apagaria identidade, fields e presença.
+
+### Decisão proposta
+
+O match estático delega a `underover.rs`; reconstruções de default/style
+transformam body/annotation e preservam presença e variante. A redução
+mecânica ocorre apenas no owner de layout (ADR-0109).

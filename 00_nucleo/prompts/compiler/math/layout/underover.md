@@ -422,3 +422,16 @@ zero e annotation inferior; a geometria cristalina comum já existe.
 Adicionar free function/método fino que reduz localmente para
 `layout_underover(body, Some(U+23DD), None)`, envolvida por annotation inferior
 quando presente. O paren, não a annotation, recebe stretch (ADR-0109).
+
+## P1451 — realização de `MathUndershell` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla realiza U+23E1 abaixo do body, stretch horizontal de 100%, shortfall
+zero e annotation inferior; a geometria cristalina comum já existe.
+
+### Decisão proposta
+
+Adicionar free function/método fino que reduz localmente para
+`layout_underover(body, Some(U+23E1), None)`, envolvida por annotation inferior
+quando presente. O shell, não a annotation, recebe stretch (ADR-0109).
