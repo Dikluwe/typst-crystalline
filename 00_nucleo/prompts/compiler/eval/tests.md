@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: ced0c71a
+Hash do Código: 5428eeaa
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -128,3 +128,20 @@ Testes focais avaliam as duas formas vinculadas, o default inclusive e
 `inclusive: false`, distinguindo método ausente, named ignorado e árvore
 incorreta. O teste contextual com introspector é propriedade de
 `compiler/introspect.md`; este owner cobre somente a construção por eval.
+
+## P1438 — regressão bare de `norm` acompanha o carrier público
+
+### Medição anterior à decisão
+
+O teste histórico P899 agrupava `norm` com wrappers cristalinos ainda
+materializados como `MathDelimited`. P1438 mediu no vanilla ratificado que
+`norm` retorna `LrElem` e o gate aprovado substitui essa aproximação. Manter a
+expectativa antiga transformaria a divergência conhecida em falso contrato.
+
+### Aceitação
+
+Separar `norm` do loop legado sem alterar as expectativas de
+`abs`/`floor`/`ceil`/`round`/`bar`. A regressão P1438 exige `Content::MathLr`
+com body de três nós `‖`, conteúdo, `‖`, tamanho default não explícito e
+nenhum `MathDelimited` exterior. O teste não duplica layout nem concede
+paridade às demais rotas residuais.

@@ -1,0 +1,36 @@
+{
+  "schema": "tekt.materialization.mutation-report-summary/v1",
+  "step": 1438,
+  "regime": "executed_without_isolation_attestation",
+  "harness_repair": {
+    "status": "NO_EXECUTIONS_NO_CREDIT",
+    "cause": "Ruby compared ASCII-8BIT source bytes with the UTF-8 double-bar recipe",
+    "repair": "force source buffers to UTF-8 before exact replacement"
+  },
+  "initial_campaign": {
+    "executions": 30,
+    "killed": 27,
+    "score": 0.9,
+    "verdict": "NOT_SEALED",
+    "cause": "M09 selected an earlier homologous Value::None branch outside math_lr_content_value",
+    "receipt": "00_nucleo/diagnosticos/p1438-mutations/receipts/campaign-initial.json"
+  },
+  "recalibrated_campaign": {
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "executions": 30,
+    "killed": 30,
+    "score": 1.0,
+    "unknown": 0,
+    "verdict": "SEALED_BEFORE_LEGACY_TEST_SYNC",
+    "receipt": "00_nucleo/diagnosticos/p1438-mutations/receipts/campaign-before-legacy-sync.json"
+  },
+  "final_campaign": {
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "executions": 30,
+    "killed": 30,
+    "score": 1.0,
+    "unknown": 0,
+    "verdict": "SEALED",
+    "receipt": "00_nucleo/diagnosticos/p1438-mutations/receipts/campaign.json"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "step": 1438,
+  "test_prompt_sha256": "19ad0c527341e440bf5c3dadebb8539728b3edd01e249184f0569bba78eb7d27",
+  "suite": "01_core/src/compiler/stdlib/structural/p1438_tests.rs",
+  "frozen_before_candidate": true,
+  "positive": ["binding/casts/morphology/repr", "size/presence/carrier/nesting", "three-part MathLr body"],
+  "negative": ["missing/extra/named/type/duplicate diagnostics", "ten mutation families"],
+  "opaque": ["build failure unrelated to mutant", "timeout", "identity mismatch"],
+  "opaque_expected": "Unknown"
+}

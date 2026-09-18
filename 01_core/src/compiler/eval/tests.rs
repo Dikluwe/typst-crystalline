@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 242998df
+//! @prompt-hash 992231c9
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9585,8 +9585,8 @@ mod tests {
         }
     }
 
-    /// **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`/`bar` são
-    /// funções nativas em vanilla (`typst-library/src/math/lr.rs::abs/norm/
+    /// **P899 (Parte B)** — `abs`/`floor`/`ceil`/`round`/`bar` são
+    /// funções nativas em vanilla (`typst-library/src/math/lr.rs::abs/
     /// floor/ceil`, `frac.rs` para `round` via a mesma `delimited()` —
     /// medido no `lab/typst-original`), cada uma um wrapper fino de
     /// `delimited(body, open, close, size)` — não estavam registadas em
@@ -9603,10 +9603,9 @@ mod tests {
     /// como delimitador `|x|`, não acento (ver `p899_hat_tilde_dot_dot_double_
     /// produzem_mathaccent`, que documenta a correcção do catálogo).
     #[test]
-    fn p899_abs_norm_floor_ceil_round_produzem_mathdelimited() {
+    fn p899_abs_floor_ceil_round_produzem_mathdelimited() {
         for (call, open, close) in [
             ("abs(x)", '|', '|'),
-            ("norm(x)", '‖', '‖'),
             ("floor(x)", '⌊', '⌋'),
             ("ceil(x)", '⌈', '⌉'),
             ("round(x)", '⌊', '⌉'),
@@ -9626,6 +9625,36 @@ mod tests {
             assert_eq!(got_close, close, "{call}: delimitador de fecho errado");
             assert!(body.contains('x'), "{call}: body deve conter 'x'; got: {}", body);
         }
+    }
+
+    /// P1438 — `norm` deixou a aproximação P899 e agora converge no carrier
+    /// público `MathLr`, como a função qualificada do vanilla ratificado.
+    #[test]
+    fn p1438_norm_bare_produz_mathlr_com_cercas_duplas() {
+        fn find_mathlr(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_delimited::MathLrElem> {
+            match c {
+                Content::MathLr(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathlr)
+                }
+                Content::Equation(elem) => find_mathlr(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ norm(x) $");
+        let content = extract_math_content(&world);
+        let norm = find_mathlr(&content).expect("norm(x) deve produzir MathLr");
+        let Content::MathSequence(nodes) = &norm.body else {
+            panic!("body de norm deve preservar a sequência de cercas")
+        };
+        assert_eq!(nodes.len(), 3);
+        assert_eq!(nodes[0].plain_text(), "‖");
+        assert_eq!(nodes[1].plain_text(), "x");
+        assert_eq!(nodes[2].plain_text(), "‖");
+        assert!(!norm.size_explicit);
     }
 
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {

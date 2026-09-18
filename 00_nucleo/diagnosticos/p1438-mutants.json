@@ -1,0 +1,18 @@
+{
+  "schema": "tekt.materialization.mutants/v1",
+  "step": 1438,
+  "families": [
+    {"id":"M01","change":"remove norm module binding","expected":"Violated"},
+    {"id":"M02","change":"replace MathLr with MathDelimited","expected":"Violated"},
+    {"id":"M03","change":"remove left double bar","expected":"Violated"},
+    {"id":"M04","change":"replace right double bar","expected":"Violated"},
+    {"id":"M05","change":"erase explicit size presence","expected":"Violated"},
+    {"id":"M06","change":"accept named body","expected":"Violated"},
+    {"id":"M07","change":"accept zero positionals","expected":"Violated"},
+    {"id":"M08","change":"accept extra positional","expected":"Violated"},
+    {"id":"M09","change":"accept integer body","expected":"Violated"},
+    {"id":"M10","change":"leave bare norm in historical wrapper arm","expected":"Violated"}
+  ],
+  "positive_controls": ["unmutated candidate", "MathLr P1436", "MathDelimited remains distinct"],
+  "opaque_controls": ["identity mismatch", "resource exhaustion", "unsupported observation"]
+}

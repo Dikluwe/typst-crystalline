@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 4eb33dbc
+//! @prompt-hash 969a8c2f
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1446,7 +1446,7 @@ fn math_lr_content_value(value: &Value, span: Span) -> SourceResult<Content> {
 }
 
 /// Validação e construção compartilhada de `math.lr` e `lr(...)` bare.
-pub(crate) fn math_lr_from_args(args: &Args) -> SourceResult<Content> {
+fn math_lr_size_from_args(args: &Args) -> SourceResult<(Rel<Length>, bool)> {
     let size_occurrences = args
         .occurrence_sequence()
         .iter()
@@ -1481,6 +1481,12 @@ pub(crate) fn math_lr_from_args(args: &Args) -> SourceResult<Content> {
             )])
         }
     };
+    Ok((size, size_explicit))
+}
+
+/// Validação e construção compartilhada de `math.lr` e `lr(...)` bare.
+pub(crate) fn math_lr_from_args(args: &Args) -> SourceResult<Content> {
+    let (size, size_explicit) = math_lr_size_from_args(args)?;
     let mut body =
         Vec::with_capacity(args.items.len().saturating_mul(2).saturating_sub(1));
     for (index, value) in args.items.iter().enumerate() {
@@ -1545,6 +1551,49 @@ pub fn native_math_mid(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     math_mid_from_args(args).map(Value::Content)
+}
+
+/// Validação e construção compartilhada de `math.norm` e `norm(...)` bare.
+pub(crate) fn math_norm_from_args(args: &Args) -> SourceResult<Content> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+    let (size, size_explicit) = math_lr_size_from_args(args)?;
+    let body = match args.items.as_slice() {
+        [value] => math_lr_content_value(value, args.span)?,
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+    Ok(Content::math_lr(
+        Content::MathSequence(
+            vec![Content::MathText("‖".into()), body, Content::MathText("‖".into())]
+                .into(),
+        ),
+        size,
+        size_explicit,
+    ))
+}
+
+pub fn native_math_norm(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_norm_from_args(args).map(Value::Content)
 }
 
 fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
@@ -2222,6 +2271,10 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "mid".into(),
         Value::Func(crate::entities::func::Func::native("mid", native_math_mid)),
+    );
+    dict.insert(
+        "norm".into(),
+        Value::Func(crate::entities::func::Func::native("norm", native_math_norm)),
     );
 
     // P1293-B — quatro membros próprios antes do espelho sym→math.

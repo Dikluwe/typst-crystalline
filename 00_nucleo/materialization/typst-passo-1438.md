@@ -114,3 +114,32 @@ headers e resselo começam apenas após confirmação humana explícita.
    `cargo build --workspace` e `crystalline-lint .`, distinguindo as oito
    falhas históricas da suíte completa já registradas em P1437 de qualquer
    regressão atribuível a P1438.
+
+## 7. Confirmação e materialização
+
+O dono confirmou explicitamente o gate ADR-0127 após o commit de proposta
+`0a1d813f1243f04d36435632dc364919aec4ce15`.
+
+P1438 foi materializado em 2026-09-17 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível compilou o harness
+e fez os quatro oráculos congelados falharem somente em
+`math.norm callable: None`. O candidato registrou a função, extraiu a política
+compartilhada de `size`, construiu `MathLr` com body `‖`, conteúdo, `‖` e fez a
+rota bare delegar ao mesmo builder. Depois do alinhamento do teste histórico
+P899, o focal terminou com cinco testes verdes.
+
+A primeira tentativa do runner parou antes de executar mutantes por conflito
+de encoding Ruby entre bytes e `‖`; não recebeu crédito. A primeira campanha
+física válida matou 27/30 porque M09 selecionou um braço `Value::None`
+homônimo fora do conversor P1438. Após ancoragem no owner correto, duas
+campanhas integrais sucessivas — a última já com a regressão histórica
+sincronizada — mataram 30/30 mutantes nas ordens direta, direta repetida e
+reversa, score `1.0`, zero `Unknown`.
+
+As sondas públicas qualificadas e bare reproduziram função, body vazio,
+string, nesting, `size: 150%` e seis diagnósticos negativos do vanilla.
+`cargo fmt --all -- --check`, `git diff --check`, `cargo build --workspace` e
+`crystalline-lint .` passaram; V5/V15/V26 ficaram limpos. A suíte completa
+executou 5.862 testes: 5.854 verdes e as mesmas oito falhas históricas já
+registradas em P1437, nenhuma atribuível a P1438. O certificado final deve
+fixar o commit e a árvore candidatos; até lá, este preseal não amplia o recorte.
