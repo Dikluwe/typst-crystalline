@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash b3115945
+//! @prompt-hash 44fd5d5a
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1208,7 +1208,12 @@ fn eval_math_expr(
                     crate::compiler::stdlib::math_overbrace_from_args(&args)
                 }
 
-                "underbrace" | "underbracket" | "overbracket" => {
+                "overbracket" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_overbracket_from_args(&args)
+                }
+
+                "underbrace" | "underbracket" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
                         .items()

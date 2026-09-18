@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 307ef6c8
+//! @prompt-hash ed2f4e26
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -63,7 +63,9 @@ use crate::entities::elements::math_matrix::{
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
 use crate::entities::elements::math_underline::MathUnderlineElem;
-use crate::entities::elements::math_underover::{MathOverbraceElem, MathUnderoverElem};
+use crate::entities::elements::math_underover::{
+    MathOverbraceElem, MathOverbracketElem, MathUnderoverElem,
+};
 use crate::entities::elements::math_vec::{MathVecElem, MathVecExplicit};
 // Lote 3 P318 — família lista/termos (5 variantes).
 use crate::entities::elements::enum_item::EnumItemElem;
@@ -256,6 +258,9 @@ pub enum Content {
 
     /// Chave horizontal superior pública com anotação opcional.
     MathOverbrace(Arc<MathOverbraceElem>),
+
+    /// Barra horizontal superior pública com anotação opcional.
+    MathOverbracket(Arc<MathOverbracketElem>),
 
     /// Ponto de alinhamento em equações matemáticas (`&`).
     /// Separa colunas no layout de grelha (Passo 51).
@@ -1241,6 +1246,9 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathLr(lr) => write!(f, "math.lr({:?})", lr),
         Content::MathMid(mid) => write!(f, "math.mid({:?})", mid),
         Content::MathOverbrace(overbrace) => write!(f, "math.overbrace({:?})", overbrace),
+        Content::MathOverbracket(overbracket) => {
+            write!(f, "math.overbracket({:?})", overbracket)
+        }
         Content::MathAlignPoint(_) => write!(f, "math.align.point"),
         Content::Linebreak(_) => write!(f, "linebreak"),
         Content::MathMatrix(_) => write!(f, "math.matrix"),
@@ -1368,6 +1376,7 @@ impl Content {
             Self::MathLr(_) => "lr",
             Self::MathMid(_) => "mid",
             Self::MathOverbrace(_) => "overbrace",
+            Self::MathOverbracket(_) => "overbracket",
             Self::MathAlignPoint(_) => "math.align.point",
             Self::Linebreak(_) => "linebreak",
             Self::MathMatrix(_) => "math.matrix",
@@ -1693,6 +1702,18 @@ impl Content {
         annotation_explicit: bool,
     ) -> Self {
         Self::MathOverbrace(Arc::new(MathOverbraceElem {
+            body,
+            annotation,
+            annotation_explicit,
+        }))
+    }
+    /// Construtor canônico do elemento público `math.overbracket`.
+    pub fn math_overbracket(
+        body: Content,
+        annotation: Option<Content>,
+        annotation_explicit: bool,
+    ) -> Self {
+        Self::MathOverbracket(Arc::new(MathOverbracketElem {
             body,
             annotation,
             annotation_explicit,
@@ -3087,6 +3108,7 @@ impl Content {
             | Self::MathLr(_)
             | Self::MathMid(_)
             | Self::MathOverbrace(_)
+            | Self::MathOverbracket(_)
             | Self::MathAlignPoint(_)
             | Self::Linebreak(_)
             | Self::MathMatrix(_)
@@ -3418,6 +3440,7 @@ impl Content {
             Self::MathLr(e) => e.plain_text(),
             Self::MathMid(e) => e.plain_text(),
             Self::MathOverbrace(e) => e.plain_text(),
+            Self::MathOverbracket(e) => e.plain_text(),
             Self::MathAlignPoint(e) => e.plain_text(),
             Self::Linebreak(e) => e.plain_text(),
             Self::MathMatrix(e) => e.plain_text(),
@@ -3563,6 +3586,7 @@ impl PartialEq for Content {
             (Self::MathLr(a), Self::MathLr(b)) => a == b,
             (Self::MathMid(a), Self::MathMid(b)) => a == b,
             (Self::MathOverbrace(a), Self::MathOverbrace(b)) => a == b,
+            (Self::MathOverbracket(a), Self::MathOverbracket(b)) => a == b,
             (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
             (Self::Linebreak(a), Self::Linebreak(b)) => a == b,
             (Self::MathMatrix(a), Self::MathMatrix(b)) => a == b,
@@ -3912,6 +3936,7 @@ impl Content {
             Content::MathLr(e) => e.map_content(transform)?,
             Content::MathMid(e) => e.map_content(transform)?,
             Content::MathOverbrace(e) => e.map_content(transform)?,
+            Content::MathOverbracket(e) => e.map_content(transform)?,
             Content::MathMatrix(e)    => e.map_content(transform)?,
             Content::MathCases(e)     => e.map_content(transform)?,
             Content::MathAccent(e)    => e.map_content(transform)?,
@@ -4252,6 +4277,7 @@ impl Content {
             | Content::MathLr(_)
             | Content::MathMid(_)
             | Content::MathOverbrace(_)
+            | Content::MathOverbracket(_)
             | Content::MathMatrix(_)
             | Content::MathCases(_)
             | Content::MathAccent(_)

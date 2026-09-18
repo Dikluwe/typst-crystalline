@@ -135,3 +135,28 @@ Testes, código e resselo começam somente após confirmação humana explícita
 5. Exigir score `1.0` para os mutantes definidos; resselo somente após V15/V26.
 6. Validar `cargo fmt --check`, `cargo build --workspace`, suítes focal/completa,
    `git diff --check` e `crystalline-lint .`, registrando proveniência.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `edf968e779c283d72d3343f6825a8834c2218118`. A cadeia RED→GREEN,
+ataques, resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização
+
+P1440 foi materializado em 2026-09-18 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível apresentou nove
+erros de compilação centrados na ausência de `MathOverbracketElem`,
+`Content::MathOverbracket` e helpers P1440. O candidato fechou quatro testes
+focais e duas expectativas legadas P906 sincronizadas com a nova identidade.
+
+A campanha adversarial final executou as ordens direta, direta repetida e
+reversa e matou 36/36 mutantes, score `1.0`, zero `Unknown`. O binário
+cristalino reproduziu os 16 probes públicos: binding qualificado, formas
+qualified/bare, annotation omitida/presente/`none`, casts, spread, nesting e
+sete diagnósticos negativos medidos no vanilla.
+
+`cargo fmt --check`, `git diff --check`, `cargo build --workspace` e
+`crystalline-lint .` terminaram verdes. A suíte completa executou 5.870 testes
+L1: 5.862 verdes e oito falhas históricas já presentes no baseline P1439;
+nenhuma toca arquivos ou observáveis P1440.

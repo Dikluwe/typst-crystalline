@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 2b1930ec
+Hash do Código: b9df9f6c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -160,3 +160,19 @@ Avaliar `$ overbrace(x, n) $` e exigir `Content::MathOverbrace` com body `x`,
 annotation `n` e presença verdadeira. Nenhum `MathUnderover` exterior pode
 substituir a identidade; validação detalhada da assinatura pertence ao owner
 test-only P1439.
+
+## P1440 — regressão bare de `overbracket` preserva identidade
+
+### Medição anterior à decisão
+
+O teste histórico D2 exige diretamente o carrier mecânico `MathUnderover` e o
+braço agregado baixa `overbracket` para esse carrier, ignora argumentos e
+perde presença. O vanilla conserva o elemento público na sintaxe matemática.
+
+### Aceitação
+
+Avaliar `$ overbracket(x, n) $` e exigir `Content::MathOverbracket` com body
+`x`, annotation `n` e presença verdadeira. Sincronizar D2 e o controle dos
+quatro codepoints para inspecionarem U+23B4 através da identidade pública; não
+exigir que a redução mecânica exista antes do layout. Validação detalhada da
+assinatura pertence ao owner test-only P1440.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 8a4cf0b9
+//! @prompt-hash 74e03a39
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9685,6 +9685,34 @@ mod tests {
         assert!(overbrace.annotation_explicit);
     }
 
+    #[test]
+    fn p1440_overbracket_bare_preserva_identidade_e_anotacao() {
+        fn find_overbracket(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathOverbracketElem>
+        {
+            match c {
+                Content::MathOverbracket(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overbracket)
+                }
+                Content::Equation(elem) => find_overbracket(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ overbracket(x, n) $");
+        let content = extract_math_content(&world);
+        let overbracket = find_overbracket(&content)
+            .expect("overbracket(x, n) deve produzir MathOverbracket");
+        assert_eq!(overbracket.body.plain_text(), "x");
+        assert_eq!(
+            overbracket.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(overbracket.annotation_explicit);
+    }
+
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {
         match c {
             Content::MathMatrix(e) => Some((
@@ -16138,6 +16166,20 @@ mod tests {
             }
         }
 
+        fn find_overbracket_in(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathOverbracketElem>
+        {
+            match c {
+                Content::MathOverbracket(e) => Some(e),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overbracket_in)
+                }
+                Content::Equation(e) => find_overbracket_in(&e.body),
+                _ => None,
+            }
+        }
+
         /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
         /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
         /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
@@ -16169,27 +16211,16 @@ mod tests {
             );
         }
 
-        /// **P906 D2** — `overbracket(a+b+c)`: idem, `over=Some(⎴)` (U+23B4),
-        /// `under=None`.
+        /// **P906 D2 / P1440** — `overbracket(a+b+c)` preserva a identidade
+        /// pública e projeta U+23B4 na sua morfologia.
         #[test]
         fn p906_overbracket_sem_anotacao_produz_mathunderover_over_u23b4() {
             let world = MockWorld::new("$ overbracket(a+b+c) $");
             let content = extract_math_content(&world);
-            let found = find_mathunderover_in(&content);
-            assert!(
-                found.is_some(),
-                "overbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
-                content
-            );
-            let (base, under, over) = found.unwrap();
-            assert!(under.is_none(), "overbracket não deve ter under");
-            let over = over.expect("overbracket deve ter over");
-            assert_eq!(
-                over.plain_text().chars().next(),
-                Some('\u{23B4}'),
-                "over deve ser exactamente U+23B4"
-            );
-            let base_text = base.plain_text();
+            let overbracket = find_overbracket_in(&content)
+                .expect("overbracket(a+b+c) deve preservar MathOverbracket");
+            assert!(!overbracket.annotation_explicit);
+            let base_text = overbracket.body.plain_text();
             assert!(
                 base_text.contains('a')
                     && base_text.contains('b')
@@ -16197,6 +16228,9 @@ mod tests {
                 "base deve preservar o conteúdo original a+b+c: {:?}",
                 base_text
             );
+            let projected =
+                Content::MathOverbracket(std::sync::Arc::new(overbracket.clone()));
+            assert!(projected.plain_text().contains('\u{23B4}'));
         }
 
         /// **P906 D3** — `underbrace(a+b+c, "soma")` COM anotação: estrutura
@@ -16298,6 +16332,19 @@ mod tests {
                     assert!(!overbrace.annotation_explicit);
                     let projected =
                         Content::MathOverbrace(std::sync::Arc::new(overbrace.clone()));
+                    assert_eq!(
+                        projected.plain_text().chars().find(|c| *c == expected_char),
+                        Some(expected_char)
+                    );
+                    continue;
+                }
+                if name == "overbracket" {
+                    let overbracket = find_overbracket_in(&content)
+                        .expect("overbracket deve preservar MathOverbracket");
+                    assert!(!overbracket.annotation_explicit);
+                    let projected = Content::MathOverbracket(std::sync::Arc::new(
+                        overbracket.clone(),
+                    ));
                     assert_eq!(
                         projected.plain_text().chars().find(|c| *c == expected_char),
                         Some(expected_char)

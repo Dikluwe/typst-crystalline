@@ -1,0 +1,15 @@
+{
+  "schema": "tekt.materialization.mutation-report-summary/v1",
+  "step": 1440,
+  "regime": "executed_without_isolation_attestation",
+  "campaign": {
+    "orders": ["forward", "forward_repeat", "reverse"],
+    "executions": 36,
+    "killed": 36,
+    "score": 1.0,
+    "unknown": 0,
+    "verdict": "SEALED",
+    "receipt": "00_nucleo/diagnosticos/p1440-mutations/receipts/campaign-final.json"
+  },
+  "protected_suite_note": "legacy P906 synchronization happened before this sole credited campaign; no protected input changed afterwards"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 6bd25ce0
+//! @prompt-hash 800be6fc
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -334,7 +334,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
-        | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathAlignPoint(_)
+        | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathOverbracket(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_)
         | Content::MathVec(_)
@@ -423,7 +423,7 @@ where
         | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathRoot(_)
-        | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathAlignPoint(_)
+        | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathOverbracket(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_)
         | Content::MathVec(_)

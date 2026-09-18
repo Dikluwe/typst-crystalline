@@ -1,0 +1,12 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1440,
+  "revision": 0,
+  "hypothesis": "the frozen P1440 oracle and inherited P906 controls discriminate the public carrier without changing the mature geometry",
+  "before": {"focal_passed": 4, "legacy_controls_requiring_sync": 2},
+  "change": "synchronize P906 D2 and the four-codepoint control from mechanical MathUnderover identity to the frozen public MathOverbracket obligation",
+  "after": {"focal_passed": 4, "legacy_passed": 2, "failed": 0, "unknown": 0},
+  "regressions": 0,
+  "cost": "three focal runs before the final mutation campaign",
+  "basis": "ADR-0107 distinguishes public morphology from mechanical lowering; P1440 L0 requires MathOverbracket before layout"
+}

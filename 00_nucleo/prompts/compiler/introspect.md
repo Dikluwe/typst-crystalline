@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 7bb9e549
+Hash do Código: 951c52fc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1799,7 +1799,7 @@ Classificar `MathOverbrace` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
 filhos, evitando dupla contagem.
 
-## P1440 — neutralidade introspectiva de `MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1440 — neutralidade introspectiva de `MathOverbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

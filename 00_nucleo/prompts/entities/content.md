@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 066d7d00
+Hash do Código: c9292461
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3164,7 +3164,7 @@ transforma body e anotação preservando `annotation_explicit`; `map_text`
 mantém a variante. Não inferir `overbrace` a partir de U+23DE nem converter o
 carrier público permanentemente em `MathUnderover`.
 
-# P1440 — variante pública `Content::MathOverbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+# P1440 — variante pública `Content::MathOverbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
