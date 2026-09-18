@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 8cfdca98
+Hash do Código: 19589f0f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_stretch` — `MathStretchElem`
-Hash do Código: NOVO-P1446
+Hash do Código: 668ad11f
 
 **Camada:** L1
 **Alvo:** `01_core/src/entities/elements/math_stretch.rs`

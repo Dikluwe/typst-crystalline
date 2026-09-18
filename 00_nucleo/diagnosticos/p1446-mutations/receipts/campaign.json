@@ -1,0 +1,316 @@
+{
+  "schema": "tekt.materialization.mutation-report/v1",
+  "step": 1446,
+  "regime": "executed_without_isolation_attestation",
+  "orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "executions": 30,
+  "killed": 30,
+  "mutation_score": 1.0,
+  "unknown": 0,
+  "results": [
+    {
+      "order": "forward",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:13:41.152148Z",
+      "finished_at": "2026-09-18T19:13:52.909094Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "math.stretch callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.00s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:13:52.975844Z",
+      "finished_at": "2026-09-18T19:14:04.600568Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "thread 'compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting' (1263) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:79:5:\nassertion failed: matches!(content, Content::MathStretch(_))\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:14:04.602036Z",
+      "finished_at": "2026-09-18T19:14:28.951169Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left != right` failed\n  left: math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n right: math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:14:28.952931Z",
+      "finished_at": "2026-09-18T19:14:39.662880Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:14:39.664574Z",
+      "finished_at": "2026-09-18T19:14:51.273477Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (3152) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:14:51.275042Z",
+      "finished_at": "2026-09-18T19:15:01.787782Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (3782) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:15:01.840655Z",
+      "finished_at": "2026-09-18T19:15:13.639827Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (4412) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:15:13.641649Z",
+      "finished_at": "2026-09-18T19:15:24.743835Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"stretch(body: [x])\"\n right: \"stretch(body: [x], size: 100% + 0pt)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:15:24.800063Z",
+      "finished_at": "2026-09-18T19:15:35.845367Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "  left: \"stretch()\"\n right: \"stretch(body: [x])\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:15:35.846622Z",
+      "finished_at": "2026-09-18T19:15:50.645728Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(Relative(Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:15:50.646774Z",
+      "finished_at": "2026-09-18T19:16:04.776459Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "math.stretch callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.00s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:04.777792Z",
+      "finished_at": "2026-09-18T19:16:15.830335Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "thread 'compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting' (7563) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:79:5:\nassertion failed: matches!(content, Content::MathStretch(_))\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:15.831627Z",
+      "finished_at": "2026-09-18T19:16:26.791874Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados' (8191) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:203:5:\nassertion failed: absolute.size_explicit\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:26.845855Z",
+      "finished_at": "2026-09-18T19:16:37.306480Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:37.308345Z",
+      "finished_at": "2026-09-18T19:16:48.721233Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (9452) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:48.722821Z",
+      "finished_at": "2026-09-18T19:16:59.139729Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (10082) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:16:59.141257Z",
+      "finished_at": "2026-09-18T19:17:10.512778Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (10712) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:17:10.514074Z",
+      "finished_at": "2026-09-18T19:17:21.281866Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"stretch(body: [x])\"\n right: \"stretch(body: [x], size: 100% + 0pt)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:17:21.283083Z",
+      "finished_at": "2026-09-18T19:17:32.166703Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"stretch(size: 100% + 0pt)\"\n right: \"stretch(body: [x], size: 100% + 0pt)\"\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:17:32.167419Z",
+      "finished_at": "2026-09-18T19:17:46.333479Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(Relative(Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M10",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:17:46.384806Z",
+      "finished_at": "2026-09-18T19:17:57.104417Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: None\n right: Some(Relative(Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M09",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:17:57.105535Z",
+      "finished_at": "2026-09-18T19:18:11.717808Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"stretch(size: 100% + 0pt)\"\n right: \"stretch(body: [x], size: 100% + 0pt)\"\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M08",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:18:11.770360Z",
+      "finished_at": "2026-09-18T19:18:22.692408Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"stretch(body: [x])\"\n right: \"stretch(body: [x], size: 100% + 0pt)\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M07",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:18:22.693544Z",
+      "finished_at": "2026-09-18T19:18:33.755204Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (15122) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M06",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:18:33.756648Z",
+      "finished_at": "2026-09-18T19:18:46.137699Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (15752) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:18:46.139034Z",
+      "finished_at": "2026-09-18T19:18:57.765353Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada' (16382) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:99:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.stretch(MathStretchElem { body: empty, size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M04",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:18:57.824766Z",
+      "finished_at": "2026-09-18T19:19:10.976894Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left == right` failed\n  left: \"unexpected argument: body\"\n right: \"the argument `body` is positional\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M03",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:19:10.978260Z",
+      "finished_at": "2026-09-18T19:19:23.481903Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "assertion `left != right` failed\n  left: math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n right: math.stretch(MathStretchElem { body: text(\"x\"), size: Rel { rel: 1.0, abs: Length { abs: Abs(0.0), em: 0.0 } }, size_explicit: false })\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M02",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:19:23.537393Z",
+      "finished_at": "2026-09-18T19:19:35.696733Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "thread 'compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting' (18273) panicked at 01_core/src/compiler/stdlib/structural/p1446_tests.rs:79:5:\nassertion failed: matches!(content, Content::MathStretch(_))\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M01",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T19:19:35.734528Z",
+      "finished_at": "2026-09-18T19:19:48.630061Z",
+      "command": "cargo test -q -p typst-core p1446_",
+      "tail": "math.stretch callable: None\n\n\nfailures:\n    compiler::stdlib::structural::p1446_tests::p1446_absoluto_e_default_sao_preservados\n    compiler::stdlib::structural::p1446_tests::p1446_assinatura_falha_fechada\n    compiler::stdlib::structural::p1446_tests::p1446_binding_carrier_casts_repr_e_nesting\n    compiler::stdlib::structural::p1446_tests::p1446_size_presenca_fields_e_mapeamento\n\ntest result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 5893 filtered out; finished in 0.00s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    }
+  ]
+}

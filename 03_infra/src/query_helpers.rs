@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 7df9369e
+//! @prompt-hash 68bcaea8
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -333,7 +333,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::Linebreak(_) | Content::HSpace(_) | Content::VSpace(_)
         | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
-        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_)
+        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_)
         | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_) | Content::MathOverline(_)
@@ -422,7 +422,7 @@ where
         | Content::Divider(_) | Content::Linebreak(_) | Content::HSpace(_)
         | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_)
         | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
-        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_)
+        | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_)
         | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_) | Content::MathOverline(_)

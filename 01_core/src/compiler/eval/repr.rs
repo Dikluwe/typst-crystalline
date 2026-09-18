@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash c268fe6f
+//! @prompt-hash 6be8c194
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -227,17 +227,14 @@ fn repr_duration(d: &crate::entities::duration::Duration) -> String {
 
 /// Representação de um comprimento relativo (`Rel<Length>`).
 ///
-/// Percentagem pura (abs zero) imprime só a percentagem — paridade
-/// observável com o vanilla, onde `50%` é `Ratio`, não `Rel`.
-/// Com offset absoluto: `"{pct} + {length}"` (paridade vanilla `Rel::repr`,
-/// layout/rel.rs:149 — incluindo `50% + -3pt` para offset negativo).
+/// `Value::Relative` é `Rel<Length>` causal e conserva sempre as duas
+/// componentes. Percentagem literal pura é `Value::Ratio`.
 fn repr_relative(rel: &Rel<Length>) -> String {
-    let pct = format_float_with_unit(rel.rel * 100.0, "%");
-    if rel.abs.is_zero() {
-        pct
-    } else {
-        format!("{} + {}", pct, repr_length(&rel.abs))
-    }
+    format!(
+        "{} + {}",
+        format_float_with_unit(rel.rel * 100.0, "%"),
+        repr_length(&rel.abs)
+    )
 }
 
 /// `math.lr.size` é declarado como `Rel<Length>` no vanilla; a morfologia
@@ -778,6 +775,13 @@ pub fn repr_content(c: &Content) -> String {
             }
             (_, false) => format!("root(radicand: {})", repr_content(&r.radicand)),
         },
+        Content::MathStretch(stretch) => {
+            let mut fields = vec![format!("body: {}", repr_math_lr_body(&stretch.body))];
+            if stretch.size_explicit {
+                fields.push(format!("size: {}", repr_math_lr_size(&stretch.size)));
+            }
+            format!("stretch({})", fields.join(", "))
+        }
         Content::MathDelimited(d) => repr_canonical_binom(d)
             .unwrap_or_else(|| format!("{}{}{}", d.open, repr_content(&d.body), d.close)),
         Content::MathLr(lr) => {
@@ -1843,11 +1847,11 @@ mod tests {
     }
 
     #[test]
-    fn repr_value_relative_pure_percent() {
+    fn repr_value_relative_conserva_abs_zero() {
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
         let r = Value::Relative(Rel::<Length>::from_percent(50.0));
-        assert_eq!(repr_value(&r), "50%");
+        assert_eq!(repr_value(&r), "50% + 0pt");
     }
 
     #[test]

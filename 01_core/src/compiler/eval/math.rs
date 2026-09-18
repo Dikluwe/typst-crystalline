@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash d10fa68c
+//! @prompt-hash fe0b96f0
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1007,6 +1007,11 @@ fn eval_math_expr(
                 "round" => {
                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
                     crate::compiler::stdlib::math_round_from_args(&args)
+                }
+
+                "stretch" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_stretch_from_args(&args)
                 }
 
                 // **P992** — `scripts(body)`/`limits(body, inline:)`: força

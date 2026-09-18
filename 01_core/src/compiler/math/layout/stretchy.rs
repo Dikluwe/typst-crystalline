@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/stretchy.md
-//! @prompt-hash 139be26c
+//! @prompt-hash de2d0171
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -43,6 +43,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         self.layout_stretchy_delimiter_impl('√', min_height_du, style, false)
+    }
+
+    /// P1446 — eixo Y explícito, sem short-fall.
+    pub(super) fn layout_stretchy_glyph_vertical(
+        &self,
+        c: char,
+        min_height_du: f64,
+        style: &TextStyle,
+    ) -> MathBox {
+        self.layout_stretchy_delimiter_impl(c, min_height_du, style, false)
     }
 
     fn layout_stretchy_delimiter_impl(

@@ -1,0 +1,8 @@
+{
+  "vanilla": "/usr/local/bin/typst eval --jobs 1",
+  "crystalline": "./target/debug/typst eval --color never",
+  "positive_cases": ["binding", "default", "explicit-100", "mixed-size", "none", "string", "symbol", "nesting", "bare", "bare-size"],
+  "negative_cases": ["missing", "extra", "body-named", "unknown-named", "bad-size-string", "bad-size-int", "duplicate-size", "bad-body"],
+  "structural_tests": "compiler::stdlib::structural::p1446_tests",
+  "classification": {"match": "Preserved", "semantic_mismatch": "Violated", "unobservable": "Unknown"}
+}

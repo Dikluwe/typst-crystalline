@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 021bd808
+//! @prompt-hash 76b950c3
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -33,6 +33,7 @@ mod matrix;
 mod op;
 mod root;
 mod spacing;
+mod stretch;
 mod stretchy;
 mod underline;
 mod underover;
@@ -909,6 +910,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathRoot(e) => {
                 self.layout_root(e.index.as_ref(), &e.radicand, style)
             }
+
+            Content::MathStretch(e) => stretch::layout(self, e, style),
 
             Content::MathDelimited(e) => {
                 self.layout_delimited(e.open, &e.body, e.close, style)
@@ -2306,6 +2309,9 @@ fn apply_math_default(body: &Content) -> Content {
             apply_math_default(&e.radicand),
             e.index_explicit,
         ),
+        Content::MathStretch(e) => {
+            Content::math_stretch(apply_math_default(&e.body), e.size, e.size_explicit)
+        }
         Content::MathDelimited(e) => {
             Content::math_delimited(e.open, apply_math_default(&e.body), e.close)
         }
@@ -2544,6 +2550,11 @@ fn apply_math_style(
             e.index.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
             apply_math_style(&e.radicand, kind, bold, italic),
             e.index_explicit,
+        ),
+        Content::MathStretch(e) => Content::math_stretch(
+            apply_math_style(&e.body, kind, bold, italic),
+            e.size,
+            e.size_explicit,
         ),
         Content::MathDelimited(e) => Content::math_delimited(
             e.open,

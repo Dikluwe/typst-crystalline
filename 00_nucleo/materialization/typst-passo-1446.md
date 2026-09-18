@@ -169,4 +169,36 @@ de confirmação humana explícita.
 
 ## 7. Confirmação humana
 
-Pendente.
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18, após o
+commit de proposta `503e6416c78563b0d3949dfb81a58412da79dccb`. A cadeia
+contrato → RED → implementação → ataques → veredito fica autorizada somente
+para o recorte desta proposta.
+
+## 8. Materialização e pré-veredito
+
+Medição final em 2026-09-18, sobre working tree não commitado derivado do
+commit de proposta `503e6416c78563b0d3949dfb81a58412da79dccb`; o estado
+exato é enumerado por `git status --short` e `git diff HEAD --stat`.
+
+- RED atribuível: quatro testes estruturais executaram e falharam somente pela
+  ausência do carrier `MathStretch` e do binding público.
+- GREEN focal: 4 passados, 0 falhados; o teste unitário local do elemento
+  também passou na suíte integral.
+- Ataques: 30/30 execuções eficazes mortas nas ordens direta, repetida e
+  inversa; score 1,0, zero `Unknown`, todos M01–M10 mortos 3/3.
+- Paridade pública positiva: identidade, casts, presença causal de `size`,
+  campos, nesting, `repr`, convergência bare/qualificada e transporte da
+  cascata foram preservados. A quebra multilinha do pretty-printer global
+  permanece fora deste recorte.
+- Os oito negativos de assinatura e mensagem primária são cobertos pelo
+  oráculo estrutural congelado.
+- Gates finais: `cargo fmt --all -- --check`, `git diff --check`,
+  `cargo build --workspace` e `crystalline-lint .` passaram;
+  V5/V15/V26 = 0.
+- Suíte integral: 5.889 passados e os mesmos oito falhados históricos do
+  baseline, nenhuma falha atribuível a P1446.
+
+Pré-veredito limitado: `Preserved` para o fragmento `math.stretch` descrito;
+não declara equivalência Typst geral, paridade integral do pretty-printer nem
+fecha as rotas residuais de P1422. O commit produtivo e o certificado são
+fixados somente depois dos gates finais reproduzíveis.

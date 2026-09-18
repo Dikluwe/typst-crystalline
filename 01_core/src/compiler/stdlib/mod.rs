@@ -116,7 +116,8 @@ pub(crate) use crate::compiler::stdlib::structural::{
     math_lr_from_args, math_matrix_augment, math_mid_from_args, math_norm_from_args,
     math_overbrace_from_args, math_overbracket_from_args, math_overline_from_args,
     math_overparen_from_args, math_overshell_from_args, math_round_from_args,
-    realize_outline_entry_page, sqrt_content, MathCasesOptions, MathMatrixOptions,
+    math_stretch_from_args, realize_outline_entry_page, sqrt_content, MathCasesOptions,
+    MathMatrixOptions,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,

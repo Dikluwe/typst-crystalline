@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 6e85dd41
+//! @prompt-hash 053e5725
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -359,6 +359,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathRoot(a0) => match other {
                 Self::MathRoot(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathStretch(a0) => match other {
+                Self::MathStretch(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -2381,6 +2387,15 @@ impl ObservationEq for crate::entities::elements::math_delimited::MathMidElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self { body: _ } = self;
         ObservationRelation::Same.and(self.body.observation_relation(&other.body))
+    }
+}
+impl ObservationEq for crate::entities::elements::math_stretch::MathStretchElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _, size: _, size_explicit: _ } = self;
+        ObservationRelation::Same
+            .and(self.body.observation_relation(&other.body))
+            .and(self.size.observation_relation(&other.size))
+            .and(self.size_explicit.observation_relation(&other.size_explicit))
     }
 }
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 1d187886
+//! @prompt-hash f5fe51cf
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -39,6 +39,7 @@ pub mod math_limits_override; // P992
 pub mod math_matrix;
 pub mod math_op;
 pub mod math_root;
+pub mod math_stretch;
 pub mod math_underline;
 pub mod math_underover;
 pub mod math_vec;

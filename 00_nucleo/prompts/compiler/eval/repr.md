@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 8689a398
+Hash do Código: 32af9fab
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -936,3 +936,9 @@ Representar `MathStretch` como `stretch(body: <content>)`; quando
 default omitido não fabrica campo, enquanto `size: 100%` explícito permanece
 visível. Usar a forma canônica `rel% + abs` já vigente para relative lengths e
 a morfologia de content dos carriers math, preservando nesting.
+
+Medição adicional pós-RED: `repr(50% + 0pt)` no vanilla conserva
+`50% + 0pt`. Como percentagem literal pura viaja em `Value::Ratio`, todo
+`Value::Relative` representa causalmente `Rel<Length>` e imprime sempre as
+duas componentes, inclusive absoluto zero. Isto faz fields/dicts manterem o
+tipo relativo sem introduzir variante ad hoc.

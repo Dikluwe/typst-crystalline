@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 3123ce4d
+//! @prompt-hash 00242617
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -243,6 +243,7 @@ const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("frac", "style"),
     ("accent", "size"),
     ("accent", "dotless"),
+    ("stretch", "size"),
 ];
 
 /// **P1030** — `#set math.<elemento>(...)`, alvo pontuado.
@@ -334,7 +335,7 @@ fn eval_set_math_rule(
                     }
                 }
             }
-            if (elem, nome) == ("accent", "size") {
+            if matches!((elem, nome), ("accent", "size") | ("stretch", "size")) {
                 match &val {
                     Value::Relative(_) | Value::Ratio(_) | Value::Length(_) => {}
                     other => {

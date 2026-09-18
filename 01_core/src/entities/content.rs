@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash e0531ac0
+//! @prompt-hash 88ecb001
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -30,6 +30,7 @@ use crate::entities::math_style::MathStyleKind;
 use crate::entities::paint::Paint;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
+use crate::entities::rel::Rel;
 use crate::entities::sides::Sides;
 use crate::entities::world_types::Datetime;
 // Modelo D (ADR-0105, lote piloto P316): variantes delegadas a módulos.
@@ -64,6 +65,7 @@ use crate::entities::elements::math_matrix::{
 };
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
+use crate::entities::elements::math_stretch::MathStretchElem;
 use crate::entities::elements::math_underline::{MathOverlineElem, MathUnderlineElem};
 use crate::entities::elements::math_underover::{
     MathOverbraceElem, MathOverbracketElem, MathOverparenElem, MathOvershellElem,
@@ -250,6 +252,9 @@ pub enum Content {
     /// `index`: None = raiz quadrada, Some(n) = raiz n-ésima.
     /// **Modelo D (Lote 2 P317)**: `entities::elements::math_root::MathRootElem`.
     MathRoot(Arc<MathRootElem>),
+
+    /// Glifo matemático explicitamente extensível.
+    MathStretch(Arc<MathStretchElem>),
 
     /// Expressão entre delimitadores (`(...)`, `[...]`, `{...}`).
     /// `open`/`close` são os caracteres delimitadores.
@@ -1258,6 +1263,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathAttach(a) => write!(f, "math.attach({:?})", a),
         Content::MathPrimes(p) => write!(f, "math.primes({:?})", p),
         Content::MathRoot(r) => write!(f, "math.root({:?})", r),
+        Content::MathStretch(s) => write!(f, "math.stretch({:?})", s),
         Content::MathDelimited(d) => write!(f, "math.delimited({:?})", d),
         Content::MathLr(lr) => write!(f, "math.lr({:?})", lr),
         Content::MathMid(mid) => write!(f, "math.mid({:?})", mid),
@@ -1392,6 +1398,7 @@ impl Content {
             Self::MathAttach(_) => "math.attach",
             Self::MathPrimes(_) => "primes",
             Self::MathRoot(_) => "math.root",
+            Self::MathStretch(_) => "stretch",
             Self::MathDelimited(_) => "math.delimited",
             Self::MathLr(_) => "lr",
             Self::MathMid(_) => "mid",
@@ -1706,6 +1713,10 @@ impl Content {
         index_explicit: bool,
     ) -> Self {
         Self::MathRoot(Arc::new(MathRootElem { index, radicand, index_explicit }))
+    }
+    /// Construtor canônico do elemento público `math.stretch`.
+    pub fn math_stretch(body: Content, size: Rel<Length>, size_explicit: bool) -> Self {
+        Self::MathStretch(Arc::new(MathStretchElem { body, size, size_explicit }))
     }
     /// Construtor de `MathDelimited`.
     pub fn math_delimited(open: char, body: Content, close: char) -> Self {
@@ -3162,6 +3173,7 @@ impl Content {
             | Self::MathAttach(_)
             | Self::MathPrimes(_)
             | Self::MathRoot(_)
+            | Self::MathStretch(_)
             | Self::MathDelimited(_)
             | Self::MathLr(_)
             | Self::MathMid(_)
@@ -3498,6 +3510,7 @@ impl Content {
             Self::MathAttach(e) => e.plain_text(),
             Self::MathPrimes(e) => e.plain_text(),
             Self::MathRoot(e) => e.plain_text(),
+            Self::MathStretch(e) => e.plain_text(),
             Self::MathDelimited(e) => e.plain_text(),
             Self::MathLr(e) => e.plain_text(),
             Self::MathMid(e) => e.plain_text(),
@@ -3648,6 +3661,7 @@ impl PartialEq for Content {
             (Self::MathAttach(a), Self::MathAttach(b)) => a == b,
             (Self::MathPrimes(a), Self::MathPrimes(b)) => a == b,
             (Self::MathRoot(a), Self::MathRoot(b)) => a == b,
+            (Self::MathStretch(a), Self::MathStretch(b)) => a == b,
             (Self::MathDelimited(a), Self::MathDelimited(b)) => a == b,
             (Self::MathLr(a), Self::MathLr(b)) => a == b,
             (Self::MathMid(a), Self::MathMid(b)) => a == b,
@@ -3891,6 +3905,7 @@ impl Content {
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             (Content::Equation(e), f) => e.get_field(f),
             (Content::MathPrimes(e), f) => e.get_field(f),
+            (Content::MathStretch(e), f) => e.get_field(f),
             (Content::PdfArtifact(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {
                 let key = match f {
@@ -4003,6 +4018,7 @@ impl Content {
             Content::MathAttach(e)    => e.map_content(transform)?,
             Content::MathPrimes(e)    => e.map_content(transform)?,
             Content::MathRoot(e)      => e.map_content(transform)?,
+            Content::MathStretch(e)   => e.map_content(transform)?,
             Content::MathDelimited(e) => e.map_content(transform)?,
             Content::MathLr(e) => e.map_content(transform)?,
             Content::MathMid(e) => e.map_content(transform)?,
@@ -4348,6 +4364,7 @@ impl Content {
             | Content::MathAttach(_)
             | Content::MathPrimes(_)
             | Content::MathRoot(_)
+            | Content::MathStretch(_)
             | Content::MathDelimited(_)
             | Content::MathLr(_)
             | Content::MathMid(_)

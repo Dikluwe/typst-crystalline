@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretch` — layout de `MathStretch`
-Hash do Código: NOVO-P1446
+Hash do Código: 67416594
 
 **Camada:** L1
 **Alvo:** `01_core/src/compiler/math/layout/stretch.rs`
