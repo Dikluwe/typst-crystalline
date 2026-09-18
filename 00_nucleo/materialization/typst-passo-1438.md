@@ -141,5 +141,10 @@ string, nesting, `size: 150%` e seis diagnósticos negativos do vanilla.
 `cargo fmt --all -- --check`, `git diff --check`, `cargo build --workspace` e
 `crystalline-lint .` passaram; V5/V15/V26 ficaram limpos. A suíte completa
 executou 5.862 testes: 5.854 verdes e as mesmas oito falhas históricas já
-registradas em P1437, nenhuma atribuível a P1438. O certificado final deve
-fixar o commit e a árvore candidatos; até lá, este preseal não amplia o recorte.
+registradas em P1437, nenhuma atribuível a P1438. O certificado final abaixo
+fixa o commit e a árvore candidatos sem ampliar o recorte.
+
+O candidato produtivo e os recibos foram fixados no commit
+`a38af56fd041328cb0b600168fec6a7e4f89ba4d`, árvore
+`ff90bd3103af2fc3bddb210bed29fc03d642dbfa`. O certificado limitado ao
+fragmento P1438 é `00_nucleo/diagnosticos/p1438-verifier-certificate.json`.
