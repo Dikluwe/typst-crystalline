@@ -551,3 +551,22 @@ sintático, hat/underscore materializam `t`/`b`, primes diretamente ligados à
 base materializam `tr`, e os demais slots ficam `Omitted`. Não concatenar
 primes com top, não converter em texto e não alterar precedência/parser: a
 árvore vigente determina nesting como `x^2'''` e `x^'''`.
+
+## P1445 — sintaxe bare de `round` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço agregado atual exige um positional, ignora named e devolve
+`MathDelimited('⌊', body, '⌉')`. O vanilla produz o mesmo `LrElem` da função
+qualificada, conserva `size`, identidade e nesting e rejeita argumentos fora
+da assinatura pública.
+
+### Decisão proposta
+
+`round(...)` bare constrói `Args` math canônicos e delega ao mesmo
+parser/construtor de `math.round`. Avaliar cada ocorrência exatamente uma vez,
+preservar ordem e spread, aceitar somente `size:` e um positional e propagar
+duplicados, casts e named inválidos. O resultado é sempre `Content::MathLr`
+com body `MathSequence([⌊, body, ⌉])`; não reescrever para `MathDelimited` nem
+executar layout. Os braços `abs`, `floor`, `ceil` e `bar` permanecem
+inalterados.

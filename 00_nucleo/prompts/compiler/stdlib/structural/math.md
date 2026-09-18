@@ -626,3 +626,23 @@ Registrar `math.primes` antes do espelho de símbolos. A nativa exige
 exatamente um `Value::Int` não-negativo convertível para `usize` e constrói
 `Content::MathPrimes`. Reproduzir spread e mensagens primárias medidas; não
 criar glyphs nem executar layout no builder.
+
+## P1445 — binding público completo `math.round` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `round`. No vanilla ratificado, `round` é função
+pública com `body: Content` posicional obrigatório e somente
+`size: Rel<Length>` nomeado. Ela retorna `LrElem` cujo body é a sequência
+`⌊`, conteúdo, `⌉`; a presença de `size` é conservada, inclusive quando o
+valor explícito é `100%`.
+
+### Decisão proposta
+
+Registrar `math.round` antes do espelho de símbolos. A nativa exige exatamente
+um positional convertível a conteúdo, aceita somente `size`, detecta ocorrência
+duplicada e constrói o carrier P1436 `Content::MathLr` com cercas assimétricas
+`⌊` e `⌉`. Ausência, extra, `body:`, named desconhecido e cast inválido
+propagam os diagnósticos canônicos; spread válido é expandido sem reavaliação.
+O builder não usa `MathDelimited`, não resolve cascata e não executa layout.
+`math.abs`, `floor`, `ceil` e `bar` permanecem fora deste recorte.
