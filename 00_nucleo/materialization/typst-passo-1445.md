@@ -160,3 +160,8 @@ status.
 Veredito limitado: `Preserved` para o fragmento `math.round` descrito; não
 declara equivalência Typst geral, paridade integral do pretty-printer nem
 fecha as rotas residuais de P1422.
+
+O candidato produtivo e os recibos foram fixados no commit
+`f2fa4aeb6ee954946be6412cc03360ca2b3d03bc`, árvore
+`316bc7f6a71827fd38675472c98ae2dcc9e5f9b0`. O certificado limitado ao
+fragmento P1445 é `00_nucleo/diagnosticos/p1445-verifier-certificate.json`.
