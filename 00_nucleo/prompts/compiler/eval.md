@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 34213a2d
+Hash do Código: f375187a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -710,7 +710,7 @@ Adicionar braço `MathUnderbracket` e comparar body, annotation e
 `annotation_explicit`. Não comparar U+23B5 ou caixas derivadas, não colapsar
 omissão com `none` explícito e não equiparar ao `MathUnderover` mecânico.
 
-## P1450 — igualdade observável de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+## P1450 — igualdade observável de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

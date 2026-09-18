@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: bb237998
+Hash do Código: 8520c37b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -474,7 +474,7 @@ Adicionar `MathOverbracket` aos braços terminais de
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
 
-## P1450 — projeção aproximada de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+## P1450 — projeção aproximada de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

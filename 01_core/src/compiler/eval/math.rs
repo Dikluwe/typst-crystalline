@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 2475d693
+//! @prompt-hash c782f627
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1228,6 +1228,11 @@ fn eval_math_expr(
                 "underbracket" => {
                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
                     crate::compiler::stdlib::math_underbracket_from_args(&args)
+                }
+
+                "underparen" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_underparen_from_args(&args)
                 }
 
                 // `vec` converge com `math.vec`: identidade própria, children

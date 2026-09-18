@@ -1,6 +1,6 @@
 # Passo 1450 — Materializar `math.underparen` com identidade e geometria de spreader inferior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
+**Estado:** L0 APROVADO — MATERIALIZAÇÃO AUTORIZADA (ADR-0127)
 **Data da medição:** 2026-09-18T19:18:31-03:00  
 **Commit medido:** `e3e0cced85ea675faa58a9a4c5facd57e5ac903a`  
 **Árvore medida:** `206c2a4e03f5379063ccf381dba9bbf4854d4ead`, limpa (`git status --short` sem saída)  
@@ -122,3 +122,23 @@ carrier, builder, dispatch, reflexão, walkers e layout; exigir 100% dos mutante
 rejeitados e zero `Unknown`; executar suítes focal/completa, build, fmt,
 `git diff --check` e `crystalline-lint .`; então criar commits separados de
 produto e certificado.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `db93ffc77`. A cadeia RED→GREEN, ataques, resselo e veredito está
+autorizada sem ampliar o escopo acima.
+
+## 8. Execução e veredito
+
+O RED focal produziu 9 erros atribuíveis aos símbolos P1450 ausentes. Após a
+materialização, 5/5 oráculos P1450 ficaram GREEN. A campanha adversarial
+rejeitou 39/39 execuções (13 mutantes, ordem forward, repetição forward e
+reverse), score `1.0` e zero `Unknown`.
+
+Em 2026-09-18T19:49:34-03:00, sobre a working tree não commitada baseada em
+`db93ffc778d34b3f89ab7f9cc307979a30079e20`, passaram `cargo fmt --check`,
+`git diff --check`, `cargo build --workspace` e `crystalline-lint .`. A suíte
+completa mediu 5918 testes: 5910 passaram e as mesmas 8 falhas históricas
+permaneceram, nenhuma atribuível ao P1450. Recibos e selo ficam em
+`00_nucleo/diagnosticos/p1450-*`.

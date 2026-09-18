@@ -1,0 +1,27 @@
+{
+  "schema": "tekt.materialization.mutation-summary/v1",
+  "step": 1450,
+  "attestation": "executed_without_isolation_attestation",
+  "campaign": "00_nucleo/diagnosticos/p1450-mutations/receipts/campaign.json",
+  "campaign_sha256": "e4b64ee13b3f985810e8353c0c718bca7e18cc48bbc057c5be48bef1333c8289",
+  "orders": ["forward", "forward_repeat", "reverse"],
+  "executions": 39,
+  "killed": 39,
+  "mutation_score": 1.0,
+  "unknown": 0,
+  "per_family": {
+    "M01": "Violated/Violated/Violated",
+    "M02": "Violated/Violated/Violated",
+    "M03": "Violated/Violated/Violated",
+    "M04": "Violated/Violated/Violated",
+    "M05": "Violated/Violated/Violated",
+    "M06": "Violated/Violated/Violated",
+    "M07": "Violated/Violated/Violated",
+    "M08": "Violated/Violated/Violated",
+    "M09": "Violated/Violated/Violated",
+    "M10": "Violated/Violated/Violated",
+    "M11": "Violated/Violated/Violated",
+    "M12": "Violated/Violated/Violated",
+    "M13": "Violated/Violated/Violated"
+  }
+}

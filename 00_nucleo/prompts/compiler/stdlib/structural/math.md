@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 01f62328
+Hash do Código: d1cd883a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -708,7 +708,7 @@ uma annotation posicional e constrói `Content::MathUnderbracket` com bit de
 presença. Reproduzir casts, spread e diagnósticos medidos; não criar U+23B5
 nem executar layout aqui. `underparen` e `undershell` ficam fora do recorte.
 
-## P1450 — construtor público `math.underparen` (PROPOSTA; REQUER GATE ADR-0127)
+## P1450 — construtor público `math.underparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

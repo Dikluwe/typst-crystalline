@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1450,
+  "revisions": [
+    {
+      "cause": "M09 and M10 inherited the local variable name bracket, while the P1450 lowering names it paren",
+      "revision": 1,
+      "action": "anchor both mutation preconditions to the exact paren binding and use",
+      "campaign_effect": "aborted first attempt before M09; no receipt emitted; candidate restored by ensure"
+    }
+  ],
+  "budget_status": "within_budget",
+  "attestation": "executed_without_isolation_attestation"
+}

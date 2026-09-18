@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 3a01004f
+//! @prompt-hash b5ab2ba3
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9824,6 +9824,53 @@ mod tests {
             (r#"#repr(math.underbracket([x], none).has("annotation"))"#, "true"),
             (r#"#repr(math.underbracket([x], [n]).at("annotation"))"#, "[n]"),
             ("#repr(math.underbracket([x]).func() == math.underbracket)", "true"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1450_underparen_bare_preserva_identidade_e_anotacao() {
+        fn find_underparen(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathUnderparenElem>
+        {
+            match c {
+                Content::MathUnderparen(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_underparen)
+                }
+                Content::Equation(elem) => find_underparen(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ underparen(x, n) $");
+        let content = extract_math_content(&world);
+        let underparen = find_underparen(&content)
+            .expect("underparen(x, n) deve produzir MathUnderparen");
+        assert_eq!(underparen.body.plain_text(), "x");
+        assert_eq!(
+            underparen.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(underparen.annotation_explicit);
+    }
+
+    #[test]
+    fn p1450_underparen_reflexao_preserva_campos_e_presenca() {
+        let cases = [
+            ("#repr(math.underparen([x]).fields())", "(body: [x])"),
+            (
+                "#repr(math.underparen([x], none).fields())",
+                "(body: [x], annotation: none)",
+            ),
+            (r#"#repr(math.underparen([x]).has("annotation"))"#, "false"),
+            (r#"#repr(math.underparen([x], none).has("annotation"))"#, "true"),
+            (r#"#repr(math.underparen([x], [n]).at("annotation"))"#, "[n]"),
+            ("#repr(math.underparen([x]).func() == math.underparen)", "true"),
         ];
 
         for (source, expected) in cases {

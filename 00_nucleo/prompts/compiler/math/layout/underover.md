@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 05495f5a
+Hash do Código: a57e6dfb
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -410,7 +410,7 @@ bracket, não a annotation, recebe stretch; conservar attachment e largura
 existentes sem copiar a mecânica IR vanilla nem mover lógica ao struct de
 dados (ADR-0109).
 
-## P1450 — realização de `MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+## P1450 — realização de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

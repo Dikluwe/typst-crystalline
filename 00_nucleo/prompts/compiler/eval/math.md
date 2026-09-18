@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: ac75de49
+Hash do Código: ef6793f3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -629,7 +629,7 @@ exigir body, aceitar somente annotation posicional opcional e propagar os
 diagnósticos medidos. Não montar U+23B5 nem executar layout na avaliação.
 `underparen` e `undershell` permanecem inalterados.
 
-## P1450 — forma bare `underparen` (PROPOSTA; REQUER GATE ADR-0127)
+## P1450 — forma bare `underparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

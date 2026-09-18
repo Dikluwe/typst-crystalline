@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 79214842
+Hash do Código: 60ac2e92
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3281,7 +3281,7 @@ fechado preserva nome, debug, igualdade, hash, plain-text e filhos.
 mantém a variante. Não inferir `underbracket` de U+23B5 nem converter o carrier
 público permanentemente em `MathUnderover`.
 
-# P1450 — variante pública `Content::MathUnderparen` (PROPOSTA; REQUER GATE ADR-0127)
+# P1450 — variante pública `Content::MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

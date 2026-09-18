@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 13555374
+//! @prompt-hash 23aa87ed
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -62,6 +62,8 @@ pub(crate) use spacing::p1448_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::p1449_boundary_classes;
 #[cfg(test)]
+pub(crate) use spacing::p1450_boundary_classes;
+#[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
 
 fn lower_math_overbrace(
@@ -95,6 +97,19 @@ fn lower_math_underbracket(
 ) -> Content {
     let bracket = Content::MathText("⎵".into());
     let inner = Content::math_underover(elem.body.clone(), Some(bracket), None);
+    match &elem.annotation {
+        Some(annotation) => {
+            Content::math_underover(inner, Some(annotation.clone()), None)
+        }
+        None => inner,
+    }
+}
+
+fn lower_math_underparen(
+    elem: &crate::entities::elements::math_underover::MathUnderparenElem,
+) -> Content {
+    let paren = Content::MathText("⏝".into());
+    let inner = Content::math_underover(elem.body.clone(), Some(paren), None);
     match &elem.annotation {
         Some(annotation) => {
             Content::math_underover(inner, Some(annotation.clone()), None)
@@ -161,6 +176,13 @@ pub(crate) fn p1449_underbracket_lowering(
     elem: &crate::entities::elements::math_underover::MathUnderbracketElem,
 ) -> Content {
     lower_math_underbracket(elem)
+}
+
+#[cfg(test)]
+pub(crate) fn p1450_underparen_lowering(
+    elem: &crate::entities::elements::math_underover::MathUnderparenElem,
+) -> Content {
+    lower_math_underparen(elem)
 }
 
 #[cfg(test)]
@@ -970,6 +992,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathUnderbrace(e) => self.layout_underbrace(e, style),
 
             Content::MathUnderbracket(e) => self.layout_underbracket(e, style),
+
+            Content::MathUnderparen(e) => self.layout_underparen(e, style),
 
             Content::MathOverbracket(e) => self.layout_overbracket(e, style),
 
@@ -2382,6 +2406,11 @@ fn apply_math_default(body: &Content) -> Content {
             e.annotation.as_ref().map(apply_math_default),
             e.annotation_explicit,
         ),
+        Content::MathUnderparen(e) => Content::math_underparen(
+            apply_math_default(&e.body),
+            e.annotation.as_ref().map(apply_math_default),
+            e.annotation_explicit,
+        ),
         Content::MathOverbracket(e) => Content::math_overbracket(
             apply_math_default(&e.body),
             e.annotation.as_ref().map(apply_math_default),
@@ -2642,6 +2671,13 @@ fn apply_math_style(
             e.annotation_explicit,
         ),
         Content::MathUnderbracket(e) => Content::math_underbracket(
+            apply_math_style(&e.body, kind, bold, italic),
+            e.annotation
+                .as_ref()
+                .map(|annotation| apply_math_style(annotation, kind, bold, italic)),
+            e.annotation_explicit,
+        ),
+        Content::MathUnderparen(e) => Content::math_underparen(
             apply_math_style(&e.body, kind, bold, italic),
             e.annotation
                 .as_ref()
