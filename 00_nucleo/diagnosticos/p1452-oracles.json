@@ -1,0 +1,41 @@
+{
+  "schema": "p1452-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1452,
+  "status": "candidate-oracles-unsealed",
+  "attestation": "executado sem atestação de isolamento",
+  "authoritative_public_payload": {
+    "path": "00_nucleo/diagnosticos/p1420-oracles.json",
+    "sha256": "1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4",
+    "reuse_mode": "byte-for-byte",
+    "forbidden_changes": ["case", "fixture", "expected", "control", "denominator", "projection", "transport", "Unknown policy"]
+  },
+  "focal_gate": {
+    "routes": ["html.area", "math.abs"],
+    "controls": 12,
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "required": "stable vector, zero Unknown and all controls PASS"
+  },
+  "campaign": {
+    "routes": 66,
+    "probes_per_order": 154,
+    "orders": ["direct", "direct-repeat", "reverse"],
+    "independent_full_repetitions": 1,
+    "qualified_match_required_for_closure": 66,
+    "route_match_required_for_closure": 66
+  },
+  "unknown_policy": {
+    "mode": "fail-closed",
+    "resource_identity_projection_or_order_failure": "Unknown",
+    "mandatory_verdict": "INCONCLUSIVE",
+    "implicit_conversion_to_success": false
+  },
+  "mutation_oracle": {
+    "positive": "Preserved",
+    "negative": "Violated",
+    "opaque": "Unknown",
+    "required_score": 1.0,
+    "same_vector_all_orders": true
+  },
+  "claim_boundary": "Nenhum expected é recalibrado contra o produto candidato."
+}

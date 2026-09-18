@@ -1,0 +1,39 @@
+{
+  "schema": "p1452-backlog/v1",
+  "step": 1452,
+  "generated_at": "2026-09-18T20:51:00-03:00",
+  "attestation": "executado sem atestação de isolamento",
+  "source_results_sha256": "769cd0feba8293a7bc030c1b511e48b9338aef30b80bafd1c0b42ffd1040b6f4",
+  "route_count": 66,
+  "state_counts": {"MATCH": 65, "DIFFERENCE": 1},
+  "unknown_count": 0,
+  "open_routes": [
+    {
+      "path": "html.frame",
+      "qualified_state": "DIFFERENCE",
+      "alternative_state": "MATCH",
+      "reason_code": "QUALIFIED_DIFFERENCE",
+      "orders": ["direct", "direct-repeat", "reverse"],
+      "independent_repeat_equal": true,
+      "vanilla_projection_sha256": "2f328ee1e7bbb68b4cac24f4b381f2e3253e00278fecc51389634c0656a07e1f",
+      "crystalline_projection_sha256": "8f299ad4ccae877d74e1d8db5c92e5f",
+      "shared_language_observables": {
+        "root": "svg",
+        "width": "5.39pt",
+        "height": "7.238pt",
+        "viewBox": "0 0 5.39 7.238",
+        "text": "x"
+      },
+      "mechanical_difference": "Vanilla outlines the glyph through use/defs/path while crystalline emits an SVG text node; root style/namespace details also differ.",
+      "l0_boundary": "P1424 explicitly excludes equality of paths, symbol IDs, mechanical SVG attribute order and general byte identity.",
+      "why_not_reclassified": "The P1452 preseal freezes the P1420 full-tree projection byte-for-byte; changing it after candidate observation would invalidate the chain."
+    }
+  ],
+  "next_step": {
+    "proposed": "P1453 — refine the html.frame public projection before remeasurement",
+    "scope": "Measure and freeze a language-level html.frame projection covering inline SVG identity, dimensions, viewBox, display semantics, visible text/paint and nesting while excluding renderer-private glyph outlines and IDs.",
+    "product_change_expected": false,
+    "gate": "New contract and discriminatory mutants must be sealed before reusing candidate outputs."
+  },
+  "claim_boundary": "Backlog for the one non-MATCH route in P1452; no general HTML/SVG parity claim."
+}
