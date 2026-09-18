@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_delimited` — `MathDelimitedElem`
-Hash do Código: ac892a93
+Hash do Código: 7a4a91de
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_delimited.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras

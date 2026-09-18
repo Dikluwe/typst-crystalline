@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash f80a6d2c
+//! @prompt-hash 63b92af2
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -41,7 +41,9 @@ mod vec;
 #[cfg(test)]
 pub(crate) use delimited::{p1436_effective_size, p1436_target_pt};
 #[cfg(test)]
-pub(crate) use spacing::p1436_boundary_classes;
+pub(crate) use delimited::{p1437_lr_mid_height, p1437_mid_target_pt};
+#[cfg(test)]
+pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -404,6 +406,8 @@ pub struct MathLayouter<'a, M: FontMetrics> {
     pub(super) lexical_styles: Option<&'a crate::entities::style_chain::StyleChain>,
     pub(super) callback_pass: Option<&'a callbacks::MathCallbackPassState>,
     pub(super) cancel_occurrence: Cell<usize>,
+    /// Meta vertical transitória herdada pelo `math.mid` do `math.lr` mais próximo.
+    pub(super) mid_target_pt: Cell<Option<f64>>,
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
@@ -421,6 +425,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             lexical_styles: None,
             callback_pass: None,
             cancel_occurrence: Cell::new(0),
+            mid_target_pt: Cell::new(None),
         }
     }
 
@@ -723,6 +728,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
 
             Content::MathLr(e) => self.layout_lr(e, style),
+
+            Content::MathMid(e) => self.layout_mid(e, style),
 
             Content::MathMatrix(e) => self.layout_matrix_elem(e, style),
 
@@ -2109,6 +2116,7 @@ fn apply_math_default(body: &Content) -> Content {
         Content::MathLr(e) => {
             Content::math_lr(apply_math_default(&e.body), e.size, e.size_explicit)
         }
+        Content::MathMid(e) => Content::math_mid(apply_math_default(&e.body)),
         // **P961** — achado #5 de P906 + auditoria externa 2026-08-04: a
         // base de acentos (`hat(x)` etc.) nunca recebia o itálico por
         // defeito (caía em `other`). Recursão na base; o `accent` (combining
@@ -2330,6 +2338,9 @@ fn apply_math_style(
             e.size,
             e.size_explicit,
         ),
+        Content::MathMid(e) => {
+            Content::math_mid(apply_math_style(&e.body, kind, bold, italic))
+        }
         Content::MathAccent(e) => Content::math_accent_full(
             apply_math_style(&e.base, kind, bold, italic),
             e.accent,

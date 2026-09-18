@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash ed9af73b
+//! @prompt-hash 4eb33dbc
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1506,6 +1506,47 @@ pub fn native_math_lr(
     math_lr_from_args(args).map(Value::Content)
 }
 
+/// Validação e construção compartilhada de `math.mid` e `mid(...)` bare.
+pub(crate) fn math_mid_from_args(args: &Args) -> SourceResult<Content> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let body = match args.items.as_slice() {
+        [value] => math_lr_content_value(value, args.span)?,
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+    Ok(Content::math_mid(body))
+}
+
+pub fn native_math_mid(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_mid_from_args(args).map(Value::Content)
+}
+
 fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
         Value::Content(content) => Ok(content.clone()),
@@ -2177,6 +2218,10 @@ pub fn make_math_module() -> Value {
     dict.insert(
         "lr".into(),
         Value::Func(crate::entities::func::Func::native("lr", native_math_lr)),
+    );
+    dict.insert(
+        "mid".into(),
+        Value::Func(crate::entities::func::Func::native("mid", native_math_mid)),
     );
 
     // P1293-B — quatro membros próprios antes do espelho sym→math.

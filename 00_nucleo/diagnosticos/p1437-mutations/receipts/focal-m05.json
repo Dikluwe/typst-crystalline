@@ -1,0 +1,45 @@
+{
+  "schema": "tekt.materialization.mutation-report/v1",
+  "step": 1437,
+  "regime": "executed_without_isolation_attestation",
+  "orders": [
+    "forward",
+    "forward_repeat",
+    "reverse"
+  ],
+  "executions": 3,
+  "killed": 3,
+  "mutation_score": 1.0,
+  "results": [
+    {
+      "order": "forward",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T00:37:29.117155Z",
+      "finished_at": "2026-09-18T00:37:39.259439Z",
+      "command": "cargo test -q -p typst-core p1437_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado' (2509) panicked at 01_core/src/compiler/stdlib/structural/p1437_tests.rs:90:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.mid(MathMidElem { body: text(\"x\") }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5853 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "forward_repeat",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T00:37:39.318986Z",
+      "finished_at": "2026-09-18T00:37:49.005305Z",
+      "command": "cargo test -q -p typst-core p1437_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado' (3135) panicked at 01_core/src/compiler/stdlib/structural/p1437_tests.rs:90:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.mid(MathMidElem { body: text(\"x\") }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5853 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    },
+    {
+      "order": "reverse",
+      "mutant": "M05",
+      "classification": "Violated",
+      "exit_code": 101,
+      "started_at": "2026-09-18T00:37:49.065930Z",
+      "finished_at": "2026-09-18T00:37:59.946459Z",
+      "command": "cargo test -q -p typst-core p1437_",
+      "tail": "\nthread 'compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado' (3761) panicked at 01_core/src/compiler/stdlib/structural/p1437_tests.rs:90:16:\ncalled `Result::unwrap_err()` on an `Ok` value: Content(math.mid(MathMidElem { body: text(\"x\") }))\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    compiler::stdlib::structural::p1437_tests::p1437_aridade_named_e_tipo_falham_fechado\n\ntest result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 5853 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p typst-core --lib`\n"
+    }
+  ]
+}

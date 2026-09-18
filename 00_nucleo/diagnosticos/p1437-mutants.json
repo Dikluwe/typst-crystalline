@@ -1,0 +1,18 @@
+{
+  "schema": "tekt.materialization.mutants/v1",
+  "step": 1437,
+  "families": [
+    {"id":"M01","change":"remove mid module binding","expected":"Violated"},
+    {"id":"M02","change":"collapse MathMid to body","expected":"Violated"},
+    {"id":"M03","change":"accept named body","expected":"Violated"},
+    {"id":"M04","change":"accept zero positionals","expected":"Violated"},
+    {"id":"M05","change":"accept extra positional","expected":"Violated"},
+    {"id":"M06","change":"accept integer body","expected":"Violated"},
+    {"id":"M07","change":"replace Relation with Normal","expected":"Violated"},
+    {"id":"M08","change":"neutralize inherited stretch target","expected":"Violated"},
+    {"id":"M09","change":"allow outer lr into nested lr measurement","expected":"Violated"},
+    {"id":"M10","change":"erase body from ObservationEq","expected":"Violated"}
+  ],
+  "positive_controls": ["unmutated candidate", "MathLr nesting", "MathDelimited"],
+  "opaque_controls": ["identity mismatch", "resource exhaustion", "unsupported observation"]
+}

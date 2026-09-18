@@ -127,3 +127,30 @@ testes e resselo começam somente após confirmação humana explícita.
 5. Resselar apenas após V15/V26 válidos.
 6. Validar `cargo build`, suítes focal/completa e `crystalline-lint .` zero,
    registrando commit, árvore e hora das medições de fecho.
+
+## 7. Confirmação e materialização
+
+O dono confirmou explicitamente o gate ADR-0127 após o commit de proposta
+`b0f48017d29f476357279a678aea3ff2e4c9df70`.
+
+P1437 foi materializado em 2026-09-17 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível apresentou seis
+erros centrados na ausência de `MathMidElem`, `Content::MathMid` e dos
+observáveis congelados. O candidato fechou quatro testes focais L1: binding e
+casts, diagnósticos, carrier/walker/igualdade/classe/locatable e geometria do
+`lr` mais próximo com barreira de nesting.
+
+A primeira campanha física obteve 18/30 porque quatro receitas selecionaram
+ocorrências homônimas anteriores, fora de P1437; não houve crédito. Após
+recalibração focal M04/M05/M06/M10 (12/12), a campanha integral repetida nas
+ordens direta, direta repetida e reversa matou 30/30 mutantes, score `1.0` e
+zero `Unknown`.
+
+O binário cristalino reproduziu as formas qualificadas/bare, body vazio,
+nesting, `lr(size: 150%)` e cinco diagnósticos negativos medidos no vanilla.
+`cargo fmt --check`, `git diff --check`, `cargo build --workspace` e o gate
+focal terminaram verdes. A suíte completa executou 5.857 testes: 5.849 verdes
+e 8 falhas históricas já presentes no estado HEAD (quatro expectativas P981
+anteriores ao carrier P1436, uma de `repr vec`, uma de `cases` e duas de
+`html.frame`); nenhuma toca arquivos ou observáveis P1437. Elas ficam
+registradas como baseline e não recebem crédito de sucesso.

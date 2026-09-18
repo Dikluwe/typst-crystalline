@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash bd1b7f3f
+//! @prompt-hash c9ce4cfe
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -52,7 +52,9 @@ use crate::entities::elements::math_cancel::{
 };
 use crate::entities::elements::math_cases::{MathCasesElem, MathCasesExplicit};
 use crate::entities::elements::math_class_override::MathClassOverrideElem;
-use crate::entities::elements::math_delimited::{MathDelimitedElem, MathLrElem};
+use crate::entities::elements::math_delimited::{
+    MathDelimitedElem, MathLrElem, MathMidElem,
+};
 use crate::entities::elements::math_frac::MathFracElem;
 use crate::entities::elements::math_limits_override::MathLimitsOverrideElem;
 use crate::entities::elements::math_matrix::{
@@ -249,6 +251,8 @@ pub enum Content {
     MathDelimited(Arc<MathDelimitedElem>),
     /// Wrapper público de escalonamento left/right.
     MathLr(Arc<MathLrElem>),
+    /// Delimitador intermediário escalado pelo `MathLr` mais próximo.
+    MathMid(Arc<MathMidElem>),
 
     /// Ponto de alinhamento em equações matemáticas (`&`).
     /// Separa colunas no layout de grelha (Passo 51).
@@ -1232,6 +1236,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathRoot(r) => write!(f, "math.root({:?})", r),
         Content::MathDelimited(d) => write!(f, "math.delimited({:?})", d),
         Content::MathLr(lr) => write!(f, "math.lr({:?})", lr),
+        Content::MathMid(mid) => write!(f, "math.mid({:?})", mid),
         Content::MathAlignPoint(_) => write!(f, "math.align.point"),
         Content::Linebreak(_) => write!(f, "linebreak"),
         Content::MathMatrix(_) => write!(f, "math.matrix"),
@@ -1357,6 +1362,7 @@ impl Content {
             Self::MathRoot(_) => "math.root",
             Self::MathDelimited(_) => "math.delimited",
             Self::MathLr(_) => "lr",
+            Self::MathMid(_) => "mid",
             Self::MathAlignPoint(_) => "math.align.point",
             Self::Linebreak(_) => "linebreak",
             Self::MathMatrix(_) => "math.matrix",
@@ -1670,6 +1676,10 @@ impl Content {
         size_explicit: bool,
     ) -> Self {
         Self::MathLr(Arc::new(MathLrElem { body, size, size_explicit }))
+    }
+    /// Construtor canônico do elemento público `math.mid`.
+    pub fn math_mid(body: Content) -> Self {
+        Self::MathMid(Arc::new(MathMidElem { body }))
     }
     /// Construtor de `MathAlignPoint` (marcador `&`).
     pub fn math_align_point() -> Self {
@@ -3058,6 +3068,7 @@ impl Content {
             | Self::MathRoot(_)
             | Self::MathDelimited(_)
             | Self::MathLr(_)
+            | Self::MathMid(_)
             | Self::MathAlignPoint(_)
             | Self::Linebreak(_)
             | Self::MathMatrix(_)
@@ -3387,6 +3398,7 @@ impl Content {
             Self::MathRoot(e) => e.plain_text(),
             Self::MathDelimited(e) => e.plain_text(),
             Self::MathLr(e) => e.plain_text(),
+            Self::MathMid(e) => e.plain_text(),
             Self::MathAlignPoint(e) => e.plain_text(),
             Self::Linebreak(e) => e.plain_text(),
             Self::MathMatrix(e) => e.plain_text(),
@@ -3530,6 +3542,7 @@ impl PartialEq for Content {
             (Self::MathRoot(a), Self::MathRoot(b)) => a == b,
             (Self::MathDelimited(a), Self::MathDelimited(b)) => a == b,
             (Self::MathLr(a), Self::MathLr(b)) => a == b,
+            (Self::MathMid(a), Self::MathMid(b)) => a == b,
             (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
             (Self::Linebreak(a), Self::Linebreak(b)) => a == b,
             (Self::MathMatrix(a), Self::MathMatrix(b)) => a == b,
@@ -3877,6 +3890,7 @@ impl Content {
             Content::MathRoot(e)      => e.map_content(transform)?,
             Content::MathDelimited(e) => e.map_content(transform)?,
             Content::MathLr(e) => e.map_content(transform)?,
+            Content::MathMid(e) => e.map_content(transform)?,
             Content::MathMatrix(e)    => e.map_content(transform)?,
             Content::MathCases(e)     => e.map_content(transform)?,
             Content::MathAccent(e)    => e.map_content(transform)?,
@@ -4215,6 +4229,7 @@ impl Content {
             | Content::MathRoot(_)
             | Content::MathDelimited(_)
             | Content::MathLr(_)
+            | Content::MathMid(_)
             | Content::MathMatrix(_)
             | Content::MathCases(_)
             | Content::MathAccent(_)

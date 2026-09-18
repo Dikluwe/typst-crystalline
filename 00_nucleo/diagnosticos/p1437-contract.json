@@ -1,0 +1,17 @@
+{
+  "schema": "tekt.materialization.contract/v1",
+  "step": 1437,
+  "manifest": "00_nucleo/diagnosticos/p1437-manifest.json",
+  "observables": [
+    "qualified and bare identity",
+    "one positional content cast and fail-closed diagnostics",
+    "mid(body: ...) morphology and nesting",
+    "body-preserving walkers and observation equality",
+    "Relation boundary class",
+    "single 0.1em short-fall",
+    "stretch from nearest lr and nested-lr barrier",
+    "non-locatable introspection classification"
+  ],
+  "unknown_policy": "Unknown blocks sealing",
+  "required_mutation_score": 1.0
+}

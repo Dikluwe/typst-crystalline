@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_delimited.md
-//! @prompt-hash 500d0140
+//! @prompt-hash fbbd3468
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -31,6 +31,12 @@ pub struct MathLrElem {
     pub body: Content,
     pub size: Rel<Length>,
     pub size_explicit: bool,
+}
+
+/// Elemento público `math.mid`, escalado pelo `math.lr` envolvente mais próximo.
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct MathMidElem {
+    pub body: Content,
 }
 
 impl std::hash::Hash for MathLrElem {
@@ -96,6 +102,26 @@ impl Element for MathLrElem {
         F: FnMut(&str) -> String,
     {
         Content::MathLr(Arc::new(self.clone()))
+    }
+}
+
+impl Element for MathMidElem {
+    fn plain_text(&self) -> String {
+        self.body.plain_text()
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::math_mid(self.body.map_content(transform)?))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathMid(Arc::new(self.clone()))
     }
 }
 

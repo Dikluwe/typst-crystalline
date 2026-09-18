@@ -1,0 +1,11 @@
+{
+  "schema": "tekt.materialization.oracles/v1",
+  "step": 1437,
+  "test_prompt_sha256": "f9b6734cc8402e28bbc3690906a0ba0512c27479c906ed07001a0f358bd22eef",
+  "suite": "01_core/src/compiler/stdlib/structural/p1437_tests.rs",
+  "frozen_before_candidate": true,
+  "positive": ["binding/cast/repr/nesting", "carrier/walker/equality/class/locatable", "nearest-lr geometry"],
+  "negative": ["missing/extra/named/type diagnostics", "ten mutation families"],
+  "opaque": ["build failure unrelated to mutant", "timeout", "unsupported geometry"],
+  "opaque_expected": "Unknown"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash ff2f8e34
+//! @prompt-hash ed29183e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1014,6 +1014,11 @@ fn eval_math_expr(
                 "lr" => {
                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
                     crate::compiler::stdlib::math_lr_from_args(&args)
+                }
+
+                "mid" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_mid_from_args(&args)
                 }
 
                 // **P992** — `scripts(body)`/`limits(body, inline:)`: força

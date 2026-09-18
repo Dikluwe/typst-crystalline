@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/delimited.md
-//! @prompt-hash ceb6ae30
+//! @prompt-hash 09acdf08
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,7 +10,7 @@
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    elements::math_delimited::MathLrElem,
+    elements::math_delimited::{MathLrElem, MathMidElem},
     layout_types::{Length, TextStyle},
     rel::Rel,
     value::Value,
@@ -27,8 +27,73 @@ fn effective_lr_size(elem: &MathLrElem, cascaded: Option<Rel<Length>>) -> Rel<Le
 }
 
 fn lr_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
-    let requested = size.resolve(Length::pt(body_height)).resolve_pt(font_size);
-    (requested - 0.1 * font_size).max(0.0)
+    (lr_requested_target_pt(body_height, font_size, size) - 0.1 * font_size).max(0.0)
+}
+
+fn lr_requested_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
+    size.resolve(Length::pt(body_height)).resolve_pt(font_size).max(0.0)
+}
+
+#[cfg(test)]
+pub(crate) fn p1437_mid_target_pt(body_height: f64, font_size: f64, scale: f64) -> f64 {
+    lr_target_pt(body_height, font_size, Rel::from_percent(scale * 100.0))
+}
+
+#[cfg(test)]
+pub(crate) fn p1437_lr_mid_height(outer_scale: f64, inner_scale: Option<f64>) -> f64 {
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+    use crate::entities::layout_types::Pt;
+
+    struct MidMetrics;
+    impl FontMetrics for MidMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            if c != '|' {
+                return GlyphVariants::default();
+            }
+            GlyphVariants {
+                variants: [700.0, 1900.0, 2900.0]
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, advance)| GlyphVariant {
+                        glyph_id: 100 + index as u16,
+                        advance,
+                        hor_advance: 400.0,
+                        top_accent_attach: None,
+                    })
+                    .collect(),
+            }
+        }
+        fn glyph_to_char(&self, glyph_id: u16) -> Option<char> {
+            (100..=102).contains(&glyph_id).then_some('|')
+        }
+    }
+
+    let style = TextStyle::regular(Pt(10.0));
+    let layouter = super::MathLayouter::new(&MidMetrics, true, &style);
+    let mid = Content::math_mid(Content::MathText("|".into()));
+    let body = match inner_scale {
+        None => mid,
+        Some(scale) => Content::math_lr(mid, Rel::from_percent(scale * 100.0), true),
+    };
+    let outer = MathLrElem {
+        body,
+        size: Rel::from_percent(outer_scale * 100.0),
+        size_explicit: true,
+    };
+    layouter.layout_lr(&outer, &style).height()
 }
 
 #[cfg(test)]
@@ -49,6 +114,31 @@ pub(crate) fn p1436_target_pt(
 }
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    pub(super) fn layout_mid(&self, elem: &MathMidElem, style: &TextStyle) -> MathBox {
+        let Some(target_pt) = self.mid_target_pt.get() else {
+            return self.layout_node(&elem.body, style);
+        };
+        let text = match &elem.body {
+            Content::Text(text) | Content::MathText(text) | Content::MathIdent(text) => {
+                Some(text.as_str())
+            }
+            _ => None,
+        };
+        let Some(character) = text.and_then(|text| {
+            let mut chars = text.chars();
+            let first = chars.next()?;
+            chars.next().is_none().then_some(first)
+        }) else {
+            return self.layout_node(&elem.body, style);
+        };
+        let target_du = if style.size.val() > 0.0 {
+            target_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        };
+        self.layout_stretchy_delimiter(character, target_du, style)
+    }
+
     pub(super) fn layout_lr(&self, elem: &MathLrElem, style: &TextStyle) -> MathBox {
         let cascaded = self
             .lexical_styles
@@ -71,7 +161,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 style,
             ),
             body => {
+                let inherited = self.mid_target_pt.replace(None);
                 let natural = self.layout_node(body, style);
+                let target =
+                    lr_requested_target_pt(natural.height(), style.size.val(), size);
+                self.mid_target_pt.set(Some(target));
+                let with_mid = self.layout_node(body, style);
+                self.mid_target_pt.set(inherited);
                 let text = match body {
                     Content::Text(text)
                     | Content::MathText(text)
@@ -83,10 +179,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     let first = chars.next()?;
                     chars.next().is_none().then_some(first)
                 }) else {
-                    return natural;
+                    return with_mid;
                 };
                 if size == Rel::from_percent(100.0) {
-                    return natural;
+                    return with_mid;
                 }
                 let target = size
                     .resolve(Length::pt(natural.height()))
@@ -109,8 +205,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         size: Rel<Length>,
         style: &TextStyle,
     ) -> MathBox {
+        let inherited = self.mid_target_pt.replace(None);
+        let natural_body = self.layout_node(body, style);
+        let target_pt =
+            lr_requested_target_pt(natural_body.height(), style.size.val(), size);
+        self.mid_target_pt.set(Some(target_pt));
         let body_box = self.layout_node(body, style);
-        let target_pt = lr_target_pt(body_box.height(), style.size.val(), size);
+        self.mid_target_pt.set(inherited);
         let target_du = if style.size.val() > 0.0 {
             target_pt * self.constants.upem / style.size.val()
         } else {

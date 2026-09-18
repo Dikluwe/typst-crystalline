@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash caa27136
+//! @prompt-hash 480f6378
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -365,6 +365,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::MathLr(a0) => match other {
                 Self::MathLr(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::MathMid(a0) => match other {
+                Self::MathMid(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -2334,6 +2340,19 @@ impl ObservationEq for crate::entities::elements::math_delimited::MathLrElem {
             .and(self.size.observation_relation(&other.size))
             .and(self.size_explicit.observation_relation(&other.size_explicit))
     }
+}
+impl ObservationEq for crate::entities::elements::math_delimited::MathMidElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { body: _ } = self;
+        ObservationRelation::Same.and(self.body.observation_relation(&other.body))
+    }
+}
+#[cfg(test)]
+pub(crate) fn p1437_math_mid_observation_differs(
+    left: &crate::entities::elements::math_delimited::MathMidElem,
+    right: &crate::entities::elements::math_delimited::MathMidElem,
+) -> bool {
+    left.observation_relation(right) == ObservationRelation::Different
 }
 #[cfg(test)]
 pub(crate) fn p1436_math_lr_observation_differs(
