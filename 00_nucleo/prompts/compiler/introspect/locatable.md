@@ -247,3 +247,15 @@ body e annotation não tornam o wrapper locatável.
 
 O match exaustivo classifica `Content::MathOverparen(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
+
+## P1443 — `MathOvershell` não-locatable (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`OvershellElem` não possui `ElementKind`, Location ou payload selecionável;
+body e annotation não tornam o wrapper locatável.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathOvershell(_)` como `false`,
+preservando `is_locatable ↔ extract_payload.is_some()`.

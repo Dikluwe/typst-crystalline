@@ -204,3 +204,16 @@ annotation sem carrier público; o vanilla conserva `OverparenElem`.
 Avaliar `$ overparen(x, n) $` e exigir `Content::MathOverparen` com body `x`,
 annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
 redução permanente para `MathUnderover` falham o teste.
+
+## P1443 — regressão bare de `overshell` preserva identidade e annotation
+
+### Medição anterior à decisão
+
+A sintaxe `$ overshell(x, n) $` projeta hoje uma forma opaca e concatena a
+annotation sem carrier público; o vanilla conserva `OvershellElem`.
+
+### Aceitação proposta
+
+Avaliar `$ overshell(x, n) $` e exigir `Content::MathOvershell` com body `x`,
+annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
+redução permanente para `MathUnderover` falham o teste.

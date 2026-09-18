@@ -353,3 +353,22 @@ parêntesis, não a annotation, recebe stretch para cobrir o body; annotation
 usa estilo de superscript e pode ampliar o frame sem redefinir a largura-alvo.
 Conservar attachment e largura exata sem copiar a mecânica IR vanilla e sem
 mover lógica ao struct de dados (ADR-0109).
+
+## P1443 — owner de layout de `MathOvershell` (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve `overshell` como U+23E0 diacrítico acima do body, stretch
+horizontal de 100%, shortfall zero e largura exata; annotation opcional é
+script superior. A geometria cristalina madura já existe, mas não recebe a
+identidade pública própria.
+
+### Decisão proposta
+
+Adicionar free function/método fino neste owner que realiza localmente
+`MathOvershell` pela composição madura: `layout_underover(body, None,
+Some(U+23E0))`, envolvida por annotation superior quando presente. O casco,
+não a annotation, recebe stretch para cobrir o body; annotation usa estilo de
+superscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
+attachment e largura exata sem copiar a mecânica IR vanilla e sem mover
+lógica ao struct de dados (ADR-0109).

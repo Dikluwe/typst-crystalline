@@ -900,3 +900,18 @@ Projetar `MathOverparen` como `overparen(body: <content>, annotation?:
 `annotation_explicit` for verdadeiro; seu valor explícito `none` não se
 confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
 é inferida de U+23DC ou do carrier genérico.
+
+## P1443 — morfologia pública de `overshell` (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O cristalino imprime uma forma opaca `overshell(x)` sem campos; o vanilla
+imprime `overshell(body: ...)` e conserva `annotation: none` quando fornecido.
+
+### Decisão proposta
+
+Projetar `MathOvershell` como `overshell(body: <content>, annotation?:
+<content-ou-none>)`, nessa ordem. O campo só aparece quando
+`annotation_explicit` for verdadeiro; seu valor explícito `none` não se
+confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
+é inferida de U+23E0 ou do carrier genérico.

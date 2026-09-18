@@ -94,3 +94,20 @@ preserva presença. `plain_text` segue a ordem visual `annotation + ⏜ + body`;
 `map_content` desce no body e na annotation; `map_text` conserva a variante.
 Igualdade/hash incluem os três campos. `MathOverbraceElem`,
 `MathOverbracketElem` e `MathUnderoverElem` permanecem identidades separadas.
+
+## P1443 — identidade pública `MathOvershellElem` (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O carrier agregado realiza spreaders, mas apaga a função pública `overshell`
+e não distingue annotation omitida de `annotation: none`. O vanilla preserva
+ambos os estados e usa U+23E0 acima do body.
+
+### Decisão proposta
+
+No mesmo owner coeso, adicionar `MathOvershellElem { body: Content,
+annotation: Option<Content>, annotation_explicit: bool }` com construtor que
+preserva presença. `plain_text` segue a ordem visual `annotation + ⏠ + body`;
+`map_content` desce no body e na annotation; `map_text` conserva a variante.
+Igualdade/hash incluem os três campos. Os outros spreaders públicos e
+`MathUnderoverElem` permanecem identidades separadas.

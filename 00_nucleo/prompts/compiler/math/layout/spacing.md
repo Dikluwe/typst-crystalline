@@ -512,3 +512,16 @@ U+23DC é `Diacritic`, mas não substitui a classe pública do composto.
 `base_math_class(MathOverparen(e))` e `node_math_class(MathOverparen(e))`
 herdam recursivamente as classes esquerda e direita de `e.body`. Annotation e
 U+23DC não participam das fronteiras; não derivar classe da geometria.
+
+## P1443 — classe herdada de `MathOvershell` (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`AccentItem::create` vanilla constrói as propriedades com `base.raw_class()`;
+U+23E0 é `Diacritic`, mas não substitui a classe pública do composto.
+
+### Decisão proposta
+
+`base_math_class(MathOvershell(e))` e `node_math_class(MathOvershell(e))`
+herdam recursivamente as classes esquerda e direita de `e.body`. Annotation e
+U+23E0 não participam das fronteiras; não derivar classe da geometria.

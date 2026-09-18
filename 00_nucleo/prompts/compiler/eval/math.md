@@ -519,3 +519,18 @@ público nas formas bare e qualificada.
 de `math.overparen`. Preservar ordem, spread e avaliação única; exigir body,
 aceitar somente annotation posicional opcional e propagar os diagnostics
 medidos. Não montar U+23DC nem executar layout na avaliação.
+
+## P1443 — sintaxe bare de `overshell` converge no carrier público (PROPOSTA — AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+A forma bare atual projeta `overshell(x)` e concatena annotation como texto,
+apagando identidade, campos e presença. O vanilla usa o mesmo elemento
+público nas formas bare e qualificada.
+
+### Decisão proposta
+
+`overshell(...)` bare constrói `Args` math canônicos e delega ao mesmo builder
+de `math.overshell`. Preservar ordem, spread e avaliação única; exigir body,
+aceitar somente annotation posicional opcional e propagar os diagnostics
+medidos. Não montar U+23E0 nem executar layout na avaliação.
