@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 78ceca13
+Hash do Código: d7829313
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -557,7 +557,7 @@ a chave é `Diacritic`, mas não substitui a classe pública do composto.
 e direita de `e.body`. Annotation e U+23DF não participam das fronteiras. Não
 fixar `Normal`, `Diacritic` ou classe derivada da altura renderizada.
 
-## P1449 — classe herdada de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — classe herdada de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

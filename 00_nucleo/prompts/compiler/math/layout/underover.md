@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: efd016d9
+Hash do Código: 05495f5a
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -392,7 +392,7 @@ subscript e pode ampliar o frame sem redefinir a largura-alvo. Conservar
 attachment e largura exata existentes, sem copiar `AccentItem`/`ScriptsItem`
 vanilla e sem mover lógica ao struct de dados (ADR-0109).
 
-## P1449 — owner de layout de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — owner de layout de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

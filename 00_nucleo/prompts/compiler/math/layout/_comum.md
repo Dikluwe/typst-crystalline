@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 09cb69ac
+Hash do Código: 61218976
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -1634,7 +1634,7 @@ O match permanece estático e magro: `Content::MathUnderbrace(e)` delega a
 e preservam `annotation_explicit` e a variante. A redução mecânica ocorre
 somente dentro do owner de layout e nunca retorna ao conteúdo público.
 
-## P1449 — dispatch e reconstrução de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — dispatch e reconstrução de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

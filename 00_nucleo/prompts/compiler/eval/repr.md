@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 92b9065b
+Hash do Código: 69fc1cdc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -958,7 +958,7 @@ Projetar `MathUnderbrace` como `underbrace(body: <content>, annotation?:
 omissão. Nesting recorre ao mesmo formatter e identidade nunca é inferida do
 glifo U+23DF ou do carrier genérico.
 
-## P1449 — morfologia pública de `underbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — morfologia pública de `underbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

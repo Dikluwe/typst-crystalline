@@ -1,0 +1,19 @@
+{
+  "schema": "tekt.materialization.mutants/v1",
+  "step": 1449,
+  "families": [
+    {"id": "M01", "mutation": "remove qualified binding", "expected": "Violated"},
+    {"id": "M02", "mutation": "lower builder directly to MathUnderover", "expected": "Violated"},
+    {"id": "M03", "mutation": "erase annotation_explicit", "expected": "Violated"},
+    {"id": "M04", "mutation": "omit explicit annotation in repr", "expected": "Violated"},
+    {"id": "M05", "mutation": "accept named annotation", "expected": "Violated"},
+    {"id": "M06", "mutation": "accept missing body", "expected": "Violated"},
+    {"id": "M07", "mutation": "accept excessive positional arguments", "expected": "Violated"},
+    {"id": "M08", "mutation": "accept integer content cast", "expected": "Violated"},
+    {"id": "M09", "mutation": "replace U+23B5 with U+23B4", "expected": "Violated"},
+    {"id": "M10", "mutation": "place bracket above body", "expected": "Violated"},
+    {"id": "M11", "mutation": "replace inherited class with Normal", "expected": "Violated"},
+    {"id": "M12", "mutation": "retain historical bare lowering", "expected": "Violated"},
+    {"id": "M13", "mutation": "erase explicit annotation from reflective fields", "expected": "Violated"}
+  ]
+}

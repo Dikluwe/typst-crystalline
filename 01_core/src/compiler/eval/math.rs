@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash e0164283
+//! @prompt-hash 2475d693
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1226,48 +1226,8 @@ fn eval_math_expr(
                 }
 
                 "underbracket" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
-                    if pos_args.is_empty() {
-                        return Err(vec![SourceDiagnostic::error(
-                            call.span(),
-                            format!("{} espera pelo menos 1 argumento (body)", name),
-                        )]);
-                    }
-                    let brace_char = match name.as_str() {
-                        "underbrace" => '\u{23DF}',
-                        "overbrace" => '\u{23DE}',
-                        "underbracket" => '\u{23B5}',
-                        "overbracket" => '\u{23B4}',
-                        _ => unreachable!(),
-                    };
-                    let is_under = matches!(name.as_str(), "underbrace" | "underbracket");
-
-                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    let brace = Content::MathText(brace_char.into());
-                    let inner = if is_under {
-                        Content::math_underover(body, Some(brace), None)
-                    } else {
-                        Content::math_underover(body, None, Some(brace))
-                    };
-
-                    if let Some(annotation_expr) = pos_args.get(1) {
-                        let annotation =
-                            eval_math_expr(scopes, ctx, engine, *annotation_expr)?;
-                        Ok(if is_under {
-                            Content::math_underover(inner, Some(annotation), None)
-                        } else {
-                            Content::math_underover(inner, None, Some(annotation))
-                        })
-                    } else {
-                        Ok(inner)
-                    }
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_underbracket_from_args(&args)
                 }
 
                 // `vec` converge com `math.vec`: identidade própria, children

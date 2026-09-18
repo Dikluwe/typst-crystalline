@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 32d0fb4b
+Hash do Código: bb237998
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -545,7 +545,7 @@ Adicionar `MathUnderbrace` aos braços terminais de `has_any_text` e
 `count_variant`, sem ocorrência própria nem recursão L3 em body/annotation.
 Os walkers estruturais e repr permanecem donos desses observáveis.
 
-## P1449 — projeção aproximada de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — projeção aproximada de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,6 +1,6 @@
 # Passo 1449 — Materializar `math.underbracket` com identidade e geometria de spreader inferior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
+**Estado:** IMPLEMENTADO E SELADO EM PRODUTO
 **Data da medição:** 2026-09-18T18:41:20-03:00  
 **Commit medido:** `3d9a0e63abc1e235d04128a5937d7313ff92819c`  
 **Árvore medida:** `5aaf1f3d6163cee905bfaf723ae66de4c5173b4e`, limpa (`git status --short` sem saída)  
@@ -143,3 +143,24 @@ Testes, código e resselo começam somente após confirmação humana explícita
 6. Exigir score `1.0`, zero `Unknown` não planejado e repetição/reordenação.
 7. Validar `cargo fmt --check`, `cargo build --workspace`, suítes focal e
    completa, `git diff --check` e `crystalline-lint .`, com proveniência.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `5c7fbb632`. A cadeia RED→GREEN, ataques, resselo e veredito está
+autorizada sem ampliar o escopo acima.
+
+## 8. Execução e veredito
+
+O RED focal produziu 9 erros atribuíveis aos símbolos P1449 ausentes. Após a
+materialização, 5/5 oráculos P1449 ficaram GREEN; a expectativa histórica
+P906 foi migrada da representação agregada para a identidade pública nova e
+também passou. A campanha adversarial rejeitou 39/39 execuções (13 mutantes,
+ordem forward, repetição forward e reverse), score `1.0` e zero `Unknown`.
+
+Em 2026-09-18T19:13:30-03:00, sobre a working tree não commitada baseada em
+`5c7fbb632694c8cd4cc3f1033b860fc9d0461436`, passaram `cargo fmt --check`,
+`git diff --check`, `cargo build --workspace` e `crystalline-lint .`. A suíte
+completa mediu 5913 testes: 5905 passaram e as mesmas 8 falhas históricas
+permaneceram, nenhuma atribuível ao P1449. Recibos e selo ficam em
+`00_nucleo/diagnosticos/p1449-*`.

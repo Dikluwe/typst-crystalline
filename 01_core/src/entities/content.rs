@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash e2988e9e
+//! @prompt-hash c8493c90
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -69,7 +69,7 @@ use crate::entities::elements::math_stretch::MathStretchElem;
 use crate::entities::elements::math_underline::{MathOverlineElem, MathUnderlineElem};
 use crate::entities::elements::math_underover::{
     MathOverbraceElem, MathOverbracketElem, MathOverparenElem, MathOvershellElem,
-    MathUnderbraceElem, MathUnderoverElem,
+    MathUnderbraceElem, MathUnderbracketElem, MathUnderoverElem,
 };
 use crate::entities::elements::math_vec::{MathVecElem, MathVecExplicit};
 // Lote 3 P318 — família lista/termos (5 variantes).
@@ -272,6 +272,9 @@ pub enum Content {
 
     /// Chave horizontal inferior pública com anotação opcional.
     MathUnderbrace(Arc<MathUnderbraceElem>),
+
+    /// Barra horizontal inferior pública com anotação opcional.
+    MathUnderbracket(Arc<MathUnderbracketElem>),
 
     /// Barra horizontal superior pública com anotação opcional.
     MathOverbracket(Arc<MathOverbracketElem>),
@@ -1274,6 +1277,9 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathUnderbrace(underbrace) => {
             write!(f, "math.underbrace({:?})", underbrace)
         }
+        Content::MathUnderbracket(underbracket) => {
+            write!(f, "math.underbracket({:?})", underbracket)
+        }
         Content::MathOverbracket(overbracket) => {
             write!(f, "math.overbracket({:?})", overbracket)
         }
@@ -1410,6 +1416,7 @@ impl Content {
             Self::MathMid(_) => "mid",
             Self::MathOverbrace(_) => "overbrace",
             Self::MathUnderbrace(_) => "underbrace",
+            Self::MathUnderbracket(_) => "underbracket",
             Self::MathOverbracket(_) => "overbracket",
             Self::MathOverparen(_) => "overparen",
             Self::MathOvershell(_) => "overshell",
@@ -1760,6 +1767,18 @@ impl Content {
         annotation_explicit: bool,
     ) -> Self {
         Self::MathUnderbrace(Arc::new(MathUnderbraceElem {
+            body,
+            annotation,
+            annotation_explicit,
+        }))
+    }
+    /// Construtor canônico do elemento público `math.underbracket`.
+    pub fn math_underbracket(
+        body: Content,
+        annotation: Option<Content>,
+        annotation_explicit: bool,
+    ) -> Self {
+        Self::MathUnderbracket(Arc::new(MathUnderbracketElem {
             body,
             annotation,
             annotation_explicit,
@@ -3198,6 +3217,7 @@ impl Content {
             | Self::MathMid(_)
             | Self::MathOverbrace(_)
             | Self::MathUnderbrace(_)
+            | Self::MathUnderbracket(_)
             | Self::MathOverbracket(_)
             | Self::MathOverparen(_)
             | Self::MathOvershell(_)
@@ -3536,6 +3556,7 @@ impl Content {
             Self::MathMid(e) => e.plain_text(),
             Self::MathOverbrace(e) => e.plain_text(),
             Self::MathUnderbrace(e) => e.plain_text(),
+            Self::MathUnderbracket(e) => e.plain_text(),
             Self::MathOverbracket(e) => e.plain_text(),
             Self::MathOverparen(e) => e.plain_text(),
             Self::MathOvershell(e) => e.plain_text(),
@@ -3688,6 +3709,7 @@ impl PartialEq for Content {
             (Self::MathMid(a), Self::MathMid(b)) => a == b,
             (Self::MathOverbrace(a), Self::MathOverbrace(b)) => a == b,
             (Self::MathUnderbrace(a), Self::MathUnderbrace(b)) => a == b,
+            (Self::MathUnderbracket(a), Self::MathUnderbracket(b)) => a == b,
             (Self::MathOverbracket(a), Self::MathOverbracket(b)) => a == b,
             (Self::MathOverparen(a), Self::MathOverparen(b)) => a == b,
             (Self::MathOvershell(a), Self::MathOvershell(b)) => a == b,
@@ -3929,6 +3951,7 @@ impl Content {
             (Content::MathPrimes(e), f) => e.get_field(f),
             (Content::MathLr(e), f) => e.get_field(f),
             (Content::MathUnderbrace(e), f) => e.get_field(f),
+            (Content::MathUnderbracket(e), f) => e.get_field(f),
             (Content::MathStretch(e), f) => e.get_field(f),
             (Content::PdfArtifact(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {
@@ -4048,6 +4071,7 @@ impl Content {
             Content::MathMid(e) => e.map_content(transform)?,
             Content::MathOverbrace(e) => e.map_content(transform)?,
             Content::MathUnderbrace(e) => e.map_content(transform)?,
+            Content::MathUnderbracket(e) => e.map_content(transform)?,
             Content::MathOverbracket(e) => e.map_content(transform)?,
             Content::MathOverparen(e) => e.map_content(transform)?,
             Content::MathOvershell(e) => e.map_content(transform)?,
@@ -4395,6 +4419,7 @@ impl Content {
             | Content::MathMid(_)
             | Content::MathOverbrace(_)
             | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
             | Content::MathOverbracket(_)
             | Content::MathOverparen(_)
             | Content::MathOvershell(_)

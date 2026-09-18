@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash dc7d652c
+//! @prompt-hash 6ecdde4f
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -47,6 +47,7 @@ fn base_math_class(content: &Content) -> MathClass {
         Content::MathMid(_) => MathClass::Relation,
         Content::MathOverbrace(e) => base_math_class(&e.body),
         Content::MathUnderbrace(e) => base_math_class(&e.body),
+        Content::MathUnderbracket(e) => base_math_class(&e.body),
         Content::MathOverbracket(e) => base_math_class(&e.body),
         Content::MathOverparen(e) => base_math_class(&e.body),
         Content::MathOvershell(e) => base_math_class(&e.body),
@@ -203,6 +204,7 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
         Content::MathMid(_) => (MathClass::Relation, MathClass::Relation),
         Content::MathOverbrace(e) => node_math_class(&e.body),
         Content::MathUnderbrace(e) => node_math_class(&e.body),
+        Content::MathUnderbracket(e) => node_math_class(&e.body),
         Content::MathOverbracket(e) => node_math_class(&e.body),
         Content::MathOverparen(e) => node_math_class(&e.body),
         Content::MathOvershell(e) => node_math_class(&e.body),
@@ -264,6 +266,11 @@ pub(crate) fn p1439_boundary_classes(content: &Content) -> (MathClass, MathClass
 
 #[cfg(test)]
 pub(crate) fn p1448_boundary_classes(content: &Content) -> (MathClass, MathClass) {
+    node_math_class(content)
+}
+
+#[cfg(test)]
+pub(crate) fn p1449_boundary_classes(content: &Content) -> (MathClass, MathClass) {
     node_math_class(content)
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash b72720e3
+//! @prompt-hash 3a01004f
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9785,6 +9785,53 @@ mod tests {
     }
 
     #[test]
+    fn p1449_underbracket_bare_preserva_identidade_e_anotacao() {
+        fn find_underbracket(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathUnderbracketElem>
+        {
+            match c {
+                Content::MathUnderbracket(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_underbracket)
+                }
+                Content::Equation(elem) => find_underbracket(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ underbracket(x, n) $");
+        let content = extract_math_content(&world);
+        let underbracket = find_underbracket(&content)
+            .expect("underbracket(x, n) deve produzir MathUnderbracket");
+        assert_eq!(underbracket.body.plain_text(), "x");
+        assert_eq!(
+            underbracket.annotation.as_ref().map(Content::plain_text).as_deref(),
+            Some("n")
+        );
+        assert!(underbracket.annotation_explicit);
+    }
+
+    #[test]
+    fn p1449_underbracket_reflexao_preserva_campos_e_presenca() {
+        let cases = [
+            ("#repr(math.underbracket([x]).fields())", "(body: [x])"),
+            (
+                "#repr(math.underbracket([x], none).fields())",
+                "(body: [x], annotation: none)",
+            ),
+            (r#"#repr(math.underbracket([x]).has("annotation"))"#, "false"),
+            (r#"#repr(math.underbracket([x], none).has("annotation"))"#, "true"),
+            (r#"#repr(math.underbracket([x], [n]).at("annotation"))"#, "[n]"),
+            ("#repr(math.underbracket([x]).func() == math.underbracket)", "true"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
     fn p1440_overbracket_bare_preserva_identidade_e_anotacao() {
         fn find_overbracket(
             c: &Content,
@@ -16412,6 +16459,20 @@ mod tests {
             }
         }
 
+        fn find_underbracket_in(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underover::MathUnderbracketElem>
+        {
+            match c {
+                Content::MathUnderbracket(e) => Some(e),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_underbracket_in)
+                }
+                Content::Equation(e) => find_underbracket_in(&e.body),
+                _ => None,
+            }
+        }
+
         fn find_overbracket_in(
             c: &Content,
         ) -> Option<&crate::entities::elements::math_underover::MathOverbracketElem>
@@ -16426,28 +16487,16 @@ mod tests {
             }
         }
 
-        /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
-        /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
-        /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
+        /// **P906 D1 / P1449** — `underbracket(a+b+c)` preserva a identidade
+        /// pública e projeta U+23B5 na sua morfologia.
         #[test]
         fn p906_underbracket_sem_anotacao_produz_mathunderover_under_u23b5() {
             let world = MockWorld::new("$ underbracket(a+b+c) $");
             let content = extract_math_content(&world);
-            let found = find_mathunderover_in(&content);
-            assert!(
-                found.is_some(),
-                "underbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
-                content
-            );
-            let (base, under, over) = found.unwrap();
-            assert!(over.is_none(), "underbracket não deve ter over");
-            let under = under.expect("underbracket deve ter under");
-            assert_eq!(
-                under.plain_text().chars().next(),
-                Some('\u{23B5}'),
-                "under deve ser exactamente U+23B5"
-            );
-            let base_text = base.plain_text();
+            let underbracket = find_underbracket_in(&content)
+                .expect("underbracket(a+b+c) deve preservar MathUnderbracket");
+            assert!(!underbracket.annotation_explicit);
+            let base_text = underbracket.body.plain_text();
             assert!(
                 base_text.contains('a')
                     && base_text.contains('b')
@@ -16455,6 +16504,9 @@ mod tests {
                 "base deve preservar o conteúdo original a+b+c: {:?}",
                 base_text
             );
+            let projected =
+                Content::MathUnderbracket(std::sync::Arc::new(underbracket.clone()));
+            assert!(projected.plain_text().contains('\u{23B5}'));
         }
 
         /// **P906 D2 / P1440** — `overbracket(a+b+c)` preserva a identidade
@@ -16579,6 +16631,19 @@ mod tests {
                     assert!(!overbracket.annotation_explicit);
                     let projected = Content::MathOverbracket(std::sync::Arc::new(
                         overbracket.clone(),
+                    ));
+                    assert_eq!(
+                        projected.plain_text().chars().find(|c| *c == expected_char),
+                        Some(expected_char)
+                    );
+                    continue;
+                }
+                if name == "underbracket" {
+                    let underbracket = find_underbracket_in(&content)
+                        .expect("underbracket deve preservar MathUnderbracket");
+                    assert!(!underbracket.annotation_explicit);
+                    let projected = Content::MathUnderbracket(std::sync::Arc::new(
+                        underbracket.clone(),
                     ));
                     assert_eq!(
                         projected.plain_text().chars().find(|c| *c == expected_char),

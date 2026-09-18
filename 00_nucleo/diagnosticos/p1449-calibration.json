@@ -1,0 +1,14 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1449,
+  "revisions": [
+    {
+      "cause": "M08 used a shared suffix with four occurrences instead of anchoring the complete math_lr_content_value prefix",
+      "revision": 1,
+      "action": "scope the mutation precondition to the complete helper prefix",
+      "campaign_effect": "aborted first attempt before M08; no receipt emitted; candidate restored by ensure"
+    }
+  ],
+  "budget_status": "within_budget",
+  "attestation": "executed_without_isolation_attestation"
+}

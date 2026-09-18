@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: ce40b9af
+Hash do Código: ac75de49
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -613,7 +613,7 @@ aceitar somente annotation posicional opcional e propagar os diagnósticos
 medidos. Não montar o glifo nem executar layout na avaliação. Os outros braços
 `under*` permanecem inalterados.
 
-## P1449 — sintaxe bare de `underbracket` converge no carrier público (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — sintaxe bare de `underbracket` converge no carrier público (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 97571578
+Hash do Código: 92eb02a1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -289,7 +289,7 @@ selecionável; body e annotation não tornam o wrapper locatável.
 O match exaustivo classifica `Content::MathUnderbrace(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
 
-## P1449 — `MathUnderbracket` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — `MathUnderbracket` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

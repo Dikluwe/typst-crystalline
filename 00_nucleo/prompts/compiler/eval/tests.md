@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: b171cc9c
+Hash do Código: b754904e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -276,3 +276,19 @@ Os oráculos legados P906 deixam de exigir `MathUnderover` diretamente para
 `underbrace`: passam a exigir o carrier público e sua projeção U+23DF. As
 expectativas de `underbracket` e dos spreaders superiores permanecem próprias;
 nenhum teste recebe crédito por igualdade apenas visual.
+
+## P1449 — regressão bare e reflexão de `underbracket`
+
+### Medição anterior à decisão
+
+O braço P906 produz `MathUnderover` diretamente e aceita silenciosamente
+named/excedentes. O vanilla bare produz o mesmo `UnderbracketElem` da função
+qualificada; fields distinguem annotation omitida de `none` explícito.
+
+### Aceitação
+
+Avaliar `$ underbracket(x, n) $` deve produzir `Content::MathUnderbracket` com
+body `x`, annotation `n` e presença verdadeira. `fields`, `has`, `at` e
+`func()` preservam identidade e presença causal. Os testes procuram a variante
+na árvore; não aceitam equivalência por `plain_text`, U+23B5 ou estrutura
+`MathUnderover` semelhante.

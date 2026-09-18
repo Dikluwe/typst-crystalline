@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 8f03e815
+Hash do Código: b366f0f5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1241,7 +1241,7 @@ preservando `Value::None` como valor assente. `content_set_fields` mantém a
 ordem `body`, `annotation`; não inferir presença pelo `Option` convertido nem
 pela geometria `MathUnderover`.
 
-## P1449 — reflexão causal de `MathUnderbracket` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1449 — reflexão causal de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
