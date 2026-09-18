@@ -76,7 +76,7 @@ clampada ao body, a regra usar largura de tinta em vez de largura lógica, ou
 qualquer ajuste horizontal mudar ascent/descent. Não há constante em pt nem
 dependência nova; o owner continua exclusivamente este módulo.
 
-## P1441 — owner de layout de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — owner de layout de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

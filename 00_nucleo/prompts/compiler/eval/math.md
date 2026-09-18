@@ -491,7 +491,7 @@ builder de `math.overbracket`. Preservar ordem, spread e avaliação única;
 exigir body, aceitar somente annotation posicional opcional e propagar os
 diagnósticos medidos. Não montar U+23B4 nem executar layout na avaliação.
 
-## P1441 — forma bare `overline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — forma bare `overline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

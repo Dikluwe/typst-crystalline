@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash ed2f4e26
+//! @prompt-hash c0e14099
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -62,7 +62,7 @@ use crate::entities::elements::math_matrix::{
 };
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
-use crate::entities::elements::math_underline::MathUnderlineElem;
+use crate::entities::elements::math_underline::{MathOverlineElem, MathUnderlineElem};
 use crate::entities::elements::math_underover::{
     MathOverbraceElem, MathOverbracketElem, MathUnderoverElem,
 };
@@ -316,6 +316,9 @@ pub enum Content {
 
     /// Underline matemático body-only, distinto da decoração textual.
     MathUnderline(Arc<MathUnderlineElem>),
+
+    /// Overline matemático body-only, distinto da decoração textual.
+    MathOverline(Arc<MathOverlineElem>),
 
     /// Vetor matemático variádico, identidade distinta de matriz.
     MathVec(Arc<MathVecElem>),
@@ -1256,6 +1259,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathAccent(a) => write!(f, "math.accent({:?})", a),
         Content::MathCancel(c) => write!(f, "math.cancel({:?})", c),
         Content::MathUnderline(u) => write!(f, "math.underline({:?})", u),
+        Content::MathOverline(o) => write!(f, "math.overline({:?})", o),
         Content::MathVec(v) => write!(f, "math.vec({:?})", v),
         Content::MathClassOverride(c) => write!(f, "math.class({:?})", c),
         Content::MathLimitsOverride(o) => write!(f, "math.limits({:?})", o),
@@ -1384,6 +1388,7 @@ impl Content {
             Self::MathAccent(_) => "math.accent",
             Self::MathCancel(_) => "math.cancel",
             Self::MathUnderline(_) => "math.underline",
+            Self::MathOverline(_) => "math.overline",
             Self::MathVec(_) => "math.vec",
             Self::MathClassOverride(_) => "math.class",
             Self::MathLimitsOverride(_) => "math.limits",
@@ -1904,6 +1909,11 @@ impl Content {
     /// Construtor canónico do underline matemático.
     pub fn math_underline(body: Content) -> Self {
         Self::MathUnderline(Arc::new(MathUnderlineElem { body }))
+    }
+
+    /// Construtor canónico do overline matemático.
+    pub fn math_overline(body: Content) -> Self {
+        Self::MathOverline(Arc::new(MathOverlineElem { body }))
     }
 
     /// Construtor de conveniência de `MathVec`, com named omitidos.
@@ -3116,6 +3126,7 @@ impl Content {
             | Self::MathAccent(_)
             | Self::MathCancel(_)
             | Self::MathUnderline(_)
+            | Self::MathOverline(_)
             | Self::MathVec(_)
             | Self::MathClassOverride(_)
             | Self::MathLimitsOverride(_)
@@ -3448,6 +3459,7 @@ impl Content {
             Self::MathAccent(e) => e.plain_text(),
             Self::MathCancel(e) => e.plain_text(),
             Self::MathUnderline(e) => e.plain_text(),
+            Self::MathOverline(e) => e.plain_text(),
             Self::MathVec(e) => e.plain_text(),
             Self::MathClassOverride(e) => e.plain_text(),
             Self::MathLimitsOverride(e) => e.plain_text(),
@@ -3594,6 +3606,7 @@ impl PartialEq for Content {
             (Self::MathAccent(a), Self::MathAccent(b)) => a == b,
             (Self::MathCancel(a), Self::MathCancel(b)) => a == b,
             (Self::MathUnderline(a), Self::MathUnderline(b)) => a == b,
+            (Self::MathOverline(a), Self::MathOverline(b)) => a == b,
             (Self::MathVec(a), Self::MathVec(b)) => a == b,
             (Self::MathClassOverride(a), Self::MathClassOverride(b)) => a == b,
             (Self::MathLimitsOverride(a), Self::MathLimitsOverride(b)) => a == b,
@@ -3942,6 +3955,7 @@ impl Content {
             Content::MathAccent(e)    => e.map_content(transform)?,
             Content::MathCancel(e)    => e.map_content(transform)?,
             Content::MathUnderline(e) => e.map_content(transform)?,
+            Content::MathOverline(e) => e.map_content(transform)?,
             Content::MathVec(e) => e.map_content(transform)?,
             Content::MathClassOverride(e) => e.map_content(transform)?,
             Content::MathLimitsOverride(e) => e.map_content(transform)?,
@@ -4283,6 +4297,7 @@ impl Content {
             | Content::MathAccent(_)
             | Content::MathCancel(_)
             | Content::MathUnderline(_)
+            | Content::MathOverline(_)
             | Content::MathVec(_)
             | Content::MathClassOverride(_)
             | Content::MathLimitsOverride(_)

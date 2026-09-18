@@ -224,7 +224,7 @@ body e annotation não tornam o wrapper locatável.
 O match exaustivo classifica `Content::MathOverbracket(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
 
-## P1441 — não-locatabilidade de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — não-locatabilidade de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

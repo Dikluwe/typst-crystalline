@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 44fd5d5a
+//! @prompt-hash e0e9c84e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1211,6 +1211,11 @@ fn eval_math_expr(
                 "overbracket" => {
                     let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
                     crate::compiler::stdlib::math_overbracket_from_args(&args)
+                }
+
+                "overline" => {
+                    let args = eval_p1293_math_args(scopes, ctx, engine, call.args())?;
+                    crate::compiler::stdlib::math_overline_from_args(&args)
                 }
 
                 "underbrace" | "underbracket" => {

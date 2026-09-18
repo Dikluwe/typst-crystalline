@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/elements/math_underline` — `MathUnderlineElem`
 
-**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** CONTRATOS P1292 E P1441 MATERIALIZADOS
+Hash do Código: 37776440
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/elements/math_underline.rs`
@@ -50,7 +50,7 @@ exclusivamente a `compiler/math/layout/underline.md`, e a variante ao owner
 e named desconhecido coincidem com as mensagens medidas no recibo vanilla
 P1292; não se aceita argumento ignorado.
 
-## P1441 — identidade pública `MathOverlineElem` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — identidade pública `MathOverlineElem` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

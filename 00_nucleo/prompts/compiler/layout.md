@@ -554,7 +554,7 @@ Encaminhar `Content::MathOverbracket` pelo caminho inline math. Este owner não
 interpreta U+23B4, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
 
-## P1441 — encaminhamento genérico de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — encaminhamento genérico de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

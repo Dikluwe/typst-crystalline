@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash bf6f3fb9
+//! @prompt-hash 9bef3035
 //! @layer L1
 //! @updated 2026-08-31
 
@@ -47,6 +47,8 @@ pub(crate) use spacing::p1439_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::p1440_boundary_classes;
 #[cfg(test)]
+pub(crate) use spacing::p1441_boundary_classes;
+#[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
 
 fn lower_math_overbrace(
@@ -87,6 +89,97 @@ pub(crate) fn p1440_overbracket_lowering(
     elem: &crate::entities::elements::math_underover::MathOverbracketElem,
 ) -> Content {
     lower_math_overbracket(elem)
+}
+
+#[cfg(test)]
+#[derive(Debug)]
+pub(crate) struct P1441OverlineGeometry {
+    pub(crate) width: f64,
+    pub(crate) ascent: f64,
+    pub(crate) descent: f64,
+    pub(crate) body_ascent: f64,
+    pub(crate) body_descent: f64,
+    pub(crate) body_y: f64,
+    pub(crate) body_cramped: bool,
+    pub(crate) line_start_x: f64,
+    pub(crate) line_end_x: f64,
+    pub(crate) line_y: f64,
+    pub(crate) line_thickness: f64,
+}
+
+#[cfg(test)]
+pub(crate) fn p1441_overline_geometry() -> P1441OverlineGeometry {
+    use crate::compiler::layout::FixedMetrics;
+
+    struct Metrics;
+    impl FontMetrics for Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            let mut constants = MathConstants::fallback();
+            constants.overbar_vertical_gap = 200.0;
+            constants.overbar_rule_thickness = 70.0;
+            constants.overbar_extra_ascender = 80.0;
+            constants.underbar_vertical_gap = 500.0;
+            constants.underbar_rule_thickness = 110.0;
+            constants.underbar_extra_descender = 130.0;
+            constants
+        }
+        fn char_italics_correction(&self, _c: char, _size: Pt, _style: &TextStyle) -> Pt {
+            Pt(1.25)
+        }
+    }
+
+    let style = TextStyle::regular(Pt(10.0));
+    let layouter = MathLayouter::new(&Metrics, true, &style);
+    let body = Content::MathText("f".into());
+    let cramped_style = TextStyle { cramped: true, ..style.clone() };
+    let body_box = layouter.layout_node(&body, &cramped_style);
+    let overline = layouter.layout_node(&Content::math_overline(body), &style);
+    let (body_y, body_cramped) = overline
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { pos, style, .. } => Some((pos.y.val(), style.cramped)),
+            FrameItem::TextShaped { pos, style, .. } => {
+                Some((pos.y.val(), style.cramped))
+            }
+            _ => None,
+        })
+        .expect("body textual de overline");
+    let (line_start_x, line_end_x, line_y, line_thickness) = overline
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Line { start, end, thickness, .. } => {
+                Some((start.x.val(), end.x.val(), start.y.val(), *thickness))
+            }
+            _ => None,
+        })
+        .expect("regra superior de overline");
+    P1441OverlineGeometry {
+        width: overline.width,
+        ascent: overline.ascent,
+        descent: overline.descent,
+        body_ascent: body_box.ascent,
+        body_descent: body_box.descent,
+        body_y,
+        body_cramped,
+        line_start_x,
+        line_end_x,
+        line_y,
+        line_thickness,
+    }
 }
 
 /// Caixa tipográfica de um nó matemático.
@@ -793,6 +886,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
 
             Content::MathUnderline(e) => underline::layout(self, e, style),
+            Content::MathOverline(e) => underline::layout_overline(self, e, style),
             Content::MathVec(e) => vec::layout(self, e, style),
 
             // P772y — `math.class(class, body)`: override de classe afecta
@@ -2227,6 +2321,7 @@ fn apply_math_default(body: &Content) -> Content {
             e.explicit,
         ),
         Content::MathUnderline(e) => Content::math_underline(apply_math_default(&e.body)),
+        Content::MathOverline(e) => Content::math_overline(apply_math_default(&e.body)),
         Content::MathVec(e) => Content::math_vec_full(
             e.children.iter().map(apply_math_default).collect(),
             e.delim,
@@ -2422,6 +2517,9 @@ fn apply_math_style(
         ),
         Content::MathUnderline(e) => {
             Content::math_underline(apply_math_style(&e.body, kind, bold, italic))
+        }
+        Content::MathOverline(e) => {
+            Content::math_overline(apply_math_style(&e.body, kind, bold, italic))
         }
         Content::MathVec(e) => Content::math_vec_full(
             e.children

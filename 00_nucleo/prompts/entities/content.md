@@ -2955,7 +2955,7 @@ Prompts proprietários relacionados: `entities/elements/math_cancel.md`,
 Esta alteração cria variantes/construtores públicos; permanece proibida até
 o selo humano ADR-0127. Os seis prompts de novos consumers (entidade/layout
 para underline, vec e flush) ficam
-deliberadamente sem consumer e sem `Hash do Código` durante esta pausa.
+deliberadamente sem consumer e sem metadado canônico de hash durante esta pausa.
 
 ## P1344 — projeção owner-local do carrier de `CounterUpdate`
 
@@ -3179,7 +3179,7 @@ fechado preserva nome, debug, igualdade, hash, plain-text e filhos.
 `map_text` mantém a variante. Não inferir `overbracket` a partir de U+23B4,
 nem confundi-lo com `MathOverbrace` ou com o carrier `MathUnderover`.
 
-## P1441 — variante pública `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — variante pública `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

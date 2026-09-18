@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 1c031e1d
+//! @prompt-hash 60a5ee14
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -1653,6 +1653,47 @@ pub fn native_math_overbracket(
     math_overbracket_from_args(args).map(Value::Content)
 }
 
+/// Validação e construção compartilhada de `math.overline` e da forma bare.
+pub(crate) fn math_overline_from_args(args: &Args) -> SourceResult<Content> {
+    if args.named.contains_key("body") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `body` is positional".to_string(),
+        )]);
+    }
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let body = match args.items.as_slice() {
+        [body] => math_lr_content_value(body, args.span)?,
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        [_, _, ..] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+    Ok(Content::math_overline(body))
+}
+
+pub fn native_math_overline(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    math_overline_from_args(args).map(Value::Content)
+}
+
 /// Validação e construção compartilhada de `math.norm` e `norm(...)` bare.
 pub(crate) fn math_norm_from_args(args: &Args) -> SourceResult<Content> {
     if args.named.contains_key("body") {
@@ -2388,6 +2429,13 @@ pub fn make_math_module() -> Value {
         Value::Func(crate::entities::func::Func::native(
             "overbracket",
             native_math_overbracket,
+        )),
+    );
+    dict.insert(
+        "overline".into(),
+        Value::Func(crate::entities::func::Func::native(
+            "math.overline",
+            native_math_overline,
         )),
     );
 

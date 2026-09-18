@@ -487,7 +487,7 @@ a barra é `Diacritic`, mas não substitui a classe pública do composto.
 e direita de `e.body`. Annotation e U+23B4 não participam das fronteiras. Não
 fixar `Normal`, `Diacritic` ou uma classe derivada da altura renderizada.
 
-## P1441 — classes de fronteira de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — classes de fronteira de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

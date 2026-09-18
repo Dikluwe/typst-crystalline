@@ -1557,7 +1557,7 @@ O match permanece estático e magro: `Content::MathOverbracket(e)` delega a
 e preservam `annotation_explicit` e a variante. A redução mecânica só ocorre
 dentro do owner de layout e nunca retorna ao conteúdo público.
 
-## P1441 — dispatch e reconstruções de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — dispatch e reconstruções de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

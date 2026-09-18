@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash c99bf364
+//! @prompt-hash bc5b18ea
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -51,6 +51,7 @@ fn base_math_class(content: &Content) -> MathClass {
         // (transparente, ao contrário de `MathClassOverride`).
         Content::MathLimitsOverride(e) => base_math_class(&e.body),
         Content::MathUnderline(e) => base_math_class(&e.body),
+        Content::MathOverline(e) => base_math_class(&e.body),
         // **P907 Parte B** — `Content::MathOp` (`min`/`max`/`lim`/`sin`/etc,
         // via `make_math_module`) é sempre `MathClass::Large` no vanilla
         // (`math/ir/resolve.rs::resolve_op`, `item.set_class(MathClass::
@@ -233,6 +234,7 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
             if e.delim.1 != '\0' { MathClass::Closing } else { MathClass::Normal },
         ),
         Content::MathUnderline(e) => node_math_class(&e.body),
+        Content::MathOverline(e) => node_math_class(&e.body),
         other => {
             let class = base_math_class(other);
             (class, class)
@@ -252,6 +254,11 @@ pub(crate) fn p1439_boundary_classes(content: &Content) -> (MathClass, MathClass
 
 #[cfg(test)]
 pub(crate) fn p1440_boundary_classes(content: &Content) -> (MathClass, MathClass) {
+    node_math_class(content)
+}
+
+#[cfg(test)]
+pub(crate) fn p1441_boundary_classes(content: &Content) -> (MathClass, MathClass) {
     node_math_class(content)
 }
 

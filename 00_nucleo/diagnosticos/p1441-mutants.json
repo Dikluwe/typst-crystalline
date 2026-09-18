@@ -1,0 +1,21 @@
+{
+  "schema": "tekt.materialization.mutants/v1",
+  "step": 1441,
+  "families": [
+    {"id":"M01","change":"remove overline module binding","expected":"Violated"},
+    {"id":"M02","change":"return textual Overline instead of MathOverline","expected":"Violated"},
+    {"id":"M03","change":"project textual overline[...] repr","expected":"Violated"},
+    {"id":"M04","change":"accept named body","expected":"Violated"},
+    {"id":"M05","change":"accept zero positionals","expected":"Violated"},
+    {"id":"M06","change":"accept second positional","expected":"Violated"},
+    {"id":"M07","change":"accept integer body","expected":"Violated"},
+    {"id":"M08","change":"leave bare overline on textual route","expected":"Violated"},
+    {"id":"M09","change":"do not force cramped body style","expected":"Violated"},
+    {"id":"M10","change":"use underbar constants or put line below","expected":"Violated"},
+    {"id":"M11","change":"adjust line width by italic correction","expected":"Violated"},
+    {"id":"M12","change":"force Normal boundary class","expected":"Violated"},
+    {"id":"M13","change":"collide math.overline native identity with textual overline","expected":"Violated"}
+  ],
+  "positive_controls": ["unmutated candidate", "textual Overline and MathUnderline remain distinct"],
+  "opaque_controls": ["identity mismatch", "resource exhaustion", "unsupported observation"]
+}

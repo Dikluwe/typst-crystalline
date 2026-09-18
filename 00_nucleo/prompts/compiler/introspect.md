@@ -1812,7 +1812,7 @@ Classificar `MathOverbracket` entre variantes math não-locatáveis e terminais
 nestes walkers. Não emitir ocorrência do wrapper nem repetir descida nos
 filhos, evitando dupla contagem.
 
-## P1441 — walkers introspectivos de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — walkers introspectivos de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

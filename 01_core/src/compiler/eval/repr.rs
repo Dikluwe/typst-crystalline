@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash ed998200
+//! @prompt-hash 41a859b5
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -937,6 +937,9 @@ pub fn repr_content(c: &Content) -> String {
         }
         Content::MathUnderline(u) => {
             format!("underline(body: {})", repr_content(&u.body))
+        }
+        Content::MathOverline(o) => {
+            format!("overline(body: {})", repr_math_lr_body(&o.body))
         }
         Content::MathVec(v) => {
             let mut fields = Vec::new();

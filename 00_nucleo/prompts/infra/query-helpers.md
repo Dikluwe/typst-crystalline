@@ -474,7 +474,7 @@ Adicionar `MathOverbracket` aos braços terminais de
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
 
-## P1441 — neutralidade L3 de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — neutralidade L3 de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

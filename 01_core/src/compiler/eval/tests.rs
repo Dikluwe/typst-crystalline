@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 74e03a39
+//! @prompt-hash dcf29f7c
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9711,6 +9711,35 @@ mod tests {
             Some("n")
         );
         assert!(overbracket.annotation_explicit);
+    }
+
+    #[test]
+    fn p1441_overline_bare_preserva_identidade_matematica() {
+        fn find_overline(
+            c: &Content,
+        ) -> Option<&crate::entities::elements::math_underline::MathOverlineElem>
+        {
+            match c {
+                Content::MathOverline(elem) => Some(elem),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_overline)
+                }
+                Content::Equation(elem) => find_overline(&elem.body),
+                _ => None,
+            }
+        }
+
+        let world = MockWorld::new("$ overline(x) $");
+        let content = extract_math_content(&world);
+        let overline =
+            find_overline(&content).expect("overline(x) deve produzir MathOverline");
+        assert_eq!(overline.body.plain_text(), "x");
+        assert_eq!(
+            crate::compiler::eval::repr::repr_content(&Content::MathOverline(
+                std::sync::Arc::new(overline.clone()),
+            )),
+            "overline(body: [x])"
+        );
     }
 
     fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {

@@ -176,3 +176,18 @@ Avaliar `$ overbracket(x, n) $` e exigir `Content::MathOverbracket` com body
 quatro codepoints para inspecionarem U+23B4 através da identidade pública; não
 exigir que a redução mecânica exista antes do layout. Validação detalhada da
 assinatura pertence ao owner test-only P1440.
+
+## P1441 — regressão bare de `overline` preserva identidade matemática
+
+### Medição anterior à decisão
+
+A sintaxe `$ overline(x) $` cai hoje no binding global de decoração textual e
+produz `Content::Overline`; no vanilla ratificado ela produz o mesmo elemento
+matemático body-only exposto por `math.overline`.
+
+### Aceitação
+
+Avaliar `$ overline(x) $` e exigir `Content::MathOverline` com body `x`, sem
+aceitar `Content::Overline`, `MathUnderline` ou normalização para conteúdo
+textual. Validação detalhada de assinatura, `repr` e geometria pertence ao
+owner test-only P1441.

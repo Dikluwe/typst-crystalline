@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underline.md
-//! @prompt-hash 27b6cc39
+//! @prompt-hash 347e66b0
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -16,6 +16,12 @@ use crate::entities::source_result::SourceResult;
 /// Underline matemático estrutural. A geometria pertence ao owner de layout.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathUnderlineElem {
+    pub body: Content,
+}
+
+/// Overline matemático estrutural, distinto da decoração textual homônima.
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct MathOverlineElem {
     pub body: Content,
 }
 
@@ -38,6 +44,28 @@ impl Element for MathUnderlineElem {
         F: FnMut(&str) -> String,
     {
         Content::MathUnderline(Arc::new(self.clone()))
+    }
+}
+
+impl Element for MathOverlineElem {
+    fn plain_text(&self) -> String {
+        self.body.plain_text()
+    }
+
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::MathOverline(Arc::new(MathOverlineElem {
+            body: self.body.map_content(transform)?,
+        })))
+    }
+
+    fn map_text<F>(&self, _transform: &mut F) -> Content
+    where
+        F: FnMut(&str) -> String,
+    {
+        Content::MathOverline(Arc::new(self.clone()))
     }
 }
 

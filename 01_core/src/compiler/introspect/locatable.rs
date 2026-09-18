@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash 1b763ce5
+//! @prompt-hash f12b7384
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -207,6 +207,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathAccent(_)
         | Content::MathCancel(_)
         | Content::MathUnderline(_)
+        | Content::MathOverline(_)
         | Content::MathVec(_)
         // P772y — Math class override não-locatable (paralelo P296/P298).
         | Content::MathClassOverride(_)

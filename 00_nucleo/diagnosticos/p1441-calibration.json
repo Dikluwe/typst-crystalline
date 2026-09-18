@@ -1,0 +1,12 @@
+{
+  "schema": "tekt.materialization.calibration/v1",
+  "step": 1441,
+  "revision": 3,
+  "hypothesis": "public parity witnesses must distinguish the math function identity and math-body repr from their textual homonyms",
+  "before": {"invalidated_executions": 36, "refutators": ["math.overline == overline returned true", "bare repr projected body: x"]},
+  "change": "give the native function identity math.overline, use math-body repr projection, strengthen bare repr oracle and add M13 identity-collision mutant",
+  "after": {"executions": 39, "killed": 39, "score": 1.0, "unknown": 0, "verdict": "SEALED"},
+  "regressions": 0,
+  "cost": "one discarded partial runner attempt, one invalidated 36-execution campaign, one invalidated 39-execution campaign and one credited 39-execution campaign",
+  "basis": "vanilla public probes refuted the first oracle; the later lineage-only resselo changed a protected test source byte hash, so even the 39/39 result is not credited until rerun"
+}

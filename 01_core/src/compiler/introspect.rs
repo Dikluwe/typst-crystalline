@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash df677f02
+//! @prompt-hash 0c1f1828
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1025,6 +1025,7 @@ fn materialize_time(
         | Content::MathAccent(_)
         | Content::MathCancel(_)
         | Content::MathUnderline(_)
+        | Content::MathOverline(_)
         | Content::MathVec(_)
         | Content::Flush(_)
         // P772y — Math class override terminal (paralelo P296/P298).
@@ -1654,6 +1655,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::MathAccent(_)
         | Content::MathCancel(_)
         | Content::MathUnderline(_)
+        | Content::MathOverline(_)
         | Content::MathVec(_)
         | Content::Flush(_)
         | Content::MathClassOverride(_)
@@ -2237,6 +2239,7 @@ pub(crate) fn walk(
         | Content::MathAccent(_)
         | Content::MathCancel(_)
         | Content::MathUnderline(_)
+        | Content::MathOverline(_)
         | Content::MathVec(_)
         | Content::Flush(_)
         // P772y — Math class override terminal em walk (paralelo P296/P298).

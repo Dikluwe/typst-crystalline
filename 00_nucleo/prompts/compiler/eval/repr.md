@@ -873,7 +873,7 @@ Projetar `MathOverbracket` como `overbracket(body: <content>, annotation?:
 confunde com omissão. Nesting recorre ao mesmo formatter e identidade nunca é
 inferida do glifo U+23B4, de `MathOverbrace` ou do carrier genérico.
 
-## P1441 — `repr` de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — `repr` de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

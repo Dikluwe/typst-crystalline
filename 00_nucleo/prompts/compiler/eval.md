@@ -622,7 +622,7 @@ Adicionar braço `MathOverbracket` e comparar body, annotation e
 omissão a `none` explícito e não igualar a `MathOverbrace` nem ao
 `MathUnderover` mecânico.
 
-## P1441 — igualdade observacional de `MathOverline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — igualdade observacional de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 

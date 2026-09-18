@@ -1,6 +1,6 @@
 # Passo 1441 — Materializar `math.overline` com identidade e geometria MATH superior
 
-**Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
+**Estado:** MATERIALIZADO — AGUARDA COMMITS DE PRODUTO E VERIFICAÇÃO
 **Data da medição:** 2026-09-18T09:15:35-03:00
 **Commit medido:** `3f4633b9267ccf89fa565601bbded58c259bf696`
 **Árvore medida:** limpa (`git status --short` e `git diff HEAD --stat` sem saída)
@@ -137,3 +137,36 @@ somente após confirmação humana explícita.
 6. Validar `cargo fmt --check`, `cargo build --workspace`, suítes
    focal/completa, `git diff --check` e `crystalline-lint .`, registrando
    proveniência.
+
+## 7. Confirmação humana
+
+O dono confirmou explicitamente o gate ADR-0127 em 2026-09-18 após o commit
+de proposta `1d2dbe984c5c47edcfcfed7f92bc1bc59ba1fa6e`. A cadeia RED→GREEN,
+ataques, resselo e veredito está autorizada sem ampliar o escopo acima.
+
+## 8. Materialização
+
+P1441 foi materializado em 2026-09-18 sob o regime
+`executed_without_isolation_attestation`. O RED atribuível apresentou oito
+erros de compilação centrados na ausência de `MathOverlineElem`,
+`Content::MathOverline` e helpers P1441. O candidato fechou cinco testes
+focais, incluindo binding qualificado, identidade bare, assinatura/casts,
+`repr`, carrier, walkers, classes e geometria superior cramped.
+
+Dois probes públicos refutaram a primeira versão do candidato: o body bare
+era projetado como texto em vez de conteúdo math e a identidade nativa
+colidia com a forma bare. Os oráculos foram fortalecidos antes do selo final.
+A campanha creditada, já sobre os hashes ressellados, executou as ordens
+direta, direta repetida e reversa e matou 39/39 mutantes (13 famílias), score
+`1.0`, zero `Unknown`. Binding, formas qualified/bare, `none`, string, spread,
+nesting e os cinco diagnósticos negativos medidos coincidiram com o vanilla
+ratificado.
+
+Medição final em `2026-09-18T10:17:22-03:00`, sobre o commit de proposta
+`1d2dbe984c5c47edcfcfed7f92bc1bc59ba1fa6e` com working tree não commitado;
+o `git diff HEAD --stat` registrou 31 ficheiros rastreados, 355 inserções e 38
+remoções, além dos artefatos P1441 ainda untracked. `cargo fmt --check`,
+`git diff --check`, `cargo build --workspace` e `crystalline-lint .`
+terminaram verdes; V5, V15 e V26 ficaram em zero. A suíte completa executou
+5.875 testes L1: 5.867 verdes e as mesmas oito falhas históricas do baseline
+P1440, nenhuma em arquivo ou observável P1441.

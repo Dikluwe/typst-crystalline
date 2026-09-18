@@ -567,7 +567,7 @@ uma vez, exige body convertível em conteúdo, aceita no máximo uma annotation
 e constrói `Content::MathOverbracket` com bit de presença. Reproduzir casts,
 spread e diagnósticos medidos; não criar U+23B4 nem executar layout aqui.
 
-## P1441 — binding público completo `math.overline` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1441 — binding público completo `math.overline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
 
 ### Medição anterior à decisão
 
