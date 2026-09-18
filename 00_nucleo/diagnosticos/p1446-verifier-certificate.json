@@ -1,0 +1,44 @@
+{
+  "schema": "tekt.materialization.verifier-certificate/v1",
+  "step": 1446,
+  "status": "SEALED",
+  "attestation": "executed_without_isolation_attestation",
+  "verified_at": "2026-09-18T16:26:00-03:00",
+  "candidate_commit": "f974b8f0752f4ac38592931373d538d7cf526bc4",
+  "candidate_tree": "7adcd567a192e2fe1ef34db49633bc17b37fc889",
+  "inputs": {
+    "manifest_sha256": "e74d30b047d2fe827f854bf257add4f0fce1aea59f8bd093ad5028f648dcbbb9",
+    "contract_sha256": "8b86f8d2d9ffd8c1bc6a86452873ab43cf094fa10bd4d6311b6cef81a8f56534",
+    "oracles_sha256": "3a65c1cee435247789699afd8de1552bccdf9780a762ccf26f33c5f06dd40728",
+    "mutants_sha256": "3ee78f68d38c87d9c1d485b8d9792b5286ad4533c7820a84822306aa725aa02d",
+    "test_prompt_sha256": "a84c1df27e322cf5890e2b4a7f51188f47ada94a39e23b9a9a3d64d7b8c5f807",
+    "structural_test_sha256": "0b984c5220489a591710e9c355006760671cad7223f836a8135be206870a2abf",
+    "campaign_sha256": "85e14719fcb893234f55c10b53a11a40a3ba9714335a9d56131c16484da055bd",
+    "preseal_sha256": "e20ae5d9b92be76b4dd6a972c2ccf9934eda5305cad50e1616e8a847d594ecd1"
+  },
+  "red": "ATTRIBUTABLE_RED",
+  "green": {"typst_core_p1446": {"passed": 4, "failed": 0}},
+  "mutation": {"logical_executions": 30, "killed": 30, "score": 1.0, "unknown": 0},
+  "public_parity": {
+    "qualified_and_bare_semantic_repr": "PASS",
+    "presence_fields_casts_nesting_and_style_transport": "PASS",
+    "eight_negative_primary_messages": "PASS_BY_STRUCTURAL_ORACLE",
+    "multiline_pretty_print": "OUT_OF_SCOPE_GLOBAL_LIMITATION"
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "git_diff_check": "PASS",
+    "cargo_build_workspace": "PASS",
+    "crystalline_lint_exit": 0,
+    "prompt_drift": 0,
+    "v15_v26": 0,
+    "cargo_test_workspace": "BASELINE_FAILURES: 5889 passed, 8 failed, 0 attributable to P1446"
+  },
+  "verdict": "Preserved",
+  "claim_boundary": "P1446 math.stretch fragment only; no general Typst equivalence or exact multiline repr claim.",
+  "scope_out": [
+    "eight historical full-suite failures",
+    "global multiline pretty-print policy",
+    "remaining P1422 math routes"
+  ]
+}

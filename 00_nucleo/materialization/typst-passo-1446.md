@@ -202,3 +202,9 @@ Pré-veredito limitado: `Preserved` para o fragmento `math.stretch` descrito;
 não declara equivalência Typst geral, paridade integral do pretty-printer nem
 fecha as rotas residuais de P1422. O commit produtivo e o certificado são
 fixados somente depois dos gates finais reproduzíveis.
+
+O candidato produtivo e os recibos foram fixados no commit
+`f974b8f0752f4ac38592931373d538d7cf526bc4`, árvore
+`7adcd567a192e2fe1ef34db49633bc17b37fc889`. O certificado limitado ao
+fragmento P1446 é
+`00_nucleo/diagnosticos/p1446-verifier-certificate.json`.
