@@ -514,3 +514,15 @@ Adicionar `MathOvershell` aos braços terminais de
 `has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 em
 body/annotation. Os walkers estruturais e o `repr` permanecem donos desses
 observáveis.
+
+## P1444 — projeção aproximada de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Os helpers L3 tratam carriers math realizados como folhas; count não é texto
+estrutural nem `ElementKind` consultável nesta projeção.
+
+### Decisão proposta
+
+Adicionar `MathPrimes` aos braços terminais de `has_any_text` e
+`count_variant`, sem ocorrência própria e sem fabricar conteúdo textual.

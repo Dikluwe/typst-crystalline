@@ -259,3 +259,15 @@ body e annotation não tornam o wrapper locatável.
 
 O match exaustivo classifica `Content::MathOvershell(_)` como `false`,
 preservando `is_locatable ↔ extract_payload.is_some()`.
+
+## P1444 — `MathPrimes` não-locatable (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O elemento não possui `ElementKind`, Location ou payload selecionável; o
+campo count não cria identidade espacial.
+
+### Decisão proposta
+
+O match exaustivo classifica `Content::MathPrimes(_)` como `false`, preservando
+`is_locatable ↔ extract_payload.is_some()`.

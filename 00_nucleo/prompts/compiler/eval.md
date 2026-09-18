@@ -662,3 +662,17 @@ Adicionar braço `MathOvershell` e comparar body, annotation e
 `annotation_explicit`. Não comparar glifo ou caixas derivadas, não equiparar
 omissão a `none` explícito e não igualar a outro spreader nem ao
 `MathUnderover` mecânico.
+
+## P1444 — igualdade observável de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O count é o único estado público do elemento e distingue
+`math.primes(3) == math.primes(4)`. Texto visualmente semelhante não possui a
+mesma identidade.
+
+### Decisão proposta
+
+Adicionar braço `MathPrimes` e comparar exclusivamente `count`. Não comparar
+glyph, largura ou frame derivados e não equiparar o carrier a `MathText` ou
+`MathSequence`.

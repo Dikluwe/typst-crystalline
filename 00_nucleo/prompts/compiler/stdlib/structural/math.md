@@ -611,3 +611,18 @@ Registrar `math.overshell` antes do espelho de símbolos. A nativa avalia uma
 vez, exige body convertível em conteúdo, aceita no máximo uma annotation e
 constrói `Content::MathOvershell` com bit de presença. Reproduzir casts,
 spread e diagnostics medidos; não criar U+23E0 nem executar layout aqui.
+
+## P1444 — binding público `math.primes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O módulo fechado omite `primes`. No vanilla, `count` é o único positional
+obrigatório, inteiro não-negativo; zero é válido, spread singleton funciona e
+named/excedentes/tipos incompatíveis são rejeitados.
+
+### Decisão proposta
+
+Registrar `math.primes` antes do espelho de símbolos. A nativa exige
+exatamente um `Value::Int` não-negativo convertível para `usize` e constrói
+`Content::MathPrimes`. Reproduzir spread e mensagens primárias medidas; não
+criar glyphs nem executar layout no builder.

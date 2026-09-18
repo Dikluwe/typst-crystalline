@@ -534,3 +534,20 @@ público nas formas bare e qualificada.
 de `math.overshell`. Preservar ordem, spread e avaliação única; exigir body,
 aceitar somente annotation posicional opcional e propagar os diagnostics
 medidos. Não montar U+23E0 nem executar layout na avaliação.
+
+## P1444 — primes sintáticos conservam carrier e slots (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O braço `MathAttach` converte primes em texto, funde-o com o sobrescrito e
+coloca top/bottom em `tr`/`br`. Isso produz `tr: "‴""2"` para `x'''^2` e
+conteúdo vazio para `x^'''`, enquanto o vanilla conserva `MathPrimes` e separa
+`t` de `tr`.
+
+### Decisão proposta
+
+`Expr::MathPrimes` constrói `Content::math_primes(count)`. No attach
+sintático, hat/underscore materializam `t`/`b`, primes diretamente ligados à
+base materializam `tr`, e os demais slots ficam `Omitted`. Não concatenar
+primes com top, não converter em texto e não alterar precedência/parser: a
+árvore vigente determina nesting como `x^2'''` e `x^'''`.

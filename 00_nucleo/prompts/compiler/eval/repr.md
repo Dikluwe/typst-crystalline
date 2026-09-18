@@ -915,3 +915,17 @@ Projetar `MathOvershell` como `overshell(body: <content>, annotation?:
 `annotation_explicit` for verdadeiro; seu valor explícito `none` não se
 confunde com omissão. Nesting recorre ao mesmo formatter e a identidade nunca
 é inferida de U+23E0 ou do carrier genérico.
+
+## P1444 — morfologia pública de `primes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla projeta `primes(count: n)` inclusive para zero e para contagens sem
+codepoint dedicado. O cristalino projeta apenas texto quando a sintaxe existe
+e não possui binding qualificado.
+
+### Decisão proposta
+
+Projetar `MathPrimes` sempre como `primes(count: <inteiro>)`. Não substituir
+por glyph, string, sequence ou Debug e não inferir count do texto. Dentro de
+`MathAttach`, cada slot recorre normalmente ao formatter e conserva nesting.

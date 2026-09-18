@@ -3223,3 +3223,17 @@ preserva nome, debug, igualdade, hash, plain-text e filhos. `map_content`
 transforma body e annotation preservando `annotation_explicit`; `map_text`
 mantém a variante. Não inferir `overshell` de U+23E0 nem confundi-lo com os
 outros spreaders ou com `MathUnderover`.
+
+## P1444 — variante pública `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O enum fechado não representa o elemento público `primes`; texto Unicode não
+conserva count, fields, função ou igualdade nominal.
+
+### Decisão proposta
+
+Adicionar `Content::MathPrimes(Arc<MathPrimesElem>)` e
+`Content::math_primes(count)`. Nome/debug/igualdade/hash/plain-text/get_field e
+walkers preservam a identidade e o count. A variante não tem filhos e não é
+inferida de U+2032/U+2033/U+2034/U+2057 ou de repetição textual.

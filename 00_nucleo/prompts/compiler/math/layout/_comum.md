@@ -111,6 +111,20 @@ O transcript de cancel foi selado/materializado em P1291. As novas identidades
 e o contrato de vec P1292 continuam bloqueados até o novo selo explícito dos
 prompts proprietários; não há nova mudança de fase em P1292.
 
+## P1444 — despacho de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O match matemático não possui identidade de primes; a sintaxe chega como
+texto. A geometria pertence ao cluster de attachments, não ao dispatcher.
+
+### Decisão proposta
+
+Adicionar braço estático e magro `Content::MathPrimes(e)` que delega a free
+function do módulo `attach`. Reconstruções de default/style preservam count e
+identidade. Não introduzir vtable, registry, import entities→layout ou lógica
+de glyph no match central (ADR-0109).
+
 ## Propósito
 Recebe `Content::Equation` e produz `Frame`s com `FrameItem::Text` posicionados.
 

@@ -65,3 +65,20 @@ Sintaxe e `math.attach` compartilham o payload. `repr` omite `Omitted`,
 imprime `none` para `ExplicitNone` e `[]` para conteúdo vazio presente.
 Layout materializa somente `Present`; por isso markup vazio ainda reserva
 `SpaceAfterScript`, enquanto omissão e `none` são equivalentes no layout.
+
+## P1444 — carrier público de primes (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O mesmo ficheiro vanilla que declara `AttachElem` declara `PrimesElem` com
+campo público `count: usize`. O cristalino preserva apenas glyphs textuais e
+não consegue expor identidade, count ou igualdade do elemento.
+
+### Decisão proposta
+
+Adicionar neste owner coeso `MathPrimesElem { pub count: usize }`, com
+`Debug/Clone/PartialEq/Hash`. `get_field("count")` devolve o inteiro; qualquer
+outro campo permanece ausente. `plain_text` usa U+2032/U+2033/U+2034/U+2057
+para 1–4, repetição de U+2032 acima de 4 e vazio para zero. O elemento não tem
+filhos; `map_content` e `map_text` conservam count e identidade. Não alojar
+geometria neste ficheiro nem representar primes como `MathText`.

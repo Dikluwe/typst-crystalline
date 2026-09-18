@@ -4,6 +4,21 @@ Hash do Código: 5938f01e
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
+## P1444 — superfície de campo de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, `math.primes(3).fields()` é `(count: 3)`, `has("count")` é
+`true`, `at("count")` é `3`, e `body` permanece não declarado. O fallback
+genérico cristalino procura apenas `body` ao enumerar campos.
+
+### Decisão proposta
+
+Para `Content::MathPrimes`, enumerar somente `count`, nessa ordem, delegando o
+valor ao `get_field` do carrier. `has/at/fields` compartilham essa declaração;
+campo diferente continua ausente e defaults de `at` permanecem gerais. Não
+fabricar `body`, glyph ou campo derivado.
+
 ## P1339 — descoberta das nove rotas complementares
 
 ### Medição anterior à decisão

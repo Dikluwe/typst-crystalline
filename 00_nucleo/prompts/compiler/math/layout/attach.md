@@ -457,3 +457,21 @@ conteúdo, ordem, classes math, baseline e posições relativas.
 
 Casos com nenhum slot, `none`, markup vazio, pre-scripts, post-scripts e
 combinações dos seis slots devem permanecer coerentes com a linguagem.
+
+## P1444 — geometria de primes agrupados (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla resolve count 1–4 para glyphs dedicados U+2032/U+2033/U+2034/U+2057.
+Para zero e acima de quatro, `scripts.rs:73-97` usa U+2032, largura
+`prime_width * (count + 1) / 2` e origem x `prime_width * i / 2`. O
+cristalino apenas entrega texto ao layout e não preserva o carrier.
+
+### Decisão proposta
+
+Uma free function neste módulo realiza `MathPrimesElem`. Para 1–4 usa o glyph
+dedicado; nos demais counts compõe U+2032 com os extents e posições medidos,
+inclusive o frame sem tinta de count zero. Preservar baseline/text-like e
+classe pública sem executar eval. O algoritmo Rust pode divergir, mas número,
+ordem, extents e posições observáveis não. A função também fornece helper
+testável de codepoint/count/extents sem mover lógica para entities.

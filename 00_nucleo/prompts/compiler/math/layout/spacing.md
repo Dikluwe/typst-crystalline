@@ -525,3 +525,16 @@ U+23E0 é `Diacritic`, mas não substitui a classe pública do composto.
 `base_math_class(MathOvershell(e))` e `node_math_class(MathOvershell(e))`
 herdam recursivamente as classes esquerda e direita de `e.body`. Annotation e
 U+23E0 não participam das fronteiras; não derivar classe da geometria.
+
+## P1444 — classe de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`PrimesItem::create` usa propriedades math default; o carrier não herda classe
+de uma base, pois a associação ocorre no `MathAttach` exterior.
+
+### Decisão proposta
+
+`base_math_class(MathPrimes(_))` e `node_math_class(MathPrimes(_))` devolvem
+`Normal` nas duas fronteiras. Não classificar como `Alphabetic`, operador ou
+diacrítico e não derivar classe do codepoint escolhido.

@@ -592,3 +592,16 @@ variante exige braço exaustivo, mas sua realização não pertence a este níve
 Encaminhar `Content::MathOvershell` pelo caminho inline math. Este owner não
 interpreta U+23E0, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
+
+## P1444 — encaminhamento geral de `MathPrimes` (PROPOSTO; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+O dispatcher geral precisa reconhecer a nova variante math, mas não é dono da
+geometria dos glyphs agrupados.
+
+### Decisão proposta
+
+Encaminhar `Content::MathPrimes` pelo caminho inline math. Este owner não
+interpreta count, codepoint, sobreposição ou attachment; a realização pertence
+a `compiler/math/layout/attach.rs`.
