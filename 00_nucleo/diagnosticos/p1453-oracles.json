@@ -1,0 +1,37 @@
+{
+  "schema": "p1453-oracles/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": 1453,
+  "status": "candidate-oracles-unsealed-r1",
+  "attestation": "executado sem atestação de isolamento",
+  "cases": [
+    {
+      "id":"identity",
+      "probes":[
+        {"id":"identity-valid","kind":"eval","expression":"(repr(html.frame), repr(html.frame([x])))","expected_stdout_json":["frame","frame(body: [x])"]},
+        {"id":"identity-missing","kind":"eval-error","expression":"html.frame()","expected_stderr_contains":"missing argument: body"}
+      ]
+    },
+    {"id":"simple","probes":[{"id":"simple-html","kind":"compile-html","source":"#assert.eq(repr(html.frame), \"frame\")\n#html.frame([x])\n","projection":"simple"}]},
+    {"id":"nested","probes":[{"id":"nested-html","kind":"compile-html","source":"#html.frame([#html.frame([x])])\n","projection":"nested"}]},
+    {"id":"rect","probes":[{"id":"rect-html","kind":"compile-html","source":"#html.frame([#rect(width: 10pt, height: 5pt, fill: rgb(\"#ff0000\"))])\n","projection":"rect"}]},
+    {"id":"literal","probes":[{"id":"literal-html","kind":"compile-html","source":"#html.elem(\"frame\")\n","projection":"literal"}]}
+  ],
+  "comparison": {
+    "float_tolerance_pt": 0.001,
+    "simple_bilateral_fields": ["svg_count","frame_count","width_pt","height_pt","viewbox","display","overflow","white_background","visual_payload"],
+    "nested": "same simple projection bilaterally and equal to each product simple projection",
+    "rect": "same rect projection bilaterally plus exact public geometry and red paint",
+    "literal": "same literal projection bilaterally plus one frame and zero svg",
+    "successful_compile_stderr": "bilateral exact SHA-256"
+  },
+  "r1_calibration": {
+    "changed_case": "rect-html only",
+    "hypothesis": "An explicit bilateral rgb value removes the named-color dependency while preserving the paint transport witness.",
+    "r0_candidate_result_sha256": "9ac2d880d915cf7bf66497b00fccf8e6c23c329bc105280639984939c793219e",
+    "named_red_scope": "open independent product divergence; no P1453 credit"
+  },
+  "opaque_cases": ["identity mismatch","timeout","OOM or swap","stream truncation","unreadable HTML","ambiguous or malformed SVG root"],
+  "unknown_never_success": true,
+  "claim_boundary": "Projection derived from P1424 L0 before the P1453 candidate runner; renderer-private structure is intentionally absent."
+}

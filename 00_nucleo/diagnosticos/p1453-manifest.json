@@ -1,0 +1,40 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1453",
+  "status": "candidate-manifest-unsealed-r1",
+  "created_at": "2026-09-18T21:14:00-03:00",
+  "attestation": "executado sem atestação de isolamento",
+  "regime": {
+    "kind": "full-refinement",
+    "reason": "Replace the over-broad P1420 full-SVG-tree lens only for html.frame with the public-language P1424 projection.",
+    "product_read_only": true,
+    "isolation_attestation": false
+  },
+  "causal_baseline": {
+    "repository_head": "1a9998a5a3aa8801856be969b84f046bcecfce9f",
+    "repository_tree": "1f45c3af8381ddc563ad35930a5e3550e67f5f10",
+    "p1452_results_sha256": "769cd0feba8293a7bc030c1b511e48b9338aef30b80bafd1c0b42ffd1040b6f4",
+    "p1452_verification_sha256": "c11eb644c11c6c9f182380bdf6a8e4b87dbf9565ad8976d5d14ce9cde58f8db8"
+  },
+  "identities": {
+    "vanilla_revision": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_product": {"path":"lab/typst-original/target/release/typst","sha256":"eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"},
+    "crystalline_product": {"path":"target/release/typst","sha256":"4c55affaa6486683165d91af507b03f99e0041f18ce5a4fc062cbc6e2b2d05de"}
+  },
+  "authorities": [
+    {"role":"contract-oracle-author","executor":"root sequential authority","writes":["p1453-manifest.json","p1453-contract.json","p1453-oracles.json"],"forbidden":["candidate runner","candidate results","verdict"]},
+    {"role":"adversary","executor":"root sequential authority","writes":["p1453-mutants.json"],"forbidden":["candidate runner","product","verdict"]},
+    {"role":"implementer","requires":"valid preseal","writes":["lab/parity/p1453_html_frame_projection.py"],"forbidden":["sealed inputs","product","verdict"]},
+    {"role":"verifier","requires":"sealed inputs and runner","writes":["p1453-results.json","p1453-report.md","p1453-verification.json"],"forbidden":["repair candidate","edit sealed inputs","Unknown promotion"]}
+  ],
+  "calibration_revision": {
+    "revision": "R1",
+    "hypothesis": "Use explicit rgb(#ff0000) to isolate html.frame paint transport from the independently divergent named red constant.",
+    "r0_result": "Violated only at rect_expected because vanilla named red was #ff4136 and crystalline named red was #ff0000.",
+    "full_corpus_repeated_before_focal_fix": false
+  },
+  "budget": {"projector_revisions":2,"used_revisions":1,"full_campaigns":1,"independent_repetitions":1,"orders":["forward","forward-repeat","reverse"]},
+  "unknown_policy": {"mode":"fail-closed","implicit_success_forbidden":true,"mandatory_unknown_closes_as":"INCONCLUSIVE"},
+  "claim_boundary": "html.frame P1424 public projection plus composition with the unchanged 65 MATCH routes from P1452."
+}

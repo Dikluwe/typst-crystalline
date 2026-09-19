@@ -1,0 +1,48 @@
+{
+  "schema": "p1453-adversarial-mutants/v1",
+  "protocol_version": "tekt-materializacao-segregada/1",
+  "step": "P1453",
+  "status": "candidate-mutants-preseal",
+  "attestation": "executado sem atestação de isolamento",
+  "base_observation": {
+    "identity_valid":true,"missing_diagnostic":true,"svg_count":1,"frame_count":0,"width_pt":5.39,"height_pt":7.238,"viewbox":[0.0,0.0,5.39,7.238],"display":"block","overflow":"visible","white_background":false,"visual_payload":true,"nested_equal":true,"rect_width_pt":10.0,"rect_height_pt":5.0,"rect_viewbox":[0.0,0.0,10.0,5.0],"red_paint":true,"literal_frame_count":1,"literal_svg_count":0
+  },
+  "negative_mutations": [
+    {"id":"M01","field":"identity_valid","value":false,"expected":"Violated"},
+    {"id":"M02","field":"missing_diagnostic","value":false,"expected":"Violated"},
+    {"id":"M03","field":"svg_count","value":0,"expected":"Violated"},
+    {"id":"M04","field":"svg_count","value":2,"expected":"Violated"},
+    {"id":"M05","field":"frame_count","value":1,"expected":"Violated"},
+    {"id":"M06","field":"width_pt","value":0.0,"expected":"Violated"},
+    {"id":"M07","field":"height_pt","value":0.0,"expected":"Violated"},
+    {"id":"M08","field":"viewbox","value":[1.0,0.0,5.39,7.238],"expected":"Violated"},
+    {"id":"M09","field":"viewbox","value":[0.0,0.0,6.0,7.238],"expected":"Violated"},
+    {"id":"M10","field":"display","value":"inline","expected":"Violated"},
+    {"id":"M11","field":"overflow","value":"hidden","expected":"Violated"},
+    {"id":"M12","field":"white_background","value":true,"expected":"Violated"},
+    {"id":"M13","field":"visual_payload","value":false,"expected":"Violated"},
+    {"id":"M14","field":"nested_equal","value":false,"expected":"Violated"},
+    {"id":"M15","field":"rect_width_pt","value":11.0,"expected":"Violated"},
+    {"id":"M16","field":"rect_viewbox","value":[0.0,0.0,10.0,6.0],"expected":"Violated"},
+    {"id":"M17","field":"red_paint","value":false,"expected":"Violated"},
+    {"id":"M18","field":"literal_svg_count","value":1,"expected":"Violated"}
+  ],
+  "positive_controls": [
+    {"id":"P01","private_variant":"use-defs-path","expected":"Preserved"},
+    {"id":"P02","private_variant":"text-node","expected":"Preserved"},
+    {"id":"P03","private_variant":"attribute-order-reversed","expected":"Preserved"},
+    {"id":"P04","private_variant":"symbol-id-randomized","expected":"Preserved"},
+    {"id":"P05","private_variant":"extra-em-style","expected":"Preserved"},
+    {"id":"P06","private_variant":"namespace-alias-extra","expected":"Preserved"}
+  ],
+  "opaque_controls": [
+    {"id":"U01","reason":"IDENTITY_MISMATCH","expected":"Unknown"},
+    {"id":"U02","reason":"TIMEOUT","expected":"Unknown"},
+    {"id":"U03","reason":"OOM_OR_SWAP","expected":"Unknown"},
+    {"id":"U04","reason":"OUTPUT_TRUNCATED","expected":"Unknown"},
+    {"id":"U05","reason":"UNREADABLE_HTML","expected":"Unknown"},
+    {"id":"U06","reason":"AMBIGUOUS_SVG_ROOT","expected":"Unknown"}
+  ],
+  "evaluation": {"orders":["forward","forward-repeat","reverse"],"required_score":1.0,"unknown_credit_only_for_opaque":true},
+  "claim_boundary": "Discriminates only the P1453 projection and its fail-closed boundary."
+}
