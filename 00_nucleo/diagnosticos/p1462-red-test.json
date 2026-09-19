@@ -1,0 +1,196 @@
+{
+  "schema": "tekt-p1462-red-test/v1",
+  "step": "P1462",
+  "role": "independent_a_b_tester",
+  "phase": "post_seal_pre_candidate_red",
+  "verdict": "RED_CONFIRMED",
+  "attestation": {
+    "checkout": "shared",
+    "isolation": "executado sem atestacao de isolamento",
+    "candidate_read": false,
+    "future_implementation_read": false,
+    "mutation_P00_read": false,
+    "product_code_read": false,
+    "test_adapted_after_semantic_run": false
+  },
+  "authority": {
+    "preseal_path": "00_nucleo/diagnosticos/p1462-recovery3-preseal.json",
+    "preseal_sha256": "789b1f1c7e2a2c407edb36041588269844df2b88ff667aa6332ced5016d1a08c",
+    "preseal_verdict": "SEALED",
+    "preseal_causal_commit": "c5bef1306c8c0eaaf3e5b49e1d98ca7d5fd86d97",
+    "contract_path": "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md",
+    "contract_sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+    "frozen_oracles_path": "00_nucleo/diagnosticos/p1462-r2-oraculos-independentes.md",
+    "frozen_oracles_sha256": "24036a4b901d65cc2838dfee641e109a99ce71f38aecbc14e9f2a002a41d3657",
+    "adr_0131_path": "00_nucleo/adr/typst-adr-0131-checkpoints-retomaveis-materializacao.md",
+    "adr_0131_sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc"
+  },
+  "owner_prompts": {
+    "00_nucleo/prompts/compiler/stdlib/format.md": "74ab8a35c81367d351670c2cc2e01c07ba1d6758114499874527832677c7d91d",
+    "00_nucleo/prompts/compiler/eval/rules.md": "0841c74c0d317b5510b11aa583b31f93cb1a15ea8177f5fd762f0fa3d21af3b1",
+    "00_nucleo/prompts/compiler/layout.md": "c4f8fcf4a0d82edfff50646fe64b6ec0fd48cd5c3680d75b8adc09a6e9764de9",
+    "00_nucleo/prompts/compiler/layout/format_options.md": "1e58b389a25615e3bf2eb7d453418fdc7011741f2898a704c17882025c1e4b23",
+    "00_nucleo/prompts/entities/document_format_options.md": "da77427107583126e778a61de20e7b63cdf8f8b7613c11c034a37e7624ad2716",
+    "00_nucleo/prompts/entities/mod.md": "e8d3703c5fbf2315d590cc31449f156ad06964b907a2c7a95bae9f9043993356",
+    "00_nucleo/prompts/entities/layout_types.md": "b41932c1721c914ea57b760f16b2a95222f8e1509176b5ec53f898d94cdb51dc",
+    "00_nucleo/prompts/infra/pipeline.md": "970a7f725b5b687acd3074e694c3d7c297ed2b1a437e884e8dd2ad27b04c0e47",
+    "00_nucleo/prompts/wiring.md": "a7dd4c0ea9c0017bcf69e65aa27abe6897a4b737ecd64c41ec4306194d48ad77",
+    "00_nucleo/prompts/wiring/tests/p1462-format-svg.md": "c4e3d1a34b728c719a091c5f3c6ef62aa94e79bfd12b457eceb75f8092b04738"
+  },
+  "repository_state": {
+    "measured_at": "2026-09-19T17:28:06-03:00",
+    "head": "c5bef1306c8c0eaaf3e5b49e1d98ca7d5fd86d97",
+    "tree": "d87bd84ac164ce016e6c38bb35a4cb52353d2ee7",
+    "head_committed_at": "2026-09-19T17:20:50-03:00",
+    "pre_run_dirty_paths": [
+      "04_wiring/tests/p1462_format_svg.rs"
+    ],
+    "pre_run_git_diff_HEAD_stat": "empty because the sole change was untracked",
+    "productive_or_test_drift_from_preseal_before_authored_test": []
+  },
+  "authored_test": {
+    "path": "04_wiring/tests/p1462_format_svg.rs",
+    "owner": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+    "owner_sha256": "c4e3d1a34b728c719a091c5f3c6ef62aa94e79bfd12b457eceb75f8092b04738",
+    "sha256_frozen_before_candidate": "e1c95a932cb4304192188a81cc30f220287a90fe5d94e2f542272b2fdecaa49f",
+    "header": {
+      "prompt": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+      "prompt_hash": "c4e3d1a34b728c719a091c5f3c6ef62aa94e79bfd12b457eceb75f8092b04738"
+    },
+    "semantic_freeze": "no test changes after the recorded RED run",
+    "subprocess_timeout_seconds": 90,
+    "observer_timeout_seconds": 30
+  },
+  "compile_preflight": {
+    "command": "cargo test -p typst-wiring --test p1462_format_svg --no-run",
+    "exit": 0,
+    "cargo_reported_duration_seconds": 4.86,
+    "executable": "target/debug/deps/p1462_format_svg-195d6cc311fdc8a7",
+    "classification": "harness_compiles"
+  },
+  "semantic_red_run": {
+    "command": "cargo test -p typst-wiring --test p1462_format_svg",
+    "started_at": "2026-09-19T17:26:19-03:00",
+    "cargo_compile_duration_seconds": 0.53,
+    "test_duration_seconds": 38.50,
+    "exit": 101,
+    "binary_path": "target/debug/typst",
+    "binary_sha256": "5274c59ade67b56bdb540480cfeba3431b8feca32cd609d10497e931a88749f7",
+    "counts": {
+      "total": 7,
+      "passed": 2,
+      "failed": 5,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0,
+      "semantic_unknown": 0,
+      "timeouts": 0
+    },
+    "passed_controls": [
+      {
+        "test": "svg_document_option_is_neutral_to_pdf_png_html_and_html_frame",
+        "meaning": "O8 remained neutral under PDF text/metadata, PNG dimensions/pixels, normalized HTML DOM, and normalized html.frame DOM/inner SVG observers"
+      },
+      {
+        "test": "future_siblings_remain_absent_and_p1357_overlay_is_canonical",
+        "meaning": "O9 public siblings are absent and the canonical P1357 normalization overlay is exact"
+      }
+    ],
+    "expected_failures": [
+      {
+        "test": "public_identity_default_and_manual_construction",
+        "witness": "all 12 direct/std/alias probes over four profiles report that module format does not contain svg; manual construction reaches the same missing-member error instead of cannot be constructed manually",
+        "contract": ["O1", "O2"],
+        "mutation_classes": ["M01", "M02", "M03"]
+      },
+      {
+        "test": "set_validation_uses_normal_errors_and_no_ignored_target_warning",
+        "witness": "unknown named, integer, positional, and duplicate invalid forms are not rejected through the frozen normal-error contract; observed baseline warning is set: target '' ainda não suportado",
+        "contract": ["O3"],
+        "mutation_classes": ["M04"]
+      },
+      {
+        "test": "root_is_accepted_and_two_distinct_containers_are_rejected",
+        "witness": "top-level explicit true remains compact; block and box nested cases exit successfully, produce artifacts, and emit the unsupported-target warning instead of the exact nested diagnostic",
+        "contract": ["O4"],
+        "mutation_classes": ["M08", "M14"]
+      },
+      {
+        "test": "document_cascade_and_caller_override_select_svg_serialization",
+        "witness": "document-true, order-false-true, and order-true-empty fail to select pretty; explicit caller override controls remain discriminating",
+        "contract": ["O3", "O5", "O6"],
+        "mutation_classes": ["M05", "M06", "M07", "M10", "M11"]
+      },
+      {
+        "test": "pretty_and_compact_are_valid_xml_with_same_source_morphology",
+        "witness": "the byte-identical styled-root source lacks requested pretty indentation on the document-driven side, before the strict same-source morphology comparison can close",
+        "contract": ["O7"],
+        "mutation_classes": ["M18"]
+      }
+    ],
+    "classification": "reproducible_discriminatory_RED_on_sealed_baseline"
+  },
+  "coverage": {
+    "O1": "direct, std, and alias identity/repr/default probes in default, a11y-extras, html, and html+a11y profiles",
+    "O2": "manual call must fail with the exact public construction diagnostic",
+    "O3": "unknown named, non-boolean, positional, duplicate, boolean acceptance, and empty-rule neutrality",
+    "O4": "top-level positive plus block and box negatives with exact error and no artifact",
+    "O5": "both lexical orders, isolated empty, and true-to-empty neutrality",
+    "O6": "document/caller matrix including absent caller and both explicit conflict directions",
+    "O7": "strict balanced XML and compact/pretty canonical morphology from the same byte-identical styled-root source",
+    "O8": "separate public observers for PDF, PNG, HTML, and html.frame with per-subprocess timeout attribution",
+    "O9": "public absence of format.png, format.pdf, and format.html plus canonical normalized inventory overlay",
+    "O10": "carrier/fail-closed structural attack remains the sealed preseal obligation; it is not falsely credited to this black-box wiring test"
+  },
+  "mutation_mapping": {
+    "runtime_test": {
+      "M01": "O1",
+      "M02": "O1/O6",
+      "M03": "O2",
+      "M04": "O3",
+      "M05": "O6 document true",
+      "M06": "O3/O5 true-to-empty",
+      "M07": "O5 both orders",
+      "M08": "O4 root/block/box",
+      "M10": "O6 document true with caller absent",
+      "M11": "O6 explicit conflicts",
+      "M12": "four O8 subcases",
+      "M13": "O9 public sibling absence and normalized inventory",
+      "M14": "O4 no artifact after nested error",
+      "M18": "O7 same-source morphology"
+    },
+    "sealed_preseal_only": {
+      "M09": "O10 carrier fail-closed",
+      "M15": "ownership and precedence placement",
+      "M16": "L3 content/style-key boundary",
+      "M17": "V15/V26 ownership and nucleus integrity"
+    },
+    "preseal_result": "18/18 Violated, score 1.0, zero semantic Unknown"
+  },
+  "canonical_inventory": {
+    "raw_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 43},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 43},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 43},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 43}
+    },
+    "correction": {
+      "meaning": "coalesce the semantic alias format.svg.pretty before comparison",
+      "delta": {"BOTH_PRESENT": 0, "VANILLA_ONLY": 0, "CRYSTALLINE_ONLY": -1}
+    },
+    "normalized_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42}
+    },
+    "normalized_siblings": [],
+    "scope_note": "the integration test pins the canonical correction and public sibling absence; the full normalized P1357 measurement remains the independently sealed preseal evidence"
+  },
+  "limits": [
+    "This receipt proves a RED baseline and does not certify a future candidate.",
+    "No conclusion is made about global SVG or Typst parity beyond the frozen P1462 contract.",
+    "M09 and M15-M17 are not misrepresented as black-box kills; their evidence is the sealed structural/preseal attack.",
+    "The test hash is frozen and must not be adapted after candidate implementation appears."
+  ]
+}

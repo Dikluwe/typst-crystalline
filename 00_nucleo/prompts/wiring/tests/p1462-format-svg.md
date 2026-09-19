@@ -1,5 +1,5 @@
 # Prompt L0 — `wiring/tests/p1462-format-svg`
-Hash do Código: 00000000
+Hash do Código: 52f77a04
 
 **Estado:** CONTRATO DE TESTE P1462 CONFIRMADO — sem consumer e com hash
 sentinela não selado até a materialização posterior ao novo selo R2.
