@@ -276,7 +276,7 @@ StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
 argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
 altera `size_explicit`, fields ou repr do carrier.
 
-## P1462 — set rule `format.svg` (CONFIRMADA; aguarda selo R2)
+## P1462 — set rule `format.svg` (MATERIALIZADA E CERTIFICADA)
 
 ### Medição anterior à decisão
 
@@ -313,9 +313,43 @@ top-level e a mensagem de container pertencem ao owner puro
 `compiler/layout/format_options`; L3 apenas orquestra sua aplicação.
 
 Preservar todas as demais set/show rules, a ordem da cascata e a política de
-named desconhecido. `format.png`, `format.pdf`, `format.html` e qualquer outro
-campo continuam ausentes. Como a nova set rule altera a linguagem pública,
-nenhum código ou teste RED é autorizado antes da confirmação humana posterior
-ao commit causal P1462. Essa confirmação foi recebida em 2026-09-19; a
-correção R2 acima é paridade medida e segue fluxo contínuo L0-primeiro por
-ADR-0127, sem reutilizar o selo R1 inconclusivo.
+named desconhecido. `format.pdf`, `format.html` e qualquer outro campo não
+contratado continuam ausentes. A confirmação P1462 foi recebida em 2026-09-19
+e a materialização foi certificada; P1463 não reabre essa semântica.
+
+## P1463 — set rule `format.png` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, somente o target
+pontuado `format.svg` possui braço estrutural. `format.png` cai no fallback de
+target textual vazio, emite warning e não altera opções. No vanilla ratificado,
+`#set format.png(ppi: 72)` e `ppi: 1.5` são aceitos; string e boolean falham com
+`expected float, found <tipo>`; named desconhecido, positional e duplicado
+falham com os diagnósticos normais. `#set format.png()` é neutro.
+
+### Contrato
+
+Reconhecer estruturalmente somente `format.png`. Aceitar zero ou um named
+`ppi`; `Value::Int` é convertido para `f64` e `Value::Float` é preservado.
+Quando presente, inserir `Value::Float` sob a chave canônica
+`format.png.ppi`. Quando ausente, não inserir chave nem materializar 144.0,
+preservando qualquer decisão cascaded anterior.
+
+Argumento positional, named desconhecido/duplicado e variante não numérica
+falham antes de alterar `StyleChain`. A mensagem de tipo usa `float` como
+esperado e o nome público da variante encontrada. Valores finitos zero e
+negativos não são rejeitados neste owner: o vanilla os aceita. Não há alegação
+P1463 para não finitos cujo oráculo aborta.
+
+Este owner não decide top-level, não lê CLI, não divide por 72 e não
+rasteriza. A fronteira de container pertence ao collector puro; a conversão
+da flag externa pertence à pipeline. Preservar integralmente `format.svg` e
+as demais regras.
+
+### Aceitação e gate
+
+Cobrir integer/float, ausência, repetição/inversão, erros de named/tipo/
+positional/duplicado e ausência do warning antigo. A nova set rule pública
+aguarda confirmação humana posterior ao commit causal P1463; antes dela não
+alterar consumer, teste RED ou header.

@@ -3,7 +3,7 @@ Hash do Código: b68560a8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -904,7 +904,7 @@ Falha de layout/render da ilha aborta a compilação; não apagar, substituir po
 texto ou emitir `<frame>`. A nova fase foi confirmada pelo dono em 2026-09-16
 e fica limitada pelo selo P1424.
 
-## P1462 — extração e resolução de `format.svg.pretty` (CONFIRMADO; aguarda selo R2)
+## P1462 — extração e resolução de `format.svg.pretty` (MATERIALIZADO E CERTIFICADO)
 
 ### Medição anterior à decisão
 
@@ -968,7 +968,69 @@ pertinente, não fixar os bytes auxiliares como contrato. Mutantes obrigatórios
 colapsam `None` cedo, invertem a precedência, ignoram documento, deixam regra
 nested passar e vazam a opção para outro target.
 
-A nova API pública e a inserção da extração antes do documento completo são
-mudanças de contrato/fase. A confirmação humana explícita posterior ao commit
-causal P1462 foi recebida em 2026-09-19; código e teste RED aguardam o novo selo
-discriminatório R2.
+A nova API pública e a extração antes do documento completo foram
+materializadas e certificadas depois da confirmação humana de 2026-09-19.
+
+## P1463 — resolução de `format.png.ppi` e override CLI (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, todas as fachadas
+PNG convergem para
+`compile_to_png_bytes_with_timings_full_error_and_features`, que constrói
+`RenderOptions::default()` separadamente nos ramos com e sem fontes. Logo a
+pipeline usa sempre 2 pixels por ponto e não consulta
+`document.format_options.png` nem caller externo.
+
+No vanilla ratificado, o override CLI é convertido por `ppi / 72.0`, enquanto
+o valor documental é entregue diretamente como pixels por ponto. Numa página
+de 72 pt × 36 pt, documento `ppi: 72` produziu 5184 × 2592; CLI `--ppi 72`
+produziu 72 × 36. Essa assimetria medida é contrato deste pin e não deve ser
+normalizada por intuição de unidade.
+
+### API e resolução
+
+Adicionar a entry point pública explícita:
+
+```rust
+pub fn compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: Features,
+    ppi_override: Option<f64>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings)
+```
+
+As fachadas PNG antigas preservam assinaturas e delegam `None`. A entry point
+vigente com `features` também delega `None`; L4 chama a nova entry point.
+Depois de obter o `PagedDocument`, resolver exatamente:
+
+```text
+Some(cli_ppi) -> cli_ppi / 72.0
+None          -> document.format_options.png.ppi
+```
+
+Converter o resultado para `f32` somente ao construir um único
+`RenderOptions { pixel_per_pt, render_bleed: false }`, usado identicamente nos
+ramos `export_png` e `export_png_with_fonts`. Não recalcular default por ramo,
+não consultar regra depois do documento e não fazer o documento vencer
+`Some`.
+
+Este fio aplica o Núcleo `format-option-precedence` pinado acima. A conversão
+`/72` é específica do caller PNG e permanece neste prompt, não no Núcleo. O
+exporter `infra/export/render.rs` continua ignorante de CLI/documento e não
+muda. O caminho continua exportando somente a primeira página.
+
+### Neutralidade e aceitação
+
+PPI não altera eval, layout em pontos, PDF, SVG, HTML, `pretty`, `compact`,
+tags, features, timings nem resolução de fontes. Testes de pipeline cobrem
+default documental, documento 72/2/1.5, CLI 72/288, precedência explícita,
+zero/negativo finito quanto à dimensão segura, ramos com/sem fontes e
+neutralidade de outros targets. Não congelar bytes PNG nem alegar não finitos.
+
+Mutantes obrigatórios dividem o documento por 72, deixam de dividir CLI,
+invertem precedência, colapsam `None`, aplicam opções só num ramo de fontes ou
+vazam para outro target. A nova API e o default efetivo aguardam confirmação
+humana posterior ao commit causal P1463 antes de consumer/header/teste RED.

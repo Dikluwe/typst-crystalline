@@ -6,19 +6,19 @@ title = "Precedência entre opções explícitas e opções do documento"
 [[claims]]
 id = "explicit-overrides-document"
 level = "must"
-statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a opção de exportação explícita do caller, representada por Some(bool), deve vencê-la."
+statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a opção de exportação explícita do caller, representada por Some(T), deve vencê-la."
 
 [[claims]]
 id = "absence-defers-to-document"
 level = "must"
-statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a ausência de opção explícita, representada por None, deve ser preservada até essa opção documental poder ser consultada."
+statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a ausência de opção explícita, representada por None, deve ser preservada até essa opção documental poder ser consultada, sem inventar valor do tipo T."
 
 [[claims]]
 id = "default-after-document"
 level = "must"
-statement = "Quando há opção homóloga no documento, o default do formato só deve ser aplicado se caller e documento não fornecerem valor; para format.svg.pretty esse default é false."
+statement = "Quando há opção homóloga no documento, o default definido pelo formato só deve ser aplicado se caller e documento não fornecerem valor; cada prompt proprietário fixa o próprio default e qualquer transformação de unidade."
 
 [[claims]]
 id = "no-early-collapse"
 level = "must-not"
-statement = "No fio de uma opção homóloga suportada pelo documento, uma camada anterior a esse encontro não deve colapsar ausência em false nem em outro default final."
+statement = "No fio de uma opção homóloga suportada pelo documento, uma camada anterior a esse encontro não deve colapsar ausência em false, zero nem em outro default final."

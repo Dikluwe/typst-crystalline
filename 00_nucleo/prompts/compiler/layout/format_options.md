@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: aa3f4ba1
 
-**Estado:** CONTRATO P1462 CONFIRMADO — sem consumer; hash sentinela não
-selado até a materialização posterior ao novo selo discriminatório R2.
+**Estado:** P1462 MATERIALIZADO E CERTIFICADO; CONTRATO P1463 PROPOSTO —
+AGUARDA CONFIRMAÇÃO ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -84,7 +84,43 @@ obrigatória inverte precedência, faz regra vazia escrever `false`, ignora
 nested, trata nested como root, muda o default e aceita valor não booleano.
 Unknown bloqueia.
 
-A operação pública e a nova etapa de extração antes de selar o documento são
-mudanças de API/fase. A confirmação humana posterior ao commit causal P1462
-foi recebida em 2026-09-19; consumer, teste RED e header aguardam o novo selo
-discriminatório R2.
+A operação pública e a etapa de extração foram materializadas e certificadas
+em P1462 depois da confirmação humana de 2026-09-19.
+
+## P1463 — extração root de `format.png.ppi` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+O consumer P1462 reconhece somente `format.svg.pretty`. O vanilla aceita
+`format.png.ppi` no root, aplica a última decisão lexical, trata set rule vazia
+como neutra e rejeita a ocorrência dentro de container com a mesma mensagem
+já contratada para SVG.
+
+### Contrato
+
+Ampliar as duas travessias existentes para reconhecer também a chave canônica
+`format.png.ppi`. A travessia root aceita `Value::Float`, atualiza
+`options.png.ppi` em ordem lexical e começa do default 144.0. A travessia
+exaustiva conta ocorrências PNG e SVG; qualquer ocorrência de qualquer formato
+fora dos envelopes root causa exatamente:
+
+```text
+format set rules are not allowed inside of containers
+```
+
+Uma regra vazia não produz chave e, portanto, não apaga valor anterior. Uma
+chave PNG interna com variante diferente de `Value::Float` falha fechada com
+diagnóstico atribuível; nunca volta a 144.0. Chaves futuras PDF/HTML continuam
+neutras até seus L0s.
+
+Não misturar os campos: regra SVG não altera PNG e regra PNG não altera SVG.
+O owner continua puro, não conhece CLI, unidade PPI, `RenderOptions` ou target
+selecionado. Coleção num único passe ou helpers por chave são mecânica livre;
+ordem, default, isolamento por campo e fronteira root são contrato.
+
+### Aceitação e gate
+
+Testar ausência/default, integer já convertido em eval, float, repetição nas
+duas ordens, regra vazia, composição SVG+PNG, containers distintos, tipo
+interno impossível e chave futura neutra. A ampliação do retorno público
+aguarda confirmação humana posterior ao commit causal P1463.

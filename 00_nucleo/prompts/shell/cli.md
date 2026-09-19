@@ -1128,3 +1128,50 @@ caminho de documento. A opção pertence somente a `eval`, não altera formato,
 pretty, features ou CA, e não introduz `--target`: P1401 usa target paginado.
 L2 apenas parseia e transporta. Help, rejeição de repetição e transporte são a
 aceitação deste owner. Flag e campo públicos aguardam confirmação explícita.
+
+## P1463 — flag `compile/watch --ppi` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, `CompileArgs` e
+`CompileIntent` não contêm `ppi`; `compile --ppi 72` termina no parser com
+exit 2. No vanilla ratificado, `CompileArgs.ppi` é `Option<f64>`, o help
+anuncia `--ppi <PPI>` e descreve 144 como default do formato. Ausência é
+preservada; a conversão PPI→pixels por ponto ocorre fora de L2.
+
+### Contrato público
+
+Acrescentar a `CompileArgs`:
+
+```rust
+#[arg(long = "ppi")]
+ppi: Option<f64>,
+```
+
+e transportar sem transformação:
+
+```rust
+pub struct CompileIntent {
+    // campos existentes
+    pub ppi: Option<f64>,
+}
+```
+
+Como `Watch` reutiliza `CompileArgs`, a flag existe em `compile`, `watch`, seus
+aliases e a grafia legada normalizada. Não pertence a `eval`, `query`, `info`,
+`fonts`, `init` ou `completions`. Ausência produz `None`; valor numérico
+produz `Some(f64)`. L2 não aplica 144, não divide por 72, não conhece
+`RenderOptions` e não condiciona parsing ao formato final.
+
+O parser aceita o domínio `f64` normal do vanilla, inclusive zero e negativos
+finitos; texto inválido termina com exit 2. P1463 não usa não finitos como
+oráculo positivo porque `+inf` aborta no raster vanilla pinado. A flag é
+aceita para targets não-PNG e permanece neutra depois de L2.
+
+### Aceitação e gate
+
+Testes de L2 cobrem help, ausência, inteiro, fração, negativo com `=`, texto
+inválido, compile/watch/legado e ausência nos comandos alheios. Não provar
+dimensões ou precedência em L2. A nova flag e o campo público exigem
+confirmação humana posterior ao commit causal P1463 antes de código, teste RED
+ou header.

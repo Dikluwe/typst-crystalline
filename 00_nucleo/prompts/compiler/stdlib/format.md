@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
 Hash do Código: ac99324c
 
-**Estado:** P1461 MATERIALIZADO; CONTRATO P1462 CONFIRMADO — sentinela não
-selada até a materialização posterior ao novo selo discriminatório R2.
+**Estado:** P1461/P1462 MATERIALIZADOS E CERTIFICADOS; CONTRATO P1463
+PROPOSTO — AGUARDA CONFIRMAÇÃO ADR-0127.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -68,15 +68,15 @@ para este prompt (ADR-0129).
 O módulo P1461 é deliberadamente incompleto. Seu scope vazio é o estado
 contratado desta unidade, não uma alegação de fecho de `format.*`.
 
-- P1462 completa `format.svg` e suas opções;
-- P1463 completa `format.png` e `ppi`;
+- P1462 completou `format.svg` e suas opções;
+- P1463 propõe completar `format.png` e `ppi`;
 - P1464 completa `format.pdf` e seus cinco membros;
 - P1465 completa `format.html`, `pretty`, gate `html` e seus membros.
 
-Até esses passos terem L0 e autorização próprios, `format.svg`, `format.png`,
-`format.pdf`, `format.html` e todos os seus descendentes permanecem ausentes.
-É proibido criar filhos, aliases globais ou passthroughs para antecipar a
-contagem dos passos seguintes.
+`format.svg` está materializado. Até os passos restantes terem L0 e autorização
+próprios, `format.png`, `format.pdf`, `format.html` e seus descendentes
+permanecem ausentes. É proibido criar filhos, aliases globais ou passthroughs
+para antecipar a contagem dos passos seguintes.
 
 ## Aceitação linguística limitada
 
@@ -99,7 +99,7 @@ proveniência bloqueia; nunca é convertido em sucesso.
 O gate humano de P1461 foi satisfeito e a raiz pública vazia foi materializada
 e certificada. Esse fato não autoriza qualquer filho reservado.
 
-## P1462 — `format.svg` (CONFIRMADO; aguarda selo R2)
+## P1462 — `format.svg` (MATERIALIZADO E CERTIFICADO)
 
 ### Medição anterior à decisão
 
@@ -147,5 +147,43 @@ Nos quatro perfis públicos, `type(format.svg)` é `function`, `repr` é `svg`,
 `format.svg.pretty` é `false`, alias e `std.format.svg` preservam a identidade,
 e chamada direta produz o diagnóstico medido. Membro não contratado continua
 ausente. A confirmação humana posterior ao commit causal P1462 foi recebida em
-2026-09-19. A materialização aguarda o novo selo discriminatório R2; o ensaio
-R1 inconclusivo não autoriza alteração de consumer ou header de linhagem.
+2026-09-19. O selo, candidato, ataques e veredito final foram concluídos no
+mesmo dia; P1463 não reabre esse contrato.
+
+## P1463 — `format.png` e namespace `ppi` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, o módulo contém
+somente `svg`; `format.png` falha com `module format does not contain png`.
+No vanilla ratificado,
+`lab/typst-original/crates/typst-render/src/format.rs:81-96` expõe o elemento
+settable `png`, com namespace `ppi: float = 144.0`. O probe
+`repr((type(format.png), format.png, format.png.ppi))` produz
+`(function, png, 144.0)`, e `format.png()` falha com
+`cannot be constructed manually`.
+
+### Contrato do filho
+
+A factory acrescenta exatamente um segundo membro chamado `png`. O valor é
+uma função/elemento nominalmente `png`, não construtível, com namespace
+público contendo somente `ppi == Value::Float(144.0)`. Alias lexical e
+`std.format.png` preservam identidade, nome e namespace. O filho existe nos
+quatro perfis e não depende de target, `html` ou `a11y-extras`.
+
+Este owner legitima somente descoberta, identidade, namespace/default e
+construção proibida. Validação da set rule pertence a
+`00_nucleo/prompts/compiler/eval/rules.md`; extração a
+`00_nucleo/prompts/compiler/layout/format_options.md`; resolução e transporte
+aos owners L2–L4. Não fazer I/O, rasterizar, consultar documento ou converter
+unidades aqui.
+
+P1463 não cria `format.pdf`, `format.html`, aliases globais, campos além de
+`ppi` nem feature gates. P1464 e P1465 continuam os donos reservados.
+
+### Aceitação e gate
+
+Exigir tipo, nome, default float, alias/`std`, construção proibida e ausência
+dos siblings futuros nos quatro perfis. A ampliação pública exige confirmação
+humana posterior ao commit causal P1463. Antes dela este texto não autoriza
+teste RED, consumer nem alteração de header de linhagem.

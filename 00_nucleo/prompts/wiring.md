@@ -3,7 +3,7 @@ Hash do Código: 715a11d4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
@@ -628,7 +628,7 @@ não inspeciona seletores e não duplica fases do compilador. Falha de leitura o
 compilação retorna exit 1 pelos diagnósticos normais; erro de parsing CLI segue
 exit 2 em L2. O fio público aguarda confirmação ADR-0127.
 
-## P1462 — preservar ausência de `pretty` no braço SVG (CONFIRMADO; aguarda selo R2)
+## P1462 — preservar ausência de `pretty` no braço SVG (MATERIALIZADO E CERTIFICADO)
 
 ### Medição anterior à decisão
 
@@ -652,5 +652,34 @@ exit codes e diagnósticos não mudam. L4 não lê `PagedDocument`, não interpr
 set rules e não formata SVG.
 
 A mudança de default observável no caminho SVG e a chamada de API nova foram
-confirmadas pelo humano em 2026-09-19, depois do commit causal P1462. Código e
-teste RED aguardam o novo selo discriminatório R2.
+confirmadas pelo humano em 2026-09-19, depois do commit causal P1462, e a
+materialização foi certificada no mesmo dia.
+
+## P1463 — transportar ausência/valor de `ppi` somente ao braço PNG (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`,
+`run_compile_observed` destrutura `CompileIntent` sem `ppi` e os dois caminhos
+PNG chamam a entry point que usa `RenderOptions::default()`. Não há valor a
+preservar entre L2 e L3.
+
+### Decisão proposta
+
+Desestruturar `ppi: Option<f64>` sem aplicar default ou converter unidade. Nos
+dois ramos PNG — com e sem `timings_json` — chamar a entry point L3 de override
+parcial e passar o mesmo `ppi`. `None` delega ao documento; `Some(value)` é
+override explícito e vence o documento segundo o Núcleo
+`format-option-precedence` pinado acima.
+
+PDF, SVG e HTML aceitam a presença sintática da flag em L2, mas não recebem o
+valor nem mudam comportamento. `watch` reutiliza o mesmo `CompileIntent` e a
+mesma composição por iteração. L4 não divide por 72, não lê
+`PagedDocument.format_options`, não constrói `RenderOptions`, não valida
+finitude e não inspeciona bytes PNG.
+
+Preservar integralmente `pretty`, `compact`, `PdfTags`, feature HTML,
+serialização HTML, `document_id`, timings, publicação atômica de watch e
+códigos de saída. A nova chamada pública e o transporte do campo aguardam
+confirmação humana posterior ao commit causal P1463 antes de consumer/header/
+teste RED.
