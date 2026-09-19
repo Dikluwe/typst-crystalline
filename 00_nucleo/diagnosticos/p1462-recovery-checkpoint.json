@@ -1,0 +1,305 @@
+{
+  "schema": "p1462-recovery-checkpoint/v1",
+  "step": 1462,
+  "recovery_authority": "ADR-0131",
+  "verdict": "NOT_SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T17:00:24-03:00",
+  "scope": {
+    "performed": [
+      "read-only audit of the frozen R4 bundle and complete direct checkpoint pins",
+      "identity-only execution of the frozen R4 transport runner",
+      "one exact P1357 inventory execution across default, a11y-extras, html and html+a11y"
+    ],
+    "not_performed": [
+      "no mutation oracle or campaign order was rerun",
+      "no interrupted variant was retried",
+      "no frozen input, prompt, code or test was edited"
+    ]
+  },
+  "provenance": {
+    "verification_head": "68542c0c0d912ea33909209ed7131c83e3418a59",
+    "verification_tree_before_outputs": "590f85207e4252ba5e543da81fbc1ca5e020c049",
+    "tracked_and_untracked_status_before_outputs": "clean",
+    "campaign_baseline_commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "campaign_baseline_tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "campaign_baseline_is_ancestor_of_verification_head": true,
+    "product_paths_changed_from_campaign_baseline_to_verification_head": [],
+    "candidate_productive_patch_present": false,
+    "candidate_test_consumer_present": false,
+    "candidate_test_path": "04_wiring/tests/p1462_format_svg.rs",
+    "p1357_positive_reference": {
+      "kind": "ephemeral frozen R4 P00 pre-code reference; not a repository candidate",
+      "path": "/tmp/p1462-r4-mutations/artifacts/P00/typst",
+      "sha256": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4"
+    }
+  },
+  "governing_inputs": {
+    "adr_0131": {
+      "commit": "68542c0c0d912ea33909209ed7131c83e3418a59",
+      "path": "00_nucleo/adr/typst-adr-0131-checkpoints-retomaveis-materializacao.md",
+      "sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc"
+    },
+    "p1462_step_with_recovery_addendum": {
+      "path": "00_nucleo/materialization/typst-passo-1462.md",
+      "sha256": "197d04ab12f6c01476b32d3efb842bf714b7912319a660f1278cf8d3214735e8"
+    },
+    "r2_manifest": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+      "sha256": "9de72872a6113b35464ae17da0f3f7dd59a70acbd5956426108e233e3bd66e8f"
+    },
+    "r2_contract": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md",
+      "sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2"
+    },
+    "r2_independent_oracles": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-oraculos-independentes.md",
+      "sha256": "24036a4b901d65cc2838dfee641e109a99ce71f38aecbc14e9f2a002a41d3657"
+    },
+    "r4_catalog": {
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutantes.md",
+      "sha256": "d529442c720c0e52ccda8f58c3cfe4e65a9bad60d035d5a2a04c26a56bab74b6"
+    },
+    "r4_transport_runner": {
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutation-runner.py",
+      "sha256": "719f49740558960bfcfe70e0448e47b9e0689b93907eff2c1356ec646db7f329"
+    },
+    "r4_fixtures": {
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutation-fixtures.json",
+      "sha256": "feb346f9455ddc93c72669f5938d3afb4d7d4997e3b71225fbdf28b7a215fa8a"
+    },
+    "l0_and_nucleus": {
+      "all_raw_hashes_match_r2_manifest": true,
+      "prompt_count": 10,
+      "nucleus_raw_sha256": "ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295",
+      "nucleus_effective_v26_sha256": "51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f",
+      "divergences": []
+    }
+  },
+  "immutable_prior_verdicts": {
+    "preserved_unchanged": true,
+    "r2_mutation_results": {
+      "verdict": "NOT_SEALED",
+      "sha256": "a2ab11a0e5d00389869a7235139e9f4811fb859107de1493913857d95c48fedc"
+    },
+    "r2_preseal": {
+      "verdict": "NOT_SEALED",
+      "sha256": "8897c2e7cf244fd49023032f8a766315e8e67e01d25c36a3dd1d8c46d47a9b3f"
+    },
+    "r3_mutation_results": {
+      "verdict": "NOT_SEALED",
+      "sha256": "42b100f967b627fd681d27faf4050d56f68d4fa1a27d7d8259f00fba8b46a7fc"
+    },
+    "r3_preseal": {
+      "verdict": "NOT_SEALED",
+      "sha256": "9ba653a23c8ae0c0f058bffff25340dbae213604a6ac9d2e998cc833ebd67259"
+    },
+    "r4_mutation_results": {
+      "verdict": "NOT_SEALED",
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutation-results.json",
+      "sha256": "9ff64d94bff103553d26862b8c97565408bd1ca7e022f77cbb7a8cda8fac3011"
+    },
+    "r4_preseal": {
+      "verdict": "NOT_SEALED",
+      "path": "00_nucleo/diagnosticos/p1462-r4-preseal.json",
+      "sha256": "5bc0c82d6432bff343272db34ab44e922ff993a3e8e612d2e25c3e08182e1854"
+    }
+  },
+  "r4_bundle_identity_audit": {
+    "command": "python3 00_nucleo/diagnosticos/p1462-r4-mutation-runner.py --fixtures 00_nucleo/diagnosticos/p1462-r4-mutation-fixtures.json --bundle-root /tmp/p1462-r4-mutations",
+    "exit_code": 0,
+    "verified": true,
+    "note": "identity verification only; no oracle was executed",
+    "reference_count": 1,
+    "mutant_count": 18,
+    "common_rebased_variant_count": 19,
+    "exact_p00_to_mutant_deltas_verified": true,
+    "exact_r3_to_r4_common_delta_verified": true,
+    "binary_identity_mode_and_size_verified": true,
+    "editable_source_or_binary_hardlinks_found": 0
+  },
+  "direct_checkpoint_audit": {
+    "source": {
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutation-results.json",
+      "sha256": "9ff64d94bff103553d26862b8c97565408bd1ca7e022f77cbb7a8cda8fac3011"
+    },
+    "audit_method": "for P00 then M01-M18, compare fixture source-tree and binary identities with the extant direct report and ledger; recompute report, ledger, binary, receipt-set, overall-vector and case-vector hashes",
+    "checkpoint_pin_count": 19,
+    "checkpoint_pin_index_algorithm": "SHA-256 of ordered P00,M01..M18 lines '<id> <source-tree-sha256> <binary-sha256> <report-sha256> <ledger-sha256>\\n'",
+    "checkpoint_pin_index_sha256": "74fca53239196bff0eaba73defed5a55df378797ccc3b954b55aa098c2d87ab2",
+    "fixture_source_roots_match": true,
+    "fixture_binary_sha256_match": true,
+    "frozen_oracle_sha256_match": true,
+    "frozen_carrier_probe_sha256_match": true,
+    "all_reports_and_ledgers_present": true,
+    "all_accidental_unknown_false": true,
+    "receipt_set": {
+      "root": "/tmp/p1462-r4-preseal-receipts",
+      "file_count": 75,
+      "index_algorithm": "SHA-256 of sorted lines '<file-sha256>  <relative-path>\\n'",
+      "index_sha256": "a9029c031425f238e13411962ea98b6c5fb556e2a5ad518e83b8cd56b3659aba"
+    },
+    "classification_vector": {
+      "P00": "Preserved",
+      "M01": "Violated",
+      "M02": "Violated",
+      "M03": "Violated",
+      "M04": "Violated",
+      "M05": "Violated",
+      "M06": "Violated",
+      "M07": "Violated",
+      "M08": "Violated",
+      "M09": "Violated",
+      "M10": "Violated",
+      "M11": "Violated",
+      "M12": "Violated",
+      "M13": "Violated",
+      "M14": "Violated",
+      "M15": "Violated",
+      "M16": "Violated",
+      "M17": "Violated",
+      "M18": "Violated"
+    },
+    "overall_vector_sha256": "0cae2dd1aa4b4480d1635ef5233c1a4ea76c85eede32fc449cbd66e9eb302235",
+    "case_classification_vectors_sha256": "f6f32f8f657b4f6468cab53c1e15c5bb96d391f0a89d3b4b366e309434351db5",
+    "reference_preserved": true,
+    "mutants_violated": 18,
+    "valid_denominator": 18,
+    "coverage": "18/18",
+    "mutation_score": 1.0,
+    "semantic_unknown_count": 0,
+    "receives_recovery_checkpoint_credit_under_adr_0131": true
+  },
+  "prior_external_interruption": {
+    "unit": "direct_repeat/M12",
+    "state_under_adr_0131": "Interrupted",
+    "semantic_state": null,
+    "credit": false,
+    "reason_code": "external-execution-limit-interruption",
+    "last_event": "O1-identity-profiles/default-alias started",
+    "last_event_at_utc": "2026-09-19T19:45:16.379107+00:00",
+    "ledger_sha256": "5caa2f51e2955ffc87a12ecf97faabdcafb5d3bcb9c00bd4bcb70665b39e2bd4",
+    "transport_exit_code_after_finalizer_interrupt": 130,
+    "process_alive_at_recovery_audit": false,
+    "rerun_or_resume_performed": false,
+    "interpretation": "Interrupted is an execution state and is not counted as semantic Unknown; it does not invalidate the separately complete direct vector"
+  },
+  "p1357_exact_gate": {
+    "command": "python3 00_nucleo/diagnosticos/p1357-harness.py inventory --vanilla-enumerator lab/typst-original/target/release/p1140-inventory --crystalline-enumerator lab/surface-inventory/target/release/surface-inventory-p1140 --vanilla-binary lab/typst-original/target/release/typst --crystalline-binary /tmp/p1462-r4-mutations/artifacts/P00/typst --vanilla-sha eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f --crystalline-sha 2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4 --seeds lab/surface-inventory/extra_seeds.json --raw-dir /tmp/p1462-recovery-p1357-raw --timeout 900 --output /tmp/p1462-recovery-p1357.json",
+    "execution_count": 32,
+    "execution_exit_codes": [0],
+    "execution_reason_codes": [null],
+    "execution_duration_ns_sum": 38163576095,
+    "execution_duration_ns_max": 2793513710,
+    "harness_transport_verdict": "PASS",
+    "contract_gate_verdict": "FAIL",
+    "subject_kind": "frozen R4 P00 bundle reference from the reusable direct vector",
+    "head_baseline_control_run_performed": false,
+    "subject_identity_confirmed_by_crystalline_envelopes": {
+      "profile_count": 4,
+      "unique_binary_sha256": [
+        "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4"
+      ]
+    },
+    "harness": {
+      "path": "00_nucleo/diagnosticos/p1357-harness.py",
+      "sha256": "f59cc94163c5be064f0bd9eea950e9c51d405e7cac0803fc8682b6532e9dec1b"
+    },
+    "seeds": {
+      "path": "lab/surface-inventory/extra_seeds.json",
+      "sha256": "ec398902ad74aa7f7d21b733674e3712ed47ee84e6f79fd12fbdca5293d87623"
+    },
+    "vanilla_enumerator": {
+      "path": "lab/typst-original/target/release/p1140-inventory",
+      "sha256": "11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13"
+    },
+    "crystalline_enumerator": {
+      "path": "lab/surface-inventory/target/release/surface-inventory-p1140",
+      "sha256": "8aacdfc8e4df91c357edfc790647842c0a4ca9a16cd4e61e1f78afbc7ca0ca33"
+    },
+    "vanilla_binary": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "crystalline_binary": {
+      "path": "/tmp/p1462-r4-mutations/artifacts/P00/typst",
+      "sha256": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4"
+    },
+    "output": {
+      "path": "/tmp/p1462-recovery-p1357.json",
+      "sha256": "5a36db97712c371e348e8d94981149cd68e4f70005860ff50be5655826be5132"
+    },
+    "raw_receipts": {
+      "root": "/tmp/p1462-recovery-p1357-raw",
+      "file_count": 32,
+      "index_algorithm": "SHA-256 of sorted lines '<file-sha256>  <relative-path>\\n'",
+      "index_sha256": "0a0bc1dc174af71319bea578c6f8b29942a46026a0a56a2e12ac39e23ed2d347"
+    },
+    "determinism": {
+      "execution_model": "two canonical plus two reverse-profile runs",
+      "hashes": [
+        "6c4e1ab30ae85b79b0f58f0f1ed199b93918a960f3b9d749d5a3a94e4fe90639",
+        "6c4e1ab30ae85b79b0f58f0f1ed199b93918a960f3b9d749d5a3a94e4fe90639",
+        "6c4e1ab30ae85b79b0f58f0f1ed199b93918a960f3b9d749d5a3a94e4fe90639",
+        "6c4e1ab30ae85b79b0f58f0f1ed199b93918a960f3b9d749d5a3a94e4fe90639"
+      ],
+      "identical": true
+    },
+    "profiles": {
+      "default": {
+        "expected": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+        "observed": {"BOTH_PRESENT": 1999, "VANILLA_ONLY": 22, "CRYSTALLINE_ONLY": 42},
+        "observed_minus_expected": {"BOTH_PRESENT": -1, "VANILLA_ONLY": 1, "CRYSTALLINE_ONLY": 0},
+        "format.svg": "VANILLA_ONLY"
+      },
+      "a11y-extras": {
+        "expected": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+        "observed": {"BOTH_PRESENT": 2002, "VANILLA_ONLY": 25, "CRYSTALLINE_ONLY": 42},
+        "observed_minus_expected": {"BOTH_PRESENT": -1, "VANILLA_ONLY": 1, "CRYSTALLINE_ONLY": 0},
+        "format.svg": "VANILLA_ONLY"
+      },
+      "html": {
+        "expected": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+        "observed": {"BOTH_PRESENT": 2114, "VANILLA_ONLY": 137, "CRYSTALLINE_ONLY": 42},
+        "observed_minus_expected": {"BOTH_PRESENT": -1, "VANILLA_ONLY": 1, "CRYSTALLINE_ONLY": 0},
+        "format.svg": "VANILLA_ONLY"
+      },
+      "html+a11y": {
+        "expected": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42},
+        "observed": {"BOTH_PRESENT": 2117, "VANILLA_ONLY": 140, "CRYSTALLINE_ONLY": 42},
+        "observed_minus_expected": {"BOTH_PRESENT": -1, "VANILLA_ONLY": 1, "CRYSTALLINE_ONLY": 0},
+        "format.svg": "VANILLA_ONLY"
+      }
+    },
+    "sibling_absence": {
+      "format.png": "absent from crystalline in all four profiles",
+      "format.pdf": "absent from crystalline in all four profiles",
+      "format.html": "absent from crystalline in all four profiles"
+    },
+    "failure_reason": "the observations reproduce the P1461 baseline totals: format.svg is still absent from crystalline, so the required +1 BOTH_PRESENT / -1 VANILLA_ONLY delta is missing in every profile"
+  },
+  "gate_summary": {
+    "r4_bundle_pins": "PASS",
+    "direct_reference_P00": "Preserved",
+    "direct_mutants_M01_M18": "18/18 Violated",
+    "direct_coverage": "18/18",
+    "direct_mutation_score": 1.0,
+    "direct_semantic_unknown_count": 0,
+    "M15_M16_static_ownership": "PASS in reusable direct checkpoint",
+    "M17_V26": "PASS in reusable direct checkpoint",
+    "M18_same_source_valid_xml": "PASS in reusable direct checkpoint",
+    "M13_sibling_absence": "PASS",
+    "P1357_exact_inventory": "FAIL",
+    "overall": "NOT_SEALED"
+  },
+  "conclusion": {
+    "status": "NOT_SEALED",
+    "blocking_conditions": [
+      "P1357 exact inventory failed in all four profiles because format.svg remained VANILLA_ONLY and the required exact totals were not reached"
+    ],
+    "p1462_red_test_authorized": false,
+    "p1462_candidate_authorized": false,
+    "campaign_rerun_required_or_performed_by_this_verifier": false,
+    "disposition": "stop without rerun; preserve the complete direct checkpoint and all R2-R4 verdicts"
+  }
+}

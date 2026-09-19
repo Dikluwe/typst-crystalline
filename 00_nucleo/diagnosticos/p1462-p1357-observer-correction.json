@@ -1,0 +1,146 @@
+{
+  "schema": "p1462-p1357-observer-correction/v1",
+  "step": 1462,
+  "status": "CANONICAL_OBSERVER_CORRECTION_DEFINED",
+  "role": "independent_observer_correction_author",
+  "not_roles": ["implementer", "final_verifier"],
+  "attestation": "executado sem atestacao de isolamento",
+  "measurement_window_utc": {
+    "started": "2026-09-19T20:11:17.067Z",
+    "ended": "2026-09-19T20:11:20.656Z"
+  },
+  "repository_state": {
+    "head": "68542c0c0d912ea33909209ed7131c83e3418a59",
+    "tree": "590f85207e4252ba5e543da81fbc1ca5e020c049",
+    "git_diff_head_stat": "empty",
+    "preexisting_untracked_paths": [
+      "00_nucleo/diagnosticos/p1462-recovery-checkpoint.json",
+      "00_nucleo/diagnosticos/p1462-recovery-preseal.json",
+      "00_nucleo/diagnosticos/p1462-recovery2-checkpoint.json",
+      "00_nucleo/diagnosticos/p1462-recovery2-preseal.json"
+    ]
+  },
+  "input_pins": {
+    "adr_0107_sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d",
+    "adr_0108_sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405",
+    "adr_0121_sha256": "00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef",
+    "adr_0131_sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc",
+    "p1462_step_sha256": "197d04ab12f6c01476b32d3efb842bf714b7912319a660f1278cf8d3214735e8",
+    "r2_contract_sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+    "recovery_checkpoint_sha256": "012989ef882940929dfbbce55da758632af79440f19066f12a33985862b8914b",
+    "recovery_preseal_sha256": "2e8703f3af68812a62b9b0cf97f275eb0d768472a4c11f5c7b7751cfcd7169bc",
+    "recovery2_checkpoint_sha256": "714362c77a60b51b3ad5db2f54fae1c7b6fd54fdef6b03b8047a5e47573b8c98",
+    "recovery2_preseal_sha256": "4a8f1ee43a1b83dc7d44945c7cf472356f51fc1c3ecfd72a06c5e30f1ce07217",
+    "p1357_harness_sha256": "f59cc94163c5be064f0bd9eea950e9c51d405e7cac0803fc8682b6532e9dec1b",
+    "recovery_receipt_sha256": "5a36db97712c371e348e8d94981149cd68e4f70005860ff50be5655826be5132",
+    "recovery2_receipt_sha256": "deefe2e09f6b2276185c6d95c7892e2947deb8ee0b787baf042e1577ae77df05",
+    "vanilla_enumerator_binary_sha256": "11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13",
+    "vanilla_enumerator_source_sha256": "ff7702fb6ebbb7aafb422e94e7f3061d363e50367905fdee00486978c9185c01",
+    "p00_linked_enumerator_binary_sha256": "d2a7f39be5d6d355d4c155c95d1cceb0b62008e03d4586cd4be6bcbee7e978a6",
+    "crystalline_enumerator_source_sha256": "409a9d59381f03f47febf8fd587b1a87fde0472735e9ed77d896cc43c4f76176",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "p00_binary_sha256": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4"
+  },
+  "raw_recovery2": {
+    "receipt_path": "/tmp/p1462-recovery2-p1357.json",
+    "receipt_sha256": "deefe2e09f6b2276185c6d95c7892e2947deb8ee0b787baf042e1577ae77df05",
+    "raw_receipt_count": 32,
+    "raw_receipt_index_sha256": "736fcb613358d7cbf9d786ca6b96a4e5110801eb607416f023002b051060a674",
+    "determinism_hashes": [
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0"
+    ],
+    "crosswalk_semantics": "presence-only",
+    "format_svg_classification": "BOTH_PRESENT",
+    "format_svg_pretty_classification": "CRYSTALLINE_ONLY",
+    "counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 43},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 43},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 43},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 43}
+    },
+    "immutable": true
+  },
+  "enumerator_measurement": {
+    "vanilla": {
+      "parameter_storage": "format.svg.params contains pretty with default false, named=true, settable=true",
+      "function_descent": "Func::scope()",
+      "separate_format_svg_pretty_route": false,
+      "source_lines": ["lab/typst-original/crates/p1140-inventory/src/main.rs:133", "lab/typst-original/crates/p1140-inventory/src/main.rs:213"]
+    },
+    "crystalline": {
+      "parameter_storage": "params is always null in enumerated Side",
+      "function_descent": "Func::namespace()",
+      "separate_format_svg_pretty_route": true,
+      "source_lines": ["lab/surface-inventory/src/main.rs:171", "lab/surface-inventory/src/main.rs:199"]
+    }
+  },
+  "direct_bilateral_probe": {
+    "expression": "format.svg.pretty",
+    "expression_sha256": "93ef01836201e06f790e25f6d425138bf4251ff52078f40ec505327e997c5634",
+    "format": "json",
+    "products": {
+      "vanilla_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "p00_sha256": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4"
+    },
+    "profiles": {
+      "default": {"vanilla_exit": 0, "vanilla_value": false, "p00_exit": 0, "p00_value": false},
+      "a11y-extras": {"vanilla_exit": 0, "vanilla_value": false, "p00_exit": 0, "p00_value": false},
+      "html": {"vanilla_exit": 0, "vanilla_value": false, "p00_exit": 0, "p00_value": false},
+      "html+a11y": {"vanilla_exit": 0, "vanilla_value": false, "p00_exit": 0, "p00_value": false}
+    },
+    "captured_output_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+    "all_eight_executions_passed": true
+  },
+  "adr_classification": {
+    "language_observable": "format.svg.pretty is publicly evaluable as boolean false on both pinned products in all four profiles",
+    "mechanical_difference": "vanilla stores the member in function parameter metadata while crystalline exposes it through Func::namespace",
+    "inference": "the two representations denote the same public pretty slot owned by format.svg",
+    "refuters": [
+      "different direct value or type",
+      "different result in any profile",
+      "missing vanilla pretty parameter metadata",
+      "different crystalline owner or kind",
+      "binary or instrument pin drift",
+      "need to normalize any sibling path"
+    ]
+  },
+  "canonical_overlay": {
+    "exact_path": "format.svg.pretty",
+    "raw_preserved": true,
+    "preconditions": [
+      "raw crystalline entry is bool owned by function format.svg in all four profiles",
+      "format.svg is present on both sides in all four profiles",
+      "vanilla format.svg parameter metadata contains named settable pretty with default false",
+      "pinned bilateral direct probe exits zero and yields the same boolean false in all four profiles"
+    ],
+    "action": {
+      "semantic_vanilla_present": true,
+      "disposition": "SEMANTIC_ALIAS_COALESCED",
+      "coalesced_owner": "format.svg",
+      "coalesced_vanilla_slot": "format.svg.params.pretty",
+      "count_as_new_both_route": false,
+      "remove_from_crystalline_only_normalized_count": true
+    },
+    "arithmetic_guard": "a naive vanilla_present flip would add one BOTH route; canonical coalescence prevents double-counting the slot already represented inside the format.svg owner",
+    "fail_closed": true,
+    "normalized_siblings": [],
+    "explicitly_not_normalized": ["format.png", "format.pdf", "format.html", "format.html.*", "format.pdf.*"],
+    "normalized_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42}
+    }
+  },
+  "scope_limit": {
+    "modifies_prior_artifacts": false,
+    "modifies_step_or_l0": false,
+    "modifies_code_or_tests": false,
+    "seals_p1462": false,
+    "authorizes_candidate_by_itself": false,
+    "purpose": "canonical P1357 observer interpretation for use by a distinct verifier"
+  }
+}

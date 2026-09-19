@@ -249,6 +249,18 @@ P1462 acrescenta exatamente `format.svg`: `BOTH +1`, `VANILLA_ONLY -1`,
 
 Qualquer filho adicional é fuga de escopo.
 
+**Correção observacional P1462/P1357 (2026-09-19):** o enumerador vanilla
+representa `pretty` dentro de `format.svg.params`, enquanto o enumerador
+cristalino o publica como a rota separada `format.svg.pretty`. O raw correto
+do enumerador ligado ao P00 é, portanto, `CRYSTALLINE_ONLY = 43`; ele deve ser
+preservado. Como a sonda bilateral pinada prova que `format.svg.pretty`
+existe e vale `false` nos dois produtos e nos quatro perfis, o overlay
+canônico coalesce exclusivamente essa rota com o parâmetro vanilla já
+representado no owner `format.svg`. Os totais normalizados permanecem os da
+tabela (`CRYSTALLINE_ONLY = 42`). Nenhum sibling é normalizado. A regra e os
+refutadores estão congelados em
+`00_nucleo/diagnosticos/p1462-p1357-observer-correction.{md,json}`.
+
 ## 9. Mutantes obrigatórios
 
 O conjunto mínimo inclui:

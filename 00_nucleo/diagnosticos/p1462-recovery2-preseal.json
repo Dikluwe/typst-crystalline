@@ -1,0 +1,127 @@
+{
+  "schema": "tekt-recovery2-preseal-verdict/v1",
+  "step": 1462,
+  "recovery_authority": "ADR-0131",
+  "verdict": "NOT_SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T17:07:36-03:00",
+  "baseline": {
+    "campaign_commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "campaign_tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "verification_commit": "68542c0c0d912ea33909209ed7131c83e3418a59",
+    "verification_tree_before_outputs": "590f85207e4252ba5e543da81fbc1ca5e020c049",
+    "candidate_productive_patch_present": false,
+    "candidate_test_consumer_present": false
+  },
+  "authority": {
+    "adr_0131_sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc",
+    "p1462_step_with_recovery_addendum_sha256": "197d04ab12f6c01476b32d3efb842bf714b7912319a660f1278cf8d3214735e8",
+    "r2_manifest_sha256": "9de72872a6113b35464ae17da0f3f7dd59a70acbd5956426108e233e3bd66e8f",
+    "r2_contract_sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+    "r2_independent_oracles_sha256": "24036a4b901d65cc2838dfee641e109a99ce71f38aecbc14e9f2a002a41d3657",
+    "r4_catalog_sha256": "d529442c720c0e52ccda8f58c3cfe4e65a9bad60d035d5a2a04c26a56bab74b6",
+    "r4_transport_runner_sha256": "719f49740558960bfcfe70e0448e47b9e0689b93907eff2c1356ec646db7f329",
+    "r4_fixtures_sha256": "feb346f9455ddc93c72669f5938d3afb4d7d4997e3b71225fbdf28b7a215fa8a"
+  },
+  "historical_recovery_preserved": {
+    "checkpoint_sha256": "012989ef882940929dfbbce55da758632af79440f19066f12a33985862b8914b",
+    "preseal_sha256": "2e8703f3af68812a62b9b0cf97f275eb0d768472a4c11f5c7b7751cfcd7169bc",
+    "unchanged": true,
+    "limitation": "its P1357 catalog came from the core statically linked to the repository enumerator and is retained only as a historical control"
+  },
+  "checkpoint": {
+    "path": "00_nucleo/diagnosticos/p1462-recovery2-checkpoint.json",
+    "sha256": "714362c77a60b51b3ad5db2f54fae1c7b6fd54fdef6b03b8047a5e47573b8c98",
+    "status": "NOT_SEALED"
+  },
+  "reused_direct_evidence": {
+    "P00": "Preserved",
+    "M01_M18": "18/18 Violated",
+    "coverage": "18/18",
+    "mutation_score": 1.0,
+    "semantic_unknown_count": 0,
+    "overall_vector_sha256": "0cae2dd1aa4b4480d1635ef5233c1a4ea76c85eede32fc449cbd66e9eb302235",
+    "case_classification_vectors_sha256": "f6f32f8f657b4f6468cab53c1e15c5bb96d391f0a89d3b4b366e309434351db5",
+    "prior_partial_M12_state": "Interrupted_without_credit_not_semantic_Unknown",
+    "mutation_rerun_performed": false
+  },
+  "p00_linked_enumerator": {
+    "source_sha256": "409a9d59381f03f47febf8fd587b1a87fde0472735e9ed77d896cc43c4f76176",
+    "cargo_toml_sha256": "fec1b202f72b9935040260910744424d34c864ecd19e726048904e887f5a606b",
+    "cargo_lock_sha256": "f1c17cedcd804ce0bb40942621a50c09b5c3c757bd63482f99bd547c220c961d",
+    "binary_sha256": "d2a7f39be5d6d355d4c155c95d1cceb0b62008e03d4586cd4be6bcbee7e978a6",
+    "metadata_sha256": "3549493178ee739cf9f1f6568c602d1bf79ee064e6cd662c999c6ba3e0c109cb",
+    "typst_core_path": "/tmp/p1462-r4-mutations/P00/01_core",
+    "typst_infra_path": "/tmp/p1462-r4-mutations/P00/03_infra",
+    "typst_core_dep_info_sha256": "88bfc688fc451d446d3692f17e790a9b367434c0d84848a925d9c54a10e2ec9d",
+    "typst_infra_dep_info_sha256": "49e1b93765b828f9bd97688721a4cd50d9a8f97e2581513780c340a3cf0e4168",
+    "repository_product_paths_in_dependency_dep_info": false,
+    "binding_to_frozen_p00_proved": true
+  },
+  "p1357": {
+    "receipt_path": "/tmp/p1462-recovery2-p1357.json",
+    "receipt_sha256": "deefe2e09f6b2276185c6d95c7892e2947deb8ee0b787baf042e1577ae77df05",
+    "raw_receipt_count": 32,
+    "raw_receipt_index_sha256": "736fcb613358d7cbf9d786ca6b96a4e5110801eb607416f023002b051060a674",
+    "determinism_hash": "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+    "harness_verdict": "PASS",
+    "exact_contract_verdict": "FAIL",
+    "observations": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 43, "format.svg": "BOTH_PRESENT"},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 43, "format.svg": "BOTH_PRESENT"},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 43, "format.svg": "BOTH_PRESENT"},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 43, "format.svg": "BOTH_PRESENT"}
+    },
+    "required": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42}
+    },
+    "unexpected_public_route": {
+      "path": "format.svg.pretty",
+      "classification": "CRYSTALLINE_ONLY",
+      "kind": "bool",
+      "profiles": ["default", "a11y-extras", "html", "html+a11y"]
+    },
+    "siblings": {
+      "format.png": "absent from crystalline",
+      "format.pdf": "absent from crystalline",
+      "format.html": "absent from crystalline"
+    },
+    "reason": "the frozen exact CRYSTALLINE_ONLY count is 42, but the P00-linked catalog deterministically contains 43 because format.svg.pretty is an additional crystalline-only route"
+  },
+  "gates": {
+    "protected_inputs_and_prior_artifacts_unchanged": "PASS",
+    "direct_checkpoint_pins": "PASS",
+    "direct_P00_preserved": "PASS",
+    "direct_M01_M18_violated": "PASS_18_OF_18",
+    "direct_coverage": "PASS_18_OF_18",
+    "direct_mutation_score": "PASS_1.0",
+    "direct_semantic_unknown_count": "PASS_0",
+    "P00_enumerator_causal_binding": "PASS",
+    "P1357_execution_and_determinism": "PASS",
+    "P1357_format_svg_BOTH": "PASS",
+    "P1357_format_png_pdf_html_absence": "PASS",
+    "P1357_BOTH_and_VANILLA_ONLY_exact_totals": "PASS",
+    "P1357_CRYSTALLINE_ONLY_exact_total": "FAIL_43_EXPECTED_42",
+    "overall": "FAIL"
+  },
+  "authorization": {
+    "sealed": false,
+    "p1462_red_test_authorized": false,
+    "p1462_candidate_authorized": false,
+    "authorized_test_paths": [],
+    "authorized_productive_owners": [],
+    "reason": "the exact P1357 inventory gate fails in every profile due to the additional format.svg.pretty crystalline-only route"
+  },
+  "required_disposition": {
+    "action": "STOP_NOT_SEALED",
+    "constraints": [
+      "do not rerun the mutation campaign",
+      "do not retry the completed P1357 recovery2 unit under the same pins",
+      "do not write the RED test or a productive candidate under this verdict",
+      "preserve R2-R4, recovery and recovery2 evidence unchanged"
+    ]
+  }
+}

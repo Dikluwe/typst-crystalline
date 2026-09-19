@@ -1,0 +1,338 @@
+{
+  "schema": "p1462-recovery3-checkpoint/v1",
+  "step": 1462,
+  "recovery_authority": "ADR-0131",
+  "verdict": "SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T17:17:43-03:00",
+  "regime": "distinct-verifier recomputation of frozen receipts; no product, inventory, mutation or probe execution",
+  "scope": {
+    "performed": [
+      "audited all frozen observer-correction hashes and predecessor pins",
+      "recomputed the R4 direct checkpoint identities and classification requirements from existing reports and ledgers",
+      "recomputed the P1357 raw receipt hash, raw-file index, profile counts and all overlay preconditions from existing receipts",
+      "audited the frozen bilateral probe receipt and current binary pins without executing either product",
+      "recomputed the fail-closed coalescing arithmetic and exact normalized counts"
+    ],
+    "not_performed": [
+      "no inventory was executed",
+      "no mutant, P00 oracle or campaign order was executed",
+      "no bilateral or carrier probe was executed",
+      "no frozen artifact, prior recovery artifact, prompt, product code or test was edited"
+    ]
+  },
+  "provenance": {
+    "verification_head": "68542c0c0d912ea33909209ed7131c83e3418a59",
+    "verification_head_tree": "590f85207e4252ba5e543da81fbc1ca5e020c049",
+    "campaign_baseline_commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "campaign_baseline_tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "tracked_worktree_delta_before_outputs": [
+      "00_nucleo/materialization/typst-passo-1462.md"
+    ],
+    "tracked_step_delta_classification": "textual observer-correction addendum only",
+    "untracked_inputs_before_outputs": [
+      "00_nucleo/diagnosticos/p1462-p1357-observer-correction.json",
+      "00_nucleo/diagnosticos/p1462-p1357-observer-correction.md",
+      "00_nucleo/diagnosticos/p1462-recovery-checkpoint.json",
+      "00_nucleo/diagnosticos/p1462-recovery-preseal.json",
+      "00_nucleo/diagnosticos/p1462-recovery2-checkpoint.json",
+      "00_nucleo/diagnosticos/p1462-recovery2-preseal.json"
+    ],
+    "l0_or_product_or_test_diff_from_head": [],
+    "candidate_productive_patch_present": false,
+    "candidate_test_consumer_present": false
+  },
+  "governing_inputs": {
+    "adr_0107_sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d",
+    "adr_0108_sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405",
+    "adr_0121_sha256": "00be2575c57efb572b7935ab0ae9da80d62e66c8739bffbb17994b2f7a50d5ef",
+    "adr_0131_sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc",
+    "p1462_step_pre_observer_addendum_sha256": "197d04ab12f6c01476b32d3efb842bf714b7912319a660f1278cf8d3214735e8",
+    "p1462_step_current_with_observer_addendum_sha256": "b009acdf6798c8dd3f38084c9eaf5548761b0e16957d2459cd0787ba02773974",
+    "p1462_step_delta": "only the twelve-line P1462/P1357 observer-correction paragraph in the public-inventory section",
+    "r2_manifest_sha256": "9de72872a6113b35464ae17da0f3f7dd59a70acbd5956426108e233e3bd66e8f",
+    "r2_contract_sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+    "r2_independent_oracles_sha256": "24036a4b901d65cc2838dfee641e109a99ce71f38aecbc14e9f2a002a41d3657",
+    "r4_catalog_sha256": "d529442c720c0e52ccda8f58c3cfe4e65a9bad60d035d5a2a04c26a56bab74b6",
+    "r4_transport_runner_sha256": "719f49740558960bfcfe70e0448e47b9e0689b93907eff2c1356ec646db7f329",
+    "r4_fixtures_sha256": "feb346f9455ddc93c72669f5938d3afb4d7d4997e3b71225fbdf28b7a215fa8a"
+  },
+  "observer_correction": {
+    "author_role": "independent_observer_correction_author",
+    "verifier_is_distinct_from_author": true,
+    "markdown": {
+      "path": "00_nucleo/diagnosticos/p1462-p1357-observer-correction.md",
+      "sha256": "4431aeedb8be0d64aff419210a618581e9aba58e7770bd8711d0b585d4ce65c8"
+    },
+    "canonical_json": {
+      "path": "00_nucleo/diagnosticos/p1462-p1357-observer-correction.json",
+      "sha256": "c2b9f2b1b1a568d1cbb52b055c0b997ab0a709239f8e72faea1f5e5e358c1662"
+    },
+    "status": "CANONICAL_OBSERVER_CORRECTION_DEFINED",
+    "scope_limit_verified": {
+      "modifies_prior_artifacts": false,
+      "modifies_l0": false,
+      "modifies_code_or_tests": false,
+      "seals_p1462_by_itself": false
+    },
+    "all_declared_input_pins_match": true
+  },
+  "prior_artifacts_preserved": {
+    "r4_mutation_results_sha256": "9ff64d94bff103553d26862b8c97565408bd1ca7e022f77cbb7a8cda8fac3011",
+    "r4_preseal_sha256": "5bc0c82d6432bff343272db34ab44e922ff993a3e8e612d2e25c3e08182e1854",
+    "recovery_checkpoint_sha256": "012989ef882940929dfbbce55da758632af79440f19066f12a33985862b8914b",
+    "recovery_preseal_sha256": "2e8703f3af68812a62b9b0cf97f275eb0d768472a4c11f5c7b7751cfcd7169bc",
+    "recovery2_checkpoint_sha256": "714362c77a60b51b3ad5db2f54fae1c7b6fd54fdef6b03b8047a5e47573b8c98",
+    "recovery2_preseal_sha256": "4a8f1ee43a1b83dc7d44945c7cf472356f51fc1c3ecfd72a06c5e30f1ce07217",
+    "unchanged": true,
+    "interpretation": "historical NOT_SEALED verdicts remain immutable; recovery3 adds the independently frozen observer correction and does not rewrite them"
+  },
+  "direct_checkpoint_recomputation": {
+    "source": {
+      "path": "00_nucleo/diagnosticos/p1462-r4-mutation-results.json",
+      "sha256": "9ff64d94bff103553d26862b8c97565408bd1ca7e022f77cbb7a8cda8fac3011"
+    },
+    "selection_rule": "for each direct variant use its complete full/direct receipt; P00 has an earlier focal receipt in the same directory, so select the last P00 receipt, 1789842227743093161-3, which follows the frozen campaign start",
+    "checkpoint_count": 19,
+    "checkpoint_pin_index_algorithm": "SHA-256 of P00,M01..M18 lines '<id> <source-tree-sha256> <binary-sha256> <report-sha256> <ledger-sha256>\n' using an actual LF terminator",
+    "checkpoint_pin_index_sha256": "391f77df2ea74afe313fadace71983b4d3707d21336f8bc889984e5705fa8297",
+    "all_receipts": {
+      "root": "/tmp/p1462-r4-preseal-receipts",
+      "file_count": 75,
+      "index_algorithm": "frozen R4 algorithm using ordered '<file-sha256>  <relative-path>\\n' records with the literal two-byte backslash-n terminator",
+      "index_sha256": "a9029c031425f238e13411962ea98b6c5fb556e2a5ad518e83b8cd56b3659aba"
+    },
+    "classification_vector": {
+      "P00": "Preserved",
+      "M01": "Violated",
+      "M02": "Violated",
+      "M03": "Violated",
+      "M04": "Violated",
+      "M05": "Violated",
+      "M06": "Violated",
+      "M07": "Violated",
+      "M08": "Violated",
+      "M09": "Violated",
+      "M10": "Violated",
+      "M11": "Violated",
+      "M12": "Violated",
+      "M13": "Violated",
+      "M14": "Violated",
+      "M15": "Violated",
+      "M16": "Violated",
+      "M17": "Violated",
+      "M18": "Violated"
+    },
+    "overall_vector_sha256": "0cae2dd1aa4b4480d1635ef5233c1a4ea76c85eede32fc449cbd66e9eb302235",
+    "case_classification_vectors_sha256": "f6f32f8f657b4f6468cab53c1e15c5bb96d391f0a89d3b4b366e309434351db5",
+    "reference_preserved": true,
+    "mutants_violated": 18,
+    "valid_denominator": 18,
+    "coverage": "18/18",
+    "mutation_score": 1.0,
+    "semantic_unknown_count": 0,
+    "M15_M16_static_ownership": "PASS",
+    "M17_V26": "PASS",
+    "M18_same_source_valid_xml": "PASS",
+    "receives_recovery_checkpoint_credit_under_adr_0131": true
+  },
+  "prior_external_interruption": {
+    "unit": "direct_repeat/M12",
+    "state_under_adr_0131": "Interrupted",
+    "semantic_state": null,
+    "credit": false,
+    "ledger_sha256": "5caa2f51e2955ffc87a12ecf97faabdcafb5d3bcb9c00bd4bcb70665b39e2bd4",
+    "semantic_unknown_count_contribution": 0,
+    "rerun_or_resume_performed_in_recovery3": false
+  },
+  "p1357_raw_receipt_recomputation": {
+    "receipt": {
+      "path": "/tmp/p1462-recovery2-p1357.json",
+      "sha256": "deefe2e09f6b2276185c6d95c7892e2947deb8ee0b787baf042e1577ae77df05",
+      "harness_verdict": "PASS"
+    },
+    "raw_receipts": {
+      "root": "/tmp/p1462-recovery2-p1357-raw",
+      "file_count": 32,
+      "index_algorithm": "SHA-256 of sorted lines '<file-sha256>  <relative-path>\n' using an actual LF terminator",
+      "index_sha256": "736fcb613358d7cbf9d786ca6b96a4e5110801eb607416f023002b051060a674"
+    },
+    "execution_receipts": {
+      "count": 32,
+      "exit_codes": [0],
+      "reason_codes": [null]
+    },
+    "determinism_hashes": [
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0",
+      "08e7308c23e39f8093dd0fd01f1c75535bc58925cf93148b13fc6957dea797b0"
+    ],
+    "deterministic": true,
+    "raw_counts_preserved": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 43},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 43},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 43},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 43}
+    },
+    "format.svg": "BOTH_PRESENT in all four profiles",
+    "format.svg.pretty": "CRYSTALLINE_ONLY in the raw presence-only crosswalk in all four profiles"
+  },
+  "overlay_preconditions": {
+    "checked_raw_catalog_pairs": 16,
+    "profiles": ["default", "a11y-extras", "html", "html+a11y"],
+    "phases": ["canonical-1", "canonical-2", "reverse-1", "reverse-2"],
+    "crystalline_format_svg_pretty": {
+      "present": true,
+      "kind": "bool",
+      "owner_path": "format.svg",
+      "owner_kind": "function",
+      "structural_verified": true,
+      "holds_in_all_16_crystalline_raw_catalogs": true
+    },
+    "format_svg_present_bilaterally_in_all_raw_catalog_pairs": true,
+    "vanilla_format_svg_pretty_parameter": {
+      "present_in_format_svg_params": true,
+      "default": "false",
+      "named": true,
+      "settable": true,
+      "required": false,
+      "holds_in_all_16_vanilla_raw_catalogs": true
+    },
+    "p00_product_sha256_in_all_crystalline_raw_catalogs": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4",
+    "vanilla_product_sha256_in_all_vanilla_raw_catalogs": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "all_preconditions_satisfied": true
+  },
+  "bilateral_probe_receipt_audit": {
+    "source": "direct_bilateral_probe object in the frozen canonical observer-correction JSON",
+    "probe_was_not_executed_in_recovery3": true,
+    "expression": "format.svg.pretty",
+    "expression_sha256": "93ef01836201e06f790e25f6d425138bf4251ff52078f40ec505327e997c5634",
+    "format": "json",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "p00_binary_sha256": "2435eb151ffcad3b2b5ec57222ae00d5666f46535b2fd3c0bb12745b158ef3e4",
+    "actual_binary_hashes_match_receipt": true,
+    "profile_count": 4,
+    "execution_count": 8,
+    "all_exit_zero": true,
+    "all_values": false,
+    "captured_output_per_execution": "false\n",
+    "captured_output_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+    "all_preconditions_satisfied": true
+  },
+  "canonical_overlay_recomputation": {
+    "exact_path": "format.svg.pretty",
+    "raw_preserved": true,
+    "fail_closed": true,
+    "disposition": "SEMANTIC_ALIAS_COALESCED",
+    "coalesced_owner": "format.svg",
+    "coalesced_vanilla_slot": "format.svg.params.pretty",
+    "count_as_new_both_route": false,
+    "count_delta_per_profile": {
+      "BOTH_PRESENT": 0,
+      "VANILLA_ONLY": 0,
+      "CRYSTALLINE_ONLY": -1
+    },
+    "arithmetic": {
+      "default": "2000/21/43 + 0/0/-1 = 2000/21/42",
+      "a11y-extras": "2003/24/43 + 0/0/-1 = 2003/24/42",
+      "html": "2115/136/43 + 0/0/-1 = 2115/136/42",
+      "html+a11y": "2118/139/43 + 0/0/-1 = 2118/139/42"
+    },
+    "normalized_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42}
+    },
+    "exact_contract_counts_match": true,
+    "canonical_payload_sha256": "5b3393a391c35ad38cdbfb10b97f0d1a97ca1aa0d94a86617be3be16e9c59be2",
+    "canonical_payload_hash_algorithm": "SHA-256 of UTF-8 JSON sorted by key with separators ',' and ':' over the embedded overlay_recomputation_payload object"
+  },
+  "overlay_recomputation_payload": {
+    "schema": "p1462-p1357-normalized-overlay/v1",
+    "observer_correction_json_sha256": "c2b9f2b1b1a568d1cbb52b055c0b997ab0a709239f8e72faea1f5e5e358c1662",
+    "raw_receipt_sha256": "deefe2e09f6b2276185c6d95c7892e2947deb8ee0b787baf042e1577ae77df05",
+    "raw_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 43},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 43},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 43},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 43}
+    },
+    "disposition": {
+      "path": "format.svg.pretty",
+      "classification": "SEMANTIC_ALIAS_COALESCED",
+      "coalesced_owner": "format.svg",
+      "count_delta": {"BOTH_PRESENT": 0, "VANILLA_ONLY": 0, "CRYSTALLINE_ONLY": -1}
+    },
+    "normalized_counts": {
+      "default": {"BOTH_PRESENT": 2000, "VANILLA_ONLY": 21, "CRYSTALLINE_ONLY": 42},
+      "a11y-extras": {"BOTH_PRESENT": 2003, "VANILLA_ONLY": 24, "CRYSTALLINE_ONLY": 42},
+      "html": {"BOTH_PRESENT": 2115, "VANILLA_ONLY": 136, "CRYSTALLINE_ONLY": 42},
+      "html+a11y": {"BOTH_PRESENT": 2118, "VANILLA_ONLY": 139, "CRYSTALLINE_ONLY": 42}
+    },
+    "siblings_absent": ["format.png", "format.pdf", "format.html"]
+  },
+  "sibling_boundary": {
+    "format.png": "absent from every crystalline raw catalog",
+    "format.pdf": "absent from every crystalline raw catalog",
+    "format.html": "absent from every crystalline raw catalog",
+    "normalized_siblings": [],
+    "verified_across_all_16_crystalline_raw_catalogs": true,
+    "status": "PASS"
+  },
+  "gate_summary": {
+    "protected_input_hashes": "PASS",
+    "direct_P00_preserved": "PASS",
+    "direct_M01_M18_violated": "PASS_18_OF_18",
+    "direct_coverage": "PASS_18_OF_18",
+    "direct_mutation_score": "PASS_1.0",
+    "direct_semantic_unknown_count": "PASS_0",
+    "M15_M16_ownership": "PASS",
+    "M17_V26": "PASS",
+    "M18_same_source_valid_xml": "PASS",
+    "raw_P1357_receipts_and_determinism": "PASS_RAW_43_PRESERVED",
+    "bilateral_probe_pins_and_results": "PASS",
+    "observer_overlay_preconditions": "PASS",
+    "normalized_P1357_exact_counts": "PASS",
+    "format_png_pdf_html_absence": "PASS",
+    "overall": "SEALED"
+  },
+  "authorization": {
+    "sealed": true,
+    "p1462_red_test_authorized": true,
+    "authorized_test_path": "04_wiring/tests/p1462_format_svg.rs",
+    "p1462_candidate_authorized": true,
+    "authorized_productive_owners": [
+      "01_core/src/compiler/stdlib/format.rs",
+      "01_core/src/compiler/eval/rules.rs",
+      "01_core/src/compiler/layout/mod.rs",
+      "01_core/src/compiler/layout/format_options.rs",
+      "01_core/src/entities/document_format_options.rs",
+      "01_core/src/entities/mod.rs",
+      "01_core/src/entities/layout_types.rs",
+      "03_infra/src/pipeline.rs",
+      "04_wiring/src/main.rs"
+    ],
+    "scope": "only the frozen P1462 format.svg/pretty contract and owners",
+    "sequence": "write and observe the authorized RED test before writing the productive candidate"
+  },
+  "post_candidate_requirements": {
+    "this_is_not_final_product_certification": true,
+    "directed_repetition_required_by_adr_0131": [
+      "P00",
+      "M03",
+      "M12",
+      "M13",
+      "affected ownership and neutral-target boundaries"
+    ],
+    "invalidate_if_any_protected_pin_changes": true
+  },
+  "conclusion": {
+    "status": "SEALED",
+    "blocking_conditions": [],
+    "reason": "the complete direct vector is 18/18 with score 1.0 and zero semantic Unknown; every fail-closed observer-overlay precondition holds on the frozen receipts; raw 43 remains preserved; normalized P1357 totals exactly match O9; and format.png, format.pdf and format.html remain absent",
+    "p1462_red_test_authorized": true,
+    "p1462_candidate_authorized": true
+  }
+}
