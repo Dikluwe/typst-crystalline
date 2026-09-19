@@ -1,0 +1,127 @@
+{
+  "schema": "tekt.materialization.verifier-certificate/v2",
+  "step": 1461,
+  "status": "VALID",
+  "verdict": "VALID",
+  "outcome": "PASS",
+  "attestation": "executed_without_isolation_attestation",
+  "verified_at": "2026-09-19T12:12:06-03:00",
+  "verifier": "Codex agent /root/verificador_final_v2_p1461",
+  "candidate_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+  "candidate_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+  "working_tree": "uncommitted",
+  "supersedes_invalid_v1": {
+    "results_sha256": "558724d158ad180caae3f54228dda5f8dbdfaf8aa0991b3815d3bdeb0d6ac6d6",
+    "certificate_sha256": "cffd49a3fd81de128a5e7ebb37f327051181170914c854631834af80f0c5552c",
+    "historical_reason": "FROZEN_U02_NOT_MATERIALIZED",
+    "resolution": "The v2 test-only revision materializes U01 exact-name and U02 empty-scope plus None lookup for svg, png, pdf, html and absent.",
+    "byte_for_byte_archive_claim": false,
+    "disclosure": "The two v1 hashes were recorded before replacement; no separate byte-for-byte v1 archive was created or claimed."
+  },
+  "inputs": {
+    "preseal_sha256": "ecdac02acb0465bf32be6a06d761bc62a8290067b326ac53532e2653b87c6088",
+    "manifest_sha256": "d17a258cdfabca8bf7ffdbe9282fc3e57fe53cef40be2bad35c1cb8c2955a76f",
+    "contract_sha256": "456ec3dfec1db9fdf6d11c15ed7f316aae02a0dc856697f98dff0e4667dc2152",
+    "step_sha256": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f",
+    "format_prompt_sha256": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e",
+    "stdlib_common_prompt_sha256": "2bc7339a0692282da45195b842683d71e9fc2c83791129d8e28a7bfee1e6402d",
+    "stdlib_common_p1461_section_sha256": "80ff7bb7a16d9a99d3093eea0a98064ae1613379b2dbf0dba8b72489a67db61d",
+    "eval_prompt_sha256": "7b104498462d4e60e614dd1523dee44cbc4471cce2a489dfb33b11f94a00d038",
+    "eval_p1461_section_sha256": "a2ddd67488eb2801226922912857bd08282375052517deeb66ca249c7cf3d130",
+    "oracles_sha256": "cee9a3a485e76d82397af9006907940946f4ac473abaea5fc44e0497ead59b84",
+    "harness_sha256": "3a6983796e7f3070912efac410cb41075c4a8a908283ec3005a60c4934979ca1",
+    "ab_tests_sha256": "7085ccf10c0c399c7911ca1bfe2996ad878bc70c9c67926d59702906b0428197",
+    "red_sha256": "5c5a64a2e35fa0e6daaf20f69d291419713d6cbabeb252e95f05974fcd93f22c",
+    "mutants_sha256": "4e50ec7db15bc4d961cd2d0ba07f87fa78ea7cc9cff4a04fe7991cd355ff9a56",
+    "mutation_runner_sha256": "e61551e3e3ef1562dcc587ccfa698862c2cf7506d6dc652372c126be13e9497a",
+    "mutation_fixtures_sha256": "8478a9b22f5969f43254d65f6ed4022b1f1400e2a1da79d7f7653eb69e01efb2",
+    "mutation_results_sha256": "712aea054b7f5dba242795882f6c19fb33809269cba67802c55364c1fffb6648",
+    "results_sha256": "d3d6b5935370439ea17ceffdfd0c796187c0c264dddff7d4f255bf9171b41d06"
+  },
+  "candidate": {
+    "binary_sha256": "d3167689f50cc0f1cd4415f94efe7ab8fd2d5cae633d8664de93a806abd16f82",
+    "binary_rebuild_identity_preserved": true,
+    "inventory_enumerator_sha256": "8aacdfc8e4df91c357edfc790647842c0a4ca9a16cd4e61e1f78afbc7ca0ca33",
+    "inventory_enumerator_rebuild_identity_preserved": true,
+    "source_sha256": {
+      "01_core/src/compiler/stdlib/format.rs": "5a6398455e5c2d58d32dba50d15bdab2ce4225e1c294d77ba59b9d71bc1f6a47",
+      "01_core/src/compiler/stdlib/mod.rs": "764a587478b2287bf076e7398b580940538a336fcccaa4b816e20a4902090647",
+      "01_core/src/compiler/eval/mod.rs": "8d879e3a3e005834793c543f202edd2aa80bda1bd5be698db3d24b1be1b9d824"
+    },
+    "v1_format_source_sha256": "fd3123edf1e8591026dbe2d7926d13f335299c5f9580f086754205bd88ac1565",
+    "v2_delta": "tests only in format.rs",
+    "release_test_only_delta_proven": true
+  },
+  "verification": {
+    "protected_inputs_unchanged": true,
+    "preseal_state": "SEALED",
+    "preseal_verdict": "PASS",
+    "mutation_score": 1.0,
+    "mutation_fixture_validation": "PASS: 15/15 variants valid",
+    "archives": {
+      "r3": "PASS: 11/11 hashes match",
+      "r2_present_archives": "PASS: 9/9 hashes match",
+      "r1_failure_artifacts": "PASS: 4/4 hashes match",
+      "r2_manifest_contract_byte_archive": "NOT_AVAILABLE_HISTORICALLY"
+    },
+    "frozen_unit_specification": {
+      "U01_FORMAT_MODULE_EXACT_NAME": "PASS: u01_format_module_has_exact_name asserts module.name() == format",
+      "U02_FORMAT_MODULE_SCOPE_EMPTY": "PASS: u02_format_module_scope_is_empty_and_has_no_children asserts len == 0 and svg/png/pdf/html/absent lookups are None",
+      "targeted_execution": "PASS: exactly 2 passed, 0 failed"
+    },
+    "candidate_r4": {
+      "direct": "Preserved:48 Violated:0 Unknown:0",
+      "direct_repeat": "Preserved:48 Violated:0 Unknown:0",
+      "reverse": "Preserved:48 Violated:0 Unknown:0",
+      "normalized_sha256": "04f6913dc675002eb2c045bfebcb141d488eeef4c2ede7ce3a5b1ab5554c231c",
+      "orders_consistent": true,
+      "parser_self_tests": "PASS"
+    },
+    "postfreeze_ab": {
+      "candidate_receipt_sha256": "0e9dad344f08e164bffc00370ce946efab517f1468eb39057755775cbc6310d4",
+      "vanilla_receipt_sha256": "746c8e7fccebcc52681e16de5f744393d9e5c0b0d5f12f594cf742b8db254398",
+      "fresh_vanilla_orders": "Preserved:32 Violated:0 Unknown:0 per order",
+      "fresh_vanilla_normalized_sha256": "ce799ffc22fa0b3efb387a891396358746bacbe32a9ad360fa8de8c3f77510f9",
+      "result": "PASS"
+    },
+    "inventory_p1357": {
+      "verdict": "PASS",
+      "receipt_sha256": "1c846032705489ce2776c0fe1a40febae6c0a034cbb14dc39124e1ea11d36236",
+      "deterministic": true,
+      "root_format_both_in_four_profiles": true,
+      "changed_cells": 4,
+      "other_changed_paths": 0,
+      "new_children_or_aliases": 0,
+      "vanilla_only_unique_paths": 140,
+      "vanilla_only_cells": 324,
+      "candidate_binary_unchanged_after_rebuild": true,
+      "enumerator_unchanged_after_rebuild": true
+    },
+    "diff_scope": {
+      "authorized_product_paths": 3,
+      "observed_product_paths": 3,
+      "p1461_diagnostic_paths": 37,
+      "unauthorized_paths": 0,
+      "result": "PASS"
+    }
+  },
+  "gates": {
+    "cargo_fmt_check": "PASS",
+    "cargo_test_targeted": "PASS: 2 passed, 0 failed",
+    "cargo_test_workspace": "HISTORICAL_FAILURES_REPRODUCED: 5921 passed, 8 failed, 0 attributable to P1461; no green credit",
+    "historical_failures_classified_individually_in_results": true,
+    "cargo_build_workspace": "PASS",
+    "cargo_build_release_bin_typst": "PASS",
+    "cargo_build_release_inventory_enumerator": "PASS",
+    "crystalline_lint": "PASS: exit 0, zero violations; 283 historical warnings and 1325 informational advisories",
+    "git_diff_check": "PASS"
+  },
+  "historical_limitations": {
+    "r2_manifest_and_contract": "Hashes are recorded, but R2 manifest and contract bytes were not archived. No reconstruction, byte-preservation or byte-for-byte archive claim is made.",
+    "v1_superseded_artifacts": "The invalid v1 result and certificate hashes are recorded, but this v2 verification created no separate byte-for-byte archive of their replaced bytes.",
+    "isolation": "Shared workspace and inherited conversational host prevent physical isolation attestation.",
+    "workspace_tests": "Eight historical failures predate P1461 and are non-attributable, but cargo test --workspace remains non-green and receives no green credit.",
+    "warnings": "Cargo and crystalline-lint advisories are recorded separately; none names a P1461 changed line."
+  },
+  "claim_boundary": "VALID only for the P1461 public root format fragment under the four frozen profiles. No claim is made about format children, exporter equivalence, closure of format.*, general functional equivalence or total Typst parity."
+}
