@@ -1,0 +1,32 @@
+{
+  "schema": "p1460-preseal/v1",
+  "captured_at_utc": "2026-09-19T03:09:23Z",
+  "baseline_commit": "7f7a7ab1f9afc3e92ed29800408d9508525a6094",
+  "baseline_tree": "a06219a55c83ff0eb53148acebe393ae1b02a08a",
+  "attestation": "executado sem atestacao de isolamento",
+  "phase": "after_l0_contract_oracles_mutants_runner_and_corrected_red_tests_before_candidate",
+  "pre_candidate_harness_correction": "The first RED also exposed ambiguous local test type inference; the snapshot fixture was rewritten with an inline collect so only the intended private-API failure remains. No production code changed.",
+  "sha256": {
+    "manifest": "e67f3bb1a4f11bad6b9ad3d74d4e217599f3acf502e094e6b7a78766680f4948",
+    "contract": "71c146dd672b7b0840aa1ce4fada4a28d94d11b2bd38a86f63f9094c29dff9c5",
+    "oracles": "a978e1966139d5d8bb5bfe67cad70a2a6d981d2740bb4c1ce015c8d91e62cde7",
+    "mutants": "ec82313de7519402dd77bc583c6f282e2bb6307d63d0d39f851167df448395bf",
+    "static_attack_runner": "371bdc4f11b3339da82ceb2d2e119c1cb9641a9881816e62c0ee76674e52f919",
+    "step": "4d6c1b95e200ed44c02158ca5bce071e4315e7353ae3b699ea5d161ee07734ae",
+    "prompt_heading_owner": "ba3260033a5b734f0c530a1144bd191265101e7813dbc16643c429c65a8561ff",
+    "prompt_lang_hub": "95714e19f114953247479ae5510fb98d4926b4b9c32107fe66bcb7ccafaa63ce",
+    "prompt_shell_cli": "3cd72752a041949264531414f0b30627674044a14e272cea804b6d4bf89ad622",
+    "cli_with_red_tests": "cf8f9a95c4c44bc51fe7fe33e683456015e59a08b0db1fec5c3b3b2c2b154814",
+    "cli_production_baseline": "012710821b5521c9da2f32d8c14e78a94bd0dd03cddc681830dfa8ad944bf7ae",
+    "heading_owner_production_baseline": "00c585aed035ca166ca96fc74a06a04ae1829a3e1571c446c580381a878c7fc3",
+    "lang_hub_production_baseline": "0f267c04aa43175748deb3031dd9eae36e5b6a114b15b212e1a969138f1f23eb"
+  },
+  "mutation_gate": {
+    "compiled_valid": 4,
+    "compiled_required_score": 1.0,
+    "mandatory_static_locks": 4,
+    "model_discriminators": 16,
+    "orders_required": ["forward", "reverse", "forward-repeat"],
+    "unknown_promoted": false
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "schema": "p1460-mutants/v1",
+  "step": 1460,
+  "artifact": {
+    "path": "00_nucleo/diagnosticos/p1460-mutants.json",
+    "kind": "negative_mutation_catalog",
+    "status": "CATALOGADO_PRE_CANDIDATO",
+    "created_at": "2026-09-19T00:02:23-03:00",
+    "repository_head_at_authoring": "7f7a7ab1f9afc3e92ed29800408d9508525a6094",
+    "candidate_implementation_read": false,
+    "verdict_issued": false
+  },
+  "authority": {
+    "regime": "protocolo completo, fase adversarial pre-candidata",
+    "role": "adversario",
+    "environment": "working tree compartilhado typst-crystalline",
+    "attestation": "executado_sem_atestacao_de_isolamento",
+    "write_allowlist": [
+      "00_nucleo/diagnosticos/p1460-mutants.json"
+    ],
+    "preserved_preexisting_changes": [
+      "00_nucleo/prompts/compiler/lang.md",
+      "00_nucleo/prompts/compiler/lang/heading_supplement.md",
+      "00_nucleo/prompts/shell/cli.md"
+    ]
+  },
+  "frozen_scope": {
+    "obligation": "Eliminar o literal produtivo de suplemento automatico de heading em L2 por delegacao ao owner P1459.",
+    "required_call": "heading_supplement_for_lang(None)",
+    "preserved_observable": "O fallback raw continua a serializar supplement como Content::Text(\"Section\").",
+    "causal_snapshot_rule": "LocatedContent com snapshot presente conserva o supplement transportado pelo alvo e nunca e sobrescrito pelo fallback raw.",
+    "api_boundary": "Somente o helper do owner e reexportado publicamente; modulo, tabela e demais detalhes permanecem privados.",
+    "claim_limit": "O recorte prova ownership e ausencia de duplicacao do fallback L2; nao alega paridade raw geral nem equivalencia funcional geral."
+  },
+  "execution": {
+    "compiled_mutations_performed": false,
+    "static_locks_executed": false,
+    "workspace_tests_executed": false,
+    "execution_status": "catalogado; nenhuma mutacao foi injetada, compilada ou executada",
+    "unknown_policy": "Unknown inesperado, timeout, mutante inviavel ou evidencia ausente nao recebe credito e bloqueia o selo."
+  },
+  "compiled_mutations": [
+    {
+      "id": "M01_NULL_FALLBACK",
+      "attack_class": "null_or_absence",
+      "transformation": "Substituir o objeto Content::Text retornado pelo owner por SemanticValue::Null no campo supplement do Heading raw.",
+      "target": "02_shell/src/cli.rs::content_to_semantic/Content::Heading",
+      "valid": true,
+      "expected": "Violated",
+      "score_eligible": true,
+      "required_witness": "A serializacao de Value::Content(Heading) contem supplement={func:text,text:Section}; null e proibido."
+    },
+    {
+      "id": "M02_OMIT_FALLBACK_FIELD",
+      "attack_class": "null_or_absence",
+      "transformation": "Remover integralmente o par supplement do objeto semantico do Heading raw.",
+      "target": "02_shell/src/cli.rs::content_to_semantic/Content::Heading",
+      "valid": true,
+      "expected": "Violated",
+      "score_eligible": true,
+      "required_witness": "A serializacao de Value::Content(Heading) conserva a chave supplement e o texto Section; ausencia da chave e proibida."
+    },
+    {
+      "id": "M03_WRONG_OWNER",
+      "attack_class": "wrong_owner",
+      "transformation": "Delegar o fallback raw ao owner de equation ou figure em vez do owner P1459 de heading.",
+      "target": "02_shell/src/cli.rs::content_to_semantic/Content::Heading",
+      "valid": true,
+      "expected": "Violated",
+      "score_eligible": true,
+      "required_witness": "O fallback raw de heading e Section; Equation, Figure ou qualquer texto produzido por outro owner e proibido."
+    },
+    {
+      "id": "M04_OVERWRITE_CAUSAL_SNAPSHOT",
+      "attack_class": "causal_snapshot_overwritten",
+      "transformation": "Ignorar fields() presente em Value::LocatedContent e reconstruir o heading pelo fallback raw.",
+      "target": "02_shell/src/cli.rs::value_to_semantic/Value::LocatedContent",
+      "valid": true,
+      "expected": "Violated",
+      "score_eligible": true,
+      "required_witness": "Um snapshot causal alemao com supplement Abschnitt permanece Abschnitt e nao vira Section."
+    }
+  ],
+  "static_locks": [
+    {
+      "id": "S01_NO_L2_DUPLICATION",
+      "attack_class": "duplicate_l2",
+      "mandatory": true,
+      "score_eligible": false,
+      "expected": "Preserved",
+      "guard": "Fora do owner P1459 nao existe literal produtivo Section, tabela de traducoes, branch por Lang nem helper local de suplemento automatico de heading em L2.",
+      "failure": "Violated"
+    },
+    {
+      "id": "S02_CANONICAL_OWNER_PATH",
+      "attack_class": "wrong_owner",
+      "mandatory": true,
+      "score_eligible": false,
+      "expected": "Preserved",
+      "guard": "O consumer L2 importa e chama typst_core::compiler::lang::heading_supplement_for_lang; nao move nem replica a decisao em shell, entities, figure ou equation.",
+      "failure": "Violated"
+    },
+    {
+      "id": "S03_NONE_LOCALE_EXACT",
+      "attack_class": "locale_not_none",
+      "mandatory": true,
+      "score_eligible": false,
+      "expected": "Preserved",
+      "guard": "O argumento sintatico do owner no fallback raw e exatamente None; Some(Lang::ENGLISH), locale do processo, root, referencia ou documento sao proibidos mesmo quando produzem os mesmos bytes.",
+      "failure": "Violated"
+    },
+    {
+      "id": "S04_MINIMAL_PUBLIC_API",
+      "attack_class": "excessive_public_api",
+      "mandatory": true,
+      "score_eligible": false,
+      "expected": "Preserved",
+      "guard": "heading_supplement continua modulo privado, NAMES continua privado e o unico simbolo publico novo e o reexport de heading_supplement_for_lang; pub mod, pub const, tabela publica ou wrapper adicional falham.",
+      "failure": "Violated"
+    }
+  ],
+  "coverage": {
+    "required_attack_classes": {
+      "null_or_absence": [
+        "M01_NULL_FALLBACK",
+        "M02_OMIT_FALLBACK_FIELD"
+      ],
+      "duplicate_l2": [
+        "S01_NO_L2_DUPLICATION"
+      ],
+      "wrong_owner": [
+        "M03_WRONG_OWNER",
+        "S02_CANONICAL_OWNER_PATH"
+      ],
+      "locale_not_none": [
+        "S03_NONE_LOCALE_EXACT"
+      ],
+      "causal_snapshot_overwritten": [
+        "M04_OVERWRITE_CAUSAL_SNAPSHOT"
+      ],
+      "excessive_public_api": [
+        "S04_MINIMAL_PUBLIC_API"
+      ]
+    },
+    "required_attack_class_count": 6,
+    "compiled_mutant_count": 4,
+    "static_lock_count": 4,
+    "uncovered_required_attack_classes": []
+  },
+  "score": {
+    "formula": "compiled_mutants_classified_violated / valid_compiled_mutants",
+    "required": 1.0,
+    "observed": null,
+    "compiled_requirement": "4/4",
+    "static_requirement": "4/4 mandatory locks preserved outside the compiled mutation score",
+    "seal_condition": "Todos os quatro mutantes compilados resultam Violated e todas as quatro travas estaticas permanecem Preserved; sobrevivente, lock falha ou Unknown inesperado bloqueia o selo."
+  },
+  "limitations": [
+    "Este artefato congela ataques pre-candidato; nao e resultado de mutation testing.",
+    "Travas estaticas nao sao contabilizadas como mutacoes compiladas.",
+    "A autoria ocorreu em filesystem e contexto compartilhados, sem atestacao de isolamento."
+  ]
+}

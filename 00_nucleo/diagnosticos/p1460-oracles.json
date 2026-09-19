@@ -1,0 +1,225 @@
+{
+  "schema": "p1460-oracles/v1",
+  "step": 1460,
+  "captured_at_utc": "2026-09-19T03:01:52Z",
+  "phase": "before_candidate",
+  "sealed_before_candidate": true,
+  "candidate_inspected": false,
+  "attestation": "executado_sem_atestacao_de_isolamento",
+  "identities": {
+    "baseline_commit": "7f7a7ab1f9afc3e92ed29800408d9508525a6094",
+    "baseline_tree": "a06219a55c83ff0eb53148acebe393ae1b02a08a",
+    "crystalline_binary": {
+      "path": "target/release/typst",
+      "sha256": "ba5a128332f011aa312edd76c272c0c473cc4d484c8e2ef4c595d215af2a8be6",
+      "version_auxiliary": "typst 0.15.1 (7f7a7ab1)"
+    },
+    "ratified_vanilla": {
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "tree": "2847920eeaa98d26a41dc6fb0f9c02334b9d593b",
+      "paths": [
+        "lab/typst-original/target/release/typst",
+        "/usr/local/bin/typst"
+      ],
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "version_auxiliary": "typst 0.15.1 (586e1bd4)",
+      "role": "owner/snapshot semantic oracle and raw scope control; not the P1460 raw transcript target"
+    },
+    "predecessor_contract_sha256": "89d253ee684eb0a5677e25055af66580f7f83e3abe56ea4518f8c71e31fe490f",
+    "predecessor_oracles_sha256": "8acd69ac824d422d7e948945cf44a5c0654587cae011b7be6e7979c00d33069d"
+  },
+  "positive_cases": [
+    {
+      "id": "P01-public-owner-api",
+      "kind": "cross-crate Rust API",
+      "path": "typst_core::compiler::lang::heading_supplement_for_lang",
+      "cases": [
+        [null, "Section"],
+        ["de", "Abschnitt"],
+        ["fr", "Section"],
+        ["pt", "Seção"],
+        ["af", "Section"]
+      ],
+      "expected": "the L2 crate compiles against the public hub path and all values match"
+    },
+    {
+      "id": "P02-raw-json-compact",
+      "argv": ["typst", "eval", "heading[Probe]", "--format", "json"],
+      "exit": 0,
+      "stdout_utf8": "{\"func\":\"heading\",\"level\":1,\"depth\":1,\"offset\":0,\"numbering\":null,\"supplement\":{\"func\":\"text\",\"text\":\"Section\"},\"outlined\":true,\"bookmarked\":\"auto\",\"hanging-indent\":\"auto\",\"body\":{\"func\":\"text\",\"text\":\"Probe\"}}\n",
+      "stdout_bytes": 211,
+      "stdout_sha256": "3ca33d2c00b1f14cb0f9ef53e48e8df94b53560be7edd75f0c088740125aff18",
+      "stderr_utf8": ""
+    },
+    {
+      "id": "P03-raw-json-pretty",
+      "argv": ["typst", "eval", "heading[Probe]", "--format", "json", "--pretty"],
+      "exit": 0,
+      "stdout_bytes": 282,
+      "stdout_sha256": "94cea8cde0c3c46332170627b39db83d801f075dc84cbbd026c6d83767d05332",
+      "required_fragments": [
+        "  \"supplement\": {\n    \"func\": \"text\",\n    \"text\": \"Section\"\n  }",
+        "  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"Probe\"\n  }\n}\n"
+      ]
+    },
+    {
+      "id": "P04-raw-yaml-pretty-neutral",
+      "argv_base": ["typst", "eval", "heading[Probe]", "--format", "yaml"],
+      "argv_variant": ["typst", "eval", "heading[Probe]", "--format", "yaml", "--pretty"],
+      "exit": 0,
+      "stdout_utf8": "func: heading\nlevel: 1\ndepth: 1\noffset: 0\nnumbering: null\nsupplement:\n  func: text\n  text: Section\noutlined: true\nbookmarked: auto\nhanging-indent: auto\nbody:\n  func: text\n  text: Probe\n",
+      "stdout_bytes": 185,
+      "stdout_sha256": "20141dc28210cccef5a3d48269c4169607cbf58de80d6f1240c4e4e5e3b30858",
+      "expected_relation": "base and --pretty are byte-identical"
+    },
+    {
+      "id": "P05-raw-explicit-fields-control",
+      "argv": ["typst", "eval", "heading(level: 2, outlined: false, bookmarked: true)[Probe]", "--format", "json"],
+      "exit": 0,
+      "stdout_bytes": 210,
+      "stdout_sha256": "c44628a69dc6b9fa037da8802956e8c787c21078c5e01a003fa06f3f98b37054",
+      "required_fragments": ["\"level\":2", "\"depth\":2", "\"supplement\":{\"func\":\"text\",\"text\":\"Section\"}", "\"outlined\":false", "\"bookmarked\":true"]
+    },
+    {
+      "id": "P06-causal-snapshot-field-and-one",
+      "stdin_utf8": "#set text(lang: \"de\")\n= Probe <p>\n",
+      "commands": [
+        {
+          "argv": ["typst", "query", "-", "heading", "--field", "supplement", "--format", "json"],
+          "stdout_utf8": "[{\"func\":\"text\",\"text\":\"Abschnitt\"}]\n",
+          "stdout_bytes": 37,
+          "stdout_sha256": "c5ddd5b6b2d0765c121b9123862614e6c7dfa2e34c610cc377885133e19ae170"
+        },
+        {
+          "argv": ["typst", "query", "-", "heading", "--field", "supplement", "--one", "--format", "json"],
+          "stdout_utf8": "{\"func\":\"text\",\"text\":\"Abschnitt\"}\n",
+          "stdout_bytes": 35,
+          "stdout_sha256": "6663317c05f7f4e3419d3caea97f59663fd0b6af304457b2c15cd05c8eb6548c"
+        },
+        {
+          "argv": ["typst", "query", "-", "heading", "--one", "--format", "json"],
+          "stdout_bytes": 227,
+          "stdout_sha256": "fa03aeb21121a843dea50ce1ea6d60c23dd56c5a3699f23e225c4bf730428d91",
+          "required_fragments": ["\"supplement\":{\"func\":\"text\",\"text\":\"Abschnitt\"}", "\"label\":\"<p>\""]
+        }
+      ],
+      "exit": 0,
+      "stderr_policy": "preserve the existing deprecated-query warning; do not compare it to vanilla editorial text"
+    }
+  ],
+  "negative_cases": [
+    {
+      "id": "N01-no-false-raw-language-causality",
+      "expressions": [
+        "text(lang: \"de\")[#heading[Probe]]",
+        "text(lang: \"pt\")[#heading[Probe]]",
+        "text(lang: \"fr\")[#heading[Probe]]"
+      ],
+      "format": "json",
+      "expected_relation": "all three crystalline outputs remain byte-identical and the nested raw heading supplement remains Section",
+      "stdout_bytes_each": 236,
+      "stdout_sha256_each": "4706e4160912bed0e20c55bc97c72e741795283e2c62b2fbbbb022321f00e0f2",
+      "forbidden_fragments": ["Abschnitt", "Seção"]
+    },
+    {
+      "id": "N02-content-raw-format-remains-rejected",
+      "argv": ["typst", "eval", "heading[Probe]", "--format", "raw"],
+      "exit": 1,
+      "stdout_utf8": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_utf8": "error: cannot print content in raw format\nhint: `--format=raw` only supports strings and bytes\n",
+      "stderr_bytes": 95,
+      "stderr_sha256": "40fce952c6e6839130f944f0a1f356f6dcd60afd2915ca6f146a69b9a6f0c24b"
+    },
+    {
+      "id": "N03-do-not-adopt-vanilla-raw-shape",
+      "vanilla_scope_control_stdout": "{\"func\":\"heading\",\"body\":{\"func\":\"text\",\"text\":\"Probe\"}}\n",
+      "classification_for_p1460_candidate": "Violated",
+      "reason": "P1307-R5 explicitly preserves the crystalline legacy fallback; removing synthetic fields is a different public change"
+    },
+    {
+      "id": "N04-snapshot-must-not-fall-back-to-none",
+      "fixture": "German located heading from P06",
+      "forbidden_stdout_fragment": "\"supplement\":{\"func\":\"text\",\"text\":\"Section\"}",
+      "required_stdout_fragment": "\"supplement\":{\"func\":\"text\",\"text\":\"Abschnitt\"}",
+      "classification_on_forbidden_fragment": "Violated"
+    }
+  ],
+  "structural_cases": [
+    {
+      "id": "S01-narrow-public-reexport",
+      "required": [
+        "compiler/lang keeps `mod heading_supplement` private",
+        "compiler/lang publicly reexports the existing heading_supplement_for_lang symbol",
+        "heading_supplement_for_lang itself is public with its unchanged signature"
+      ],
+      "forbidden": ["public physical owner module", "hub wrapper", "hub constant", "second table"]
+    },
+    {
+      "id": "S02-direct-none-owner-call",
+      "required_ast_relation": "the supplement value in the productive Content::Heading arm is built from Content::text(heading_supplement_for_lang(None))",
+      "forbidden_equivalents": ["Some(Lang::ENGLISH)", "Some(parsed en)", "literal", "local constant", "local helper", "ignored owner return"]
+    },
+    {
+      "id": "S03-no-L2-linguistic-owner",
+      "required": "productive L2 contains no heading supplement table, locale branch, Lang inference, Section literal successor, or wrapper decision",
+      "scope": "production source only; test expectations do not constitute productive ownership"
+    },
+    {
+      "id": "S04-protected-non-heading-paths",
+      "required": "LocatedContent(Some(fields)), Figure, Equation, format selection, field selection, and cardinality paths are unchanged semantically"
+    }
+  ],
+  "opaque_cases": [
+    {
+      "id": "U01-raw-producer-debts",
+      "domain": ["explicit raw supplement", "depth", "offset", "hanging-indent", "numbering callback or style transport"],
+      "expected_classification": "Unknown",
+      "reason": "these values can be discarded or wrapped before L2 and P1460 does not repair their producers"
+    },
+    {
+      "id": "U02-show-set-causal-language",
+      "domain": "heading language introduced only through show-set or rendered-phase style",
+      "expected_classification": "Unknown",
+      "reason": "P1459 records a separate pre-show/render phase divergence requiring its own ADR-0127 decision"
+    },
+    {
+      "id": "U03-general-raw-parity",
+      "domain": "equivalence of raw Content serialization to vanilla beyond the frozen P1460 transcript",
+      "expected_classification": "Unknown",
+      "reason": "the products deliberately differ in raw heading shape at this step"
+    },
+    {
+      "id": "U04-execution-or-adapter-failure",
+      "domain": ["timeout", "missing binary", "nonzero exit where success is required", "malformed JSON or YAML", "truncated output", "ambiguous source scan"],
+      "expected_classification": "Unknown",
+      "credit": 0
+    }
+  ],
+  "discriminatory_mutants": [
+    {"id": "M01-retain-current-literal", "witnesses": ["S02", "S03"]},
+    {"id": "M02-move-literal-to-local-constant-or-helper", "witnesses": ["S02", "S03"]},
+    {"id": "M03-duplicate-table-or-language-branch-in-L2", "witnesses": ["S03"]},
+    {"id": "M04-call-owner-with-Some-English", "witnesses": ["S02"]},
+    {"id": "M05-call-owner-with-German-or-process-language", "witnesses": ["P02", "N01", "S02"]},
+    {"id": "M06-call-equation-or-figure-owner", "witnesses": ["P02", "P04"]},
+    {"id": "M07-owner-not-public-through-required-hub-path", "witnesses": ["P01", "S01"]},
+    {"id": "M08-make-physical-module-public-instead-of-narrow-reexport", "witnesses": ["S01"]},
+    {"id": "M09-change-owner-None-fallback-or-ratified-entry", "witnesses": ["P01", "inherited P1459 full owner corpus"]},
+    {"id": "M10-remove-or-reorder-raw-fields", "witnesses": ["P02", "P03", "P04", "P05", "N03"]},
+    {"id": "M11-infer-language-from-raw-Styled-wrapper", "witnesses": ["N01"]},
+    {"id": "M12-route-snapshot-present-content-through-raw-fallback", "witnesses": ["P06", "N04"]},
+    {"id": "M13-fix-only-JSON-or-only-YAML", "witnesses": ["P02", "P03", "P04"]},
+    {"id": "M14-change-raw-format-error", "witnesses": ["N02"]},
+    {"id": "M15-derive-expected-output-from-candidate", "witnesses": ["frozen transcript hashes and baseline identity"]},
+    {"id": "M16-promote-Unknown", "witnesses": ["Unknown policy"]}
+  ],
+  "mutation_gate": {
+    "valid_mutations": 16,
+    "required_score": 1.0,
+    "unknown_kills_mutant": false,
+    "opaque_controls_count_for_score": false,
+    "orders": ["forward", "reverse", "forward-repeat"]
+  },
+  "unknown_policy": "Unknown is fail-closed: it never satisfies a required case, never kills a mutant, never raises mutation score, and blocks sealing when produced by a required positive, negative, or structural case"
+}

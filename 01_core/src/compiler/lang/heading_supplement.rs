@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang/heading_supplement.md
-//! @prompt-hash bbbf1a55
+//! @prompt-hash e613fb01
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -58,9 +58,7 @@ const NAMES: &[(&str, &str)] = &[
 
 /// Resolve o suplemento automático de heading por igualdade exata de língua.
 /// Língua ausente ou sem entrada usa o default inglês da linguagem.
-pub(in crate::compiler) fn heading_supplement_for_lang(
-    lang: Option<&Lang>,
-) -> &'static str {
+pub fn heading_supplement_for_lang(lang: Option<&Lang>) -> &'static str {
     let Some(lang) = lang else { return "Section" };
     NAMES
         .iter()

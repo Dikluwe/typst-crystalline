@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 1754dc5e
+//! @prompt-hash d717e010
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -23,6 +23,7 @@ use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 
 use clap::{CommandFactory, Parser, Subcommand};
+use typst_core::compiler::lang::heading_supplement_for_lang;
 use typst_core::entities::elements::math_attach::MathAttachSlot;
 use typst_core::entities::value::Value;
 
@@ -878,7 +879,12 @@ fn content_to_semantic(
                 ("depth".into(), SemanticValue::Int(heading.level as i64)),
                 ("offset".into(), SemanticValue::Int(0)),
                 ("numbering".into(), SemanticValue::Null),
-                ("supplement".into(), content_to_semantic(&Content::text("Section"))),
+                (
+                    "supplement".into(),
+                    content_to_semantic(&Content::text(heading_supplement_for_lang(
+                        None,
+                    ))),
+                ),
                 ("outlined".into(), SemanticValue::Bool(heading.outlined)),
                 (
                     "bookmarked".into(),
@@ -1868,6 +1874,119 @@ mod tests {
         );
         let one = serialize_query(&[Value::Content(heading)], None, true, false).unwrap();
         assert!(one.starts_with(b"{\"func\":\"heading\""));
+    }
+
+    #[test]
+    fn p1460_raw_heading_delega_owner_e_preserva_transcripts() {
+        use std::str::FromStr;
+        use typst_core::compiler::lang::heading_supplement_for_lang;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::lang::Lang;
+
+        for (lang, expected) in [
+            (None, "Section"),
+            (Some("de"), "Abschnitt"),
+            (Some("fr"), "Section"),
+            (Some("pt"), "Seção"),
+            (Some("af"), "Section"),
+        ] {
+            let parsed = lang.map(|code| Lang::from_str(code).unwrap());
+            assert_eq!(heading_supplement_for_lang(parsed.as_ref()), expected);
+        }
+
+        let heading = Content::heading(1, Content::text("Probe"));
+        let value = Value::Content(heading.clone());
+        assert_eq!(
+            serialize_eval(&value, EvalFormat::Json, false).unwrap(),
+            concat!(
+                "{\"func\":\"heading\",\"level\":1,\"depth\":1,\"offset\":0,",
+                "\"numbering\":null,\"supplement\":{\"func\":\"text\",",
+                "\"text\":\"Section\"},\"outlined\":true,\"bookmarked\":\"auto\",",
+                "\"hanging-indent\":\"auto\",\"body\":{\"func\":\"text\",",
+                "\"text\":\"Probe\"}}\n"
+            )
+            .as_bytes()
+        );
+        assert_eq!(
+            serialize_eval(&value, EvalFormat::Json, true).unwrap(),
+            concat!(
+                "{\n",
+                "  \"func\": \"heading\",\n",
+                "  \"level\": 1,\n",
+                "  \"depth\": 1,\n",
+                "  \"offset\": 0,\n",
+                "  \"numbering\": null,\n",
+                "  \"supplement\": {\n",
+                "    \"func\": \"text\",\n",
+                "    \"text\": \"Section\"\n",
+                "  },\n",
+                "  \"outlined\": true,\n",
+                "  \"bookmarked\": \"auto\",\n",
+                "  \"hanging-indent\": \"auto\",\n",
+                "  \"body\": {\n",
+                "    \"func\": \"text\",\n",
+                "    \"text\": \"Probe\"\n",
+                "  }\n",
+                "}\n"
+            )
+            .as_bytes()
+        );
+        let yaml = concat!(
+            "func: heading\n",
+            "level: 1\n",
+            "depth: 1\n",
+            "offset: 0\n",
+            "numbering: null\n",
+            "supplement:\n",
+            "  func: text\n",
+            "  text: Section\n",
+            "outlined: true\n",
+            "bookmarked: auto\n",
+            "hanging-indent: auto\n",
+            "body:\n",
+            "  func: text\n",
+            "  text: Probe\n"
+        )
+        .as_bytes();
+        assert_eq!(serialize_eval(&value, EvalFormat::Yaml, false).unwrap(), yaml);
+        assert_eq!(serialize_eval(&value, EvalFormat::Yaml, true).unwrap(), yaml);
+        assert_eq!(
+            serialize_eval(&value, EvalFormat::Raw, false).unwrap_err(),
+            "cannot print content in raw format\nhint: `--format=raw` only supports strings and bytes"
+        );
+        assert_eq!(
+            serialize_query(&[Value::Content(heading)], Some("supplement"), true, false)
+                .unwrap(),
+            b"{\"func\":\"text\",\"text\":\"Section\"}\n"
+        );
+    }
+
+    #[test]
+    fn p1460_snapshot_causal_continua_autoritativo() {
+        use typst_core::entities::content::Content;
+        use typst_core::entities::locator::Locator;
+        use typst_core::entities::value::IntrospectedContent;
+
+        let heading = Content::heading(1, Content::text("Probe"));
+        let mut locator = Locator::new();
+        let located = Value::LocatedContent(
+            IntrospectedContent::new(
+                heading,
+                Some(
+                    std::iter::once((
+                        "supplement".into(),
+                        Value::Content(Content::text("Abschnitt")),
+                    ))
+                    .collect(),
+                ),
+            ),
+            locator.next(),
+        );
+
+        assert_eq!(
+            serialize_query(&[located], Some("supplement"), true, false).unwrap(),
+            b"{\"func\":\"text\",\"text\":\"Abschnitt\"}\n"
+        );
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang.md
-//! @prompt-hash c53da034
+//! @prompt-hash 3201fae8
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -18,4 +18,4 @@ mod heading_supplement;
 pub mod outline_title;
 pub mod quotes;
 
-pub(in crate::compiler) use heading_supplement::heading_supplement_for_lang;
+pub use heading_supplement::heading_supplement_for_lang;

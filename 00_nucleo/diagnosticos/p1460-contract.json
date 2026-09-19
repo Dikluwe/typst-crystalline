@@ -1,0 +1,96 @@
+{
+  "schema": "p1460-contract/v1",
+  "step": 1460,
+  "captured_at_utc": "2026-09-19T03:01:52Z",
+  "phase": "before_candidate",
+  "sealed_before_candidate": true,
+  "candidate_inspected": false,
+  "attestation": "executado_sem_atestacao_de_isolamento",
+  "baseline": {
+    "commit": "7f7a7ab1f9afc3e92ed29800408d9508525a6094",
+    "tree": "a06219a55c83ff0eb53148acebe393ae1b02a08a",
+    "working_tree_at_initial_measurement": "clean",
+    "consumer": "02_shell/src/cli.rs",
+    "consumer_sha256": "012710821b5521c9da2f32d8c14e78a94bd0dd03cddc681830dfa8ad944bf7ae",
+    "lang_hub_sha256": "0f267c04aa43175748deb3031dd9eae36e5b6a114b15b212e1a969138f1f23eb",
+    "heading_owner_sha256": "00c585aed035ca166ca96fc74a06a04ae1829a3e1571c446c580381a878c7fc3"
+  },
+  "authoritative_prompts": [
+    {
+      "path": "00_nucleo/prompts/compiler/lang.md",
+      "sha256": "95714e19f114953247479ae5510fb98d4926b4b9c32107fe66bcb7ccafaa63ce"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/lang/heading_supplement.md",
+      "sha256": "ba3260033a5b734f0c530a1144bd191265101e7813dbc16643c429c65a8561ff"
+    },
+    {
+      "path": "00_nucleo/prompts/shell/cli.md",
+      "sha256": "3cd72752a041949264531414f0b30627674044a14e272cea804b6d4bf89ad622"
+    }
+  ],
+  "input_domain": "automatic heading supplement synthesized by the L2 semantic serializer for Value::Content and LocatedContent without a captured field snapshot",
+  "rule": "Expose heading_supplement_for_lang as the narrow public L1 owner through typst_core::compiler::lang and make the L2 raw-heading fallback construct the existing supplement with heading_supplement_for_lang(None)",
+  "public_api": {
+    "path": "typst_core::compiler::lang::heading_supplement_for_lang",
+    "signature": "pub fn heading_supplement_for_lang(lang: Option<&Lang>) -> &'static str",
+    "module_policy": "the physical heading_supplement module and its table remain private; only the existing helper is publicly reexported",
+    "compatibility": "additive public API approved under ADR-0127; existing signatures remain unchanged"
+  },
+  "obligations": [
+    "02_shell calls heading_supplement_for_lang(None) in the Content::Heading raw fallback",
+    "None is literal absence of causal language, not an alias for process, document, reference-site, or wrapper language",
+    "raw heading JSON, YAML, pretty behavior, key order, field presence, newline, exit, --field, and --one remain byte-identical to the frozen crystalline baseline",
+    "LocatedContent with a captured snapshot remains authoritative and bypasses the raw fallback",
+    "the 45 ratified owner entries, exact Lang equality, English fallback, purity, and determinism remain unchanged",
+    "compiler/lang remains independent of L2 and owns the only heading localization table"
+  ],
+  "preserved": [
+    "all synthetic raw-heading fields, including supplement text Section",
+    "localized causal snapshot fields such as German Abschnitt",
+    "Figure and Equation serialization",
+    "JSON compact and pretty encodings",
+    "YAML encoding and pretty neutrality",
+    "raw-format rejection for Content",
+    "warnings, errors, cardinality, and query field selection"
+  ],
+  "forbidden": [
+    "the literal Section as a productive raw-heading decision in L2",
+    "an L2 constant, helper, wrapper, table, locale branch, or Lang inference for the heading supplement",
+    "calling the owner with Some English or any invented language instead of None",
+    "making the physical owner module public instead of using the narrow hub reexport",
+    "removing, adding, reordering, or reinterpreting raw-heading fields",
+    "routing snapshot-present LocatedContent through the raw fallback",
+    "changing Figure, Equation, format, pretty, --field, --one, warning, error, or newline behavior",
+    "promoting Unknown to Preserved or mutation credit"
+  ],
+  "out_of_scope": [
+    "raw Content parity with vanilla; the ratified vanilla emits a smaller raw heading object",
+    "removal of synthetic raw defaults or adoption of vanilla set-field projection",
+    "show-set causal language and the pre-show versus rendered phase boundary",
+    "support for raw constructor supplement, depth, offset, hanging-indent, or numbering debts",
+    "general Content serialization parity",
+    "new flags, formats, phases, callbacks, wrappers, or localization tables"
+  ],
+  "oracle_authority": {
+    "raw_output": "frozen crystalline baseline, because P1460 is deliberately output-preserving",
+    "localized_owner_and_snapshot": "ratified vanilla pin plus the already-certified P1459 owner corpus",
+    "architectural_ownership": "static structural oracle over the protected L0 and productive source",
+    "vanilla_raw_role": "scope delimiter and anti-overclaim control, not the expected P1460 output"
+  },
+  "unknown_policy": {
+    "rule": "Unknown never satisfies a required case, never kills a mutant, and never increases mutation score",
+    "required_case_unknown": "blocks sealing and acceptance",
+    "deliberately_opaque_case_unknown": "expected classification with zero mutation credit",
+    "none_is_not_unknown": "heading_supplement_for_lang(None) is a specified English fallback and must return Section"
+  },
+  "mutation_gate": {
+    "required_score": 1.0,
+    "invalid_or_unbuildable_mutant": "no credit; repair the mutant or classify it inapplicable with evidence",
+    "orders": [
+      "forward",
+      "reverse",
+      "forward-repeat"
+    ]
+  }
+}

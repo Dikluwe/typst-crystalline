@@ -1,5 +1,5 @@
 # Prompt L0 — suplemento localizado de heading
-Hash do Código: 28eba642
+Hash do Código: 440232d8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
@@ -58,3 +58,33 @@ transporta apenas códigos ASCII de duas ou três letras.
 
 Esta é correção interna de paridade e ownership: não muda API, default de
 produto, fase ou compatibilidade, logo segue o fluxo contínuo ADR-0127.
+
+## P1460 — contrato público mínimo para o consumer L2
+
+### Medição anterior à decisão
+
+No commit `7f7a7ab1f9afc3e92ed29800408d9508525a6094`, o owner tem
+visibilidade `pub(in crate::compiler)`. Essa fronteira impede o consumer L2
+`02_shell/src/cli.rs` de o chamar e deixa nesse consumer a decisão produtiva
+`Content::text("Section")`. O caminho `Value::LocatedContent` com fields
+capturados não usa esse fallback; a dívida ocorre em `Value::Content` e
+`LocatedContent(None)`.
+
+### Decisão pública
+
+Promover somente `heading_supplement_for_lang` para `pub`. O módulo físico
+continua privado e a tabela continua encapsulada neste ficheiro. A assinatura,
+as 45 entradas, igualdade exata e fallback não mudam. A função pública é o
+contrato L1 pelo qual consumers L2 obtêm a decisão canónica; não criar
+constante inglesa, wrapper semântico, segunda tabela ou owner L2.
+
+Esta adição de API pública foi confirmada pelo dono no pedido de P1460 em
+2026-09-18, depois de o fecho P1459 identificar expressamente o gate
+ADR-0127. A API é aditiva; removê-la no futuro requer tratar compatibilidade.
+
+### Aceitação
+
+- crate consumidora consegue chamar `heading_supplement_for_lang(None)`;
+- `None` continua a produzir `Section` e as 45 entradas permanecem iguais;
+- nenhuma fase, default linguístico ou output existente muda;
+- o owner continua único e sem dependência de L2.

@@ -1,0 +1,23 @@
+{
+  "schema": "p1460-static-attack-results/v1",
+  "captured_at_utc": "2026-09-19T03:20:50Z",
+  "evidence_kind": "static_or_model_discriminators",
+  "compiled_mutation_execution": false,
+  "attestation": "executado_sem_atestacao_de_isolamento",
+  "candidate_cli_sha256": "0c34e51fb37776003dff8e3184c7b735495f83977604d2a785e71ab76a559498",
+  "runner_sha256": "1bb0afe360ee5aa1709e07161914197ffc1696042429fd413dc21d5c76780577",
+  "valid_attacks": 16,
+  "rejected": 16,
+  "survivors": [],
+  "discriminator_score": 1.0,
+  "locks": {
+    "direct_none_owner_call": true,
+    "no_l2_successor": true,
+    "narrow_public_api": true,
+    "snapshot_present_bypasses_fallback": true,
+    "frozen_transcript_tests_present": true,
+    "owner_corpus_guard_present": true,
+    "pre_candidate_authority_frozen": true
+  },
+  "limitation": "This artifact reports source/model discrimination only; compiled mutation evidence is recorded separately."
+}

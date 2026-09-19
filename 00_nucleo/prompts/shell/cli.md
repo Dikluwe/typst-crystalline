@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: b4d74615
+Hash do Código: bd8df6ac
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -51,6 +51,48 @@ Value ou snapshot explícito conforme o caso, sem rebatizar dívida como prova.
 Aceitação: fields de Heading padrão/numbering/idioma/label chegam à CLI;
 query sem field e com field/one; controles Figure/Equation/Metadata e raw.
 A mudança pública de tipo do parâmetro aguarda aprovação ADR-0127.
+
+## P1460 — eliminar o literal sucessor de heading no fallback raw
+
+### Medição anterior à decisão
+
+No commit `7f7a7ab1f9afc3e92ed29800408d9508525a6094`, SHA-256 do
+consumer `012710821b5521c9da2f32d8c14e78a94bd0dd03cddc681830dfa8ad944bf7ae`,
+`content_to_semantic` sintetiza o supplement de `Content::Heading` com
+`Content::text("Section")`. É a única decisão produtiva desse supplement
+fora do owner P1459. `LocatedContent(Some(fields))` projeta o snapshot
+autoritativo e não passa pelo literal.
+
+O probe `typst eval 'heading[First]' --format json` do cristalino contém o
+objeto text `Section`; o vanilla ratificado emite uma forma raw menor. Essa
+diferença de forma já é dívida delimitada por P1307-R5 e não legitima remover
+campos nesta unidade. P1460 preserva byte a byte o fallback legacy; corrige
+somente a autoria da decisão linguística.
+
+### Decisão
+
+Importar `typst_core::compiler::lang::heading_supplement_for_lang` e construir
+o mesmo `Content::text` com `heading_supplement_for_lang(None)`. `None` é
+obrigatório porque raw Content não transporta uma `StyleChain`; inventar
+idioma do processo, documento ou referência seria falsa causalidade.
+
+É proibido conservar/recriar `"Section"`, tabela, branch de língua, constante
+ou wrapper local de suplemento automático de heading. Não alterar ordem ou
+presença de fields, JSON/YAML, pretty, newline, `--field`, `--one`,
+LocatedContent, Figure ou Equation.
+
+O novo acesso depende do contrato público L1 aprovado pelo dono no pedido
+P1460 de 2026-09-18, após aviso explícito do gate ADR-0127 no fecho P1459.
+Output/default/fase permanecem iguais; a única ampliação é a API aditiva do
+owner.
+
+### Aceitação
+
+- o JSON raw de heading permanece byte-idêntico ao baseline cristalino;
+- caminho snapshot causal permanece inalterado;
+- `content_to_semantic` chama o owner com `None` e não contém literal sucessor;
+- francês/português/alemão não são inferidos para raw Content sem chain;
+- nenhum consumer ou tabela duplicada é introduzido.
 
 ---
 
