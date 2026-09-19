@@ -1,0 +1,21 @@
+{
+  "schema": "p1458-mutants/v1",
+  "step": 1458,
+  "required_score": 1.0,
+  "mutants": [
+    "retain-current-pt-en-branch",
+    "always-english",
+    "always-portuguese",
+    "localize-caption-only",
+    "delegate-image-only",
+    "duplicate-kind-match",
+    "drop-explicit-supplement",
+    "replace-nbsp-with-space",
+    "accept-one-binary",
+    "promote-unknown"
+  ],
+  "valid_mutations": 10,
+  "positive_controls": 5,
+  "opaque_controls": 3,
+  "orders": ["forward", "reverse", "forward-repeat"]
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "p1458-mutation-results/v1",
+  "valid_mutations": 10,
+  "killed": 10,
+  "survivors": [],
+  "mutation_score": 1.0,
+  "orders": ["forward", "reverse", "forward-repeat"],
+  "unknown_promoted": false,
+  "witnesses": {
+    "retain-current-pt-en-branch": "image/de returns Figure instead of Abbildung",
+    "always-english": "image/de returns Figure instead of Abbildung",
+    "always-portuguese": "image/de returns Figura instead of Abbildung",
+    "localize-caption-only": "reference remains Figure while caption is localized",
+    "delegate-image-only": "table/de returns Table instead of Tabelle",
+    "duplicate-kind-match": "table/de returns Figure instead of Tabelle",
+    "drop-explicit-supplement": "explicit supplement control must override the owner",
+    "replace-nbsp-with-space": "join control requires U+00A0",
+    "accept-one-binary": "public oracle requires both identified binaries",
+    "promote-unknown": "opaque controls must remain Unknown"
+  }
+}

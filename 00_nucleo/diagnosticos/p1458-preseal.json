@@ -1,0 +1,24 @@
+{
+  "schema": "p1458-preseal/v1",
+  "captured_at_utc": "2026-09-19T01:36:50Z",
+  "baseline_commit": "f6463768d8bb093a59577ff6f3262a9c5f8eb448",
+  "baseline_tree": "1a598261ead2448fd5ec5b4a2381930ed729e3bc",
+  "attestation": "executado sem atestacao de isolamento",
+  "phase": "after_contract_oracles_mutants_and_red_test_before_red_execution_and_candidate",
+  "sha256": {
+    "manifest": "69e21242343b89398104bbd447a536f0fd014832910db6ebbdf17a2ec97f0b73",
+    "contract": "afc9f5918170e2c488ce4c9729889e7e665c3a9c9d2868682573fc10f20d86e1",
+    "oracles": "ed3c30cf487c5b38bd07d41b04bf5f6e86d174fe717a2cca9649eca903f6760e",
+    "mutants": "fa1c2c730c1a6818b756a378b9390126ce16d5c1112f9826fdb931869819a41f",
+    "mutation_runner": "ac81ee5cf29f3fd38e420dab037e3f07aacbe424c66c7f82c18476729ba2f3cf",
+    "prompt": "9b5026cdcc0087fdf37d5318d7c75a8dbf84e4242efb34102f8d2bc148c9b795",
+    "consumer_with_red_test": "68d5f94a40b4adea42a52465c65692940a1faa846e281f91d441a8c06e55d472",
+    "consumer_production_baseline": "5f154629f028d3658a4978dcc0cd1a74c30a1b3ef72e90c21077bf7c93f4a118"
+  },
+  "mutation_gate": {
+    "valid": 10,
+    "required_score": 1.0,
+    "orders_required": ["forward", "reverse", "forward-repeat"],
+    "unknown_promoted": false
+  }
+}

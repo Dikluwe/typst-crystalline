@@ -1,5 +1,5 @@
 # L0 — Layout: Referências e Labels
-Hash do Código: c329926a
+Hash do Código: fe46239a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
@@ -13,8 +13,12 @@ o `Introspector` fornecido ao Layouter. O caminho numérico P462 consulta
 `Introspector::counter_key_for_label` + `query_by_label` e formata o número do
 counter correspondente. O caminho legacy (`Content::Labelled`) continua a usar
 `resolved_labels` / `figure_label_numbers` injectados pela introspecção
-(Passagem 1). P463 envolve todo `Ref` num `FrameItem::Link` com destino
-interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
+(Passagem 1). Supplements de figure, tanto no caminho numérico como no
+fallback legacy, são obtidos do owner linguístico
+`compiler/lang/figure_supplement.rs`; este módulo não mantém uma segunda
+tabela ou bifurcação por língua. P463 envolve todo `Ref` num
+`FrameItem::Link` com destino interno (`LinkTarget::Destination`), tornando a
+referência clicável no PDF.
 
 ## Regras de negócio
 - `Labelled { target, label }` → layout transparente do target, depois registo
@@ -32,7 +36,9 @@ interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
 ## Critérios de verificação
 - `Ref` a heading numerado via `Content::Label` → número (ex: `"1"`) no
   plain_text.
-- `Ref` a figure numerada via `Content::Label` → `"Figure 1"` (`en`) / `"Figura 1"` (`pt`) (P1073).
+- `Ref` a figure numerada via `Content::Label` usa o mesmo supplement
+  localizado da legenda (`Figure`, `Figura`, `Abbildung`, `Tableau`, etc.) e
+  junta-o ao número com NBSP.
 - `Ref` a equation numerada → `"Equation 1"` (`en`) / `"Equação 1"` (`pt`) (P1073).
 - `Ref` a table numerada → `"Table 1"`.
 - Supplement explícito sobrepõe default.
@@ -164,3 +170,34 @@ número lógico corrente.
 nunca chama Func durante layout. Pattern usa o mesmo slot, realizado pelo owner
 compartilhado com `[current]`. Supplement explícito mantém precedência e NBSP;
 conteúdo vazio omite só o número, não o link.
+
+## P1458 — remover o hardcode bilingue de referências de figure
+
+### Medição anterior à decisão
+
+No commit `f6463768d8bb093a59577ff6f3262a9c5f8eb448`, a fixture pública com
+`#set text(lang: "de")`, uma figure `image` numerada e `@abbildung` produziu
+`Abbildung 1: Bild` na legenda nos dois produtos. A referência produziu
+`Abbildung 1` no vanilla ratificado `586e1bd43`, mas `Figure 1` no cristalino.
+O consumer medido em `references.rs:391-411` continha uma segunda decisão
+`is_pt`: português recebia tradução e qualquer outra língua recebia inglês,
+apesar de `figure_supplement_for_lang` já ser o owner das 18 combinações
+legitimadas por `compiler/lang/figure_supplement.md`.
+
+### Decisão
+
+Para toda `CounterKey::Str("figure:{kind}")`, o supplement default é
+`figure_supplement_for_lang(kind, lang)`. O fallback legacy de figure usa o
+mesmo owner com kind `image`. Supplement explícito conserva precedência e o
+join conserva U+00A0. É proibido manter ou recriar neste módulo catálogo,
+`is_pt`, match de kind, texto Figure/Figura/Table/Listing ou fallback próprio
+para figures.
+
+### Aceitação
+
+- em `de`, legenda e referência de image dizem `Abbildung 1`;
+- `figure:table` e `figure:raw` observam as traduções do owner para as línguas
+  já cobertas;
+- `en`, `pt`, supplement explícito, número, NBSP, link e erros permanecem;
+- língua/kind não cobertos preservam o fallback definido exclusivamente pelo
+  owner linguístico.

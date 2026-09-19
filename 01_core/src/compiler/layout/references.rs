@@ -1,22 +1,25 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_references.md
-//! @prompt-hash 6b168f86
+//! @prompt-hash 4bd02064
 //! @layer L1
-//! @updated 2026-08-18
+//! @updated 2026-09-18
 
-use crate::entities::{
-    content::Content,
-    counter::CounterKey,
-    counter_format::format_counter,
-    element_kind::ElementKind,
-    elements::cite::CiteElem,
-    elements::r#ref::RefElem,
-    introspector::Introspector,
-    label::Label,
-    layout_types::{FrameItem, LinkTarget, Point},
-    selector::Selector,
-    source_result::SourceDiagnostic,
-    span::Span,
+use crate::{
+    compiler::lang::figure_supplement::figure_supplement_for_lang,
+    entities::{
+        content::Content,
+        counter::CounterKey,
+        counter_format::format_counter,
+        element_kind::ElementKind,
+        elements::cite::CiteElem,
+        elements::r#ref::RefElem,
+        introspector::Introspector,
+        label::Label,
+        layout_types::{FrameItem, LinkTarget, Point},
+        selector::Selector,
+        source_result::SourceDiagnostic,
+        span::Span,
+    },
 };
 
 use super::{link::link_bbox, FontMetrics, ImageSizer, Layouter};
@@ -354,22 +357,15 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
 
     // 2. Fallback legacy: figure Labelled (P1073: Figure/Figura com NBSP).
     if let Some(fig_num) = layouter.introspector.figure_number_for_label(target_label) {
-        let is_pt = layouter
-            .style
-            .lang
-            .as_ref()
-            .map(|l| l.as_str() == "pt")
-            .unwrap_or(false);
         let prefix = elem
             .supplement
             .clone()
             .map(|s| format!("{}\u{a0}", s.plain_text()))
             .unwrap_or_else(|| {
-                if is_pt {
-                    "Figura\u{a0}".to_string()
-                } else {
-                    "Figure\u{a0}".to_string()
-                }
+                format!(
+                    "{}\u{a0}",
+                    figure_supplement_for_lang("image", layouter.style.lang.as_ref())
+                )
             });
         return format!("{}{}", prefix, fig_num);
     }
@@ -399,11 +395,7 @@ fn default_supplement_for_key(
         }
         CounterKey::Str(s) if s.starts_with("figure:") => {
             let kind = s.strip_prefix("figure:").unwrap_or("image");
-            match kind {
-                "table" => Some(Content::text(if is_pt { "Tabela" } else { "Table" })),
-                "raw" => Some(Content::text(if is_pt { "Listagem" } else { "Listing" })),
-                _ => Some(Content::text(if is_pt { "Figura" } else { "Figure" })),
-            }
+            Some(Content::text(figure_supplement_for_lang(kind, lang)))
         }
         CounterKey::Selector(Selector::Kind(ElementKind::Equation)) => {
             Some(Content::text(if is_pt { "Equação" } else { "Equation" }))
@@ -412,5 +404,30 @@ fn default_supplement_for_key(
             Some(Content::text(if is_pt { "Tabela" } else { "Table" }))
         }
         _ => None, // neutro: N16[β] — Content sem referência cruzada retorna None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::lang::Lang;
+    use std::str::FromStr;
+
+    #[test]
+    fn p1458_figure_reference_uses_owner_localization_for_all_kinds() {
+        let cases = [
+            ("image", "de", "Abbildung"),
+            ("table", "de", "Tabelle"),
+            ("raw", "it", "Listato"),
+        ];
+
+        for (kind, language, expected) in cases {
+            let key = CounterKey::Str(format!("figure:{kind}").into());
+            let lang = Lang::from_str(language).unwrap();
+            let actual = default_supplement_for_key(&key, Some(&lang))
+                .expect("figure counter has a default supplement")
+                .plain_text();
+            assert_eq!(actual, expected, "kind={kind}, lang={language}");
+        }
     }
 }

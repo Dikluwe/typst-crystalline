@@ -1,0 +1,19 @@
+{
+  "schema": "p1458-oracles/v1",
+  "step": 1458,
+  "sealed_before_candidate": true,
+  "unit_cases": [
+    ["image", "de", "Abbildung"],
+    ["table", "de", "Tabelle"],
+    ["raw", "it", "Listato"],
+    ["image", "pt", "Figura"],
+    ["image", "en", "Figure"]
+  ],
+  "public_case": {
+    "fixture": "lab/parity/p1458_figure_ref_de.typ",
+    "expected_occurrences": {"Abbildung 1": 2, "Figure 1": 0},
+    "expected_success": ["vanilla", "crystalline"]
+  },
+  "opaque_controls": ["timeout", "missing binary", "ambiguous PDF extraction"],
+  "orderings": ["forward", "reverse", "forward-repeat"]
+}
