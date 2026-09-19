@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash e1a98474
+//! @prompt-hash 0cfccd2b
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -2142,6 +2142,7 @@ pub(crate) fn walk(
                 // comportamento legado de `Content::Labelled`: emite Tag
                 // pós-recursão com texto resolvido / número de figura.
                 let target = &e.body;
+                let target_lang = chain.lang();
                 let tags_len_before = tags.len();
                 walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
                 // P788: o `label_to_counter_key.remove(&label)` que aqui
@@ -2153,7 +2154,12 @@ pub(crate) fn walk(
                     .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
 
                 let (resolved_text, figure_number) = match target_loc {
-                    Some(loc) => labelled::compute_labelled(&*intr, loc, target, lang),
+                    Some(loc) => labelled::compute_labelled(
+                        &*intr,
+                        loc,
+                        target,
+                        target_lang.as_ref().or(lang),
+                    ),
                     None => (None, None),
                 };
 
@@ -5412,6 +5418,39 @@ mod tests {
             intr.resolved_labels.get(&Label("sec".to_string())),
             Some("Section 2"),
             "compute_labelled via Introspector path: 2ª heading labelled → 'Section 2'",
+        );
+    }
+
+    #[test]
+    fn p1459_labelled_transporta_lingua_causal_de_cada_alvo() {
+        fn localized_heading(label: &str, lang: &str) -> Content {
+            Content::Styled(
+                Box::new(Content::label_auto(
+                    label.to_string(),
+                    Content::heading(1, Content::text(label)),
+                )),
+                Styles::new()
+                    .push_custom("heading.numbering", Value::Bool(true))
+                    .push_custom("text.lang", Value::Str(lang.into())),
+            )
+        }
+
+        let content = Content::Sequence(
+            vec![
+                localized_heading("de-heading", "de"),
+                localized_heading("es-heading", "es"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+
+        assert_eq!(
+            intr.resolved_labels.get(&Label("de-heading".to_string())),
+            Some("Abschnitt 1"),
+        );
+        assert_eq!(
+            intr.resolved_labels.get(&Label("es-heading".to_string())),
+            Some("Sección 2"),
         );
     }
 

@@ -1,11 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_references.md
-//! @prompt-hash 4bd02064
+//! @prompt-hash 74b93b53
 //! @layer L1
 //! @updated 2026-09-18
 
 use crate::{
-    compiler::lang::figure_supplement::figure_supplement_for_lang,
+    compiler::lang::{
+        figure_supplement::figure_supplement_for_lang, heading_supplement_for_lang,
+    },
     entities::{
         content::Content,
         counter::CounterKey,
@@ -334,6 +336,19 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .or_else(|| {
                         default_supplement_for_key(key, layouter.style.lang.as_ref())
                     })
+            } else if *key == heading_key {
+                elem.supplement
+                    .clone()
+                    .or_else(|| {
+                        let resolved =
+                            layouter.introspector.resolved_label_for(target_label)?;
+                        let suffix = format!(" {formatted}");
+                        let causal = resolved.strip_suffix(&suffix)?;
+                        Some(Content::text(causal))
+                    })
+                    .or_else(|| {
+                        default_supplement_for_key(key, layouter.style.lang.as_ref())
+                    })
             } else {
                 elem.supplement.clone().or_else(|| {
                     default_supplement_for_key(key, layouter.style.lang.as_ref())
@@ -381,26 +396,27 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
 }
 
 /// Supplement default por chave de counter (P462).
-/// **P788** — heading ganha suplemento por língua (vanilla, medido: doc
-/// `en` → "Section 1"; `pt` → "Seção 1"). Outras línguas → fallback `en`
-/// (limitação registada no L0).
+/// **P1459** — heading delega ao owner canónico. No caminho produtivo, a
+/// língua causal vem de `resolved_labels`; este fallback cobre apenas
+/// introspectors sintéticos/legacy sem esse transporte.
 fn default_supplement_for_key(
     key: &CounterKey,
     lang: Option<&crate::entities::lang::Lang>,
 ) -> Option<Content> {
-    let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
     match key {
         CounterKey::Selector(Selector::Kind(ElementKind::Heading)) => {
-            Some(Content::text(if is_pt { "Seção" } else { "Section" }))
+            Some(Content::text(heading_supplement_for_lang(lang)))
         }
         CounterKey::Str(s) if s.starts_with("figure:") => {
             let kind = s.strip_prefix("figure:").unwrap_or("image");
             Some(Content::text(figure_supplement_for_lang(kind, lang)))
         }
         CounterKey::Selector(Selector::Kind(ElementKind::Equation)) => {
+            let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
             Some(Content::text(if is_pt { "Equação" } else { "Equation" }))
         }
         CounterKey::Selector(Selector::Kind(ElementKind::Table)) => {
+            let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
             Some(Content::text(if is_pt { "Tabela" } else { "Table" }))
         }
         _ => None, // neutro: N16[β] — Content sem referência cruzada retorna None
@@ -428,6 +444,27 @@ mod tests {
                 .expect("figure counter has a default supplement")
                 .plain_text();
             assert_eq!(actual, expected, "kind={kind}, lang={language}");
+        }
+    }
+
+    #[test]
+    fn p1459_heading_reference_uses_canonical_owner_localization() {
+        let key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+        let cases = [
+            ("de", "Abschnitt"),
+            ("es", "Sección"),
+            ("fr", "Section"),
+            ("it", "Sezione"),
+            ("pt", "Seção"),
+            ("en", "Section"),
+        ];
+
+        for (language, expected) in cases {
+            let lang = Lang::from_str(language).unwrap();
+            let actual = default_supplement_for_key(&key, Some(&lang))
+                .expect("heading counter has a default supplement")
+                .plain_text();
+            assert_eq!(actual, expected, "lang={language}");
         }
     }
 }

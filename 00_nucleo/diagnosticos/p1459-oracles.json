@@ -1,0 +1,37 @@
+{
+  "schema": "p1459-oracles/v1",
+  "step": 1459,
+  "sealed_before_candidate": true,
+  "owner_cases": [
+    ["de", "Abschnitt"],
+    ["es", "Sección"],
+    ["fr", "Section"],
+    ["it", "Sezione"],
+    ["pt", "Seção"],
+    ["en", "Section"],
+    ["af", "Section"]
+  ],
+  "causal_cases": [
+    ["de", "fr", "Abschnitt"],
+    ["fr", "de", "Section"],
+    ["es", "it", "Sección"],
+    ["it", "es", "Sezione"]
+  ],
+  "public_case": {
+    "fixture": "lab/parity/p1459_reference_supplements_de.typ",
+    "required_fragments": [
+      "Forward: Abschnitt 1",
+      "Deutsch: Abschnitt 1",
+      "Français: Section 3",
+      "Español: Sección 2",
+      "Italiano: Sezione 4",
+      "Gleichung: Gleichung 1",
+      "Explicit: Abs. 1",
+      "Empty: 1"
+    ],
+    "forbidden_fragments": ["Chapitre 3", "Deutsch: Section 1"],
+    "expected_success": ["vanilla", "crystalline"]
+  },
+  "opaque_controls": ["timeout", "missing binary", "ambiguous PDF extraction"],
+  "orderings": ["forward", "reverse", "forward-repeat"]
+}

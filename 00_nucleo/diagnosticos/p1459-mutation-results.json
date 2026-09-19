@@ -1,0 +1,27 @@
+{
+  "compiled_mutation_execution": false,
+  "discriminator_score": 1.0,
+  "evidence_kind": "static_or_model_discriminators",
+  "owner_oracle_entries": 45,
+  "owner_source_matches_full_oracle": true,
+  "rejected": 14,
+  "schema": "p1459-static-attack-results/v1",
+  "survivors": [],
+  "valid_attacks": 14,
+  "witnesses": {
+    "accept-one-binary": "public oracle requires both identified binaries",
+    "backward-only": "public corpus requires both forward and backward references",
+    "drop-explicit-supplement": "'Abs.\\xa01'",
+    "duplicate-heading-table": "exactly one compiler-L1 owner table; no successor table/function in its consumers",
+    "empty-means-auto": "'1'",
+    "patch-german-only": "owner es: expected 'Sección', got 'Section'; full source table matches 45-entry oracle",
+    "promote-unknown": "opaque controls must remain Unknown",
+    "replace-nbsp-with-space": "productive join retains U+00A0",
+    "require-resolved-store": "causal store lookup is followed by canonical deterministic fallback",
+    "retain-current-pt-en-branch": "owner de: expected 'Abschnitt', got 'Section'; full source table matches 45-entry oracle",
+    "reuse-stale-french-table": "owner fr: expected 'Section', got 'Chapitre'; full source table matches 45-entry oracle",
+    "update-layout-only": "snapshot and labelled consumers both delegate; stale French literal absent",
+    "use-first-or-root-lang": "target=fr, ref=de: expected 'Section', got 'Abschnitt'; source transports the active target StyleChain",
+    "use-reference-lang": "target=de, ref=fr: expected 'Abschnitt', got 'Section'; source transports the active target StyleChain"
+  }
+}

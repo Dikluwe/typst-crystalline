@@ -1,0 +1,80 @@
+{
+  "schema": "p1459-postseal-amendment/v1",
+  "captured_at_utc": "2026-09-19T02:38:11Z",
+  "preseal_sha256": "068cbed4cc304cf9ce231519ca1fad4e32a0c69abdaf1ef7cea79c6d0202259e",
+  "baseline_commit": "c7577a031847ff38e4780044bc4132c1d92a14b9",
+  "baseline_tree": "6241b3786d1f29e585bdc6b7f291305391655de5",
+  "attestation": "executado sem atestacao de isolamento",
+  "contract_change": "none; the frozen contract already required target-causal Lang and preserved legacy fallbacks",
+  "discoveries": [
+    {
+      "id": "target-lang-transport",
+      "classification": "in-scope postseal repair",
+      "observation": "The first public candidate passed owner/unit tests but rendered German, Spanish and Italian targets as Section because Content::Label forwarded the stale root lang parameter instead of chain.lang()",
+      "remedy": "Capture target_lang from the active StyleChain in the auto Label arm and pass target_lang.as_ref().or(lang) to compute_labelled; no public Introspector method was added",
+      "regression": "p1459_labelled_transporta_lingua_causal_de_cada_alvo"
+    },
+    {
+      "id": "legacy-synthetic-fallback",
+      "classification": "in-scope compatibility repair",
+      "observation": "The full workspace suite exposed figure_label_lang_pt_image_devolve_figura when the legacy lang fallback was removed entirely",
+      "remedy": "Retain the legacy parameter only when chain.lang() is absent; a causal chain value always wins"
+    },
+    {
+      "id": "show-set-phase-boundary",
+      "classification": "negative scope-out requiring ADR-0127 confirmation",
+      "observation": "#show heading: set text(lang: de) yields Abschnitt in vanilla and Section in crystalline because the style carrier exists only in the rendered tree, not the P498 pre-show introspection tree",
+      "remedy": "none in P1459; applying or capturing show-set during pre-show introspection changes a pipeline phase and needs a dedicated L0 plus human confirmation"
+    },
+    {
+      "id": "l2-raw-serializer-hardcode",
+      "classification": "known next debt outside the compiler-L1 owner scope",
+      "observation": "02_shell/src/cli.rs still synthesizes Content::text(Section), already recorded by shell/cli.md P1307-R5",
+      "remedy": "none in P1459; a follow-up must resolve the public ownership/default gate without duplicating or silently exposing the internal owner"
+    },
+    {
+      "id": "mutation-evidence-classification",
+      "classification": "evidence-strengthening",
+      "observation": "The 14-item runner is a static/model discriminator and cannot honestly be described as compiled mutation execution",
+      "remedy": "Label it explicitly as non-compiled, add a complete independent 45-entry oracle, and run cargo-mutants on the focal owner; 3 of 3 generated mutants were caught"
+    }
+  ],
+  "final_identities": {
+    "prompts": {
+      "00_nucleo/prompts/compiler/lang/heading_supplement.md": "aeef3f5536d4741592b0c5c05e0bea97273a83ca2064aca6a7775020bcbd8457",
+      "00_nucleo/prompts/compiler/lang.md": "dab808fa1837733b57ed8e620dab88e4f0e7617e49ca32742c90c66bcacb675c",
+      "00_nucleo/prompts/compiler/introspect.md": "b839948de6ddb48c3571c751c524c7058f8fd6e2f305f787f13c9f9654c1a681",
+      "00_nucleo/prompts/compiler/introspect/heading.md": "b14bafafff15bb70726246e6b1a30caa55e5d16b1abf9f66f311e86763e7d6d7",
+      "00_nucleo/prompts/compiler/introspect/labelled.md": "8f2122b0adf8d5b1d6be95bfcf911d253be4a8ed535a3aa191e93862828fa1bf",
+      "00_nucleo/prompts/compiler/layout_references.md": "1c2a3cba3bde4bde344753091789cd8b99632c84b70f861b2cb76d7c1116ab6e"
+    },
+    "consumers": {
+      "01_core/src/compiler/lang/heading_supplement.rs": "00c585aed035ca166ca96fc74a06a04ae1829a3e1571c446c580381a878c7fc3",
+      "01_core/src/compiler/lang/mod.rs": "0f267c04aa43175748deb3031dd9eae36e5b6a114b15b212e1a969138f1f23eb",
+      "01_core/src/compiler/introspect.rs": "28fc48277cc3b029bf9f7d7189ca55c1f3dcb64affe77843b7df885ee25eef7e",
+      "01_core/src/compiler/introspect/heading.rs": "c98647a1c7216803a5cffd430b1319085968aadea7587d1f4a3d44c0c28dcd84",
+      "01_core/src/compiler/introspect/labelled.rs": "ccd5e262dc3b5a3e57cb28cc753af29f94ab1747e8817e547c4f992e1d5b1622",
+      "01_core/src/compiler/layout/references.rs": "42bd542c05c83c18b3fd58541158f08db602b4b52aca42572a00735c5bd15f90"
+    },
+    "evidence": {
+      "fixture": "d34f97743f3a5143c74cdb4039945f6cb4ca45ff90228ec284aee4df5968e561",
+      "full_owner_oracle": "77282200c2921b9b49b382f420baed08641dbf8c5cd30d69196f06b932055ea1",
+      "static_runner": "c6e3cd33664e22109a652107a3186af0e85b95baacf55e839cc11f211260b041",
+      "static_results": "32b3f9261600cf4b0edef104cc2445ef7fc52198e9b475026467e738fd5fa630",
+      "cargo_mutants_summary": "188e4b2836b116b85d213c5b8c8de4da84213e86a093bb28d4661d45ce4c8897",
+      "cargo_mutants_raw_outcomes": "fe341704b7b637d8fd18163b6fb1133a25f4cabe3ab9374e74c88efe40399dd5"
+    }
+  },
+  "verification": {
+    "public_bilateral_orders": ["forward", "reverse", "forward-repeat"],
+    "public_text_diffs": 0,
+    "focal_tests": {"passed": 3, "failed": 0},
+    "workspace_tests": {"passed": 5919, "failed": 8, "p1459_failures": 0, "matches_historical_baseline": true},
+    "static_model_attacks": {"rejected": 14, "survived": 0, "compiled_mutation_execution": false},
+    "compiled_mutants": {"caught": 3, "missed": 0, "timeout": 0, "unviable": 0},
+    "gates": {"build": "pass", "fmt": "pass", "diff_check": "pass", "crystalline_lint_violations": 0, "json_validation": "pass"},
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+    "crystalline_release_binary_sha256": "57644d2ef726a8eebc934fe485e0eff1a96e9b1f84e289913928eae827297990"
+  },
+  "verification_requirement": "retain the original preseal unchanged, keep product and certification commits separate, and do not promote either negative scope-out to Preserved"
+}

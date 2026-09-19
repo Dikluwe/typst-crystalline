@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/labelled.md
-//! @prompt-hash b53a21ab
+//! @prompt-hash 6c30ead0
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -10,6 +10,7 @@
 //! Content-preserving — chamada pelo walk arm `Labelled`.
 //! **P1018** — chaves de counter migradas para `CounterKey`.
 
+use crate::compiler::lang::heading_supplement_for_lang;
 use crate::entities::content::Content;
 use crate::entities::counter::CounterKey;
 use crate::entities::element_kind::ElementKind;
@@ -29,11 +30,7 @@ pub(super) fn compute_labelled<I: Introspector>(
     match target {
         Content::Heading(_) => {
             let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
-            let supp = if lang.map(|l| l.as_str() == "pt").unwrap_or(false) {
-                "Seção"
-            } else {
-                "Section"
-            };
+            let supp = heading_supplement_for_lang(lang);
             (
                 intr.formatted_counter_at(&heading_key, location)
                     .map(|n| format!("{} {}", supp, n)),

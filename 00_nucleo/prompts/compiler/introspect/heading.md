@@ -1,5 +1,5 @@
 # Prompt L0 — `heading`
-Hash do Código: 0a6eefb1
+Hash do Código: f26fb75c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -20,8 +20,10 @@ preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 `compiler/introspect.rs:1327–1350` ainda dispõe da chain. Fonte ratificada
 `model/heading.rs:249–285` sintetiza level/supplement;
 `text/lang.rs:619–654` localiza pela língua/região e fallback inglês.
-As translations ratificadas `crates/typst-library/translations/*.txt`
-definem heading; por exemplo en:5 Section, pt:5 Seção, fr:5 Chapitre.
+As translations então ratificadas `crates/typst-library/translations/*.txt`
+definiam heading; por exemplo en:5 Section e pt:5 Seção. P1459 substitui a
+transcrição local por um owner de fase neutra e atualiza francês para o pin
+vigente, onde `fr:5` é `Section`, não o antigo `Chapitre`.
 
 Medição adicional de fonte: Content::heading_numbered em
 `entities/content.rs:1500–1501` cria gate true sem pattern para fixtures;
@@ -58,12 +60,13 @@ prefixo. Teste de domínio fixa essa projeção e a independência do gate.
 Os testes obrigatórios de linguagem numerada usam gate+pattern realmente
 transportados. Um Func ou tipo interno não modelado também não vira pattern.
 
-Para língua ausente, usar en somente neste helper (não alterar StyleChain::lang
-nem ativar hifenização). Para códigos de língua presentes, usar tabela pura
-literal transcrita das entradas heading ratificadas, com fallback en quando
-não há tradução. Não carregar translations em runtime, não importar lab,
-não tratar todo idioma diferente de pt como inglês. Região não transportada
-pelo produtor atual continua dívida explícita; não inventar região do ambiente.
+Para língua ausente, usar en sem alterar StyleChain::lang nem ativar
+hifenização. P1459 move a decisão para
+`compiler/lang/heading_supplement.rs`: este consumer deve chamar
+`heading_supplement_for_lang(Some(&lang))`, sem tabela, fallback ou literal
+próprio. Não carregar translations em runtime, não importar lab, não tratar
+todo idioma diferente de pt como inglês. Região não transportada pelo
+produtor atual continua dívida explícita; não inventar região do ambiente.
 
 Limite deliberado: snapshot completo significa todos os campos do estado
 **efetivamente modelado**, não paridade de todo named que o parser tolera.
@@ -101,3 +104,10 @@ consumer e nenhum despacho dinâmico é introduzido.
 
 Testes focais e a suíte do subsistema preservam comportamento e morfologia;
 alteração observável exige medição e decisão próprias.
+
+## P1459 — owner canónico do supplement
+
+`snapshot_fields` continua a capturar o supplement enquanto a cadeia causal
+existe, mas a forma linguística vem exclusivamente do owner
+`compiler/lang/heading_supplement.rs`. A snapshot francesa deve expor
+`Section`; remover a tabela privada deste ficheiro é parte da aceitação.

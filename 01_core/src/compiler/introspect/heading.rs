@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/heading.md
-//! @prompt-hash 2bfa3bd5
+//! @prompt-hash 0f898370
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -9,6 +9,7 @@
 //! tronco `introspect.rs` para o arquivo do elemento, na convenção do submódulo
 //! `rules/introspect/`. Content-preserving — chamadas pelo walk arm `Heading`.
 
+use crate::compiler::lang::heading_supplement_for_lang;
 use crate::entities::content::Content;
 use crate::entities::counter::CounterKey;
 use crate::entities::element_kind::ElementKind;
@@ -40,7 +41,7 @@ pub(super) fn snapshot_fields(
             Value::None
         };
     let lang = chain.lang().unwrap_or(crate::entities::lang::Lang::ENGLISH);
-    let supplement = heading_supplement(lang.as_str());
+    let supplement = heading_supplement_for_lang(Some(&lang));
     let mut fields = indexmap::IndexMap::default();
     fields.insert("level".into(), Value::Int(heading.level as i64));
     fields.insert(
@@ -65,52 +66,6 @@ pub(super) fn snapshot_fields(
         fields.insert("label".into(), Value::Label(label.clone()));
     }
     fields
-}
-
-/// Ratified upstream a51e02804 translations, without runtime lab dependency.
-fn heading_supplement(lang: &str) -> &'static str {
-    match lang {
-        "ar" => "الفصل",
-        "bg" | "ru" => "Раздел",
-        "ca" => "Secció",
-        "cs" | "sk" => "Kapitola",
-        "cy" => "Adran",
-        "da" => "Afsnit",
-        "de" => "Abschnitt",
-        "el" => "Κεφάλαιο",
-        "eo" => "Sekcio",
-        "es" | "gl" => "Sección",
-        "et" => "Peatükk",
-        "eu" => "Atala",
-        "fi" => "Osio",
-        "fr" => "Chapitre",
-        "ga" => "Ceannteideal",
-        "he" => "חלק",
-        "hr" => "Odjeljak",
-        "hu" => "Fejezet",
-        "id" => "Bagian",
-        "is" => "Kafli",
-        "it" => "Sezione",
-        "ja" => "節",
-        "la" => "Caput",
-        "lt" => "Skyrius",
-        "lv" => "Sadaļa",
-        "nb" | "nn" => "Kapittel",
-        "nl" => "Hoofdstuk",
-        "no" | "sv" => "Avsnitt",
-        "pl" => "Rozdział",
-        "pt" => "Seção",
-        "ro" => "Secțiunea",
-        "sl" => "Poglavje",
-        "sq" => "Kapitull",
-        "sr" => "Поглавље",
-        "tl" => "Seksyon",
-        "tr" => "Bölüm",
-        "uk" => "Розділ",
-        "vi" => "Phần",
-        "zh" => "小节",
-        _ => "Section",
-    }
 }
 
 /// Formata o valor hierárquico de um counter como string terminada em ponto.

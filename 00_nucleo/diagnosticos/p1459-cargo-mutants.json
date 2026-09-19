@@ -1,0 +1,32 @@
+{
+  "schema": "p1459-cargo-mutants/v1",
+  "tool": "cargo-mutants 27.1.0",
+  "started_at_utc": "2026-09-19T02:31:32.215042262Z",
+  "ended_at_utc": "2026-09-19T02:33:35.672760105Z",
+  "attestation": "executado sem atestacao de isolamento",
+  "scope": "heading_supplement_for_lang in 01_core/src/compiler/lang/heading_supplement.rs",
+  "test_filter": "cargo test --package typst-core --lib p1459_",
+  "baseline": "skipped because the same P1459 filter had passed immediately before the campaign",
+  "total_mutants": 3,
+  "caught": 3,
+  "missed": 0,
+  "timeout": 0,
+  "unviable": 0,
+  "mutation_score": 1.0,
+  "raw_outcomes_sha256": "fe341704b7b637d8fd18163b6fb1133a25f4cabe3ab9374e74c88efe40399dd5",
+  "outcomes": [
+    {
+      "mutation": "replace heading_supplement_for_lang return with empty string",
+      "result": "caught"
+    },
+    {
+      "mutation": "replace heading_supplement_for_lang return with xyzzy",
+      "result": "caught"
+    },
+    {
+      "mutation": "replace language equality with inequality",
+      "result": "caught"
+    }
+  ],
+  "limitations": "The separate 14-item adversarial runner is a static/model discriminator, not compiled mutation execution; only the three outcomes in this artifact are claimed as executed mutants."
+}

@@ -1,5 +1,5 @@
 # L0 — Layout: Referências e Labels
-Hash do Código: fe46239a
+Hash do Código: 790cd40e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
@@ -82,10 +82,10 @@ referência clicável no PDF.
    `Labelled`) são **removidos** — refs a heading/equation/table/figure
    numerados usam o caminho do counter (formatado), ficando o
    `resolved_labels` legacy como fallback de última linha.
-6. **Suplemento default de heading por língua** (vanilla: "Section 1" em
-   docs `en` — medido; "Secção" hardcoded antes divergia): `en` →
-   `Section `, `pt` → `Secção `, outras línguas → fallback `en`
-   (limitação registada). Língua lida de `layouter.style.lang`.
+6. **Suplemento default de heading por língua** (decisão original P788,
+   supersedida por P1459): `en` → `Section `, `pt` → `Seção ` e outras
+   línguas caíam em inglês, lendo `layouter.style.lang`. P1459 remove essa
+   limitação e a segunda decisão linguística; ver secção própria abaixo.
 7. **Spans:** `RefElem` não carrega span — os erros seguem com
    `Span::detached()` (limitação registada; vanilla aponta o `@ref`).
 
@@ -201,3 +201,40 @@ para figures.
 - `en`, `pt`, supplement explícito, número, NBSP, link e erros permanecem;
 - língua/kind não cobertos preservam o fallback definido exclusivamente pelo
   owner linguístico.
+
+## P1459 — remover o hardcode bilingue de referências de heading
+
+### Medição anterior à decisão
+
+No commit `c7577a031847ff38e4780044bc4132c1d92a14b9`, um heading alemão
+referenciado sob texto francês produziu `Abschnitt 1` no vanilla ratificado
+`586e1bd43` e `Section 1` no cristalino. Trocar apenas o branch por uma chamada
+com `layouter.style.lang` continuaria errado: o vanilla conserva a língua do
+alvo. A introspecção já guarda em `resolved_labels` a forma construída quando
+a língua causal do alvo existe.
+
+### Decisão
+
+Para `CounterKey::Heading` com supplement implícito, recuperar de
+`resolved_label_for(label)` o prefixo causal somente quando a representação
+termina exatamente em espaço ASCII + o mesmo counter formatado. O número
+continua vindo do caminho numérico; a composição pública continua no join
+único com U+00A0. Supplement explícito, inclusive conteúdo vazio, tem
+precedência absoluta e não consulta o store.
+
+Se um introspector sintético ou caminho legacy não possuir transporte causal,
+usar defensivamente `heading_supplement_for_lang(layouter.style.lang)`; essa
+queda não autoriza alegar língua causal para um alvo cuja cadeia não foi
+armazenada. É proibido manter ou recriar neste módulo tabela, `is_pt`, branch
+por língua ou literais `Section`/`Seção`/`Abschnitt`.
+
+### Aceitação
+
+- alvo `de` sob referência `fr` → `Abschnitt 1`;
+- alvo `fr` sob referência `de` → `Section`, nunca `Chapitre`;
+- alvos `es` e `it` preservam `Sección` e `Sezione` sob outras línguas;
+- forward e backward refs coincidem;
+- supplement explícito e vazio conservam precedência;
+- o separador público continua U+00A0;
+- ausência do store mantém fallback determinístico sem panic;
+- snapshot/query, transporte labelled e layout consomem um único owner.

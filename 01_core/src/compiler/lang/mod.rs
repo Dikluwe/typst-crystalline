@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang.md
-//! @prompt-hash 87c26a33
+//! @prompt-hash c53da034
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -13,6 +13,9 @@
 
 pub mod equation_supplement;
 pub mod figure_supplement;
+mod heading_supplement;
 // **P1034** — título por defeito do `outline()`, localizado.
 pub mod outline_title;
 pub mod quotes;
+
+pub(in crate::compiler) use heading_supplement::heading_supplement_for_lang;

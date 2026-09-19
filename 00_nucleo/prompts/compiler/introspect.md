@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: da6c52b0
+Hash do Código: 19fc4a0d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1917,3 +1917,51 @@ estrutural de conteúdo.
 
 Classificar `MathUndershell` entre variantes math não-locatáveis e terminais,
 sem ocorrência própria nem dupla descida.
+
+## P1459 — língua causal no transporte `Labelled`
+
+### Medição anterior à decisão
+
+Na primeira campanha pública pós-preseal, o owner canónico e os testes focais
+passaram, mas referências a alvos `de`, `es` e `it` continuaram inglesas. O
+walk recebe um parâmetro `lang` inicializado pela chain raiz e o repassa sem o
+atualizar no braço `Content::Styled`; já a `StyleChain` empilhada chega
+corretamente ao braço `Content::Label`. Assim,
+`labelled::compute_labelled(..., lang)` recebia `None`/raiz enquanto
+`chain.lang()` continha a língua causal do alvo. O que refuta esta medição é
+uma reprodução em que o store `resolved_labels` contenha a tradução do alvo
+antes do layout; o binário medido não a continha.
+
+A revisão adversarial posterior mediu `#show heading: set text(lang: "de")`:
+vanilla produz `Abschnitt`, mas o cristalino produz `Section`. Esse delta não
+existe na árvore pré-show que P498 reserva à introspecção; ele só aparece na
+árvore renderizada. Descer por `Styled` dentro de `compute_labelled` melhora
+um shape sintético, mas não corrige o observável público. Aplicar show-set na
+passagem pré-show mudaria a fronteira de fase do pipeline e fica fora desta
+correção contínua; exige L0 próprio e confirmação ADR-0127.
+
+### Decisão
+
+No braço auto de `Content::Label`, capturar `target_lang = chain.lang()` no
+mesmo escopo que envolve a descida e passá-la a `compute_labelled`. Quando a
+chain ativa não declarar idioma, preservar o parâmetro legacy `lang` apenas
+como fallback para callers sintéticos que o fornecem diretamente; uma língua
+presente na chain tem sempre precedência. Não usar a língua do layout, da
+referência, do ambiente ou a primeira língua observada. Não ampliar o trait
+`Introspector`: o `resolved_labels` existente continua o transporte de texto
+causal. O fallback legacy não legitima novos reads nem pode sobrescrever a
+chain causal.
+
+### Aceitação
+
+- alvo alemão sob referência francesa transporta `Abschnitt`;
+- alvo francês sob referência alemã transporta `Section`;
+- dois alvos com línguas distintas no mesmo documento não partilham cache;
+- helper sintético sem idioma na chain preserva o idioma legacy explícito;
+- forward e backward refs observam o mesmo store;
+- nenhuma assinatura pública, fase ou default é alterado.
+
+Correção interna de paridade em fluxo contínuo conforme ADR-0127. A descoberta
+ocorreu depois do preseal e deve constar como emenda verificável, sem reescrever
+o artefacto congelado. O caso show-set permanece um achado negativo que não
+pode ser promovido a Preserved nesta unidade.

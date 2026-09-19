@@ -1,0 +1,21 @@
+{
+  "schema": "p1459-contract/v1",
+  "step": 1459,
+  "sealed_before_candidate": true,
+  "input_domain": "automatic supplements for numbered heading references and heading snapshots",
+  "rule": "Resolve every automatic heading supplement through one compiler/lang owner and preserve the target's causal Lang when transported by introspection",
+  "preserved": [
+    "explicit and empty supplement precedence",
+    "U+00A0 between a non-empty supplement and the formatted number",
+    "hierarchical counter formatting and internal link",
+    "deterministic English fallback when no causal transport is available"
+  ],
+  "forbidden": [
+    "is_pt or another language branch in heading consumers",
+    "duplicated heading supplement table",
+    "using reference-site Lang when target causal Lang is available",
+    "stale French Chapitre at the ratified pin",
+    "runtime dependency on lab translations",
+    "Unknown promotion"
+  ]
+}
