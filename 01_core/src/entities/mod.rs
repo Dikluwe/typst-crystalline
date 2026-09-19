@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/mod.md
-//! @prompt-hash 449add06
+//! @prompt-hash dd6fbccf
 //! @layer L1
 //! @updated 2026-04-30
 
@@ -41,6 +41,7 @@ pub mod counter;
 pub mod counter_registry;
 pub mod counter_state_legacy;
 pub mod counter_update;
+pub mod document_format_options;
 // P536 — metadados do documento definidos por `#set document(...)`.
 pub mod document_info;
 // P451 — formatação de counters hierárquicos com patterns.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 4e9071ef
+//! @prompt-hash 131b68aa
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -52,7 +52,7 @@ use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization,
     compile_to_png_bytes_with_timings_full_error_and_features,
-    compile_to_svg_string_with_timings_full_error_and_features_and_pretty,
+    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{
@@ -647,7 +647,8 @@ fn run_compile_observed(
     } else {
         typst_infra::export::StreamMode::Verbose
     };
-    let pretty = pretty.unwrap_or(false);
+    let pretty_override = pretty;
+    let pretty = pretty_override.unwrap_or(false);
     let pdf_serialization = if pretty {
         typst_infra::export::PdfSerializationMode::Pretty
     } else {
@@ -727,14 +728,22 @@ fn run_compile_observed(
         OutputFormat::Svg => {
             if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
-                        &world, &source, full_error, features, pretty,
+                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                        &world,
+                        &source,
+                        full_error,
+                        features,
+                        pretty_override,
                     );
                 (r.map(|s| s.into_bytes()), w, t)
             } else {
                 let (r, w, _) =
-                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
-                        &world, &source, full_error, features, pretty,
+                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                        &world,
+                        &source,
+                        full_error,
+                        features,
+                        pretty_override,
                     );
                 (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
             }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash d515658e
+//! @prompt-hash cdb71347
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -44,8 +44,9 @@ use typst_core::compiler::eval::{
 };
 use typst_core::compiler::introspect::introspect_with_introspector;
 use typst_core::compiler::layout::{
-    layout_with_introspector_and_metrics_and_callbacks, LayoutPassOutcome,
-    ParLineCallbackRequest, ParLineCallbackResolution, SealedParLineCallbacks,
+    collect_document_format_options, layout_with_introspector_and_metrics_and_callbacks,
+    LayoutPassOutcome, ParLineCallbackRequest, ParLineCallbackResolution,
+    SealedParLineCallbacks,
 };
 use typst_core::compiler::math::layout::callbacks::{
     MathCancelResolution, SealedMathCallbacks,
@@ -841,6 +842,7 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
     let mut content = prepared.content;
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
+    let mut format_content = content.clone();
     let (mut doc, mut intr_for_positions, extracted_headings) = if let Some((intr, doc)) =
         prepared.settled
     {
@@ -888,6 +890,7 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             Ok(content) => content,
             Err(errors) => return (Err(errors), warnings),
         };
+        let mut final_realized_content = realized_content.clone();
         let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
             &realized_content,
             layout_intr.clone(),
@@ -971,13 +974,27 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
             };
             warnings.extend(callback_warnings);
             let converged = next.pages.len() == previous_pages;
+            final_realized_content = realized_content;
             doc = next;
             if converged {
                 break;
             }
         }
         intr_for_positions.inject_pages(layout_intr.page_store.clone());
+        format_content = final_realized_content;
         (doc, intr_for_positions, extracted_headings)
+    };
+
+    doc.format_options = match collect_document_format_options(&format_content) {
+        Ok(options) => options,
+        Err(errors) => {
+            timings.layout_ms = duration_ms(Instant::now().duration_since(t3));
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms;
+            return (Err(errors), warnings);
+        }
     };
     for warning in doc.layout_warnings.drain(..) {
         warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
@@ -1849,8 +1866,8 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features(
     full_error: bool,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
-    compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
-        world, source, full_error, features, false,
+    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+        world, source, full_error, features, None,
     )
 }
 
@@ -1862,6 +1879,29 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
     features: typst_core::entities::compiler_features::Features,
     pretty: bool,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+        world,
+        source,
+        full_error,
+        features,
+        Some(pretty),
+    )
+}
+
+fn resolve_svg_pretty(pretty_override: Option<bool>, document: &PagedDocument) -> bool {
+    pretty_override.unwrap_or(document.format_options.svg.pretty)
+}
+
+/// Variante SVG que preserva a ausência de override até consultar as
+/// opções resolvidas do documento.
+#[doc(hidden)]
+pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
         world,
@@ -1872,6 +1912,7 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
     );
     let result = match doc_result {
         Ok(doc) => {
+            let pretty = resolve_svg_pretty(pretty_override, &doc);
             let fonts = match resolve_and_instantiate_fonts(&doc, world) {
                 Ok(f) => f,
                 Err(diag) => {
@@ -1928,6 +1969,24 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty(
         }
     };
     (result, warnings, timings)
+}
+
+#[cfg(test)]
+mod p1462_tests {
+    use super::*;
+
+    #[test]
+    fn svg_pretty_precedence_is_override_then_document_then_false() {
+        let mut document = PagedDocument::new(vec![]);
+        assert!(!resolve_svg_pretty(None, &document));
+
+        document.format_options.svg.pretty = true;
+        assert!(resolve_svg_pretty(None, &document));
+        assert!(!resolve_svg_pretty(Some(false), &document));
+
+        document.format_options.svg.pretty = false;
+        assert!(resolve_svg_pretty(Some(true), &document));
+    }
 }
 
 fn svg_destination_context_for_page(
@@ -2258,6 +2317,129 @@ mod tests {
             book: FontBook::new(),
             source,
         }
+    }
+
+    #[test]
+    fn p1462_pipeline_collects_svg_pretty_and_empty_set_is_neutral() {
+        for (source, expected) in [
+            ("#set format.svg(pretty: true)\nHello", true),
+            ("#set format.svg()\nHello", false),
+            ("#set format.svg(pretty: true)\n#set format.svg()\nHello", true),
+            (
+                "#set format.svg(pretty: true)\n#set format.svg(pretty: false)\nHello",
+                false,
+            ),
+            (
+                "#set format.svg(pretty: false)\n#set format.svg(pretty: true)\nHello",
+                true,
+            ),
+        ] {
+            let world = mock_world(source);
+            let mut timings = Timings::default();
+            let (result, _) = compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            );
+
+            assert_eq!(result.unwrap().format_options.svg.pretty, expected);
+        }
+    }
+
+    #[test]
+    fn p1462_pipeline_rejects_nested_format_set_rule() {
+        let world = mock_world("#block[\n#set format.svg(pretty: true)\nNested\n]");
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+
+        assert!(result.unwrap_err().iter().any(|error| {
+            error
+                .message
+                .contains("format set rules are not allowed inside of containers")
+        }));
+    }
+
+    #[test]
+    fn p1462_set_rule_diagnostics_are_explicit() {
+        for (source, expected) in [
+            ("#set format.svg(true)", "unexpected argument"),
+            ("#set format.svg(unknown: true)", "unexpected argument: unknown"),
+            (
+                "#set format.svg(pretty: true, pretty: false)",
+                "duplicate argument: pretty",
+            ),
+            ("#set format.svg(pretty: 1)", "expected boolean, found integer"),
+        ] {
+            let world = mock_world(source);
+            let mut timings = Timings::default();
+            let (result, _) = compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            );
+
+            assert!(result
+                .unwrap_err()
+                .iter()
+                .any(|error| error.message.contains(expected)));
+        }
+    }
+
+    #[test]
+    fn p1462_format_svg_cannot_be_constructed_manually() {
+        let world = mock_world("#format.svg()");
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+
+        assert!(result
+            .unwrap_err()
+            .iter()
+            .any(|error| error.message.contains("cannot be constructed manually")));
+    }
+
+    #[test]
+    fn p1462_external_svg_observes_document_and_caller_precedence() {
+        fn render(source: &str, pretty_override: Option<bool>) -> String {
+            let world = mock_world(source);
+            let (result, _, _) =
+                compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                    &world,
+                    &world.source,
+                    false,
+                    typst_core::entities::compiler_features::Features::default(),
+                    pretty_override,
+                );
+            result.unwrap()
+        }
+
+        let body = "#rect(width: 10pt, height: 10pt)";
+        let document_pretty = render(
+            "#set format.svg(pretty: true)\n#rect(width: 10pt, height: 10pt)",
+            None,
+        );
+        let caller_compact = render(
+            "#set format.svg(pretty: true)\n#rect(width: 10pt, height: 10pt)",
+            Some(false),
+        );
+        let default_compact = render(body, None);
+        let caller_pretty = render(body, Some(true));
+
+        assert!(document_pretty.contains("\n  <"));
+        assert!(caller_pretty.contains("\n  <"));
+        assert!(!caller_compact.contains("\n  <"));
+        assert!(!default_compact.contains("\n  <"));
     }
 
     #[test]

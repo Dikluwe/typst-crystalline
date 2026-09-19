@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
-Hash do Código: 00000000
+Hash do Código: ac99324c
 
 **Estado:** P1461 MATERIALIZADO; CONTRATO P1462 CONFIRMADO — sentinela não
 selada até a materialização posterior ao novo selo discriminatório R2.

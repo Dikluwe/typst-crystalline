@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash a438d034
+//! @prompt-hash 0d14964e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -20,6 +20,7 @@ use std::sync::Arc;
 use ecow::EcoString;
 
 use crate::entities::dir::Dir;
+use crate::entities::document_format_options::DocumentFormatOptions;
 use crate::entities::document_info::DocumentInfo;
 use crate::entities::elements::pdf_artifact::ArtifactKind;
 use crate::entities::elements::pdf_attach::PdfAttachElem;
@@ -936,6 +937,8 @@ impl Frame {
 pub struct PagedDocument {
     pub pages: Vec<Page>,
     pub attachments: Vec<Arc<PdfAttachElem>>,
+    /// Opções de formato resolvidas a partir do conteúdo documental.
+    pub format_options: DocumentFormatOptions,
     /// Mapa de labels para o número de página onde aterraram (Passo 63).
     /// Populado por `Layouter::finish()` após cada passagem de layout.
     /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
@@ -986,6 +989,7 @@ impl PagedDocument {
         Self {
             pages,
             attachments: Vec::new(),
+            format_options: DocumentFormatOptions::default(),
             extracted_label_pages: HashMap::new(),
             extracted_label_positions: HashMap::new(),
             extracted_positions:

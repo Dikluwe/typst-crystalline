@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 96e41b24
+//! @prompt-hash f556c590
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -151,6 +151,9 @@ mod cursor;
 
 // Flush dos footnote bodies pendentes (P847 — extraído de `cursor.rs`).
 mod footnote_flush;
+
+mod format_options;
+pub use format_options::collect_document_format_options;
 
 // Hyphenation puro (Passo 144, ADR-0057): wrap sobre `hypher`.
 mod hyphenation;

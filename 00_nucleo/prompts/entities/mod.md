@@ -1,5 +1,5 @@
 # entities — módulo raiz
-Hash do Código: 1f3c3465
+Hash do Código: fdc4e847
 
 Módulo de re-exportação dos tipos de domínio de L1.
 

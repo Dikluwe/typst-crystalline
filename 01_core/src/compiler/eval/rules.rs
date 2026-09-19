@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 00242617
+//! @prompt-hash 875dcd57
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -1411,6 +1411,50 @@ pub(super) fn eval_set_rule(
     // P456: guarda o pattern string (não Bool) para formatar via format_counter,
     // análogo a figure.numbering (P454) e heading.numbering.pattern (P451).
     if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "format"
+            && fa.field().to_untyped().text_str() == "svg"
+        {
+            let mut seen_pretty = false;
+            for arg in set.args().items() {
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        target_span,
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                if key != "pretty" {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {key}"),
+                    )]);
+                }
+                if seen_pretty {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        "duplicate argument: pretty",
+                    )]);
+                }
+                seen_pretty = true;
+
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let Value::Bool(pretty) = value else {
+                    let found = match &value {
+                        Value::Int(_) => "integer",
+                        Value::Str(_) => "string",
+                        Value::Bool(_) => "boolean",
+                        other => other.type_name(),
+                    };
+                    return Err(vec![SourceDiagnostic::error(
+                        named.expr().span(),
+                        format!("expected boolean, found {found}"),
+                    )]);
+                };
+                *engine.styles =
+                    engine.styles.push_custom("format.svg.pretty", Value::Bool(pretty));
+            }
+            return Ok(Value::None);
+        }
         if fa.target().to_untyped().text_str() == "par"
             && fa.field().to_untyped().text_str() == "line"
         {

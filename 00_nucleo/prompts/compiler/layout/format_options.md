@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: 00000000
+Hash do Código: aa3f4ba1
 
 **Estado:** CONTRATO P1462 CONFIRMADO — sem consumer; hash sentinela não
 selado até a materialização posterior ao novo selo discriminatório R2.
