@@ -289,3 +289,24 @@ O baseline P1461 registrava oito falhas históricas P1450/P1451 no workspace;
 elas não recebem crédito verde e devem ser separadas de qualquer regressão
 P1462. A conclusão só pode alegar o fragmento `format.svg` efetivamente
 provado, nunca paridade global de `format.*` ou SVG.
+
+## 11. Adendo de recuperação — ADR-0131
+
+Em 2026-09-19, a campanha R4 concluiu o vetor `direct` com P00 preservado e
+M01–M18 rejeitados, mas uma interrupção externa durante `direct_repeat/M12`
+impediu a terceira ordem e o inventário P1357. O descarte integral foi
+registrado no commit `bb4ee22f9204764a75b0f191055e7800566942b8`.
+
+O dono aprovou ADR-0131 depois desse resultado. Para a retomada de P1462:
+
+1. o vetor `direct` completo permanece evidência válida após auditoria dos
+   pins registrados;
+2. o estado parcial de M12 é `Interrupted` e não recebe crédito;
+3. o inventário P1357 é a única unidade pré-candidato ainda obrigatória;
+4. P1357 verde + auditoria dos pins autorizam o teste RED e o candidato;
+5. a certificação final repete por risco P00, M03, M12, M13 e fronteiras
+   afetadas, sem rerodar universalmente M01–M18 em três ordens.
+
+Este adendo substitui apenas a mecânica de repetição e retomada. Semântica,
+owners, catálogo M01–M18, score `1.0`, gates L0/V15/V26 e separação de papéis
+permanecem inalterados.
