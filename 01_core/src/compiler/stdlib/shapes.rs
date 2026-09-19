@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash 61943ec3
+//! @prompt-hash 167d921a
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -25,55 +25,36 @@ use crate::entities::value::Value;
 
 // ── Primitivas geométricas (Passo 76) ────────────────────────────────────────
 
-/// Converte um `Value` em `Color`.
-///
-/// Suporta nomes de cor conhecidos (`Value::Str`) e `Value::Color` directo.
-/// Valores hex (`#rrggbb`) ficam para passo futuro — o parser real de cores
-/// Typst requer um lexer dedicado.
+/// Extrai somente uma cor já tipada pelo avaliador.
 pub(super) fn parse_color(val: &Value) -> Option<Color> {
     match val {
         Value::Color(c) => Some(*c),
-        Value::Str(s) => match s.as_str() {
-            "red" => Some(Color::rgb(255, 0, 0)),
-            "green" => Some(Color::rgb(0, 128, 0)),
-            "blue" => Some(Color::rgb(0, 0, 255)),
-            "black" => Some(Color::rgb(0, 0, 0)),
-            "white" => Some(Color::rgb(255, 255, 255)),
-            // P477 — CSS basic colors (13 novas + 2 aliases)
-            "yellow" => Some(Color::rgb(255, 255, 0)),
-            "cyan" => Some(Color::rgb(0, 255, 255)),
-            "magenta" => Some(Color::rgb(255, 0, 255)),
-            "orange" => Some(Color::rgb(255, 165, 0)),
-            "purple" => Some(Color::rgb(128, 0, 128)),
-            "gray" | "grey" => Some(Color::rgb(128, 128, 128)),
-            "silver" => Some(Color::rgb(192, 192, 192)),
-            "maroon" => Some(Color::rgb(128, 0, 0)),
-            "navy" => Some(Color::rgb(0, 0, 128)),
-            "olive" => Some(Color::rgb(128, 128, 0)),
-            "teal" => Some(Color::rgb(0, 128, 128)),
-            "lime" => Some(Color::rgb(0, 255, 0)),
-            "aqua" => Some(Color::rgb(0, 255, 255)),
-            _ => None,
-        },
-        _ => None, // neutro: N16[β] — Value não-cor/gradient retorna None no parse de cor
+        _ => None,
     }
 }
 
 /// Converte um `Value` em `Paint` (fill de shape).
-///
-/// P396 — suporta `Color`, `Tiling` e `Gradient`; `Str` nomeado cai em cor sólida.
-pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
+pub(super) fn parse_paint(val: &Value, span: Span) -> SourceResult<Option<Paint>> {
     match val {
-        Value::Color(c) => Some(Paint::Solid(*c)),
-        Value::Tiling(t) => Some(Paint::Tiling((**t).clone())),
-        Value::Gradient(g) => Some(Paint::Gradient(g.clone())),
-        Value::Str(_) => parse_color(val).map(Paint::Solid),
-        _ => None, // neutro: N16[β] — Value não-paint retorna None no parse de fill
+        Value::Color(c) => Ok(Some(Paint::Solid(*c))),
+        Value::Tiling(t) => Ok(Some(Paint::Tiling((**t).clone()))),
+        Value::Gradient(g) => Ok(Some(Paint::Gradient(g.clone()))),
+        Value::None => Ok(None),
+        Value::Str(_) => Err(vec![SourceDiagnostic::error(
+            span,
+            "expected color, gradient, tiling, or none, found string".to_string(),
+        )]),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected color, gradient, tiling, or none, found {}",
+                other.type_name()
+            ),
+        )]),
     }
 }
 
-/// Preserva o stroke rico já produzido pelo avaliador e mantém a aceitação
-/// legada de nomes de cor usada por estas primitivas.
+/// Preserva o stroke rico já produzido pelo avaliador.
 fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Stroke> {
     if let Some(color) = parse_color(val) {
         return Ok(Stroke {
@@ -82,6 +63,13 @@ fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Stroke> {
             overhang: true,
             ..Stroke::default()
         });
+    }
+    if matches!(val, Value::Str(_)) {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "expected length, color, gradient, tiling, dictionary, or stroke, found string"
+                .to_string(),
+        )]);
     }
     crate::compiler::stdlib::layout::extract_stroke(val, fn_name, "stroke")
 }
@@ -108,7 +96,12 @@ pub fn native_rect(
 
     let width = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
 
     // A forma por-lado é aceita pela superfície existente, mas a entidade
     // uniforme ainda não a representa; preserva o scope-out anterior.
@@ -188,7 +181,12 @@ pub fn native_square(
         .map(Box::new)
         .unwrap_or_else(|| width.clone());
 
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
 
     let parsed_stroke = args
         .named
@@ -245,7 +243,12 @@ pub fn native_ellipse(
 
     let width = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
 
     let parsed_stroke = args
         .named
@@ -308,7 +311,12 @@ pub fn native_circle(
         None => (None, None),
     };
 
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
 
     let parsed_stroke = args
         .named
@@ -658,7 +666,12 @@ pub fn native_polygon(
 
     path_items.push(PathItem::ClosePath);
 
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
     let fill_rule = match args.named.get("fill-rule") {
         None => FillRule::NonZero,
         Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
@@ -1000,7 +1013,12 @@ pub fn native_curve(
         )]);
     }
 
-    let fill = args.named.get("fill").and_then(parse_paint);
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
     let fill_rule = match args.named.get("fill-rule") {
         None => FillRule::NonZero,
         Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
@@ -1154,6 +1172,19 @@ mod tests {
     use super::*;
     use crate::entities::layout_types::{Angle, Length};
     use indexmap::IndexMap;
+
+    #[test]
+    fn p1455_parse_color_rejeita_catalogo_string_hardcoded() {
+        for name in [
+            "red", "green", "blue", "black", "white", "yellow", "cyan", "magenta",
+            "orange", "purple", "gray", "grey", "silver", "maroon", "navy", "olive",
+            "teal", "lime", "aqua",
+        ] {
+            assert_eq!(parse_color(&Value::Str(name.into())), None, "string {name}");
+        }
+        let typed = Color::rgb(1, 2, 3);
+        assert_eq!(parse_color(&Value::Color(typed)), Some(typed));
+    }
 
     fn ctx() -> EvalContext {
         EvalContext::new()

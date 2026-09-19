@@ -66,3 +66,30 @@ obter RED; implementar a coerção tipada; ressellar hashes; exigir mutation
 score `1.0`, zero promoção de `Unknown`, testes focais e completos, `cargo
 build`, `cargo fmt --all -- --check`, `crystalline-lint .` e `git diff
 --check`. Produto e certificado ficam em commits separados.
+
+## 6. Confirmação humana
+
+O dono confirmou explicitamente a quebra de compatibilidade e autorizou a
+materialização em 2026-09-18, após o commit de proposta `e5505f17c`.
+
+## 7. Execução e resultado
+
+Execução sem atestação de isolamento. O RED focal rejeitou o baseline porque
+`parse_color(Value::Str("red"))` ainda retornava vermelho. A implementação
+removeu integralmente os 19 spellings string, manteve a paleta canônica no
+avaliador tipado, tornou `fill` fail-closed e alinhou os diagnósticos públicos
+de string em shapes e decorações.
+
+Em 2026-09-19T00:57:04Z, no working tree não commitado derivado de
+`e5505f17ceb342b94424c2d1e5627cc523eb469a`, a campanha congelada executou 20
+casos contra vanilla SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
+e candidato SHA-256 `cfbfd03361331ee422c97007d4cf222e265d5922c0a86c2c16ba711b6f541ecc`:
+zero falhas. Os testes focais de parse, rect, polygon, curve e highlight
+passaram; `cargo build`, `cargo fmt --all -- --check`, `crystalline-lint .` e
+`git diff --check` passaram.
+
+`cargo test --workspace` executou 5.919 testes: 5.911 passaram e 8 falharam
+fora do recorte P1455, em `eval::repr`, delimitadores matemáticos, align e
+contagens HTML. Nenhuma das oito falhas toca os ficheiros ou comportamentos
+alterados neste passo; por isso o gate global fica registado como não-verde,
+sem ser apresentado como aprovação do produto.

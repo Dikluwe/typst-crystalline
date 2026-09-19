@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 0c567c04
+//! @prompt-hash 745ef788
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -4602,7 +4602,7 @@ mod tests {
     fn rect_com_fill_nao_tem_stroke_fallback() {
         null_ctx!(ctx);
         let mut args = Args::positional(vec![]);
-        args.named.insert("fill".into(), Value::Str("red".into()));
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
         let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_some(), "fill red deve estar presente");
@@ -5051,7 +5051,7 @@ mod tests {
         // P732 — paridade vanilla: com fill, o stroke default desaparece.
         null_ctx!(ctx);
         let mut args = p732_polygon_args_length();
-        args.named.insert("fill".into(), Value::Str("red".into()));
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
         let result =
             native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
@@ -5072,7 +5072,8 @@ mod tests {
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
         let mut args = p732_polygon_args_length();
-        args.named.insert("stroke".into(), Value::Str("blue".into()));
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let result =
             native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
@@ -5781,7 +5782,7 @@ mod tests {
         // disappears" (curve.rs:46-47 vanilla).
         null_ctx!(ctx);
         let mut args = p727_curve_args_minimos();
-        args.named.insert("fill".into(), Value::Str("red".into()));
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
         let result =
             native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
@@ -5802,7 +5803,8 @@ mod tests {
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
         let mut args = p727_curve_args_minimos();
-        args.named.insert("stroke".into(), Value::Str("blue".into()));
+        args.named
+            .insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let result =
             native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
@@ -5819,18 +5821,9 @@ mod tests {
 
     #[test]
     fn parse_color_nomes_conhecidos() {
-        assert_eq!(parse_color(&Value::Str("red".into())), Some(Color::rgb(255, 0, 0)));
-        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0, 128, 0)));
-        assert_eq!(parse_color(&Value::Str("blue".into())), Some(Color::rgb(0, 0, 255)));
-        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0, 0, 0)));
-        assert_eq!(
-            parse_color(&Value::Str("white".into())),
-            Some(Color::rgb(255, 255, 255))
-        );
-        assert_eq!(
-            parse_color(&Value::Str("purple".into())),
-            Some(Color::rgb(128, 0, 128))
-        ); // P477
+        let color = Color::rgb(1, 2, 3);
+        assert_eq!(parse_color(&Value::Color(color)), Some(color));
+        assert_eq!(parse_color(&Value::Str("red".into())), None);
         assert_eq!(parse_color(&Value::Int(42)), None);
     }
 
@@ -13815,56 +13808,31 @@ mod tests {
     }
 
     #[test]
-    fn p477_parse_color_yellow() {
-        let v = Value::Str("yellow".into());
-        let c = parse_color(&v);
-        assert_eq!(c, Some(Color::rgb(255, 255, 0)), "yellow deve ser (255,255,0)");
-    }
-
-    #[test]
-    fn p477_parse_color_gray_grey_aliases() {
-        let gray = parse_color(&Value::Str("gray".into()));
-        let grey = parse_color(&Value::Str("grey".into()));
-        assert_eq!(gray, grey, "gray e grey devem ser idênticos");
-        assert_eq!(gray, Some(Color::rgb(128, 128, 128)));
-    }
-
-    #[test]
-    fn p477_parse_color_aqua_cyan_aliases() {
-        let aqua = parse_color(&Value::Str("aqua".into()));
-        let cyan = parse_color(&Value::Str("cyan".into()));
-        assert_eq!(aqua, cyan, "aqua e cyan devem ser idênticos");
-        assert_eq!(aqua, Some(Color::rgb(0, 255, 255)));
-    }
-
-    #[test]
-    fn p477_parse_color_navy_maroon_teal() {
-        assert_eq!(parse_color(&Value::Str("navy".into())), Some(Color::rgb(0, 0, 128)));
-        assert_eq!(
-            parse_color(&Value::Str("maroon".into())),
-            Some(Color::rgb(128, 0, 0))
-        );
-        assert_eq!(
-            parse_color(&Value::Str("teal".into())),
-            Some(Color::rgb(0, 128, 128))
-        );
-    }
-
-    #[test]
-    fn p477_parse_color_original_5_sem_regressao() {
-        assert_eq!(parse_color(&Value::Str("red".into())), Some(Color::rgb(255, 0, 0)));
-        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0, 128, 0)));
-        assert_eq!(parse_color(&Value::Str("blue".into())), Some(Color::rgb(0, 0, 255)));
-        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0, 0, 0)));
-        assert_eq!(
-            parse_color(&Value::Str("white".into())),
-            Some(Color::rgb(255, 255, 255))
-        );
-    }
-
-    #[test]
-    fn p477_parse_color_desconhecida_retorna_none() {
-        assert_eq!(parse_color(&Value::Str("ultraviolet".into())), None);
+    fn p1455_parse_color_nao_reintroduz_catalogo_string() {
+        for name in [
+            "red",
+            "green",
+            "blue",
+            "black",
+            "white",
+            "yellow",
+            "cyan",
+            "magenta",
+            "orange",
+            "purple",
+            "gray",
+            "grey",
+            "silver",
+            "maroon",
+            "navy",
+            "olive",
+            "teal",
+            "lime",
+            "aqua",
+            "ultraviolet",
+        ] {
+            assert_eq!(parse_color(&Value::Str(name.into())), None, "string {name}");
+        }
     }
 
     #[test]

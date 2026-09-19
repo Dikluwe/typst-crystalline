@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/deco.md
-//! @prompt-hash 0170d420
+//! @prompt-hash 1348b47f
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -79,13 +79,17 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
                     v => match parse_color(v) {
                         Some(c) => Some(c),
                         None => {
-                            return Err(vec![SourceDiagnostic::error(
-                                args.span,
+                            let message = if matches!(v, Value::Str(_)) {
+                                "expected length, color, gradient, tiling, dictionary, stroke, or auto, found string".to_string()
+                            } else {
                                 format!(
                                     "{fn_name}(stroke:) espera color ou none, recebeu {}",
                                     v.type_name()
-                                ),
-                            )])
+                                )
+                            };
+                            return Err(vec![SourceDiagnostic::error(
+                                args.span, message,
+                            )]);
                         }
                     },
                 };
@@ -240,13 +244,18 @@ pub fn native_highlight(
                     v => match parse_color(v) {
                         Some(c) => Some(c),
                         None => {
-                            return Err(vec![SourceDiagnostic::error(
-                                args.span,
+                            let message = if matches!(v, Value::Str(_)) {
+                                "expected color, gradient, tiling, or none, found string"
+                                    .to_string()
+                            } else {
                                 format!(
                                     "highlight(fill:) espera color ou none, recebeu {}",
                                     v.type_name()
-                                ),
-                            )])
+                                )
+                            };
+                            return Err(vec![SourceDiagnostic::error(
+                                args.span, message,
+                            )]);
                         }
                     },
                 };

@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 688275fc
+Hash do Código: 9a7450a5
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -68,6 +68,23 @@ confirmada de `BlockElem::height`, expectativas absolutas comparam
 `Rel { rel: 0, abs }` sem alterar o valor observado. O teste novo de
 preservação percentual fica junto da implementação em `stdlib/layout.rs` e é
 legitimado pelo owner dedicado, não por esta fachada.
+
+### P1455 — remoção das expectativas legadas de cor textual
+
+**Medição anterior à decisão:** no baseline
+`e5505f17ceb342b94424c2d1e5627cc523eb469a`, os testes locais em
+`01_core/src/compiler/stdlib/mod.rs:5821-5834,13818-13867` ainda exigem que o
+helper do owner `shapes` converta uma paleta de strings em `Color`. Outros
+testes de shape em `:4602-4615,5051-5085,5781-5815` também constroem `fill` e
+`stroke` com strings. O vanilla ratificado rejeita esses valores porque cores
+nomeadas chegam ao consumer já tipadas pelo avaliador.
+
+**Decisão:** as expectativas test-only desta fachada devem usar
+`Value::Color` ao testar pintura válida e devem rejeitar strings. A fachada
+não ganha parser, catálogo, coerção, fallback ou lógica produtiva; a regra de
+produção permanece exclusivamente no owner `stdlib/shapes.md`. Esta emenda
+legitima apenas a atualização e consolidação dos testes históricos que
+contradiziam a mudança de compatibilidade P1455 confirmada pelo dono.
 
 ### P1396-R1 — expectativas locais dos operadores compostos
 

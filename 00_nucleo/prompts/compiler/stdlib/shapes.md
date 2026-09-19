@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 8f2c52dd
+Hash do Código: 40970eaf
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -34,14 +34,12 @@ fn native_X(
 ```
 
 Helpers partilhados no módulo:
-- `parse_color` — converte `Value::Str` (nomes conhecidos) ou `Value::Color` em `Color`.
-  P477: 18 cores suportadas (5 originais + 13 novas CSS basic + 2 aliases gray/grey, aqua/cyan).
-  Nomes: red, green, blue, black, white, yellow, cyan, magenta, orange, purple, gray, grey,
-  silver, maroon, navy, olive, teal, lime, aqua.
-- `parse_paint` — converte `Color`, `Tiling`, `Gradient` ou string nomeada em `Paint`.
+- `parse_color` — extrai somente `Value::Color`; constantes de cor nomeadas já
+  chegam tipadas pelo avaliador.
+- `parse_paint` — converte `Color`, `Tiling` e `Gradient` em `Paint`, preserva
+  `none` e rejeita outros tipos.
 - `parse_shape_stroke` — converte os shorthands de stroke da linguagem
-  (`Length`, `Color` e `Stroke`) sem perder paint nem espessura; nomes de cor
-  legados continuam aceites.
+  (`Length`, `Color` e `Stroke`) sem perder paint nem espessura.
 
 ---
 
@@ -51,8 +49,8 @@ Helpers partilhados no módulo:
 
 **Argumentos**:
 - `width`, `height`: `Length` (ou `Float`/`Int` coagidos para pt) opcionais.
-- `fill`: `Color`, `Tiling`, `Gradient` ou nome de cor (`Str`).
-- `stroke`: shorthand `Length`, `Color`, nome de cor (`Str`) ou `Stroke` já
+- `fill`: `Color`, `Tiling`, `Gradient` ou `none`.
+- `stroke`: shorthand `Length`, `Color` ou `Stroke` já
   avaliado. Paint e espessura são preservados até o `Content::Shape`.
 - Sem argumentos posicionais.
 
@@ -67,7 +65,8 @@ stroke preta de 1pt.
   (como dash/cap/join) permanecem scope-out.
 - O dicionário por-lado de `rect(stroke:)` continua aceite pela superfície
   por compatibilidade, mas permanece scope-out na entidade uniforme.
-- Cores hex (`#rrggbb`) ainda não parseadas via `parse_color`.
+- Strings não são convertidas em cores; a paleta canônica é resolvida antes
+  desta fronteira pelo avaliador.
 
 **Testes canónicos**:
 ```
@@ -130,7 +129,7 @@ circle(fill: blue) -> Shape Ellipse fill blue
 
 **Argumentos**:
 - `dx`, `dy`: deslocamento em pt (`Length`, `Float`, `Int`). Default `0.0`.
-- `stroke`: shorthand `Length`, `Color`, nome de cor (`Str`) ou `Stroke` já
+- `stroke`: shorthand `Length`, `Color` ou `Stroke` já
   avaliado. Default preto 1pt; paint e espessura explícitos são preservados.
 - **`end`** (P739B): ponto final como array de 2 coordenadas, ex. `(50pt, 50pt)`
   (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
@@ -416,7 +415,7 @@ default ou fase. Logo é correção interna de paridade em fluxo contínuo
 ADR-0127. Percentagens mistas, infinito e clipping continuam `Unknown`; esta
 rota só fecha os observáveis medidos.
 
-## P1455 — remover a paleta string hardcoded (PROPOSTO; gate ADR-0127)
+## P1455 — remover a paleta string hardcoded (CONFIRMADO)
 
 ### Medição anterior à decisão
 
@@ -438,7 +437,7 @@ A inferência é que a tabela é compatibilidade cristalina histórica, não
 semântica Typst. Seria refutada por aceitação de qualquer string como paint no
 vanilla ratificado; as sondas representativas e a fonte tipada não a refutam.
 
-### Decisão proposta
+### Decisão confirmada
 
 - eliminar integralmente o match de nomes string em `parse_color`;
 - aceitar cores nomeadas somente como `Value::Color`, já resolvidas pela
@@ -451,4 +450,5 @@ vanilla ratificado; as sondas representativas e a fonte tipada não a refutam.
   outro catálogo local.
 
 A remoção revoga sintaxe pública antes aceite e, portanto, é quebra de
-compatibilidade. P1455 para no gate ADR-0127 até confirmação humana explícita.
+compatibilidade. O dono confirmou explicitamente a materialização em
+2026-09-18, após o commit de proposta `e5505f17c`.

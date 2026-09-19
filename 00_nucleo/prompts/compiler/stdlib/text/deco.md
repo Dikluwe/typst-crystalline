@@ -104,7 +104,7 @@ Emite `Content::highlight_full(body, fill, radius, extent)`.
 #highlight()                      → Err
 ```
 
-## P1455 — coerção de cor tipada (PROPOSTO; gate ADR-0127)
+## P1455 — coerção de cor tipada (CONFIRMADO)
 
 ### Medição anterior à decisão
 
@@ -118,7 +118,7 @@ hardcoded que não existe no vanilla:
 - `highlight(fill: "red", [x])` produz conteúdo no cristalino, enquanto o
   vanilla erra `expected color, gradient, tiling, or none, found string`.
 
-### Decisão proposta
+### Decisão confirmada
 
 Decorações aceitam cor somente como valor tipado `Value::Color`; constantes
 nomeadas continuam funcionando porque o evaluator as resolve antes da chamada.
@@ -126,5 +126,6 @@ String não é alias de cor e deve seguir o erro de tipo da superfície. `none`,
 defaults, geometria e carriers permanecem. Não criar tabela ou fallback local
 quando o catálogo de `shapes` for removido.
 
-Esta remoção quebra compatibilidade cristalina pública e permanece bloqueada
-no gate ADR-0127 até confirmação humana explícita.
+Esta remoção quebra compatibilidade cristalina pública. O dono confirmou
+explicitamente a materialização em 2026-09-18, após o commit de proposta
+`e5505f17c`.
