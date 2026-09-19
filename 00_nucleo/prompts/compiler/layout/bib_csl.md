@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/bib_csl` — Renderização CSL via hayagriva
-Hash do Código: b5f5ee71
+Hash do Código: ee5790bd
 
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/bib_csl.rs`
@@ -85,6 +85,31 @@ pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String>;
 - Locales via ficheiro externo (locale built-in apenas).
 - CSL via URL, diretórios de sistema, hot-reload e validação RelaxNG completa.
 
+## P1457 — serialização total dos escalares do YAML intermédio
+
+### Medição anterior à decisão
+
+No baseline `b2eba024821ed5f10a4667d6179da3ea2cebff8d`, a ponte decide
+manualmente quais strings precisam de aspas por `needs_yaml_quotes`. Essa
+tabela cobre somente algumas formas lexicais e deixa `True`, `NULL`, `.nan`
+e outros escalares tipados pelo YAML sem proteção. Uma bibliografia pública
+com `title = {True}` compila no vanilla ratificado, mas o cristalino entrega
+o token sem aspas ao YAML e falha com `invalid type: boolean true`.
+
+### Obrigação
+
+Todo valor textual escrito no YAML intermédio deve ser serializado
+incondicionalmente como string JSON, que também é escalar double-quoted YAML
+válido. A serialização deve preservar conteúdo vazio, Unicode, whitespace,
+maiúsculas/minúsculas, aspas, barras invertidas e controles através dos
+escapes normativos do serializer. Aplicar a mesma função a todos os campos
+textuais da ponte, sem classificador lexical, tabela de palavras YAML,
+reescrita posterior ou exceção por campo. Remover `needs_yaml_quotes`.
+
+Esta é correção interna de representação/paridade em fluxo contínuo
+ADR-0127; não altera entidade, assinatura pública, comportamento por defeito,
+fase do pipeline ou compatibilidade documentada.
+
 ## P1456 — normalização estrutural de ranges BibTeX
 
 ### Medição anterior à decisão
@@ -128,3 +153,4 @@ adiciona field, assinatura, default ou fase de pipeline.
 | 2026-06-23 | P418 (XL): criar prompt L0 do módulo CSL. | `bib_csl.md`, `bib_csl.rs` |
 | 2026-06-23 | P420 (M): adicionar resolução de `.csl` customizado via path. | `bib_csl.md`, `bib_csl.rs`, `rules/eval/bibliography.rs`, `compiler/layout/mod.rs`, `rules/stdlib/structural.rs` |
 | 2026-09-18 | P1456: substituir `replace("--", "-")` por normalização estrutural de runs no campo pages. | `bib_csl.md`, `bib_csl.rs` |
+| 2026-09-18 | P1457: eliminar a tabela lexical de aspas e serializar todo escalar textual como string JSON/YAML. | `bib_csl.md`, `bib_csl.rs` |

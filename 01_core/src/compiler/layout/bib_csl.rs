@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bib_csl.md
-//! @prompt-hash 6b6cb2a8
+//! @prompt-hash 3ba35d24
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -326,43 +326,11 @@ fn bib_entry_to_hayagriva(entry: &BibEntry) -> SourceResult<Entry> {
     })
 }
 
-/// Escapa um escalar YAML plain suficientemente para as entradas típicas.
+/// Serializa texto como string JSON, que também é um escalar double-quoted
+/// válido em YAML. Assim o parser nunca infere bool, null ou número a partir
+/// de um campo textual e o próprio serializer cobre escapes e Unicode.
 fn escape_yaml_scalar(s: &str) -> String {
-    if s.is_empty() {
-        return "\"\"".to_string();
-    }
-    if needs_yaml_quotes(s) {
-        format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\""))
-    } else {
-        s.to_string()
-    }
-}
-
-fn needs_yaml_quotes(s: &str) -> bool {
-    s.starts_with(|c: char| {
-        c.is_ascii_digit()
-            || c == '-'
-            || c == ':'
-            || c == '['
-            || c == '{'
-            || c == '*'
-            || c == '&'
-            || c == '!'
-            || c == '|'
-            || c == '>'
-            || c == '\''
-            || c == '"'
-            || c == '%'
-            || c == '@'
-            || c == '`'
-    }) || s.contains(':')
-        || s.contains('#')
-        || s.contains('\n')
-        || s.contains('\t')
-        || s == "true"
-        || s == "false"
-        || s == "null"
-        || s == "~"
+    serde_json::to_string(s).expect("serializing a string to JSON cannot fail")
 }
 
 /// Sanitiza a chave do mapa YAML (key da entry). Se necessário, envolve em aspas.
@@ -702,6 +670,32 @@ mod tests {
     }
 
     #[test]
+    fn p1457_escalares_textuais_usam_serializacao_total() {
+        for (input, expected) in [
+            ("", "\"\""),
+            ("plain text", "\"plain text\""),
+            ("True", "\"True\""),
+            ("NULL", "\"NULL\""),
+            (".nan", "\".nan\""),
+            ("? value", "\"? value\""),
+            ("say \"hi\"", "\"say \\\"hi\\\"\""),
+            ("C:\\fonts", "\"C:\\\\fonts\""),
+            ("line\nbreak", "\"line\\nbreak\""),
+            ("a\tb", "\"a\\tb\""),
+            ("pré–pós", "\"pré–pós\""),
+        ] {
+            assert_eq!(escape_yaml_scalar(input), expected, "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn p1457_title_com_spelling_yaml_tipado_permanece_texto() {
+        let entry = BibEntry::new("typed", "Author, A.", "True", 2024);
+        let h = bib_entry_to_hayagriva(&entry).unwrap();
+        assert_eq!(h.title().unwrap().value.to_str(), "True");
+    }
+
+    #[test]
     fn p1456_page_range_run_triplo_normaliza_como_unidade() {
         let entry =
             BibEntry::new("range", "Author, A.", "Title", 2022).with_pages("45---67");
@@ -797,20 +791,16 @@ mod tests {
     }
 
     #[test]
-    fn p644_bib_entry_to_hayagriva_yaml_invalido_produz_erro() {
-        // Caractere de controlo nulo no título — o YAML gerado contém U+0000,
-        // que o parser hayagriva rejeita.
+    fn p1457_bib_entry_controle_escapado_preserva_texto() {
+        // P1457 substitui o YAML internamente inválido usado como sentinela em
+        // P644: U+0000 agora é escapado pelo serializer e volta como texto.
         let entry = BibEntry::new(
             "key".to_string(),
             "Autor".to_string(),
             "Título\u{0000}inválido".to_string(),
             2024,
         );
-        let err = bib_entry_to_hayagriva(&entry).unwrap_err();
-        assert!(
-            err[0].message.contains("failed to parse bibliography entry"),
-            "{}",
-            err[0].message
-        );
+        let converted = bib_entry_to_hayagriva(&entry).unwrap();
+        assert_eq!(converted.title().unwrap().value.to_str(), "Título\0inválido");
     }
 }

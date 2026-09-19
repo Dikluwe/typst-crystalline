@@ -127,7 +127,7 @@ types = ["Regex", "new"]  # ADR-0077
 
 # grupo loading (data import) — ADR-0111 (P387); decode puro, paridade do Value de saída
 [l1_allowed_external.serde_json]
-types = ["Value", "from_slice"]  # ADR-0111 — decode_json
+types = ["Value", "from_slice", "to_string"]  # ADR-0111 — decode/encode JSON; P1457 reutiliza o serializer puro para escalares YAML
 
 [l1_allowed_external.saphyr]
 types = ["Yaml", "Scalar", "LoadableYamlNode"]  # ADR-0111 — decode_yaml

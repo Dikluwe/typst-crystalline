@@ -1,0 +1,23 @@
+{
+  "schema": "p1457-mutation-results/v1",
+  "valid_mutations": 12,
+  "killed": 12,
+  "survivors": [],
+  "mutation_score": 1.0,
+  "orders": ["forward", "reverse", "forward-repeat"],
+  "unknown_promoted": false,
+  "witnesses": {
+    "retain-current-classifier": "plain text remains an unquoted YAML scalar",
+    "extend-lowercase-catalog": "empty and True remain outside the partial catalog",
+    "leave-plain-unquoted": "empty and plain text are not serialized strings",
+    "quote-without-escaping": "embedded quote produces an invalid representation",
+    "escape-quotes-only": "backslash is not preserved by the representation",
+    "escape-backslashes-only": "embedded quote is not escaped",
+    "leave-controls-raw": "newline remains raw instead of JSON escaped",
+    "ascii-only-copy": "pré–pós loses Unicode characters",
+    "quote-title-only": "author, publisher and note remain unquoted",
+    "coerce-typed-spellings": "True is changed to true instead of preserved",
+    "accept-one-binary": "bilateral public control requires both identified products",
+    "promote-unknown": "opaque control requires Unknown"
+  }
+}

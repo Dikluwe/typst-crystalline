@@ -1,0 +1,24 @@
+{
+  "schema": "p1457-preseal/v1",
+  "captured_at_utc": "2026-09-19T01:19:45Z",
+  "baseline_commit": "b2eba024821ed5f10a4667d6179da3ea2cebff8d",
+  "baseline_tree": "6d60b5f0c09425ed8595a54670bc822589eeff80",
+  "attestation": "executado sem atestacao de isolamento",
+  "phase": "after_contract_oracles_mutants_before_red_and_candidate",
+  "sha256": {
+    "manifest": "1674992de23dafd78bb9da01308efe9a4359f45b9a04271fe551a215ae0368eb",
+    "contract": "5ad76b4d203134035b800cf61f2a80adcb86aed18822b9e87223163dd0081a06",
+    "oracles": "07122999442f5995243daa4f1f9b59f2e7454e51168a779dde48f348b79b9533",
+    "mutants": "8aedc0b0c1b439cfe50c1d80e3ce445dff7adeecc9b4fbd9969cd940b45cd528",
+    "prompt": "342400dd6fb8977935482543a514d273e5c4c24e7457beb9cd92a52cd863f9b6",
+    "consumer_baseline": "2e14ab8de2a4c617ec68c55578979e48b0fdeb7742a5db3f6ca616649a3c8c74"
+  },
+  "mutation_gate": {
+    "valid": 12,
+    "killed": 12,
+    "survivors": [],
+    "score": 1.0,
+    "orders_required": ["forward", "reverse", "forward-repeat"],
+    "unknown_promoted": false
+  }
+}
