@@ -1,0 +1,94 @@
+{
+  "schema": "tekt-preseal-verdict/v1",
+  "step": 1462,
+  "revision": "R3",
+  "verdict": "NOT_SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T14:41:22-03:00",
+  "baseline": {
+    "commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "candidate_productive_patch_present": false
+  },
+  "r2_verdicts_preserved": {
+    "mutation_results_sha256": "a2ab11a0e5d00389869a7235139e9f4811fb859107de1493913857d95c48fedc",
+    "preseal_sha256": "8897c2e7cf244fd49023032f8a766315e8e67e01d25c36a3dd1d8c46d47a9b3f",
+    "verdict": "NOT_SEALED",
+    "unchanged": true
+  },
+  "results": {
+    "path": "00_nucleo/diagnosticos/p1462-r3-mutation-results.json",
+    "status": "NOT_SEALED"
+  },
+  "gates": {
+    "protected_r2_chain_and_l0_hashes": "PASS",
+    "r3_artifact_hashes": "PASS",
+    "bundle_identity_exact_delta_and_inheritance": "PASS",
+    "absence_of_productive_candidate": "PASS",
+    "P00_focal_boundary_control": "PASS",
+    "M12_r3_focal": "PASS_VIOLATED_BY_TAGGED_METADATA",
+    "M15_static_ownership": "PASS_VIOLATED",
+    "M16_static_ownership": "PASS_VIOLATED",
+    "M17_v26": "PASS_VIOLATED",
+    "M18_same_source_valid_xml": "PASS_VIOLATED",
+    "P00_full_positive_control": "FAIL_O3_DIAGNOSTIC_MISMATCH",
+    "M03_full_direct": "UNKNOWN_EXTERNAL_TIMEOUT",
+    "M13_p1357_and_sibling_absence": "NOT_REACHED_AFTER_UNKNOWN",
+    "full_direct": "INTERRUPTED",
+    "full_direct_repeat": "INTERRUPTED",
+    "full_reverse": "INTERRUPTED",
+    "mutation_score_18_of_18": "FAIL_NOT_ESTABLISHED",
+    "coverage_18_of_18": "FAIL_NOT_ESTABLISHED",
+    "zero_accidental_unknown": "FAIL_ONE_UNKNOWN",
+    "identical_complete_vectors": "FAIL_NOT_ESTABLISHED"
+  },
+  "blocking_evidence": [
+    {
+      "kind": "positive-control-failure",
+      "variant": "P00",
+      "case": "O3-set-validation/integer",
+      "orders": [
+        "direct",
+        "direct_repeat",
+        "reverse"
+      ],
+      "expected": "expected boolean, found integer",
+      "observed": "expected boolean, found int",
+      "classification": "Violated"
+    },
+    {
+      "kind": "accidental-unknown",
+      "variant": "M03",
+      "order": "direct",
+      "classification": "Unknown",
+      "reason_code": "external-variant-timeout-under-concurrent-load",
+      "timeout_seconds": 180,
+      "report_present": false,
+      "process_pairs": "56 started / 55 terminal",
+      "retry_performed": false,
+      "ledger_sha256": "3398144bec5b82f1ee6c6fb00c2d76c430eccaf8931e126d1107db8d7e56d8d4"
+    }
+  ],
+  "focal_disposition": {
+    "all_requested_r3_foci_conclusive": true,
+    "accidental_unknown": 0,
+    "credit_toward_full_score": false,
+    "reason": "focal results authorize but do not replace complete mutation vectors"
+  },
+  "authorization": {
+    "sealed": false,
+    "p1462_red_test_authorized": false,
+    "p1462_implementation_authorized": false,
+    "authorized_productive_owners": [],
+    "reason": "P00 was not wholly Preserved, M03 was Unknown, and 18/18 score, 18/18 coverage and deterministic complete vectors were not established"
+  },
+  "required_disposition": {
+    "action": "reopen the preseal execution/instrument boundary; do not reuse partial full-campaign prefixes as score",
+    "constraints": [
+      "do not convert the M03 timeout into a kill or Preserved result",
+      "do not retry selectively or choose a convenient run within R3",
+      "preserve both R2 NOT_SEALED verdicts and this R3 NOT_SEALED verdict",
+      "do not start P1462 production implementation or the RED test consumer"
+    ]
+  }
+}

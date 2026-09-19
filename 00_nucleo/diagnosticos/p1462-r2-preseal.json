@@ -1,0 +1,58 @@
+{
+  "schema": "tekt-preseal-verdict/v1",
+  "step": 1462,
+  "revision": "R2",
+  "verdict": "NOT_SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T14:09:53-03:00",
+  "baseline": {
+    "commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "candidate_productive_patch_present": false
+  },
+  "results": {
+    "path": "00_nucleo/diagnosticos/p1462-r2-mutation-results.json",
+    "status": "NOT_SEALED"
+  },
+  "gates": {
+    "protected_input_hashes": "PASS",
+    "bundle_identity_and_exact_delta": "PASS",
+    "absence_of_productive_candidate": "PASS",
+    "P00_focal_positive_control": "PASS",
+    "M06_focal_negative": "PASS",
+    "M12_focal_negative": "FAIL_SURVIVED",
+    "M15_M16_static_ownership": "NOT_REACHED_AFTER_STOP",
+    "M17_V26": "NOT_REACHED_AFTER_STOP",
+    "M18_same_source_valid_xml": "NOT_REACHED_AFTER_STOP",
+    "M13_P1357_and_sibling_absence": "NOT_REACHED_AFTER_STOP",
+    "full_direct_direct_repeat_reverse": "NOT_RUN_BY_YIELD_CONTROL",
+    "mutation_score_18_of_18": "FAIL_NOT_ESTABLISHED",
+    "coverage_18_of_18": "FAIL_NOT_ESTABLISHED",
+    "identical_vectors": "NOT_ESTABLISHED",
+    "zero_accidental_unknown_completed_focus": "PASS"
+  },
+  "blocking_evidence": {
+    "mutant": "M12",
+    "classification": "Survived",
+    "reason_code": "o8-pdf-public-observable-unchanged",
+    "witness": "O8-PDF classified Preserved: false/true PDF artifacts had distinct SHA-256 values but identical frozen public text and selected metadata; byte difference is mechanical and receives no ADR-0107 credit",
+    "controls": "O8-PNG, O8-HTML and O8-HTML-FRAME also Preserved; no accidental Unknown occurred in the completed M12 focus",
+    "report_sha256": "369825f9c74423ebb68a8ef06efa46da402cae27f76c0f69728e6ab53601b3d3"
+  },
+  "authorization": {
+    "sealed": false,
+    "p1462_red_test_authorized": false,
+    "p1462_implementation_authorized": false,
+    "authorized_productive_owners": [],
+    "reason": "the required 18/18 score, 18/18 coverage and identical complete vectors were not established because M12 survived the focal gate"
+  },
+  "required_disposition": {
+    "action": "reopen the adversarial/oracle design for M12 before any further full-corpus attempt",
+    "constraints": [
+      "do not convert the survivor or any future Unknown into a kill",
+      "if M12 is excluded as equivalent, record evidence and supply a valid replacement for the same class",
+      "if the observable contract changes, invalidate and regenerate all causally downstream R2 artifacts",
+      "do not start P1462 production implementation or the RED test consumer under this verdict"
+    ]
+  }
+}

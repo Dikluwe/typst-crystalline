@@ -1,0 +1,221 @@
+{
+  "schema": "p1462-r3-mutation-fixtures/v1",
+  "revision": "R3",
+  "recorded_at": "2026-09-19T14:19:45-03:00",
+  "authority": {
+    "role": "adversario-pre-candidato-r3",
+    "regime": "full-protocol-focal-revision",
+    "classification_authority": "independent-preseal-verifier",
+    "attestation": "checkout compartilhado; executado sem atestacao de isolamento",
+    "private_oracles_read_or_executed": false,
+    "campaign_or_kills_executed": false
+  },
+  "provenance": {
+    "baseline_commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "baseline_git_tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "observed_checkout_head": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "observed_checkout_tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "dirty_state_at_recording": [
+      "?? 00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md",
+      "?? 00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+      "?? 00_nucleo/diagnosticos/p1462-r2-mutantes.md",
+      "?? 00_nucleo/diagnosticos/p1462-r2-mutation-fixtures.json",
+      "?? 00_nucleo/diagnosticos/p1462-r2-mutation-results.json",
+      "?? 00_nucleo/diagnosticos/p1462-r2-mutation-runner.py",
+      "?? 00_nucleo/diagnosticos/p1462-r2-oraculos-independentes.md",
+      "?? 00_nucleo/diagnosticos/p1462-r2-preseal.json",
+      "?? 00_nucleo/diagnosticos/p1462-r3-mutantes.md",
+      "?? 00_nucleo/diagnosticos/p1462-r3-mutation-runner.py"
+    ],
+    "r2_preseal": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-preseal.json",
+      "sha256": "8897c2e7cf244fd49023032f8a766315e8e67e01d25c36a3dd1d8c46d47a9b3f",
+      "verdict": "NOT_SEALED",
+      "blocking_mutant": "M12",
+      "reason_code": "o8-pdf-public-observable-unchanged"
+    },
+    "r2_results": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-results.json",
+      "sha256": "a2ab11a0e5d00389869a7235139e9f4811fb859107de1493913857d95c48fedc"
+    },
+    "frozen_r2_runner": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-runner.py",
+      "sha256": "3080707215bfc80afcdf644948c2aad82b0af39979621e0bdaca29c9d23b2a6e"
+    },
+    "frozen_r2_fixtures": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-fixtures.json",
+      "sha256": "cabf0dbadb420efc163ba1167d676455de8275fc40dca30b9508bdcf95cc08a4"
+    }
+  },
+  "bundle": {
+    "root": "/tmp/p1462-r3-mutations",
+    "baseline_source_root": "baseline",
+    "reference_source_root": "P00",
+    "artifact_root": "artifacts",
+    "focus_root": "focus",
+    "source_tree_hash_algorithm": "sha256 of sorted lines '<file-sha256>  ./<relative-path>\\n'; regular files only; symlinks excluded"
+  },
+  "inheritance": {
+    "base_fixture_sha256": "cabf0dbadb420efc163ba1167d676455de8275fc40dca30b9508bdcf95cc08a4",
+    "baseline_byte_identical_from_r2": true,
+    "reference_byte_identical_from_r2": true,
+    "copy_method": "cp -a --reflink=always; no editable source or frozen binary has link count greater than one",
+    "mutant_ids": [
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08",
+      "M09",
+      "M10",
+      "M11",
+      "M13",
+      "M14",
+      "M15",
+      "M16",
+      "M17",
+      "M18"
+    ],
+    "inherited_source_and_binary_identity": "expanded from the frozen R2 fixture and revalidated inside the R3 bundle"
+  },
+  "build": {
+    "profile": "dev",
+    "binary": "typst-wiring/typst",
+    "changed_variant": "M12",
+    "target_isolation": "dedicated /tmp/p1462-r3-mutations/targets/M12; four local crates cleaned before build",
+    "clean_command": "CARGO_TARGET_DIR=/tmp/p1462-r3-mutations/targets/M12 cargo clean --manifest-path /tmp/p1462-r3-mutations/M12/Cargo.toml -p typst-core -p typst-shell -p typst-infra -p typst-wiring",
+    "build_command": "CARGO_TARGET_DIR=/tmp/p1462-r3-mutations/targets/M12 cargo build -q --manifest-path /tmp/p1462-r3-mutations/M12/Cargo.toml -p typst-wiring --bin typst",
+    "freeze_command": "cp /tmp/p1462-r3-mutations/targets/M12/debug/typst /tmp/p1462-r3-mutations/artifacts/M12/typst && strip /tmp/p1462-r3-mutations/artifacts/M12/typst",
+    "clean_exit": 0,
+    "build_exit": 0,
+    "isolated_elapsed_ms": 23809,
+    "bundle_disk_cost_observed": "8.7G"
+  },
+  "budgets": {
+    "total_minutes": 120,
+    "max_revisions": 4,
+    "max_focus_runs_per_revision": 3,
+    "max_full_runs_before_seal": 3,
+    "external_timeout_seconds": 120,
+    "r3_recipe_attempts_for_m12": 1,
+    "r3_isolated_builds": 1,
+    "r3_focus_sets": 1,
+    "full_campaign_runs": 0,
+    "budget_exhaustion_result": "inconclusive"
+  },
+  "ordering": {
+    "supported_runner_orders": [
+      "direct",
+      "direct_repeat",
+      "reverse"
+    ],
+    "contract_aliases": {
+      "direct": "forward",
+      "direct_repeat": "forward-repeat",
+      "reverse": "reverse"
+    },
+    "reference_first": true,
+    "fresh_case_directory_required_by_verifier": true,
+    "classification_vector_must_repeat": true
+  },
+  "scoring": {
+    "required_classes": 18,
+    "valid_denominator": 18,
+    "required_score": 1.0,
+    "formula": "valid mutants rejected / valid mutants",
+    "unknown_receives_credit": false,
+    "pending_receives_credit": false,
+    "excluded_equivalent_in_denominator": false,
+    "excluded_non_compilable_in_denominator": false,
+    "excluded_r2_instance": {
+      "id": "M12-R2",
+      "reason": "equivalent under the frozen ADR-0107 public O8-PDF observables"
+    },
+    "r3_replacement_enters_denominator": "M12"
+  },
+  "replacement": {
+    "identity": {
+      "id": "M12",
+      "source_root": "M12",
+      "source_tree_sha256": "320fcbdd3d2be58859094551259e40c59ee837be93298303447bab089da7d19b",
+      "binary": "artifacts/M12/typst",
+      "binary_sha256": "c4c77f14e554ac7b6952f9f67d26f8c580dfd7c5885e3747f914fe2927ce2be8",
+      "binary_size_bytes": 80544376,
+      "binary_mode": "0775",
+      "build_exit": 0
+    },
+    "r3_replacement": true,
+    "class": "SVG document option leaks into public PDF tagging metadata",
+    "classification": "valid-compilable-non-equivalent",
+    "recipe": "after obtaining the document, shadow pdf_tags as PdfTags::Disabled only when document.format_options.svg.pretty is true; otherwise preserve the caller value",
+    "exact_delta": [
+      {
+        "path": "03_infra/src/pipeline.rs",
+        "before_sha256": "636ff3c02aae5ea7a3027aab53715a995aac3b327c4ade2362bd64a5872b88af",
+        "after_sha256": "16ed2805bcc17fbabfae6f8f6993eb78a1ebaff3ec4e5110380d45492cdd8c63"
+      }
+    ],
+    "r2_to_r3_delta": {
+      "r2_source_tree_sha256": "7d67b8b1e2b865e55792986dc196ac96112c75e41afe4d5d8b91c862dfc168fc",
+      "r2_pipeline_sha256": "0c976bfe08cd3dd6f91974f94ce1de0b7657e31dd107a67aad79a5388513ee18",
+      "r2_binary_sha256": "857d412e2141d59827a98b210c7bcc8959ee59e1881a5ee2454e1775a09c794f",
+      "r3_source_tree_sha256": "320fcbdd3d2be58859094551259e40c59ee837be93298303447bab089da7d19b",
+      "r3_pipeline_sha256": "16ed2805bcc17fbabfae6f8f6993eb78a1ebaff3ec4e5110380d45492cdd8c63",
+      "r3_binary_sha256": "c4c77f14e554ac7b6952f9f67d26f8c580dfd7c5885e3747f914fe2927ce2be8",
+      "hypothesis": "replace byte-only serialization leakage with a public Tagged metadata change while preserving all non-PDF controls"
+    }
+  },
+  "public_focus": {
+    "status": "construction-controls-only; no kill classification assigned",
+    "sources": {
+      "o8_pdf_png_false": {
+        "path": "focus/o8-paged-false.typ",
+        "sha256": "726c74d3e0b0450a376496294600b9e6864580af2a30380bbff14c7f342f2111"
+      },
+      "o8_pdf_png_true": {
+        "path": "focus/o8-paged-true.typ",
+        "sha256": "ecf02b3c2a23d4a27a7841ab386b1a40fccc2481aa13f83a439a09b1e2389021"
+      },
+      "o8_html_false": {
+        "path": "focus/o8-html-false.typ",
+        "sha256": "77d9d2ef0bddc5536489d7e5aadc1bc93accd5d810e4660ab58d964fa6565757"
+      },
+      "o8_html_true": {
+        "path": "focus/o8-html-true.typ",
+        "sha256": "576b9d713bd1d571ada3e470c8072742c202d41343402c2693c8642a261b5773"
+      },
+      "o8_html_frame_false": {
+        "path": "focus/o8-html-frame-false.typ",
+        "sha256": "3aab917b470b4002de18858abda43816237415e14e534548075336dbfefbb7ed"
+      },
+      "o8_html_frame_true": {
+        "path": "focus/o8-html-frame-true.typ",
+        "sha256": "c5bbbc4f4a1b9f004936db4c3c5da1a6f8e7dca5ba46a9b9c10ca957b3c3bca0"
+      }
+    },
+    "o8_pdf": {
+      "P00_false_tagged": "yes",
+      "P00_true_tagged": "yes",
+      "M12_false_tagged": "yes",
+      "M12_true_tagged": "no",
+      "extracted_text_sha256_all_four": "53cf8e98fe620672c07308b494b85433683a91c4d89066be70715116f2816421"
+    },
+    "o8_png": {
+      "sha256_all_four": "ade1db3038fb87d3f027f3388d2d97724f648159dea990fa9c9e95659f575ee3",
+      "bytes_all_four": 4963
+    },
+    "o8_html": {
+      "sha256_all_four": "1a097884091001310c1d30ede4a197a16b9c938fc97d688e433155a3eb74f7d6",
+      "bytes_all_four": 176
+    },
+    "o8_html_frame": {
+      "sha256_all_four": "6fc4956510bac79da666bcc6c97e67d57d484fc4c9405dc987332b48577271fb",
+      "bytes_all_four": 632,
+      "svg_roots_all_four": 1
+    },
+    "unknown_policy": "timeout, crash, missing identity, parser opacity or ambiguous extraction is Unknown and receives no credit"
+  }
+}

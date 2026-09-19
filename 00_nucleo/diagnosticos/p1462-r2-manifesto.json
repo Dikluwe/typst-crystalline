@@ -1,0 +1,305 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": 1462,
+  "revision": "R2",
+  "phase": "pre_candidate_contract_refreeze",
+  "protocol": {
+    "name": "tekt-materializacao-segregada",
+    "regime": "full",
+    "execution_mode": "shared_checkout_procedural_segregation",
+    "attestation": "executado sem atestacao de isolamento",
+    "technical_isolation_attested": false,
+    "candidate_patch_existed_or_was_read": false,
+    "causal_order": [
+      "r1_inconclusive_history_and_refuter",
+      "r2_prompt_and_baseline",
+      "r2_manifest",
+      "r2_frozen_contract",
+      "r2_independent_oracles_and_mutants",
+      "r2_discriminatory_gate",
+      "r2_seal",
+      "implementation_and_independent_tests",
+      "final_gates_and_certificate"
+    ],
+    "sources": [
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+        "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+      },
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+        "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+      },
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+        "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+      }
+    ]
+  },
+  "canonicalization": {
+    "encoding": "UTF-8",
+    "line_endings": "LF",
+    "indentation_spaces": 2,
+    "hash_algorithm": "SHA-256 over raw file bytes",
+    "array_order_is_significant": true
+  },
+  "baseline": {
+    "commit": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "commit_time": "2026-09-19T13:04:47-03:00",
+    "measured_at_utc": "2026-09-19T16:06:03Z",
+    "working_tree_at_measurement": "clean",
+    "immutable_for_p1462_r2": true,
+    "vanilla_ratified_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_tree": "2847920eeaa98d26a41dc6fb0f9c02334b9d593b",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "intent": {
+    "path": "00_nucleo/materialization/typst-passo-1462.md",
+    "sha256": "289b6ead93cf3f7457c165fcd4a4cad39a52bd93c56a17e7e20ad5fcf6f816cd"
+  },
+  "adrs": [
+    {
+      "id": "ADR-0107",
+      "path": "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md",
+      "sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d"
+    },
+    {
+      "id": "ADR-0108",
+      "path": "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md",
+      "sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405"
+    },
+    {
+      "id": "ADR-0127",
+      "path": "00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md",
+      "sha256": "5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9"
+    },
+    {
+      "id": "ADR-0129",
+      "path": "00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md",
+      "sha256": "64756b81ce58ca62e1a166b3776303759bc7af507a1c97a4e3ad91a8dc5b906e"
+    }
+  ],
+  "prompts": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/format.md",
+      "consumer": "01_core/src/compiler/stdlib/format.rs",
+      "sha256": "74ab8a35c81367d351670c2cc2e01c07ba1d6758114499874527832677c7d91d"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules.md",
+      "consumer": "01_core/src/compiler/eval/rules.rs",
+      "sha256": "0841c74c0d317b5510b11aa583b31f93cb1a15ea8177f5fd762f0fa3d21af3b1"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout.md",
+      "consumer": "01_core/src/compiler/layout/mod.rs",
+      "sha256": "c4f8fcf4a0d82edfff50646fe64b6ec0fd48cd5c3680d75b8adc09a6e9764de9"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/format_options.md",
+      "consumer": "01_core/src/compiler/layout/format_options.rs",
+      "sha256": "1e58b389a25615e3bf2eb7d453418fdc7011741f2898a704c17882025c1e4b23"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/document_format_options.md",
+      "consumer": "01_core/src/entities/document_format_options.rs",
+      "sha256": "da77427107583126e778a61de20e7b63cdf8f8b7613c11c034a37e7624ad2716"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/mod.md",
+      "consumer": "01_core/src/entities/mod.rs",
+      "sha256": "e8d3703c5fbf2315d590cc31449f156ad06964b907a2c7a95bae9f9043993356"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/layout_types.md",
+      "consumer": "01_core/src/entities/layout_types.rs",
+      "sha256": "b41932c1721c914ea57b760f16b2a95222f8e1509176b5ec53f898d94cdb51dc"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "consumer": "03_infra/src/pipeline.rs",
+      "sha256": "970a7f725b5b687acd3074e694c3d7c297ed2b1a437e884e8dd2ad27b04c0e47"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "consumer": "04_wiring/src/main.rs",
+      "sha256": "a7dd4c0ea9c0017bcf69e65aa27abe6897a4b737ecd64c41ec4306194d48ad77"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+      "consumer": "04_wiring/tests/p1462_format_svg.rs",
+      "sha256": "c4e3d1a34b728c719a091c5f3c6ef62aa94e79bfd12b457eceb75f8092b04738"
+    }
+  ],
+  "nuclei": [
+    {
+      "id": "format-option-precedence",
+      "path": "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml",
+      "raw_sha256": "ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295",
+      "effective_v26_sha256": "51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f",
+      "pinned_by": [
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/wiring.md"
+      ]
+    }
+  ],
+  "r1_history": {
+    "disposition": "inconclusive_historical_evidence_never_a_seal",
+    "artifacts": [
+      {
+        "path": "00_nucleo/diagnosticos/p1462-manifesto.json",
+        "sha256": "de5d15c28576da4436fdaf05ee1c92416e001577ca07d4d5761f7a6bfb7885b4"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1462-contrato-congelado.md",
+        "sha256": "96052223adf9ed4ff49332ee72ee2c4096f1a9e04cb653077f4499b42fbd8503"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1462-oraculos-independentes.md",
+        "sha256": "f452d0229c4dba6a87b5c3ed316daaaca84c9c066686a197034460555ed624d7"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1462-mutantes.md",
+        "sha256": "04bdc94b7cfb766867f0a891f5162fa3537cca0e6ebfa7a9b22cc10e136b1b95"
+      }
+    ],
+    "causal_findings": [
+      "the ratified vanilla preserves true across true then empty set rule, so an empty rule is neutral and writes no key",
+      "O8 timed out without persisting the active subcase, so the unresolved non-PDF isolation cuts remain Unknown",
+      "styled-root was compared against a different empty-page fixture, so that cross-source morphology assertion was invalid"
+    ],
+    "not_reusable_as": [
+      "seal",
+      "mutation score",
+      "completed O8 result",
+      "valid M06 definition",
+      "valid styled-root cross-source morphology result"
+    ]
+  },
+  "outputs": {
+    "manifest": "00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+    "contract": "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md",
+    "contract_author_write_allowlist": [
+      "00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+      "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md"
+    ]
+  },
+  "observables": [
+    "public identity, representation, namespace and default of format.svg",
+    "manual construction is rejected by the measured public diagnostic",
+    "format.svg argument validation and canonical style transport only when pretty is present",
+    "an empty format.svg set rule is neutral and preserves an earlier true decision",
+    "top-level acceptance, lexical precedence and container rejection",
+    "CLI explicit override over document option over false default",
+    "valid XML and requested compact versus indented serialization with equal normalized morphology for the same source",
+    "target isolation measured in labeled focal subcases persisted before subprocess execution",
+    "no premature format.png, format.pdf or format.html public child",
+    "one-to-one prompt ownership and pinned nucleus integrity"
+  ],
+  "instrument_corrections": {
+    "o8": "persist subcase id, inputs, target, start state and timeout before spawning each process; execute PDF, PNG, HTML and html.frame as separately attributable focal cuts before any full corpus rerun",
+    "styled_root": "compare compact and pretty serialization produced from byte-identical Typst source and equal morphology; never compare styled-root against a distinct empty-page fixture"
+  },
+  "unknown_policy": {
+    "default_result": "Unknown",
+    "unknown_is_preserved": false,
+    "unknown_kills_mutant": false,
+    "unknown_counts_in_mutation_score_numerator": false,
+    "allowed_success_use": "only an oracle deliberately constructed to prove opacity may expect Unknown",
+    "triggers": [
+      "baseline or protected input hash divergence",
+      "unratified or missing binary",
+      "timeout, crash or interrupted process",
+      "subcase identity not persisted before subprocess execution",
+      "unsupported parser or ambiguous extraction",
+      "invalid XML or cross-source morphology comparison",
+      "calibration budget exhaustion"
+    ],
+    "invalid_mutants": "equivalent or non-compilable mutants are evidenced and excluded from both numerator and denominator"
+  },
+  "calibration_budget": {
+    "wall_clock_minutes": 120,
+    "maximum_revision_rounds": 4,
+    "maximum_full_corpus_executions_before_seal": 3,
+    "maximum_focal_executions_per_revision": 3,
+    "required_mutation_score": 1.0,
+    "stop_rules": [
+      "stop after two consecutive revisions with the same classification vector and dominant cause",
+      "stop when opacity fixes regress positives or the inverse without monotonic boundary progress",
+      "stop when marginal cost exceeds the budget without a new witness or causal hypothesis",
+      "budget exhaustion yields an inconclusive diagnostic and never relaxes the contract"
+    ],
+    "execution_order": "R2 affected focal cuts and boundary controls first; full corpus, repetition and reordered runs only after all focal cuts are attributable and pass, before seal, and at final verification"
+  },
+  "roles": {
+    "contract_author_r2": {
+      "executor": "/root/p1462_contrato",
+      "environment": "shared checkout at /repos/Antigravity/typst-crystalline",
+      "inputs": "R2 step, ten R2 ownership prompts, pinned nucleus, ADR-0107/0108/0127/0129, protocol skill and references, immutable R2 baseline, and R1 artifacts as inconclusive history",
+      "writes": [
+        "00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+        "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md"
+      ],
+      "forbidden": [
+        "candidate implementation or patch",
+        "R1 artifacts",
+        "code, tests, prompts, nuclei or any other artifact"
+      ],
+      "inherited_context": "delegated R2 contract-author task, repository instructions, coordinator-attested ADR-0127 confirmation and explicit R1 historical findings; no candidate patch"
+    },
+    "oracle_author_and_ab_tester_r2": {
+      "executor": "unassigned",
+      "inputs": "R2 frozen manifesto, R2 frozen contract, protected R2 prompts, immutable R2 baseline and ratified vanilla; R1 only as historical evidence of the three declared findings",
+      "writes": "new R2 oracle artifacts before the candidate; RED test consumer only after the R2 discriminatory seal",
+      "forbidden": "candidate implementation, editing R1, and adapting expected results to a candidate"
+    },
+    "adversary_r2": {
+      "executor": "unassigned",
+      "inputs": "R2 frozen manifesto, contract, prompts and immutable baseline",
+      "writes": "new R2 mutant catalog, attack receipts and kill matrix",
+      "forbidden": "repairing or selecting the implementation, editing R1 and weakening the R2 contract"
+    },
+    "implementer": {
+      "executor": "unassigned",
+      "inputs": "protected R2 prompts and a discriminatorily sealed R2 public contract",
+      "writes": "authorized P1462 consumers only",
+      "forbidden": "R1/R2 manifest or contract, protected oracles, baseline, prompts, nucleus and adversarial private output"
+    },
+    "preseal_verifier_r2": {
+      "executor": "unassigned and distinct from contract, oracle, adversary and implementer authorities",
+      "inputs": "protected R2 artifacts and reproducible receipts",
+      "writes": "R2 preseal verdict only",
+      "forbidden": "editing any artifact being judged"
+    },
+    "final_verifier": {
+      "executor": "unassigned and distinct from implementation authority",
+      "inputs": "R2 seal, candidate, tests and reproducible receipts",
+      "writes": "limited final verdict or certificate",
+      "forbidden": "silently repairing verified material"
+    }
+  },
+  "capability_attestation": {
+    "filesystem_is_shared": true,
+    "procedural_allowlists_are_technically_enforced": false,
+    "hashes_prove_identity_and_order_not_isolation": true,
+    "strong_independence_claimed": false
+  },
+  "adr_0127_gate": {
+    "status": "confirmed",
+    "confirmed_on": "2026-09-19",
+    "confirmation": "confirmo",
+    "causal_commit": "514b2ae8f35b661127e38620dcbdaefa9e158624",
+    "evidence": "conversation transcript external to the repository, attested by the coordinator",
+    "r2_classification": "continuous parity correction after a pre-candidate refuter; L0 first and a new discriminatory seal are mandatory",
+    "effect": "ADR-0127 remains satisfied; RED tests and candidate implementation remain forbidden until the R2 discriminatory seal"
+  },
+  "invalidation": [
+    "R2 baseline commit or tree changes",
+    "R2 intent, prompt, nucleus or protocol source hash changes",
+    "R2 contract observable, instrument correction or ownership scope changes",
+    "an R1 artifact is promoted to seal or score",
+    "a protected R2 artifact is edited after discriminatory seal",
+    "a role receives an input or write capability outside its declared allowlist"
+  ]
+}

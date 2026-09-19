@@ -1,0 +1,300 @@
+{
+  "schema": "p1462-r3-mutation-results/v1",
+  "step": 1462,
+  "revision": "R3",
+  "verdict": "NOT_SEALED",
+  "attestation": "executado sem atestacao de isolamento",
+  "decided_at": "2026-09-19T14:41:22-03:00",
+  "regime": "full-protocol-focal-revision-followed-by-interrupted-full-campaign",
+  "provenance": {
+    "head": "61796fa6e183c08207e3828cec6d2e43da1af846",
+    "tree": "4890fb690d222c093e858130da00d2062ae514dd",
+    "tracked_diff_from_head": "empty",
+    "untracked_product_paths_l1_l4": [],
+    "candidate_productive_patch_present": false,
+    "candidate_test_consumer_present": false
+  },
+  "causal_chain_audit": {
+    "r2_manifest": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-manifesto.json",
+      "sha256": "9de72872a6113b35464ae17da0f3f7dd59a70acbd5956426108e233e3bd66e8f",
+      "unchanged": true
+    },
+    "r2_contract": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-contrato-congelado.md",
+      "sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+      "unchanged": true
+    },
+    "r2_oracles": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-oraculos-independentes.md",
+      "sha256": "24036a4b901d65cc2838dfee641e109a99ce71f38aecbc14e9f2a002a41d3657",
+      "unchanged": true
+    },
+    "r2_results": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-results.json",
+      "sha256": "a2ab11a0e5d00389869a7235139e9f4811fb859107de1493913857d95c48fedc",
+      "verdict": "NOT_SEALED",
+      "unchanged": true
+    },
+    "r2_preseal": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-preseal.json",
+      "sha256": "8897c2e7cf244fd49023032f8a766315e8e67e01d25c36a3dd1d8c46d47a9b3f",
+      "verdict": "NOT_SEALED",
+      "unchanged": true
+    },
+    "r2_transport_runner": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-runner.py",
+      "sha256": "3080707215bfc80afcdf644948c2aad82b0af39979621e0bdaca29c9d23b2a6e",
+      "unchanged": true
+    },
+    "r2_fixtures": {
+      "path": "00_nucleo/diagnosticos/p1462-r2-mutation-fixtures.json",
+      "sha256": "cabf0dbadb420efc163ba1167d676455de8275fc40dca30b9508bdcf95cc08a4",
+      "unchanged": true
+    },
+    "l0_and_nucleus": {
+      "prompt_count": 10,
+      "all_raw_hashes_match_r2_manifest": true,
+      "nucleus_raw_sha256": "ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295",
+      "nucleus_effective_v26_sha256": "51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f",
+      "divergences": []
+    }
+  },
+  "r3_inputs": {
+    "catalog": {
+      "path": "00_nucleo/diagnosticos/p1462-r3-mutantes.md",
+      "sha256": "804e9ac45b74d5202d02b49e62bd983a219ff48f41d0839c3cae4d532fdf2fd1"
+    },
+    "transport_runner": {
+      "path": "00_nucleo/diagnosticos/p1462-r3-mutation-runner.py",
+      "sha256": "e70b5823f59636e207d044c9e4cb04e2d1541f63ffc0352d4e5eb4f97ee6eafd"
+    },
+    "fixtures": {
+      "path": "00_nucleo/diagnosticos/p1462-r3-mutation-fixtures.json",
+      "sha256": "5f1b19055be43693c6dc97db0f57d3b6bec07991d6d8d2b39889c20c8e618c96"
+    },
+    "frozen_oracle": {
+      "path": "/tmp/p1462_r2_oracles.py",
+      "sha256": "f6715f146d65134c352983a189005d0aeea096da0bcc57a52161cbd5b21104ba"
+    },
+    "frozen_carrier_probe_source": {
+      "path": "/tmp/p1462-r2-carrier-probe/src/main.rs",
+      "sha256": "876077cfc49cba78db6589a5df183fa675f22a13772faee6f870b8f291bc9c71"
+    }
+  },
+  "bundle_identity_audit": {
+    "command": "python3 00_nucleo/diagnosticos/p1462-r3-mutation-runner.py --fixtures 00_nucleo/diagnosticos/p1462-r3-mutation-fixtures.json --bundle-root /tmp/p1462-r3-mutations",
+    "exit_code": 0,
+    "verified": true,
+    "reference_count": 1,
+    "mutant_count": 18,
+    "inherited_byte_identical_count": 17,
+    "r3_replacement": "M12",
+    "valid_denominator_declared": 18,
+    "required_score": 1.0,
+    "m12_r3_source_tree_sha256": "320fcbdd3d2be58859094551259e40c59ee837be93298303447bab089da7d19b",
+    "m12_r3_binary_sha256": "c4c77f14e554ac7b6952f9f67d26f8c580dfd7c5885e3747f914fe2927ce2be8",
+    "m12_r3_exact_delta": {
+      "path": "03_infra/src/pipeline.rs",
+      "before_sha256": "636ff3c02aae5ea7a3027aab53715a995aac3b327c4ade2362bd64a5872b88af",
+      "after_sha256": "16ed2805bcc17fbabfae6f8f6993eb78a1ebaff3ec4e5110380d45492cdd8c63"
+    },
+    "hardlink_count_for_p00_m12_changed_sources_and_binaries": 1
+  },
+  "verifier_instruments": {
+    "r2_adapter": {
+      "path": "/tmp/p1462-r2-preseal-external.py",
+      "sha256": "72affaf8cae504731812d9cc35b2eb3ca92d955f9213491b5c64903ce72ee61d"
+    },
+    "r3_binding": {
+      "path": "/tmp/p1462-r3-preseal-external.py",
+      "sha256": "1b19badf38c86556464b0fea606ba6a1e88871b7bd8379a3e8d7c5fc85472964"
+    },
+    "carrier_binding": "each invocation generated an ephemeral Cargo manifest whose typst-core path was the verified source_root of that variant",
+    "classification_authority": "independent-preseal-verifier"
+  },
+  "focal_results": {
+    "credit_toward_full_score": false,
+    "reason": "focal gates authorize a full campaign but never substitute for all three complete order vectors",
+    "completed": [
+      {
+        "id": "P00",
+        "classification": "Preserved",
+        "vector": {
+          "O3-O5-empty-neutral": "Preserved",
+          "O7-styled-root-same-source": "Preserved",
+          "O8-PDF": "Preserved",
+          "O8-PNG": "Preserved",
+          "O8-HTML": "Preserved",
+          "O8-HTML-FRAME": "Preserved"
+        },
+        "accidental_unknown": false,
+        "ledger_sha256": "ad7f2af9bd3cb81e21a4afa411d1438e42f522c846567caf6942551425575be9",
+        "report_sha256": "4065432785c09dff0e853921f0e3feb342698336de437a9be302b0012364854f"
+      },
+      {
+        "id": "M12",
+        "classification": "Violated",
+        "reason_code": "o8-pdf-tagged-metadata-leak",
+        "public_witness": {
+          "false_tagged": "yes",
+          "true_tagged": "no",
+          "false_artifact_sha256": "159a8f28fe100163be0b5b7312643d1e9c427ffe3a683f862803e10e962f2832",
+          "true_artifact_sha256": "a313277b15116c677e92b8702befa859429701e3371e014c5ebcf3c17c922c3d",
+          "extracted_text_equal": true,
+          "png_html_html_frame_controls": "Preserved"
+        },
+        "accidental_unknown": false,
+        "ledger_sha256": "e8063933cf21bedd9d126512cdc8c2f901242298395a7b8b8305ca25fde89cd2",
+        "report_sha256": "f40b3db05921505990a0ff484d1afc7676b45d46b6b470253ad17a75c8816613"
+      },
+      {
+        "id": "M15",
+        "classification": "Violated",
+        "reason_code": "ownership-precedence-in-exporter",
+        "semantic_vector": "all focal public cases Preserved",
+        "ledger_sha256": "7e2378bdb100f6a2ed4ebe92e0e5c4ff6f3a0f94030d6cc0003c98ebe663e899",
+        "report_sha256": "5e6554465920a17a4f3a0f703d0c30b65c4c27e9cbd49b0ff1accbe37c801935"
+      },
+      {
+        "id": "M16",
+        "classification": "Violated",
+        "reason_code": "ownership-l3-content-traversal",
+        "semantic_vector": "all focal public cases Preserved",
+        "ledger_sha256": "6e62d96deec154db2e51a9205c675c314c8e99eda615fbd966031c6f17c9aea3",
+        "report_sha256": "31df3c8858b9538d9be42db3d2846c6b7780fcd963ed1e9311b4f88d7abc1ea0"
+      },
+      {
+        "id": "M17",
+        "classification": "Violated",
+        "reason_code": "v26-code-points-to-nucleus",
+        "lint_exit": 1,
+        "lint_channels_sha256": "043042a78ddba0870ab75bc5ce155317cffdd1317340be3ccce2edf292cbe14c",
+        "ledger_sha256": "bf351b8b144188f83f4c7899841a7284753998f6add2628f2f57a4910653ebfa",
+        "report_sha256": "960375b512e5c78f37a21133e64aa63bec4e4e78981062ddbd2d6f33a9e99883"
+      },
+      {
+        "id": "M18",
+        "classification": "Violated",
+        "reason_code": "same-source-valid-xml-morphology-differs",
+        "vector": {
+          "O7-styled-root-same-source": "Violated",
+          "O3-O5-empty-neutral": "Preserved",
+          "O8-PDF": "Preserved",
+          "O8-PNG": "Preserved",
+          "O8-HTML": "Preserved",
+          "O8-HTML-FRAME": "Preserved"
+        },
+        "ledger_sha256": "7f0671c78a6a1f955af80e291590c260677523c776c2761f15931be386b85c68",
+        "report_sha256": "3b355387f7724512e5192be2b7384c08e87df7ecdc4b63a38e1a38bc001e48a4"
+      }
+    ],
+    "accidental_unknown_count": 0
+  },
+  "full_campaign": {
+    "execution": "direct, direct_repeat and reverse were started concurrently after all focal gates passed; each transport retained its own internal order and P00-first rule",
+    "timeouts_seconds": {
+      "direct_external_variant": 180,
+      "direct_repeat_external_variant": 240,
+      "reverse_external_variant": 240,
+      "carrier_probe_inside_oracle": 120
+    },
+    "completed_prefixes": {
+      "direct": [
+        "P00",
+        "M01",
+        "M02"
+      ],
+      "direct_repeat": [
+        "P00",
+        "M01",
+        "M02"
+      ],
+      "reverse": [
+        "P00",
+        "M18"
+      ]
+    },
+    "positive_control_failure": {
+      "id": "P00",
+      "orders_observed": [
+        "direct",
+        "direct_repeat",
+        "reverse"
+      ],
+      "case": "O3-set-validation",
+      "classification": "Violated",
+      "reason_code": "p00-integer-diagnostic-mismatch",
+      "frozen_expected": "expected boolean, found integer",
+      "observed": "expected boolean, found int",
+      "other_o3_negative_subcases": "unknown named, positional and duplicate all rejected without artifact",
+      "effect": "P00 is not a wholly Preserved positive reference; no mutant score can be sealed"
+    },
+    "blocking_unknown": {
+      "order": "direct",
+      "id": "M03",
+      "classification": "Unknown",
+      "reason_code": "external-variant-timeout-under-concurrent-load",
+      "external_timeout_seconds": 180,
+      "variant_started_at_utc": "2026-09-19T17:36:41.028178+00:00",
+      "last_persisted_event_at_utc": "2026-09-19T17:39:17.598009+00:00",
+      "last_persisted_event": "O10-carriers-fail-closed/cargo-run started",
+      "successor_m04_started_at_utc": "2026-09-19T17:39:41.048348+00:00",
+      "process_pairs": "56 started / 55 terminal",
+      "report_present": false,
+      "ledger_sha256": "3398144bec5b82f1ee6c6fb00c2d76c430eccaf8931e126d1107db8d7e56d8d4",
+      "retry_performed": false,
+      "credit": false
+    },
+    "interruption_after_unknown": {
+      "all_orders_interrupted": true,
+      "direct_partial": {
+        "id": "M04",
+        "classification": "NotClassified",
+        "process_pairs": "21 started / 20 terminal",
+        "ledger_sha256": "2d7f1e351be930a984207e113441299fc55d49b6e76a92e69facdb3427589a8d"
+      },
+      "direct_repeat_partial": {
+        "id": "M03",
+        "classification": "NotClassified",
+        "process_pairs": "2 started / 1 terminal",
+        "ledger_sha256": "ed67e2e0c7150fd11fe43d30b8e8760eed9869b9ca67a7fc6446b33d2ba8ce0b"
+      },
+      "reverse_partial": {
+        "id": "M17",
+        "classification": "NotClassified",
+        "process_pairs": "49 started / 48 terminal",
+        "ledger_sha256": "1f2c9f71a346cac8f0bd3f05402a2748084416daa5a6088915cdd6aa28855d24"
+      },
+      "transport_reports_present": false,
+      "reason": "top-level runners were interrupted immediately after the first accidental Unknown became attributable"
+    },
+    "receipt_set": {
+      "root": "/tmp/p1462-r3-preseal-receipts",
+      "file_count": 32,
+      "index_algorithm": "SHA-256 of sorted lines '<file-sha256>  <relative-path>\\n'",
+      "index_sha256": "befdb1c5debe4ed91944ec3c218c1e72bfed5ca281f40bfbf3cbc4e6d0bbe9ca"
+    },
+    "m13_p1357_gate": "NOT_REACHED_AFTER_UNKNOWN",
+    "complete_order_vectors_identical": null,
+    "complete_campaign_finished": false
+  },
+  "scoring": {
+    "required": "18/18 = 1.0",
+    "final_score": null,
+    "final_coverage": null,
+    "accidental_unknown_count": 1,
+    "gate_satisfied": false,
+    "reason": "P00 failed a frozen positive case and M03 became Unknown before complete direct/direct_repeat/reverse vectors; focal kills receive no full-campaign credit"
+  },
+  "conclusion": {
+    "status": "NOT_SEALED",
+    "blocking_conditions": [
+      "P00 O3 public diagnostic uses int instead of the frozen integer wording",
+      "M03 direct external execution timed out and is Unknown",
+      "full order vectors, 18/18 coverage, score 1.0, M13/P1357 and determinism were not established"
+    ],
+    "retry_performed": false,
+    "implementation_or_test_authorized": false
+  }
+}
