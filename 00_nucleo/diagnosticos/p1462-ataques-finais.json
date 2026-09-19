@@ -1,0 +1,99 @@
+{
+  "schema": "p1462-final-adversarial-attacks/v1",
+  "step": 1462,
+  "role": "segregated_final_adversary",
+  "verdict": "NO_REFUTATION",
+  "attestation": "executado sem atestacao de isolamento",
+  "repository": {
+    "head": "3a997a3cd303bfe7e225a926253ecea2e633b883",
+    "tree": "6f2d5a1e2c4491cdfc03e3ac0e46a13593475b76",
+    "pre_output_status": "clean",
+    "pre_output_diff_head_stat": "empty"
+  },
+  "protected_inputs": {
+    "r2_contract_sha256": "69cfdc0de39564cf542e2ca7fc99bcb7b80752d10bc8cdce3c809c1d9cf02fa2",
+    "recovery3_checkpoint_sha256": "ab771563f013604dc7d0b24ca6f7e35ac0e4714d486265a8c694c3252ddb61ac",
+    "recovery3_preseal_sha256": "789b1f1c7e2a2c407edb36041588269844df2b88ff667aa6332ced5016d1a08c",
+    "p1357_correction_md_sha256": "4431aeedb8be0d64aff419210a618581e9aba58e7770bd8711d0b585d4ce65c8",
+    "p1357_correction_json_sha256": "c2b9f2b1b1a568d1cbb52b055c0b997ab0a709239f8e72faea1f5e5e358c1662",
+    "red_receipt_sha256": "3e7191029cdf07a7d1e77bf2f843cf21a77be9885b7e19c91993a9cae64696d3",
+    "adr_0131_sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc"
+  },
+  "maintained_test_integrity": {
+    "path": "04_wiring/tests/p1462_format_svg.rs",
+    "red_frozen_sha256": "e1c95a932cb4304192188a81cc30f220287a90fe5d94e2f542272b2fdecaa49f",
+    "current_sha256": "f48c24a73861affc40bd7668e84a5d1b1e540e7fc0a1f35365c992197c284000",
+    "semantic_body_from_line_3_sha256": "7722b12d6a3b4ed59540fa26ef24a4ebb9a2efd82141d941b60089a520c4c1f3",
+    "reconstructed_red_sha256_matches": true,
+    "semantic_change_after_red": false,
+    "mechanical_header_changes": [
+      "line comments changed from // to //! for lineage recognition",
+      "raw full prompt digest changed to linter-sealed short hash 08b20f8b"
+    ]
+  },
+  "executions": [
+    {
+      "command": "cargo test -p typst-wiring --test p1462_format_svg -- --nocapture",
+      "started_at": "2026-09-19T17:50:24-03:00",
+      "ended_at": "2026-09-19T17:51:34-03:00",
+      "exit": 0,
+      "passed": 7,
+      "failed": 0,
+      "duration_seconds_reported": 45.94,
+      "binary_sha256": "b48ce8aef06af7ffd12fc69ea8523391fbb83f6f8712b7f9e85ed13af917ee66",
+      "semantic_unknown": 0,
+      "operational_note": "completed after an ordinary build-directory lock wait"
+    },
+    {
+      "command": "cargo test -p typst-core p1462_ --lib -- --nocapture",
+      "observed_at": "2026-09-19T17:52:05-03:00",
+      "exit": 0,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "command": "cargo test -p typst-infra p1462_ --lib -- --nocapture",
+      "observed_at": "2026-09-19T17:52:08-03:00",
+      "exit": 0,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "stdout": ""
+    }
+  ],
+  "classification": {
+    "P00": "Preserved",
+    "M03": "Violated",
+    "M12": "Violated",
+    "M13": "Violated",
+    "nested_container_acceptance": "Violated",
+    "caller_option_early_collapse": "Violated",
+    "empty_rule_writes_false": "Violated",
+    "first_write_wins": "Violated",
+    "xml_morphology_change": "Violated"
+  },
+  "candidate_contract": {
+    "classification": "Preserved",
+    "semantic_unknown_count": 0,
+    "blocking_findings": [],
+    "non_blocking_findings": []
+  },
+  "p1357": {
+    "canonical_correction_preserved": true,
+    "raw_crystalline_only": 43,
+    "normalized_crystalline_only": 42,
+    "coalesced_exact_path": "format.svg.pretty",
+    "normalized_siblings": [],
+    "candidate_public_preconditions_replayed": true,
+    "full_inventory_reexecuted_in_this_stage": false,
+    "new_inventory_credit_claimed": false
+  },
+  "limits": [
+    "frozen mutant binaries were not reexecuted and no second mutation score is claimed",
+    "the final candidate replay used the maintained A/B test plus focused L1/L3 tests",
+    "the full P1357 inventory was not recomputed; its sealed receipts remain the authority"
+  ]
+}
