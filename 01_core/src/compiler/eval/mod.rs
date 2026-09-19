@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash b66478ea
+//! @prompt-hash 37c602a4
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-19
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -7608,6 +7608,7 @@ fn make_stdlib_with_features(
         // P471 — módulo sym. **P731** — `build_sym_module` (era `build_sym_dict`).
         build_sym_module,
         make_calc_module,
+        make_format_module,
         make_html_module,
         make_math_module,
         make_pdf_module,
@@ -7769,6 +7770,7 @@ fn make_stdlib_with_features(
         native_yaml_encode,
     };
     let mut scope = Scope::new();
+    scope.define("format", Value::Module(make_format_module()));
     scope.define("html", Value::Module(make_html_module()));
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));

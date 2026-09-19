@@ -1,0 +1,855 @@
+{
+  "artifact": "p1461-mutants",
+  "artifact_path": "00_nucleo/diagnosticos/p1461-mutants.json",
+  "baseline": {
+    "causal_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "causal_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "head_at_adversary_start": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "productive_code_delta_from_causal_parent": [],
+    "recorded_at": "2026-09-19T09:21:34-03:00"
+  },
+  "binary_pins": {
+    "crystalline_red_baseline": {
+      "path": "target/release/typst",
+      "sha256": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633"
+    },
+    "vanilla_primary": {
+      "path": "lab/typst-original/target/release/typst",
+      "ratified_source_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    },
+    "vanilla_secondary": {
+      "path": "/usr/local/bin/typst",
+      "required_relation": "byte-identical-to-vanilla_primary",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  },
+  "calibration_budget": {
+    "affected_slice_first": true,
+    "full_corpus_runs_before_preseal_max": 2,
+    "full_corpus_runs_required": [
+      "once after all affected slices and boundary controls pass",
+      "once immediately before preseal"
+    ],
+    "local_revisions_max": 4,
+    "mutation_score_required": 1.0,
+    "reorders_required": [
+      "direct",
+      "direct_repeat",
+      "reverse"
+    ],
+    "same_cause_no_gain_consecutive_limit": 2,
+    "source": "p1461-manifest.json#/calibration_budget",
+    "timeout_seconds_per_eval_probe": 30,
+    "total_calibration_wall_clock_minutes_max": 90,
+    "valid_negative_mutants_required": 8,
+    "when_exhausted": "Stop without sealing. Emit an insufficiency diagnostic and obtain human authorization before changing observability, protocol, fixtures or scope. Exhaustion is Unknown, earns no mutation credit and never lowers the required score."
+  },
+  "campaign": {
+    "execution_authority": "independent R3 preseal verifier; adversary re-chained metadata without rebuilding",
+    "expected_classification_by_mutant": {
+      "M01": "Violated",
+      "M02": "Violated",
+      "M03": "Violated",
+      "M04": "Violated",
+      "M05": "Violated",
+      "M06": "Violated",
+      "M07": "Violated",
+      "M08": "Violated"
+    },
+    "expected_mechanical_control_classification": "Preserved",
+    "orders": {
+      "direct": [
+        "P00",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06",
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08"
+      ],
+      "direct_repeat": [
+        "P00",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06",
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08"
+      ],
+      "reverse": [
+        "M08",
+        "M07",
+        "M06",
+        "M05",
+        "M04",
+        "M03",
+        "M02",
+        "M01",
+        "E06",
+        "E05",
+        "E04",
+        "E03",
+        "E02",
+        "E01",
+        "P00"
+      ]
+    },
+    "required_result": {
+      "all_mechanical_controls_preserved": true,
+      "all_required_mutants_valid": true,
+      "classification_vectors_equal": true,
+      "mutation_score": 1.0,
+      "valid_negative_mutants_total": 8,
+      "valid_negative_mutants_violated": 8
+    },
+    "status": "r3_rechained_reuse_valid_awaiting_frozen_harness",
+    "vector_comparison": "Compare classifications, parsed public values, diagnostics and inventory deltas. Any order dependence, missing receipt or non-deliberate Unknown blocks preseal."
+  },
+  "catalog_policy": {
+    "mechanical_controls": "Each E01-E06 control is a positive equivalence case. It must remain Preserved independently of the negative mutant recipes; these controls prevent the discriminator from treating excluded implementation mechanics as language observables.",
+    "mutation_score_formula": "required_valid_negative_mutants_classified_Violated / 8",
+    "mutation_score_required": 1.0,
+    "negative_mutant": "A provenance-valid, buildable and executable transformation that preserves the declared collateral controls while contradicting at least one frozen P1461 language obligation.",
+    "required_count": 8,
+    "semantic_validity_gate": [
+      "the mutant is applied only to an isolated copy derived from the causal baseline or a later integration fixture authorized by preseal",
+      "the exact mutation recipe and resulting source hash are recorded",
+      "the mutant builds without changing protected inputs",
+      "the pinned command, profile and binary identity are unambiguous",
+      "the declared witness reaches a parseable public observation rather than failing from infrastructure or unrelated code"
+    ],
+    "unknown_no_credit": "Unknown never counts as Violated or Preserved. A required mutant that is unbuildable, opaque, non-reproducible, over budget or provenance-invalid remains an unmet required mutant; it may not be silently removed from the denominator."
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1461-contract.json",
+    "sha256": "81da1964df13221a1b9a70666cfb1e035b40b1215344d5ec8934febc4073aaa2"
+  },
+  "execution_r1": {
+    "artifacts": [
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutants-r1-fail.json",
+        "sha256": "a07e44be8c273d4d8075d76a586c92900281d1bb164464d63e5f3f772c394fe6"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-runner-r1-fail.py",
+        "sha256": "22441eb913c7cfc57c2202ba2e363fd8d556111ed0a9c715273e838235c82f0f"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures-r1-fail.json",
+        "sha256": "8e92e5d4d43379dd0044fd28b9b0a3e4fd9e4e414f526b87e61a75fb7c3c83cd"
+      }
+    ],
+    "preserved_byte_for_byte_before_r2_replacement": true,
+    "result": "Unknown_no_credit"
+  },
+  "execution_r2": {
+    "actual_harness_classifications": [],
+    "build_ready_variants": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "fixtures": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+      "sha256": "6a63ff72883cdbb8efc2bf9a9afe42e3daba163f921f7bd51dfac12e421e0915"
+    },
+    "focal_gate": {
+      "binary_hashes_distinct": true,
+      "e05_binary_sha256": "790c1242db31641bf546f47fced420ff4b2b244b4ea89d1ff4be727156ae67f5",
+      "language_smoke_equal": true,
+      "p00_binary_sha256": "940fa1d38cb6870a1aa27d792844938b1bf741391407ffe12ecd5e3729f6606c",
+      "release_condition": "passed",
+      "source_bundle_equal": true
+    },
+    "harness_execution": "not_run_by_adversary; delegated to preseal verifier",
+    "m02_executor_correction": {
+      "corrected_probe": "repr(format)",
+      "corrected_stdout": "\"none\"",
+      "first_probe": "repr(type(format))",
+      "first_stdout": "\"type(none)\"",
+      "note": "The first producer smoke query was inconsistent with its expected value. The exact M02 source and isolated binary were retained; the corrected direct probe confirmed the concrete None mutation before the campaign continued."
+    },
+    "mutation_score": null,
+    "revision": 2,
+    "runner": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+      "sha256": "477fca0a1ed532f2f0540bc2ef1cbade209b38e88d9a1fd7e5bb44d4061d107d"
+    },
+    "status": "ready_awaiting_direct_direct_repeat_reverse_harness",
+    "unclassified_variants": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "unknown_no_credit": true
+  },
+  "execution_r3": {
+    "actual_harness_classifications": [],
+    "fixtures": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+      "sha256": "8d28b28adfbb062661b50d84fc164c86766148489f9da7f7f842ecd08de770ee"
+    },
+    "harness_execution": "not_run_by_adversary; delegated to R3 preseal verifier",
+    "mutation_score": null,
+    "rebuild_performed": false,
+    "reuse_validation_receipt": {
+      "path": "/tmp/p1461-r3-reuse-validation.json",
+      "sha256": "80187237ee1c39e34a198db90d30a5fbeb6e669fb289ee7db0b8df84f0a676b9"
+    },
+    "reused_variants": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "revision": 3,
+    "runner": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+      "sha256": "d11e2771b65e7abe4edde1d51b8e083351aec67740e2c749bb91dea59bef635d"
+    },
+    "source_change_performed": false,
+    "status": "ready_awaiting_r3_focal_then_full_harness",
+    "unclassified_variants": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "unknown_no_credit": true
+  },
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "selection": "complete file",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "selection": "complete file",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "selection": "complete file",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "selection": "complete file",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "path": "00_nucleo/materialization/typst-passo-1461.md",
+      "selection": "complete file at causal_commit",
+      "sha256": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/format.md",
+      "selection": "complete file at causal_commit",
+      "sha256": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e"
+    },
+    {
+      "full_file_sha256": "2bc7339a0692282da45195b842683d71e9fc2c83791129d8e28a7bfee1e6402d",
+      "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "selection": "P1461 section only",
+      "selection_sha256": "80ff7bb7a16d9a99d3093eea0a98064ae1613379b2dbf0dba8b72489a67db61d"
+    },
+    {
+      "full_file_sha256": "7b104498462d4e60e614dd1523dee44cbc4471cce2a489dfb33b11f94a00d038",
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "selection": "P1461 section only",
+      "selection_sha256": "a2ddd67488eb2801226922912857bd08282375052517deeb66ca249c7cf3d130"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1461-manifest.json",
+      "selection": "complete R3 file",
+      "sha256": "13c554edcff8afeca6e51381f73015906b68de189d79de989e30e769bbf9f825"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/p1461-contract.json",
+      "selection": "complete R3 file",
+      "sha256": "81da1964df13221a1b9a70666cfb1e035b40b1215344d5ec8934febc4073aaa2"
+    },
+    {
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "selection": "causal_commit baseline only; registration and std projection loci",
+      "sha256": "a014d409e6a0e53d05d11365be28d77bda89b03f6da2a03807767e69ceeb5fa1"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/mod.rs",
+      "selection": "causal_commit baseline only",
+      "sha256": "d0640072de23c2811fc6e373c9c80c77b3628bc8c7ca267b11f9235aaedb031d"
+    },
+    {
+      "path": "01_core/src/entities/module.rs",
+      "selection": "causal_commit baseline only",
+      "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f"
+    }
+  ],
+  "isolation": {
+    "attestation": false,
+    "claim": "executed_without_isolation_attestation",
+    "context_inherited": [
+      "the adversary task delegation with its allowlist and prohibitions",
+      "repository policy through AGENTS.md",
+      "the operational skill and its two direct references"
+    ],
+    "forbidden_inputs_not_intentionally_read": [
+      "any implementation candidate or patch after causal_commit",
+      "candidate tests",
+      "p1461-oracles.json or private oracle-author output",
+      "any implementer output",
+      "p1461-preseal.json",
+      "p1461-results.json",
+      "p1461-verifier-certificate.json"
+    ],
+    "limitation": "The shared workspace and conversational host prevent physical-isolation attestation. Hashes and the role allowlist identify the intended causal inputs but do not prove filesystem, process, cache or conversational isolation."
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1461-manifest.json",
+    "sha256": "13c554edcff8afeca6e51381f73015906b68de189d79de989e30e769bbf9f825"
+  },
+  "mechanical_equivalence_controls": [
+    {
+      "expected": "Preserved",
+      "id": "E01",
+      "mechanical_variant": "Move the format definition earlier or later among Scope insertions while preserving the same final public bindings, values and profiles.",
+      "reason": "Insertion sequence and hash iteration order are excluded mechanics."
+    },
+    {
+      "expected": "Preserved",
+      "id": "E02",
+      "mechanical_variant": "Construct the same Module in a local variable before defining it instead of constructing it inline, without changing name, scope or identity projections.",
+      "reason": "Allocation sequence and equivalent Rust expression shape are excluded mechanics."
+    },
+    {
+      "expected": "Preserved",
+      "id": "E03",
+      "mechanical_variant": "Add one or more Module::clone operations that retain the same Arc-backed ModuleInner for root, lexical alias and std projection.",
+      "reason": "Arc address and reference count are excluded, while language identity remains unchanged."
+    },
+    {
+      "expected": "Preserved",
+      "id": "E04",
+      "mechanical_variant": "Change Scope storage allocation, capacity or internal traversal without changing lookup results, diagnostics or inventory paths.",
+      "reason": "Scope memory layout, capacity and internal collection mechanics are excluded."
+    },
+    {
+      "expected": "Preserved",
+      "id": "E05",
+      "mechanical_variant": "Rebuild a provenance-valid candidate whose binary SHA-256 differs while all parsed public observations and protected-source identities remain valid.",
+      "reason": "Binary byte equality is not a language observable; the new binary must still be freshly built, identified and trusted."
+    },
+    {
+      "expected": "Preserved",
+      "id": "E06",
+      "mechanical_variant": "Apply formatting, comments or equivalent import/reexport spelling that leaves ownership, visibility, architecture gates and all C01-C10 observations unchanged.",
+      "reason": "Rust source presentation is excluded except where an architectural gate independently constrains it."
+    }
+  ],
+  "mutants": [
+    {
+      "concrete_application": {
+        "operation": "Remove or skip only the planned scope.define(\"format\", Value::Module(make_format_module())) registration in make_stdlib_with_features. The causal RED baseline is the canonical isolated instance of this mutation.",
+        "target": "01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "make_stdlib_with_features, immediately after Scope::new and beside the existing html module registration"
+      },
+      "expected": "Violated",
+      "id": "M01",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "omit the format binding",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "The causal baseline is buildable and executable with every pre-existing binding intact; it is a valid negative implementation because only the contracted public root is absent.",
+        "validity_preconditions": [
+          "baseline binary hash equals the pinned RED hash",
+          "existing adjacent global controls remain parseable",
+          "no protected input changes"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "root resolution fails instead of yielding type module",
+          "id": "C01",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "repr(format) fails instead of yielding <module format>",
+          "id": "C02",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "std.format is absent instead of projecting the root",
+          "id": "C03",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "the lexical alias cannot be constructed",
+          "id": "C04",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "the exact inventory delta does not add format",
+          "id": "C07",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "Keep the public key format but replace the planned Value::Module(make_format_module()) right-hand side with Value::None in the single stdlib Scope from which root and std are projected.",
+        "target": "01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "make_stdlib_with_features root-binding block"
+      },
+      "expected": "Violated",
+      "id": "M02",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "bind format to none instead of a module",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "Value::None is already a legal language value and Scope binding payload. The mutant remains buildable and exposes a real binding, but its public value category and representation contradict P1461.",
+        "validity_preconditions": [
+          "the binding is present in all four profiles",
+          "no child or unrelated binding is added",
+          "the failure comes from parsed values, not an infrastructure error"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "repr(type(format)) is not module",
+          "id": "C01",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "repr(format) is not <module format>",
+          "id": "C02",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "std.format does not produce the required nominal module tuple",
+          "id": "C03",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "In the planned make_format_module factory, construct Module::new(\"global\", Scope::new()) instead of Module::new(\"format\", Scope::new()). Leave the binding key format unchanged.",
+        "target": "01_core/src/compiler/stdlib/format.rs",
+        "target_locus_at_causal_commit": "future exclusive owner authorized by the frozen format L0; apply only in an isolated mutant fixture"
+      },
+      "expected": "Violated",
+      "id": "M03",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "construct the module with nominal name global",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "Module::new accepts an arbitrary string and an empty Scope. The value remains a real module under the format key, isolating the nominal-identity obligation.",
+        "validity_preconditions": [
+          "the root is installed in all four profiles",
+          "the module scope stays empty",
+          "root and std still share the same mutated Module identity"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "repr(format) yields <module global> rather than <module format>",
+          "id": "C02",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "std.format has the wrong nominal representation even if equality remains true",
+          "id": "C03",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "the missing-field diagnostic names module global rather than format",
+          "id": "C06",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "Guard the planned format registration with a profile predicate that accepts only the html feature profile without a11y-extras; skip it for default, a11y-extras and html+a11y. No other binding is conditionalized.",
+        "target": "01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "make_stdlib_with_features, using only its received Features value"
+      },
+      "expected": "Violated",
+      "id": "M04",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "install the root in only one frozen profile",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "The stdlib constructor already receives the frozen feature selection. A deterministic guard is buildable and leaves the accepted profile locally well-formed while violating target/feature independence.",
+        "validity_preconditions": [
+          "the predicate selects exactly html and not html+a11y",
+          "all four commands and profile identities are recorded",
+          "the selected profile satisfies the root-value witnesses before cross-profile comparison"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "the combined positive tuple is not identical and successful across all four profiles",
+          "id": "C05",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "format moves from VANILLA_ONLY only in the selected profile rather than in all four",
+          "id": "C07",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "After std is built from stdlib.clone(), change both loops that spread stdlib into global so that the format iteration inserts a freshly constructed Module::new(\"format\", Scope::new()) instead of cloning binding.value(); leave every other iteration unchanged.",
+        "target": "01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "global-spread loops at causal lines 6425-6427 and 6665-6667"
+      },
+      "expected": "Violated",
+      "id": "M05",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "make std.format and format distinct Module identities with the same nominal representation",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "Both values are well-formed empty modules named format. The mutation changes only Arc-backed language identity between the std projection and the root while preserving each representation.",
+        "validity_preconditions": [
+          "the mutation is applied to both real global-spread paths",
+          "repr of both values remains <module format>",
+          "lexical aliases of the root retain the root identity"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "the tuple is [<module format>, false] instead of [<module format>, true]",
+          "id": "C03",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "the combined positive tuple reports std.format == format as false",
+          "id": "C05",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "Replace the empty factory Scope with a new Scope containing exactly one placeholder binding svg -> Value::None, then return Module::new(\"format\", that_scope). Do not add a global svg alias.",
+        "target": "01_core/src/compiler/stdlib/format.rs",
+        "target_locus_at_causal_commit": "future exclusive owner authorized by the frozen format L0; apply only in an isolated mutant fixture"
+      },
+      "expected": "Violated",
+      "id": "M06",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "create a placeholder format.svg child",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "A Scope field containing Value::None is structurally valid and executable. It deliberately violates the frozen empty-scope boundary without requiring any exporter implementation.",
+        "validity_preconditions": [
+          "format remains a module named format in all four profiles",
+          "svg is the only added child",
+          "no global alias is added"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "the inventory delta contains format.svg in addition to format",
+          "id": "C07",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "format.svg resolves instead of producing missing-module-field on module format",
+          "id": "C08",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "Create a placeholder Module::new(\"svg\", Scope::new()), store the same cloned Value::Module in format.svg and in a new global svg binding, and leave the other three sentinel children absent.",
+        "target": "01_core/src/compiler/stdlib/format.rs and 01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "future format factory plus make_stdlib_with_features registration block; apply only in an isolated mutant fixture"
+      },
+      "expected": "Violated",
+      "id": "M07",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "create format.svg and a new global svg alias to the same placeholder value",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "Both bindings carry a legal Module value and can share one Arc-backed identity. The mutant is executable but crosses both the child and global-alias scope boundaries.",
+        "validity_preconditions": [
+          "format.svg and global svg compare as the same placeholder value",
+          "no pre-existing binding is removed or overwritten",
+          "png, pdf and html remain absent from format"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "the public delta adds format.svg beyond the singleton root",
+          "id": "C07",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "a sentinel child resolves instead of failing as missing-module-field",
+          "id": "C08",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "the public delta contains a new global svg alias",
+          "id": "C09",
+          "result": "Violated"
+        }
+      ]
+    },
+    {
+      "concrete_application": {
+        "operation": "Do not install any format binding. Before ordinary evaluation of a function call, special-case only the exact syntax repr(format) and return the string <module format> without resolving format; all nested, aliased, std-qualified and field-access forms follow normal lookup.",
+        "target": "01_core/src/compiler/eval/mod.rs",
+        "target_locus_at_causal_commit": "expression/function-call evaluation path in an isolated mutant fixture"
+      },
+      "expected": "Violated",
+      "id": "M08",
+      "mechanical_equivalence_controls_required_preserved": [
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06"
+      ],
+      "mutation": "fabricate the direct repr text without installing the correct value",
+      "semantic_validity": {
+        "expected": true,
+        "rationale": "A deterministic syntax fast path can compile and makes the shallow repr probe pass, while the absence of a real value is exposed by independent semantic compositions.",
+        "validity_preconditions": [
+          "the direct C02 expression returns exactly <module format>",
+          "no format binding exists in root or std",
+          "the fast path is restricted to the exact direct syntax and does not rewrite the independent witnesses"
+        ]
+      },
+      "witnesses": [
+        {
+          "expected_observation": "repr(type(format)) reaches normal lookup and fails instead of returning module",
+          "id": "C01",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "std.format is absent and cannot project the fabricated text",
+          "id": "C03",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "let f = format fails before alias identity can be established",
+          "id": "C04",
+          "result": "Violated"
+        },
+        {
+          "expected_observation": "format.absent fails at root lookup rather than as a field on module format",
+          "id": "C06",
+          "result": "Violated"
+        }
+      ]
+    }
+  ],
+  "r2_isolated_build_provenance": {
+    "binary_mode": "0555",
+    "cargo_target_policy": "one newly created empty absolute CARGO_TARGET_DIR per variant; no shared fingerprints, incrementals or caches",
+    "causal_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "root": "/tmp/p1461-r2-adversary.2hH3eM",
+    "variant_count": 15
+  },
+  "r2_preservation": {
+    "artifacts": [
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutants-r2-fail.json",
+        "sha256": "091576327b16edb9b9083e88fb644916069caa735df98e8dc92ac98f6996a6b4"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-runner-r2-fail.py",
+        "sha256": "477fca0a1ed532f2f0540bc2ef1cbade209b38e88d9a1fd7e5bb44d4061d107d"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures-r2-fail.json",
+        "sha256": "6a63ff72883cdbb8efc2bf9a9afe42e3daba163f921f7bd51dfac12e421e0915"
+      }
+    ],
+    "byte_comparison": "equal",
+    "verified_before_replacement": true
+  },
+  "role": {
+    "executor": "Codex agent /root/adversario_p1461",
+    "may_execute": [
+      "ratified vanilla binary",
+      "RED baseline binary",
+      "future mutant fixtures only in an isolated output area under preseal authority"
+    ],
+    "may_read": [
+      "frozen P1461 prompts and step",
+      "p1461-manifest.json",
+      "p1461-contract.json",
+      "productive code only at causal_commit"
+    ],
+    "may_write": [
+      "00_nucleo/diagnosticos/p1461-mutants.json"
+    ],
+    "must_not": [
+      "read a candidate implementation or candidate tests",
+      "read oracle-author output",
+      "edit product, prompts, manifest, contract, oracles, preseal or verdict",
+      "choose, repair or recommend the implementation"
+    ],
+    "status": "executed_without_isolation_attestation"
+  },
+  "schema_version": 3,
+  "scope": {
+    "claim": "This is a negative mutation catalog for the P1461 public-root fragment only; it is not an execution receipt, preseal or verdict.",
+    "in_scope": [
+      "existence and module type of the public root format",
+      "nominal name and representation",
+      "std projection and lexical identity",
+      "availability across the four frozen profiles",
+      "missing-field diagnostic",
+      "singleton public-surface delta with no children or global child aliases"
+    ],
+    "not_claimed": [
+      "implementation of any format child",
+      "exporter equivalence",
+      "format.* parity",
+      "general functional equivalence",
+      "physical isolation attestation",
+      "successful discriminatory execution"
+    ]
+  },
+  "serialization": "UTF-8, LF, two-space indentation, deterministic key order",
+  "unknown_policy": {
+    "default": "Unknown",
+    "fail_closed": true,
+    "never_coerce_to_preserved_or_violated": true,
+    "no_credit": true,
+    "triggers": [
+      "any protected hash mismatch",
+      "mutant recipe or source hash not recorded",
+      "mutant does not build or its semantic validity is ambiguous",
+      "binary identity, command or profile ambiguity",
+      "timeout, signal, OOM, disallowed swap or truncation",
+      "JSON or diagnostic parser opacity",
+      "missing or ambiguous span",
+      "non-repeatable or order-dependent output",
+      "calibration budget exhaustion",
+      "use of data or capabilities outside the role allowlist"
+    ]
+  }
+}

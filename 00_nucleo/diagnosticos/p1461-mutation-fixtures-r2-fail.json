@@ -1,0 +1,1699 @@
+{
+  "allowlist": {
+    "forbidden_inputs_not_read": [
+      "candidate implementation or candidate tests",
+      "p1461-oracles.json",
+      "p1461-harness.py",
+      "p1461-ab-tests.json",
+      "p1461-preseal.json and archived preseal contents",
+      "shared-tree product after causal_commit"
+    ],
+    "read": [
+      "frozen P1461 prompts",
+      "p1461-manifest.json R2",
+      "p1461-contract.json R2",
+      "P1461 adversary-owned R1 artifacts",
+      "productive source only at causal_commit"
+    ],
+    "write": [
+      "00_nucleo/diagnosticos/p1461-mutants.json",
+      "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+      "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+      "00_nucleo/diagnosticos/p1461-mutants-r1-fail.json",
+      "00_nucleo/diagnosticos/p1461-mutation-runner-r1-fail.py",
+      "00_nucleo/diagnosticos/p1461-mutation-fixtures-r1-fail.json",
+      "/tmp/p1461-r2-adversary.2hH3eM"
+    ]
+  },
+  "artifact": "p1461-mutation-fixtures",
+  "artifact_path": "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+  "baseline": {
+    "causal_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "causal_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87"
+  },
+  "campaign": {
+    "actual_harness_classifications": [],
+    "build_ready_variant_count": 15,
+    "harness_execution": "delegated_to_preseal_verifier_not_run_by_adversary",
+    "isolation_claim": "executed_without_isolation_attestation",
+    "mutation_score": null,
+    "recorded_at_utc": "2026-09-19T13:25:45.489579+00:00",
+    "revision": 2,
+    "status": "build_and_smoke_ready_awaiting_frozen_harness",
+    "unknown_no_credit_until_harness": true
+  },
+  "campaign_orders": {
+    "direct": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "direct_repeat": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "reverse": [
+      "M08",
+      "M07",
+      "M06",
+      "M05",
+      "M04",
+      "M03",
+      "M02",
+      "M01",
+      "E06",
+      "E05",
+      "E04",
+      "E03",
+      "E02",
+      "E01",
+      "P00"
+    ]
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1461-contract.json",
+    "sha256": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd"
+  },
+  "focal_gate": {
+    "binary_hashes_distinct": true,
+    "e05_binary_sha256": "790c1242db31641bf546f47fced420ff4b2b244b4ea89d1ff4be727156ae67f5",
+    "language_smoke_equal": true,
+    "p00_binary_sha256": "940fa1d38cb6870a1aa27d792844938b1bf741391407ffe12ecd5e3729f6606c",
+    "release_condition": "passed",
+    "source_bundle_equal": true
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1461-manifest.json",
+    "sha256": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8"
+  },
+  "r1_preservation": {
+    "artifacts": [
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutants-r1-fail.json",
+        "sha256": "a07e44be8c273d4d8075d76a586c92900281d1bb164464d63e5f3f772c394fe6"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-runner-r1-fail.py",
+        "sha256": "22441eb913c7cfc57c2202ba2e363fd8d556111ed0a9c715273e838235c82f0f"
+      },
+      {
+        "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures-r1-fail.json",
+        "sha256": "8e92e5d4d43379dd0044fd28b9b0a3e4fd9e4e414f526b87e61a75fb7c3c83cd"
+      }
+    ],
+    "verified_before_replacement": true
+  },
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+    "sha256": "477fca0a1ed532f2f0540bc2ef1cbade209b38e88d9a1fd7e5bb44d4061d107d"
+  },
+  "schema_version": 2,
+  "serialization": "UTF-8, LF, two-space indentation, deterministic key order",
+  "unknown_policy": {
+    "default": "Unknown",
+    "no_credit": true,
+    "note": "Build and producer smoke do not classify C01-C10. Only verifier-owned frozen-harness receipts in all three orders can assign Preserved or Violated and mutation credit."
+  },
+  "variants": [
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+        "sha256": "940fa1d38cb6870a1aa27d792844938b1bf741391407ffe12ecd5e3729f6606c",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/P00",
+        "elapsed_seconds": 90.189,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:00:53.242926+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/P00/build.log",
+        "log_sha256": "da50c0dfd9613f8c854d04991083120c9f83217b1a6170a65ab970b5def3f3cb",
+        "profile": "release",
+        "started_at": "2026-09-19T12:59:23.053783+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/P00",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "P00",
+      "kind": "positive_specimen",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "id": "positive_default",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "id": "positive_a11y",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "id": "positive_html",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "id": "positive_html_a11y",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "format.absent",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "absent",
+          "stderr": "error: module `format` does not contain `absent`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.absent\n  │        ^^^^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "format.svg",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_svg",
+          "stderr": "error: module `format` does not contain `svg`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.svg\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "format.png",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_png",
+          "stderr": "error: module `format` does not contain `png`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.png\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "format.pdf",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_pdf",
+          "stderr": "error: module `format` does not contain `pdf`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.pdf\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/P00/typst",
+            "eval",
+            "format.html",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_html",
+          "stderr": "error: module `format` does not contain `html`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.html\n  │        ^^^^\n\n",
+          "stdout": ""
+        }
+      ],
+      "source_bundle_sha256": "2c423a7ef2bf0da29d7eac070b78e6182aaa4bcb239e963dd2ef5036c9107d8b",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/P00",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E01/typst",
+        "sha256": "0f2420769aabf8aaa24fd5dea8b800bdfb9c73a10cf382cbe8e8b7e67cbee355",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E01",
+        "elapsed_seconds": 100.211,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:05:18.563652+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E01/build.log",
+        "log_sha256": "3e813a7fc0b2e184c830567ffe4a1ec531418f1bed901addb314367833b0baa1",
+        "profile": "release",
+        "started_at": "2026-09-19T13:03:38.352764+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E01",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E01",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E01/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E01/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E01/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E01/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "de2569a2ab83e880fc75da39ed3d4df17975a1503315e1e120361cc7e17b4fa9",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "2a6783ecb7219aaa1993b363e959e7dd357ad4c3c870dc8f4610abe8869db517"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E01",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E02/typst",
+        "sha256": "3b035803c0cfb548568e2a177eec0fe4c0d14f60d510561706cc7ccac04b28b9",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E02",
+        "elapsed_seconds": 97.671,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:06:57.590796+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E02/build.log",
+        "log_sha256": "053339e3c17c0c1bdcbc06ccd24f2bc5e0c4dd5cfa63e87428329218bc4c71ea",
+        "profile": "release",
+        "started_at": "2026-09-19T13:05:19.919650+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E02",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E02",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E02/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E02/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E02/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E02/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "16d836f17aa5ecc3f7e089b306fb43320b2ab9819153ba6561282f16f68a4fbd",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "eede3efe6d4d51bd838ee70f972903eb770b5e0099c54e957ad743b89f1ccf9e"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E02",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E03/typst",
+        "sha256": "b3f89c819066ce520492ac540c20e28379e5748af0f83534e890ed9cf1d81d25",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E03",
+        "elapsed_seconds": 100.752,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:08:40.003758+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E03/build.log",
+        "log_sha256": "9840bbf37a6bdb387b55f3a5db971e61929864ff4791e5000eabe58c094b82ee",
+        "profile": "release",
+        "started_at": "2026-09-19T13:06:59.252228+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E03",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E03",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E03/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E03/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E03/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E03/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "79daa2c85a10051e1db98078cc4f1a96db014a17e2c4f49b1b7c2b1e289c6ca6",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "a3817263ab85cdcc5a062a83d8b153e5ae1f8780e82bd41c3d1c9fdabba38dc3"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E03",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E04/typst",
+        "sha256": "90acaaa32ab976f222fbb1d7a98161f1a80c82d71e3adb8f08f52364f949c5d9",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E04",
+        "elapsed_seconds": 102.409,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:10:24.194970+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E04/build.log",
+        "log_sha256": "3eb94f86616c54d9a1ff4e7fad04afcc9ad91cac3ead371e80bad4860bc9e4a1",
+        "profile": "release",
+        "started_at": "2026-09-19T13:08:41.786231+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E04",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E04",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E04/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E04/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E04/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E04/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "ffc5d5147c109bcb37372da183843bf6a0a09a8b34353a2bf5af5fd18f63874f",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        },
+        {
+          "path": "01_core/src/entities/scope.rs",
+          "sha256": "a53124e06d440f5908b4a5741a6c15334faebe5225c5af32ec79271ca9333302"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E04",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+        "sha256": "790c1242db31641bf546f47fced420ff4b2b244b4ea89d1ff4be727156ae67f5",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E05",
+        "elapsed_seconds": 50.425,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:01:46.396026+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E05/build.log",
+        "log_sha256": "31903dd97a699f56f9b14d29d99e605cfcfa027cc688cf068a043e3ec6e395e1",
+        "profile": "debug",
+        "started_at": "2026-09-19T13:00:55.970842+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E05",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E05",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "id": "positive_default",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "id": "positive_a11y",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "id": "positive_html",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "id": "positive_html_a11y",
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "format.absent",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "absent",
+          "stderr": "error: module `format` does not contain `absent`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.absent\n  │        ^^^^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "format.svg",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_svg",
+          "stderr": "error: module `format` does not contain `svg`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.svg\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "format.png",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_png",
+          "stderr": "error: module `format` does not contain `png`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.png\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "format.pdf",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_pdf",
+          "stderr": "error: module `format` does not contain `pdf`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.pdf\n  │        ^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E05/typst",
+            "eval",
+            "format.html",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "id": "child_html",
+          "stderr": "error: module `format` does not contain `html`\n  ┌─ <input-expression>:1:7\n  │\n1 │ format.html\n  │        ^^^^\n\n",
+          "stdout": ""
+        }
+      ],
+      "source_bundle_sha256": "2c423a7ef2bf0da29d7eac070b78e6182aaa4bcb239e963dd2ef5036c9107d8b",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E05",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/E06/typst",
+        "sha256": "846e828ff453c8599e512e0e470827170e02f5b5d1b2b7c2bb4427f4bd6a1663",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E06",
+        "elapsed_seconds": 98.987,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:12:05.550411+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/E06/build.log",
+        "log_sha256": "3b45eb7e2e72c8ed9635bd2955ff70554a48dd72206ed324a32182e1a1de2ef2",
+        "profile": "release",
+        "started_at": "2026-09-19T13:10:26.563115+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/E06",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E06",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E06/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E06/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E06/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/E06/typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html,a11y-extras"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "e9a19ee8a6141989490b2749d7d536397076944437216cebe303893dd9a28d84",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "0251ae0a832dd024e159d6a30dc4f38b7a2708590c18ca5b07f025a61de0f499"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/E06",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M01/typst",
+        "sha256": "1aeeb58cc1a364f3a8e34914e482b8fe126e11635347ef7c74d8a0bf905bd2a9",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M01",
+        "elapsed_seconds": 100.678,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:13:49.153544+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M01/build.log",
+        "log_sha256": "5bddd4984210d006f38d979c42ab6aa976e085d1b76b2fc186081a96d0672f0b",
+        "profile": "release",
+        "started_at": "2026-09-19T13:12:08.475815+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M01",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M01",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M01/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "stderr": "error: unknown variable `format`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr(format)\n  │      ^^^^^^\n\n",
+          "stdout": ""
+        }
+      ],
+      "source_bundle_sha256": "d7546bc3b200dcad390f8b803191fbd4db941dd27c3bd56e348c1b3136cb1f41",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "961749fc819179243b771d331d5780ef18338b92e9549dac003107cee9362577"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M01",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M02/typst",
+        "sha256": "853142633100073f3629524444cce4a6d64030c21b9b8184c4a526227a74be7a",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M02",
+        "elapsed_seconds": null,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:15:31.868168+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M02/build.log",
+        "log_sha256": "c505359f2b7923cb14125f95026c4032919aed49bd6cd6c29b47bcc536d3128c",
+        "profile": "release",
+        "recovery_note": "build succeeded in the first isolated pass; timing was not serialized before the executor's incorrect smoke query stopped the process",
+        "started_at": null,
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M02",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M02",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M02/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "\"none\"\n"
+        }
+      ],
+      "smoke_invalid_first_attempt": {
+        "artifact": "p1461-r2-smoke-failure",
+        "reason_code": "SMOKE_SHAPE_MISMATCH",
+        "result": "Unknown",
+        "smoke": [
+          {
+            "command": [
+              "/tmp/p1461-r2-adversary.2hH3eM/binaries/M02/typst",
+              "eval",
+              "repr(type(format))",
+              "--format",
+              "json",
+              "--color",
+              "never"
+            ],
+            "exit_code": 0,
+            "stderr": "",
+            "stdout": "\"type(none)\"\n"
+          }
+        ],
+        "variant": "M02"
+      },
+      "source_bundle_sha256": "e7d7d91ce186d68d23515c370ce8a4ac721e5e4cb01fbc49c43680f66ca8a673",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "4d022ec4f18cf73f1c98c2bcded1bcd2cdc48cd3a4f94361a5481447a9c1e1ee"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M02",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M03/typst",
+        "sha256": "00bfc7cdca30839e838a2c1daa5a844dc1985e03c6a82c8483fe00506c8edb8b",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M03",
+        "elapsed_seconds": 107.26,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:18:29.588308+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M03/build.log",
+        "log_sha256": "49da45e4ba70c5234e4384c1e07db31049c1c6057d669633a5e558a8be2dbcc9",
+        "profile": "release",
+        "started_at": "2026-09-19T13:16:42.328633+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M03",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M03",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M03/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "\"<module global>\"\n"
+        }
+      ],
+      "source_bundle_sha256": "33613aed861f0514d48b15c946f0db28ec588ca877d60fa8ad222381ba9a2337",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "a7db30f113cb745fd8844e08a1a769281ab5ad161ba4f6664ab270d1051e6641"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M03",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M04/typst",
+        "sha256": "b3146e87c0f159de3011947b4091342de212fc9611e05aa15cfd1d9ad5b87989",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M04",
+        "elapsed_seconds": 86.156,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:19:56.447343+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M04/build.log",
+        "log_sha256": "0de6b659077effff3f2b215be638996c9fe70d40bab9c50219f349a6dbfccdc6",
+        "profile": "release",
+        "started_at": "2026-09-19T13:18:30.291592+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M04",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M04",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M04/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "stderr": "error: unknown variable `format`\n  ┌─ <input-expression>:1:5\n  │\n1 │ repr(format)\n  │      ^^^^^^\n\n",
+          "stdout": ""
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M04/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never",
+            "--features",
+            "html"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "\"<module format>\"\n"
+        }
+      ],
+      "source_bundle_sha256": "bb9e4f5990e18ed667ca3bdc8cb4c7360f81d94a49bfe88250a6c9c8d6f1cb82",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "227ce12e03b788fedb3538d8571bca6e4551e1cd589c0b54bc28207073264b67"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M04",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M05/typst",
+        "sha256": "ed88d5f8a2032b11e2c50ebea2d73d4e7367193a9844efe2ee765ccab7da819d",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M05",
+        "elapsed_seconds": 85.826,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:21:23.424533+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M05/build.log",
+        "log_sha256": "a4c371d50f1eb70c9d58227a47b8a128b35542d4f037b224a4efebace3a4f602",
+        "profile": "release",
+        "started_at": "2026-09-19T13:19:57.598023+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M05",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M05",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M05/typst",
+            "eval",
+            "(repr(std.format), std.format == format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"<module format>\",false]\n"
+        }
+      ],
+      "source_bundle_sha256": "9330509cb9e47db631c55b01de448dd17407548026b2278e7f049e9d152f83f3",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "f50140c41f03516f6921813b865a385f728903a6284ebc2b7146001494ff0fd3"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M05",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M06/typst",
+        "sha256": "a16ffb06a27897d81636691efdbe8847174822e50431147970a67749cf7a8bbf",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M06",
+        "elapsed_seconds": 85.313,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:22:50.191119+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M06/build.log",
+        "log_sha256": "742e7c38009dddaea641ad9ee856fd536e84f837a8bd9353bcaabca12f00aacc",
+        "profile": "release",
+        "started_at": "2026-09-19T13:21:24.878036+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M06",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M06",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M06/typst",
+            "eval",
+            "repr(format.svg)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "\"none\"\n"
+        }
+      ],
+      "source_bundle_sha256": "a3baca9252a0a3fe592dda422ea22860b2d281f40a64306e54983ebccab1070d",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "498d9e0bffd2c26ab1c310ed8535297307246c2d93c654f4582ec319fee7df60"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M06",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M07/typst",
+        "sha256": "51f33e814dfa457724a9a82abaea8cef379ba6df328d819adb8c8bfe322dd643",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M07",
+        "elapsed_seconds": 84.91,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:24:16.822959+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M07/build.log",
+        "log_sha256": "12f8c3c76121a85f4995362b095a2450269a87eb384752fdc8adfb9fe39d2b42",
+        "profile": "release",
+        "started_at": "2026-09-19T13:22:51.912851+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M07",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M07",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M07/typst",
+            "eval",
+            "(repr(format.svg), format.svg == svg)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"<module svg>\",true]\n"
+        }
+      ],
+      "source_bundle_sha256": "70bd8ce46dc6e6abf5c456cc1da2d425767cc8a3bc1ce40029013a4fb85a24da",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "8a7e22f489de69c8bc05f69a7d74a77b3609a7da6b93a3aaf3f15f36dbb42e7f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "6222ece5cee68d5448fdf44ad3f1c31a05453f2eae08818d4c0fc02a7b239b49"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M07",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r2-adversary.2hH3eM/binaries/M08/typst",
+        "sha256": "6439639e3f8cdabb00f0dcdbfa6cafda55525fefe33d223d348db11d39cb7c45",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M08",
+        "elapsed_seconds": 85.894,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T13:25:44.889340+00:00",
+        "log_path": "/tmp/p1461-r2-adversary.2hH3eM/receipts/M08/build.log",
+        "log_sha256": "034ebae56cf2784c49d292999c050f3c30e7cdbe8de295ecd44e2c5d98dd1624",
+        "profile": "release",
+        "started_at": "2026-09-19T13:24:18.995472+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r2-adversary.2hH3eM/targets/M08",
+        "target_dir_unique": true,
+        "target_dir_was_empty": true
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M08",
+      "kind": "negative_mutant",
+      "materialization_status": "ready",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M08/typst",
+            "eval",
+            "repr(format)",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "\"<module format>\"\n"
+        },
+        {
+          "command": [
+            "/tmp/p1461-r2-adversary.2hH3eM/binaries/M08/typst",
+            "eval",
+            "repr(type(format))",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 1,
+          "stderr": "error: unknown variable `format`\n  ┌─ <input-expression>:1:10\n  │\n1 │ repr(type(format))\n  │           ^^^^^^\n\n",
+          "stdout": ""
+        }
+      ],
+      "source_bundle_sha256": "c1ddbfa3b94f8b9c2cc620de8bde6ba788923d746ba5d3f8a92558c6d07f7307",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "dd5f7db83bb9bc454fb273ab5651f072661270a9633055e40e1587367a7895ae"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r2-adversary.2hH3eM/worktrees/M08",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    }
+  ]
+}

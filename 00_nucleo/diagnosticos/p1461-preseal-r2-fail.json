@@ -1,0 +1,239 @@
+{
+  "artifact": "p1461-preseal",
+  "schema_version": 2,
+  "revision": "R2",
+  "captured_at_utc": "2026-09-19T13:45:12Z",
+  "role": {
+    "executor": "Codex agent /root/preseal_p1461",
+    "claim": "executed_without_isolation_attestation",
+    "may_write": [
+      "00_nucleo/diagnosticos/p1461-mutation-results.json",
+      "00_nucleo/diagnosticos/p1461-preseal.json"
+    ],
+    "inputs_edited": false,
+    "product_edited": false,
+    "limitation": "The workspace and conversational host are shared. Hashes and causal ordering identify the evaluated inputs but do not attest filesystem, process, cache or conversational isolation."
+  },
+  "causal_identity": {
+    "commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "parent": "7392f490397c56876fcf6134e86c44b528b396bb",
+    "tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "head_at_verification": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "tree_at_verification": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "productive_delta_from_causal_commit": [],
+    "candidate_owner_path": "01_core/src/compiler/stdlib/format.rs",
+    "candidate_owner_exists": false,
+    "candidate_absent": true
+  },
+  "protected_sha256": {
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1461-manifest.json",
+      "sha256": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1461-contract.json",
+      "sha256": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd"
+    },
+    "prompts": {
+      "step": {
+        "path": "00_nucleo/materialization/typst-passo-1461.md",
+        "sha256": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f"
+      },
+      "format_owner": {
+        "path": "00_nucleo/prompts/compiler/stdlib/format.md",
+        "sha256": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e"
+      },
+      "stdlib_common": {
+        "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+        "full_file_sha256": "2bc7339a0692282da45195b842683d71e9fc2c83791129d8e28a7bfee1e6402d",
+        "p1461_section_sha256": "80ff7bb7a16d9a99d3093eea0a98064ae1613379b2dbf0dba8b72489a67db61d"
+      },
+      "eval": {
+        "path": "00_nucleo/prompts/compiler/eval.md",
+        "full_file_sha256": "7b104498462d4e60e614dd1523dee44cbc4471cce2a489dfb33b11f94a00d038",
+        "p1461_section_sha256": "a2ddd67488eb2801226922912857bd08282375052517deeb66ca249c7cf3d130"
+      }
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1461-oracles.json",
+      "sha256": "049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50"
+    },
+    "harness": {
+      "path": "00_nucleo/diagnosticos/p1461-harness.py",
+      "sha256": "cc8ea77416cbb292457883854a22b93b571f38b7909fcbbd0ba00ea0c20281fb"
+    },
+    "ab_tests": {
+      "path": "00_nucleo/diagnosticos/p1461-ab-tests.json",
+      "sha256": "2e8e371e36105ad6b5e93edbaffac7ef654c9d349dc2d62a81f0a96e6116cc01"
+    },
+    "red": {
+      "path": "00_nucleo/diagnosticos/p1461-red.json",
+      "sha256": "e4814f7e73b119aa05e9e4038526d37f0a77a6054e9b8281a4f5369fc6bb7a7b"
+    },
+    "mutants": {
+      "path": "00_nucleo/diagnosticos/p1461-mutants.json",
+      "sha256": "091576327b16edb9b9083e88fb644916069caa735df98e8dc92ac98f6996a6b4"
+    },
+    "mutation_fixtures": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+      "sha256": "6a63ff72883cdbb8efc2bf9a9afe42e3daba163f921f7bd51dfac12e421e0915"
+    },
+    "mutation_runner": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+      "sha256": "477fca0a1ed532f2f0540bc2ef1cbade209b38e88d9a1fd7e5bb44d4061d107d"
+    },
+    "mutation_results": {
+      "path": "00_nucleo/diagnosticos/p1461-mutation-results.json",
+      "sha256": "29b125434edd2d6343079531f7101b5827ee5d380ca317625c1b818d469dd55c"
+    },
+    "productive_baseline": {
+      "eval": {
+        "path": "01_core/src/compiler/eval/mod.rs",
+        "sha256": "a014d409e6a0e53d05d11365be28d77bda89b03f6da2a03807767e69ceeb5fa1"
+      },
+      "stdlib": {
+        "path": "01_core/src/compiler/stdlib/mod.rs",
+        "sha256": "d0640072de23c2811fc6e373c9c80c77b3628bc8c7ca267b11f9235aaedb031d"
+      },
+      "module_entity": {
+        "path": "01_core/src/entities/module.rs",
+        "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f"
+      }
+    },
+    "binaries": {
+      "vanilla_primary": {
+        "path": "lab/typst-original/target/release/typst",
+        "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+      },
+      "vanilla_secondary": {
+        "path": "/usr/local/bin/typst",
+        "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+      },
+      "crystalline_red_baseline": {
+        "path": "target/release/typst",
+        "sha256": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633"
+      },
+      "P00": {
+        "sha256": "940fa1d38cb6870a1aa27d792844938b1bf741391407ffe12ecd5e3729f6606c"
+      },
+      "E05": {
+        "sha256": "790c1242db31641bf546f47fced420ff4b2b244b4ea89d1ff4be727156ae67f5"
+      }
+    }
+  },
+  "r1_preservation": {
+    "p1461_preseal_r1_fail": "da7e77793306bb935178177d50051a50263a84bbb10cc052e835b409a0986967",
+    "p1461_mutants_r1_fail": "a07e44be8c273d4d8075d76a586c92900281d1bb164464d63e5f3f772c394fe6",
+    "p1461_mutation_fixtures_r1_fail": "8e92e5d4d43379dd0044fd28b9b0a3e4fd9e4e414f526b87e61a75fb7c3c83cd",
+    "p1461_mutation_runner_r1_fail": "22441eb913c7cfc57c2202ba2e363fd8d556111ed0a9c715273e838235c82f0f",
+    "status": "PASS"
+  },
+  "static_checks": {
+    "json_syntax": "PASS",
+    "python_syntax": "PASS",
+    "protected_hashes_and_cross_references": "PASS",
+    "causal_commit_and_tree": "PASS",
+    "candidate_absence": "PASS",
+    "canonical_manifest_allowlists": "PASS",
+    "variant_worktree_status_exact": "PASS",
+    "hidden_extra_paths": 0,
+    "fixture_variants_valid": 15,
+    "fixture_variants_total": 15
+  },
+  "executions": {
+    "validate": {
+      "command": "python3 00_nucleo/diagnosticos/p1461-mutation-runner.py --fixtures 00_nucleo/diagnosticos/p1461-mutation-fixtures.json validate",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "focal_P00_E05": {
+      "command_template": "python3 00_nucleo/diagnosticos/p1461-harness.py --binary <P00-or-E05-binary> --expected-sha <fixture-sha256> --product crystalline --oracles 00_nucleo/diagnosticos/p1461-oracles.json --oracles-sha 049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50 --suite candidate --order all --output <ephemeral-receipt>",
+      "P00_receipt_sha256": "fac61315ed903118299afb030f60ccc448b6ad368b8535c1d3c7c306598a1777",
+      "E05_receipt_sha256": "ce0667e8ff3d135febab0235fea69920d1809da6618577886c411384dc6ddfc1",
+      "P00_verdict": "Preserved",
+      "E05_verdict": "Preserved",
+      "source_bundle_equal": true,
+      "binary_hashes_distinct": true,
+      "orders": ["direct", "direct_repeat", "reverse"],
+      "per_variant_per_order": {"Preserved": 48, "Violated": 0, "Unknown": 0},
+      "normalized_sha256": "04f6913dc675002eb2c045bfebcb141d488eeef4c2ede7ce3a5b1ab5554c231c",
+      "result": "PASS"
+    },
+    "direct_campaign": {
+      "command": "python3 00_nucleo/diagnosticos/p1461-mutation-runner.py --fixtures 00_nucleo/diagnosticos/p1461-mutation-fixtures.json run --order direct --output /tmp/p1461-r2-mutation-direct.json --command python3 -c <verifier-owned fail-closed wrapper over the frozen p1461-harness.py and exact fixture identities>",
+      "exit_code": 1,
+      "receipt_sha256": "091a931739bef0366abb6fd4144e65ff60b3a2f9849fe1742570c134e03dd86a",
+      "positive_preserved": 7,
+      "positive_required": 7,
+      "negative_violated": 5,
+      "negative_required": 8,
+      "negative_unknown": 3,
+      "result": "FAIL"
+    },
+    "direct_repeat_campaign": {
+      "executed": false,
+      "result": "NOT_RUN",
+      "reason": "Direct order reached a fail-closed non-deliberate Unknown boundary."
+    },
+    "reverse_campaign": {
+      "executed": false,
+      "result": "NOT_RUN",
+      "reason": "Direct order reached a fail-closed non-deliberate Unknown boundary."
+    }
+  },
+  "discriminatory_audit": {
+    "P00": "Preserved",
+    "E01": "Preserved",
+    "E02": "Preserved",
+    "E03": "Preserved",
+    "E04": "Preserved",
+    "E05": "Preserved",
+    "E06": "Preserved",
+    "M01": "Violated",
+    "M02": "Unknown",
+    "M03": "Violated",
+    "M04": "Violated",
+    "M05": "Violated",
+    "M06": "Unknown",
+    "M07": "Unknown",
+    "M08": "Violated",
+    "unknown_reasons": {
+      "M02": "20 DIAGNOSTIC_PARSE_FAILURE results on N01-N05 across four profiles; the emitted none-field diagnostic is outside the frozen parser's supported classes.",
+      "M06": "4 DIAGNOSTIC_PARSE_FAILURE results on N02 across four profiles; exit 0 returned JSON null and the frozen negative-diagnostic branch could not classify the value mismatch.",
+      "M07": "4 DIAGNOSTIC_PARSE_FAILURE results on N02 across four profiles; exit 0 returned <module svg> and the frozen negative-diagnostic branch could not classify the value mismatch."
+    },
+    "valid_negative_mutants_violated": 5,
+    "valid_negative_mutants_required": 8,
+    "mutation_score": 0.625,
+    "mutation_score_required": 1.0,
+    "mutation_score_pass": false,
+    "unknown_non_deliberate": 3,
+    "unknown_promoted": false,
+    "orders_complete": false
+  },
+  "cost_and_delta": {
+    "total_eval_processes": 1008,
+    "total_duration_ns": 758861025318,
+    "producer_build_elapsed_seconds_known_lower_bound": 1276.681,
+    "r1_mutation_score": 0.125,
+    "r2_mutation_score": 0.625,
+    "r1_to_r2_score_delta": 0.5,
+    "r1_to_r2_additional_mutants_violated": 4,
+    "regressions": 0,
+    "delta_interpretation": "R2 established independent build identities and preserved all seven positive variants, but the frozen observer remained incomplete for M02, M06 and M07."
+  },
+  "blocking_findings": [
+    "M02, M06 and M07 are non-deliberate Unknown rather than required Violated.",
+    "The demonstrated mutation score is 0.625, below the mandatory 1.0.",
+    "The three required campaign orders are incomplete because the direct order triggered the fail-closed stop rule."
+  ],
+  "integration": {
+    "authorized": false,
+    "plan": null,
+    "reason": "A FAIL/NOT_SEALED preseal cannot authorize integration or candidate implementation.",
+    "inputs_read_only_for_future_revision": true,
+    "next_revision_constraint": "Any observer, oracle or harness correction requires a new causal authorization and protected hashes; this verifier did not alter frozen inputs."
+  },
+  "verdict": "FAIL",
+  "seal": "NOT_SEALED"
+}

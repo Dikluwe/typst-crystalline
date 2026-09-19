@@ -1,0 +1,135 @@
+{
+  "artifact": "p1461-ab-tests",
+  "schema_version": 1,
+  "status": "frozen-r2-before-candidate-access",
+  "role": "independent_tester",
+  "isolation": {
+    "claim": "executed_without_isolation_attestation",
+    "executor": "Codex agent /root/oraculos_p1461",
+    "inputs": [
+      "frozen P1461 intent and L0",
+      "p1461-manifest.json",
+      "p1461-contract.json",
+      "ratified vanilla and exact RED baseline observations"
+    ],
+    "not_intentionally_read": [
+      "candidate implementation",
+      "candidate tests",
+      "private adversary output",
+      "private verifier output"
+    ]
+  },
+  "frozen_input_hashes": {
+    "manifest": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8",
+    "contract": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd",
+    "preseal_r1_fail": "da7e77793306bb935178177d50051a50263a84bbb10cc052e835b409a0986967",
+    "step": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f",
+    "format_prompt": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e"
+  },
+  "ab_products": {
+    "A": {
+      "role": "negative control",
+      "path": "target/release/typst",
+      "sha256": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633",
+      "expected_overall": "Violated",
+      "expected_witness": "unknown variable format in every profile"
+    },
+    "B": {
+      "role": "future candidate",
+      "path": "must be supplied after a fresh candidate build",
+      "sha256": "must be measured after build; absent or stale identity is Unknown",
+      "expected_overall": "Preserved only for the focal suite; inventory remains a separate mandatory gate"
+    }
+  },
+  "black_box_tests": [
+    {
+      "id": "AB01_ALWAYS_PRESENT_ROOT",
+      "profiles": [
+        "default",
+        "a11y-extras",
+        "html",
+        "html+a11y"
+      ],
+      "expression": "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+      "A_expected": "unknown-variable at format",
+      "B_expected": [
+        "module",
+        "<module format>",
+        "<module format>",
+        true,
+        true
+      ]
+    },
+    {
+      "id": "AB02_REAL_MODULE_DIAGNOSTIC",
+      "profiles": "all four",
+      "expression": "format.absent",
+      "A_expected": "unknown-variable format at 1:0..6",
+      "B_expected": "missing-module-field for module format and field absent at 1:7..13"
+    },
+    {
+      "id": "AB03_EMPTY_SCOPE_SENTINELS",
+      "profiles": "all four",
+      "expressions": [
+        "format.svg",
+        "format.png",
+        "format.pdf",
+        "format.html"
+      ],
+      "A_expected": "unknown-variable format",
+      "B_expected": "missing-module-field on module format for each exact field token"
+    },
+    {
+      "id": "AB04_ADJACENT_CONTROLS",
+      "profiles": "all four",
+      "expressions": [
+        "(repr(type(std)), repr(std), repr(type(math)), repr(math))",
+        "math.absent"
+      ],
+      "A_expected": "Preserved",
+      "B_expected": "Preserved",
+      "purpose": "Attribute A/B change to the format root rather than module/value/diagnostic machinery generally."
+    }
+  ],
+  "independent_unit_test_specification": [
+    {
+      "id": "U01_FORMAT_MODULE_EXACT_NAME",
+      "planned_owner": "01_core/src/compiler/stdlib/format.rs",
+      "fixture": "call make_format_module() without features, target or external state",
+      "assertion": "the resulting Module public/internal nominal name accessor yields exactly format",
+      "expected": "format",
+      "forbidden_substitution": "repr-only textual special case"
+    },
+    {
+      "id": "U02_FORMAT_MODULE_SCOPE_EMPTY",
+      "planned_owner": "01_core/src/compiler/stdlib/format.rs",
+      "fixture": "call make_format_module() and inspect its existing Scope carrier through existing accessors",
+      "assertion": "the scope contains zero bindings and lookup of svg, png, pdf, html and absent returns no binding",
+      "expected_binding_count": 0,
+      "expected_absent_names": [
+        "svg",
+        "png",
+        "pdf",
+        "html",
+        "absent"
+      ],
+      "note": "The exact Rust iterator/accessor spelling is intentionally not frozen without candidate access; the semantic assertions are frozen."
+    }
+  ],
+  "execution": {
+    "runner": "00_nucleo/diagnosticos/p1461-harness.py",
+    "runner_sha256_at_freeze": "cc8ea77416cbb292457883854a22b93b571f38b7909fcbbd0ba00ea0c20281fb",
+    "required_orders": [
+      "direct",
+      "direct_repeat",
+      "reverse"
+    ],
+    "unknown_policy": "fail closed; identity drift, parser opacity, timeout, missing output or order dependence is Unknown and blocks success",
+    "inventory_gate": "Use the separately frozen P1357 recipe; exact singleton public-path delta format is mandatory before any final Preserved claim."
+  },
+  "limitations": [
+    "This artifact specifies but does not add a Rust test file, because the delegated write allowlist contains only diagnostic artifacts.",
+    "The A/B suite proves only the P1461 root fragment, never format children or exporter equivalence.",
+    "Shared workspace and conversational host prevent physical isolation attestation."
+  ]
+}

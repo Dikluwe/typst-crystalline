@@ -1,0 +1,191 @@
+{
+  "artifact": "p1461-preseal",
+  "schema_version": 4,
+  "revision": "R4_FINAL",
+  "captured_at_utc": "2026-09-19T14:41:32Z",
+  "role": {
+    "executor": "Codex agent /root/preseal_p1461",
+    "regime": "complete",
+    "claim": "executed_without_isolation_attestation",
+    "may_write": [
+      "00_nucleo/diagnosticos/p1461-mutation-results-r3-fail.json",
+      "00_nucleo/diagnosticos/p1461-preseal-r3-fail.json",
+      "00_nucleo/diagnosticos/p1461-mutation-results.json",
+      "00_nucleo/diagnosticos/p1461-preseal.json"
+    ],
+    "inputs_edited": false,
+    "product_edited": false,
+    "limitation": "The workspace and conversational host are shared. Hashes and causal ordering identify evaluated inputs but do not attest filesystem, process, cache or conversational isolation."
+  },
+  "causal_identity": {
+    "commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "parent": "7392f490397c56876fcf6134e86c44b528b396bb",
+    "tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "head_at_verification": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "tree_at_verification": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "productive_delta_from_causal_commit": [],
+    "candidate_owner_path": "01_core/src/compiler/stdlib/format.rs",
+    "candidate_owner_exists": false,
+    "candidate_absent": true
+  },
+  "protected_sha256": {
+    "manifest": "d17a258cdfabca8bf7ffdbe9282fc3e57fe53cef40be2bad35c1cb8c2955a76f",
+    "contract": "456ec3dfec1db9fdf6d11c15ed7f316aae02a0dc856697f98dff0e4667dc2152",
+    "step": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f",
+    "format_prompt": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e",
+    "stdlib_common_prompt": "2bc7339a0692282da45195b842683d71e9fc2c83791129d8e28a7bfee1e6402d",
+    "stdlib_common_p1461_section": "80ff7bb7a16d9a99d3093eea0a98064ae1613379b2dbf0dba8b72489a67db61d",
+    "eval_prompt": "7b104498462d4e60e614dd1523dee44cbc4471cce2a489dfb33b11f94a00d038",
+    "eval_p1461_section": "a2ddd67488eb2801226922912857bd08282375052517deeb66ca249c7cf3d130",
+    "oracles": "cee9a3a485e76d82397af9006907940946f4ac473abaea5fc44e0497ead59b84",
+    "harness": "3a6983796e7f3070912efac410cb41075c4a8a908283ec3005a60c4934979ca1",
+    "ab_tests": "7085ccf10c0c399c7911ca1bfe2996ad878bc70c9c67926d59702906b0428197",
+    "red": "5c5a64a2e35fa0e6daaf20f69d291419713d6cbabeb252e95f05974fcd93f22c",
+    "mutants": "4e50ec7db15bc4d961cd2d0ba07f87fa78ea7cc9cff4a04fe7991cd355ff9a56",
+    "mutation_runner": "e61551e3e3ef1562dcc587ccfa698862c2cf7506d6dc652372c126be13e9497a",
+    "mutation_fixtures": "8478a9b22f5969f43254d65f6ed4022b1f1400e2a1da79d7f7653eb69e01efb2",
+    "mutation_results": "712aea054b7f5dba242795882f6c19fb33809269cba67802c55364c1fffb6648",
+    "productive_baseline": {
+      "01_core/src/compiler/eval/mod.rs": "a014d409e6a0e53d05d11365be28d77bda89b03f6da2a03807767e69ceeb5fa1",
+      "01_core/src/compiler/stdlib/mod.rs": "d0640072de23c2811fc6e373c9c80c77b3628bc8c7ca267b11f9235aaedb031d",
+      "01_core/src/entities/module.rs": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f"
+    },
+    "reference_binaries": {
+      "vanilla_primary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "vanilla_secondary": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "crystalline_red_baseline": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633"
+    }
+  },
+  "archive_preservation": {
+    "r3": {
+      "manifest": "13c554edcff8afeca6e51381f73015906b68de189d79de989e30e769bbf9f825",
+      "contract": "81da1964df13221a1b9a70666cfb1e035b40b1215344d5ec8934febc4073aaa2",
+      "oracles": "7d69471b6ce34e074f4854da50f4eb52763efa5cc933cc9f9a54de2227310737",
+      "harness": "6f426a8a4eff11abbaaf9f04112f0af96c8ebd06956fb53a7885b349116fbe68",
+      "ab_tests": "c785b872918d465f0b9f82179eb3ab7ce6f7dd20d7b133e7100291aeff75efac",
+      "red": "221c5a3ac45c6a6b4feb802acd86663817891e81a30a6ca52d75ae33ade83df4",
+      "mutants": "661cd583ef5d68177d4645bdfb066e3f470ee994afd41d390c0a9c5ecae6bc2f",
+      "mutation_runner": "d11e2771b65e7abe4edde1d51b8e083351aec67740e2c749bb91dea59bef635d",
+      "mutation_fixtures": "8d28b28adfbb062661b50d84fc164c86766148489f9da7f7f842ecd08de770ee",
+      "preseal": "19e66dade58fc64b75ea36bdaab5486350cefb275c5a74d735620d6ff6953e68",
+      "mutation_results": "64e19601cde4abfcf29bf9541cbdd70dbef6bd67d96f1b900aa1322ae4e07d4e",
+      "byte_for_byte_verified": true
+    },
+    "r2": {
+      "preseal": "ff36d267d5aef5a7ed31182a794b4d767596ef9436e6435660b7b098fd247419",
+      "mutation_results": "29b125434edd2d6343079531f7101b5827ee5d380ca317625c1b818d469dd55c",
+      "oracles": "049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50",
+      "harness": "cc8ea77416cbb292457883854a22b93b571f38b7909fcbbd0ba00ea0c20281fb",
+      "ab_tests": "2e8e371e36105ad6b5e93edbaffac7ef654c9d349dc2d62a81f0a96e6116cc01",
+      "red": "e4814f7e73b119aa05e9e4038526d37f0a77a6054e9b8281a4f5369fc6bb7a7b",
+      "mutants": "091576327b16edb9b9083e88fb644916069caa735df98e8dc92ac98f6996a6b4",
+      "mutation_runner": "477fca0a1ed532f2f0540bc2ef1cbade209b38e88d9a1fd7e5bb44d4061d107d",
+      "mutation_fixtures": "6a63ff72883cdbb8efc2bf9a9afe42e3daba163f921f7bd51dfac12e421e0915",
+      "byte_for_byte_archives_verified": 9
+    },
+    "historical_r2_limitation": {
+      "manifest_sha256": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8",
+      "contract_sha256": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd",
+      "manifest_bytes_archived": false,
+      "contract_bytes_archived": false,
+      "disclosure": "R2 manifest and contract are identified by hash in receipts but were not archived byte for byte; no reconstruction or byte-preservation claim is made."
+    }
+  },
+  "static_checks": {
+    "json_syntax": "PASS",
+    "python_syntax": "PASS",
+    "cross_hashes": "PASS",
+    "causal_commit_and_tree": "PASS",
+    "productive_baseline": "PASS",
+    "candidate_absence": "PASS",
+    "canonical_manifest_allowlists": "PASS",
+    "r2_and_r3_archives": "PASS"
+  },
+  "reuse_gate": {
+    "command": "python3 00_nucleo/diagnosticos/p1461-mutation-runner.py --fixtures 00_nucleo/diagnosticos/p1461-mutation-fixtures.json validate",
+    "before_receipt_sha256": "84a69ddc675bf2c8db01233dd5c62643b5a720f81b06e415304cba3dab121771",
+    "after_receipt_sha256": "84a69ddc675bf2c8db01233dd5c62643b5a720f81b06e415304cba3dab121771",
+    "variants_valid": 15,
+    "variants_required": 15,
+    "source_build_binary_identities_exact": 15,
+    "worktree_root_mode": "0775",
+    "transformed_source_mode": "0664",
+    "copied_binary_mode": "0555",
+    "before_snapshot_sha256": "3a47a7b4d6da4dfb8562ca4119908ca462c4308d4a3b91ebd121593ffa4ac1b3",
+    "after_snapshot_sha256": "3e5145580362c8ea7afbcf9b9d98e7663f2890b45b35224687e6b382af685cc7",
+    "before_after_variant_state_sha256": "f1e413481ade6355ae386f5d6c3582523d872cdbc820a516b5a22e550366e0bf",
+    "before_after_equal": true,
+    "result": "PASS"
+  },
+  "campaign": {
+    "focal": {
+      "variants": ["P00", "E05", "M02", "M06", "M07"],
+      "orders": ["direct", "direct_repeat", "reverse"],
+      "summary_receipt_sha256": "465ec51ca1016d2604d8c3e8399cde48309cf84f0d820e763e7d6387e12c050e",
+      "preserved": 2,
+      "violated": 3,
+      "unknown": 0,
+      "deterministic": true,
+      "result": "PASS"
+    },
+    "full": {
+      "orders": {
+        "direct": "0190c6dbde5e8b54d9acd2eb45bddcb0506538e5820bb04dc3b672279f6a9f34",
+        "direct_repeat": "21e705054bd9a22de99d39935eff98685a34b998e4a9971b1e8bcf22208f74a0",
+        "reverse": "d696a0067b53f7fa980463c2c0431cedc76a9269a5f17fd9bb5a3e999c59f86c"
+      },
+      "positive_preserved": 7,
+      "positive_required": 7,
+      "negative_violated": 8,
+      "negative_required": 8,
+      "non_deliberate_unknown": 0,
+      "deterministic_variants": 15,
+      "deterministic_variants_required": 15,
+      "mutation_score": 1.0,
+      "mutation_score_required": 1.0,
+      "result": "PASS"
+    }
+  },
+  "cost_and_delta": {
+    "focal_eval_processes": 720,
+    "full_eval_processes": 2160,
+    "total_verifier_eval_processes": 2880,
+    "total_verifier_summed_process_duration_ns": 1489845661291,
+    "r3_mutation_score": 0.0,
+    "r4_mutation_score": 1.0,
+    "score_delta_from_r3": 1.0,
+    "classification_delta_from_r3": "7 additional Preserved positives, 8 additional Violated mutants, and 15 fewer Unknown variants",
+    "regressions": 0
+  },
+  "budget": {
+    "revision": 4,
+    "revision_limit": 4,
+    "failure_occurred": false,
+    "failure_would_exhaust_budget": true,
+    "fifth_local_revision_authorized": false
+  },
+  "integration_plan": {
+    "authorized": true,
+    "inputs_read_only": true,
+    "implementation_may_start": true,
+    "claim_scope": "Only the public-root format fragment covered by P1461; no child or general format parity claim.",
+    "authorized_product_paths": [
+      "01_core/src/compiler/stdlib/format.rs",
+      "01_core/src/compiler/stdlib/mod.rs",
+      "01_core/src/compiler/eval/mod.rs"
+    ],
+    "authorized_tests": "Implementation-owned #[cfg(test)] tests inside 01_core/src/compiler/stdlib/format.rs for U01 and U02.",
+    "required_sequence": [
+      "Keep manifest, contract, prompts, oracles, harness, A/B tests, RED, mutants, runner, fixtures and this verifier evidence read-only.",
+      "Materialize only the authorized P1461 public-root format fragment; do not claim child or general parity.",
+      "Build and hash a fresh candidate, then execute the frozen candidate harness in direct, direct_repeat and reverse order.",
+      "Run an independent A/B check and the P1357 C07/C09 singleton inventory.",
+      "Run cargo fmt, targeted tests, cargo build, crystalline-lint and git diff --check.",
+      "Rehash all protected inputs and obtain a fresh independent verifier certificate before integration."
+    ],
+    "implementation_performed_by_preseal_verifier": false,
+    "commit_performed": false
+  },
+  "verdict": "PASS",
+  "seal": "SEALED"
+}

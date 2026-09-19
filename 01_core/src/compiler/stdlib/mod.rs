@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 745ef788
+//! @prompt-hash 8872f321
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-19
 
 //! Stdlib nativa mínima — Passo 17.
 //!
@@ -23,6 +23,7 @@ use crate::entities::value::Value;
 mod assert;
 mod calc;
 mod figure_image;
+mod format;
 mod foundations;
 mod html;
 mod label;
@@ -77,6 +78,7 @@ pub(crate) use crate::compiler::stdlib::calc::calc_abs;
 pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
+pub(crate) use crate::compiler::stdlib::format::make_format_module;
 pub(crate) use crate::compiler::stdlib::foundations::float::dispatch_float_method_spanned;
 pub use crate::compiler::stdlib::foundations::{
     datetime_type_field, int_type_field, native_bytes, native_cmyk, native_datetime,

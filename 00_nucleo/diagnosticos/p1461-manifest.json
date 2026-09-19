@@ -1,0 +1,758 @@
+{
+  "artifact": "p1461-manifest",
+  "artifact_path": "00_nucleo/diagnosticos/p1461-manifest.json",
+  "baseline": {
+    "causal_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "causal_commit_parent": "7392f490397c56876fcf6134e86c44b528b396bb",
+    "causal_commit_subject": "docs(tekt): propor passo 1461 format",
+    "causal_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "commit_timestamp": "2026-09-19T09:11:57-03:00",
+    "head_at_contract_author_start": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "head_delta_from_parent": [
+      "00_nucleo/materialization/typst-passo-1461.md",
+      "00_nucleo/prompts/compiler/eval.md",
+      "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "00_nucleo/prompts/compiler/stdlib/format.md"
+    ],
+    "productive_code_delta_from_parent": [],
+    "recorded_at": "2026-09-19T09:15:53-03:00",
+    "repository": "/repos/Antigravity/typst-crystalline",
+    "worktree_at_contract_author_start": {
+      "command": "git status --short --untracked-files=all",
+      "result": "clean"
+    }
+  },
+  "binaries": {
+    "crystalline_red_baseline": {
+      "path": "target/release/typst",
+      "sha256": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633",
+      "version_output": "typst 0.15.1 (7392f490)",
+      "version_is_auxiliary_only": true,
+      "relation_to_causal_commit": "The binary names the parent commit. The causal commit changes only the four P1461 documentation and L0 files listed in baseline.head_delta_from_parent, with no productive-code delta. This binary is admitted only as the exact RED baseline runner. A final candidate must be rebuilt and rehashed."
+    },
+    "vanilla_primary": {
+      "path": "lab/typst-original/target/release/typst",
+      "ratified_source_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "version_output": "typst 0.15.1 (586e1bd4)",
+      "version_is_auxiliary_only": true
+    },
+    "vanilla_secondary": {
+      "path": "/usr/local/bin/typst",
+      "required_relation": "byte-identical-to-vanilla_primary",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "version_output": "typst 0.15.1 (586e1bd4)",
+      "version_is_auxiliary_only": true
+    }
+  },
+  "calibration_budget": {
+    "affected_slice_first": true,
+    "full_corpus_runs_before_preseal_max": 2,
+    "full_corpus_runs_required": [
+      "once after all affected slices and boundary controls pass",
+      "once immediately before preseal"
+    ],
+    "local_revisions_max": 4,
+    "mutation_score_required": 1.0,
+    "reorders_required": [
+      "direct",
+      "direct_repeat",
+      "reverse"
+    ],
+    "same_cause_no_gain_consecutive_limit": 2,
+    "timeout_seconds_per_eval_probe": 30,
+    "total_calibration_wall_clock_minutes_max": 90,
+    "valid_negative_mutants_required": 8,
+    "when_exhausted": "Stop without sealing; emit an insufficiency diagnostic and obtain human authorization before changing observability, protocol, fixtures, or scope. Budget exhaustion never converts Unknown to Preserved and never lowers mutation_score_required."
+  },
+  "calibration_revision": {
+    "expected_discriminatory_gain": "R4 removes the overbroad mode precondition so the already valid 15/15 source/build/binary identities can reach the unchanged focal semantic gate without rebuild or source/parser change.",
+    "failure_receipt": {
+      "archive_path": "00_nucleo/diagnosticos/p1461-preseal-r1-fail.json",
+      "original_path": "00_nucleo/diagnosticos/p1461-preseal.json",
+      "sha256": "da7e77793306bb935178177d50051a50263a84bbb10cc052e835b409a0986967"
+    },
+    "r1_outcome": {
+      "attempts_on_same_fixture": 2,
+      "classification_delta": 0,
+      "dominant_reason_code": "SHARED_CARGO_TARGET_CACHE_AND_FINGERPRINT_REUSE",
+      "e05_binary_relation": "byte-identical to P00",
+      "stop_triggered": true,
+      "preserved_artifacts_reported_sha256": {
+        "00_nucleo/diagnosticos/p1461-mutants-r1-fail.json": "a07e44be...",
+        "00_nucleo/diagnosticos/p1461-mutation-runner-r1-fail.py": "22441eb9...",
+        "00_nucleo/diagnosticos/p1461-mutation-fixtures-r1-fail.json": "8e92e5d4..."
+      },
+      "reported_hash_precision": "Prefixes exactly as supplied by the public R1 cause. The adversary must verify and record full SHA-256 digests before preservation or replacement; ambiguity is Unknown."
+    },
+    "r2_build_isolation": {
+      "build_clean_definition": "Each variant starts from a newly created empty target directory and may not reuse a target, cache, fingerprint or incremental directory from any other variant or prior attempt.",
+      "e05": {
+        "binary_identity_requirement": "E05 SHA-256 must differ from P00 SHA-256",
+        "build_profile": "debug/dev, or another explicitly named non-P00 profile if debug/dev is unavailable",
+        "language_requirement": "C01-C10 observations applicable to the positive control must equal P00",
+        "source_identity_requirement": "exactly the same positive source hash as P00"
+      },
+      "forbidden": [
+        "shared CARGO_TARGET_DIR between P00, E01-E06 or M01-M08",
+        "shared target cache, fingerprint or incremental state between variants",
+        "copying or relabelling one built binary as another variant"
+      ],
+      "target_dir_rule": "P00, every E01-E06 and every M01-M08 receive a unique absolute CARGO_TARGET_DIR recorded in the build receipt.",
+      "version_and_bytes_rule": "--version text and binary bytes are provenance/identity evidence only, not the language observable; E05 is Preserved by equal language observations despite its required distinct binary hash."
+    },
+    "r2_focal_order": {
+      "first_slice": [
+        "P00",
+        "E05"
+      ],
+      "release_condition": "Run E01-E04, E06 and M01-M08 only after E05 is Preserved, its source equals P00, its binary hash differs from P00 and both build identities are unequivocal.",
+      "stop_condition": "If the focal P00+E05 slice is Unknown or Violated, do not run the remainder and do not perform a third local attempt on the same E05 fixture. Reopen architecture or obtain a new human-authorized hypothesis."
+    },
+    "r2_hypothesis": "R1 reused Cargo target cache/fingerprints across nominal variants, so E05 did not materialize as an independent build. Unique empty target directories plus an explicitly distinct E05 build profile will produce an inequivalent binary identity from the same positive source while preserving all language observations.",
+    "r2_outcome": {
+      "classification_cost": {
+        "matrix_variants": 15,
+        "positive_variants": 7,
+        "mutant_variants": 8,
+        "required_orders": 3,
+        "variant_order_cells": 45,
+        "process_or_wall_clock_cost": "not present in the public R2 cause; the R3 receipt must recover it from owner receipts or classify it Unknown"
+      },
+      "dominant_reason_code": "DIAGNOSTIC_PARSE_FAILURE",
+      "gain_from_r1": 0.5,
+      "mutation_results_reported_sha256": "29b12543...",
+      "mutation_score": 0.625,
+      "mutants": {
+        "Unknown": [
+          "M02",
+          "M06",
+          "M07"
+        ],
+        "Violated": [
+          "M01",
+          "M03",
+          "M04",
+          "M05",
+          "M08"
+        ]
+      },
+      "positive_controls": "7/7 Preserved",
+      "preseal_reported_sha256": "ff36d267...",
+      "score_from": 0.125,
+      "two_consecutive_no_gain_same_cause": false
+    },
+    "r3_archive_before_replace": {
+      "adversary_if_metadata_will_be_reemitted": [
+        "00_nucleo/diagnosticos/p1461-mutants-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-runner-r2-fail.py",
+        "00_nucleo/diagnosticos/p1461-mutation-fixtures-r2-fail.json"
+      ],
+      "independent_tester": [
+        "00_nucleo/diagnosticos/p1461-ab-tests-r2-fail.json"
+      ],
+      "oracle_author": [
+        "00_nucleo/diagnosticos/p1461-oracles-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-harness-r2-fail.py",
+        "00_nucleo/diagnosticos/p1461-red-r2-fail.json"
+      ],
+      "preseal_verifier": [
+        "00_nucleo/diagnosticos/p1461-preseal-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-results-r2-fail.json"
+      ],
+      "rule": "For each listed R2 artifact that is still present, its owner must create a byte-for-byte archive, verify equality and record the full source/archive SHA-256 before replacement. Adversary metadata is included when it will be reemitted. Prefix-only identity or mismatch is Unknown and blocks R3."
+    },
+    "r3_historical_audit_limitation": {
+      "affected_artifacts": {
+        "00_nucleo/diagnosticos/p1461-contract.json": {
+          "r2_sha256": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd",
+          "separate_r2_archive": false
+        },
+        "00_nucleo/diagnosticos/p1461-manifest.json": {
+          "r2_sha256": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8",
+          "separate_r2_archive": false
+        }
+      },
+      "impact": "This limits byte-level historical auditability of R2 manifest/contract. It does not change the semantic contract, C01-C10, Unknown fail-closed policy, mutant meanings or mutation_score_required=1.0, but it must be disclosed by the next preseal and any final attestation.",
+      "no_reconstruction": "The R2 hashes remain identified in R2 receipts, but the bytes were not archived separately before R3 substitution. Do not reconstruct or claim byte-for-byte preservation after the fact.",
+      "removed_from_satisfiable_archive_gate": [
+        "00_nucleo/diagnosticos/p1461-manifest-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-contract-r2-fail.json"
+      ]
+    },
+    "r3_classifier_policy": {
+      "expected_missing_module_field": {
+        "exit_0_with_parseable_json": "Violated, never Preserved and never Unknown",
+        "recognized_incompatible_semantic_diagnostic": "Violated, including field access on none when missing-module-field was expected",
+        "recognized_matching_missing_module_field": "Preserved only when all contracted module, field and span predicates match",
+        "unknown_only": [
+          "timeout or infrastructure failure",
+          "binary or protected hash mismatch",
+          "malformed JSON",
+          "a genuinely unrecognized or unparseable diagnostic"
+        ]
+      },
+      "preserves_fail_closed_unknown": true
+    },
+    "r3_execution_order": {
+      "first_slice": [
+        "M02",
+        "M06",
+        "M07",
+        "P00",
+        "E05"
+      ],
+      "full_matrix_after_focal_pass": [
+        "P00",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06",
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08"
+      ],
+      "full_matrix_orders": [
+        "direct",
+        "direct_repeat",
+        "reverse"
+      ],
+      "release_condition": "M02, M06 and M07 are provenance-valid Violated; P00 and E05 remain Preserved with unequivocal distinct build identities."
+    },
+    "r3_hypothesis": "The R2 binaries discriminate the required semantics, but the oracle conflated recognized semantic mismatches with parser opacity. Classifying parseable success and recognized incompatible diagnostic categories as Violated will reject M02, M06 and M07 while retaining Unknown only for genuinely opaque or infrastructural outcomes.",
+    "r3_reuse_without_rebuild": {
+      "adversary_action": "Re-chain R3 metadata only; do not alter mutant/control source, worktree content or binaries.",
+      "allowed_only_if": [
+        "exact R2 source hashes match the archived receipts",
+        "exact R2 build hashes match",
+        "exact R2 binary SHA-256 identities match",
+        "recorded worktree and binary paths match",
+        "each variant-specific copied binary has mode 0555",
+        "worktree root and source modes are recorded, safe for traversal/read, and source writes are forbidden during verification",
+        "source hashes and deltas match before and after verification"
+      ],
+      "otherwise": "Unknown; no implicit rebuild or source repair is authorized by R3."
+    },
+    "r3_outcome": {
+      "classification_delta": 0,
+      "dominant_reason_code": "MODE_SCOPE_OVERCLAIM",
+      "focal_executed": false,
+      "identity_gate": "15/15 source, build and binary identities valid",
+      "mode_findings": {
+        "source_file_count": 46,
+        "source_file_mode": "0664",
+        "worktree_root_mode": "0775"
+      },
+      "mutation_results_reported_sha256": "64e19601...",
+      "preseal_reported_sha256": "19e66dad...",
+      "semantic_evaluations": 0
+    },
+    "r4_archive_before_replace": {
+      "completed_contract_author_archives": {
+        "00_nucleo/diagnosticos/p1461-contract-r3-fail.json": "81da1964df13221a1b9a70666cfb1e035b40b1215344d5ec8934febc4073aaa2",
+        "00_nucleo/diagnosticos/p1461-manifest-r3-fail.json": "13c554edcff8afeca6e51381f73015906b68de189d79de989e30e769bbf9f825"
+      },
+      "preseal_verifier": [
+        "00_nucleo/diagnosticos/p1461-preseal-r3-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-results-r3-fail.json"
+      ],
+      "rule": "Before replacing still-present R3 preseal/results, the owner creates byte-for-byte archives, verifies equality and records full source/archive SHA-256. Mismatch or absent archive is Unknown."
+    },
+    "r4_finality": {
+      "failure_action": "Stop local refinement and request human decision; no fifth local revision, silent relaxation, rebuild, parser edit or source repair is authorized.",
+      "last_local_revision": true,
+      "revision": 4,
+      "revision_limit": 4
+    },
+    "r4_hypothesis": "R3 stopped before semantic execution because it treated worktree-root and source-file modes as if they were executable-binary identity. Restricting mode 0555 to copied variant binaries, while recording safe root/source modes and enforcing source immutability through hashes, deltas and no-write verifier capability, will admit the unchanged R2 artifacts to the unchanged R3 focal classifier.",
+    "r4_metadata_only": {
+      "adversary": "Re-chain identities and mode evidence only; do not rebuild, change sources, worktrees or binaries.",
+      "oracle_author": "Re-chain R4 metadata only; do not alter oracle semantics, diagnostic parser, harness behavior or source fixtures.",
+      "preseal_verifier": "Verify archives, identities, scoped modes and before/after source hashes/deltas, then run the unchanged focal gate and conditional full matrix."
+    },
+    "r4_mode_scope": {
+      "binary_mode_requirement": "Only each variant-specific copied executable binary must have mode 0555.",
+      "mechanics_not_observables": "Worktree-root and source-file modes are mechanics, not language observables and not grounds for requiring 0555.",
+      "root_and_source_requirements": [
+        "record exact paths and modes",
+        "permit safe traversal and reads",
+        "identify every source by SHA-256 and recorded delta",
+        "forbid source writes by every R4 role during verification",
+        "remeasure hashes and deltas after verification; any change is Unknown"
+      ]
+    },
+    "required_execution_evidence": {
+      "E01-E06": [
+        "exact control-source SHA-256",
+        "build command and exit status",
+        "built binary SHA-256 and identity",
+        "actual harness execution receipt in direct, direct_repeat and reverse order"
+      ],
+      "M01-M08": [
+        "exact transformed-source SHA-256",
+        "build command and exit status",
+        "built mutant binary SHA-256 and identity",
+        "actual harness execution receipt in direct, direct_repeat and reverse order"
+      ]
+    },
+    "revision": 4,
+    "revision_limit": 4,
+    "semantic_contract_changed": false,
+    "unknown_policy_changed": false
+  },
+  "commands": {
+    "architectural_final": [
+      "cargo fmt --all -- --check",
+      "cargo test --workspace",
+      "cargo build --workspace",
+      "crystalline-lint .",
+      "git diff --check"
+    ],
+    "binary_identity": [
+      "sha256sum lab/typst-original/target/release/typst /usr/local/bin/typst target/release/typst",
+      "lab/typst-original/target/release/typst --version",
+      "/usr/local/bin/typst --version",
+      "target/release/typst --version"
+    ],
+    "crystalline_absent_field_template": "target/release/typst eval 'format.absent' --format json --color never {crystalline_profile_args}",
+    "crystalline_positive_template": "target/release/typst eval '{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }' --format json --color never {crystalline_profile_args}",
+    "crystalline_red_root_template": "target/release/typst eval 'repr(format)' --format json --color never {crystalline_profile_args}",
+    "inventory_gate": {
+      "artifact_required": "a fresh P1357 inventory result with exact binary hashes and all four profiles",
+      "command_authority": "P1357 harness owner/oracle author",
+      "constraint": "The contract author did not read the P1357 harness because it was outside this role's input allowlist. The later receipt must record the exact executable command and hash the harness before the inventory can be classified."
+    },
+    "provenance": [
+      "git rev-parse HEAD",
+      "git rev-parse dba72ad110590bbc43e6fddb194d65d8b5124673^{tree}",
+      "git status --short --untracked-files=all",
+      "git diff-tree --no-commit-id --name-only -r dba72ad110590bbc43e6fddb194d65d8b5124673"
+    ],
+    "vanilla_absent_field_template": "lab/typst-original/target/release/typst --color never eval 'format.absent' --format json --diagnostic-format short {vanilla_profile_args}",
+    "vanilla_positive_template": "lab/typst-original/target/release/typst --color never eval '{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }' --format json --diagnostic-format short {vanilla_profile_args}"
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1461-contract.json",
+    "previous_sha256": "81da1964df13221a1b9a70666cfb1e035b40b1215344d5ec8934febc4073aaa2",
+    "sha256_state": "The manifest intentionally does not hash the current contract. The contract hashes the current manifest, avoiding a self-referential cycle; preseal must hash both independently."
+  },
+  "inputs": [
+    {
+      "git_blob": "81094c39e9dc2d947cb85e7f42ce4742485c9539",
+      "kind": "repository_policy_resolved_symlink",
+      "path": "AGENTS.md",
+      "resolved_path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/CLAUDE.md",
+      "selection": "complete file",
+      "sha256": "0fc3f133b5c683f2c2ac5a4542f9c39291eb846bd3dd9a125b54e8df207d77cf"
+    },
+    {
+      "kind": "operational_skill",
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+      "selection": "complete file",
+      "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+    },
+    {
+      "kind": "operational_skill_reference",
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+      "selection": "complete file",
+      "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+    },
+    {
+      "kind": "operational_skill_reference",
+      "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+      "selection": "complete file",
+      "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+    },
+    {
+      "git_blob": "d680a3601bb730409dd46d1be76fb84e7bbf60d8",
+      "kind": "execution_step",
+      "path": "00_nucleo/materialization/typst-passo-1461.md",
+      "selection": "complete file at causal_commit",
+      "sha256": "e9703d1a4aaead58b6ea67c8f2be5103c4d4acb88dcf514780ba6356cf69c77f"
+    },
+    {
+      "git_blob": "27ef3931b7b23640355f11d227650e2d6be26fea",
+      "kind": "prompt_l0_owner",
+      "path": "00_nucleo/prompts/compiler/stdlib/format.md",
+      "selection": "complete file at causal_commit",
+      "sha256": "58e154ec3e830d1735c11aa7bd42eccf204ebf4a83a1aa108f87dd807edc8f4e"
+    },
+    {
+      "full_file_sha256": "2bc7339a0692282da45195b842683d71e9fc2c83791129d8e28a7bfee1e6402d",
+      "git_blob": "cedf00bdc8e73150a2ff68c4a492163fa8021fa1",
+      "kind": "prompt_l0_binding_excerpt",
+      "path": "00_nucleo/prompts/compiler/stdlib/_comum.md",
+      "selection": "section whose level-2 heading contains P1461, through but excluding the next level-2 heading",
+      "selection_sha256": "80ff7bb7a16d9a99d3093eea0a98064ae1613379b2dbf0dba8b72489a67db61d"
+    },
+    {
+      "full_file_sha256": "7b104498462d4e60e614dd1523dee44cbc4471cce2a489dfb33b11f94a00d038",
+      "git_blob": "da54d72d790b944bf600e47402db42eea76e1ddc",
+      "kind": "prompt_l0_binding_excerpt",
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "selection": "section whose level-2 heading contains P1461, through but excluding the next level-2 heading",
+      "selection_sha256": "a2ddd67488eb2801226922912857bd08282375052517deeb66ca249c7cf3d130"
+    },
+    {
+      "git_blob": "50bbee98cd62bfb38fbc4904ee80e904bf4eef05",
+      "kind": "ratified_vanilla_source",
+      "path": "lab/typst-original/crates/typst-library/src/format.rs",
+      "selection": "complete file hashed; lines 89-102 read",
+      "sha256": "37ce18defae73642aa9e6f74cb8a78dffba575b004d9a8ddfbf52cb272898a1f"
+    },
+    {
+      "git_blob": "a3cc9bf93aae25c33ad67af2732b15fa1db7f021",
+      "kind": "ratified_vanilla_source",
+      "path": "lab/typst-original/crates/typst-library/src/lib.rs",
+      "selection": "complete file hashed; lines 368-381 read",
+      "sha256": "a6ac296ad0029e8ee45c102f68195f8c439b2ad088c0d9317a77913946daf130"
+    },
+    {
+      "git_blob": "94ca8a1d678c149cd71d781f21d72d877c422b90",
+      "kind": "productive_baseline",
+      "path": "01_core/src/compiler/eval/mod.rs",
+      "selection": "complete file hashed; lines 7594-7773 read",
+      "sha256": "a014d409e6a0e53d05d11365be28d77bda89b03f6da2a03807767e69ceeb5fa1"
+    },
+    {
+      "git_blob": "4f77747f4d9abbbf4235e1fb821efbd67d295b4c",
+      "kind": "productive_baseline",
+      "path": "01_core/src/compiler/stdlib/mod.rs",
+      "selection": "complete file hashed; lines 23-191 read",
+      "sha256": "d0640072de23c2811fc6e373c9c80c77b3628bc8c7ca267b11f9235aaedb031d"
+    },
+    {
+      "git_blob": "be840f4a3d68bffd843d12f981f1a93db690f87d",
+      "kind": "productive_baseline",
+      "path": "01_core/src/entities/module.rs",
+      "selection": "complete file hashed; existing module name, scope, clone identity and representation carrier inspected",
+      "sha256": "da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f"
+    }
+  ],
+  "isolation": {
+    "attestation": false,
+    "claim": "executed_without_isolation_attestation",
+    "context_inherited": [
+      "the task delegation defining the contract-author role, allowlist and prohibitions",
+      "the repository policy resolved through AGENTS.md",
+      "the operational skill and its two direct references"
+    ],
+    "forbidden_inputs_not_intentionally_read": [
+      "any implementation candidate",
+      "any patch after causal_commit",
+      "candidate tests",
+      "private outputs from oracle, adversary, implementer or verifier roles",
+      "a future preseal or verdict"
+    ],
+    "limitation": "All roles share a workspace and conversational host. Hashes identify inputs but do not prove filesystem, process, cache or conversational isolation."
+  },
+  "observables_required": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C10"
+  ],
+  "profiles": [
+    {
+      "crystalline_profile_args": "",
+      "id": "default",
+      "vanilla_profile_args": ""
+    },
+    {
+      "crystalline_profile_args": "--features a11y-extras",
+      "id": "a11y-extras",
+      "vanilla_profile_args": "--features a11y-extras"
+    },
+    {
+      "crystalline_profile_args": "--features html",
+      "id": "html",
+      "vanilla_profile_args": "--target html --features html"
+    },
+    {
+      "crystalline_profile_args": "--features html,a11y-extras",
+      "id": "html+a11y",
+      "vanilla_profile_args": "--target html --features html,a11y-extras"
+    }
+  ],
+  "protocol": {
+    "claim_scope": "public root format only",
+    "name": "tekt-materializacao-segregada",
+    "regime": "complete",
+    "sequence": [
+      "frozen_prompt_and_baseline",
+      "manifest",
+      "candidate_contract",
+      "independent_oracles_and_mutants",
+      "discriminatory_gate",
+      "preseal",
+      "independent_implementation_and_ab_tests",
+      "final_gates",
+      "verifier_certificate"
+    ],
+    "version": 1
+  },
+  "roles": {
+    "adversary": {
+      "executor": null,
+      "may_execute": [
+        "ratified vanilla binary",
+        "RED baseline binary",
+        "verify existing R2 worktree paths, modes and source/build/binary identities, then re-chain R3 metadata without rebuilding"
+      ],
+      "may_read": [
+        "frozen P1461 prompts",
+        "p1461-manifest.json",
+        "p1461-contract.json",
+        "productive baseline at causal_commit"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-mutants.json",
+        "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+        "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+        "00_nucleo/diagnosticos/p1461-mutants-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-runner-r2-fail.py",
+        "00_nucleo/diagnosticos/p1461-mutation-fixtures-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutants-r1-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-runner-r1-fail.py",
+        "00_nucleo/diagnosticos/p1461-mutation-fixtures-r1-fail.json"
+      ],
+      "must_not": [
+        "replace R2 adversary metadata that will be reemitted before creating and byte-comparing its corresponding r2-fail archive",
+        "replace any current R1 mutant artifact before preserving it under the corresponding r1-fail path and recording its full SHA-256",
+        "read a candidate implementation before mutant obligations are frozen",
+        "edit product, prompts, contract, oracles, preseal or verdict",
+        "modify mutant/control source, worktree content or binaries during R3",
+        "rebuild an R2 variant under R3 authority",
+        "change sources, worktrees or binaries under R4 authority",
+        "modify or compile the shared repository product; all mutant source changes and builds are confined to the ephemeral isolated worktree",
+        "choose or repair the implementation",
+        "claim an M01-M08 or E01-E06 classification without source hash, build receipt, binary identity and actual execution"
+      ],
+      "r2_variant_build_rule": "P00, each E01-E06 and each M01-M08 used a unique newly created empty CARGO_TARGET_DIR; target cache, fingerprints and incremental outputs may not cross variants.",
+      "r3_variant_reuse_rule": "Historical overbroad R3 rule required mode 0555 for worktrees and binaries; retained only as failure provenance and superseded by r4_variant_reuse_rule.",
+      "r4_variant_reuse_rule": "Mode 0555 applies only to copied variant binaries. R4 adversary re-chains metadata only; root/source modes are recorded mechanics and sources remain hash/delta frozen against writes.",
+      "status": "unassigned"
+    },
+    "contract_author": {
+      "executor": "Codex agent /root/contrato_p1461",
+      "may_execute": [
+        "read-only git provenance commands",
+        "sha256sum",
+        "ratified vanilla eval probes",
+        "RED baseline eval probes",
+        "JSON syntax validation"
+      ],
+      "may_read": [
+        "the exact inputs array of this manifest",
+        "the three pinned binaries listed in this manifest"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-manifest.json",
+        "00_nucleo/diagnosticos/p1461-contract.json"
+      ],
+      "must_not": [
+        "read or execute a candidate implementation",
+        "read candidate tests or private outputs from other roles",
+        "write L0, L1-L4, tests, oracles, mutants, preseal, results or verdict",
+        "seal or approve its own contract"
+      ],
+      "status": "executed_without_isolation_attestation"
+    },
+    "implementer": {
+      "executor": null,
+      "may_execute": [
+        "focused tests after preseal",
+        "workspace build and lint after focused tests"
+      ],
+      "may_read": [
+        "frozen P1461 prompts",
+        "sealed p1461-contract.json",
+        "p1461-preseal.json",
+        "productive baseline at causal_commit"
+      ],
+      "may_write": [
+        "01_core/src/compiler/stdlib/format.rs",
+        "01_core/src/compiler/stdlib/mod.rs",
+        "01_core/src/compiler/eval/mod.rs",
+        "implementation-owned tests explicitly authorized by the preseal integration plan"
+      ],
+      "must_not": [
+        "edit prompts, manifest, contract, oracles, mutants, independent A/B tests, preseal or verifier certificate",
+        "read private independent-test output before freezing the implementation candidate",
+        "introduce any format child or unrelated product change"
+      ],
+      "status": "unassigned"
+    },
+    "independent_tester": {
+      "executor": null,
+      "may_execute": [
+        "ratified vanilla binary",
+        "RED baseline binary before candidate access",
+        "independent tests after integration authority freezes them"
+      ],
+      "may_read": [
+        "frozen P1461 prompts",
+        "p1461-manifest.json",
+        "sealed p1461-contract.json"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-ab-tests.json",
+        "00_nucleo/diagnosticos/p1461-ab-tests-r2-fail.json"
+      ],
+      "must_not": [
+        "read candidate implementation before freezing tests",
+        "adapt expected values after observing candidate output",
+        "edit product, protected inputs, preseal or verdict"
+      ],
+      "status": "unassigned"
+    },
+    "intent_author": {
+      "executor": "predecessor authority at causal_commit",
+      "may_read": [
+        "domain evidence and ratified vanilla source"
+      ],
+      "may_write": [
+        "00_nucleo/materialization/typst-passo-1461.md",
+        "00_nucleo/prompts/compiler/stdlib/format.md",
+        "P1461 sections of 00_nucleo/prompts/compiler/stdlib/_comum.md and 00_nucleo/prompts/compiler/eval.md"
+      ],
+      "must_not": [
+        "approve its own materialization",
+        "change frozen intent after contract sealing"
+      ],
+      "status": "complete_at_causal_commit"
+    },
+    "integration_author": {
+      "executor": "/root",
+      "may_execute": [
+        "orchestrate role dispatch, waits and artifact handoffs"
+      ],
+      "may_read": [
+        "role status and canonical artifacts needed only for orchestration"
+      ],
+      "may_write": [],
+      "must_not": [
+        "decide preseal or final verdict",
+        "edit protected inputs, product, tests, mutation evidence or certificates under this role",
+        "convert Unknown to Preserved"
+      ],
+      "status": "orchestration_only"
+    },
+    "oracle_author": {
+      "executor": null,
+      "may_execute": [
+        "ratified vanilla binary",
+        "RED baseline binary",
+        "p1461-harness.py and the pinned vanilla and RED binaries",
+        "P1357 harness after separately hashing and recording its exact command"
+      ],
+      "may_read": [
+        "frozen P1461 prompts",
+        "p1461-manifest.json",
+        "p1461-contract.json",
+        "ratified vanilla source",
+        "productive baseline at causal_commit"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-oracles.json",
+        "00_nucleo/diagnosticos/p1461-harness.py",
+        "00_nucleo/diagnosticos/p1461-red.json",
+        "00_nucleo/diagnosticos/p1461-oracles-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-harness-r2-fail.py",
+        "00_nucleo/diagnosticos/p1461-red-r2-fail.json"
+      ],
+      "must_not": [
+        "read candidate implementation or candidate tests",
+        "alter oracle semantics, diagnostic parser, harness behavior or source fixtures during R4",
+        "adapt expected values to candidate output",
+        "edit product, prompts, manifest, contract, mutants, preseal or verdict"
+      ],
+      "status": "unassigned"
+    },
+    "preseal_verifier": {
+      "executor": null,
+      "may_execute": [
+        "focused discriminatory slices",
+        "p1461-harness.py",
+        "p1461-mutation-runner.py against the isolated mutant worktrees and fixtures",
+        "full corpus only under calibration_budget",
+        "direct, repeated and reverse orders"
+      ],
+      "may_read": [
+        "manifest, contract, oracles and mutants",
+        "their execution receipts",
+        "frozen prompts and baseline identities"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-mutation-results.json",
+        "00_nucleo/diagnosticos/p1461-preseal.json",
+        "00_nucleo/diagnosticos/p1461-mutation-results-r3-fail.json",
+        "00_nucleo/diagnosticos/p1461-preseal-r3-fail.json",
+        "00_nucleo/diagnosticos/p1461-mutation-results-r2-fail.json",
+        "00_nucleo/diagnosticos/p1461-preseal-r2-fail.json"
+      ],
+      "must_not": [
+        "edit any artifact it evaluates",
+        "write product or final verdict",
+        "seal with mutation score below 1.0 or any non-deliberate Unknown"
+      ],
+      "status": "unassigned"
+    },
+    "verifier": {
+      "executor": null,
+      "may_execute": [
+        "all frozen functional, architectural and refinement gates",
+        "deterministic repetitions",
+        "protected-input hash verification"
+      ],
+      "may_read": [
+        "all sealed inputs",
+        "frozen implementation and test candidates",
+        "all reproducible receipts"
+      ],
+      "may_write": [
+        "00_nucleo/diagnosticos/p1461-results.json",
+        "00_nucleo/diagnosticos/p1461-verifier-certificate.json"
+      ],
+      "must_not": [
+        "edit product, prompts, contract, oracles, mutants, tests or preseal",
+        "repair silently any artifact it judges",
+        "claim child, exporter, language-wide or general functional equivalence"
+      ],
+      "status": "unassigned"
+    }
+  },
+  "schema_version": 1,
+  "serialization": "UTF-8, LF, two-space indentation, deterministic key order",
+  "unknown_policy": {
+    "default_for_unclassified_or_untrusted_execution": "Unknown",
+    "fail_closed": true,
+    "preserved_requires_all_mandatory_observables": true,
+    "unknown_blocks_preseal_and_final_success": true,
+    "unknown_conditions": [
+      "prompt, baseline, source, binary, contract, oracle, mutant or preseal hash mismatch",
+      "unrecorded command, environment, profile or input",
+      "timeout, signal, OOM, disallowed swap, truncation or missing output",
+      "JSON or diagnostic parser opacity",
+      "ambiguous binary identity or stale candidate binary",
+      "order-dependent or non-repeatable classification",
+      "capability use outside a role allowlist",
+      "calibration budget exhaustion",
+      "any deliberate opaque case defined by the oracle suite"
+    ],
+    "violated_not_unknown": "A well-formed, provenance-valid observation that disagrees with a C01-C10 expected value is Violated."
+  }
+}

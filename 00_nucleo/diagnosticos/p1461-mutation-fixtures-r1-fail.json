@@ -1,0 +1,916 @@
+{
+  "allowlist": {
+    "forbidden_inputs_not_read": [
+      "candidate implementation or candidate tests",
+      "p1461-oracles.json",
+      "p1461-harness.py",
+      "p1461-ab-tests.json",
+      "p1461-preseal.json or archived failure contents",
+      "shared-tree product after causal_commit"
+    ],
+    "read": [
+      "frozen P1461 prompts",
+      "p1461-manifest.json R1",
+      "p1461-contract.json R1",
+      "p1461-mutants.json pre-execution catalog",
+      "productive source only at causal_commit"
+    ],
+    "write": [
+      "00_nucleo/diagnosticos/p1461-mutants.json",
+      "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+      "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+      "/tmp/p1461-r1-adversary.kRiJKX"
+    ]
+  },
+  "artifact": "p1461-mutation-fixtures",
+  "artifact_path": "00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+  "baseline": {
+    "causal_commit": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "causal_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87"
+  },
+  "campaign": {
+    "attempts": [
+      {
+        "id": 1,
+        "last_started_variant": "M07",
+        "reason_code": "SHARED_TARGET_STALE_BINARY_REUSED_WITHOUT_REBUILD",
+        "result": "discarded_no_credit"
+      },
+      {
+        "id": 2,
+        "last_completed_variant": "E05",
+        "reason_code": "E05_BINARY_SHA_EQUALS_P00_AFTER_PACKAGE_CLEAN",
+        "result": "Unknown_stop"
+      }
+    ],
+    "harness_execution": "not_run_by_adversary",
+    "isolation_claim": "executed_without_isolation_attestation",
+    "ready_variant_count": 5,
+    "recorded_at_utc": "2026-09-19T12:50:59.414597+00:00",
+    "status": "Unknown_stopped_fail_closed",
+    "stop_rule": "Two consecutive attempts with the same stale-cache/no-distinct-binary cause; stop before a third campaign and do not classify by inspection.",
+    "unknown_variant_count": 10
+  },
+  "campaign_orders": {
+    "direct": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "direct_repeat": [
+      "P00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07",
+      "M08"
+    ],
+    "reverse": [
+      "M08",
+      "M07",
+      "M06",
+      "M05",
+      "M04",
+      "M03",
+      "M02",
+      "M01",
+      "E06",
+      "E05",
+      "E04",
+      "E03",
+      "E02",
+      "E01",
+      "P00"
+    ]
+  },
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1461-contract.json",
+    "sha256": "c83ca159a2e0c119941e840802042697a8e785714cf69ab34db63e51429f92a8"
+  },
+  "manifest": {
+    "path": "00_nucleo/diagnosticos/p1461-manifest.json",
+    "sha256": "2ad611313b24582e785545dc79c88c29bb2fd10aeb0671e405222cc5f44eb617"
+  },
+  "mutant_catalog_pre_execution_sha256": "bbec5b409a0ffc6fe027778c90c413ba42950c39ce1b2910996ac44fe46b7868",
+  "runner": {
+    "path": "00_nucleo/diagnosticos/p1461-mutation-runner.py",
+    "sha256": "22441eb913c7cfc57c2202ba2e363fd8d556111ed0a9c715273e838235c82f0f"
+  },
+  "schema_version": 1,
+  "serialization": "UTF-8, LF, two-space indentation, deterministic key order",
+  "unknown_policy": {
+    "default": "Unknown",
+    "no_credit": true,
+    "note": "Smoke evidence is not a C01-C10 classification. E05 and every unexecuted later variant remain Unknown and block preseal."
+  },
+  "variants": [
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/P00-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_command": [
+          "cargo",
+          "clean",
+          "-p",
+          "typst-core"
+        ],
+        "cache_invalidation_exit_code": 0,
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/P00",
+        "elapsed_seconds": 4.481,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T12:49:02.940953+00:00",
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/P00-build.log",
+        "log_sha256": "e75f3951dee220ec259e018b0852418fff12b5eb198234d47a27a56771e9aeab",
+        "started_at": "2026-09-19T12:48:58.459900+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "P00",
+      "kind": "positive_specimen",
+      "materialization_status": "ready",
+      "reason_code": null,
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/P00-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "2c423a7ef2bf0da29d7eac070b78e6182aaa4bcb239e963dd2ef5036c9107d8b",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/P00",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/E01-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_command": [
+          "cargo",
+          "clean",
+          "-p",
+          "typst-core"
+        ],
+        "cache_invalidation_exit_code": 0,
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E01",
+        "elapsed_seconds": 4.548,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T12:49:07.992303+00:00",
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/E01-build.log",
+        "log_sha256": "ee4b0d6ed7f90c808c91795b244345dc0dc5f38781478c0426a94fa089c95166",
+        "started_at": "2026-09-19T12:49:03.444201+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E01",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "reason_code": null,
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/E01-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "de2569a2ab83e880fc75da39ed3d4df17975a1503315e1e120361cc7e17b4fa9",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "2a6783ecb7219aaa1993b363e959e7dd357ad4c3c870dc8f4610abe8869db517"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E01",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/E02-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_command": [
+          "cargo",
+          "clean",
+          "-p",
+          "typst-core"
+        ],
+        "cache_invalidation_exit_code": 0,
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E02",
+        "elapsed_seconds": 4.474,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T12:49:12.999520+00:00",
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/E02-build.log",
+        "log_sha256": "7d0db6ddf080fd68f5a83f789d24637dfaa4aae4f899ced5182e3fd1bfcb3d0e",
+        "started_at": "2026-09-19T12:49:08.525008+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E02",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "reason_code": null,
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/E02-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "16d836f17aa5ecc3f7e089b306fb43320b2ab9819153ba6561282f16f68a4fbd",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "eede3efe6d4d51bd838ee70f972903eb770b5e0099c54e957ad743b89f1ccf9e"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E02",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/E03-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_command": [
+          "cargo",
+          "clean",
+          "-p",
+          "typst-core"
+        ],
+        "cache_invalidation_exit_code": 0,
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E03",
+        "elapsed_seconds": 4.547,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T12:49:18.073380+00:00",
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/E03-build.log",
+        "log_sha256": "a5a0c3c0d52fb63351f34b7de5a505a2d9397409f7986270397d7b3dea9420e9",
+        "started_at": "2026-09-19T12:49:13.526479+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E03",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "reason_code": null,
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/E03-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "79daa2c85a10051e1db98078cc4f1a96db014a17e2c4f49b1b7c2b1e289c6ca6",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "a3817263ab85cdcc5a062a83d8b153e5ae1f8780e82bd41c3d1c9fdabba38dc3"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E03",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/E04-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_command": [
+          "cargo",
+          "clean",
+          "-p",
+          "typst-core"
+        ],
+        "cache_invalidation_exit_code": 0,
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E04",
+        "elapsed_seconds": 4.592,
+        "exit_code": 0,
+        "finished_at": "2026-09-19T12:49:23.194054+00:00",
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/E04-build.log",
+        "log_sha256": "6886ced32db368eaace3518157b738bd9a58461d17398be6448816fa0ebc8dd5",
+        "started_at": "2026-09-19T12:49:18.602078+00:00",
+        "status": "success",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E04",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "ready",
+      "reason_code": null,
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/E04-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "ffc5d5147c109bcb37372da183843bf6a0a09a8b34353a2bf5af5fd18f63874f",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        },
+        {
+          "path": "01_core/src/entities/scope.rs",
+          "sha256": "a53124e06d440f5908b4a5741a6c15334faebe5225c5af32ec79271ca9333302"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E04",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": {
+        "immutable_mode": "0555",
+        "path": "/tmp/p1461-r1-adversary.kRiJKX/binaries/E05-typst",
+        "sha256": "79cefa03187ce4f437df1e60e0db393dcf2bf8db4f4cfc4b41ae6d0c79bd34db",
+        "version_exit_code": 0,
+        "version_output": "typst 0.15.1 (dba72ad1)"
+      },
+      "build": {
+        "cache_invalidation_attempt": {
+          "command": [
+            "cargo",
+            "clean",
+            "-p",
+            "typst-core"
+          ],
+          "exit_code": 0,
+          "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+        },
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E05",
+        "exit_code": 0,
+        "log_path": "/tmp/p1461-r1-adversary.kRiJKX/receipts/E05-build.log",
+        "log_sha256": "4970d21a8e0b963e66c5467565a45505822521940e5468d538a411c957710ac8",
+        "status": "success_but_binary_identity_failed_control",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E05",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "Unknown",
+      "reason_code": "E05_BINARY_SHA_EQUALS_P00_AFTER_TWO_CACHE_ATTEMPTS",
+      "smoke": [
+        {
+          "command": [
+            "/tmp/p1461-r1-adversary.kRiJKX/binaries/E05-typst",
+            "eval",
+            "{ let f = format; (repr(type(format)), repr(format), repr(std.format), f == format, std.format == format) }",
+            "--format",
+            "json",
+            "--color",
+            "never"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "[\"module\",\"<module format>\",\"<module format>\",true,true]\n"
+        }
+      ],
+      "source_bundle_sha256": "380d4aac68ed12992013a41cbf440be0a377d2e2e13db02f7837965105fa92e6",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "f0522e89d1ec4460f541c325760c865bba168ec577d6d15d27f5af51af3ec3fb"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E05",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E06",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Preserved",
+      "id": "E06",
+      "kind": "mechanical_equivalence_control",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "e9a19ee8a6141989490b2749d7d536397076944437216cebe303893dd9a28d84",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "0251ae0a832dd024e159d6a30dc4f38b7a2708590c18ca5b07f025a61de0f499"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/E06",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M01",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M01",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "d7546bc3b200dcad390f8b803191fbd4db941dd27c3bd56e348c1b3136cb1f41",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "961749fc819179243b771d331d5780ef18338b92e9549dac003107cee9362577"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M01",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M02",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M02",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "e7d7d91ce186d68d23515c370ce8a4ac721e5e4cb01fbc49c43680f66ca8a673",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "4d022ec4f18cf73f1c98c2bcded1bcd2cdc48cd3a4f94361a5481447a9c1e1ee"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M02",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M03",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M03",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "33613aed861f0514d48b15c946f0db28ec588ca877d60fa8ad222381ba9a2337",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "a7db30f113cb745fd8844e08a1a769281ab5ad161ba4f6664ab270d1051e6641"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M03",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M04",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M04",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "bb9e4f5990e18ed667ca3bdc8cb4c7360f81d94a49bfe88250a6c9c8d6f1cb82",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "227ce12e03b788fedb3538d8571bca6e4551e1cd589c0b54bc28207073264b67"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M04",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M05",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M05",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "9330509cb9e47db631c55b01de448dd17407548026b2278e7f049e9d152f83f3",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "f50140c41f03516f6921813b865a385f728903a6284ebc2b7146001494ff0fd3"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M05",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M06",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M06",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "a3baca9252a0a3fe592dda422ea22860b2d281f40a64306e54983ebccab1070d",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "1df4859f9436920ecbf79a0773aa1893fc2a7df359b09a0072f5cef72fa6232f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "498d9e0bffd2c26ab1c310ed8535297307246c2d93c654f4582ec319fee7df60"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M06",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M07",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M07",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "70bd8ce46dc6e6abf5c456cc1da2d425767cc8a3bc1ce40029013a4fb85a24da",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "8a7e22f489de69c8bc05f69a7d74a77b3609a7da6b93a3aaf3f15f36dbb42e7f"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "6222ece5cee68d5448fdf44ad3f1c31a05453f2eae08818d4c0fc02a7b239b49"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M07",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    },
+    {
+      "binary": null,
+      "build": {
+        "command": [
+          "cargo",
+          "build",
+          "--release",
+          "--bin",
+          "typst"
+        ],
+        "cwd": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M08",
+        "exit_code": null,
+        "status": "not_run_due_fail_closed_stop_at_E05",
+        "target_dir": "/tmp/p1461-r1-adversary.kRiJKX/cargo-target"
+      },
+      "expected_harness_classification": "Violated",
+      "id": "M08",
+      "kind": "negative_mutant",
+      "materialization_status": "Unknown",
+      "reason_code": "CAMPAIGN_STOPPED_FAIL_CLOSED_AT_E05",
+      "smoke": [],
+      "source_bundle_sha256": "c1ddbfa3b94f8b9c2cc620de8bde6ba788923d746ba5d3f8a92558c6d07f7307",
+      "transformed_files": [
+        {
+          "path": "01_core/src/compiler/eval/mod.rs",
+          "sha256": "dd5f7db83bb9bc454fb273ab5651f072661270a9633055e40e1587367a7895ae"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/format.rs",
+          "sha256": "c50b257d0ad687311483ff951baaddbbd4960bff689a802f00ecc4596c8cba7d"
+        },
+        {
+          "path": "01_core/src/compiler/stdlib/mod.rs",
+          "sha256": "c84a49a88d55d7b5a8ef912c83635bb0201aba8322e2c84758fc1aed91df23fd"
+        }
+      ],
+      "worktree": "/tmp/p1461-r1-adversary.kRiJKX/worktrees/M08",
+      "worktree_head": "dba72ad110590bbc43e6fddb194d65d8b5124673"
+    }
+  ]
+}

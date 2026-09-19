@@ -1,0 +1,241 @@
+{
+  "artifact": "p1461-red",
+  "schema_version": 1,
+  "status": "RED_CONFIRMED_R2",
+  "scope": "P1461 focal public root format only",
+  "calibration_revision": {
+    "revision": 2,
+    "semantic_contract_changed": false,
+    "unknown_policy_changed": false,
+    "cause_receipt": {
+      "path": "00_nucleo/diagnosticos/p1461-preseal-r1-fail.json",
+      "sha256": "da7e77793306bb935178177d50051a50263a84bbb10cc052e835b409a0986967"
+    },
+    "scope_of_reissue": "Current R2 cross-hashes, protected-input verification, fresh three-order receipts and cost/delta only; focal semantics are unchanged."
+  },
+  "isolation": {
+    "claim": "executed_without_isolation_attestation",
+    "executor": "Codex agent /root/oraculos_p1461",
+    "candidate_implementation_or_tests_read": false,
+    "limitation": "The workspace and conversational host are shared; hashes identify inputs and receipts but do not prove physical isolation."
+  },
+  "measurement_provenance": {
+    "measured_at": "2026-09-19T09:55:18-03:00",
+    "head": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+    "causal_tree": "48f829dec0283bea1f9b19820bbd40f8c6439a87",
+    "worktree": {
+      "git_diff_head_stat": "no output; all listed deltas were untracked diagnostics",
+      "git_status_short_untracked_files_all": [
+        "?? 00_nucleo/diagnosticos/p1461-ab-tests.json",
+        "?? 00_nucleo/diagnosticos/p1461-contract.json",
+        "?? 00_nucleo/diagnosticos/p1461-harness.py",
+        "?? 00_nucleo/diagnosticos/p1461-manifest.json",
+        "?? 00_nucleo/diagnosticos/p1461-mutants.json",
+        "?? 00_nucleo/diagnosticos/p1461-mutation-fixtures.json",
+        "?? 00_nucleo/diagnosticos/p1461-mutation-runner.py",
+        "?? 00_nucleo/diagnosticos/p1461-oracles.json",
+        "?? 00_nucleo/diagnosticos/p1461-preseal-r1-fail.json",
+        "?? 00_nucleo/diagnosticos/p1461-preseal.json",
+        "?? 00_nucleo/diagnosticos/p1461-red.json"
+      ],
+      "note": "The contract, manifest, mutant and preseal files are outputs of other segregated roles and were not edited by this role. Only filenames from git status were observed for provenance."
+    }
+  },
+  "frozen_identities": {
+    "baseline_binary": {
+      "path": "target/release/typst",
+      "sha256": "e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633",
+      "version_output_auxiliary_only": "typst 0.15.1 (7392f490)"
+    },
+    "vanilla_binary": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f",
+      "ratified_source_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "version_output_auxiliary_only": "typst 0.15.1 (586e1bd4)"
+    },
+    "runner": {
+      "path": "00_nucleo/diagnosticos/p1461-harness.py",
+      "sha256": "cc8ea77416cbb292457883854a22b93b571f38b7909fcbbd0ba00ea0c20281fb"
+    },
+    "oracles": {
+      "path": "00_nucleo/diagnosticos/p1461-oracles.json",
+      "sha256": "049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50"
+    },
+    "ab_tests": {
+      "path": "00_nucleo/diagnosticos/p1461-ab-tests.json",
+      "sha256": "2e8e371e36105ad6b5e93edbaffac7ef654c9d349dc2d62a81f0a96e6116cc01"
+    },
+    "manifest_sha256": "025ff0fda95f17d66bfefa6fd3fbcb85ec05a80c20cd9b2322d079b1bf9970d8",
+    "contract_sha256": "4a8d941e0772017bc1d042eb53d9733478bb16be2d79090bb14b0b5206b2a0dd",
+    "preseal_r1_fail_sha256": "da7e77793306bb935178177d50051a50263a84bbb10cc052e835b409a0986967"
+  },
+  "executions": {
+    "vanilla_reference": {
+      "command": "python3 00_nucleo/diagnosticos/p1461-harness.py --binary lab/typst-original/target/release/typst --expected-sha eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f --product vanilla --oracles 00_nucleo/diagnosticos/p1461-oracles.json --oracles-sha 049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50 --suite reference --order all --output /tmp/p1461-r2-vanilla.json",
+      "process_exit_code": 0,
+      "receipt_path_ephemeral": "/tmp/p1461-r2-vanilla.json",
+      "receipt_sha256": "18bf23746d51cea9a3153d3801b852680ec9c2c9d4e3f7464a99493e1511b014",
+      "verdict": "Preserved",
+      "orders_consistent": true,
+      "normalized_sha256_all_orders": "ce799ffc22fa0b3efb387a891396358746bacbe32a9ad360fa8de8c3f77510f9",
+      "per_order_counts": {
+        "Preserved": 32,
+        "Violated": 0,
+        "Unknown": 0
+      }
+    },
+    "crystalline_red_baseline": {
+      "command": "python3 00_nucleo/diagnosticos/p1461-harness.py --binary target/release/typst --expected-sha e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633 --product crystalline --oracles 00_nucleo/diagnosticos/p1461-oracles.json --oracles-sha 049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50 --suite red --order all --output /tmp/p1461-r2-red.json",
+      "process_exit_code": 1,
+      "process_exit_meaning": "expected nonzero runner exit for a provenance-valid Violated verdict",
+      "receipt_path_ephemeral": "/tmp/p1461-r2-red.json",
+      "receipt_sha256": "13947cfba1aaa78d7c5d1b0c8bc98498ccb07874562954f854e6738d603a31fe",
+      "verdict": "Violated",
+      "orders_consistent": true,
+      "normalized_sha256_all_orders": "1ad44a01d1580c71bdf20cb62c60abb4f0fcdfa1038eaed5ef445a64adf6abdc",
+      "per_order_counts": {
+        "Preserved": 8,
+        "Violated": 24,
+        "Unknown": 0
+      },
+      "per_profile_per_order": {
+        "default": {
+          "Preserved": 2,
+          "Violated": 6,
+          "Unknown": 0
+        },
+        "a11y-extras": {
+          "Preserved": 2,
+          "Violated": 6,
+          "Unknown": 0
+        },
+        "html": {
+          "Preserved": 2,
+          "Violated": 6,
+          "Unknown": 0
+        },
+        "html+a11y": {
+          "Preserved": 2,
+          "Violated": 6,
+          "Unknown": 0
+        }
+      }
+    },
+    "opaque_policy_check": {
+      "command": "python3 00_nucleo/diagnosticos/p1461-harness.py --binary target/release/typst --expected-sha e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633 --product crystalline --oracles 00_nucleo/diagnosticos/p1461-oracles.json --oracles-sha 049d01b3c43f336eff88f725d0e5d45431055100032545fe0bdd077f7062cc50 --suite opaque --order all --output /tmp/p1461-r2-opaque.json",
+      "receipt_path_ephemeral": "/tmp/p1461-r2-opaque.json",
+      "receipt_sha256": "a726301fc6932c52ebf44f7bab29764b3cd468c81e394e361f7cd7b2de245aa4",
+      "process_exit_code": 2,
+      "verdict": "Unknown",
+      "orders_consistent": true,
+      "normalized_sha256_all_orders": "683a58490cebf5af0473696e80bcf03c39d2a93e7466775f08ae02ca7c7d32bb",
+      "per_order_counts": {
+        "Preserved": 0,
+        "Violated": 0,
+        "Unknown": 3
+      },
+      "cases": [
+        "O01_BINARY_IDENTITY_MISMATCH",
+        "O02_PARSER_UNSUPPORTED",
+        "O03_TIMEOUT"
+      ]
+    },
+    "binary_identity_fail_closed_check": {
+      "recipe": "Run the RED suite with an all-zero expected binary SHA-256 and --order all; identity rejection occurs before any probe or order is executed.",
+      "receipt_path_ephemeral": "/tmp/p1461-r2-identity-unknown.json",
+      "receipt_sha256": "c6c5a29ae3c2827959df00a06e1686c0ba75402d922f89fdc35e7d92a2a3c42c",
+      "process_exit_code": 2,
+      "verdict": "Unknown",
+      "reason_code": "INPUT_IDENTITY_MISMATCH",
+      "probe_executed": false
+    }
+  },
+  "red_witness": {
+    "failed_contract_cases_in_each_profile": [
+      "P01_TYPE",
+      "P02_REPR",
+      "P03_STD_IDENTITY",
+      "P04_ALIAS_IDENTITY",
+      "P05_COMBINED_PROFILE",
+      "N01_ABSENT_FIELD"
+    ],
+    "root_cause": {
+      "class": "unknown-variable",
+      "message_core": "unknown variable `format`",
+      "combined_probe_primary_span": {
+        "line": 1,
+        "start_column": 10,
+        "end_column_exclusive": 16,
+        "token": "format"
+      },
+      "absent_field_probe_primary_span": {
+        "line": 1,
+        "start_column": 0,
+        "end_column_exclusive": 6,
+        "token": "format"
+      }
+    },
+    "adjacent_controls_preserved_in_each_profile": [
+      "A01_ADJACENT_MODULE_VALUES",
+      "A02_ADJACENT_MODULE_DIAGNOSTIC"
+    ],
+    "attribution": "The baseline fails every format-root observation before field resolution, while the existing std/math module values and a generic missing-module-field diagnostic remain Preserved. The RED is therefore attributable to the absent format root within this focal fragment."
+  },
+  "orders": [
+    "direct",
+    "direct_repeat",
+    "reverse"
+  ],
+  "cost_and_delta": {
+    "measurement_state": {
+      "head": "dba72ad110590bbc43e6fddb194d65d8b5124673",
+      "measured_at": "2026-09-19T09:55:18-03:00",
+      "worktree": "uncommitted diagnostic artifacts listed in measurement_provenance.worktree"
+    },
+    "r2_cost": {
+      "vanilla": {
+        "process_executions": 96,
+        "summed_process_duration_ns": 544208090,
+        "wall_seconds_from_usr_bin_time": 0.65
+      },
+      "crystalline_red": {
+        "process_executions": 96,
+        "summed_process_duration_ns": 26966435276,
+        "wall_seconds_from_usr_bin_time": 27.06
+      },
+      "opaque_protocol": {
+        "process_executions": 0,
+        "wall_seconds_from_usr_bin_time": 0.09
+      },
+      "wrong_identity_protocol": {
+        "process_executions": 0,
+        "wall_seconds_from_usr_bin_time": 0.09
+      },
+      "total_eval_process_executions": 192,
+      "total_summed_process_duration_ns": 27510643366,
+      "total_measured_wall_seconds": 27.89
+    },
+    "delta_from_r1": {
+      "semantic_case_delta": 0,
+      "classification_count_delta": 0,
+      "normalized_vector_delta": 0,
+      "vanilla_normalized_sha256_unchanged": "ce799ffc22fa0b3efb387a891396358746bacbe32a9ad360fa8de8c3f77510f9",
+      "red_normalized_sha256_unchanged": "1ad44a01d1580c71bdf20cb62c60abb4f0fcdfa1038eaed5ef445a64adf6abdc",
+      "opaque_normalized_sha256_unchanged": "683a58490cebf5af0473696e80bcf03c39d2a93e7466775f08ae02ca7c7d32bb",
+      "identity_delta": "Manifest and contract pins advanced to R2; the harness verifies both before probes.",
+      "cost_comparison_limit": "R1 did not freeze equivalent /usr/bin/time and summed-duration fields in p1461-red.json, so no numeric R2-minus-R1 time delta is claimed."
+    }
+  },
+  "decision": {
+    "red_required": true,
+    "red_observed": true,
+    "unknown_observed_in_mandatory_red_cases": false,
+    "baseline_must_not_be_accepted": true,
+    "final_candidate_status": "not evaluated by this artifact"
+  },
+  "limitations": [
+    "The full P1357 inventory was intentionally not executed in this phase; only its frozen recipe and input hashes are recorded in p1461-oracles.json.",
+    "No candidate implementation or candidate tests were inspected or executed.",
+    "This receipt proves an attributable RED for the P1461 focal fragment, not mutation score, preseal, child parity, exporter equivalence or general Typst parity."
+  ]
+}
