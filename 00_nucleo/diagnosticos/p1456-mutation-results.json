@@ -1,0 +1,23 @@
+{
+  "schema": "p1456-mutation-results/v1",
+  "valid_mutations": 12,
+  "killed": 12,
+  "survivors": [],
+  "mutation_score": 1.0,
+  "orders": ["forward", "reverse", "forward-repeat"],
+  "unknown_promoted": false,
+  "witnesses": {
+    "retain-str-replace": "45---67 leaves 45--67",
+    "collapse-exactly-two-only": "45---67 leaves 45--67",
+    "delete-all-hyphens": "45-67 becomes 4567",
+    "delete-isolated-hyphen": "45-67 becomes 4567",
+    "collapse-run-to-two": "45--67 remains unnormalized",
+    "normalize-only-first-run": "second run in 1--3, 7--9 survives",
+    "truncate-after-first-run": "45-67 becomes 45-",
+    "normalize-all-fields": "title and author controls change",
+    "ascii-only-copy-corruption": "pré--pós becomes pr-ps",
+    "accept-only-vanilla": "crystalline bilateral control rejected",
+    "accept-only-crystalline": "vanilla bilateral control rejected",
+    "promote-unknown": "opaque control requires Unknown"
+  }
+}

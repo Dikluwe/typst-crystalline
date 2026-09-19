@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bib_csl.md
-//! @prompt-hash 15b59a3d
+//! @prompt-hash 6b6cb2a8
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -213,6 +213,22 @@ fn form_to_purpose(form: CitationForm) -> Option<CitePurpose> {
     }
 }
 
+/// Reduz runs BibTeX de dois ou mais hífens ao separador ASCII consumido pelo
+/// parser de page ranges do hayagriva, sem tocar nos demais caracteres.
+fn normalize_bibtex_page_range(pages: &str) -> String {
+    let mut normalized = String::with_capacity(pages.len());
+    let mut chars = pages.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        normalized.push(ch);
+        if ch == '-' {
+            while chars.next_if_eq(&'-').is_some() {}
+        }
+    }
+
+    normalized
+}
+
 /// Converte um `BibEntry` cristalino num `hayagriva::Entry` gerando YAML
 /// intermédio e aproveitando o parser do hayagriva.
 fn bib_entry_to_hayagriva(entry: &BibEntry) -> SourceResult<Entry> {
@@ -258,9 +274,9 @@ fn bib_entry_to_hayagriva(entry: &BibEntry) -> SourceResult<Entry> {
         yaml.push_str(&format!("  volume: {}\n", escape_yaml_scalar(v)));
     }
     if let Some(p) = &entry.pages {
-        // **P547** — BibTeX usa "--" como travessão; hayagriva formata o range
-        // a partir de um hífen simples. Normalizar para evitar "45––67".
-        let normalized = p.replace("--", "-");
+        // **P1456** — reconhecer o run inteiro evita o hífen residual que
+        // `str::replace` deixava em sequências ímpares com três ou mais.
+        let normalized = normalize_bibtex_page_range(p);
         yaml.push_str(&format!("  page-range: {}\n", escape_yaml_scalar(&normalized)));
     }
     if let Some(j) = &entry.journal {
@@ -683,6 +699,32 @@ mod tests {
             .with_journal("J of Examples");
         let h = bib_entry_to_hayagriva(&entry).unwrap();
         assert!(!h.parents().is_empty());
+    }
+
+    #[test]
+    fn p1456_page_range_run_triplo_normaliza_como_unidade() {
+        let entry =
+            BibEntry::new("range", "Author, A.", "Title", 2022).with_pages("45---67");
+        let h = bib_entry_to_hayagriva(&entry).unwrap();
+        assert_eq!(h.page_range().unwrap().to_string(), "45-67");
+    }
+
+    #[test]
+    fn p1456_normalizacao_preserva_fronteiras_e_unicode() {
+        for (input, expected) in [
+            ("", ""),
+            ("45", "45"),
+            ("45-67", "45-67"),
+            ("45--67", "45-67"),
+            ("45---67", "45-67"),
+            ("45----67", "45-67"),
+            ("S12--S14", "S12-S14"),
+            ("1--3, 7--9", "1-3, 7-9"),
+            ("pré--pós", "pré-pós"),
+            ("alpha beta", "alpha beta"),
+        ] {
+            assert_eq!(normalize_bibtex_page_range(input), expected, "input {input:?}");
+        }
     }
 
     // ── P420 — CSL customizado via path ───────────────────────────────────────

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/bib_csl` — Renderização CSL via hayagriva
-Hash do Código: 78ae94b8
+Hash do Código: b5f5ee71
 
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/bib_csl.rs`
@@ -85,6 +85,29 @@ pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String>;
 - Locales via ficheiro externo (locale built-in apenas).
 - CSL via URL, diretórios de sistema, hot-reload e validação RelaxNG completa.
 
+## P1456 — normalização estrutural de ranges BibTeX
+
+### Medição anterior à decisão
+
+No baseline `f1cfce3d75113960ccd31c8e17bc328fcf6509d6`, a ponte de
+`BibEntry.pages` para o YAML hayagriva usa `pages.replace("--", "-")`. Para
+`45---67`, o vanilla ratificado formata `45–67`, mas o cristalino formata
+`45––67`: a substituição não reconhece o run como uma unidade e deixa um
+hífen residual.
+
+### Obrigação
+
+A ponte deve reduzir cada run ASCII de dois ou mais hífens a exatamente um
+hífen antes do parsing hayagriva. Um hífen isolado e todos os demais
+caracteres permanecem byte a byte. A transformação aplica-se somente ao valor
+de `pages`; não modifica título, autor, chave, publisher nem o conteúdo já
+formatado. Implementar por varredura do valor, sem `str::replace`, regex,
+tabela de ranges ou pós-processamento CSL. Preservar ranges prefixados,
+múltiplos, whitespace, Unicode, ausência de pages e todos os demais campos.
+
+Esta é correção interna de fórmula/paridade em fluxo contínuo ADR-0127; não
+adiciona field, assinatura, default ou fase de pipeline.
+
 ## P420 (M) — CSL customizado via path
 
 **Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
@@ -104,3 +127,4 @@ pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String>;
 |------|--------|----------|
 | 2026-06-23 | P418 (XL): criar prompt L0 do módulo CSL. | `bib_csl.md`, `bib_csl.rs` |
 | 2026-06-23 | P420 (M): adicionar resolução de `.csl` customizado via path. | `bib_csl.md`, `bib_csl.rs`, `rules/eval/bibliography.rs`, `compiler/layout/mod.rs`, `rules/stdlib/structural.rs` |
+| 2026-09-18 | P1456: substituir `replace("--", "-")` por normalização estrutural de runs no campo pages. | `bib_csl.md`, `bib_csl.rs` |
