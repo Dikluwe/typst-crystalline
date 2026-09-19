@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: fca2cd24
+Hash do Código: ae6cc86f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
@@ -634,3 +634,28 @@ IDs internos, ordem mecânica de atributos e bytes não são paridade. São
 observáveis a presença de SVG inline, transparência, dimensões, viewBox,
 display e morfologia visual suportada. A nova entry point e integração foram
 confirmadas pelo dono em 2026-09-16 e ficam limitadas pelo selo P1424.
+
+### P1454 — paint atravessa `html.frame` sem reescrita
+
+#### Medição anterior à decisão
+
+No baseline `3267d9083afef6a5b2a493221e08714e402ac7b8`, a paleta pública
+completa de 18 cores produziu os mesmos valores `to-hex()` no vanilla
+ratificado e no cristalino. Em particular, `red.to-hex()` resultou em
+`"#ff4136"` nos dois produtos. Depois do layout, porém,
+`export_svg_html_frame_with_fonts` aplicava uma substituição textual global de
+`#ff4136` por `#ff0000` apenas ao SVG embutido. Portanto, a diferença observada
+em P1453 não pertence à tabela de cores nem ao frame: era corrupção de paint
+na fronteira de serialização L3.
+
+#### Decisão
+
+O SVG embutido preserva exatamente a cor transportada pelos mesmos writers do
+SVG standalone. Não reinterpreta nomes, não traduz paletas e não substitui
+literais hexadecimais no resultado serializado. Assim, tanto a constante
+`red` quanto um `rgb("#ff4136")` autoral permanecem `#ff4136`; uma cor
+explicitamente `rgb("#ff0000")` permanece `#ff0000`.
+
+A correção remove somente a pós-transformação textual. Não altera assinatura,
+tipo público, default, fase de pipeline, conjunto de cores nem formato geral
+do SVG. É correção interna de paridade em fluxo contínuo conforme ADR-0127.
