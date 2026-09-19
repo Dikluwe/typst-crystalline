@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "format-option-precedence"
+title = "Precedência entre opções explícitas e opções do documento"
+
+[[claims]]
+id = "explicit-overrides-document"
+level = "must"
+statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a opção de exportação explícita do caller, representada por Some(bool), deve vencê-la."
+
+[[claims]]
+id = "absence-defers-to-document"
+level = "must"
+statement = "Quando o contrato do formato expõe uma opção homóloga no documento, a ausência de opção explícita, representada por None, deve ser preservada até essa opção documental poder ser consultada."
+
+[[claims]]
+id = "default-after-document"
+level = "must"
+statement = "Quando há opção homóloga no documento, o default do formato só deve ser aplicado se caller e documento não fornecerem valor; para format.svg.pretty esse default é false."
+
+[[claims]]
+id = "no-early-collapse"
+level = "must-not"
+statement = "No fio de uma opção homóloga suportada pelo documento, uma camada anterior a esse encontro não deve colapsar ausência em false nem em outro default final."

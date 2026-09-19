@@ -3,6 +3,7 @@ Hash do Código: 1ba0c63a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
@@ -626,3 +627,30 @@ ser serializada e diagnosticada pelo fluxo vigente. L4 não implementa query,
 não inspeciona seletores e não duplica fases do compilador. Falha de leitura ou
 compilação retorna exit 1 pelos diagnósticos normais; erro de parsing CLI segue
 exit 2 em L2. O fio público aguarda confirmação ADR-0127.
+
+## P1462 — preservar ausência de `pretty` no braço SVG (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+P1360 colapsa `CompileIntent.pretty: Option<bool>` em `false` antes do dispatch.
+Isso é correto enquanto nenhum formato possui opção documental, mas impede o
+SVG de distinguir ausência de `--pretty` de `--pretty=false`. No vanilla
+ratificado, CLI explícito vence `format.svg.pretty`; sem CLI, a regra do
+documento vence; sem ambos, o default é `false`.
+
+### Decisão proposta
+
+Preservar o `Option<bool>` original exclusivamente até a chamada do braço SVG
+e passá-lo à nova entry point L3 de override parcial. `Some(true)` e
+`Some(false)` são overrides explícitos; `None` delega ao documento. Este fio
+aplica o Núcleo Tekt `format-option-precedence` pinado acima.
+
+PDF e HTML continuam a receber o booleano já resolvido por P1360 até P1464 e
+P1465 introduzirem, com L0/gate próprios, opções documentais homólogas. PNG
+continua a ignorar `pretty`. `--compact`, `PdfTags`, features, formato, output,
+exit codes e diagnósticos não mudam. L4 não lê `PagedDocument`, não interpreta
+set rules e não formata SVG.
+
+A mudança de default observável no caminho SVG e a chamada de API nova exigem
+confirmação humana explícita posterior ao commit causal P1462; antes dela não
+há autorização para código ou teste RED.

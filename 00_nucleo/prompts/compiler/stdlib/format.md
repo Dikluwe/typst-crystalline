@@ -1,11 +1,12 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
+Hash do Código: 00000000
 
-**Estado:** CONTRATO P1461 AGUARDA CONFIRMAÇÃO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** P1461 MATERIALIZADO; CONTRATO P1462 AGUARDA CONFIRMAÇÃO ADR-0127 —
+com sentinela não selada até a materialização posterior ao gate humano.
 
 **Camada:** L1
-**Alvo planejado:** `01_core/src/compiler/stdlib/format.rs`
-**Consumer futuro exclusivo:** `01_core/src/compiler/stdlib/format.rs`
+**Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
+**Consumer exclusivo:** `01_core/src/compiler/stdlib/format.rs`
 **Vanilla ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
 **ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
 
@@ -93,10 +94,58 @@ de `Arc`, layout do scope, bytes de binário ou ordem de hash. `Unknown` por
 baseline divergente, binário não pinado, timeout, parser opaco ou falha de
 proveniência bloqueia; nunca é convertido em sucesso.
 
-## Gate ADR-0127
+## Gate ADR-0127 de P1461
 
-Adicionar a raiz pública `format` amplia o contrato da linguagem. Este L0 não
-autoriza teste RED, consumer, header de linhagem ou código produtivo antes da
-confirmação humana explícita posterior ao commit causal P1461. Após a
-confirmação, contrato, oráculos, mutantes e preseal segregados devem ser
-congelados antes da implementação candidata.
+O gate humano de P1461 foi satisfeito e a raiz pública vazia foi materializada
+e certificada. Esse fato não autoriza qualquer filho reservado.
+
+## P1462 — `format.svg` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1462, HEAD `7442d33b6bf48f136826d28cf71bd62f8710a432`,
+o consumer devolve `Module::new("format", Scope::new())`; por isso o
+cristalino diagnostica `module format does not contain svg`. No vanilla
+ratificado, `lab/typst-original/crates/typst-svg/src/format.rs:65-104` expõe o
+elemento settable `svg` com uma única propriedade `pretty: bool = false`.
+Probes bilaterais mediram:
+
+```text
+repr((type(format.svg), format.svg, format.svg.pretty))
+vanilla: (function, svg, false)
+cristalino: module format does not contain svg
+```
+
+Chamar `format.svg()` no vanilla falha com `cannot be constructed manually`;
+`#set format.svg(pretty: true)` é aceito, enquanto named desconhecido falha
+com `unexpected argument: other` e inteiro falha com
+`expected boolean, found integer`. Essas mensagens e valores são observáveis
+da linguagem; macros, traits, downcast, endereço e representação Rust são
+mecânica livre.
+
+### Contrato do filho
+
+A factory P1461 passa a inserir exatamente um membro chamado `svg`. O valor é
+uma função/elemento settable nominalmente `svg`, com namespace público
+`pretty == false`. Sua chamada direta é sempre rejeitada com
+`cannot be constructed manually`; ela não produz `Content` construível.
+
+O contrato desta unidade é somente a descoberta e identidade do filho. A
+validação/aplicação da set rule pertence a
+`00_nucleo/prompts/compiler/eval/rules.md`; a extração documental pertence a
+`00_nucleo/prompts/compiler/layout/format_options.md`; exportação e
+precedência pertencem aos owners L3/L4 próprios. Este consumer não faz I/O,
+não consulta target, feature, CLI ou documento e não formata SVG.
+
+P1462 não cria `format.png`, `format.pdf`, `format.html`, aliases globais,
+campos adicionais nem feature gates. A incompletude restante continua
+deliberada: P1463 completa PNG, P1464 PDF e P1465 HTML.
+
+### Aceitação e gate
+
+Nos quatro perfis públicos, `type(format.svg)` é `function`, `repr` é `svg`,
+`format.svg.pretty` é `false`, alias e `std.format.svg` preservam a identidade,
+e chamada direta produz o diagnóstico medido. Membro não contratado continua
+ausente. A ampliação da API pública e do comportamento de exportação exige
+confirmação humana explícita posterior ao commit causal P1462. Antes dela este
+texto não autoriza teste RED, alteração de consumer ou header de linhagem.

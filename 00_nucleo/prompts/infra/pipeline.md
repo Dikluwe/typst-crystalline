@@ -3,6 +3,7 @@ Hash do Código: 08c1ff6e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
@@ -902,3 +903,71 @@ avaliação externa, não ativar feature implicitamente e não guardar SVG em L1
 Falha de layout/render da ilha aborta a compilação; não apagar, substituir por
 texto ou emitir `<frame>`. A nova fase foi confirmada pelo dono em 2026-09-16
 e fica limitada pelo selo P1424.
+
+## P1462 — extração e resolução de `format.svg.pretty` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `7442d33b6bf48f136826d28cf71bd62f8710a432`, as fachadas SVG
+sem argumento explícito delegam `false`; a fachada ativa recebe `pretty: bool`
+e constrói `SvgOptions` diretamente. A pipeline não consulta conteúdo nem
+`PagedDocument`. O cristalino não possui opção documental.
+
+No vanilla ratificado, probes válidos numa página vazia de 10 pt mediram:
+
+```text
+documento ausente + CLI ausente       -> compacto
+documento true    + CLI ausente       -> pretty
+documento true    + CLI false         -> compacto
+documento false   + CLI true          -> pretty
+```
+
+O primeiro SVG tem 243 bytes e o segundo 248 bytes/3 LF no corpus medido; esses
+números são evidência auxiliar daquela fixture, não contrato de bytes. A
+morfologia normalizada do SVG permanece igual.
+
+### Extração documental
+
+No caminho paginado, chamar `collect_document_format_options` sobre o conteúdo
+realizado final que alimenta o candidato de layout. A extração ocorre depois
+das realizações/contextos necessários e antes de devolver um
+`PagedDocument` completo. Em `Complete(mut document)`, associar exatamente as
+opções extraídas ao campo `document.format_options`. Erro de regra em container
+aborta pelo canal `SourceResult`; não exportar documento provisório.
+
+Relayouts do ciclo calculam as opções do respectivo candidato sem acumular
+estado entre iterações. A operação é pura L1; L3 não percorre `Content`, não
+interpreta chaves de style e não duplica a mensagem de erro.
+
+### Precedência e APIs SVG
+
+Adicionar uma entry point pública explícita que receba
+`pretty_override: Option<bool>`. O valor efetivo passado a `SvgOptions` é:
+
+```text
+pretty_override.unwrap_or(document.format_options.svg.pretty)
+```
+
+As fachadas SVG sem argumento `pretty` delegam `None`, permitindo a opção do
+documento. A fachada de compatibilidade que já recebe `pretty: bool` delega
+`Some(pretty)`, preservando a semântica de override explícito e sua assinatura.
+O exporter `infra/export/svg.rs` continua a receber somente o booleano final e
+não aprende precedência.
+
+Este fio aplica o Núcleo Tekt `format-option-precedence` pinado acima. O SVG
+interno de `html.frame` não é um export do documento e permanece controlado
+pelo modo HTML; não deve observar `format.svg`. PDF, PNG e HTML permanecem
+inalterados até P1463–P1465.
+
+### Aceitação e gate
+
+Testes de pipeline cobrem as quatro linhas da matriz, default, repetição e
+inversão de regras root, rejeição em containers, erro de tipo/named vindo de
+eval e neutralidade de PDF/PNG/HTML/frame HTML. Comparar estrutura/whitespace
+pertinente, não fixar os bytes auxiliares como contrato. Mutantes obrigatórios
+colapsam `None` cedo, invertem a precedência, ignoram documento, deixam regra
+nested passar e vazam a opção para outro target.
+
+A nova API pública e a inserção da extração antes do documento completo são
+mudanças de contrato/fase. Nenhum código ou teste RED é autorizado antes da
+confirmação humana explícita posterior ao commit causal P1462.

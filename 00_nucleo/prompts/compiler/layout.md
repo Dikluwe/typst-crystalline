@@ -661,3 +661,15 @@ variante exige braço exaustivo, mas sua realização não pertence a este níve
 Encaminhar `Content::MathUnderbracket` pelo caminho inline math. Este owner não
 interpreta U+23B5, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
+
+## P1462 — fachada de opções documentais de formato (PROPOSTA; gate ADR-0127)
+
+Declarar o descendente privado `format_options` e reexportar a função pura
+pública `collect_document_format_options` definida e possuída por
+`00_nucleo/prompts/compiler/layout/format_options.md`. A fachada não conhece
+CLI, exporters ou `World`, não duplica a travessia e não incorpora a lógica ao
+dispatcher de render.
+
+A nova entry point L1 é superfície pública entre camadas e só pode ser
+materializada após a confirmação humana de P1462. Nenhuma fase ou geometria do
+layout muda neste owner.

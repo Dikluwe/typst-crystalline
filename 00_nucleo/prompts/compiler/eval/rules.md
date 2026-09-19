@@ -275,3 +275,36 @@ Validar `Rel<Length>` antes de inserir a chave `math.stretch.size` na
 StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
 argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
 altera `size_explicit`, fields ou repr do carrier.
+
+## P1462 — set rule `format.svg` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `7442d33b6bf48f136826d28cf71bd62f8710a432`,
+`eval_set_rule` obtém `set.target().text_str()`. Um `FieldAccess` como
+`format.svg` chega ao fallback com nome vazio e o cristalino apenas avisa que o
+target não é suportado. O vanilla ratificado aceita `pretty: bool`, rejeita
+named desconhecido com `unexpected argument: other` e tipo inteiro com
+`expected boolean, found integer`.
+
+### Decisão proposta
+
+Reconhecer estruturalmente o target pontuado exato `format.svg`, sem inferir o
+nome a partir da string vazia e sem ampliar o fallback genérico. Aceitar
+exatamente um named opcional `pretty`; ausência usa o default público `false`
+do elemento, mas uma set rule sem named ainda materializa a decisão explícita
+`false`. Validar o valor como boolean antes de produzir mudança de estilo.
+Named posicional, duplicado, desconhecido ou tipo inválido falha pelo canal
+normal de `SourceResult`, nunca warning nem descarte silencioso.
+
+O valor validado segue pelo carrier `StyleDelta.custom` vigente sob a chave
+canônica `format.svg.pretty`. Este owner não extrai opção documental, não
+decide se a regra está em top-level/container e não formata SVG. A fronteira
+top-level e a mensagem de container pertencem ao owner puro
+`compiler/layout/format_options`; L3 apenas orquestra sua aplicação.
+
+Preservar todas as demais set/show rules, a ordem da cascata e a política de
+named desconhecido. `format.png`, `format.pdf`, `format.html` e qualquer outro
+campo continuam ausentes. Como a nova set rule altera a linguagem pública,
+nenhum código ou teste RED é autorizado antes da confirmação humana posterior
+ao commit causal P1462.

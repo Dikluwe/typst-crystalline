@@ -731,3 +731,31 @@ as definem. Não criar outro campo, heurística nominal ou lista de caracteres.
 preserva os items do prefixo e não cria texto, medida ou Location. Seu único
 consumer produtivo é o pipeline PDF tagueado; não confundir com `LabelElem`
 (destino nomeado) nem com `Artifact`, que remove conteúdo da structure tree.
+
+## P1462 — opções de formato no documento paginado (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `7442d33b6bf48f136826d28cf71bd62f8710a432`,
+`PagedDocument` transporta páginas, introspecção e `DocumentInfo`, mas nenhuma
+opção de formato; por isso o exporter SVG só pode observar o booleano fornecido
+externamente. O vanilla resolve as opções documentais antes do export.
+
+### Contrato público
+
+Acrescentar a `PagedDocument`:
+
+```rust
+pub format_options: DocumentFormatOptions
+```
+
+`PagedDocument::new` inicializa o campo com `Default`, preservando todos os
+callers existentes e `pretty == false`. L3 substitui o default somente depois
+de a extração pura do conteúdo final ter sucesso. O campo não contém flags
+CLI, bytes serializados nem handles de exporter.
+
+`DocumentFormatOptions` pertence exclusivamente a
+`entities/document_format_options.rs`; este owner somente o transporta no
+documento. `Page`, `PageConfig`, frames, geometria e plain text não mudam.
+Trata-se de campo público e fica bloqueado até confirmação humana explícita de
+P1462.
