@@ -735,3 +735,43 @@ match exaustivo não possui a identidade `undershell`.
 Adicionar braço `MathUndershell` e comparar body, annotation e
 `annotation_explicit`. Não comparar U+23E1 ou caixas derivadas, não colapsar
 omissão com `none` explícito nem equiparar ao `MathUnderover` mecânico.
+
+## P1461 — registro da raiz pública `format` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1461, HEAD
+`7392f490397c56876fcf6134e86c44b528b396bb`,
+`make_stdlib_with_features` em
+`01_core/src/compiler/eval/mod.rs:7594-7773` importa as factories de módulos e
+registra `html` diretamente, mas não importa nem registra `format`. Probes
+bilaterais nos perfis `default`, `a11y-extras`, `html` e `html+a11y` mediram a
+raiz vanilla como módulo nomeado `format`; o cristalino falha antes do field
+access com `unknown variable format`.
+
+É inferência que uma única inserção no scope global basta também para
+`std.format`, porque `std` já projeta a stdlib não sombreada e o clone de
+`Module` preserva o carrier por `Arc`. A necessidade de binding `std` especial,
+mudança em `Module`, lookup condicional ou novo carrier refuta a inferência.
+
+### Decisão proposta
+
+`make_stdlib_with_features` importa a factory crate-private
+`make_format_module` pela fachada e registra incondicionalmente:
+
+```rust
+scope.define("format", Value::Module(make_format_module()));
+```
+
+O mesmo registro ocorre em toda construção real da stdlib, independentemente
+de target, `html` e `a11y-extras`. Não criar binding global `global`, `svg`,
+`png`, `pdf` ou novo `html`; não registrar filhos, aliases, placeholders ou
+valores marcadores. A ordem interna de inserção não é contrato, desde que os
+bindings existentes permaneçam semanticamente preservados.
+
+O nome e o scope vazio pertencem ao owner
+`compiler/stdlib/format.md`; esta emenda legitima somente a ligação ao scope
+global. Aceitação exige `format` e `std.format` como o mesmo módulo nominal,
+alias estável, diagnóstico genérico de field ausente e ausência de todos os
+filhos. Código, testes e header de linhagem aguardam confirmação humana
+posterior ao commit causal P1461.

@@ -262,3 +262,28 @@ A fachada encaminha a nativa contextual do owner de outline, sem lógica.
 
 A fachada encaminha a nativa contextual do owner de outline, sem parsing,
 medição ou composição próprios.
+
+## P1461 — ligação interna do owner `format` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline P1461, HEAD
+`7392f490397c56876fcf6134e86c44b528b396bb`,
+`01_core/src/compiler/stdlib/mod.rs:23-69` declara os submódulos da stdlib e
+`:76-191` reexporta as factories usadas pelo registro global, mas não existe
+submódulo nem ligação `format`. O novo Prompt L0 proprietário planeja o único
+consumer `01_core/src/compiler/stdlib/format.rs`; mover sua factory para esta
+fachada violaria o ownership 1:1.
+
+### Decisão proposta
+
+A fachada declara `mod format;` e reexporta explicitamente
+`format::make_format_module` somente em `pub(crate)`. Não cria wrapper,
+factory paralela, lookup, binding, filho, feature gate ou API Rust externa;
+nome e scope do módulo permanecem responsabilidade exclusiva de
+`compiler/stdlib/format.md`. A necessidade de qualquer lógica nesta fachada
+refuta o recorte.
+
+Esta ligação amplia a superfície pública Typst somente quando o owner de eval
+a registrar. Código e header de linhagem aguardam confirmação humana posterior
+ao commit causal P1461.
