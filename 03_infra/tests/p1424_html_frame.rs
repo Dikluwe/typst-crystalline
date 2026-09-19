@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1424-tests.md
-//! @prompt-hash 835170aa
+//! @prompt-hash 856e8920
 //! @layer L3
 //!
 //! Testes A/B independentes da integração HTML P1424.
@@ -86,7 +86,7 @@ fn svg_projection(document: &str) -> (Vec<f64>, f64, f64, bool, bool) {
         number_with_optional_pt(attr(root, "width")),
         number_with_optional_pt(attr(root, "height")),
         root.contains("display: block") || root.contains("display:block"),
-        document.contains("#ff0000"),
+        document.contains("#ff4136"),
     )
 }
 
@@ -150,6 +150,7 @@ fn p1424_html_rect_preserva_geometria_paint_e_transparencia() {
     assert!((height - 5.0).abs() <= 0.001, "height={height}");
     assert!(display);
     assert!(red, "paint vermelho ausente: {document}");
+    assert!(!document.contains("#ff0000"), "red foi traduzido para CSS: {document}");
     assert!(!document.contains("#ffffff"), "fundo de página indevido: {document}");
 }
 

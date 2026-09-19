@@ -902,7 +902,6 @@ pub fn export_svg_html_frame_with_fonts(
         glyph_fonts,
         true,
     )
-    .replace("#ff4136", "#ff0000")
 }
 
 impl SvgOptions {
@@ -2071,6 +2070,33 @@ mod tests {
         let svg = export_svg(&page, &SvgOptions::default());
         assert!(svg.contains("<rect"));
         assert!(svg.contains("fill=\"#ff0000\""));
+    }
+
+    #[test]
+    fn p1454_html_frame_preserva_paints_sem_reescrita() {
+        let page = p1227_page(vec![
+            p1227_rect(Some(Paint::Solid(Color::rgb(255, 65, 54))), None),
+            FrameItem::Shape {
+                pos: Point { x: Pt(50.0), y: Pt(7.0) },
+                kind: ShapeKind::Rect,
+                width: 40.0,
+                height: 20.0,
+                fill: Some(Paint::Solid(Color::rgb(255, 0, 0))),
+                stroke: None,
+                fill_rule: Default::default(),
+                parent_bbox_at_emit: None,
+            },
+        ]);
+
+        let svg = export_svg_html_frame_with_fonts(
+            &page,
+            &SvgOptions::default(),
+            &[],
+            &SvgGlyphFontContext::empty(),
+        );
+
+        assert!(svg.contains("fill=\"#ff4136\""), "paint #ff4136 foi reescrito: {svg}");
+        assert!(svg.contains("fill=\"#ff0000\""), "paint #ff0000 foi perdido: {svg}");
     }
 
     #[test]

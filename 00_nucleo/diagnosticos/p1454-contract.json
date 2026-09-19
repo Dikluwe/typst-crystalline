@@ -1,0 +1,20 @@
+{
+  "schema": "p1454-contract/v1",
+  "step": 1454,
+  "attestation": "executado sem atestação de isolamento",
+  "baseline_commit": "497aa5b740d6584816736dcaba4ad40cb88586de",
+  "claim": "A variante SVG embutida de html.frame preserva paint sem reescrita textual.",
+  "observables": {
+    "named_red": "#ff4136",
+    "authored_ff4136": "#ff4136",
+    "authored_ff0000": "#ff0000",
+    "geometry": "unchanged"
+  },
+  "forbidden": [
+    "alterar PREDEFINED_COLORS",
+    "alterar parser ou layout",
+    "substituir texto na string SVG",
+    "promover Unknown a Preserved"
+  ],
+  "verdicts": ["Preserved", "Violated", "Unknown"]
+}

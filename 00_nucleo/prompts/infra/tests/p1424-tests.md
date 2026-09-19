@@ -16,8 +16,9 @@ provar no nível da linguagem:
   "frame"` e preserva os três diagnósticos de assinatura;
 - texto produz exatamente uma raiz SVG inline não escapada, block-level,
   intrínseca, positiva e sem tag literal `frame` ou canvas A4;
-- rect vermelho 10pt×5pt produz dimensões físicas e `viewBox 0 0 10 5` com
-  tolerância de 0,001pt e pintura vermelha;
+- rect com `fill: red` 10pt×5pt produz dimensões físicas e
+  `viewBox 0 0 10 5` com tolerância de 0,001pt e preserva a cor pública
+  ratificada `#ff4136`; não aceita a tradução para vermelho CSS `#ff0000`;
 - nesting produz uma única ilha com a mesma projeção geométrica/visual da ilha
   simples;
 - `html.elem("frame")` permanece tag literal e a rota sem frames preserva o
@@ -41,3 +42,8 @@ Baseline `79c7a6d60a29bcf53a3b06f15d800dcf286381a6`. Execução:
 R4 acrescenta somente o witness executável de P13/M20 exigido pelo relatório
 independente P1424 (SHA-256 `bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91`)
 e pela verificação FAIL correspondente; os demais casos permanecem intactos.
+
+P1454 corrige a expectativa de paint do rect após medir bilateralmente a
+paleta pública: `red.to-hex()` é `#ff4136` nos dois produtos. A expectativa
+anterior `#ff0000` legitimava uma pós-reescrita indevida exclusiva do SVG
+embutido e não era paridade de linguagem.
