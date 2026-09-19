@@ -103,3 +103,28 @@ Emite `Content::highlight_full(body, fill, radius, extent)`.
 #highlight(extent: 2pt)[a]        → + Style::highlight_extent
 #highlight()                      → Err
 ```
+
+## P1455 — coerção de cor tipada (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `3360722a3eb3b63371d2ad9e2d1758d85cd9f98d`, este owner
+reutiliza `shapes::parse_color` e, por isso, aceita o catálogo string CSS
+hardcoded que não existe no vanilla:
+
+- `underline(stroke: "red", [x])` produz conteúdo no cristalino, enquanto o
+  vanilla erra `expected length, color, gradient, tiling, dictionary, stroke,
+  or auto, found string`;
+- `highlight(fill: "red", [x])` produz conteúdo no cristalino, enquanto o
+  vanilla erra `expected color, gradient, tiling, or none, found string`.
+
+### Decisão proposta
+
+Decorações aceitam cor somente como valor tipado `Value::Color`; constantes
+nomeadas continuam funcionando porque o evaluator as resolve antes da chamada.
+String não é alias de cor e deve seguir o erro de tipo da superfície. `none`,
+defaults, geometria e carriers permanecem. Não criar tabela ou fallback local
+quando o catálogo de `shapes` for removido.
+
+Esta remoção quebra compatibilidade cristalina pública e permanece bloqueada
+no gate ADR-0127 até confirmação humana explícita.

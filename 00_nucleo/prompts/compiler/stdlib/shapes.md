@@ -415,3 +415,40 @@ Não se altera `ShapeKind`, `ShapeElem`, `FrameItem`, assinatura pública,
 default ou fase. Logo é correção interna de paridade em fluxo contínuo
 ADR-0127. Percentagens mistas, infinito e clipping continuam `Unknown`; esta
 rota só fecha os observáveis medidos.
+
+## P1455 — remover a paleta string hardcoded (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `3360722a3eb3b63371d2ad9e2d1758d85cd9f98d`, `parse_color`
+contém um segundo catálogo literal de 19 spellings CSS (`red`, `green`,
+`blue`, `black`, `white`, `yellow`, `cyan`, `magenta`, `orange`, `purple`,
+`gray`, `grey`, `silver`, `maroon`, `navy`, `olive`, `teal`, `lime`,
+`aqua`). Ele diverge da paleta Typst canônica e torna strings aceites como
+paint somente no cristalino.
+
+Medição com os binários ratificados:
+
+- `rect(fill: "red")`: vanilla erra `expected color, gradient, tiling, or
+  none, found string`; cristalino produz shape;
+- `line(stroke: "red")`: vanilla erra com a união de stroke esperada;
+  cristalino produz shape.
+
+A inferência é que a tabela é compatibilidade cristalina histórica, não
+semântica Typst. Seria refutada por aceitação de qualquer string como paint no
+vanilla ratificado; as sondas representativas e a fonte tipada não a refutam.
+
+### Decisão proposta
+
+- eliminar integralmente o match de nomes string em `parse_color`;
+- aceitar cores nomeadas somente como `Value::Color`, já resolvidas pela
+  paleta canônica do scope (`red`, `color.red`, etc.);
+- parsers de fill e stroke tornam-se fail-closed para `Value::Str` em vez de
+  converter ou ignorar silenciosamente;
+- preservar os tipos já aceites, `none` onde a assinatura o admite, fallback
+  quando o argumento é realmente omitido e o carrier/layout existentes;
+- não copiar a paleta canônica, não traduzir string para nome e não introduzir
+  outro catálogo local.
+
+A remoção revoga sintaxe pública antes aceite e, portanto, é quebra de
+compatibilidade. P1455 para no gate ADR-0127 até confirmação humana explícita.
