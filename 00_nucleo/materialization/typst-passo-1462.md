@@ -1,6 +1,6 @@
 # Passo 1462 — materializar `format.svg` e a opção documental `pretty`
 
-**Estado:** PROPOSTA L0 COMMITÁVEL — AGUARDA CONFIRMAÇÃO HUMANA ADR-0127
+**Estado:** L0 R2 PÓS-CONFIRMAÇÃO — CORREÇÃO DE PARIDADE CAUSAL ANTES DO CÓDIGO
 
 **Data da medição:** 2026-09-19
 **Baseline cristalino:** `7442d33b6bf48f136826d28cf71bd62f8710a432`
@@ -12,6 +12,11 @@
 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
 **SHA-256 binário cristalino:**
 `d3167689f50cc0f1cd4415f94efe7ab8fd2d5cae633d8664de93a806abd16f82`
+
+**Confirmação ADR-0127:** recebida em 2026-09-19, depois do commit causal
+`514b2ae8f35b661127e38620dcbdaefa9e158624`. A revisão R2 abaixo corrige uma
+medição de paridade refutada antes de qualquer candidato; por ADR-0127, segue
+em fluxo contínuo L0-primeiro, com novo selo discriminatório obrigatório.
 
 ## 1. Objetivo e fronteira
 
@@ -47,6 +52,15 @@ No cristalino P1461, a raiz existe com scope vazio e todas essas sondas param
 em `module format does not contain svg`. Um `set` pontuado alcança o fallback
 de `eval_set_rule` com target textual vazio e gera warning de target não
 suportado, sem transportar a decisão.
+
+Calibração independente posterior à confirmação, ainda sem candidato, mediu
+também `#set format.svg(pretty: true)` seguido de `#set format.svg()`. No
+vanilla ratificado, a saída permaneceu indentada/`true` em `forward`,
+`reverse` e `forward-repeat`. Logo named omitido **não escreve** o default:
+uma set rule vazia é semanticamente neutra e preserva a decisão cascaded
+anterior. O diagnóstico reproduzível é
+`00_nucleo/diagnosticos/p1462-oraculos-independentes.md` (SHA-256
+`f452d0229c4dba6a87b5c3ed316daaaca84c9c066686a197034460555ed624d7`).
 
 ### 2.2 Efeito e precedência no export
 
@@ -120,7 +134,10 @@ refutador reabre L0; não se corrige por exceção nominal ad hoc.
 1. `compiler/stdlib/format.rs` acrescenta o filho settable `svg`, único membro
    novo, com namespace `pretty: false` e constructor manual sempre falho.
 2. `compiler/eval/rules.rs` reconhece estruturalmente `format.svg`, valida
-   somente `pretty: bool` e escreve `format.svg.pretty` no carrier custom.
+   somente `pretty: bool` e, quando o named está presente, escreve
+   `format.svg.pretty` no carrier custom. Regra sem argumentos não escreve a
+   chave e preserva a cascata anterior; `false` é default somente quando não
+   existe decisão documental.
 3. Novo owner puro `compiler/layout/format_options.rs` extrai opções root,
    rejeita ocorrência nested e devolve `DocumentFormatOptions`.
 4. Novo owner `entities/document_format_options.rs` declara os carriers
@@ -205,6 +222,7 @@ registrado no artefato correspondente; não é alegada independência forte.
 - identidade, repr, namespace/default, alias e construção proibida de
   `format.svg`;
 - named/tipo/duplicado/posicional de `#set format.svg`;
+- regra vazia neutra, inclusive depois de `true`, sem carrier artificial;
 - collector: ausência, true/false, repetição/inversão, sequence/styled root,
   ao menos dois containers, estado interno inválido e neutralidade futura;
 - defaults/clone/igualdade dos carriers e default em `PagedDocument`.
@@ -240,6 +258,7 @@ O conjunto mínimo inclui:
 - permitir construção manual;
 - aceitar/ignorar named desconhecido ou tipo não booleano;
 - não transportar set rule ou usar chave errada;
+- fazer set rule vazia apagar a decisão anterior com `false`;
 - aplicar primeira regra em vez da última e o inverso indevido;
 - aceitar nested, rejeitar root ou não detectar segundo container;
 - colapsar `None` em `false` em L4/L3;

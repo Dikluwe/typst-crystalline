@@ -1,0 +1,262 @@
+{
+  "schema": "tekt-materialization-manifest/v1",
+  "step": 1462,
+  "phase": "pre_candidate_contract_freeze",
+  "protocol": {
+    "name": "tekt-materializacao-segregada",
+    "regime": "full",
+    "execution_mode": "shared_checkout_procedural_segregation",
+    "attestation": "executado sem atestacao de isolamento",
+    "technical_isolation_attested": false,
+    "candidate_patch_existed_or_was_read": false,
+    "causal_order": [
+      "frozen_prompt_and_baseline",
+      "manifest",
+      "frozen_contract",
+      "independent_oracles_and_mutants",
+      "discriminatory_gate",
+      "seal",
+      "implementation_and_independent_tests",
+      "final_gates_and_certificate"
+    ],
+    "sources": [
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/SKILL.md",
+        "sha256": "66990d349a9e89851686cd94590a84711c69364f76b6df501230f64daf3b0c48"
+      },
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/papeis-e-capacidades.md",
+        "sha256": "f59f44c4e53e89651963115c582872b4d3cd59d89689d103baa9ef8b464d2417"
+      },
+      {
+        "path": "/home/dikluwe/.codex/skills/tekt-materializacao-segregada/references/artefatos-e-gates.md",
+        "sha256": "16db4af3a8a21a27e1bfc4a5dd00c976f0fc946ba46dc8df1a663171d823f72d"
+      }
+    ]
+  },
+  "canonicalization": {
+    "encoding": "UTF-8",
+    "line_endings": "LF",
+    "indentation_spaces": 2,
+    "hash_algorithm": "SHA-256 over raw file bytes",
+    "array_order_is_significant": true
+  },
+  "baseline": {
+    "commit": "514b2ae8f35b661127e38620dcbdaefa9e158624",
+    "tree": "c12c3dac7ba85e0bf9f89b21c5e88203ff84b48e",
+    "commit_time": "2026-09-19T12:37:44-03:00",
+    "measured_at_utc": "2026-09-19T15:40:30Z",
+    "working_tree_at_measurement": "clean",
+    "immutable_for_p1462": true,
+    "vanilla_ratified_commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+    "vanilla_tree": "2847920eeaa98d26a41dc6fb0f9c02334b9d593b",
+    "vanilla_binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+  },
+  "intent": {
+    "path": "00_nucleo/materialization/typst-passo-1462.md",
+    "sha256": "1e473512724681c168ffe514e37c1b7eea85a617ce4a2ea194c4fed8a56c8a65"
+  },
+  "adrs": [
+    {
+      "id": "ADR-0107",
+      "path": "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md",
+      "sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d"
+    },
+    {
+      "id": "ADR-0108",
+      "path": "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md",
+      "sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405"
+    },
+    {
+      "id": "ADR-0127",
+      "path": "00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md",
+      "sha256": "5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9"
+    },
+    {
+      "id": "ADR-0129",
+      "path": "00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md",
+      "sha256": "64756b81ce58ca62e1a166b3776303759bc7af507a1c97a4e3ad91a8dc5b906e"
+    }
+  ],
+  "prompts": [
+    {
+      "path": "00_nucleo/prompts/compiler/stdlib/format.md",
+      "consumer": "01_core/src/compiler/stdlib/format.rs",
+      "sha256": "6bf2a41d8852644bc3a3960efad435777f9edfe525a3437aa7c82401fd65b797"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules.md",
+      "consumer": "01_core/src/compiler/eval/rules.rs",
+      "sha256": "448431c67653248b8b35320a47252be3d3e409aec3a3c8bbc73214e13f2c4189"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout.md",
+      "consumer": "01_core/src/compiler/layout/mod.rs",
+      "sha256": "3002834d82569ed92048da5928afeaef0c8407bc9c8a8840d0525924b6548cb7"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/format_options.md",
+      "consumer": "01_core/src/compiler/layout/format_options.rs",
+      "sha256": "2aff71827ad90bf5c9f5d96067d1cf9761ef34ca58db6a12432114f7b41b269b"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/document_format_options.md",
+      "consumer": "01_core/src/entities/document_format_options.rs",
+      "sha256": "df6dd629b780e61150e1f2475ef84495fc307564d011806e1fe9dd1b9cea5586"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/mod.md",
+      "consumer": "01_core/src/entities/mod.rs",
+      "sha256": "0a9c2b56c55ccdd251e70b981ecb2155c6d20e91345a59398812347a27ddbedd"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/layout_types.md",
+      "consumer": "01_core/src/entities/layout_types.rs",
+      "sha256": "ed9d3c3b72314a70f881b6125cd6df5c907bc725eb424c93a62a653138e18995"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "consumer": "03_infra/src/pipeline.rs",
+      "sha256": "c7a32dc056e8f19967edc21d91e71b61415e3419478b7bd8af26fcc427e10937"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring.md",
+      "consumer": "04_wiring/src/main.rs",
+      "sha256": "8cb5efb6713cadb2d53f526c8fd952d1a84de7016bc1952bb4ed9b22cf3e9dc8"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/p1462-format-svg.md",
+      "consumer": "04_wiring/tests/p1462_format_svg.rs",
+      "sha256": "c37dc1f71f8e383de33abb667c7c36656e652f1f149d584d51e1b597b89a8e57"
+    }
+  ],
+  "nuclei": [
+    {
+      "id": "format-option-precedence",
+      "path": "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml",
+      "raw_sha256": "ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295",
+      "effective_v26_sha256": "51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f",
+      "pinned_by": [
+        "00_nucleo/prompts/infra/pipeline.md",
+        "00_nucleo/prompts/wiring.md"
+      ]
+    }
+  ],
+  "outputs": {
+    "manifest": "00_nucleo/diagnosticos/p1462-manifesto.json",
+    "contract": "00_nucleo/diagnosticos/p1462-contrato-congelado.md",
+    "contract_author_write_allowlist": [
+      "00_nucleo/diagnosticos/p1462-manifesto.json",
+      "00_nucleo/diagnosticos/p1462-contrato-congelado.md"
+    ]
+  },
+  "observables": [
+    "public identity, representation, namespace and default of format.svg",
+    "manual construction is rejected by the measured public diagnostic",
+    "format.svg set-rule argument validation and canonical style transport",
+    "top-level acceptance, lexical precedence and container rejection",
+    "CLI explicit override over document option over false default",
+    "valid XML and requested compact versus indented serialization with equal normalized morphology",
+    "no effect on PDF, PNG, HTML or SVG internal to html.frame",
+    "no premature format.png, format.pdf or format.html public child",
+    "one-to-one prompt ownership and pinned nucleus integrity"
+  ],
+  "unknown_policy": {
+    "default_result": "Unknown",
+    "unknown_is_preserved": false,
+    "unknown_kills_mutant": false,
+    "unknown_counts_in_mutation_score_numerator": false,
+    "allowed_success_use": "only an oracle deliberately constructed to prove opacity may expect Unknown",
+    "triggers": [
+      "baseline or protected input hash divergence",
+      "unratified or missing binary",
+      "timeout, crash or interrupted process",
+      "unsupported parser or ambiguous extraction",
+      "invalid XML or opaque assertion",
+      "calibration budget exhaustion",
+      "missing ADR-0127 human confirmation when a RED test or candidate implementation is attempted"
+    ],
+    "invalid_mutants": "equivalent or non-compilable mutants are evidenced and excluded from both numerator and denominator"
+  },
+  "calibration_budget": {
+    "wall_clock_minutes": 120,
+    "maximum_revision_rounds": 4,
+    "maximum_full_corpus_executions_before_seal": 3,
+    "maximum_focal_executions_per_revision": 3,
+    "required_mutation_score": 1.0,
+    "stop_rules": [
+      "stop after two consecutive revisions with the same classification vector and dominant cause",
+      "stop when opacity fixes regress positives or the inverse without monotonic boundary progress",
+      "stop when marginal cost exceeds the budget without a new witness or causal hypothesis",
+      "budget exhaustion yields an inconclusive diagnostic and never relaxes the contract"
+    ],
+    "execution_order": "affected cases and boundary controls first; full corpus, repetition and reordered runs only after focal success, before seal, and at final verification"
+  },
+  "roles": {
+    "contract_author": {
+      "executor": "/root/p1462_contrato",
+      "environment": "shared checkout at /repos/Antigravity/typst-crystalline",
+      "inputs": "step, ten ownership prompts, pinned nucleus, ADR-0107/0108/0127/0129, protocol skill and references, immutable baseline",
+      "writes": [
+        "00_nucleo/diagnosticos/p1462-manifesto.json",
+        "00_nucleo/diagnosticos/p1462-contrato-congelado.md"
+      ],
+      "forbidden": [
+        "candidate implementation or patch",
+        "code, tests, prompts, nuclei or any other artifact"
+      ],
+      "inherited_context": "delegated P1462 contract-author task and repository instructions; no candidate patch"
+    },
+    "oracle_author_and_ab_tester": {
+      "executor": "unassigned",
+      "inputs": "frozen manifesto, frozen contract, protected prompts, immutable baseline and ratified vanilla",
+      "writes": "independent oracle artifacts before the candidate; RED test consumer only after the discriminatory seal",
+      "forbidden": "candidate implementation and adaptation of expected results to a candidate"
+    },
+    "adversary": {
+      "executor": "unassigned",
+      "inputs": "frozen manifesto, contract, prompts and immutable baseline",
+      "writes": "mutant catalog, attack receipts and kill matrix",
+      "forbidden": "repairing or selecting the implementation and weakening the contract"
+    },
+    "implementer": {
+      "executor": "unassigned",
+      "inputs": "protected prompts and a discriminatorily sealed public contract",
+      "writes": "authorized P1462 consumers only",
+      "forbidden": "manifest, contract, protected oracles, baseline, prompts, nucleus and adversarial private output"
+    },
+    "preseal_verifier": {
+      "executor": "unassigned and distinct from contract, oracle, adversary and implementer authorities",
+      "inputs": "protected artifacts and receipts",
+      "writes": "preseal verdict only",
+      "forbidden": "editing any artifact being judged"
+    },
+    "final_verifier": {
+      "executor": "unassigned and distinct from implementation authority",
+      "inputs": "seal, candidate, tests and reproducible receipts",
+      "writes": "limited final verdict or certificate",
+      "forbidden": "silently repairing verified material"
+    }
+  },
+  "capability_attestation": {
+    "filesystem_is_shared": true,
+    "procedural_allowlists_are_technically_enforced": false,
+    "hashes_prove_identity_and_order_not_isolation": true,
+    "strong_independence_claimed": false
+  },
+  "adr_0127_gate": {
+    "status_at_contract_freeze": "confirmed",
+    "confirmed_on": "2026-09-19",
+    "confirmation": "confirmo",
+    "causal_order": "the coordinator reported commit 514b2ae8f35b661127e38620dcbdaefa9e158624, explicitly asked authorization for P1462 RED tests and implementation, and the human answered in the immediately following turn",
+    "evidence": "conversation transcript external to the repository, attested by the coordinator",
+    "effect": "ADR-0127 is satisfied; RED tests and candidate implementation remain forbidden until the discriminatory contract seal"
+  },
+  "invalidation": [
+    "baseline commit or tree changes",
+    "intent, prompt, nucleus or protocol source hash changes",
+    "contract observable or ownership scope changes",
+    "a protected artifact is edited after discriminatory seal",
+    "a role receives an input or write capability outside its declared allowlist"
+  ]
+}

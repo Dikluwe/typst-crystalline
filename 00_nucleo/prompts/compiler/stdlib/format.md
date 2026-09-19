@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
 Hash do Código: 00000000
 
-**Estado:** P1461 MATERIALIZADO; CONTRATO P1462 AGUARDA CONFIRMAÇÃO ADR-0127 —
-com sentinela não selada até a materialização posterior ao gate humano.
+**Estado:** P1461 MATERIALIZADO; CONTRATO P1462 CONFIRMADO — sentinela não
+selada até a materialização posterior ao novo selo discriminatório R2.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -99,7 +99,7 @@ proveniência bloqueia; nunca é convertido em sucesso.
 O gate humano de P1461 foi satisfeito e a raiz pública vazia foi materializada
 e certificada. Esse fato não autoriza qualquer filho reservado.
 
-## P1462 — `format.svg` (PROPOSTO; gate ADR-0127)
+## P1462 — `format.svg` (CONFIRMADO; aguarda selo R2)
 
 ### Medição anterior à decisão
 
@@ -146,6 +146,6 @@ deliberada: P1463 completa PNG, P1464 PDF e P1465 HTML.
 Nos quatro perfis públicos, `type(format.svg)` é `function`, `repr` é `svg`,
 `format.svg.pretty` é `false`, alias e `std.format.svg` preservam a identidade,
 e chamada direta produz o diagnóstico medido. Membro não contratado continua
-ausente. A ampliação da API pública e do comportamento de exportação exige
-confirmação humana explícita posterior ao commit causal P1462. Antes dela este
-texto não autoriza teste RED, alteração de consumer ou header de linhagem.
+ausente. A confirmação humana posterior ao commit causal P1462 foi recebida em
+2026-09-19. A materialização aguarda o novo selo discriminatório R2; o ensaio
+R1 inconclusivo não autoriza alteração de consumer ou header de linhagem.

@@ -732,7 +732,7 @@ preserva os items do prefixo e não cria texto, medida ou Location. Seu único
 consumer produtivo é o pipeline PDF tagueado; não confundir com `LabelElem`
 (destino nomeado) nem com `Artifact`, que remove conteúdo da structure tree.
 
-## P1462 — opções de formato no documento paginado (PROPOSTO; gate ADR-0127)
+## P1462 — opções de formato no documento paginado (CONFIRMADO; aguarda selo R2)
 
 ### Medição anterior à decisão
 
@@ -757,5 +757,6 @@ CLI, bytes serializados nem handles de exporter.
 `DocumentFormatOptions` pertence exclusivamente a
 `entities/document_format_options.rs`; este owner somente o transporta no
 documento. `Page`, `PageConfig`, frames, geometria e plain text não mudam.
-Trata-se de campo público e fica bloqueado até confirmação humana explícita de
-P1462.
+Trata-se de campo público. A confirmação humana explícita de P1462 foi
+recebida em 2026-09-19; a materialização permanece bloqueada até o novo selo
+discriminatório R2.

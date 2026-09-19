@@ -1,8 +1,8 @@
 # Prompt L0 — `wiring/tests/p1462-format-svg`
 Hash do Código: 00000000
 
-**Estado:** CONTRATO DE TESTE P1462 AGUARDA CONFIRMAÇÃO ADR-0127 — sem consumer
-e com hash sentinela não selado até a materialização posterior ao gate humano.
+**Estado:** CONTRATO DE TESTE P1462 CONFIRMADO — sem consumer e com hash
+sentinela não selado até a materialização posterior ao novo selo R2.
 
 **Camada:** L4 (testes de integração)
 **Alvo planejado:** `04_wiring/tests/p1462_format_svg.rs`
@@ -26,6 +26,8 @@ mínima. Cobrir:
 - regra `true` com `--pretty=false` produz compacta;
 - regra `false` com `--pretty=true` produz indentada;
 - repetição root `true → false` e inversa provam a precedência lexical;
+- `true → #set format.svg()` permanece indentada: named omitido não escreve
+  `false` nem apaga a decisão anterior;
 - regra dentro de container falha com a mensagem pública medida e não deixa
   artefato de sucesso;
 - named desconhecido e tipo inválido falham sem warning de target ignorado;
@@ -42,12 +44,15 @@ Um caso sem `format.svg` preserva o default anterior. `format.png`,
 global do SVG, não testa geometria, fonts, destinations ou HTML frame.
 
 Mutation obrigatória troca CLI/documento, colapsa `None` em `false`, ignora a
-regra, aceita nested e altera o default. Repetição/inversão e ao menos um caso
-de falha permanecem no conjunto mantido. Unknown, timeout, binário sem
-proveniência ou XML inválido bloqueiam; nunca contam como sucesso.
+regra, faz a regra vazia escrever `false`, aceita nested e altera o default.
+Repetição/inversão e ao menos um caso de falha permanecem no conjunto mantido.
+Unknown, timeout, binário sem proveniência ou XML inválido bloqueiam; nunca
+contam como sucesso.
 
 ## Gate
 
 O teste RED só pode ser criado depois da confirmação humana explícita do L0
-causal P1462. Após autorização, seu header aponta exclusivamente para este
-prompt e sua execução deve preceder a implementação candidata.
+causal P1462. A confirmação foi recebida em 2026-09-19; a correção R2 de
+paridade invalida o ensaio R1 inconclusivo e exige novo selo. Depois dele, o
+header aponta exclusivamente para este prompt e a execução RED precede a
+implementação candidata.

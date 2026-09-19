@@ -904,7 +904,7 @@ Falha de layout/render da ilha aborta a compilação; não apagar, substituir po
 texto ou emitir `<frame>`. A nova fase foi confirmada pelo dono em 2026-09-16
 e fica limitada pelo selo P1424.
 
-## P1462 — extração e resolução de `format.svg.pretty` (PROPOSTO; gate ADR-0127)
+## P1462 — extração e resolução de `format.svg.pretty` (CONFIRMADO; aguarda selo R2)
 
 ### Medição anterior à decisão
 
@@ -969,5 +969,6 @@ colapsam `None` cedo, invertem a precedência, ignoram documento, deixam regra
 nested passar e vazam a opção para outro target.
 
 A nova API pública e a inserção da extração antes do documento completo são
-mudanças de contrato/fase. Nenhum código ou teste RED é autorizado antes da
-confirmação humana explícita posterior ao commit causal P1462.
+mudanças de contrato/fase. A confirmação humana explícita posterior ao commit
+causal P1462 foi recebida em 2026-09-19; código e teste RED aguardam o novo selo
+discriminatório R2.

@@ -276,7 +276,7 @@ StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
 argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
 altera `size_explicit`, fields ou repr do carrier.
 
-## P1462 — set rule `format.svg` (PROPOSTA; gate ADR-0127)
+## P1462 — set rule `format.svg` (CONFIRMADA; aguarda selo R2)
 
 ### Medição anterior à decisão
 
@@ -287,15 +287,24 @@ target não é suportado. O vanilla ratificado aceita `pretty: bool`, rejeita
 named desconhecido com `unexpected argument: other` e tipo inteiro com
 `expected boolean, found integer`.
 
+Na calibração pré-candidata R1, o vanilla ratificado recebeu uma regra
+`pretty: true` seguida de `#set format.svg()`. A saída permaneceu pretty em
+`forward`, `reverse` e `forward-repeat`; portanto ausência do named não
+materializa o default e não apaga a cascata. A medição e a proveniência estão
+em `00_nucleo/diagnosticos/p1462-oraculos-independentes.md`, SHA-256
+`f452d0229c4dba6a87b5c3ed316daaaca84c9c066686a197034460555ed624d7`.
+
 ### Decisão proposta
 
 Reconhecer estruturalmente o target pontuado exato `format.svg`, sem inferir o
 nome a partir da string vazia e sem ampliar o fallback genérico. Aceitar
-exatamente um named opcional `pretty`; ausência usa o default público `false`
-do elemento, mas uma set rule sem named ainda materializa a decisão explícita
-`false`. Validar o valor como boolean antes de produzir mudança de estilo.
-Named posicional, duplicado, desconhecido ou tipo inválido falha pelo canal
-normal de `SourceResult`, nunca warning nem descarte silencioso.
+exatamente um named opcional `pretty`. Quando presente, validar o valor como
+boolean antes de produzir mudança de estilo. Quando ausente, a set rule é
+neutra: não insere `format.svg.pretty` e preserva qualquer decisão cascaded
+anterior. O default público `false` só vale quando não existe decisão
+documental. Argumento posicional, named duplicado/desconhecido ou tipo inválido
+falha pelo canal normal de `SourceResult`, nunca warning nem descarte
+silencioso.
 
 O valor validado segue pelo carrier `StyleDelta.custom` vigente sob a chave
 canônica `format.svg.pretty`. Este owner não extrai opção documental, não
@@ -307,4 +316,6 @@ Preservar todas as demais set/show rules, a ordem da cascata e a política de
 named desconhecido. `format.png`, `format.pdf`, `format.html` e qualquer outro
 campo continuam ausentes. Como a nova set rule altera a linguagem pública,
 nenhum código ou teste RED é autorizado antes da confirmação humana posterior
-ao commit causal P1462.
+ao commit causal P1462. Essa confirmação foi recebida em 2026-09-19; a
+correção R2 acima é paridade medida e segue fluxo contínuo L0-primeiro por
+ADR-0127, sem reutilizar o selo R1 inconclusivo.

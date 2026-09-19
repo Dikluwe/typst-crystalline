@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: 00000000
 
-**Estado:** CONTRATO P1462 AGUARDA CONFIRMAÇÃO ADR-0127 — sem consumer; hash
-sentinela não selado até a materialização posterior ao gate humano.
+**Estado:** CONTRATO P1462 CONFIRMADO — sem consumer; hash sentinela não
+selado até a materialização posterior ao novo selo discriminatório R2.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -53,5 +53,6 @@ abertos. O uso de structs fechadas não afirma que o conjunto futuro terminou.
 
 Testes provam defaults, clone/igualdade e independência entre duas instâncias.
 Não testar layout Rust, tamanho/alinhamento ou debug como paridade. Os campos
-públicos ampliam contrato entre camadas; nenhum consumer ou header é
-autorizado antes da confirmação humana posterior ao commit causal P1462.
+públicos ampliam contrato entre camadas. A confirmação humana posterior ao
+commit causal P1462 foi recebida em 2026-09-19; consumer e header aguardam o
+novo selo discriminatório R2.

@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: 00000000
 
-**Estado:** CONTRATO P1462 AGUARDA CONFIRMAÇÃO ADR-0127 — sem consumer; hash
-sentinela não selado até a materialização posterior ao gate humano.
+**Estado:** CONTRATO P1462 CONFIRMADO — sem consumer; hash sentinela não
+selado até a materialização posterior ao novo selo discriminatório R2.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -55,6 +55,11 @@ root repetidas, a decisão lexical/cascaded mais interna ou posterior é a
 efetiva. Ausência conserva `pretty == false`. O helper não remove nem reescreve
 conteúdo; apenas extrai opções.
 
+Um `Content::Styled` cujo delta não contém `format.svg.pretty` é envelope
+transparente, não uma ocorrência. Em particular, `#set format.svg()` não cria
+a chave: depois de uma regra `pretty: true`, a regra vazia preserva `true`,
+conforme a medição vanilla pré-candidata R1.
+
 O cast boolean já foi fechado em eval; encontrar outra variante de `Value` na
 chave canônica é estado interno inválido e deve falhar fechado, nunca usar
 fallback. Chaves futuras de PNG/PDF/HTML permanecem ignoradas até os seus L0s,
@@ -71,12 +76,15 @@ de erro são observáveis da linguagem.
 
 ## Aceitação e gate
 
-Testes puros cobrem ausência, `true`, `false`, repetição/inversão, sequence,
+Testes puros cobrem ausência, `true`, `false`, regra vazia neutra depois de
+`true`, repetição/inversão, sequence,
 styled root, styled dentro de ao menos dois containers estruturalmente
 distintos, tipo interno impossível e neutralidade de chaves não-SVG. Mutation
-obrigatória inverte precedência, ignora nested, trata nested como root, muda o
-default e aceita valor não booleano. Unknown bloqueia.
+obrigatória inverte precedência, faz regra vazia escrever `false`, ignora
+nested, trata nested como root, muda o default e aceita valor não booleano.
+Unknown bloqueia.
 
 A operação pública e a nova etapa de extração antes de selar o documento são
-mudanças de API/fase. Este prompt não autoriza consumer, testes RED ou header
-antes da confirmação humana explícita posterior ao commit causal P1462.
+mudanças de API/fase. A confirmação humana posterior ao commit causal P1462
+foi recebida em 2026-09-19; consumer, teste RED e header aguardam o novo selo
+discriminatório R2.

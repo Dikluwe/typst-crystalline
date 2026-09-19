@@ -628,7 +628,7 @@ não inspeciona seletores e não duplica fases do compilador. Falha de leitura o
 compilação retorna exit 1 pelos diagnósticos normais; erro de parsing CLI segue
 exit 2 em L2. O fio público aguarda confirmação ADR-0127.
 
-## P1462 — preservar ausência de `pretty` no braço SVG (PROPOSTO; gate ADR-0127)
+## P1462 — preservar ausência de `pretty` no braço SVG (CONFIRMADO; aguarda selo R2)
 
 ### Medição anterior à decisão
 
@@ -651,6 +651,6 @@ continua a ignorar `pretty`. `--compact`, `PdfTags`, features, formato, output,
 exit codes e diagnósticos não mudam. L4 não lê `PagedDocument`, não interpreta
 set rules e não formata SVG.
 
-A mudança de default observável no caminho SVG e a chamada de API nova exigem
-confirmação humana explícita posterior ao commit causal P1462; antes dela não
-há autorização para código ou teste RED.
+A mudança de default observável no caminho SVG e a chamada de API nova foram
+confirmadas pelo humano em 2026-09-19, depois do commit causal P1462. Código e
+teste RED aguardam o novo selo discriminatório R2.
