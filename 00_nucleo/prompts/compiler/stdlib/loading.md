@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/stdlib/loading.rs:240–263` tem fallback CBOR por repr; R4 mostrou
@@ -246,9 +244,7 @@ As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 Working tree P1319/P1320 sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, identificado com fonte/L0,
-diff/stat, horários e executáveis em `p1321-baseline.json` e
-`00_nucleo/diagnosticos/p1321-measurement.json`, SHA-256
-`f13c4ea33fe8d8f91a5ef443d3183d1cbb3f77d9ac6726c0e4c5e23c54fbef05`.
+diff/stat, horários e executáveis na medição histórica.
 Em loading.rs:1381–1389 o unknown precede fonte/opções; excedentes não são
 rejeitados antes do parser. No vanilla ratificado `a51e02804`, fonte inválida
 vence unknown, delimiter inválido vence unknown, e remanescente vence tanto
@@ -322,14 +318,10 @@ mudança arquitetural de fase/pipeline e sem promessa de paridade geral CSV.
 
 #### P1321-R2 — agregado recebido pelo validador
 
-Medição anterior à decisão: o candidato R1, binário SHA-256
-`deb6aed85d133665b00d416fabee92aeda04196ff76b6a734ef0451bbdeaea3c`,
-falhou no A/B imutável `p1321-ab2-candidate.json`, SHA-256
-`d1699b5ae42327c7ba7254f5f1f2830453d0cd225fce8f79807cf329aa2a1a25`:
+Medição anterior à decisão: o candidato R1, binário,
+falhou no A/B imutável medição histórica:
 as oito fontes missing sem named source marcam a lista, não a chamada inteira.
-Estado, diff/stat e UTC anteriores à reabertura constam de
-`00_nucleo/diagnosticos/p1321-r2-baseline.json`, SHA-256
-`8ca670bb4ab656a29667abd67fc06bc4d227a3dcc0afa9330a5e9ad49537f065`.
+Estado, diff/stat e UTC anteriores à reabertura constam da medição histórica.
 Em call_dispatch.rs:398, Args recebe args_node.span(); :455–487 transporta
 a chamada só para encoders e panic. A perda de origem refutou a suficiência
 do owner único, não o resultado esperado. A fonte ratificada
@@ -351,8 +343,7 @@ ADR-0127, dois owners com L0s 1:1, sem novo campo, assinatura ou fase.
 #### Medição anterior à decisão
 
 Baseline commit `d31047d7b8af7837c84adae4ded3d2ff50c62093`, que integra
-P1315–P1318. `00_nucleo/diagnosticos/p1319-measurement.json`, SHA-256
-`4396b098d5f5db30bfd832d210c1027eb9529d8120c18c5a63fd9bc16d8ae3bd`,
+P1315–P1318. A medição histórica
 preserva fonte/L0, estado, UTC, bytes das fixtures reais, argv/cwd e saídas.
 Em `loading.rs:1375-1376`, CSV Path/Str descarta o caminho resolvido e retorna
 o decoder detached. A referência ratificada `a51e02804` indica
@@ -441,9 +432,7 @@ constructor parcialmente materializado nem fechamento implícito futuro.
 #### Medição anterior à decisão
 
 Working tree P1315/P1316/P1317 não commitado sobre HEAD
-`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`, fonte/L0 completos e estado em
-`00_nucleo/diagnosticos/p1318-measurement.json`, SHA-256
-`c19f749ad22b06e07d3078d6d9a72017e3c2e1f2b2546f738042f34362302378`.
+`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`, fonte/L0 completos e estado na medição histórica.
 O mapper em `loading.rs:944-1006` descarta a posição do parser; a composição
 Bytes em `loading.rs:1304-1319` só ajusta o span do argumento. O vanilla
 ratificado `a51e02804` acrescenta `at 2:1` ao erro de `a,b\n1` e `at 3:1`
@@ -520,9 +509,7 @@ Fluxo contínuo ADR-0127: correção interna de paridade, L0 antes do código.
 #### Medição anterior à decisão
 
 Working tree P1315/P1316 não commitado sobre HEAD
-`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`; fontes, hashes e estado em
-`00_nucleo/diagnosticos/p1317-measurement.json`, SHA-256
-`92b04d68105d573523c673c1bcd0fb64ec2ffe57d17788c79742ce0450ee2fdf`.
+`bc8213f36b7a29b4fdc30cfc74ddc23586117c64`; fontes, hashes e estado na medição histórica.
 `loading.rs:955-965` trata Utf8 pelo fallback Display do parser. Bytes 255
 produz `CSV parse error: record 0 ... invalid utf-8 ...`; o vanilla ratificado
 `a51e02804` produz `file is not valid UTF-8 at 1:1` dentro do mesmo envelope.
@@ -531,8 +518,7 @@ o formatter declara explicitamente a causa `file is not valid UTF-8` para
 ErrorKind::Utf8; `diag.rs:845-925` acrescenta localização por outra camada.
 Mensagem diagnóstica é observável da linguagem (exceção ADR-0108).
 
-A checagem extra de precedência em `p1317-measurement-focal.json`, SHA-256
-`2a995791a497c9579fa8854d0531eebc74428b71afe92d59f249ec6143fa4fe0`,
+A checagem extra de precedência na medição histórica,
 mostra que linha curta com byte inválido gera UnequalLengths, não Utf8, nos
 dois produtos. Logo validar UTF-8 antecipadamente mudaria o erro vencedor.
 Arrays literais corrigem as sondas iniciais de concatenação Bytes, que o
@@ -579,8 +565,7 @@ Correção interna de paridade: fluxo contínuo ADR-0127, L0 antes do código.
 
 Working tree P1315 não commitado sobre HEAD
 `bc8213f36b7a29b4fdc30cfc74ddc23586117c64`; estado, fontes integrais e hashes
-anteriores em `00_nucleo/diagnosticos/p1316-measurement.json`, SHA-256
-`b5d25936d78b8584cec7469fdde2a2cd5130da2f52936bcdd9f103efc28154d7`.
+anteriores na medição histórica.
 `loading.rs:1301-1302` retorna decode_csv(Bytes) diretamente, perdendo
 contexto do argumento em erros de parsing. `csv(bytes("a,b\n1"))` produz
 erro detached no baseline, mas aponta para `bytes(...)` no vanilla; With e
@@ -619,7 +604,7 @@ de parsing CSV Bytes em P1313/P1314/P1315, não as demais fronteiras.
 
 #### Fronteira de excesso medida antes do candidato
 
-A medição independente `p1316-ab-baseline-runs.json` em diagnósticos mostra
+A medição independente em diagnósticos mostra
 que Bytes malformado com positional excedente atinge parsing no baseline,
 mas excesso no vanilla. Não alterar essa precedência neste lote. Nesse caso,
 o erro de parsing legado recebe a origem do primeiro Bytes como nos demais;
@@ -644,9 +629,8 @@ Correção interna de paridade: fluxo contínuo ADR-0127 com L0 primeiro.
 #### Medição anterior à decisão
 
 Baseline commit `bc8213f36b7a29b4fdc30cfc74ddc23586117c64`, sem diff
-produtivo; medição `00_nucleo/diagnosticos/p1315-measurement.json`, SHA-256
-`ee6535435927f5ea6bbe8dadcd05663636b8cb41324151bd3d59a2a0c4019fe0`,
-registra estado, horários, argv e binários. Em `loading.rs:956-963`, o
+produtivo; a medição histórica registra estado, horários, argv e binários. Em
+`loading.rs:956-963`, o
 diagnóstico UnequalLengths usa Position.line. Para CSV com primeiro registro
 `"a\nb",c` seguido de `1`, informa `line 3`; o vanilla ratificado
 `a51e02804` informa `line 2 at 3:1`, separando ordinal e posição física.
@@ -697,10 +681,8 @@ Nunca remover sufixos/spans para alegar igualdade total dos produtos.
 #### Medição anterior à decisão
 
 Baseline P1313 no HEAD `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, working
-tree não commitado, em `00_nucleo/diagnosticos/p1314-baseline.json` (SHA-256
-`75cccd6e392df84001640f244facde73883fd414de045253e97e6a12bfad70c6`).
-Medição bilateral `p1314-measurement.json` em diagnósticos (SHA-256
-`660fd77c95fe243e22590036b03dc5e364b0e3a107888592b35c4d166d557626`)
+tree não commitado, na medição histórica.
+Medição bilateral histórica em diagnósticos
 registra argv, UTC, fontes e estado integral. `loading.rs:1233-1273` usa
 somente Args.named e err detached para delimiter/row-type. Mensagens das
 opções inválidas ordinárias coincidem com vanilla, mas não suas origens.
@@ -765,11 +747,8 @@ inventado. Não há promessa de paridade geral CSV.
 #### Medição anterior à decisão
 
 Baseline P1312 não commitado no HEAD
-`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado em
-`00_nucleo/diagnosticos/p1313-baseline.json`, SHA-256
-`0ad67b8f92c25160f044c352241572916716e2489ad105a6314608d51f59de92`.
-Medição bilateral `p1313-measurement.json` em diagnósticos, SHA-256
-`f07efa356c554a4b80a5702c516c4e7f7bee51f4b70fc8cc419ea6cf8754cb43`,
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado na medição histórica.
+Medição bilateral histórica em diagnósticos,
 registra fontes, argv, UTC, saídas e estado. No vanilla ratificado `a51e02804`,
 `csv(bytes("a,b\n1,2"))` retorna duas linhas de strings; bytes vazios retornam
 array vazio; delimiter `;` e row-type dictionary funcionam com Bytes, inclusive
@@ -826,8 +805,8 @@ CSV Path/Str em §2/P1141 e a preservação de rejeição Bytes/cast CSV de P131
 
 Houve paragem por dúvida ADR-0127 entre paridade contínua e ampliação do cast
 público Typst/precedente P1141. O dono respondeu especificamente «Autorizo» em
-2026-09-08 à proposta de ampliação CSV Bytes conforme P1313. O recibo
-`00_nucleo/diagnosticos/p1313-implementation-baseline.json` identifica a proposta
+2026-09-08 à proposta de ampliação CSV Bytes conforme P1313. A medição
+histórica identifica a proposta
 aprovada e o estado anterior ao código. A aprovação não amplia o recorte acima.
 
 Congelar expectativas independentes
@@ -837,18 +816,15 @@ Bytes, replays e lint. Semântica de valores e diagnóstico são observáveis de
 linguagem (ADR-0107/0108), não identidade de Vec/Arc ou algoritmo do parser.
 É inferência que o owner existente basta; perda de origem, necessidade de
 outro owner ou alteração de contrato público Rust refuta esse escopo e exige
-nova decisão antes de implementar. Nenhum selo ou paridade geral é prometido.
+nova decisão antes de implementar. Nenhuma validação ou paridade geral é prometida.
 
 ### Cast do caminho em `read` — P1312
 
 #### Medição anterior à decisão
 
 Baseline P1311 não commitado sobre HEAD
-`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado em
-`00_nucleo/diagnosticos/p1312-baseline.json`, SHA-256
-`0597c75b13da999990886b32577b563bab330d8d1be4e5bf85e97ff0f03588c5`.
-Medição bilateral `p1312-measurement.json` em diagnósticos, SHA-256
-`d986f593b9d8ca8358d3bf8fc5303eade65bd47382dec0424c3cd3d9d54e07c1`,
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, registrado na medição histórica.
+Medição bilateral histórica em diagnósticos,
 conserva fontes, argv, UTC, saídas e diff/stat. `read(42)` no vanilla ratificado
 `a51e02804` produz `expected path or string, found integer` em `42`; o
 cristalino dá mensagem portuguesa, tipo curto e origem detached. Named antes
@@ -913,11 +889,8 @@ curto e `Span::detached()`. O vanilla ratificado `a51e02804`,
 o cast DataSource como PathOrStr ou Bytes; os decoders recebem a fonte
 Spanned. A medição bilateral P1309 de `json(42)` registra
 `expected path, string, or bytes, found integer` com origem em `42`.
-Recibo `00_nucleo/diagnosticos/p1309-sentinels-p1308-vanilla.json`, SHA-256
-`8f29121b65d5b5e7e98c9c146c4750d4b0a6d08566028f97dc08bc8691848df5`.
-O baseline P1310 preserva fonte, binários e diff/stat em
-`00_nucleo/diagnosticos/p1310-baseline.json`, SHA-256
-`3a19c3b842c5bdcc2d4e6df3ea8778a407a9843b2fc5ec183f3b07620c25d65f`.
+Registro histórico.
+O baseline P1310 preserva fonte, binários e diff/stat na medição histórica.
 
 #### Decisão proprietária e aceitação
 
@@ -949,7 +922,7 @@ público ou promessa de equivalência geral dos decoders.
 
 #### Fronteira Symbol medida antes do candidato
 
-A medição independente `00_nucleo/diagnosticos/p1310-ab-freeze-measurement.json`
+A medição independente
 revela que `json(sym.alpha)` no vanilla tenta ler o arquivo `α`, em vez de
 rejeitar o cast. Na fonte ratificada, `foundations/path.rs:216-224` compõe
 PathOrStr com Str; `foundations/value.rs:632-637` converte Symbol em Str.
@@ -1010,16 +983,13 @@ native_json(bytes de `{"a":1}`) → Ok(Dict{a:Int(1)})  // aceita Bytes, não s�
 
 ### Medição anterior à classificação
 
-O recibo `00_nucleo/diagnosticos/p1307-contract-measurement.json`, SHA-256
-`f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0`,
-e seu sucessor `p1307-r2-measurement.json`, SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+O registro histórico,
+e sua medição sucessora,
 registram fontes literais, strings e diagnósticos integrais, argv, horários,
 estado e perfis default/html/a11y/html+a11y. HEAD
 `b303f1f15b610e09872b567027e0d806387fde8c`, working tree P1306 não commitado
 com diff/stat completos nos baselines P1307/R2; vanilla ratificado
-`a51e02804`, executável SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`a51e02804`, executável.
 As tentativas contextuais antigas inválidas não são RED: a rota R2 compile
 documental tornou Location/LocatedContent observáveis bilateralmente.
 

@@ -1,5 +1,13 @@
 # Passo 1416 — uma numeração transversal em `#columns()` segmentado
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Corrigir a duplicação de `par.line` entre segmentos irmãos de
@@ -13,11 +21,11 @@ P1415 e não participam desta deduplicação.
 - baseline: commit `f4537577af3daba48cb880d7300e2e986f47702c`, árvore limpa
   antes da criação das oito fixtures P1416;
 - medição inicial: `2026-09-16T07:54:00-03:00`;
-- cristalino: `target/release/typst`, SHA-256
-  `1fe7fe27c0613fb9ca30fb295210acfe26f0a28059d6dc610da3a21fc2df6d95`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - regime: protocolo Tekt completo em rehearsal, executado sem atestação de
   isolamento.
 
@@ -47,16 +55,16 @@ e quantidades observáveis diferem. Ela é um refutador de generalização e fic
 
 ## Oráculos congelados
 
-| Fixture | SHA-256 | Papel |
+| Fixture | identificador administrativo | Papel |
 |---|---|---|
-| `segmented-two-columns.typ` | `3a95ece719ae65655e4b423a86a2d1df3317890248fdcbb95ea9d8308e98deee` | positivo mínimo |
-| `segmented-three-columns.typ` | `947b04b140447d2ac56dcd3ff041bd07ade09e4d97db91f3864164e85899125b` | cardinalidade N |
-| `segmented-empty-first.typ` | `e282fac7e2edae783dcd71450b485e5512ff53747af57fbbbabab26cfee7e725` | origem externa |
-| `segmented-unequal-lines.typ` | `2aca26d7c4854c47b2775ec62b782e35269acfa1fc4f0acaeceeb382b5a24bcb` | máximo, não soma |
-| `segmented-callback.typ` | `c1231ec7d53465703c87b5acff8796c69f2ea8471ca1dbbb1a18b518caca412b` | transcript único |
-| `segmented-right-margin.typ` | `67167b079b69c24f9e0d6f157673b97661598ebbb3381ed5b80d3ccceeccba34` | bordo final externo |
-| `page-columns-control.typ` | `450230f63d95689d2207e76b48024422526e084bee183be41042dffcae0fe79b` | controle P1415 |
-| `segmented-style-heights.typ` | `afdf61cc7574222e773cb6945179e6aac90bbc5bb2fc0949267fab97d3995b20` | opaco `Unknown` |
+| `segmented-two-columns.typ` | [dado administrativo removido] | positivo mínimo |
+| `segmented-three-columns.typ` | [dado administrativo removido] | cardinalidade N |
+| `segmented-empty-first.typ` | [dado administrativo removido] | origem externa |
+| `segmented-unequal-lines.typ` | [dado administrativo removido] | máximo, não soma |
+| `segmented-callback.typ` | [dado administrativo removido] | transcript único |
+| `segmented-right-margin.typ` | [dado administrativo removido] | bordo final externo |
+| `page-columns-control.typ` | [dado administrativo removido] | controle P1415 |
+| `segmented-style-heights.typ` | [dado administrativo removido] | opaco `Unknown` |
 
 As fixtures são externas ao candidato e não podem ser adaptadas ao patch.
 Timeout, OOM, swap, output ausente ou promoção do caso opaco contam como

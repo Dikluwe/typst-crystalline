@@ -1,5 +1,13 @@
 # Passo 1396 — espaço fino em `math.liminf` e `math.limsup`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo e regime
 
 Corrigir a morfologia pública dos operadores compostos `math.liminf` e
@@ -17,18 +25,18 @@ veredito.
 Estado congelado antes de P1396, observado em `2026-09-14T15:54:52-03:00`:
 
 - HEAD limpo `3f081c97f7dba59549a70e89d6bfb93afcc82b1a`;
-- L0 anterior `compiler/stdlib/structural/math.md`, SHA-256
-  `af86e9518d75a8a0f3605fb34aa5fe7d793e709e4f732f77ca3ef42ce1fb5390`;
-- owner produtivo `01_core/src/compiler/stdlib/structural/math.rs`, SHA-256
-  `26a437f98388eeddb815e2b9c4e5f20be5934023a8aa55616637126a2aecd633`;
+- L0 anterior `compiler/stdlib/structural/math.md`, identificador administrativo
+  [dado administrativo removido];
+- owner produtivo `01_core/src/compiler/stdlib/structural/math.rs`, identificador administrativo
+  [dado administrativo removido];
 - fonte ratificada `lab/typst-original/crates/typst-library/src/math/op.rs`,
-  SHA-256
-  `8b4ee3ebcb085a4810b164d03f1eb0fbb4f2ce9b01224cd32ef4352d3631a1d3`;
-- binário vanila ratificado, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+  identificador administrativo
+  [dado administrativo removido];
+- binário vanila ratificado, identificador administrativo
+  [dado administrativo removido],
   52.149.176 bytes;
-- binário cristalino baseline, SHA-256
-  `5d0ff9dedaa3198217ac8b3a87fb91352d9beca1052e3f3c3b1a23a79030207a`,
+- binário cristalino baseline, identificador administrativo
+  [dado administrativo removido],
   49.136.680 bytes.
 
 No vanila ratificado
@@ -57,8 +65,8 @@ Trata-se de correção interna de tabela/paridade: não muda API pública,
 comportamento de produto deliberadamente novo, fase do pipeline ou
 compatibilidade. Portanto segue fluxo contínuo ADR-0127: L0 atualizado
 primeiro, RED, implementação, GREEN, resselo e revalidação, sem paragem humana
-intermediária. O L0 atualizado antes do código tem SHA-256
-`17104803ee9d1f221060f86664f6f4de55b914af7182905ef5ab546250c5f96f`.
+intermediária. O L0 atualizado antes do código tem identificador administrativo
+[dado administrativo removido].
 
 ## Delta autorizado
 
@@ -125,23 +133,23 @@ autoridades posteriores. Este passo não alega paridade matemática geral.
 
 Uma inspeção adicional do baseline, ainda antes de ler qualquer candidata,
 encontrou uma contradição protegida fora do owner produtivo: o consumer
-`01_core/src/compiler/stdlib/mod.rs`, SHA-256
-`18c3811be31af00eb8a0dcc2fa27ad33df4c9149850877cada4a9160538b813f`,
+`01_core/src/compiler/stdlib/mod.rs`, identificador administrativo
+[dado administrativo removido],
 possui em `:12759-12777` dois testes P299 que ainda exigem U+0020 para
 `liminf` e `limsup`. Seu header pertence ao L0 da fachada
-`compiler/stdlib/_comum.md`, cujo baseline tinha SHA-256
-`5e8f2cd4a098f65f0a4d758f9ffcae2595d979b25240b139f4dee9cb6f4fc0ea`.
+`compiler/stdlib/_comum.md`, cujo baseline tinha identificador administrativo
+[dado administrativo removido].
 
 O L0 da fachada foi atualizado primeiro, sem tocar código, para obrigar os
 dois expected a usar U+2009 e o comentário a nomear o espaço fino. Seu novo
-SHA-256 é
-`158ec2165a4506074b6c7d09e50aecf370f69347a546192dab3e855555b0ce5d`.
+identificador administrativo é
+[dado administrativo removido].
 R1 autoriza em `stdlib/mod.rs` somente os dois expected e comentários locais
 correspondentes, mais a atualização de linhagem desse hub. Nenhum helper,
 reexport, outro teste ou código produtivo da fachada pode mudar.
 
 O pré-selo R0
-`f700e0f5dd03b093ad32801093c6cb9efc691a45660b844c8d523af3c8786022`
+[dado administrativo removido]
 fica invalidado porque passo, contrato e escopo protegido mudaram. Oráculo e
 catálogo adversarial não são alterados: continuam sendo o gate dinâmico da
 morfologia produtiva, mas precisam ser novamente avaliados por um selador
@@ -150,9 +158,9 @@ compilado; a coerência das duas expectativas test-only é verificada por diff
 estrutural e o comportamento por oráculo CLI sob o limite já congelado.
 
 Durante R1, o L0 estrutural passou do hash semântico pré-candidato
-`17104803ee9d1f221060f86664f6f4de55b914af7182905ef5ab546250c5f96f`
+[dado administrativo removido]
 para o hash de linhagem
-`e58334e2be9db99a59ad35b251316e29d0064383ace335a1c9419eddd8b9f42e`.
+[dado administrativo removido].
 O coordenador confirmou que a única diferença foi o resselo automático
 autorizado de `Hash do Código: 4a4d07ab` para `e702b9c5`; a obrigação semântica
 P1396 não mudou. O autor R1 não leu o diff nem o código candidato.
@@ -171,16 +179,16 @@ linhagem dos dois owners. O conteúdo semântico do L0 estrutural não precisa d
 nova edição; somente seu resselo eventual continua autorizado.
 
 O pré-selo R1
-`9845fd6c3e4ab4f4378a4aaa57fb8c5bfebda15ce93a8d7733aaab877d3aeda7`
+[dado administrativo removido]
 fica superseded pela ampliação do delta. Oráculo e observáveis não mudam; não
 se reexecuta corpus, lib-test, build ou lint nesta revisão contratual. Um novo
 pré-selo R2 deve proteger o comentário e provar que o catálogo adversarial
 rejeita sua permanência em U+0020. O autor R2 não leu a candidata.
 
 Durante R2, `_comum.md` passou do hash semântico pré-lineage
-`158ec2165a4506074b6c7d09e50aecf370f69347a546192dab3e855555b0ce5d`
+[dado administrativo removido]
 para o hash atual de linhagem
-`422c678d197ec48d0299059d90629bd3a9db852734394c32d0907b96bceb2dd6`.
+[dado administrativo removido].
 O coordenador confirmou que a única mudança foi o resselo automático
 autorizado de `Hash do Código`; o conteúdo semântico R1 não mudou. O autor R2
 não leu esse diff nem a candidata.

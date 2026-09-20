@@ -15,8 +15,7 @@ ADR-0054 (perfil graded).
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1328-baseline.json`, SHA-256
-`e049418db46ea039235b336254bfdbffd492253ac66c38782ac6bc56564f2ffb`,
+A medição histórica
 registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
 não commitado, diff/stat integral, binários e argv, com UTC inicial
 `2026-09-09T11:35:18.901045+00:00`. O vanilla ratificado `a51e02804`
@@ -79,8 +78,7 @@ satisfaz aceitação. Não se afirma paridade geral de abs ou calc.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1329-baseline.json`, SHA-256
-`d0e1787fac8b6264122ca6dcf5e29e4729552e8031e591ce6f4ee725e14cbd23`,
+A medição histórica
 registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
 não commitado, lista exata/diff/stat/inventários, argv e binários, início
 UTC `2026-09-09T12:08:08.824769+00:00`. O baseline P1328 rejeita
@@ -101,7 +99,7 @@ calculam módulo sem normalização angular ou resolução de contexto.
 guards e origem de Content; `entities/layout_types.rs:1102-1115,1162-1212,
 1259-1293` e `entities/value.rs:113` já representam as grandezas requeridas
 com APIs públicas suficientes. Não é necessário criar campo ou método.
-`p1328-ab-tests-r2.rs:326-345`, em diagnosticos, identifica quatro controles
+a medição histórica identifica quatro controles
 históricos de rejeição que deixam de ser a obrigação vigente.
 
 As sondas com `0.0/0.0` falham antes da chamada e não medem abs/NaN.
@@ -115,8 +113,7 @@ Reabertura de domínio P1329-R2, ainda antes de C:
 `lab/typst-original/crates/typst-utils/src/scalar.rs:29-31` normaliza NaN
 para zero; Angle, Ratio, Fr, Abs e Em usam Scalar nos construtores. Portanto
 NaN dimensional já construído no cristalino não tem entrada equivalente
-nesse vanilla. `p1329-nan-domain-probe-r2.json`, em diagnosticos, SHA-256
-`8ca6f55fbcde70a3a4edcc521dccaa248caedd872650b6b735e113991ea84b9c`,
+nesse vanilla. A medição histórica, em
 UTC `2026-09-09T12:31:40.046287+00:00`, guarda HEAD/diff/stat e mostra
 `(calc.inf - calc.inf) * 1deg` e `* 1%` como NaN no cristalino e zero no
 vanilla. Não são apenas estados sintéticos: há dívida anterior à chamada
@@ -183,8 +180,7 @@ revisão de escopo antes de expandir a implementação.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1330-baseline.json`, SHA-256
-`a3f732bfb2fda2f177dbf3b33caddcd84b219af6fac22f96eae9644e784b6987`,
+A medição histórica
 registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
 não commitado, diff/stat, inventários e argv/horários/binários. A expressão
 `calc.abs(-9223372036854775807 - 1)` retorna 9223372036854775807 no
@@ -233,7 +229,7 @@ operadores, construção de NaN ou política guard_float.
 
 Autor A/B migra apenas as duas expectativas antigas de saturação do mesmo
 overflow (Int(MIN) nativo e expressão avaliada, em
-`p1329-ab-p1328-successor.rs:209,313`) para o diagnóstico acima, com as
+a medição histórica) para o diagnóstico acima, com as
 origens respectivas detached e do argumento, e a observação CLI de overflow nos
 quatro perfis; todos os demais testes históricos ficam intactos. As
 evidências em diagnosticos são imutáveis. Congelar testes novos antes de
@@ -258,8 +254,7 @@ suficiência e exige revisão antes de ampliar. Não declarar paridade geral.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1331-baseline.json`, SHA-256
-`7287bfac86e29e8ff0e86955ce96f63e140b745fb781eb4b4b7410215c794b45`,
+A medição histórica
 registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
 não commitado, diff/stat/inventários e binários/argv/horários. Em
 `calc.abs("x")`, `calc.abs(sym.alpha)`, bool, none, auto, coleções e
@@ -276,9 +271,8 @@ confirma essa construção explícita, sem inferir intenção geral dos tipos.
 As condições de hints desse cast não se aplicam aos tipos rejeitados por
 ToAbs: Int/Decimal têm seus braços próprios, e a união não pede label.
 
-`p1331-domain-probes.json`, em diagnosticos, SHA-256
-`2b40d0f6d973a580122fcaee87ef42ee742d2a4ef167919091da0b85beeb7818`,
-confirma Path construído e Relative mesmo com componentes zero; continuam
+A medição histórica confirma Path construído e Relative mesmo com componentes
+zero; continuam
 rejeitados como path e relative length. `path()` sem argumento falha antes
 de abs e não é testemunha desse fallback. `calc.abs(location)` recebe o
 tipo, não uma instância Location. Para Location já construída, a fonte
@@ -312,7 +306,7 @@ e demais funções. Parsing, construção, entidades, helpers, pipeline e
 política guard_float permanecem fora do recorte.
 
 Autor A/B migra apenas as expectativas antigas string/symbol de
-`p1330-ab-p1328-successor.rs:341-351` (mensagem, origem e trace) e suas
+a medição histórica (mensagem, origem e trace) e suas
 células CLI; preservar os demais controles e os módulos P1329/P1330.
 Não reescrever snippets/evidências antigos. Congelar testes novos antes
 de C: famílias rejeitadas, string numérica sem coerção, Bool/Str, Relative
@@ -334,9 +328,7 @@ antes de ampliá-lo. Não se afirma paridade geral de abs, dos tipos ou calc.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1332-baseline.json`, SHA-256
-`1e9b77f550d5e34c4d3b52df5306eae3588122a35262d19128561532c33a7d97`,
-registra HEAD/diff/stat/inventário e argv/horários dos binários P1331 e
+A medição histórica registra HEAD/diff/stat/inventário e argv/horários dos binários P1331 e
 vanilla ratificado a51e02804. With e arguments conservam a origem correta,
 mas seus traces cristalinos dizem calc.abs enquanto vanilla diz abs.
 `compiler/stdlib/calc.rs:58` registra o nome qualificado; a chave já é abs.
@@ -352,9 +344,8 @@ registro produtivo concorrente chamado abs; preservar a identidade da
 linguagem por lookup/import/alias e a distinção das demais funções.
 Não fixar valores de hash Rust como critério semântico.
 
-`diagnosticos/p1332-name-consumers-public.json`, SHA-256
-`2d8ea9bb87879b307d1a7bd35e35c72feb02f913470b935aa8355207f8002e48`,
-com proveniência e binários, mede efeitos indiretos: `stdlib/gradients.rs:649`
+A medição histórica, com proveniência e binários, mede efeitos indiretos:
+`stdlib/gradients.rs:649`
 e `eval/rules.rs:2488` interpolam o nome em erros de space/show. Esses
 diagnósticos não coincidem com vanilla; trocar o nome não os torna paridade.
 `.where()` já publica nome curto e permanece como dívida própria.
@@ -394,7 +385,7 @@ restantes classificadas antes de C. RED real, GREEN dos mesmos testes,
 build/workspace/fmt/lint/V5/V15/V26 e preservação histórica são gates.
 
 Correção de nome/paridade ADR-0127 em fluxo contínuo, sem nova API/default
-deliberado/fase. Regime A/B sem atestação técnica de isolamento, sem selo
+deliberado/fase. Regime A/B sem atestação técnica de isolamento, sem confirmação
 de refinamento. É inferência que só o registro basta; colisão de identidade
 acessível, necessidade de editar outro owner ou perda de origem refuta essa
 suficiência e exige revisão antes de expandir. Unknown obrigatório bloqueia
@@ -996,13 +987,10 @@ make_calc_module().inf -> Float(INF)
 
 ### Medição anterior à decisão
 
-Baseline `00_nucleo/diagnosticos/p1333-baseline-public.json`, SHA-256
-`45a23be20fd81ff9b77c60ff89db3267ce615a77d3fb41df444f3af054bf8800`:
+Baseline histórico:
 HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, árvore não commitada,
-diff stat/inventário e UTC por comando no recibo. Cristalino SHA-256
-`dfe7c3ab89eaa145d79e5b56ac72c657e49c6c994f9a88a4338915808ec0e8ea`;
-vanilla ratificado upstream/main `a51e02804`, binário SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+diff stat/inventário e UTC por comando no registro. Cristalino;
+vanilla ratificado upstream/main `a51e02804`, binário.
 `calc.abs([x], 2)` diverge: aridade no cristalino, tipo content no vanilla.
 Comprimento misto e overflow com sobras exibem a mesma precedência errada.
 
@@ -1055,21 +1043,18 @@ com ledger explícito, sem editar artefatos antigos. Preservar controles de
 avaliação eager, matemática e outros débitos. Exigir RED compilado, GREEN,
 corpus CLI literal repetido/reordenado, build/workspace, fmt, linhagem,
 V15/V26 e linter sem violações. Unknown obrigatório bloqueia conclusão.
-Regime A/B sem atestação técnica de isolamento, sem selo de refinamento
+Regime A/B sem atestação técnica de isolamento, sem confirmação de refinamento
 ou mutation score. Evidências e estado exato ficam em diagnósticos.
 
 ## P1334 — ausência e sobras na assinatura de abs
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
-`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+A medição histórica
 registra árvore não commitada sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, inventário/diff stat, UTC/argv
-e binários: cristalino P1333 SHA-256
-`79470612fc121fa42a6898846f85d0b0325edf517c90a830c01cde947f748ffe`;
-vanilla ratificado upstream/main `a51e02804`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+e binários: cristalino P1333;
+vanilla ratificado upstream/main `a51e02804`.
 Missing tem mensagem/origem divergentes; named value carece de hint;
 primeiro extra antes de named perde precedência. With/spreads conservam
 origens externas à chamada final no vanilla.

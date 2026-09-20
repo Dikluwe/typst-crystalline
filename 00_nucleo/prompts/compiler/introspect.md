@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/introspect.rs:1327–1350` lê numbering e depois guarda Content nu;
@@ -57,11 +55,10 @@ O fim do walk (`:1944-1948`) usa hash_content(content) em Tag::End.
 `entities/introspector.rs:634-724` contém o algoritmo legado da consulta e
 não pode importar o comparador linguístico de compiler.
 
-As sondas congeladas `diagnosticos/p1339-where-integration-probe-runs.json`
-e `diagnosticos/p1339-where-integration-probe-supplement-runs.json` fixam
+As medições históricas fixam
 binário vanilla `a51e02804`, estado, horários e resultados de query/body,
-contagem e chave filtrada vazia. A aprovação específica do payload está em
-`diagnosticos/p1339-where-payload-approval.json`.
+contagem e chave filtrada vazia. A aprovação específica do payload foi
+registrada pelo dono.
 
 ### Decisão proprietária — ocorrência
 
@@ -83,8 +80,7 @@ genérica que conta qualquer elemento automaticamente.
 
 ### Captura de campos das ocorrências Strong/Emph
 
-Medição adicional anterior a esta cláusula: a rodada independente
-`diagnosticos/p1339-where-occurrence-probe-runs.json`, UTC
+Medição adicional anterior a esta cláusula: a rodada independente, em UTC,
 `2026-09-10T01:06:52.262421+00:00`–`01:06:55.221414+00:00`, guarda
 proveniência integral e compara sintaxe/call, nesting, reuso, body e labels
 no vanilla ratificado. Strong consultado tem delta realizado (default 300),
@@ -149,7 +145,7 @@ explicitada, não são provados pelo hash do Content nu.
 
 Medição: `populate_intr_from_tag_start` alimenta snapshots sob chaves Kind
 (`compiler/introspect.rs:793-834,953-1040`), sem registrar a ação causal em
-forma reutilizável. A revisão `diagnosticos/p1339-where-counter-integration-design.md`
+forma reutilizável. A revisão histórica
 e as sondas de fase refutam derivar ações das diferenças de estados.
 
 Proposta: registrar no log privado de `entities/counter_registry.md`, junto
@@ -164,8 +160,8 @@ derivados que reutilizam Location. Func não executa no walk.
 Fornecer ao runtime de `compiler/introspect/from_tags.md` seleção pura de
 eventos automáticos por Location/store/folha Element, usando o matcher
 linguístico já contratado. Captura não altera contadores legados nem a
-ordem de tags. Este log é dado para resolução sob demanda aprovada no recibo
-`diagnosticos/p1339-where-counter-phase-approval.json`; não dispensa os gates
+ordem de tags. Este log é dado para resolução sob demanda aprovada pelo dono;
+não dispensa os gates
 de integração nem resolve sozinho convergência de conteúdo gerado em contexto.
 
 ## Módulo
@@ -1598,7 +1594,7 @@ pós-processador com Engine aplica o owner `stdlib/numbering` duas vezes: vista
 visível `[current, total]` e vista de referência `[current]`. Guarda Content
 realizado em slots paralelos do `PageStore`, preservando também o Numbering
 cru. Falha de callback aborta o fixpoint com o span original. A iteração
-seguinte usa as vistas; convergência compara semântica selada, não identidade
+seguinte usa as vistas; convergência compara semântica validada, não identidade
 de frames ou bytes.
 
 ## P1292 amendment-1 — terminais exaustivos B/C/D
@@ -1662,7 +1658,7 @@ mesmo ponto em que aplica a ação efetiva. Ela liga o conteúdo percorrido,
 Location/snapshot runtime, chave/ação e papel lexical do span; clonagem e
 descida preservam a referência da mesma ocorrência sem side table global.
 O grafo projetado é dirigido, conectado a `execution` e contém exatamente as
-arestas causais exigidas pelo manifesto; ciclo, aresta invertida, desconexão ou
+arestas causais exigidas pelo contrato; ciclo, aresta invertida, desconexão ou
 duplicação falham fechados.
 
 Esta é observabilidade privada de teste: não muda tags, Locator, counters,
@@ -1672,7 +1668,7 @@ query, payload público, igualdade, ordem do walk ou resultados normais.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1342-topology-audit-r1.md` mede que o walk possui, no mesmo
+A medição histórica registra que o walk possui, no mesmo
 ponto, o `Content::CounterUpdate` real, o payload/ação, a `Location` recém
 alocada e o snapshot gravado no `CounterRegistry`. A projeção posterior P1341
 não prova qual ocorrência produziu essa tupla.
@@ -1922,7 +1918,7 @@ sem ocorrência própria nem dupla descida.
 
 ### Medição anterior à decisão
 
-Na primeira campanha pública pós-preseal, o owner canónico e os testes focais
+Na primeira campanha pública pós-validação preliminar, o owner canónico e os testes focais
 passaram, mas referências a alvos `de`, `es` e `it` continuaram inglesas. O
 walk recebe um parâmetro `lang` inicializado pela chain raiz e o repassa sem o
 atualizar no braço `Content::Styled`; já a `StyleChain` empilhada chega
@@ -1962,6 +1958,6 @@ chain causal.
 - nenhuma assinatura pública, fase ou default é alterado.
 
 Correção interna de paridade em fluxo contínuo conforme ADR-0127. A descoberta
-ocorreu depois do preseal e deve constar como emenda verificável, sem reescrever
+ocorreu depois da validação preliminar e deve constar como emenda verificável, sem reescrever
 o artefacto congelado. O caso show-set permanece um achado negativo que não
 pode ser promovido a Preserved nesta unidade.

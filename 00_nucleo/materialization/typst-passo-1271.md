@@ -1,5 +1,13 @@
 # P1271 — materializar as correções numéricas causalmente provadas
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO
 **Predecessor:** certificado causal P1270
 **Regime:** L0-first, RED→GREEN e protocolo Tekt por cluster
@@ -41,7 +49,7 @@ genérica que tente fechar vários sintomas de uma vez.
 ## Resultado
 
 Materialização e recibos:
-`00_nucleo/diagnosticos/typst-p1271-materializacao-correcoes-numericas.md`.
+relatório consolidado da limpeza.
 
 C1, C2, C3a, C3b e C4 foram fechados com L0-first, RED→GREEN e mutantes
 focais. P1270, os quatro pares, P1234, P1236, P1237 e P1264 foram reexecutados.

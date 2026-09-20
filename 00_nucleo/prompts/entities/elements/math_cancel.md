@@ -59,7 +59,7 @@ terminal; igualdade estrutural.
   `angle` aceita ângulo ou função e o valor público também admite `auto`.
 - Probes de 2026-08-31 registraram a ordem morfológica
   `body,length,inverted,cross,angle,stroke,background` e os domínios de erro no
-  diagnóstico `00_nucleo/diagnosticos/p1291-matriz.md`. A forma de `repr` e a
+  diagnóstico histórico. A forma de `repr` e a
   distinção entre default omitido e explícito continuam sob P1290; estes dados
   legitimam o transporte sem transferir ownership de `repr.rs`.
 

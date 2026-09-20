@@ -1,5 +1,13 @@
 # Passo 1304 — rebaseline pós-P1303 e seleção causal do próximo lote
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Natureza do passo
 
 P1304 é uma auditoria diagnóstica e de seleção. Não altera Prompt L0, código,
@@ -25,29 +33,28 @@ do P1304 é composto por `HEAD + candidato P1303`, nunca apenas pelo hash do HEA
 
 Os quatro paths tracked do candidato P1303 devem ter exatamente estes hashes:
 
-| Path | SHA-256 |
+| Path | identificador administrativo |
 |---|---|
-| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | `92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e` |
-| `00_nucleo/prompts/compiler/eval/tests.md` | `f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479` |
-| `01_core/src/compiler/eval/bindings/field_access.rs` | `6b82a38b7c953ebe9dcbe96857dd9cb689aaaf69e95df153afa5de668ef89486` |
-| `01_core/src/compiler/eval/tests.rs` | `ab57d8c30dd54e1f8d638fcad4ab52e3c2c4bf9c4b3f674816806fe5ba8824b0` |
+| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval/tests.md` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/bindings/field_access.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/tests.rs` | [dado administrativo removido] |
 
 Artefatos finais P1303 congelados:
 
-- `p1303-final-report.md`, SHA-256
-  `c4aa69ab55dc9dcfce69c305d57a74a87cd7690cdc3cbe52300f39c7f5a47bc8`;
-- `p1303-certificate.json`, SHA-256
-  `77d209164fa3e2c9af5d5df69ee8ad7d72db8a5fc829e7469a827efcbc46fb90`;
-- `p1303-final-measurement.json`, SHA-256
-  `e56622f54973981c294233c3d1a3a12df4ef0bee13c91347fb1c343dd2d35ed7`.
+- relatório consolidado da limpeza;
+- `p1303-certificate.json`, identificador administrativo
+  [dado administrativo removido];
+- `p1303-final-measurement.json`, identificador administrativo
+  [dado administrativo removido].
 
 O diff tracked esperado antes do P1304 contém somente os quatro paths acima,
 com `562 insertions(+), 4 deletions(-)`. Os artefatos não rastreados P1303 e os
 passos P1303/P1304 são permitidos. Qualquer outro delta bloqueia a auditoria.
 
 O vanilla permanece upstream/main ratificado `a51e02804`, pelo binário
-`/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido].
 
 ## Objetivo
 
@@ -76,9 +83,9 @@ Usar, com hashes registrados no manifesto P1304:
 
 - `00_nucleo/diagnosticos/p1299-probe-catalog.json`;
 - `00_nucleo/diagnosticos/p1299-feature-matrix.json`;
-- `00_nucleo/diagnosticos/p1299-owner-ledger.tsv`, SHA-256
-  `79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69`;
-- `00_nucleo/diagnosticos/p1299-decision-report.md`;
+- `00_nucleo/diagnosticos/p1299-owner-ledger.tsv`, identificador administrativo
+  [dado administrativo removido];
+- relatório consolidado da limpeza;
 - os três artefatos finais P1303 pinados acima;
 - vanilla ratificado e candidato cristalino fresco;
 - Prompts L0 vigentes dos owners examinados.
@@ -89,7 +96,7 @@ nenhum artefato P1299/P1300/P1301/P1302/P1303.
 
 ## Owners que devem ser lidos antes da seleção
 
-O classificador/selecionador deve ler integralmente e registrar o SHA-256 de:
+O classificador/selecionador deve ler integralmente e registrar o identificador administrativo de:
 
 - `00_nucleo/prompts/compiler/eval/repr.md`;
 - `00_nucleo/prompts/entities/module.md`;
@@ -122,7 +129,7 @@ Criar `p1304-baseline-status.txt` e `p1304-manifest.json` com:
 
 - HEAD, timestamp com timezone e versão do protocolo;
 - `git status --short`, `git diff HEAD --stat`, `git diff --cached --stat`;
-- lista e SHA-256 de todo path modificado/não rastreado do P1303;
+- lista e identificador administrativo de todo path modificado/não rastreado do P1303;
 - hashes dos inputs e dos Prompts L0 lidos;
 - capacidades de cada papel;
 - política de `Unknown`;
@@ -145,7 +152,7 @@ Construir o cristalino em `CARGO_TARGET_DIR` temporário e exclusivo:
 cargo build --release --bin typst
 ```
 
-Registrar caminho, SHA-256, tamanho, `--version`, duração e logs integrais. Não
+Registrar caminho, identificador administrativo, tamanho, `--version`, duração e logs integrais. Não
 reutilizar `target/release/typst` nem binário P1299/P1303 já removido.
 
 ## Fase B — runner A/B independente
@@ -166,7 +173,7 @@ Para cada execução bilateral preservar:
 - argv integral;
 - hashes dos binários;
 - exit code;
-- stdout e stderr integrais, mais SHA-256;
+- stdout e stderr integrais, mais identificador administrativo;
 - duração em nanos;
 - estado completo ou reason code de `Unknown`.
 
@@ -191,7 +198,7 @@ Executar o corpus completo uma vez. Depois repetir em ordem invertida apenas:
 - os três aliases P1300 bare e sob `std`;
 - os controles de módulo P1301r2;
 - os três gates `pdf.*` P1303 nos quatro perfis;
-- um sample determinístico de 5% dos `MATCH`, definido pelo menor SHA-256 do ID.
+- um sample determinístico de 5% dos `MATCH`, definido pelo menor identificador administrativo do ID.
 
 Resultados normal/invertido devem ser idênticos por ID. Essa estratégia limita
 custo sem omitir repetição nas decisões.
@@ -427,7 +434,7 @@ P1304 pode criar somente:
 00_nucleo/diagnosticos/p1304-encode-readiness.json
 00_nucleo/diagnosticos/p1304-owner-ledger.tsv
 00_nucleo/diagnosticos/p1304-verification-receipt.json
-00_nucleo/diagnosticos/p1304-decision-report.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1304-certificate.json
 ```
 

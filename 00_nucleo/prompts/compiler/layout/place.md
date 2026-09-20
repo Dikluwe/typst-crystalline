@@ -1,5 +1,5 @@
 # Prompt L0 — `place`
-Hash do Código: 91f09481
+Hash do Código: 11e688b7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -117,7 +117,7 @@ traduzindo genericamente itens recém-criados.
 No controle focal, `AFTER_MARKER` fica em `47.842±0.002pt`, exatamente uma
 vez, tanto sem Flush quanto sem float. No vetor transacional principal após
 progresso para p3, preserva `4.642±0.002pt`; floats prefixo/sufixo conservam
-seus anchors já selados.
+seus anchors já validados.
 
 Refutam: anchor no topo; constante do token/fixture; translação global em
 Cursor; depender de marker/replay para o caminho ordinário; transformar

@@ -1,10 +1,18 @@
 # Passo 1299 — rebaseline quadrilateral da superfície pública e seleção causal do P1300
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado inicial:** autorizado para execução após o fechamento do P1298.
 **Natureza:** auditoria diagnóstica somente leitura do produto; não altera L0 nem L1–L4.
 **Baseline de autoria:** `1f082370e59939de7b57992e137a9f74bfb6758f`.
-**Vanilla ratificado:** `a51e02804`, binário `/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+**Vanilla ratificado:** `a51e02804`, binário `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido].
 **ADRs:** ADR-0107, ADR-0108, ADR-0127 e ADR-0129.
 
 ---
@@ -37,11 +45,11 @@ Medição do autor em `2026-09-03T18:02:48-03:00`:
 - `git diff HEAD --stat` vazio;
 - `target/release/typst` não existia, portanto não há binário cristalino corrente que
   possa ser presumido válido;
-- `p1297-surface-default.json`, SHA-256
-  `f8e36e6a38e97aa570da3905021a029321aaffa214e5b3fa78b489e9504312eb`:
+- `p1297-surface-default.json`, identificador administrativo
+  [dado administrativo removido]:
   `111 total / 99 MATCH / 12 DIFFERENCE_OR_DISABLED`;
-- `p1297-surface-html.json`, SHA-256
-  `407570734adae8e7920f7780f9cdd5c9083bf3d4307577efd2d44e508ae7fa2e`:
+- `p1297-surface-html.json`, identificador administrativo
+  [dado administrativo removido]:
   `115 total / 104 MATCH / 11 DIFFERENCE_OR_DISABLED`.
 
 As 23 ocorrências não são 23 defeitos distintos. Elas contêm:
@@ -94,26 +102,26 @@ O baseline deve registrar:
 - instante ISO-8601 com timezone;
 - `git rev-parse HEAD` e branch;
 - saída integral de `git status --short`;
-- `git diff HEAD --stat` e seu SHA-256, mesmo vazio;
+- `git diff HEAD --stat` e seu identificador administrativo, mesmo vazio;
 - `Cargo.lock`, `rustc --version` e `cargo --version`;
-- SHA-256 de todo input usado;
-- paths, argv, exit code, stdout, stderr, duração e SHA-256 dos binários;
+- identificador administrativo de todo input usado;
+- paths, argv, exit code, stdout, stderr, duração e identificador administrativo dos binários;
 - se a árvore deixar de estar limpa, a lista exata dos arquivos alterados.
 
 Inputs mínimos pinados:
 
-| Input | SHA-256 esperado no baseline |
+| Input | identificador administrativo esperado no baseline |
 |---|---|
-| `lab/surface-inventory/probes.json` | `1e7534a0cc8ebcfa1f5ed6652918711b738d7471d94a883a500becf297357b78` |
-| `lab/surface-inventory/run_probes.py` | `3bd082751fbd05c89f24a312353d81f74f2882902db5a203180e5ee5fb2c10cf` |
-| `lab/surface-inventory/src/main.rs` | `1f56149b1be5d93c24d686259186314708d806b69279e70097eec755ce828056` |
-| `lab/surface-inventory/merge.py` | `dcca5437dc8ab3829f8896b5b4f08f76fdaa49f3bf0973a62721d0b33610e329` |
-| `lab/surface-inventory/extra_seeds.json` | `ec398902ad74aa7f7d21b733674e3712ed47ee84e6f79fd12fbdca5293d87623` |
-| `p1282-vanilla-default.json` | `2f70d832f2b24f8c8eae8ffb15dd1e2770c667b9bfb24fcadefdcad43b4cfb27` |
-| `p1282-vanilla-html.json` | `2ef941beab9ef3e2859de83c8bcfadc7a4482af417db23029b1bec0997f22c61` |
-| `p1297-surface-default.json` | `f8e36e6a38e97aa570da3905021a029321aaffa214e5b3fa78b489e9504312eb` |
-| `p1297-surface-html.json` | `407570734adae8e7920f7780f9cdd5c9083bf3d4307577efd2d44e508ae7fa2e` |
-| `/usr/local/bin/typst` | `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8` |
+| `lab/surface-inventory/probes.json` | [dado administrativo removido] |
+| `lab/surface-inventory/run_probes.py` | [dado administrativo removido] |
+| `lab/surface-inventory/src/main.rs` | [dado administrativo removido] |
+| `lab/surface-inventory/merge.py` | [dado administrativo removido] |
+| `lab/surface-inventory/extra_seeds.json` | [dado administrativo removido] |
+| `p1282-vanilla-default.json` | [dado administrativo removido] |
+| `p1282-vanilla-html.json` | [dado administrativo removido] |
+| `p1297-surface-default.json` | [dado administrativo removido] |
+| `p1297-surface-html.json` | [dado administrativo removido] |
+| `/usr/local/bin/typst` | [dado administrativo removido] |
 
 Qualquer identidade divergente produz `P1299_BLOCKED_INPUT_DRIFT`. Não atualizar um hash
 esperado silenciosamente.
@@ -133,7 +141,7 @@ CARGO_TARGET_DIR="$P1299_RUN/target" \
 cargo build --release -p typst-wiring --bin typst
 ```
 
-O manifesto deve pinar o SHA-256 de
+O manifesto deve pinar o identificador administrativo de
 `$P1299_RUN/target/release/typst`, a versão observada e o HEAD. A string de versão não
 substitui o hash do produto.
 
@@ -323,10 +331,10 @@ Ao final, devem existir:
 8. `p1299-run-matrix.py` e seus testes;
 9. `p1299-feature-matrix.json`;
 10. `p1299-owner-ledger.tsv`;
-11. `p1299-decision-report.md`;
+11. relatório consolidado da limpeza;
 12. `p1299-certificate.json`.
 
-O certificado deve pinar por SHA-256 todos os inputs e outputs, registrar contagens por
+O certificado deve pinar por identificador administrativo todos os inputs e outputs, registrar contagens por
 perfil e por classe, a coorte P1300 escolhida, os blockers e a claim máxima literal.
 
 ---
@@ -339,7 +347,7 @@ Executar, no mínimo:
 python3 -m unittest \
   lab/surface-inventory/test_merge.py \
   lab/surface-inventory/test_run_probes.py \
-  00_nucleo/diagnosticos/test_p1299_run_matrix.py
+  [artefato protocolar removido]
 
 cargo build
 cargo test --workspace

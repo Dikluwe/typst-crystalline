@@ -1,5 +1,13 @@
 # Passo 1289 — `float.is-infinite`: valor-tipo, semântica e chamada ligada
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 > Documento de execução; não é Prompt L0. Pode ser executado em paralelo com
 > P1288, desde que use ambiente/worktree separado e não altere o harness
 > compartilhado enquanto P1288 o estiver refatorando.
@@ -17,10 +25,10 @@ infinitos e `nan`.
 Medição anterior à decisão, árvore não commitada em
 `2026-08-31T10:25:52-03:00`, `HEAD 53d21c5a602f4045a769a0ab0c935baa5ecd3b88`:
 
-- vanilla `/usr/local/bin/typst`: SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+- vanilla `/usr/local/bin/typst`: identificador administrativo
+  [dado administrativo removido];
 - inventário P1284: `00_nucleo/diagnosticos/p1284-probes-default.json`,
-  SHA-256 `da86beaf2f94dd21458f27f84696f47a621fd10c131ae3b1fb76ece4b0e211fb`;
+  identificador administrativo [dado administrativo removido];
 - o vanilla devolve `(function, "is-infinite")` para
   `repr((type(float.is-infinite), repr(float.is-infinite)))`;
 - o cristalino falha com
@@ -28,9 +36,9 @@ Medição anterior à decisão, árvore não commitada em
 - fonte vanilla medida:
   `lab/typst-original/crates/typst-library/src/foundations/float.rs:88-94`;
 - L0 de lookup: `00_nucleo/prompts/compiler/eval/bindings/field_access.md`,
-  SHA-256 `97122927d00c44fac5039b1ae45fc1705e6f6a4743fa5d31e8a7eedbe7e2e649`;
+  identificador administrativo [dado administrativo removido];
 - consumer de lookup: `01_core/src/compiler/eval/bindings/field_access.rs`,
-  SHA-256 `f60bb28e09be3cd34ced92cc8e6939c4954635f002555e78554e0c4d8cb6b5b6`.
+  identificador administrativo [dado administrativo removido].
 
 Esses hashes identificam a medição, mas não autorizam reutilizar a árvore suja
 como prova de isolamento. A execução deve congelar novamente `HEAD`,
@@ -65,7 +73,7 @@ representação de floats, mudar casts numéricos ou editar o inventário global
 
 ### 1. Manifesto e medição bilateral
 
-Criar `00_nucleo/diagnosticos/p1289-manifest.json` e recibo de medição. Executar
+Criar relatório consolidado da limpeza e recibo de medição. Executar
 os casos acima nos dois binários, incluindo entradas inválidas, duas vezes e em
 ordem inversa. Qualquer identidade ambígua, parser sem suporte ou execução
 unilateral é `Unknown`, nunca `MATCH`.
@@ -90,7 +98,7 @@ Não adicionar somente uma entrada que devolva uma função sem provar a chamada
 
 O Testador A recebe apenas passo, L0 ressellado, baseline e contrato. Escreve
 testes positivos, negativos e de equivalência estática/ligada sem ler o patch.
-Congelar os testes por SHA-256 e demonstrar RED no cristalino anterior.
+Congelar os testes por identificador administrativo e demonstrar RED no cristalino anterior.
 
 Mutações mínimas que os testes devem matar:
 

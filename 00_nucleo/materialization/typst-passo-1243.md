@@ -1,5 +1,13 @@
 # P1243 — medir o contrato existente de tiling SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — PRESEAL INVALIDADO; FRONTEIRA NEGATIVA RETIDA  
 **Predecessor:** P1242  
 **Saída:** universo modelável pelo contrato atual, sem ampliar `TilingBody`.
@@ -23,7 +31,7 @@ sucesso de compilação. P1244 fica pausado.
 
 O preseal foi materializado em
 `00_nucleo/diagnosticos/p1243-{tiling-contract,tiling-observables,tiling-preseal-ataques}.tsv`,
-`p1243-tekt-manifesto.tsv` e `p1243-tekt-preseal-receipt.tsv`. Score
+`p1243-tekt-manifesto.tsv` e relatório consolidado da limpeza. Score
 `1/9 = 0.1111111111`; nenhum valor runtime foi admitido e nenhum ficheiro
 produtivo ou Prompt L0 foi alterado por P1243.
 

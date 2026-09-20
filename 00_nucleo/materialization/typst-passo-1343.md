@@ -1,5 +1,13 @@
 # Passo 1343 — tornar o diff verificável por cápsulas determinísticas e concluir o binding P1342
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Desbloquear exclusivamente a implementação focal autorizada no Passo 1342,
@@ -28,26 +36,26 @@ Medição em `2026-09-10T20:33:22-03:00`:
 
 - HEAD: `2f42d64253547734564513a1159ee6b584c1c4b4`;
 - working tree não commitada;
-- SHA-256 de `git status --porcelain=v1 -z`:
-  `263fed0ec287468cfbee57b1ebfdcbc265a5424c05cbf23196355ee5cd7f567c`;
-- SHA-256 de `git diff --binary HEAD`:
-  `f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5`;
+- identificador administrativo de `git status --porcelain=v1 -z`:
+  [dado administrativo removido];
+- identificador administrativo de `git diff --binary HEAD`:
+  [dado administrativo removido];
 - stat: 72 arquivos, 10889 inserções e 830 remoções.
 
 Entradas causais:
 
-- `p1342-implementation-blocker-r1.json`, SHA-256
-  `9a46cf931ea8f90f884b0b22cc93df574e17537bae807051cc26870f2b28a4f2`:
+- `p1342-implementation-blocker-r1.json`, identificador administrativo
+  [dado administrativo removido]:
   o checker antigo exigia que o candidato permanecesse byte-idêntico ao
   baseline que precisava alterar;
-- `p1342-contract-spec-r3.json`, SHA-256
-  `07689c204f8741cdcfcc23bef9fa4af969dba6d991caaa93afaf117eb7ac73e7`;
-- `p1342-contract-binding-r3.json`, SHA-256
-  `8630a376350d374f854345c37282ac8fbb657f2f9a8506b7de47bda7b8276bf5`;
-- `p1342-oracle-authorship-r5.md`, SHA-256
-  `ca40925c678c7cfe7dfa19d93c6fb41b59c798c089f30b9457b7b8d741f3dad2`;
-- `p1342-oracle-authorship-receipt-r5.json`, SHA-256
-  `43eb0716901da8d49835bfef72508900dffb2461e3f5d7cb0796e6eaed8de713`,
+- `p1342-contract-spec-r3.json`, identificador administrativo
+  [dado administrativo removido];
+- `p1342-contract-binding-r3.json`, identificador administrativo
+  [dado administrativo removido];
+- `p1342-oracle-authorship-r5.md`, identificador administrativo
+  [dado administrativo removido];
+- `p1342-oracle-authorship-receipt-r5.json`, identificador administrativo
+  [dado administrativo removido],
   status `FOCAL_STOP_NO_FULL_EXECUTION`.
 
 Os dez L0 e a fixture P1342 permanecem inputs válidos somente se seus hashes
@@ -84,7 +92,7 @@ O manifesto pré-candidato define para cada `capsule-id`:
 - rows H00D/H00S/H01–H16 cobertos, ou papel `test-facade`;
 - espécie `insert` ou `replace`;
 - bytes exatos de reposição candidate-free, em codificação canônica, e seu
-  SHA-256 — vazio para inserção;
+  identificador administrativo — vazio para inserção;
 - cfg obrigatório;
 - âncoras anterior/posterior candidate-free e cardinalidade;
 - restrições de escrita e callsite.
@@ -102,7 +110,7 @@ executa uma única operação determinística por arquivo:
 1. valida UTF-8, pares BEGIN/END, IDs, ordem, não sobreposição e manifesto;
 2. substitui cada cápsula inteira pelos bytes candidate-free pinados para seu
    ID, em ordem decrescente de offset;
-3. calcula SHA-256 do arquivo normalizado;
+3. calcula identificador administrativo do arquivo normalizado;
 4. exige igualdade com `baseline_file_sha256` já atestado.
 
 Assim, qualquer byte fora das cápsulas, cápsula omitida/adicional, reposição

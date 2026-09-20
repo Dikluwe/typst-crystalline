@@ -1,5 +1,13 @@
 # Passo 1359 — `--pdf-tagged` tri-state
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar o recorte owner-confirmed seguinte ao P1358: aceitar e transportar
@@ -9,7 +17,7 @@ reutilizando o eixo `PdfTags` já materializado. Este passo não implementa
 
 ## Entradas congeladas
 
-- preflight: `00_nucleo/diagnosticos/p1359-preflight.md`;
+- preflight: relatório consolidado da limpeza;
 - baseline: vanilla ratificado
   `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
 - owners L0: `00_nucleo/prompts/shell/cli.md` e
@@ -38,7 +46,7 @@ Os casos `watch` e `w` são exclusivamente de parsing e devem usar
 de duração aberta ou usar captura bloqueante de stdout/stderr. A matriz de
 processo executa somente `compile`; `watch --help` é permitido por terminar.
 Esta regra corrige a causa raiz documentada em
-`diagnosticos/p1359-memory-root-cause.md`.
+relatório consolidado da limpeza.
 
 ## Fora do recorte
 

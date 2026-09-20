@@ -1,5 +1,13 @@
 # Passo 1280 — promover os seis pares polares Linear/Radial no SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado do gate
 
 `GATE ADR-0127 CONFIRMADO PELO DONO EM 2026-08-29`.
@@ -19,14 +27,14 @@ stops adaptativos do exportador SVG.
 
 - commit do certificado P1279: `ad93af9e80213fc410ffeda1f4916b031b088474`;
 - baseline vanilla ratificado: upstream/main `a51e02804`;
-- certificado P1279 SHA-256:
-  `be1e16cfb002c70b8d7af83421e7027f2abdb32324a1e8ff94ace7152ee1e3ed`;
-- resumo final P1279 SHA-256:
-  `c0628bc0e2723e664c587a6b5077c8c9a59bea70d2ffe93909a44efdb5b5c80a`;
-- manifesto de evidência P1279 SHA-256:
-  `8f44e3ac8da2b9f75ee075f0656a7917f8039c39734e1cef12951ca21916c1a3`;
-- pares finais P1279 SHA-256:
-  `3dbd56eee4a5ac00bce53f7840f7d6bb2c7ad5858b39e7424e7d0c6486fc268a`.
+- certificado P1279 identificador administrativo:
+  [dado administrativo removido];
+- resumo final P1279 identificador administrativo:
+  [dado administrativo removido];
+- manifesto de evidência P1279 identificador administrativo:
+  [dado administrativo removido];
+- pares finais P1279 identificador administrativo:
+  [dado administrativo removido].
 
 P1279 fechou os seis pares em 144/144 fixtures gerais, 42/42 inválidos
 polares rejeitados, custo/grafo/raster preservados e determinismo integral,

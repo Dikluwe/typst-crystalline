@@ -1,5 +1,13 @@
 # Passo 1307 — fechar a família pública de encoders de dados
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução até ao gate humano ADR-0127.  
 **Vanilla ratificado:** `a51e02804`.  
 **Objetivo:** materializar `json.encode`, `toml.encode` e `yaml.encode`, sem
@@ -25,8 +33,8 @@ commitado nos quatro ficheiros tracked seguintes:
 - `01_core/src/compiler/eval/tests.rs`.
 
 O certificado P1306 é
-`00_nucleo/diagnosticos/p1306-certificate.json`, SHA-256
-`9c7008973799dcf02cb3f02b08a76707c5e52a0a63b7738260fad2c06664733d`.
+`00_nucleo/diagnosticos/p1306-certificate.json`, identificador administrativo
+[dado administrativo removido].
 Antes de qualquer alteração P1307, P0 deve voltar a registrar HEAD, status,
 diff/stat, hashes dos quatro tracked acima e todos os untracked que compõem o
 fecho P1306. Se o estado já estiver commitado, o novo commit torna-se o baseline;
@@ -51,8 +59,8 @@ encontrou exatamente quatro funções públicas da linguagem:
 
 O inventário P1299 confirma os mesmos quatro e nenhum quinto path
 `*.encode`. A prontidão P1304
-`00_nucleo/diagnosticos/p1304-encode-readiness.json`, SHA-256
-`156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950`,
+`00_nucleo/diagnosticos/p1304-encode-readiness.json`, identificador administrativo
+[dado administrativo removido],
 mediu os três ausentes como `VANILLA_ONLY` em `default`, `html`, `a11y` e
 `html+a11y`.
 
@@ -158,10 +166,10 @@ O coordenador registra em
 `00_nucleo/diagnosticos/p1307-baseline.json`:
 
 - HEAD, `git status --short`, `git diff HEAD --stat`, diff tracked integral e
-  SHA-256 de cada um;
+  identificador administrativo de cada um;
 - hashes dos quatro L0 e quatro consumers acima;
-- binário vanilla `/usr/local/bin/typst` com SHA-256 esperado
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+- binário vanilla `/usr/local/bin/typst` com identificador administrativo esperado
+  [dado administrativo removido];
 - hash/argv do binário cristalino fresco; não reutilizar `target/release/typst`
   sem provar que foi construído do baseline pinado;
 - versão/hash dos scripts, fixtures, cwd, env relevante, perfis, timestamps e
@@ -173,7 +181,7 @@ explicitamente ligada; não sobrescrever evidência.
 ## 6. P1 — autor do contrato mede antes de decidir
 
 Um autor de contrato, sem editar implementação, cria
-`p1307-contract-measurement.json` e `p1307-contract.md`. Medir bilateralmente,
+relatório consolidado da limpeza e relatório consolidado da limpeza. Medir bilateralmente,
 nas ordens normal, repetida e integralmente invertida:
 
 - presença/kind/repr dos quatro encoders nos quatro perfis;
@@ -366,8 +374,8 @@ O coordenador publica manifesto acíclico e um verificador distinto emite
 
 ```text
 p1307-baseline.json
-p1307-contract-measurement.json
-p1307-contract.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1307-oracle.json
 p1307-oracle-receipt.json
 p1307-mutant-plan.json

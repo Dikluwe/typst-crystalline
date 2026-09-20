@@ -1,14 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md
-//! @prompt-hash ed83a91d
+//! @prompt-hash dd4b4788
 //! @layer L4
 //! @updated 2026-08-31
 //!
 //! Testes black-box independentes para P1291.cancel-angle-runtime.
 //!
-//! Derivados exclusivamente dos prompts protegidos pelo selo
-//! `p1291-callback-runtime-seal.json`. A primeira passagem provisoria nunca e
-//! um resultado exportavel; estes casos observam somente compilacoes finais.
+//! Estes casos observam somente compilações finais e comportamento público.
 
 use std::env;
 use std::fs;

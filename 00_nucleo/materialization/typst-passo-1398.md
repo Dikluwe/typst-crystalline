@@ -1,5 +1,13 @@
 # Passo 1398 — escape canônico das strings internas de `Symbol::repr`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo e regime
 
 Corrigir, no owner `01_core/src/entities/symbol.rs`, a representação textual
@@ -22,15 +30,15 @@ Estado causal observado em `2026-09-14T17:24:01-03:00`: HEAD limpo
 `762e95025a76cb8dec4b58097ca57aa878e05243`, com `git status --short` e
 `git diff HEAD --stat` vazios. Identidades congeladas:
 
-- L0 anterior `00_nucleo/prompts/entities/symbol.md`, SHA-256
-  `159d961a5b85fcfad3dd668fce7097f52e5cb635a05a7ee9bfb983e1291aa95a`;
-- consumer baseline `01_core/src/entities/symbol.rs`, SHA-256
-  `abdf49eb37fc68ecd72f39634bbd29231da8f38e4c24fa337077bd120e8bcf03`;
+- L0 anterior `00_nucleo/prompts/entities/symbol.md`, identificador administrativo
+  [dado administrativo removido];
+- consumer baseline `01_core/src/entities/symbol.rs`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino baseline, binário SHA-256
-  `50c137a42d8a0da4ba43213c2a04e0f8896478a8fc05e25da7e9fee9247a873c`.
+  binário identificador administrativo
+  [dado administrativo removido];
+- cristalino baseline, binário identificador administrativo
+  [dado administrativo removido].
 
 Sondas bilaterais seriais, sob `ulimit -v 524288` e timeout de 60 s,
 produziram nove testemunhas RED:
@@ -58,10 +66,10 @@ A intenção vem da fonte, não apenas do comportamento: no vanila ratificado,
 `foundations/symbol.rs:339-390` encaminha tanto símbolos simples quanto bases
 e valores de variantes à mesma representação de string;
 `foundations/str.rs:718-753` especifica NUL como `\u{0}`, apóstrofo literal,
-aspas como `\"` e os demais caracteres por `escape_debug`. Seus SHA-256 são,
+aspas como `\"` e os demais caracteres por `escape_debug`. Seus identificador administrativo são,
 respectivamente,
-`4213a43cc71d0653992ce4af5af40848ef491e81a1a5fbcdb560736b1adad18a`
-e `8648ad25be763830470664c9dc022f096902a496e4b553a7d75259b25334cdb7`.
+[dado administrativo removido]
+e [dado administrativo removido].
 
 ## Decisão e delta autorizado
 

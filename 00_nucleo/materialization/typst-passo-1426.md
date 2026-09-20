@@ -1,5 +1,13 @@
 # Passo 1426 — convergência vertical de `math.root`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1425 fechou `math.limits` e deixou 20 rotas `math.*` residuais da coorte
@@ -12,23 +20,23 @@ Medição executada em 2026-09-16T16:39:26-03:00 no HEAD limpo
 `ae0751296e09ec4bd0f02dcbe88458b256b3d22c`. Os oito pares L0/consumer
 produtivos congelados são:
 
-| L0 | SHA-256 L0 | consumer | SHA-256 consumer |
+| L0 | identificador administrativo L0 | consumer | identificador administrativo consumer |
 |---|---|---|---|
-| `compiler/eval.md` | `e1a433c352763e38008bf6415ee0088249d21a760780fb551be59d333b21c8e0` | `compiler/eval/mod.rs` | `f9b7d80a512df3d02b0fe0a35e7d6e46059072108024862cf06026b9d5bb13f2` |
-| `compiler/math/layout/tests.md` | `75bdf64454523a50610c9e3b1dedd8500d89f1559f79848b4e647a09c84ad6ec` | `compiler/math/layout/tests.rs` | `421cb9ecd4871512c677257820e86d1b4fe90f21959a1fbced5489e47419596d` |
-| `compiler/math/layout/_comum.md` | `5e53876e77c1d2edfa1c2902c6d312e229e1300a65718f011b9e3d70277f2988` | `compiler/math/layout/mod.rs` | `b2f922452608a2553b928fad10aca309edaccabc6da32a1a34ef9c27d99a8cbb` |
-| `entities/content.md` | `5f81a38d6e79600849ba58e946f1b049259fffb19e8de957fa981f59c90f5e5a` | `entities/content.rs` | `70aa5c82a3029b16bafae9328cff695a7a7d3c23fba16fe593e8f0079915ee2e` |
-| `compiler/stdlib/structural/math.md` | `e65e061178d78faecb8b3043320df45130d2385e9f3e511a1de0d96f4bd4f658` | `compiler/stdlib/structural/math.rs` | `d4443ffb7b4ac42e1883bb4bbc5647818899abd4dd46b3021e54b02ac05402bc` |
-| `compiler/eval/math.md` | `a7a200ae2af2656ced85b058fefdcf8a04b8b5e5925f3423548005cb3a649637` | `compiler/eval/math.rs` | `a4cf19b130627d3ac3c1aa21ebd7da7f36921e961ac493a6acff1913ea5c663d` |
-| `compiler/eval/repr.md` | `d5861675adaff2456cf4bf2141cf2079f8969a1800d099f82026eb89911d939f` | `compiler/eval/repr.rs` | `5c5de5353d6f5eae065e04b4a5200621f57ba8c75f672e3afeb0acc9cb7630ff` |
-| `entities/elements/math_root.md` | `dfecb091446dbee2d4320d9c78723109998857e699735834d0f77c90289fabc8` | `entities/elements/math_root.rs` | `dd544158b38ea0011fe877951262d4e445c68d1881fd4ecd67d218628bf3a5f9` |
+| `compiler/eval.md` | [dado administrativo removido] | `compiler/eval/mod.rs` | [dado administrativo removido] |
+| `compiler/math/layout/tests.md` | [dado administrativo removido] | `compiler/math/layout/tests.rs` | [dado administrativo removido] |
+| `compiler/math/layout/_comum.md` | [dado administrativo removido] | `compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `entities/content.md` | [dado administrativo removido] | `entities/content.rs` | [dado administrativo removido] |
+| `compiler/stdlib/structural/math.md` | [dado administrativo removido] | `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `compiler/eval/math.md` | [dado administrativo removido] | `compiler/eval/math.rs` | [dado administrativo removido] |
+| `compiler/eval/repr.md` | [dado administrativo removido] | `compiler/eval/repr.rs` | [dado administrativo removido] |
+| `entities/elements/math_root.md` | [dado administrativo removido] | `entities/elements/math_root.rs` | [dado administrativo removido] |
 
 No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-`math/root.rs` (SHA-256
-`c62f8135a6b8ef26a1bd0a3a28b7cbd12750dd1d0f0ed48370e839ac34638763`)
+`math/root.rs` (identificador administrativo
+[dado administrativo removido])
 declara `index: Option<Content>` posicional antes de `radicand: Content`; o
-registry `math/mod.rs` (SHA-256
-`a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957`)
+registry `math/mod.rs` (identificador administrativo
+[dado administrativo removido])
 registra `RootElem`. Sondas no binário ratificado mediram:
 
 | Expressão | Resultado público |

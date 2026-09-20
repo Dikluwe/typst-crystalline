@@ -1,5 +1,13 @@
 # Passo 1296 — fechar P1295: armamento observável da recuperação sem `sleep`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado inicial e continuidade
 
 P1295 permanece terminalmente `BLOCKED`, sem certificado, relatório final,
@@ -19,39 +27,39 @@ própria classe `Unknown`.
 - Commit: `docs: record blocked step 1294 verification`
 - Estado: working tree não commitida com a cadeia P1295 inteira preservada.
 - Medição: `2026-09-03T00:23:46-03:00`.
-- SHA-256 de `git diff HEAD --stat`:
-  `66da996e80de412c507db6c54f28f137588d5551f5a9b7e79f4525dd800c71e2`.
-- SHA-256 de `git status --porcelain=v1`:
-  `a3e0bd9a5d1c416cd50a308d54ebe07d648f1b5a346d33e3d231190926f8eae1`.
+- identificador administrativo de `git diff HEAD --stat`:
+  [dado administrativo removido].
+- identificador administrativo de `git status --porcelain=v1`:
+  [dado administrativo removido].
 
 Entradas causais P1295:
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `00_nucleo/materialization/typst-passo-1295.md` | `e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663` |
-| `00_nucleo/diagnosticos/p1295-manifest.json` | `545c3c661dd11685ff152d889dab7e796bda0659d91ca447c6d3db3794fc2999` |
-| `00_nucleo/diagnosticos/p1295-l0-gate-receipt.md` | `155f2c22359b98739b66507e6fc7c678d187a1d8030a3f7b7ed70a1f31b68d78` |
-| `00_nucleo/diagnosticos/p1295-red-tests-receipt.json` | `ac9a8fb41675026bafc884575b387998c45b8318f110508293e99faca1ec4d05` |
-| `00_nucleo/diagnosticos/p1295-adversarial-plan.md` | `4788f57715e193527bf2e0a1ab86bf1fceee955e7f5933ace51cbb3291e48487` |
-| `00_nucleo/diagnosticos/p1295-discrimination-receipt.json` | `30392dda4a3f639d39b18d693118feb42182f5f35e0cb615cb7b09d77c75ca51` |
-| `00_nucleo/diagnosticos/p1295-contract-seal.json` | `cdd0f5ddc9740808fdee4c0c24d9d05d50c3243bab124678f9d6fba83b86d021` |
-| `00_nucleo/diagnosticos/p1295-implementation-receipt.md` | `c02546962521a58c945114249b39d3a3d9959e91f7a1fd77a4505a17eb3f8bdc` |
-| `00_nucleo/diagnosticos/p1295-verification-receipt.json` | `06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573` |
+| `00_nucleo/materialization/typst-passo-1295.md` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1295-manifest.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1295-red-tests-receipt.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1295-discrimination-receipt.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1295-contract-seal.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
 
 Entradas L0/código afetadas:
 
-| Papel | Caminho | SHA-256 inicial |
+| Papel | Caminho | identificador administrativo inicial |
 |---|---|---|
-| L0 test-only | `00_nucleo/prompts/wiring/tests/cli.md` | `5800231392fa0e8a5311a6a5d2664f0f06f85c80b273ffbe80c8fb5e04ed5d1c` |
-| Consumer test-only | `04_wiring/tests/cli.rs` | `cfd6ec5294f410c3625f7a6183db6ad5af776e4b3f8c5af25a96c284b7d5789f` |
-| L4 produto congelado | `04_wiring/src/main.rs` | `e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48` |
-| L3 produto congelado | `03_infra/src/watch.rs` | `d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41` |
-| Contrato externo congelado | `03_infra/tests/p1295_watch_contract.rs` | `8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf` |
+| L0 test-only | `00_nucleo/prompts/wiring/tests/cli.md` | [dado administrativo removido] |
+| Consumer test-only | `04_wiring/tests/cli.rs` | [dado administrativo removido] |
+| L4 produto congelado | `04_wiring/src/main.rs` | [dado administrativo removido] |
+| L3 produto congelado | `03_infra/src/watch.rs` | [dado administrativo removido] |
+| Contrato externo congelado | `03_infra/tests/p1295_watch_contract.rs` | [dado administrativo removido] |
 
 Evidência de falha:
 
-- `/tmp/p1295-p6-cli-1.log`, SHA-256
-  `919d16a5b6bb24050dcb6dcef20ef57ac8b9cd8f4fb82d018c31d130e6dd508b`;
+- `/tmp/p1295-p6-cli-1.log`, identificador administrativo
+  [dado administrativo removido];
 - suíte CLI integral P1295 run 1: `70/71`, exit `101`;
 - único failure: `p1137_watch_dependencias_recuperacao_e_filtro`;
 - mensagem: `timeout durante recuperação após 20s`;
@@ -134,9 +142,9 @@ passo para antes de qualquer write produtivo.
 ## Artefatos P1296 previstos
 
 1. `00_nucleo/diagnosticos/p1296-manifest.json`
-2. `00_nucleo/diagnosticos/p1296-l0-receipt.md`
-3. `00_nucleo/diagnosticos/p1296-test-receipt.json`
-4. `00_nucleo/diagnosticos/p1296-adversarial-plan.md`
+2. relatório consolidado da limpeza
+3. relatório consolidado da limpeza
+4. relatório consolidado da limpeza
 5. `00_nucleo/diagnosticos/p1296-discrimination-receipt.json`
 6. `00_nucleo/diagnosticos/p1296-contract-seal.json`
 7. `00_nucleo/diagnosticos/p1296-surface-default.json`
@@ -153,14 +161,14 @@ passo para antes de qualquer write produtivo.
 
 Pode escrever somente este passo, `p1296-manifest.json`, a cláusula P1296 no
 L0 `wiring/tests/cli.md`, seu resselo mecânico no header de
-`04_wiring/tests/cli.rs` e `p1296-l0-receipt.md`. Não escreve corpo de teste,
+`04_wiring/tests/cli.rs` e relatório consolidado da limpeza. Não escreve corpo de teste,
 mutante, selo ou veredito.
 
 ### P2 — materializador independente do observador
 
 Recebe este passo, L0 ressellado, baseline e falha P1295. Não recebe plano ou
 mutantes P3. Pode escrever somente o corpo P1137 em
-`04_wiring/tests/cli.rs` e `p1296-test-receipt.json`. Não altera produto, L0,
+`04_wiring/tests/cli.rs` e relatório consolidado da limpeza. Não altera produto, L0,
 headers, contratos externos ou evidência P1295.
 
 ### P3 — adversário/calibrador
@@ -234,7 +242,7 @@ duas superfícies, recibo, certificado e relatório P1296, nessa ordem causal.
    inventário de fontes.
 2. Executar release com
    `TYPST_COMMIT_SHA=76fb7336311bdb6497456ab5fdc0a8ce355ff39b`.
-3. Pinar SHA-256 do binário usado e confirmar
+3. Pinar identificador administrativo do binário usado e confirmar
    `typst 0.15.1 (76fb7336)`.
 4. Regenerar superfícies P1296 default/HTML pelos comandos canônicos P1293.
 5. Exigir `111/99/12` e `115/104/11`, zero missing, unverified e `Unknown`.

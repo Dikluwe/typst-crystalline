@@ -1,5 +1,13 @@
 # P1264 — consolidar as correções SVG e readjudicar os quatro pares
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — QUATRO PARES CERTIFICADOS NO FRAGMENTO  
 **Predecessores:** P1261, P1262 e P1263
 
@@ -25,7 +33,7 @@ integra, repete, readjudica e certifica.
 4. medir grafo, `color_max`, `color_p95`, `alpha_max`, `alpha_p95` e custo;
 5. executar testes dos owners, workspace build/test, fmt, diff-check e lint
    Tekt V1/V5/V15/V26;
-6. registrar HEAD, working tree, hora e SHA-256 de todas as entradas/saídas.
+6. registrar HEAD, working tree, hora e identificador administrativo de todas as entradas/saídas.
 
 ## Gate de promoção
 
@@ -51,5 +59,5 @@ equivalência geral nem mutation score ausente.
 ## Resultado
 
 Readjudicação e certificado:
-`00_nucleo/diagnosticos/typst-p1264-svg-readjudication.md`.
+relatório consolidado da limpeza.
 Veredito: **EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO**.

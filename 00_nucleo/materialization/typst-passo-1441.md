@@ -1,5 +1,13 @@
 # Passo 1441 — Materializar `math.overline` com identidade e geometria MATH superior
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** MATERIALIZADO — AGUARDA COMMITS DE PRODUTO E VERIFICAÇÃO
 **Data da medição:** 2026-09-18T09:15:35-03:00
 **Commit medido:** `3f4633b9267ccf89fa565601bbded58c259bf696`
@@ -28,13 +36,13 @@ body em estilo cramped e cria `LineItem` acima dele. `typst-layout` usa
 ajuste de correção itálica usado pelo underline e conserva as propriedades
 matemáticas do body.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/underover.rs` | `49fe33135766b83c16d27f84c51bd8f867cd5f3f790b075242e8043661a7e298` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
-| `lab/typst-original/crates/typst-layout/src/math/line.rs` | `d71623f47d8d3d9d9b5435820e5ca05399563642a4a48627f76ce0c8ed997b34` |
+| `lab/typst-original/crates/typst-library/src/math/underover.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-layout/src/math/line.rs` | [dado administrativo removido] |
 
 ### 2.2 Observáveis públicos medidos no vanilla
 
@@ -60,23 +68,23 @@ carrier `MathUnderline` e seu layout baseado em constantes MATH já fornecem o
 padrão estrutural, mas não podem representar `overline` sem uma identidade
 pública distinta e sem inverter estilo, constantes e posição da regra.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/entities/elements/math_underline.rs` | `6a08c552d47f7a90263b6f3e447f15ee9e42f17885201a866db910edddfa4948` |
-| `01_core/src/entities/content.rs` | `94f19dcc03c543d58f3c2c3cb95816be04d6c9c41cdd553cafb5cfe438609bb3` |
-| `01_core/src/compiler/stdlib/structural/math.rs` | `ac2be30724c9ee2a8bd1eab3cf30ef2f048414e1db32d0b05a76ede5fe75694a` |
-| `01_core/src/compiler/eval/math.rs` | `d601a3a647d5bc0581c1bf5e5cf9b2a05415dd6eadd41ac8a5b1fe660b7c3e38` |
-| `01_core/src/compiler/eval/repr.rs` | `879c3f31ada68801d660ce1580428de3d06127aaee09e6f1667e5179c6efc8a9` |
-| `01_core/src/compiler/math/layout/underline.rs` | `c4d58534f2cc25767cbaa63e1d150a50c3599fc43672ea87d030610d279a37db` |
-| `01_core/src/compiler/math/layout/mod.rs` | `10abec9396e2a1a837fe00f6fa3bb53fd5436100c4e9140611a23da0a0e28780` |
-| `01_core/src/compiler/math/layout/spacing.rs` | `1eebb285158be13c59393b8d37064e30d6e7b5059d7631d59de2f0cd3ebbed74` |
-| `01_core/src/compiler/eval/mod.rs` | `c53257307d5fac9fec8e5184eafa2adc9aca14ba764f76edb4165d2560a283ef` |
-| `01_core/src/compiler/introspect.rs` | `ba111026580465e87628c0f157b77c46f02f69c72fce318ce7bbc6e479e040bc` |
-| `01_core/src/compiler/introspect/locatable.rs` | `f6d4ec3426351a79cad5dd6d26bd3ab79957b2530c4da1fc7651558c98a0800d` |
-| `01_core/src/compiler/layout/mod.rs` | `61654b72c4cfb64beab6efdab01d3ad93d72c815cc4ceec7d3a6f4b9c8c8a8d4` |
-| `03_infra/src/query_helpers.rs` | `7a392296e4d11a2fd777f611443a798de576a08bb063276363c0a09049957a99` |
+| `01_core/src/entities/elements/math_underline.rs` | [dado administrativo removido] |
+| `01_core/src/entities/content.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/underline.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/layout/mod.rs` | [dado administrativo removido] |
+| `03_infra/src/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 

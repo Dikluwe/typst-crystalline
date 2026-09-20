@@ -1,5 +1,13 @@
 # P1260 — classificar fronteiras dos 18 gaps SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — TRÊS FRONTEIRAS CAUSAIS  
 **Predecessores:** P1255, P1256 e P1259
 

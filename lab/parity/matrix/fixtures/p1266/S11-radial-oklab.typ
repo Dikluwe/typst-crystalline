@@ -1,5 +1,0 @@
-#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
-#let g = gradient.radial(red.transparentize(1%), rgb(46, 204, 64).transparentize(1%), blue.transparentize(1%), yellow.transparentize(1%), red.transparentize(1%), rgb(46, 204, 64).transparentize(1%), blue.transparentize(1%), yellow.transparentize(1%), red.transparentize(1%), rgb(46, 204, 64).transparentize(1%), blue.transparentize(1%), yellow.transparentize(1%), red.transparentize(1%), rgb(46, 204, 64).transparentize(1%), blue.transparentize(1%), yellow.transparentize(1%), space: color.oklab, center: (50%, 50%), radius: 50%, focal-center: (50%, 50%), focal-radius: 0%)
-#let body = rect(width: 220pt, height: 80pt, fill: g)
-#let transformed = rotate(-33deg, body)
-#align(center + horizon, transformed)

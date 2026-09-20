@@ -180,7 +180,7 @@ Produzir:
 00_nucleo/diagnosticos/p1226-svg-path-resultados.tsv
 00_nucleo/diagnosticos/p1226-svg-engineering-choices.tsv
 00_nucleo/diagnosticos/p1226-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1226-svg-general-paths.md
+[artefato protocolar removido]
 ```
 
 ## 9. DSM e fila

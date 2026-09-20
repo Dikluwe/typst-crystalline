@@ -1,5 +1,13 @@
 # Passo 1335 — análise global de paridade após P1323–P1334
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução; somente o plano foi escrito.
 
 **Natureza:** auditoria do produto. Não implementar correções nem alterar L0.
@@ -54,35 +62,35 @@ não commitado. As alterações rastreadas estão nestes pares L0/consumer:
 Preservar essa árvore, não exigir HEAD limpo nem commitar para iniciar.
 No começo da execução, congelar HEAD, branch, UTC, staged, status com pathspecs
 que excluam pastas restritas, diff HEAD integral/stat, untracked relevantes e
-inventário SHA-256 de produto/L0/evidências protegidas. Conferir o fechamento
+inventário identificador administrativo de produto/L0/evidências protegidas. Conferir o fechamento
 P1334; qualquer diferença deve ser identificada, nunca descartada. Mudança externa
 durante a execução invalida a medição afetada: preservar e recongelar antes de repetir.
 
 Compilar a árvore efetiva em target dedicado, Cargo release com --locked.
-Registrar argv, ambiente relevante, início/fim UTC, saídas e SHA-256 do executável.
+Registrar argv, ambiente relevante, início/fim UTC, saídas e identificador administrativo do executável.
 Usar /dev/shm se capacidade e permissão permitirem; senão /tmp com motivo medido.
 Cache copiado sem hardlinks mutáveis; não apagar temporários anteriores.
 O binário P1334 é antecedente, não dispensa confirmar o estado atual.
 
 Vanilla: upstream/main **a51e02804**, sem resync. Confirmar `/usr/local/bin/typst`,
-SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+identificador administrativo [dado administrativo removido].
 Não identificar binários por --version; o target da raiz é cristalino.
 
 ## 3. Antecedentes pinados, não resultados desta auditoria
 
 Paths abaixo relativos a `00_nucleo/diagnosticos/`; hashes conferidos na redação:
 
-| Entrada | SHA-256 | Uso |
+| Entrada | identificador administrativo | Uso |
 | --- | --- | --- |
-| p1322-o-que-falta-para-paridade.md | 1fec4e8816ee649244cdbaa3c86d9c8516ac84c944677e5b0d9c9929ff039b94 | análise global anterior e seus limites |
-| p1322-probe-catalog.json | a9853e4c54663a258a9dd706c1c974930579c65e335b283243b10eae19b4889a | catálogo a reconciliar integralmente |
-| p1322-classification-owner-ledger.tsv | 6fdf058c92dda6f3ac11dd691c1a53b4edf8c4fc3d5529cb32b9cd23bc1cce3a | causas/owners históricos |
-| p1322-classification-selection-r2.json | 26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345 | decisão final, não a versão supersedida |
-| p1322-closure.json | 46ed343a40d48070a4f3e7ea0cf69633b089fb56111361d10f21274bb77f5042 | proveniência global histórica |
-| p1334-final-report.md | ca2d8080d08093a776416a66d844b1cf31ed887426b30060cf3c4afead3b4092 | fechamento focal e pendências |
-| p1334-metrics.json | 307f80168b931184cd58744bf26eca5e758e5766521c9ac1ca39eff19b0b13c3 | métricas focais, fora do denominador global |
-| p1334-ab-freeze-r1.json | 684143d5fdbb4005e5d641f772e603f48da1c32c928840c89873bbcff5fa50b5 | corpus focal e suplemento entre arquivos |
-| p1334-closure.json | 4eda2f0d1ad7598471c088773c180f63ed453d88e5e2fb99e96d3ae84f63ade8 | estado produtivo e cadeia de preservação |
+| [artefato protocolar removido] | [dado administrativo removido] | análise global anterior e seus limites |
+| p1322-probe-catalog.json | [dado administrativo removido] | catálogo a reconciliar integralmente |
+| p1322-classification-owner-ledger.tsv | [dado administrativo removido] | causas/owners históricos |
+| p1322-classification-selection-r2.json | [dado administrativo removido] | decisão final, não a versão supersedida |
+| p1322-closure.json | [dado administrativo removido] | proveniência global histórica |
+| [artefato protocolar removido] | [dado administrativo removido] | fechamento focal e pendências |
+| p1334-metrics.json | [dado administrativo removido] | métricas focais, fora do denominador global |
+| p1334-ab-freeze-r1.json | [dado administrativo removido] | corpus focal e suplemento entre arquivos |
+| p1334-closure.json | [dado administrativo removido] | estado produtivo e cadeia de preservação |
 
 Consultar os relatórios/recibos de fechamento P1323–P1334 em diagnósticos e
 congelar os inputs efetivamente usados antes das comparações. Usar os sucessores
@@ -230,7 +238,7 @@ Entregas novas com prefixo p1335 em diagnósticos:
 - catálogo/reconciliação, matrizes normal/repeat/reverse e suplementos;
 - ledger causal/transições, dívida de certificação e tabela/seleção de coortes;
 - calibração/ataques do auditor, revisões e fechamento verificável;
-- `p1335-o-que-falta-para-paridade.md`, com conclusões substantivas e recibos.
+- relatório consolidado da limpeza, com conclusões substantivas e recibos.
 
 Executar e registrar build/testes workspace release --locked em target dedicado,
 fmt --check, crystalline-lint, V5/V15/V26 estrito e git diff --check. Conferir

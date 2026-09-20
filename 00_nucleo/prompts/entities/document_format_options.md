@@ -1,8 +1,7 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: 51e84ec4
 
-**Estado:** P1462 MATERIALIZADO E CERTIFICADO; CONTRATO P1463 PROPOSTO —
-AGUARDA CONFIRMAÇÃO ADR-0127.
+**Estado:** P1462 E P1463 MATERIALIZADOS.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -55,7 +54,7 @@ Testes provam defaults, clone/igualdade e independência entre duas instâncias.
 Não testar layout Rust, tamanho/alinhamento ou debug como paridade. Os campos
 públicos ampliam contrato entre camadas. A confirmação humana posterior ao
 commit causal P1462 foi recebida em 2026-09-19; os carriers SVG foram
-materializados e certificados.
+materializados e validados.
 
 ## Contrato público P1463 (PROPOSTO; gate ADR-0127)
 

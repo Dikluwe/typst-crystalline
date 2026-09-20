@@ -79,11 +79,11 @@ mensagens medidas; regex válida não vazia produz `Value::Selector`.
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 `selector.rs:31` e `:285` já clonam Value::Selector integralmente no
-constructor/parser. O recibo `p1339-where-integration-probe-runs.json`,
+constructor/parser. O registro histórico
 UTC `2026-09-10T00:18:55.842594+00:00`–`00:18:59.537177+00:00`, mede
 selector(heading.where()) preservando o filtro vazio e sua diferença do
 elemento nu; strong/text e filtros não vazios também atravessam o constructor.
-O recibo fixa working tree e binário vanilla ratificado `a51e02804`.
+O registro fixa working tree e binário vanilla ratificado `a51e02804`.
 Fonte: `foundations/selector.rs:167-174`, constructor retorna o seletor recebido.
 
 ### Decisão de integração

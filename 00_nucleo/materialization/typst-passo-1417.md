@@ -1,5 +1,13 @@
 # Passo 1417 — consolidação vertical de padrões `par.line` em colunas segmentadas
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Substituir a equivalência por ordinal do P1416 pela regra vertical observada no
@@ -14,11 +22,11 @@ ao estilo local da linha numerada.
 - baseline: commit `af587e30bb9d188d8a8eb1064bb36175b50920da`, árvore limpa
   antes da criação das cinco fixtures P1417;
 - medição inicial: `2026-09-16T08:12:10-03:00`;
-- cristalino: `target/release/typst`, SHA-256
-  `6b72024dd05a92b8baa7730506fc99d0ab16de93ee97c808512a01dbc919e871`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - alterações ainda não commitadas na medição: somente
   `lab/parity/corpus/p1417/` com as cinco fixtures congeladas abaixo;
 - regime: protocolo Tekt completo em rehearsal, executado sem atestação de
@@ -57,13 +65,13 @@ ordinal ou altura presumida.
 
 ## Oráculos congelados
 
-| Fixture | SHA-256 | Papel |
+| Fixture | identificador administrativo | Papel |
 |---|---|---|
-| `heterogeneous-left-tall.typ` | `afdf61cc7574222e773cb6945179e6aac90bbc5bb2fc0949267fab97d3995b20` | ordem vertical transversal |
-| `heterogeneous-right-tall.typ` | `6402bfeb0a49805eeb699347b5f4fa04f36ec9299d1bcfc67b5e5e75da1d270c` | assimetria/refutador do máximo ordinal |
-| `heterogeneous-right-margin.typ` | `9ed32fcaa3ae2343c7941c63a9b4a0ca23bbf89369ceede4f19a0f4cd75344aa` | bordo externo final |
-| `page-columns-heterogeneous-control.typ` | `70196d2d2cf23e220c66ac2deb6d9127d3443800d26e294b412609eb9e48393b` | refutador `Unknown` de página |
-| `heterogeneous-callback-unknown.typ` | `04767dda1139500bc28200e5853ee2cbdf949019705d21ada548d458ee793a7e` | refutador `Unknown` |
+| `heterogeneous-left-tall.typ` | [dado administrativo removido] | ordem vertical transversal |
+| `heterogeneous-right-tall.typ` | [dado administrativo removido] | assimetria/refutador do máximo ordinal |
+| `heterogeneous-right-margin.typ` | [dado administrativo removido] | bordo externo final |
+| `page-columns-heterogeneous-control.typ` | [dado administrativo removido] | refutador `Unknown` de página |
+| `heterogeneous-callback-unknown.typ` | [dado administrativo removido] | refutador `Unknown` |
 
 As fixtures são externas ao candidato. Timeout, OOM, swap, ausência de output
 ou promoção do callback opaco contam como `Unknown`, nunca como preservação.
@@ -123,8 +131,8 @@ Medição final em `2026-09-16T08:52:20-03:00`, sobre working tree não
 commitada derivada de `af587e30bb9d188d8a8eb1064bb36175b50920da`. Arquivos
 alterados: os três prompts L0 deste passo, `columns.rs`, `cursor.rs`,
 `layout/mod.rs`, este passo e as cinco fixtures de `lab/parity/corpus/p1417/`.
-O binário cristalino final tem SHA-256
-`df09b98acc05bc5f02fabaec905bc531f06823c3135d7b5922264d6250e538a6`.
+O binário cristalino final tem identificador administrativo
+[dado administrativo removido].
 
 As três provas positivas coincidiram byte a byte no texto extraído com o
 vanila ratificado. O maior RSS dessa matriz final foi 41.088 KiB, sob o limite

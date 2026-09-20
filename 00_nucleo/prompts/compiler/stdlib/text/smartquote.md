@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/text/smartquote` — `smartquote`
-Hash do Código: dc4246cd
+Hash do Código: 9f555810
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/text/smartquote.rs`
@@ -87,7 +87,7 @@ No vanilla ratificado, `text/smartquote.rs:51-89,201-317,335-419` define
 `alternative: bool = false` e `quotes: auto|string|array|dictionary`. String
 conta grapheme clusters Unicode; string e array devem conter exatamente dois
 itens; o dicionário aceita apenas `single` e `double`, cada qual `auto`, string
-ou array. O receipt P1286 mediu alemão default `„Default“`, alternativo
+ou array. A medição P1286 cobriu alemão default `„Default“`, alternativo
 `»Alt«`, override explícito `(Explicit)`, array `[[Array]]`, override
 parcial de simples e as três mensagens negativas canônicas.
 

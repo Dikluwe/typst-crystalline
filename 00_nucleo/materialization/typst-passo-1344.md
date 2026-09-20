@@ -1,5 +1,13 @@
 # Passo 1344 — realocar helpers de observação aos owners Tekt e concluir o binding P1342
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Corrigir exclusivamente a contradição física que encerrou o Passo 1343:
@@ -32,34 +40,34 @@ Medição em `2026-09-10T23:05:31-03:00`:
 
 - HEAD: `2f42d64253547734564513a1159ee6b584c1c4b4`;
 - working tree não commitada;
-- SHA-256 de `git status --porcelain=v1 -z`:
-  `5a41980abcddfe219ca4b72c0555c5eb8d50f6f3c1ba1eaee10162df6b804c2d`;
-- SHA-256 de `git diff --binary HEAD`:
-  `f73da54bdbeb1bd086caeff259b9517bdbf0f1648efcb8119d36699f5bcf0be5`;
+- identificador administrativo de `git status --porcelain=v1 -z`:
+  [dado administrativo removido];
+- identificador administrativo de `git diff --binary HEAD`:
+  [dado administrativo removido];
 - stat: `72 files changed, 10889 insertions(+), 830 deletions(-)`.
 
 Entradas causais protegidas:
 
-- `p1343-oracle-blocker-r3.md`, SHA-256
-  `c2af3f4b314660f620904d1fd7fa2bd0d5a5c9d8162d66edcf9aaa49e8a053d3`;
-- `p1343-oracle-blocker-receipt-r3.json`, SHA-256
-  `5db7551ed182042d045a58efb9ec3c04953f9d6738cf822555de8606f4441171`;
-- contrato FINAL P1343 R2, SHA-256
-  `d4e444f6966a2be34018854c2b3857452447af1741e799e4cc2cfd6f31c48967`;
-- binding FINAL P1343 R2, SHA-256
-  `216100a3970bdc79b3d77cd34f4528d46cd04e06dbdc9d63d552f723a557af58`;
-- recibo FINAL P1343 R2, SHA-256
-  `013c7bb1b36a5a182a69dcb5c8451af3915239ed292c83682dc1655b51243637`;
-- baseline de 36 cápsulas P1343, SHA-256
-  `db143d9fec795ec81ce7a69be5e08b09e451a9d6eb07a1a39cd1dcd41ee82977`.
+- `p1343-oracle-blocker-r3.md`, identificador administrativo
+  [dado administrativo removido];
+- `p1343-oracle-blocker-receipt-r3.json`, identificador administrativo
+  [dado administrativo removido];
+- contrato FINAL P1343 R2, identificador administrativo
+  [dado administrativo removido];
+- binding FINAL P1343 R2, identificador administrativo
+  [dado administrativo removido];
+- recibo FINAL P1343 R2, identificador administrativo
+  [dado administrativo removido];
+- baseline de 36 cápsulas P1343, identificador administrativo
+  [dado administrativo removido].
 
 Na medição, os dez consumers P1342 continuavam exatamente nos hashes
-candidate-free do freeze. Os dois novos consumers têm SHA-256:
+candidate-free do freeze. Os dois novos consumers têm identificador administrativo:
 
 - `01_core/src/entities/content.rs`:
-  `34838354261fa472c5efbc73c39ee6587b8b77be4d4606ca7587537818ed4a98`;
+  [dado administrativo removido];
 - `01_core/src/entities/counter_update.rs`:
-  `412c80370dd64e983582c4a580cedaa823e6bad23203ab1c3b5a13b85f0d9f05`.
+  [dado administrativo removido].
 
 ## Conformidade Tekt medida antes da decisão
 

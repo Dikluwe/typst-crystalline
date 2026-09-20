@@ -1,19 +1,27 @@
 # Passo 1463 — materializar `format.png` e transportar `ppi` até o raster
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** L0 CAUSAL ESCRITO — AGUARDA CONFIRMAÇÃO HUMANA PÓS-COMMIT
 (ADR-0127)
 **Data da medição:** 2026-09-19T18:30:39-03:00
 **Baseline cristalino:** `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`
 **Tree do baseline:** `9ab3a99f61cdd3f673b7b3f2bd042e260b841430`, limpa
 **Vanilla ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
-**SHA-256 do binário vanilla:**
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
-**SHA-256 do binário cristalino:**
-`2fe1e2f8cd47e495e85ac1d6a8bfa3dbc570660a71e86148c55ad880866fd996`
+**identificador administrativo do binário vanilla:**
+[dado administrativo removido]
+**identificador administrativo do binário cristalino:**
+[dado administrativo removido]
 
 **Regime desta escrita:** planeamento, sem alteração normativa nem código. A
 execução posterior usa protocolo completo de materialização segregada, com
-checkpoints reutilizáveis de ADR-0131 e a alegação proporcional
+checkpoints reutilizáveis de protocolo de checkpoint revogado e a alegação proporcional
 `executado sem atestação de isolamento` no workspace compartilhado.
 
 ## 1. Objetivo e fronteira
@@ -132,8 +140,8 @@ serão convertidos em `Preserved`; serão `Unknown` e não darão crédito. O pa
 não alega paridade para não finitos.
 
 A flag é aceita mas ignorada quando o target não é PNG. No probe SVG, com e
-sem `--ppi 72`, o SHA-256 foi identicamente
-`95328194630ddab1481f1672f725645a85bcabd7e8a40f37628b986af944ce57`.
+sem `--ppi 72`, o identificador administrativo foi identicamente
+[dado administrativo removido].
 
 O CLI cristalino atual não anuncia `--ppi` e devolve exit 2 para a flag.
 Sem regra documental, sua página de 72 pt × 36 pt usa o
@@ -156,43 +164,43 @@ Sem regra documental, sua página de 72 pt × 36 pt usa o
 O Núcleo Tekt
 `00_nucleo/prompts/_nuclei/export/format-option-precedence.toml` é
 semanticamente correto para precedência, mas sua redação atual fixa
-`Some(bool)` e o default específico de SVG. O SHA-256 bruto medido é
-`ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295`.
+`Some(bool)` e o default específico de SVG. O identificador administrativo bruto medido é
+[dado administrativo removido].
 P1463 deve generalizá-lo para valor explícito tipado, sem mover para o Núcleo
 a conversão PNG `/72`; essa regra pertence ao owner da pipeline.
 
-Na materialização L0 causal, o Núcleo generalizado possui SHA-256 bruto
-`488b0699748cd2a662c0ac47b8dc3c1b801e3df7afc5e842c74f66be5b1d59e8`
-e SHA-256 efetivo V26
-`68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11`.
+Na materialização L0 causal, o Núcleo generalizado possui identificador administrativo bruto
+[dado administrativo removido]
+e identificador administrativo efetivo V26
+[dado administrativo removido].
 Os dois prompts consumidores foram repinados juntos; V26 deve permanecer
 verde antes do commit.
 
 Os L0s vigentes foram lidos integralmente antes desta proposta:
 
-| Prompt | SHA-256 atual |
+| Prompt | identificador administrativo atual |
 |---|---|
-| `compiler/stdlib/format.md` | `b5a204c6a630742fc66c6b238c8c9ad59f503098ae066f035607559dae24aa9b` |
-| `compiler/eval/rules.md` | `b9d139486aee053eac52ed24c1fa6745bdd920cb990c83e9d422c27c08a1eab8` |
-| `compiler/layout/format_options.md` | `48aa05a7906c817eafe84aa9051cdf346ca12023d7df424ea7b504468ee85bd9` |
-| `entities/document_format_options.md` | `60ecd0b1687a672dfedc28e7cf857f0089cc77381ffa433021ddd88b8fe12885` |
-| `shell/cli.md` | `eca5f0822bb844581bcb324e36b5df65738b68c56b08cecafbf6a4329da54e11` |
-| `infra/pipeline.md` | `75386415700ddb66cb928bc7a3d06f19ce8de6c7cbf2aaa321ec39d503f07fde` |
-| `wiring.md` | `e99161121712346a7d356221c23ca09800ff3c1bad1ebe535f89f71ff73b1dea` |
-| `infra/export/render.md` | `5eb05b74b271e6caf0cf8b5c2f8bdb50f910b60a01f8cdd409d7ebd1d86699c1` |
+| `compiler/stdlib/format.md` | [dado administrativo removido] |
+| `compiler/eval/rules.md` | [dado administrativo removido] |
+| `compiler/layout/format_options.md` | [dado administrativo removido] |
+| `entities/document_format_options.md` | [dado administrativo removido] |
+| `shell/cli.md` | [dado administrativo removido] |
+| `infra/pipeline.md` | [dado administrativo removido] |
+| `wiring.md` | [dado administrativo removido] |
+| `infra/export/render.md` | [dado administrativo removido] |
 
 `infra/export/render.md` permanece inalterado: o seu contrato já recebe
 `pixel_per_pt`; a resolução da origem desse valor pertence à pipeline.
 
 ### 2.5 Proveniência das fontes medidas
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-render/src/format.rs` | `aac53e93ac8c83055f535f31747ad2a537aeffcd6162e65533239346a98c3cfd` |
-| `lab/typst-original/crates/typst-render/src/lib.rs` | `0c688f58c766a8d0c39441d601272c3f393086209418dbccd7e87f24777dcdc1` |
-| `lab/typst-original/crates/typst-library/src/format.rs` | `37ce18defae73642aa9e6f74cb8a78dffba575b004d9a8ddfbf52cb272898a1f` |
-| `lab/typst-original/crates/typst-cli/src/args.rs` | `b5f8eb7a01839a7c1e8a4cb3d27132397f52cb260a86b3ad946c57d619ae0064` |
-| `lab/typst-original/crates/typst-cli/src/compile.rs` | `a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703` |
+| `lab/typst-original/crates/typst-render/src/format.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-render/src/lib.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/format.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-cli/src/args.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-cli/src/compile.rs` | [dado administrativo removido] |
 
 Todos os números desta seção vieram do HEAD/tree registrados no cabeçalho;
 `git status --short` e `git diff HEAD --stat` estavam sem saída.
@@ -385,7 +393,7 @@ observador P1357. Se confirmada, o raw cristalino sobe de 43 para 44 e o overlay
 canônico coalesce somente as duas rotas provadas, mantendo 42 normalizado.
 Nenhum sibling pode ser normalizado por semelhança de nome.
 
-## 10. Checkpoints ADR-0131
+## 10. Checkpoints protocolo de checkpoint revogado
 
 A campanha não recomeça do zero após interrupção:
 

@@ -1,5 +1,13 @@
 # Passo 1411 — estabilizar contexto no `Outline` realizado
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Integrar à fase paginada o conteúdo contextual produzido por
@@ -14,11 +22,11 @@ avisos e semântica de regras de estilo independentes desta travessia.
 ## Estado e proveniência inicial
 
 - estado: commit `82e210bd1826ccbf0cd2378cddc605fb2546cf34`, árvore limpa;
-- cristalino: `target/release/typst`, SHA-256
-  `6610e74ee29f78b6f6969b3d449e8bc030209127af92ec2cde97df2e486c9daf`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: commit `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - medição inicial preparada às `2026-09-15T17:31:45-03:00`;
 - alterações antes do RED: este passo, a hipótese L0 inicial e os dois oráculos
   P1411; a hipótese foi depois falsificada e revertida.
@@ -118,19 +126,18 @@ composta pelos três prompts, três consumers, este passo e as três fixtures:
 | misto | cristalino | `X\n\nContents\n1.\n\n1. H\n\f` | 0 | 44.028 KiB | vazio |
 | misto | vanila | `X\n\nContents\n1.\n\n1. H\n\f` | 0 | 30.532 KiB | vazio |
 
-Binário cristalino final: SHA-256
-`b93c9927d3f5ad16bae9f1ef1b7dd1ec1f31426df267d7b68dc1fe92d2b72d90`.
-As fixtures `page`, `prefix` e mista têm respectivamente SHA-256
-`f7e7f9e0e850d490dcd6e8909776b0f9fc782b46dc71808d419a84e369f97f72`
-`8cfdc0e93bee179f5dc0d9f09642577cad817d995810274011a307ed4e96cb73` e
-`64fb87eaff9f65205318139149220a480b475f211fd971c378be5b3717bee461`.
+Binário cristalino final: identificador administrativo
+[dado administrativo removido].
+As fixtures `page`, `prefix` e mista têm respectivamente identificador administrativo
+[dado administrativo removido]
+[dado administrativo removido] e
+[dado administrativo removido].
 
 ## Reprobe P1409 final
 
 Executado às `2026-09-15T18:11:29-03:00`, no mesmo estado não commitado, sob
 512 MiB e uma thread. Recibo:
-`00_nucleo/diagnosticos/p1411-reprobe.json`, SHA-256
-`047b9d4b08a5f5cfa639ca7bb32ce0c9423cb3b7fe2cd8d0d8fdc373d117af00`.
+relatório consolidado da limpeza.
 
 - resultado do runner: `PASS`;
 - 84 processos; RSS máximo 42.928 KiB; swap máximo 0 KiB;

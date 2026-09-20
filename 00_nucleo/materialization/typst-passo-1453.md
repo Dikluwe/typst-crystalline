@@ -1,5 +1,13 @@
 # Passo 1453 — refinar a projeção pública de `html.frame` e fechar o denominador P1422
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — refinamento diagnóstico sem mudança de produto
 **Data da medição:** 2026-09-18T20:55:21-03:00
 **Commit medido:** `4fd9f556a9c125c45a4a1f5cfd7205e1548559c4`
@@ -37,12 +45,12 @@ geometricamente idêntico e `html.elem("frame")` como tag literal, não ilha.
 Identidades congeláveis permanecem as de P1452, sem rebuild ou alteração de
 produto:
 
-- vanilla `586e1bd43`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino release SHA-256
-  `4c55affaa6486683165d91af507b03f99e0041f18ce5a4fc062cbc6e2b2d05de`;
-- resultados P1452 SHA-256
-  `769cd0feba8293a7bc030c1b511e48b9338aef30b80bafd1c0b42ffd1040b6f4`.
+- vanilla `586e1bd43`, identificador administrativo
+  [dado administrativo removido];
+- cristalino release identificador administrativo
+  [dado administrativo removido];
+- resultados P1452 identificador administrativo
+  [dado administrativo removido].
 
 ## 3. Projeção decidida antes da nova execução
 

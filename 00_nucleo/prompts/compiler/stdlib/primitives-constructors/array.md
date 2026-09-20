@@ -12,18 +12,17 @@ demais formas vanilla ficam fora do P1339, sem passo de completação autorizado
 ## Medição anterior à decisão
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não commitada,
-com proveniência em `diagnosticos/p1339-array-prerequisite-measure-r2.json`:
+com proveniência na medição histórica:
 `compiler/eval/call_dispatch.rs:1791-1830` não possui Array; chamadas com bytes
 chegam ao diagnóstico de construtor ausente. Vanilla ratificado a51e02804,
 `foundations/array.rs:164-169,1176-1179`, converte cada byte para Int sem sinal,
 conservando ordem e comprimento. A medição confirma vazio, extremos, alias,
-spread e rejeição de sobras. O parecer independente
-`p1339-verifier-array-prerequisite-gap-r1.json` identifica esse pré-requisito
+spread e rejeição de sobras. A medição histórica identifica esse pré-requisito
 nos testes congelados de float.to-bytes.
 
 ## Decisão autorizada
 
-Autorização: `diagnosticos/p1339-array-authorization.md`. Implementar função
+Autorização: registrada pelo dono. Implementar função
 interna `native_array_bytes` no ABI de constructor do núcleo compartilhado.
 Recebe Args já avaliados, sem reavaliar expressões, callbacks ou I/O. A rota
 pública é selecionada somente quando o primeiro positional é Value::Bytes.

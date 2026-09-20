@@ -1,5 +1,13 @@
 # Passo 1357 — Completar a observabilidade da baseline de paridade
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Autoridade e continuidade
 
 Existe um único **vanilla**: o pin ratificado
@@ -30,8 +38,8 @@ Essa medição não autoriza ainda uma fila integral de implementação porque:
 6. S10 não executou as formas bare de `--pretty` e `--pdf-tagged`;
 7. S11 não executou o vetor exato das fronteiras do formatter de duração.
 
-Os números acima vêm dos artefatos `p1356-inventory-summary.json`,
-`p1356-delta-attribution.json` e `p1356-parity-report.md`, produzidos sobre uma
+Os números acima vêm dos artefatos relatório consolidado da limpeza,
+relatório consolidado da limpeza e relatório consolidado da limpeza, produzidos sobre uma
 working tree que passou a conter os artefatos P1356 ainda não commitados. Eles
 são evidência do recorte medido, não uma alegação de paridade geral.
 
@@ -83,7 +91,7 @@ a11y-extras = [a11y-extras]
 html+a11y   = [html, a11y-extras]
 ```
 
-Cada envelope deve registrar profile, vetor de features e SHA-256 do binário.
+Cada envelope deve registrar profile, vetor de features e identificador administrativo do binário.
 Executar os oito inventários brutos, guardar o bruto sob `/tmp` e commitar
 somente resumo, hashes e contagens. Um profile desconhecido deve falhar.
 
@@ -137,13 +145,13 @@ O gate deve rejeitar:
 
 Produzir em `00_nucleo/diagnosticos/`:
 
-- `p1357-oracles.json`;
-- `p1357-mutants.json`;
-- `p1357-harness.py`;
-- `p1357-inventory-summary.json`;
-- `p1357-sentinels-summary.json`;
-- `p1357-parity-backlog.json`;
-- `p1357-report.md`.
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Todo número decisório registra HEAD, estado da working tree, UTC, comandos,
 hashes dos binários e hashes das entradas.
@@ -151,8 +159,8 @@ hashes dos binários e hashes das entradas.
 ## Gates
 
 ```sh
-python3 -m py_compile 00_nucleo/diagnosticos/p1357-harness.py
-python3 00_nucleo/diagnosticos/p1357-harness.py gate ...
+python3 -m py_compile [artefato protocolar removido]
+python3 [artefato protocolar removido] gate ...
 cargo fmt --all -- --check
 cargo build --workspace --release --locked
 cargo test --workspace --release --locked --no-fail-fast

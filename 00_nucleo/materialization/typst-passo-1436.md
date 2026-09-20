@@ -1,5 +1,13 @@
 # Passo 1436 — convergência vertical completa de `math.lr`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1435 selou o fragmento P1431 de `math.mat`; restam 16 rotas da coorte
@@ -13,23 +21,23 @@ Medição executada em `2026-09-17T17:05:28-03:00`, sobre HEAD limpo
 `38883ed3b8b7ceaaa47ad78a5f43fdac51018acf`. `git status --short` não
 produziu linhas. Entradas principais:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| vanilla `typst-library/src/math/lr.rs` | `2a762699e7d3eed9a0b4b2d1afbbf5b58649339ec47ec12a2a82907519c107e0` |
-| vanilla `typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
-| cristalino `entities/elements/math_delimited.rs` | `bef47c8e80861a30db5952d776735e624b5020630a4f8a0e4a153b0e78ae0c40` |
-| cristalino `entities/content.rs` | `68905c3fbf0362aebff7ea387d154aa1263f27ebb4cac8fe60cd219f2bfaeebf` |
-| cristalino `compiler/stdlib/structural/math.rs` | `dc00f8de1475f287980b4bcbefdec855ddd43f22aaa1fd23d6e7657d6b1b5043` |
-| cristalino `compiler/eval/math.rs` | `f963332267a4dcd55927b849dd8590088b690b16e547d632aec4e5d7d0ffc7ce` |
-| cristalino `compiler/eval/repr.rs` | `4606f22b7b0ff35770c57f2a80964da9dba55f83c4663c0097d1aae1eef7e11c` |
-| cristalino `compiler/math/layout/delimited.rs` | `dbb280feb558499ae3a208201081134ed0250e8823e91756ee7975617b36fa5c` |
-| cristalino `compiler/math/layout/mod.rs` | `e429e97fb0f3265d841b3d2761339c3691446f8bcd6cde49552b09a0c7ec8f60` |
-| cristalino `compiler/math/layout/spacing.rs` | `3f3d605f9f05cc81c29acfea9001479e4da96fa13b43cebd8bcb244f643775f7` |
-| cristalino `compiler/eval/mod.rs` | `97c110bc50eff8882bc38b1cb2be289baadbe26d8daf4b9c94d890cacba4c2f6` |
-| cristalino `compiler/introspect.rs` | `8900e3a01a7642074c93c74dc1b9b87e30118640f4a2b30f4c06345f47a83e92` |
-| cristalino `compiler/introspect/locatable.rs` | `f962956984e830c3a3627382f4913b2308c39a576060333771c6a5890e84c7ca` |
-| cristalino `compiler/layout/mod.rs` | `7fab6d2e2d897944bdfe5b8404801545bbb9011b9ddc531f05e96bef84a60b42` |
-| cristalino `infra/query_helpers.rs` | `37ed92e4396708796671bb62b55e1af9185edbe3e84883f66d76167f14a7546c` |
+| vanilla `typst-library/src/math/lr.rs` | [dado administrativo removido] |
+| vanilla `typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
+| cristalino `entities/elements/math_delimited.rs` | [dado administrativo removido] |
+| cristalino `entities/content.rs` | [dado administrativo removido] |
+| cristalino `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/math.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/repr.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/delimited.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/mod.rs` | [dado administrativo removido] |
+| cristalino `compiler/introspect.rs` | [dado administrativo removido] |
+| cristalino `compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| cristalino `compiler/layout/mod.rs` | [dado administrativo removido] |
+| cristalino `infra/query_helpers.rs` | [dado administrativo removido] |
 
 O alvo permanece o vanilla ratificado
 `586e1bd43fae6c9a973218163d3165c53ab8d16d`. A fonte declara
@@ -164,7 +172,7 @@ A primeira materialização de M03 atingiu por engano outro braço zero anterior
 e foi preservada como recibo negativo; a receita corrigida selecionou a
 segunda ocorrência, dentro de `math_lr_from_args`, e foi morta 3/3. O agregado
 não atribui crédito à receita defeituosa. Certificado:
-`00_nucleo/diagnosticos/p1436-verifier-certificate.json`.
+relatório consolidado da limpeza.
 
 Os gates finais `cargo fmt --all -- --check`, `git diff --check`, os testes
 focais, `cargo build --workspace` e `crystalline-lint .` terminaram com exit

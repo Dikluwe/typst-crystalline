@@ -1,5 +1,13 @@
 # Passo 1410 — limitar cobertura tipográfica ao catálogo já medido
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** concluído.
 
 ## Objetivo
@@ -14,8 +22,8 @@ a primeira consulta de fallback mapeie todos os ficheiros de fontes instaladas.
 - Primeira medição: `2026-09-15T16:07:20-03:00`; redução causal adicional na
   mesma working tree não commitada.
 - Vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
-- Binário cristalino inicial: `target/release/typst`, SHA-256
-  `21edbc26682f290db91d85455ce96bb6b372edcb1f9edcac4bf8d38fad38059d`.
+- Binário cristalino inicial: `target/release/typst`, identificador administrativo
+  [dado administrativo removido].
 - L0 vigente lido: `infra/fontdb.md` e `infra/system-world.md`; consumers:
   `03_infra/src/fontdb.rs` e `03_infra/src/world.rs`.
 
@@ -94,8 +102,8 @@ reserva virtual proporcional ao catálogo de fontes do host.
 - O primeiro build release terminou em 3 min 11 s sob 2 GiB, um job,
   incremental/debug desligados e 512 codegen units. Depois do resselo, o build
   final terminou em 3 min 07 s sob a mesma política; o binário final tem
-  SHA-256
-  `6610e74ee29f78b6f6969b3d449e8bc030209127af92ec2cde97df2e486c9daf`.
+  identificador administrativo
+  [dado administrativo removido].
 - Os dois REDs focais ficaram GREEN sob 512 MiB: outline + expressão devolveu
   `ok`; raw simples gerou PDF; ambos terminaram com código zero e stderr vazio.
 - A amostragem pós-correção mediu `VmSize` máximo de 91.072 KiB para outline +
@@ -110,8 +118,8 @@ reserva virtual proporcional ao catálogo de fontes do host.
   512 MiB, máximo de 42.636 KiB RSS, swap zero e resultado do runner `PASS`.
   `par.line` e `raw.line` agora são `ABSENT`; os quatro campos de
   `outline.entry` deixam de ser OOM, mas permanecem `UNKNOWN` por
-  `NON_BILATERAL_EVIDENCE`. O resultado compacto temporário tem SHA-256
-  `9df9f7d10aaf0f11c96ecd40f6e8912326376c8bd59927a53ab1f15f0aff0a36`.
+  `NON_BILATERAL_EVIDENCE`. O resultado compacto temporário tem identificador administrativo
+  [dado administrativo removido].
 - Raw simples também revelou divergência morfológica independente: o texto
   extraído cristalino foi `xy` numa linha, enquanto o vanila preservou `x` e
   `y` em linhas separadas. P1410 não mascara nem fecha essa lacuna.

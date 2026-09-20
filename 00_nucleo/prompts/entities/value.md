@@ -8,8 +8,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
 commitado com diff/stat integral. A medição independente R5, SHA-256
 `82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,

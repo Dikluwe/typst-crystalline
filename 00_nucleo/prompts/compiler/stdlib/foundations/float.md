@@ -12,8 +12,7 @@ Hash do Código: eb2d9000
 
 Em `2026-08-31T10:35:47-03:00`–`10:40:57-03:00`, sobre HEAD
 `53d21c5a602f4045a769a0ab0c935baa5ecd3b88` e working tree não commitida, o
-binário vanilla de SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`
+binário vanilla de
 devolveu `(function, "is-infinite")` para o field estático e
 `[false,false,true,true,false]` para `0.0`, `42.5`, infinito positivo,
 infinito negativo e NaN. A forma ligada produziu o mesmo vetor.
@@ -22,16 +21,15 @@ As duas ordens forward/reverse produziram resultados idênticos. A obtenção
 do método ligado como valor, sem chamada, falhou no vanilla com
 `cannot access fields on type float`; portanto, esse acesso reflexivo não faz
 parte da superfície autorizada. O cristalino pré-candidato, construído da
-árvore corrente em target isolado e com SHA-256
-`e7c81e3a6c6f1933db95c2249286fca19f3b5991eb8bc392f49ea659cec0bd78`,
+árvore corrente em target isolado e com,
 falhou por ausência do field/método.
 
 Uma auditoria posterior das pré-condições mostrou que `float.inf` e
 `float.nan` são também `MISSING_MEMBER` no cristalino
-(`p1284-inventory-default.json`). Os dois lados aceitam
+(medição histórica). Os dois lados aceitam
 `float("1e999")` como infinito positivo e `float("NaN")` como NaN; estes
 carriers isolam a semântica de `is-infinite` sem materializar dois fields fora
-do escopo nem converter o ganho esperado de `+1` em `+3`. O primeiro selo A/B
+do escopo nem converter o ganho esperado de `+1` em `+3`. A primeira rodada A/B
 foi invalidado e refeito a partir desta medição.
 
 A fonte vanilla medida em
@@ -105,7 +103,7 @@ agregação pertence a `call_dispatch`; o acesso sem chamada pertence a
 em items para is-infinite/is-nan. O helper recebe f64, sem span lexical.
 Fonte preservada em HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais
 working tree P1306; L0 pré-edição e diff/stat completos no baseline adicional
-R3 SHA-256 `592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`.
+R3.
 
 ### Decisão subordinada ao gate público de Args
 
@@ -120,7 +118,7 @@ Não mudar fórmulas, superfície, casts, mensagens ou regra de named duplicados
 destas nativas. A proibição anterior de alterar Args continua aplicável a
 este consumer: a definição nova pertence somente ao owner entities/args,
 com seu gate ADR-0127 ainda pendente. Este owner apenas migra transporte.
-Testes devem manter os diagnósticos certificados is-nan e cobrir Some/None
+Testes devem manter os diagnósticos validados is-nan e cobrir Some/None
 com receiver presente exatamente uma vez. É inferência de suficiência,
 refutada por perda de origem ou alteração das âncoras legadas.
 
@@ -128,12 +126,10 @@ refutada por perda de origem ou alteração das âncoras legadas.
 
 ### Medição anterior à decisão
 
-Referência de linguagem: vanilla ratificado `a51e02804`. Os recibos
-`00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json:2` e
-`p1339-full-boundaries-vanilla-runs.json:2` registram os horários, binários,
-comandos e working tree sobre HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
-com `git diff HEAD --stat` vazio. Os manifestos correspondentes congelam as
-expressões por ID; não são um candidato de implementação.
+Referência de linguagem: vanilla ratificado `a51e02804`. A medição histórica
+registra horários, comandos e working tree sobre HEAD
+`2f42d64253547734564513a1159ee6b584c1c4b4`, com `git diff HEAD --stat`
+vazio. As expressões medidas são descritas pelos testes funcionais do owner.
 
 A fonte `lab/typst-original/crates/typst-library/src/foundations/float.rs:14`
 documenta float de 64 bits e coerção de inteiro; `:20,34,39` documenta e
@@ -162,7 +158,7 @@ medição pública. Inferência de suficiência do owner existente é refutada p
 uma obrigação que não possa ser expressa por suas nativas e Args causais.
 
 Este adendo sucede **somente** os scope-outs anteriores de `inf`, `nan`,
-`signum`, `from-bytes` e `to-bytes`. Preserva predicados certificados e o
+`signum`, `from-bytes` e `to-bytes`. Preserva predicados validados e o
 constructor no owner `foundations/cast`.
 
 - `float.inf` é float infinito positivo, `repr` `float.inf`; `float.nan` é
@@ -230,7 +226,7 @@ Somente as cinco rotas desta família entram no incremento. Não materializar
 outras rotas dos lotes sucessores de P1339 nem declarar paridade geral float.
 Não mudar campos/assinaturas públicas de entidades, defaults do produto ou
 fase de pipeline. Helpers novos podem ser internos à crate, com ownership 1:1.
-É correção de paridade ADR-0127; permanece dependente de contrato selado, RED
+É correção de paridade ADR-0127; permanece dependente de contrato validado, RED
 independente e gates do protocolo completo antes da implementação.
 
 Aceitação cobre ambas as formas aplicáveis, aliases, presença/nome/repr,

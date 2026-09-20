@@ -145,8 +145,8 @@ vtable-driven (scope-out cristalino).
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
 `compiler/introspect/locatable.rs:157-159` exclui Strong/Emph junto de
-Styled. A sonda `diagnosticos/p1339-where-integration-probe-runs.json`
-(vanilla ratificado `a51e02804`, estado/UTC/comandos no recibo) encontra
+Styled. A medição histórica
+(vanilla ratificado `a51e02804`, estado/UTC/comandos no registro) encontra
 ocorrências de strong/emph; text.where é rejeitado como não localizável.
 
 ### Decisão

@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/eval/operators/equality.rs:119–124` aplica morph_canon aos dois
@@ -148,8 +146,8 @@ eval_binary_op(NotIn, Int(1), Str("hello"))     == Err("cannot apply 'not in' to
 ### Medição anterior à decisão
 
 No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
-`equality.rs:101-130` deixa Value::Selector no fallback estrutural. A sonda
-`diagnosticos/p1339-where-l0-vanilla.json`, UTC
+`equality.rs:101-130` deixa Value::Selector no fallback estrutural. A medição
+histórica, em UTC,
 `2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, mede
 `heading.where(level:1) == heading.where(level:1.0)` verdadeiro no vanilla;
 o antecedente cristalino mede falso. Reordenar campos é diferente; alias
@@ -186,10 +184,8 @@ ou por uma regressão em pares antigos sem a variante nova.
 ### P1339 — identidade linguística da chave de counter filtrado
 
 Medição anterior à decisão: no HEAD acima, `values_eq` também deixa
-Value::Counter no fallback derivado. O recibo
-`diagnosticos/p1339-where-counter-runtime-probe-runs.json`, SHA-256
-`178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3`,
-registra UTC e árvore integrais: filtros level inteiro/float comparam iguais
+Value::Counter no fallback derivado. O registro histórico conserva UTC e
+árvore integrais: filtros level inteiro/float comparam iguais
 e compartilham update; inverter ordem dos fields distingue chaves e updates;
 filtro com NaN não compara igual a si próprio e não reencontra seu update.
 `introspection/counter.rs:243,256` seleciona updates pela chave, separadamente

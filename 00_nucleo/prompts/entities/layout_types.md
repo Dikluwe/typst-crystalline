@@ -9,9 +9,8 @@ HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 `layout_types.rs:1277-1290` já define Angle em radianos e os métodos
 to_rad/to_deg. A fonte vanilla ratificada `layout/angle.rs:142-151`
 documenta conversões Angle → float, não os constructors Rust homônimos.
-As sondas `p1339-full-final-vanilla-runs.json` e seu manifesto conservam
-expressões, saídas, UTC e proveniência; o inventário de owners está em
-`diagnosticos/p1339-remaining-l0-design.md`.
+A medição histórica conserva expressões, saídas, UTC e proveniência; os
+owners relevantes são os declarados neste L0 e em seus consumers atuais.
 
 ### Decisão
 
@@ -25,7 +24,7 @@ assinaturas, operações aritméticas ou construção de Angle. Não criar novo
 módulo para copiar estas fórmulas. Divergência pública de precisão nas
 entradas medidas refuta a suficiência e exige correção de causa, não
 arredondamento arbitrário no repr. Angle NaN permanece sob a resolução
-condicional já autorizada em `diagnosticos/p1339-nan-resolution.md`:
+condicional já autorizada na decisão registrada:
 não modificar aritmética para fabricar receiver bilateral.
 
 ## P1286 — attachments e artifact semântico propostos (GATE ADR-0127)
@@ -110,7 +109,7 @@ o reduzir a cor; exporters sem suporte nativo podem aplicar o fallback próprio
 já especificado, mas recebem o `Paint` íntegro.
 
 Conic continua transportado, mas o SVG não pode alegar equivalência nativa sem
-orçamento de erro selado. Espaços de cor sem conversão morfológica modelada
+orçamento de erro validado. Espaços de cor sem conversão morfológica modelada
 também não podem ser promovidos silenciosamente a equivalência.
 
 ## P1140.5-A — grupo semântico de fórmula
@@ -651,7 +650,7 @@ visual separada do body.
 ## P1140.25 — snapshot de supplement
 
 `PageConfig` guarda `PageSupplement`; `Page` guarda o `Content` resolvido por
-página. O vetor selado mantém alinhamento 1:1 com pages e numberings. Ver
+página. O vetor validado mantém alinhamento 1:1 com pages e numberings. Ver
 `entities/page_supplement.md`.
 
 ## P1157 — snapshots tipados de numbering
@@ -666,7 +665,7 @@ a função original. Logo `EcoString` no snapshot perde semântica.
 `PageConfig.numbering` e `Page.numbering` passam a
 `Option<entities::numbering::Numbering>`. São estado resolvido: `None` significa
 desativado. `Page` também conserva o span de origem necessário para erro de
-callback e o número lógico corrente selado; estes campos públicos exatos serão
+callback e o número lógico corrente validado; estes campos públicos exatos serão
 materializados somente após o gate. Geometria e ordem de páginas não mudam.
 # P1226 — `FrameItem::Shape.fill_rule`
 
@@ -732,7 +731,7 @@ preserva os items do prefixo e não cria texto, medida ou Location. Seu único
 consumer produtivo é o pipeline PDF tagueado; não confundir com `LabelElem`
 (destino nomeado) nem com `Artifact`, que remove conteúdo da structure tree.
 
-## P1462 — opções de formato no documento paginado (CONFIRMADO; aguarda selo R2)
+## P1462 — opções de formato no documento paginado (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -757,6 +756,5 @@ CLI, bytes serializados nem handles de exporter.
 `DocumentFormatOptions` pertence exclusivamente a
 `entities/document_format_options.rs`; este owner somente o transporta no
 documento. `Page`, `PageConfig`, frames, geometria e plain text não mudam.
-Trata-se de campo público. A confirmação humana explícita de P1462 foi
-recebida em 2026-09-19; a materialização permanece bloqueada até o novo selo
-discriminatório R2.
+Trata-se de campo público. A mudança foi aprovada explicitamente e materializada
+em 2026-09-19.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 2be2eb2c
+//! @prompt-hash ba8db899
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -907,13 +907,13 @@ fn p204d_position_nao_populada_para_nao_locatable() {
     );
 }
 
-// ── P205C (F3) — pipeline E2E: layout → seal → inject → query ─────────
+// ── P205C (F3) — pipeline E2E: layout → finalize → inject → query ─────
 
 #[test]
 fn p205c_pipeline_layout_seal_inject_query_devolve_some() {
     // E2E test: pipeline completo per ADR-0074 §C6 (Position
     // trackable). 1) Layouter populates runtime.positions;
-    // 2) finish() seal extracted_positions; 3) caller injecta
+    // 2) finish() finaliza extracted_positions; 3) caller injecta
     // SealedPositions no TagIntrospector; 4) Introspector::position_of
     // devolve Some(Position) real.
     use crate::entities::introspector::{Introspector, TagIntrospector};
@@ -931,7 +931,7 @@ fn p205c_pipeline_layout_seal_inject_query_devolve_some() {
     // Captura location locatable antes de finish (consume self).
     let loc = layouter.current_location.expect("Heading locatable → Some");
 
-    // P205B: finish seal extracted_positions.
+    // P205B: finish finaliza extracted_positions.
     let doc = layouter.finish();
     assert!(
         !doc.extracted_positions.is_empty(),

@@ -1,5 +1,13 @@
 # Passo 1428 — recalibração observável do certificado `math.frac`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1427 implementou a convergência completa de `math.frac`, mas o verificador
@@ -17,12 +25,12 @@ produto:
 Medição executada em `2026-09-16T19:06:59-03:00`, sobre HEAD limpo
 `22d7795d48786e590e12c1d6c02280673c657a8c`. Entradas congeladas:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| `00_nucleo/diagnosticos/p1427-report.md` | `70086f4d7ae3247b700e863e9cb4c2f95ff833367433071f5b7587df96b9b44e` |
-| `00_nucleo/diagnosticos/p1427-verification.json` | `6e806664fd8ceca5718f1b3f91dd70f5d1eef19a4e25b0d9dd1a1b7fa742764d` |
-| `03_infra/tests/p1427_math_frac.rs` | `708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7` |
-| `00_nucleo/prompts/infra/tests/p1427-tests.md` | `fecdbce0a62a01d85343e54ff244b6bb50d5874a03bd69e5fe333b77bb92a8c6` |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `03_infra/tests/p1427_math_frac.rs` | [dado administrativo removido] |
+| `00_nucleo/prompts/infra/tests/p1427-tests.md` | [dado administrativo removido] |
 
 ## Classificação
 

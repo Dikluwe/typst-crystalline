@@ -32,6 +32,6 @@ Uma execução atual confirmou também `54.02%` para `luma(red)` e para os
 endpoints Linear/Radial nos dois binários. Duas execuções completas foram
 byte-idênticas.
 
-Diagnóstico: `00_nucleo/diagnosticos/typst-p1239-luma.md`.
+Diagnóstico: relatório consolidado da limpeza.
 
 EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO.

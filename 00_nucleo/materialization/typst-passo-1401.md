@@ -1,5 +1,13 @@
 # Passo 1401 — contexto `eval --in` e recortes `selector.before/after`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar três lacunas públicas medidas pelo P1400:
@@ -25,14 +33,14 @@ Estado medido em `2026-09-14T20:59:32-03:00`:
 - working tree limpa;
 - vanila ratificado:
   `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário vanila `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino `target/release/typst`, SHA-256
-  `508842d9e0f3cf7684d1acea4f3850c616afdf38e3aa0fac1c0ab68d7e026fcc`;
-- resultado P1400, SHA-256
-  `9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542`;
-- relatório P1400, SHA-256
-  `a0829f6771b9583b7dfee50794c3ae6b16d472564c9da3f55499fa34219b14a0`.
+- binário vanila `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- binário cristalino `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- resultado P1400, identificador administrativo
+  [dado administrativo removido];
+- relatório P1400, identificador administrativo
+  [dado administrativo removido].
 
 ### `eval --in`
 

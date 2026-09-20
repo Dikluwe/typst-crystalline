@@ -1,5 +1,13 @@
 # P1252 — preservar alpha Luma e documentar defeito upstream
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — `KNOWN-UPSTREAM-BUG` REVALIDADO; LUMINÂNCIA FECHADA POR P1239
 **Predecessor:** P1236
 **Escopo:** classificação da divergência não-Luma → Luma; sem promoção SVG.
@@ -78,15 +86,15 @@ forte, registrar literalmente `EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO`.
 - delta histórico de luminância `54.01%` vs `54.02%` posteriormente resolvido
   pelo P1239, com 42/42 pares sem delta;
 - whitelist SVG mantida sem Luma e sem nova promoção;
-- evidência em `00_nucleo/diagnosticos/typst-p1252-luma-alpha.md` e artefactos
+- evidência em relatório consolidado da limpeza e artefactos
   TSV P1252.
 
 Proveniência da medição inicial: HEAD
 `697eaf31e8ce6aaa4eef7d61d7808e377005c3c5`, working tree não commitada,
-`2026-08-27T16:36:44-03:00`; fonte SHA-256
-`e27b95523a535a1d68a27aaa62bd9462ee401edeefa8a76b43178c0c2f8ec9bf` e
-texto vanilla SHA-256
-`83ec0e82fda0faff795e079959caaa587bbb58889958e59832805449dbcab1fe`.
+`2026-08-27T16:36:44-03:00`; fonte identificador administrativo
+[dado administrativo removido] e
+texto vanilla identificador administrativo
+[dado administrativo removido].
 
 EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO.
 

@@ -158,7 +158,7 @@ innermost-first (ver invariante acima): a **última-declarada func vence** — p
 o vanilla. **Não há acumulação a reconciliar** — a premissa "vanilla acumula func" (P354,
 herdada do B1) era um conflato com o **show-set** (fold de estilo, = lacuna (i), feita no
 P356). **A2/A3 declinados** (A2 acumularia onde o vanilla erra; A3 reabriria o α/P348
-selado — custo alto, demanda nula).
+validado — custo alto, demanda nula).
 
 **Residual (paridade de erro, não buraco).** 2+ `func` same-kind **mesmo-kind-returning**
 (o output re-casa o seletor) → **recursão** → ambos (vanilla e crystalline) **erram** no
@@ -203,7 +203,7 @@ para toda função nativa de elemento; `Text(String)` significa padrão literal,
 não a função `text`. `selector_matching.rs:43-65` rejeita identidades que
 não consegue converter. As fixtures `diagnosticos/p1339-full-show-fixture-*`
 comprovam no vanilla ratificado aplicação de filtros de strong/emph/text;
-recibos `p1339-full-show-final-*.json` registram proveniência e a limitação
+registros `p1339-full-show-final-*.json` registram proveniência e a limitação
 CLI nos perfis cristalinos não-default, sem convertê-la em prova de matching.
 
 ### Decisão proposta — somente o carrier

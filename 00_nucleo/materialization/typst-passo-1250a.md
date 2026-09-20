@@ -1,5 +1,13 @@
 # P1250A — saneamento e ratchet ordenado dos 256 warnings do gate P1250
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — SANEAMENTO CONCLUÍDO; WORKSPACE TEST BLOQUEADO  
 **Predecessor:** P1250 (`FAIL_FINAL_GATE`)  
 **Saída:** V17/V18/V21 zerados; V16 ratificado por exceções exatas e sem
@@ -28,7 +36,7 @@ Medição em `2026-08-28T14:44:28-03:00`:
 Antes da primeira correção, gerar inventário TSV reproduzível com uma linha por
 warning: código, ficheiro, linha, mensagem normalizada, owner L0, classe
 `mecânico|semântico|incerto`, lote e estado. Registrar HEAD, horário, diff stat e
-SHA-256 do output bruto. O inventário fica em `00_nucleo/diagnosticos/`; nunca em
+identificador administrativo do output bruto. O inventário fica em `00_nucleo/diagnosticos/`; nunca em
 `prompts/`.
 
 ## Princípios de execução
@@ -174,8 +182,8 @@ Medição em `2026-08-28T15:05:00-03:00`, HEAD
 `697eaf31e8ce6aaa4eef7d61d7808e377005c3c5`, working tree não commitado
 (`82 files changed, 4728 insertions(+), 483 deletions(-)`): V17=0, V18=0,
 V21=0, V16=202 ratificados, zero warnings novos, zero owners desconhecidos.
-O inventário pós-saneamento tem SHA-256
-`14869e19688c65d27d6b906c9a90b8c2348d13f8c4776ced7253b819af32bcd1`.
+O inventário pós-saneamento tem identificador administrativo
+[dado administrativo removido].
 
 Os testes focais, o teste integrado P1250 e `cargo check` de L1/L3 passaram.
 `cargo test --workspace` executou 5295 testes de `typst-core`: 5291 passaram e

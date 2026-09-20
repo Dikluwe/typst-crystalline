@@ -1,12 +1,8 @@
 # Prompt L0 — testes independentes de `math.lr` P1436
+Hash do Código: 232f64da
 
 **Camada**: L1 test-only  
 **Alvo**: `01_core/src/compiler/stdlib/structural/p1436_tests.rs`
-
-## Entradas congeladas
-
-Passo P1436 aprovado, manifesto, contrato e oráculos P1436. Estes testes não
-derivam expectativas do patch produtivo.
 
 ## Obrigações
 

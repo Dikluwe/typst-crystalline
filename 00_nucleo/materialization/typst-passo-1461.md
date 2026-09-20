@@ -1,5 +1,13 @@
 # Passo 1461 — nuclear o módulo público `format` sem placeholders
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
 **Data da medição:** 2026-09-19T08:00:49-03:00
 **Commit medido:** `7392f490397c56876fcf6134e86c44b528b396bb`
@@ -30,8 +38,8 @@ Resultado estrutural esperado do recorte: 141 → 140 caminhos únicos ausentes 
 
 O harness P1357 executado no HEAD medido, contra o vanilla ratificado, produziu
 `PASS`, quatro hashes de determinismo idênticos e o artefato
-`/tmp/p1461-current-inventory.json`, SHA-256
-`067ce14b28f0b1bafa88f8fe0198b0a36f76248ec2ffd180e8e1e454845a4d80`.
+`/tmp/p1461-current-inventory.json`, identificador administrativo
+[dado administrativo removido].
 
 | Perfil | BOTH_PRESENT | VANILLA_ONLY | CRYSTALLINE_ONLY |
 |---|---:|---:|---:|
@@ -53,15 +61,15 @@ recebidos. Em `lab/typst-original/crates/typst-library/src/lib.rs:368-381`, a
 raiz global registra esse módulo independentemente do target. O feature gate é
 propriedade do filho, não da raiz (`format.rs:94-98`).
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/format.rs` | `37ce18defae73642aa9e6f74cb8a78dffba575b004d9a8ddfbf52cb272898a1f` |
-| `lab/typst-original/crates/typst-library/src/lib.rs` | `a6ac296ad0029e8ee45c102f68195f8c439b2ad088c0d9317a77913946daf130` |
+| `lab/typst-original/crates/typst-library/src/format.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/lib.rs` | [dado administrativo removido] |
 
-O binário vanilla medido tem SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+O binário vanilla medido tem identificador administrativo
+[dado administrativo removido].
 Os probes bilaterais registraram:
 
 | Probe | Vanilla | Cristalino |
@@ -85,15 +93,15 @@ existem; nenhum novo carrier de entidade é necessário neste recorte.
 
 Identidades do baseline:
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `00_nucleo/prompts/compiler/eval.md` | `85a407c1c1c877ea60f82de255a5faa94d862c057c9ef0ccd3ccfd80780e98d9` |
-| `00_nucleo/prompts/compiler/stdlib/_comum.md` | `61255791dbf880217985fb2a8b42cdb2bdea9a84850be3998e7e7e81302f8e3f` |
-| `00_nucleo/prompts/entities/module.md` | `17d75e8c05e28546b7212ae232fa5d9e0474eda2b5bd7b67740e54ec3c1659a9` |
-| `01_core/src/compiler/eval/mod.rs` | `a014d409e6a0e53d05d11365be28d77bda89b03f6da2a03807767e69ceeb5fa1` |
-| `01_core/src/compiler/stdlib/mod.rs` | `d0640072de23c2811fc6e373c9c80c77b3628bc8c7ca267b11f9235aaedb031d` |
-| `01_core/src/entities/module.rs` | `da6380bef91ebaa1166ba8f76cba953671e9bab210fbcd2a8b22e667802ab49f` |
-| `target/release/typst` | `e634f2e4c54f6211837b65412787b231f9d738caf88b647b1729365c4cbcd633` |
+| `00_nucleo/prompts/compiler/eval.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/stdlib/_comum.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/entities/module.md` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/mod.rs` | [dado administrativo removido] |
+| `01_core/src/entities/module.rs` | [dado administrativo removido] |
+| `target/release/typst` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -180,15 +188,15 @@ candidato.
 
 Artefatos mínimos:
 
-- `p1461-manifest.json`: prompts, baseline, binários, perfis, comandos,
+- relatório consolidado da limpeza: prompts, baseline, binários, perfis, comandos,
   capacidades e política de `Unknown`;
-- `p1461-contract.json`: observáveis da raiz e limites dos filhos;
-- `p1461-oracles.json`: positivos vanilla, controles cristalinos RED e casos
+- relatório consolidado da limpeza: observáveis da raiz e limites dos filhos;
+- relatório consolidado da limpeza: positivos vanilla, controles cristalinos RED e casos
   opacos, sem leitura do candidato;
-- `p1461-mutants.json`: mutações negativas e equivalentes mecânicos;
-- `p1461-preseal.json`: hashes protegidos e mutation score `1.0`;
-- `p1461-red.json`: falha atribuível à raiz ausente;
-- `p1461-results.json` e `p1461-verifier-certificate.json`: campanha final e
+- relatório consolidado da limpeza: mutações negativas e equivalentes mecânicos;
+- relatório consolidado da limpeza: hashes protegidos e mutation score `1.0`;
+- relatório consolidado da limpeza: falha atribuível à raiz ausente;
+- relatório consolidado da limpeza e relatório consolidado da limpeza: campanha final e
   veredito limitado ao fragmento.
 
 Papéis e autoridades:
@@ -278,7 +286,7 @@ Gates finais após confirmação e implementação:
    mudaram;
 2. executar testes focais de root/identity/diagnóstico/perfis e controles
    adjacentes;
-3. repetir o inventário P1357 com binários rebuildados e identidades SHA-256;
+3. repetir o inventário P1357 com binários rebuildados e identidades identificador administrativo;
 4. `cargo fmt --all -- --check`;
 5. `cargo test --workspace` — falha só pode ser classificada fora do recorte
    se reproduzida e congelada no baseline; não recebe crédito verde;

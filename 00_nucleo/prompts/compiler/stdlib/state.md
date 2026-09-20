@@ -13,7 +13,7 @@ HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 `:348-364,378-395` contém também as nativas históricas state_final/state_at.
 `display` lê o valor antes de chamar sua callback no mesmo EvalContext.
 Os helpers get/at/final recebem `&EvalContext`, não `&mut EvalContext`.
-A auditoria `diagnosticos/p1339-observation-integration.md` e seu recibo
+A auditoria histórica
 registram fontes e estado exatos. São entradas contextuais, mesmo quando
 lidas antes da demanda de um contador Element.
 

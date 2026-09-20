@@ -51,9 +51,7 @@ P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out:
 ### Medição anterior à decisão
 
 Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
-`1f082370e59939de7b57992e137a9f74bfb6758f`, a matriz bilateral
-`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json` (SHA-256
-`1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe`)
+`1f082370e59939de7b57992e137a9f74bfb6758f`, a medição histórica
 mediu nos perfis `default`, `html`, `a11y` e `html+a11y`:
 
 - `color.hsl`, `color.hsv` e `color.linear-rgb` como funções com valor público
@@ -370,8 +368,7 @@ Value::Color(ref color) => {
 ### Medição anterior à decisão
 
 No vanilla ratificado `a51e02804`, arquivo
-`lab/typst-original/crates/typst-library/src/visualize/color.rs` SHA-256
-`80473eba7460cb0f398e7937946e6412c1a8cb1cadffe00580aea9b48f6c0713`,
+`lab/typst-original/crates/typst-library/src/visualize/color.rs`,
 `color.map` é um `module` com 15 arrays, na ordem abaixo. O digest de cada
 sequência é SHA-256 dos valores RGBA canonizados como tokens lowercase de oito
 dígitos (`0xrrggbbaa`), com left-padding de zero quando o literal Rust omite o
@@ -402,7 +399,7 @@ ficam integralmente pinados sem copiar milhares de literais.
 O oráculo independente `A-P1284-v2` executou 52/52 sondas no vanilla e pinou
 `lab/surface-inventory/p1284-probes.json` por
 `06e205483a9bc905f778a72fcbb74ddb229b73141ffe6bf27ec95d0a40e145c3` e
-seu recibo por
+seu registro por
 `50b6e34b826041edb61f15828a14c2cfd234bc7bee71215c378e89e68079ba79`.
 Ele refutou as contagens v3 diretamente pela superfície de linguagem.
 
@@ -443,7 +440,7 @@ nova variante/tipo público.
 
 O baseline `visualize/color.rs:1058-1090,1136-1204,2422-2459` recebe N
 argumentos, cada um cor nua (peso `1`) ou array `(cor,peso)` com peso float ou
-ratio; normaliza pela soma. O receipt P1286 mediu 1 e 3 cores, pesos positivos,
+ratio; normaliza pela soma. A medição P1286 cobriu 1 e 3 cores, pesos positivos,
 zero e negativos com soma positiva, rejeição de soma `<=0`, e proibição de
 mais de duas cores em HSL/HSV/Oklch.
 

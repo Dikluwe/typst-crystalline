@@ -1,5 +1,13 @@
 # P1244 — fechar tiling modelável sem contrato público novo
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — ENCERRADO SEM CÓDIGO; FRONTEIRA NEGATIVA RETIDA  
 **Predecessor:** P1243  
 **Saída:** fronteira negativa fechada; nenhum caso SVG adicional promovido.
@@ -30,6 +38,6 @@ foi executado duas vezes com saída byte-idêntica. O teste
 `p1227_tiling_de_cor_emite_pattern_com_tamanho_e_spacing` passou; V15/V26 e
 `git diff --check` passaram. V5 mantém duas derivas externas conhecidas em
 `visualize.rs` e `tiling.rs`, sem serem mascaradas como sucesso. Recibo:
-`00_nucleo/diagnosticos/p1244-closure-receipt.tsv`.
+relatório consolidado da limpeza.
 
 Segregação Tekt não aplicável: encerramento diagnóstico sem materialização.

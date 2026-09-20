@@ -1,5 +1,13 @@
 # Passo 1424 — `html.frame` como ilha paginada em SVG inline
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 O P1423 materializou os 112 constructors derivados da tabela HTML e reservou
@@ -17,22 +25,22 @@ separada:
 Sondas executadas em 2026-09-16T13:44:19-03:00, no HEAD
 `90ebf6643dbd9070c1018f8dd8748b867ec12520`, tree
 `eb838a3b7440fa10d9732e4eecfa7cf893bd1a69`, working tree limpa antes das
-sondas. Vanilla `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+sondas. Vanilla `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 reportou `typst 0.15.1 (586e1bd4)`:
 
 | Fixture | Target | Resultado |
 |---|---|---|
-| `#html.frame([x])` | HTML | exit 0, 1817 bytes, SHA-256 `56873e737cb3bcc4ffdd23ea131357013f19395065152e2ac809da0a13d208da`, raiz útil `<svg ... style="... display: block">` |
-| `#html.frame([#rect(width: 10pt, height: 5pt, fill: red)])` | HTML | exit 0, 480 bytes, SHA-256 `bea5cb973cec51717db5dc547fbe7649c91d4650c1f27066a4501599bd31112c`, `viewBox="0 0 10 5"` |
+| `#html.frame([x])` | HTML | exit 0, 1817 bytes, identificador administrativo [dado administrativo removido], raiz útil `<svg ... style="... display: block">` |
+| `#html.frame([#rect(width: 10pt, height: 5pt, fill: red)])` | HTML | exit 0, 480 bytes, identificador administrativo [dado administrativo removido], `viewBox="0 0 10 5"` |
 | `#html.frame([#html.frame([x])])` | HTML | byte-idêntico ao frame simples |
 | `#html.frame([x])` | SVG paginado | byte-idêntico a `x` sem wrapper próprio |
 | `#html.frame()` | HTML | erro `missing argument: body` |
 | `#html.frame(body: [x])` | HTML | erro ``the argument `body` is positional`` |
 | `#html.frame([x], [y])` | HTML | erro `unexpected argument` |
 
-No mesmo estado, o binário cristalino release SHA-256
-`66dc3120c2b97c69fcc7be941d385d05cbd947a67e951464654789f4f70ba6c3`
+No mesmo estado, o binário cristalino release identificador administrativo
+[dado administrativo removido]
 falha a fixture válida com `module html does not contain frame`. A alternativa
 `html.elem("frame")` permanece uma tag literal e não satisfaz a morfologia.
 

@@ -1,5 +1,13 @@
 # Passo 1375 — `block(height: fr)` sob estilo transparente
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar o primeiro scope-out do P1374: reconhecer um único Block fracionário
@@ -16,7 +24,7 @@ Sonda `p1375-wrapper.typ`, página 200pt × 240pt, margem 10pt, um Block 1fr sob
 - cristalino P1374: 2 páginas; `One=7,404`, `Two=42,230` e `After=7,404`
   na página 2.
 
-Sonda SHA-256 `a963fbc8…43e8`; vanila `eb60986b…1468f`; cristalino
+Sonda identificador administrativo `a963fbc8…43e8`; vanila `eb60986b…1468f`; cristalino
 `3f95f3b1…3148`; `pdftotext` `0fb98ea1…565e7`. Medição em
 2026-09-13T15:16:19-03:00, HEAD `8ceea20f…5248`, working tree não commitado
 com 45 ficheiros alterados no diff e 238 entradas de status.

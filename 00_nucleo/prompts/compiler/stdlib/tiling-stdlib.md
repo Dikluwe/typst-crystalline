@@ -96,7 +96,7 @@ resultado. Nenhuma lógica de render ou entidade muda neste lote.
 ## P1245 — construtor declarativo completo proposto
 
 **Gate ADR-0127 (histórico):** o dono confirmou a mudança pública no P1245.
-O contrato observável foi pré-selado e materializado no P1254. Esta decisão é
+O contrato observável foi pré-validado e materializado no P1254. Esta decisão é
 vigente; qualquer ampliação para stroke ou outro target exige evidência própria
 e não pode ser inferida do sucesso focal de fill SVG.
 

@@ -1,5 +1,13 @@
 # Passo 1447 — Materializar `math.abs` sobre o carrier público `math.lr`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
 **Data da medição:** 2026-09-18T16:46:16-03:00  
 **Commit medido:** `9e1c891fe31d732b3f0b926cb1343f63a97e07f8`  
@@ -26,15 +34,15 @@ obrigatório. O helper comum constrói `LrElem` com body
 `sequence(|, body, |)` e só fixa `size` no elemento quando o argumento esteve
 presente. `math/mod.rs:75` registra a função no módulo.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/lr.rs` | `2a762699e7d3eed9a0b4b2d1afbbf5b58649339ec47ec12a2a82907519c107e0` |
-| `lab/typst-original/crates/typst-library/src/math/mod.rs` | `a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957` |
+| `lab/typst-original/crates/typst-library/src/math/lr.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/mod.rs` | [dado administrativo removido] |
 
-O binário `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+O binário `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 é byte a byte igual ao build ratificado em
 `lab/typst-original/target/release/typst`.
 
@@ -74,12 +82,12 @@ agregado, ignora named e produz `MathDelimited('|', body, '|')`; a sonda
 devolve `equation(block: true, body: |x|)`, apagando identidade `lr`, presença
 de `size`, cascata, campos e nesting público.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/compiler/stdlib/structural/math.rs` | `41d3b0f526376fb3cfafb5d1f472f68ea1a9cb543f3c27b31ed17e857f074286` |
-| `01_core/src/compiler/eval/math.rs` | `cc068bdbdd562329d39ad2556266c2d97a8efdcf1a3ef32cf2d08a4874cbc165` |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -174,4 +182,4 @@ O candidato produtivo e os recibos foram fixados no commit
 `9c8fe777b6f5538d7193f995453aa117c0edaacb`, árvore
 `d2dc02b898dfc59f4632c03bbeb0fc01c4b153a9`. O certificado limitado ao
 fragmento P1447 é
-`00_nucleo/diagnosticos/p1447-verifier-certificate.json`.
+relatório consolidado da limpeza.

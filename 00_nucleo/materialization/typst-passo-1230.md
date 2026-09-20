@@ -213,7 +213,7 @@ Produzir:
 - `p1230-svg-conic-ataques.tsv`;
 - `p1230-svg-conic-resultados.tsv`;
 - `p1230-tekt-manifesto.tsv` e `p1230-tekt-certificado.tsv`;
-- `typst-p1230-svg-conic.md`;
+- `[artefato protocolar removido]`;
 - atualização limitada do mapa DSM e da fila P1213.
 
 `svg-paint-servers` permanece `parcial` enquanto tiling opaco ou combinações

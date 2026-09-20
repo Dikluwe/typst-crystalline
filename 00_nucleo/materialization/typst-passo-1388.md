@@ -1,5 +1,13 @@
 # Passo 1388 — boundary do prefixo após terminador de linha
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Materializar o par uniforme 20→20 corrigindo a perda da boundary já certificada
@@ -9,13 +17,13 @@ quando whitespace terminal fecha a linha antes do Block fracionário.
 
 Medição bilateral e variação de largura em 2026-09-14T10:04:56-03:00:
 
-- fixture 20→20 SHA-256 `7dcf3fbf...`, coluna útil 85pt;
+- fixture 20→20 identificador administrativo `7dcf3fbf...`, coluna útil 85pt;
 - conteúdo medido: `Lead=38,76pt`, espaço exterior=2,75pt,
   `More=43,08pt`, total visível 84,59pt;
 - vanila: uma baseline, `One=33,763990`, `After=Tail=220,166`;
 - cristalino: uma baseline visível, mas `One=27,714`; o prefixo só ativa com
   página 205pt, cuja coluna oferece 87,5pt;
-- fixture 21→21 SHA-256 `2fce86f1...`: o vanila quebra `More` para uma segunda
+- fixture 21→21 identificador administrativo `2fce86f1...`: o vanila quebra `More` para uma segunda
   baseline, logo é controle negativo de wrap real.
 
 Estado: HEAD `8ceea20f92dff06b6ca5a34828135c0fd3e35248`, working tree não

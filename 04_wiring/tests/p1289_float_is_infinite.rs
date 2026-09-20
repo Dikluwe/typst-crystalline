@@ -1,39 +1,56 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md
-//! @prompt-hash 16eb6650
+//! @prompt-hash e756e9a7
 
-use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Output};
+
+const BIN: &str = env!("CARGO_BIN_EXE_typst");
+
+fn eval(expression: &str) -> Output {
+    Command::new(BIN)
+        .args(["eval", expression, "--format", "json"])
+        .output()
+        .expect("run crystalline eval")
+}
 
 #[test]
-fn p1289_float_is_infinite_preserves_the_frozen_v3_oracle() {
-    let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .expect("04_wiring must have a repository parent")
-        .to_path_buf();
-    let runner = repo.join("lab/surface-inventory/run_p1289_oracles.py");
-    let baseline = repo.join("lab/surface-inventory/p1289-oracle-baseline.json");
-    let candidate = env!("CARGO_BIN_EXE_typst");
-
-    let output = Command::new("python3")
-        .arg(&runner)
-        .arg("--candidate")
-        .arg(candidate)
-        .arg("--baseline")
-        .arg(&baseline)
-        .arg("--summary-only")
-        .output()
-        .expect("the independent P1289 oracle runner must execute");
-
+fn p1289_float_is_infinite_reports_finite_infinite_and_nan() {
+    let output = eval(
+        "(float.is-infinite(0.0), float.is-infinite(42.5), \
+         float.is-infinite(float(\"1e999\")), float.is-infinite(-float(\"1e999\")), \
+         float.is-infinite(float(\"NaN\")))",
+    );
     assert!(
         output.status.success(),
-        "P1289 v3 oracle must report Preserved with zero Unknown/Violated.\nstdout:\n{}\nstderr:\n{}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout).trim(),
+        "[false,false,true,true,false]"
+    );
+}
+
+#[test]
+fn p1289_float_is_infinite_preserves_public_signature_and_errors() {
+    let identity = eval("repr((type(float.is-infinite), repr(float.is-infinite)))");
+    assert!(identity.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&identity.stdout).trim(),
+        "\"(function, \\\"is-infinite\\\")\""
     );
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("\"verdict\": \"Preserved\""));
-    assert!(stdout.contains("\"Unknown\": 0"));
-    assert!(stdout.contains("\"Violated\": 0"));
-    assert!(stdout.contains("\"mutation_score\": 1.0"));
+    for (expression, expected) in [
+        ("float.is-infinite()", "missing argument"),
+        ("float.is-infinite(1.0, 2.0)", "unexpected argument"),
+        ("float.is-infinite(1.0, foo: 2)", "unexpected argument: foo"),
+        ("float.is-infinite(\"x\")", "expected float"),
+    ] {
+        let output = eval(expression);
+        assert!(!output.status.success(), "{expression} unexpectedly succeeded");
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains(expected),
+            "{expression}: expected {expected:?}, got {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 }

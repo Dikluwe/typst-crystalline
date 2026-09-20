@@ -1,5 +1,13 @@
 # Passo 1327 — avisar quando o bare import não tem efeito
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## O problema medido
 
 O próximo item elegível da fila P1322 é `module-bare-import-warning`.
@@ -10,8 +18,7 @@ continua pendente de identidade suficiente, conforme a revisão P1325, e não
 No baseline P1326, `import std` e `let named = std; import named` preservam
 binding e valor, mas omitem `this import has no effect`, presente no vanilla
 ratificado upstream/main `a51e02804`. A medição nova está em
-`00_nucleo/diagnosticos/p1327-baseline.json` (SHA-256
-`f8cee37f7f3556db93f935deb977790a0a13ddd232639334e3d3931cf8b504f8`),
+relatório consolidado da limpeza,
 com HEAD, working tree não commitado, diff/stat, binários, horários e saídas.
 Fonte: `01_core/src/compiler/eval/modules.rs:207-219` e
 `lab/typst-original/crates/typst-eval/src/import.rs:82-103`.
@@ -25,7 +32,7 @@ Fonte: `01_core/src/compiler/eval/modules.rs:207-219` e
    e validação de bare Module cuja fonte é Ident, sem as/lista. Preservar binding.
 4. Exigir GREEN, build, suíte workspace, fmt, lint geral e V5/V15/V26, linhagem
    recíproca conferida e observação CLI integral normal/repetida/invertida.
-5. Registrar resultado e dívidas em `00_nucleo/diagnosticos/p1327-final-report.md`,
+5. Registrar resultado e dívidas em relatório consolidado da limpeza,
    com revisão e recibo de encerramento. Não commitar nem iniciar outro passo.
 
 Owner produtivo: `01_core/src/compiler/eval/modules.rs`; test-only:
@@ -54,7 +61,7 @@ O C1 passou nos seis testes novos e no workspace, mas a comparação CLI
 congelada encontrou 24 diferenças de ordem dos mesmos blocos: warning→erro
 no cristalino, erro→warning no vanilla. A insuficiência prevista do owner
 set foi portanto refutada, não escondida por mudança de oráculo.
-Prova e causalidade: `00_nucleo/diagnosticos/p1327-review-cli-failure.md` e
+Prova e causalidade: relatório consolidado da limpeza e
 `00_nucleo/diagnosticos/p1327-ab-verdict.json` (Violated histórico).
 
 Acrescentar primeiro a obrigação L0 em `00_nucleo/prompts/wiring.md`,

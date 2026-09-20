@@ -7,15 +7,13 @@ Hash do Código: 13bc8f39
 ## Medição anterior à decisão
 
 Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, mais working tree
-P1306 preservado em `00_nucleo/diagnosticos/p1307-r3-baseline.json`, SHA-256
-`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+P1306 preservado na medição histórica,
 capturado em `2026-09-07T17:03:42.154788+00:00` antes da escrita L0.
 `01_core/src/entities/args.rs:17-32` contém items, named e span agregado;
 `compiler/eval/call_dispatch.rs:389-430,1016-1023` apaga origens e named
 anteriores no spread/With. A informação ainda existe na AST antes de eval.
 
-A matriz independente `00_nucleo/diagnosticos/p1307-r2-measurement.json`,
-SHA-256 `847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+A matriz independente,
 mede no vanilla ratificado `a51e02804` origens diferentes de Args iguais após
 factory/sink e cast do primeiro `pretty:"bad"` apesar do override booleano.
 Na fonte ratificada `lab/typst-original/crates/typst-library/src/foundations/args.rs:218-235`,

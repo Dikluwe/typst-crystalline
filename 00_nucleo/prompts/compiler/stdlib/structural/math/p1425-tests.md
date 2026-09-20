@@ -27,8 +27,6 @@ sem legitimar código produtivo. Deve provar:
 O teste não observa implementação candidata nem aceita igualdade estrutural
 Rust como substituto dos observáveis da linguagem.
 
-## Proveniência e limite
+## Limite
 
-Baseline `d10f81161331000f81165c23109baa025613ce04`; manifesto P1425 e
-contrato P1425 congelam as entradas. Execução: **executado sem atestação de
-isolamento**. A cobertura limita-se ao fragmento P1425.
+A cobertura limita-se ao fragmento P1425 e não depende de artifacts externos.

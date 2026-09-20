@@ -135,8 +135,7 @@ place(center, [x], clearance: -1pt) -> Err "valor negativo"
 #### P1292 amendment-9 — default vigente de `clearance`
 
 **Gate ADR-0127 confirmado:** o humano autorizou esta mudança de comportamento
-por defeito em `2026-09-01T08:46:11-03:00`, registrada no manifest SHA-256
-`48545a4d9ba62a148f9161aca43dbfd93a6618c1816e480d245a1ad554d2e243`.
+por defeito em `2026-09-01T08:46:11-03:00`.
 
 **Medição anterior à proposta:** em páginas 100pt × 100pt, o vanilla
 ratificado com `clearance` omitido produziu exatamente a mesma paginação e as

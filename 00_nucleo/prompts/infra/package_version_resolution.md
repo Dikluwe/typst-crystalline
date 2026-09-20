@@ -1,5 +1,4 @@
 # Prompt L0 — `infra/package_version_resolution` — Resolução de versão implícita de pacotes
-
 Hash do Código: caeadbbd
 
 **Camada**: L3

@@ -1,5 +1,13 @@
 # Passo 1413 — materializar `raw.line`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar `P1400-ELEM-013 raw.line`, uma das duas últimas rotas `ABSENT` da
@@ -11,11 +19,11 @@ layout de `body` já existentes.
 ## Estado e proveniência inicial
 
 - baseline: commit `e7b2ddd4424d3e86f1e3361d3c08e81a8fc427a7`, árvore limpa;
-- cristalino: `target/release/typst`, SHA-256
-  `9e4c8876d5e588410a6fdab843cbda93522f82bdd031645c575f7c3e8d1d781c`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: commit `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - medição preparada às `2026-09-15T19:18:48-03:00`;
 - regime: protocolo Tekt completo em rehearsal, sem atestação de isolamento.
 
@@ -112,16 +120,16 @@ Estado medido às `2026-09-15T19:40:36-03:00`: working tree não commitado sobre
 arquivos listados por `git diff HEAD --stat` — os dois prompts de
 `value_methods`/`selector_matching` e seus consumers, `eval/markup.rs`,
 `eval/mod.rs`, `eval/rules.rs` e `elements/raw.rs` — além dos novos
-`00_nucleo/diagnosticos/p1413-reprobe.json` e dois ataques em
+relatório consolidado da limpeza e dois ataques em
 `lab/parity/attacks/p1413/`.
 
-- binário cristalino final: SHA-256
-  `a11998f4bc84edc669b560e37aa6e1fa6f436e1f02770eef91e2c547c3bc3f74`;
-- vanila ratificado: SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+- binário cristalino final: identificador administrativo
+  [dado administrativo removido];
+- vanila ratificado: identificador administrativo
+  [dado administrativo removido];
 - focal final: quatro de quatro fixtures com exit zero, stderr vazio e texto
   extraído idêntico; pico cristalino 41.072 KiB;
-- matriz `p1413-reprobe.json`: `PASS`, 84 processos,
+- matriz relatório consolidado da limpeza: `PASS`, 84 processos,
   `{ABSENT: 1, MATCH: 5}`, pico 42.956 KiB, swap zero e nenhuma falha de
   recurso; `P1400-ELEM-013` tornou-se `MATCH` e somente
   `P1400-ELEM-011 par.line` permaneceu `ABSENT`;

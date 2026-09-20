@@ -303,10 +303,8 @@ assinatura Rust pública, default novo ou fase nova. Fluxo contínuo ADR-0127.
 `:293-315,517-546` lê slices materializados sem Engine. Entretanto os wrappers
 estáticos (`:175-208,250-275`) já recebem Engine e o despacho ligado também.
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, fontes intactas.
-A sonda `diagnosticos/p1339-where-integration-probe-supplement-runs.json`
-mede que update bare não afeta where vazio. As sondas de fase
-`diagnosticos/p1339-where-counter-phase-probe-runs.json` e
-`diagnosticos/p1339-where-counter-phase-file-runs.json` refutam tanto perder
+A medição histórica mede que update bare não afeta where vazio. As sondas de
+fase refutam tanto perder
 Steps posteriores a Func quanto executar todos os callbacks antes do contexto.
 
 ### Decisão proposta
@@ -333,8 +331,7 @@ Sem eventos relevantes, o estado inicial segue o zero da linguagem.
 
 CounterRegistry/introspector permanecem dados lidos, sem demanda mutável
 registrada no construtor nem nova passagem L3. Executar Func na demanda
-contextual é a mudança ADR-0127 aprovada pelo dono em
-`diagnosticos/p1339-where-counter-phase-approval.json`, não mero glue.
+contextual é a mudança ADR-0127 aprovada pelo dono, não mero glue.
 A autorização não dispensa os demais gates do P1339 antes da implementação.
 
 ### P1339 — registro causal das leituras de counter
@@ -342,7 +339,7 @@ A autorização não dispensa os demais gates do P1339 antes da implementação.
 Medição no mesmo HEAD, consumer intacto: `counter.rs:305-315,335-363`
 resolve Location/label/selector; `:402-411` lê prefixo e total para both;
 `:503-546` contém at/final; `:608-610,640` contém as vistas string globais.
-O display aplica numbering depois de obter os valores. O recibo de integração
+O display aplica numbering depois de obter os valores. O registro de integração
 de observações P1339 fixa essas fontes, sem atribuir execução de testes a
 essa inspeção.
 
@@ -387,8 +384,7 @@ permanece separada do observável lógico.
 
 ### Medição anterior à decisão
 
-Baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+Baseline R4,
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306 e
 L0 R3 aprovado, contém diff/stat e fontes. Em
 `01_core/src/compiler/stdlib/counter.rs:158-160` um clone perde o receiver

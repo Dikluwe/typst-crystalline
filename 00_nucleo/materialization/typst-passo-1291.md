@@ -1,5 +1,13 @@
 # Passo 1291 — membros realmente ausentes do namespace `math`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 > Documento de execução; não é Prompt L0. Frente C, iniciável em paralelo com
 > P1288 e P1290 em worktree separado. Esta frente não possui `repr.rs`.
 
@@ -29,22 +37,22 @@ cristalina não autoriza alias automático.
 Medição anterior à decisão, árvore não commitada em
 `2026-08-31T10:25:52-03:00`, `HEAD 53d21c5a602f4045a769a0ab0c935baa5ecd3b88`:
 
-- vanilla `/usr/local/bin/typst`: SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-- L0 `00_nucleo/prompts/compiler/stdlib/structural/math.md`: SHA-256
-  `4441fe00c99c3475179c4a90060f5698e4472a368756ead6e4312781229617bf`;
-- consumer `01_core/src/compiler/stdlib/structural/math.rs`: SHA-256
-  `8e03f4e7e87cbeb91045842fda784310e2e112d1716fdc775f51812976330873`;
-- inventário P1284: SHA-256
-  `da86beaf2f94dd21458f27f84696f47a621fd10c131ae3b1fb76ece4b0e211fb`;
+- vanilla `/usr/local/bin/typst`: identificador administrativo
+  [dado administrativo removido];
+- L0 `00_nucleo/prompts/compiler/stdlib/structural/math.md`: identificador administrativo
+  [dado administrativo removido];
+- consumer `01_core/src/compiler/stdlib/structural/math.rs`: identificador administrativo
+  [dado administrativo removido];
+- inventário P1284: identificador administrativo
+  [dado administrativo removido];
 - para cada um dos oito paths, o vanilla devolve `function` e nome curto; o
   cristalino devolve `module 'math' does not contain field ...`;
 - `bb`, `frak`, `inline` e `serif` têm nativas cristalinas em
-  `compiler/stdlib/math_style.rs`, SHA-256
-  `a29f32e37b2ba4911ab2bcd99a16551d7ded8418fee71d4250513c0043e8b92a`;
+  `compiler/stdlib/math_style.rs`, identificador administrativo
+  [dado administrativo removido];
 - `cancel` já tem nativa em `structural/math.rs`;
-- existe `underline` textual em `compiler/stdlib/text/deco.rs`, SHA-256
-  `991752687b93b9d3ac93aa768033a029e3fd0b4be4c2179f66eab784359b40e4`,
+- existe `underline` textual em `compiler/stdlib/text/deco.rs`, identificador administrativo
+  [dado administrativo removido],
   mas ainda não há prova de equivalência com `math.underline`;
 - a sintaxe matemática já reconhece caminhos de `scripts(...)` e `vec(...)`
   em `compiler/eval/math.rs`, mas não há função pública correspondente

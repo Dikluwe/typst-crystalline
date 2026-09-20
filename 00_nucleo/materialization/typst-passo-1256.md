@@ -1,5 +1,13 @@
 # P1256 — localizar worst-t e intervalo emitido dos gaps SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — CAUSA REDUZIDA; SEM ESCRITA PRODUTIVA  
 **Predecessor:** P1255  
 **Owner candidato:** `infra/export/gradients/adaptive`, ainda não adjudicado.

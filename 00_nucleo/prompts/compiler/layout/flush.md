@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/layout/flush` — realização de `place.flush`
+Hash do Código: 4f1099bc
 
-**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** P1292 MATERIALIZADO.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/flush.rs`
@@ -12,7 +12,7 @@
 ## Medição anterior à decisão
 
 O layouter cristalino já mantém `floats_pending` em ordem e possui
-`flush_pending_floats`, usado nos limites de página/finalização. O recibo
+`flush_pending_floats`, usado nos limites de página/finalização. O registro
 P1292 mediu um bottom float anterior ao marcador indo para a página 2, o
 conteúdo seguinte iniciando na página 3, e um segundo float criado depois do
 marcador permanecendo posterior e sendo emitido na página 3. Sem o marcador,
@@ -23,7 +23,7 @@ o conteúdo seguinte permaneceu na página 1.
 A implementação literal deste contrato como
 `flush::layout -> flush_pending_floats()` foi medida no binário candidato e
 refutada: no caso prefix/suffix produziu uma página, enquanto o vanilla
-ratificado e o oracle selado exigem três. O drain direto emite todo o buffer na
+ratificado e o oracle validado exigem três. O drain direto emite todo o buffer na
 página corrente sem terminar/avançar a região; logo não consegue colocar o
 prefixo antes do flow posterior com a paginação causal exigida.
 

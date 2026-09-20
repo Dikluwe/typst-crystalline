@@ -28,7 +28,7 @@ HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 dispatcher. As sondas congeladas `p1339-full-final-*` e
 `p1339-full-boundaries-*` distinguem descoberta estática de extração de
 método ligado, com comandos/UTC/spans/árvore próprios. A leitura de owners
-e propostas de ligação estão em `diagnosticos/p1339-remaining-l0-design.md`.
+e propostas de ligação estão na medição histórica.
 
 ### Decisão proprietária
 
@@ -55,19 +55,16 @@ diagnósticos, estilos, features, campos e scope-outs mantêm seus owners.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1338-measurement.json`, SHA-256
-`6bd65bffd487cf7103bbaa54e3655ff95467df557c852f6e5c7b44c96ea165e1`,
+A medição histórica
 concluído em `2026-09-09T20:06:19.061817+00:00`, mede `(1,2).nope`,
 `().absent` e alias Unicode multilinha: o cristalino publica
 `array does not contain field "<field>"` sobre o acesso inteiro; vanilla
 publica `cannot access fields on type array` somente sobre o identificador.
-Baseline SHA-256 `6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c`,
+Baseline,
 working tree não commitada sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, diff/stat e inventário exatos.
-Vanilla ratificado upstream a51e02804 SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-antecedente P1337 SHA-256
-`55b5dc263bba15b050e9caab755c17deb22f617eec35b1e9259a20a57f9b350b`.
+Vanilla ratificado upstream a51e02804;
+antecedente P1337.
 
 `01_core/src/compiler/eval/bindings/field_access.rs:532–551` omite Array da
 seleção field-only; `:670–679` possui ramo próprio com len/first/last e erro
@@ -112,7 +109,7 @@ forma de selecionar o span são mecânica, não igualdade de linguagem.
 Não atribuir intenção histórica ao vanilla. É inferência que este owner basta:
 outro owner causal, origem irrecuperável ou necessidade de mudar API/default/
 fase refutam-na e exigem nova medição e classificação antes de ampliar código.
-Correção interna ADR-0127 contínua, L0 primeiro + resselo + RED→GREEN.
+Correção interna ADR-0127 contínua, L0 primeiro + revalidação + RED→GREEN.
 
 Aceitação: testes independentes puro/AST, arrays vazios/populados/heterogêneos,
 aliases/Unicode/multilinha, diagnóstico completo e positivos/exclusões;
@@ -125,18 +122,15 @@ a paridade de fields Array nem a dívida de len/first/last e pré-despacho.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1337-measurement.json`, SHA-256
-`f318ee743fa9adfc372f1b44946897438ffdbd5eba0ba329f57ddee10bb8eab2`,
+A medição histórica
 concluído em `2026-09-09T19:09:59.299611+00:00`, mede `true.nope` e
 `false.ausência`: cristalino publica bool, vanilla boolean. `none.nope`,
 `auto.nope` e aliases multilinha já têm o nome correto, mas, como Bool,
 marcam o acesso inteiro em vez do field. Valores válidos coincidem.
-Baseline SHA-256 `d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672`,
+Baseline,
 HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada
-com diff/stat e inventário exatos. Vanilla ratificado upstream a51e02804 SHA
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-antecedente cristalino SHA
-`646a8d97400c0abe262a65c9b9559b47a3ecf7d10eafd82fa79a64ade0504497`.
+com diff/stat e inventário exatos. Vanilla ratificado upstream a51e02804;
+antecedente cristalino.
 
 `field_access.rs:532–547` omite Bool/None/Auto da seleção field-only;
 `:843–846` usa type_name no fallback. `operators/error_formatting.rs:55–57`
@@ -177,7 +171,7 @@ Rust são mecanismo. Não inferir intenção histórica do vanilla. É inferênc
 que o discriminante e o span existentes neste owner bastam; necessidade de
 outro owner, origem irrecuperável ou alteração fora deste fragmento refutam
 o recorte e exigem reabertura antes de ampliar o código. Correção interna de
-paridade ADR-0127: L0 primeiro, resselo, RED→GREEN e revalidação contínua.
+paridade ADR-0127: L0 primeiro, revalidação, RED→GREEN e revalidação contínua.
 
 Aceitação: testes independentes puro/AST e matriz bilateral congelados antes
 de C, positivos, fronteiras e dívidas pré-classificadas, quatro perfis e
@@ -189,16 +183,12 @@ preservação de dívida como convergência.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1336-measurement.json`, SHA-256
-`0865c045fde6b0d3689a77d83a9d255ea927e76185ad7cfb0dcb6dfb8ca3e375`,
+A medição histórica
 concluído em `2026-09-09T17:56:26.736676+00:00`, preserva comandos, fontes,
-UTC e canais integrais. Baseline P1336 SHA-256
-`e81e034167a994ab3dd1c318a7dd7384cd18ef75e0d2b3c1c666eb26724e441f`,
+UTC e canais integrais. Baseline P1336,
 HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada
-com diff/stat e arquivos exatos. Vanilla ratificado upstream a51e02804 SHA
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-cristalino antecedente SHA
-`11e3164fa509030cc78dc048d5bb4f2426348e32a24edc7cd2f320c704e6ef61`.
+com diff/stat e arquivos exatos. Vanilla ratificado upstream a51e02804;
+cristalino antecedente.
 
 `(1).nope`, `"abc".nope` e aliases multilinha/Unicode recebem nomes `int`/`str`
 e âncora do acesso inteiro no cristalino; vanilla publica `integer`/`string`
@@ -240,7 +230,7 @@ irrecuperável, efeito em método válido ou nova API/default/fase refutam o
 recorte e exigem reabrir o escopo antes de ampliá-lo.
 
 Classificação ADR-0127: correção interna de paridade em fluxo contínuo,
-L0-first + resselo, RED→GREEN e revalidação. Aceitação exige testes locais e
+L0-first + revalidação, RED→GREEN e revalidação. Aceitação exige testes locais e
 A/B independentes congelados antes do candidato, nomes/valores variados,
 aliases, parênteses, multilinha e Unicode, lookup puro, sucessos e exclusões;
 comparação integral nos quatro perfis, repetição/inversão e mutantes aplicáveis
@@ -251,14 +241,12 @@ significa igualdade com vanilla nem fechamento geral de fields.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1326-baseline.json`, SHA-256
-`3198d97b15c02085af158e88e44c4025e4f76b29654e7309c2ca21fdb2a41f79`,
+A medição histórica
 concluído em `2026-09-09T01:23:32.345952+00:00`, preserva HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitado,
 lista exata/diff/stat dos dez arquivos tracked alterados e comandos/saídas.
-Baseline P1325 SHA `3511b08aa89d088e908dd239d8942f1eeea1978d31140ef9510e81de06023dab`;
-vanilla ratificado `a51e02804`, SHA
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+Baseline P1325;
+vanilla ratificado `a51e02804`.
 Closure nomeada, anônima, alias, With aninhado, multilinha e callee benigno
 emitem `cannot access fields on type function` com span total; vanilla emite
 `cannot access fields on user-defined functions` somente sobre o field.
@@ -312,15 +300,11 @@ bloqueia. Preservação de residual não implica paridade geral da linguagem.
 
 ### Medição anterior à decisão
 
-Em `2026-09-09T00:49:40.661695+00:00`, o recibo
-`00_nucleo/diagnosticos/p1325-baseline.json`, SHA-256
-`e2ed7ae9f8290ee9557b38d151ffffebae760b79fa1abb64979d6c1eb9d7998b`,
+Em `2026-09-09T00:49:40.661695+00:00`, a medição histórica
 preserva HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não
 commitado, lista exata/diff/stat dos oito arquivos tracked alterados, comandos,
-horários, saídas e hashes dos executáveis. Baseline P1324 SHA-256
-`c5c9aa39c8b7053a19f53bf9f37c8d3731a4081683a51cf8ca5e9e9c0197d2f7`;
-vanilla ratificado upstream `a51e02804`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+horários, saídas e hashes dos executáveis. Baseline P1324;
+vanilla ratificado upstream `a51e02804`.
 
 `01_core/src/compiler/eval/bindings/field_access.rs:502–510` seleciona span
 total para Dict, Content raw e Float salvo is-nan; `:518–547` consome o span
@@ -337,7 +321,7 @@ A chamada `(x: 1).nope(2)` segue diagnóstico de método separado e coincide.
 Classificação `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`: âncora diagnóstica é
 observável da linguagem, não igualdade mecânica do Rust (ADR-0107/0108).
 Correção interna, sem API, entidade, default, feature, compatibilidade ou fase
-nova. L0-first, resselo, RED→GREEN e revalidação em fluxo contínuo.
+nova. L0-first, revalidação, RED→GREEN e revalidação em fluxo contínuo.
 
 Quando a avaliação direta de campo chega à delegação para
 `eval_value_field_access` com `Value::Dict`, `Value::Content` raw ou
@@ -372,11 +356,9 @@ antes de C e não contadas como paridade. Não implica paridade geral.
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `field_access.rs:589–657,731–768` consulta campos raw de Heading;
@@ -494,11 +476,8 @@ erro de campo).
 #### Medição anterior à decisão
 
 Baseline P1310 não commitado sobre HEAD
-`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, congelado em
-`00_nucleo/diagnosticos/p1311-baseline.json`, SHA-256
-`2338de6be4567c9ea03be335c5935832241d8010272b10eb29c1ca858c9af753`.
-Medição fresca `p1311-measurement.json` em diagnósticos, SHA-256
-`f444074ac6c1e8be4509b08eed480ceb1e0188f7e8afec892bdaa31938a3d6c3`,
+`eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`, congelado na medição histórica.
+Medição fresca em diagnósticos,
 registra argv, UTC, diff/stat, fontes literais e saídas dos binários pinados.
 `csv.encode` e `csv.encode(1)` produzem no vanilla ratificado `a51e02804`
 ``function `csv` does not contain field `encode` `` com span `4..10`;
@@ -567,12 +546,10 @@ ausentes e demais dívidas.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1324-baseline.json`, SHA-256
-`8684dabd1370997232a61bc58a48a99528718e49ec0e81962eb14c70b3769b4d`,
+A medição histórica
 registra a medição fresca sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada,
-diff/stat, UTC, fontes e binários. Vanilla ratificado upstream `a51e02804`,
-SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`:
+diff/stat, UTC, fontes e binários. Vanilla ratificado upstream `a51e02804`:
 `json.nope` publica ``function `json` does not contain field `nope` `` e
 marca somente `nope`; cristalino publica `function does not contain field
 "nope"` e marca o acesso inteiro. yaml/toml/cbor/assert/table, alias, With
@@ -618,7 +595,7 @@ são mecanismo. A intenção é completar o contrato nominal de lookup nativo
 deste owner, não atribuir intenção histórica ao comportamento observado.
 É inferência que nome/categoria/AST existentes bastam; nome incompatível,
 origem irrecuperável, novo owner/API/default/fase refutam-na e reabrem o escopo.
-Correção interna ADR-0127: L0 primeiro, resselo, RED→GREEN e revalidação.
+Correção interna ADR-0127: L0 primeiro, revalidação, RED→GREEN e revalidação.
 
 Aceitação exige testes independentes e processos bilaterais: namespaces
 vazios/populados, ambas as categorias nativas, nomes qualificados, alias e
@@ -633,7 +610,7 @@ nunca é sucesso; não declarar paridade geral de funções ou fields.
 
 `eval_field_access` já reconhece `Value::Func("text")` como fronteira de
 propriedades contextuais e lê `text.lang` da `StyleChain` ativa. Quando a
-callback selada de `math.cancel(angle:)` executa com o snapshot correto,
+callback validada de `math.cancel(angle:)` executa com o snapshot correto,
 `context text.size` chega ao mesmo braço, mas cai no acesso comum de `Func` e
 falha com `cannot access fields on type function`. A falha está no catálogo
 fechado deste consumer, não no transporte de estilo nem no layouter.
@@ -876,7 +853,7 @@ pertencem ao owner de float; spans de chamadas pertencem a `call_dispatch`.
 
 Em `2026-09-03T20:57:32.863761582-03:00`, no HEAD
 `1f082370e59939de7b57992e137a9f74bfb6758f` e working tree não commitida,
-`00_nucleo/diagnosticos/p1301-pre-gate-measurement.json` mediu o vanilla
+A medição histórica registrou o vanilla
 ratificado (`7b4f40c5…`) contra o cristalino pré-candidato (`799546de…`). A
 matriz P1300 já continha `12/12` divergências para `std.hsl`, `std.hsv` e
 `std.linear_rgb` nos quatro perfis. A nova sonda confirmou a mesma classe em
@@ -940,7 +917,7 @@ ordem de avaliação ou fase; não criar wrapper, fallback reflexivo, blacklist
 por field nem correção de `repr(std)` neste passo.
 
 Classificação: correção de paridade em fluxo contínuo ADR-0127. O gate
-funcional é RED→GREEN contra o vanilla ratificado, seguido de resselo da
+funcional é RED→GREEN contra o vanilla ratificado, seguido de revalidação da
 linhagem.
 
 ## P1303 — span dos fields `pdf.*` bloqueados por `a11y-extras`
@@ -949,14 +926,10 @@ linhagem.
 
 Em `2026-09-04T00:38:07.847942-03:00`–`00:38:10.279557-03:00`, no HEAD
 `5b4a0d0438a535c54fdb5e74b28903c1313f5bc2` e working tree não commitada
-sem diff tracked ou staged, o oracle fresco
-`00_nucleo/diagnosticos/p1303-pre-measurement.json` (SHA-256
-`ef3a4eb0b6fcb3fb0e9b1d8ec54bfbfa8f1a4f7b58dd7c675cbf677bada573d4`)
+sem diff tracked ou staged, a medição histórica
 executou `48` runs e `24` comparações, em ordem normal e invertida, contra o
-vanilla ratificado de SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8` e um
-binário cristalino release fresco de SHA-256
-`28667d00fd9959344981b23060594d112ada0ccab2ae1bd2e39955b851b4de8a`.
+vanilla ratificado de e um
+binário cristalino release fresco de.
 
 Nos perfis `default` e `html`, os três acessos `pdf.data-cell`,
 `pdf.header-cell` e `pdf.table-summary` produziram em ambos os produtos exit
@@ -992,7 +965,7 @@ condições foi medida.
 Classificação: `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`. Trata-se de correção
 interna e localizada de paridade diagnóstica, sem campo de entidade, método de
 trait, assinatura pública, comportamento por defeito, mudança de fase ou quebra
-de compatibilidade. O fluxo é L0-first + resselo e segue sem nova paragem humana
+de compatibilidade. O fluxo é L0-first + revalidação e segue sem nova paragem humana
 para o gate RED→GREEN e a revalidação.
 
 Quando `eval_field_access` intercepta a ausência de `a11y-extras` para
@@ -1006,8 +979,8 @@ chamadas permanecem os vigentes.
 
 A regra é exclusiva do ramo especial desses três fields. É proibido
 generalizá-la ao erro de dicionário ou a targets não cobertos; alterar a regra
-geral de mensagem e span de `Module` selada por P1301r2; ou regredir
-a exceção field-only de `float("NaN").is-nan` selada por P1293.
+geral de mensagem e span de `Module` validada por P1301r2; ou regredir
+a exceção field-only de `float("NaN").is-nan` validada por P1293.
 A proteção histórica da projeção nominal `std` → `global` é substituída
 exclusivamente pela obrigação de identidade nomeada P1306 abaixo, preservando
 o nome público `global` do módulo padrão real. As demais proteções P1303 ficam.
@@ -1032,14 +1005,11 @@ P1299.
 
 Em `2026-09-07T15:07:28.245613+00:00`–`15:07:53.110165+00:00`, sobre HEAD
 `b303f1f15b610e09872b567027e0d806387fde8c`, sem diff tracked/staged,
-`00_nucleo/diagnosticos/p1306-contract-measurement.json` (SHA-256
-`d3066b1bf00ff3120190e329752df7547758f5b03f367a22c6cded83f31310fb`)
+A medição histórica
 registrou fixtures, hashes, comandos, cwd, horários, saídas e status completos
-antes/depois. A árvore continha somente untracked enumerados no recibo. O
-baseline certificado P1305 tinha SHA-256
-`be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4`; o vanilla
-ratificado upstream/main `a51e02804`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+antes/depois. A árvore continha somente untracked enumerados no registro. O
+baseline validado P1305 tinha; o vanilla
+ratificado upstream/main `a51e02804`.
 
 Os 19 probes nos quatro perfis, dois produtos e ordens normal/inversa
 produziram 304 execuções válidas da CLI. As cinco rotas ordinárias de `std.typ`
@@ -1052,7 +1022,7 @@ pareados de repr/lookup/chamada coincidiram, inclusive
 ordem. O controle de dicionário confirmou separadamente sua âncora cristalina
 total preexistente, divergente da vanilla, cuja preservação é obrigatória.
 A tentativa anterior com opção CLI `--color` não aceita pelo vanilla fica
-integralmente no recibo como falha de instrumentação, sem valor de RED.
+integralmente no registro como falha de instrumentação, sem valor de RED.
 
 A leitura adicional da fonte confirma: em
 `01_core/src/compiler/eval/bindings/field_access.rs:376-382` o diagnóstico
@@ -1074,7 +1044,7 @@ nome guardado insuficiente/incorreto, ou necessidade de outro owner/API,
 refutaria essa inferência e reabriria o escopo.
 
 Classificação: `ADR-0127_CONTINUOUS_DIAGNOSTIC_PARITY`. Após L0-first e
-resselo, a correção interna segue por RED→GREEN e revalidação, sem alteração
+revalidação, a correção interna segue por RED→GREEN e revalidação, sem alteração
 de API, entidade, trait, assinatura, default, compatibilidade ou fase.
 
 Para qualquer módulo nomeado e field ausente, o nome em
@@ -1087,7 +1057,7 @@ O field ausente pode ser qualquer identificador; nenhum perfil recebe exceção.
 
 Preservar erro único de severidade error, zero hints/laterais novos, stdout
 vazio, exit de erro e span resolvível cobrindo somente o field. Lookups presentes
-preservam valor, kind, chamada e repr. Os nomes e os imports certificados P1305
+preservam valor, kind, chamada e repr. Os nomes e os imports validados P1305
 são entradas protegidas; este nó não altera suas construções ou representação.
 P1303 PDF (spans, hints ordenados e features), o span total do dict, a exceção
 field-only float/is-nan e todos os targets não Module permanecem vigentes.
@@ -1109,8 +1079,7 @@ geral do compilador.
 `01_core/src/compiler/eval/bindings/field_access.rs:750-768` extrai o field
 pelo helper de method_dispatch, remove default diretamente de named e chama
 finish_args. A operação não modifica o Content nem a política de fields.
-Snapshot adicional R3 SHA-256
-`592497d1e786241b9ba121479c0c55dbad370a70732e130b4f7ac3bd709d4405`
+Snapshot adicional R3
 conserva este L0 após P1306 e antes deste amendment, HEAD
 `b303f1f15b610e09872b567027e0d806387fde8c` e diff/stat integral. O consumer
 Rust P1306 permanece byte-idêntico durante a redação.
@@ -1133,8 +1102,7 @@ aprovação humana ADR-0127; não autoriza este consumer a redefinir Args.
 
 ### P1307-R4 — wrapper estático após aprovação do carrier
 
-Medição adicional, anterior à decisão: no baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+Medição adicional, anterior à decisão: no baseline R4,
 `01_core/src/compiler/eval/bindings/field_access.rs:828-830` clona Args e
 remove o receiver apenas de items. O L0 R3 cobriu o consumo de default, mas
 não este writer. Com o contrato Args aprovado, o wrapper deve consumir por
@@ -1151,7 +1119,7 @@ e a lista de writers refutam a suficiência da enumeração R3, não a API aprov
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 `field_access.rs:689-832` despacha fields de Type sem cobrir Type::Function;
 `call_dispatch.rs:1117-1129` intercepta somente a chamada ligada de where.
-Os recibos `p1339-full-final-{vanilla,crystalline-before}-runs.json` fixam
+Os registros `p1339-full-final-{vanilla,crystalline-before}-runs.json` fixam
 binários, UTC e working tree e medem `(function, "where")` no vanilla contra
 ausência no cristalino. A fonte ratificada `foundations/func.rs:412-450`
 define a função pública, enquanto `:280-308` distingue fields próprios de

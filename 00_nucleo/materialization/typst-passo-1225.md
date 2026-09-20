@@ -191,7 +191,7 @@ Produzir:
 00_nucleo/diagnosticos/p1225-svg-path-resultados.tsv
 00_nucleo/diagnosticos/p1225-svg-engineering-choices.tsv
 00_nucleo/diagnosticos/p1225-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1225-public-stroke-and-paths.md
+[artefato protocolar removido]
 ```
 
 ## 11. DSM e fila

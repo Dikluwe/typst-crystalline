@@ -6,7 +6,7 @@ title = "Realização de callbacks matemáticas dependentes de geometria"
 [[claims]]
 id = "pure-layout"
 level = "must-not"
-statement = "O layouter não executa Func, Engine ou World; ele somente produz requests puras e consome resoluções seladas."
+statement = "O layouter não executa Func, Engine ou World; ele somente produz requests puras e consome resoluções validadas."
 
 [[claims]]
 id = "provisional-not-success"

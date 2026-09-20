@@ -1,16 +1,22 @@
 # Passo 1312 — cast de caminho de read, separando a dívida CSV
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Medição antes da escolha
 
 P1310 e P1311 estão concluídos e não commitados. A próxima coorte histórica
 P1309 é loader-path-cast, read/csv. A leitura da fonte ratificada refutou a
 homogeneidade: read recebe PathOrStr; CSV recebe DataSource e aceita Bytes.
-Medição fresca em `00_nucleo/diagnosticos/p1312-measurement.json`, SHA-256
-`d986f593b9d8ca8358d3bf8fc5303eade65bd47382dec0424c3cd3d9d54e07c1`,
+Medição fresca em relatório consolidado da limpeza,
 com argv, fontes, UTC, binários e working tree no HEAD
 `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`. Baseline completo:
-`00_nucleo/diagnosticos/p1312-baseline.json`, SHA-256
-`0597c75b13da999990886b32577b563bab330d8d1be4e5bf85e97ff0f03588c5`.
+relatório consolidado da limpeza.
 
 P1312 resolve somente read: `read(42)` deve dar
 `expected path or string, found integer`, com origem em 42, em vez de erro
@@ -50,7 +56,7 @@ executado sem atestação de isolamento técnico. Sem selo completo ou score de 
    controles que permanecem divergentes do vanilla. Não editar oráculos antigos.
 7. Build e testes workspace release, fmt/check, crystalline-lint, diff/check,
    hashes e escopo. Veredito independente e relatório substantivo em
-   `00_nucleo/diagnosticos/p1312-final-report.md`.
+   relatório consolidado da limpeza.
 
 Até duas revisões focais por causa, registrando custo e ganho; sem ganho,
 reexaminar escopo/observabilidade antes de repetir o corpus ou alterar política.

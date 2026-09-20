@@ -1,5 +1,13 @@
 # Passo 1288 — perfis de feature e `a11y-extras` PDF sem contaminar o perfil padrão
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Natureza
 
 Documento tático de execução. Não é Prompt L0, não legitima código e não
@@ -29,14 +37,14 @@ Medição local em `2026-08-31T09:45:59-03:00`, HEAD
 `53d21c5a602f4045a769a0ab0c935baa5ecd3b88`, working tree não commitida e
 compartilhada:
 
-- vanilla `/usr/local/bin/typst`, SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-- candidato `target/release/typst`, SHA-256
-  `acc52526e1c1cfde21c4583857330a6f64540f46caf1b7fa89c666da6deee64a`;
-- relatório P1287, SHA-256
-  `7ca2da4a24bcc04e588e28090010062d68c7b32290dda8a02da966da647e9d76`;
-- receipt de verificação P1287, SHA-256
-  `8a970f4bf25aa0f47317ab85a9270f2268bc65e74cd533ee8e025659dc805b83`.
+- vanilla `/usr/local/bin/typst`, identificador administrativo
+  [dado administrativo removido];
+- candidato `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- relatório P1287, identificador administrativo
+  [dado administrativo removido];
+- receipt de verificação P1287, identificador administrativo
+  [dado administrativo removido].
 
 Comandos e observações:
 
@@ -74,7 +82,7 @@ linguagem.
 
 ## Fontes normativas e L0 vigentes
 
-Antes de redigir qualquer L0, reler e piná-los por SHA-256:
+Antes de redigir qualquer L0, reler e piná-los por identificador administrativo:
 
 - ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0128 e ADR-0129;
 - `prompts/entities/html.md`;
@@ -199,7 +207,7 @@ Auditar se já existe Núcleo Tekt para gates de feature. Se não existir, criar
 - perfil desligado não recebe crédito de paridade;
 - incapacidade no perfil ativo é `Unknown` ou `Violated`.
 
-Cada Prompt L0 consumidor deve pinar o SHA-256 completo do Núcleo. O Núcleo
+Cada Prompt L0 consumidor deve pinar o identificador administrativo completo do Núcleo. O Núcleo
 não possui owner produtivo, `Hash do Código` nem referência direta em código.
 
 ### C2. Owners L0
@@ -361,8 +369,8 @@ python3 -m unittest lab/parity/matrix/test_runner.py
 <inventário/probes default>
 <inventário/probes html>
 <inventário/probes a11y-extras>
-python3 lab/parity/matrix/p1287_global.py \
-  --binary lab/parity/matrix/p1287_candidate_adapter.py
+python3 [artefato laboratorial removido] \
+  --binary [artefato laboratorial removido]
 python3 lab/parity/matrix/runner.py \
   --vanilla /usr/local/bin/typst \
   --crystalline target/release/typst \
@@ -380,13 +388,13 @@ sucesso.
 
 ## Artefatos finais esperados
 
-- `00_nucleo/diagnosticos/p1288-vanilla-measurement-receipt.md`;
-- `00_nucleo/diagnosticos/p1288-contract-receipt.md`;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
 - manifesto canônico e baseline de oráculo P1288;
 - testes/runner de perfis e `a11y-extras`;
 - plano e receipt adversarial com log persistido da campanha;
-- `00_nucleo/diagnosticos/typst-passo-1288-relatorio.md`;
-- `00_nucleo/diagnosticos/p1288-verification-receipt.md`.
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Persistir o driver e o log da campanha adversarial; não repetir a limitação
 P1287 de depender somente de executor efêmero em `/tmp`.

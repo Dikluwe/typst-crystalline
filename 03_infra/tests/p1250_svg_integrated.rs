@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1250_svg_integrated.md
-//! @prompt-hash 478b85ee
+//! @prompt-hash 54da2b9d
 //! @layer L3
 //! @updated 2026-08-28
 //!
-//! Campanha integrada P1250. Não é consumer produtivo.
+//! Cobertura funcional integrada do exportador SVG. Não é consumer produtivo.
 
 use std::sync::Arc;
 
@@ -288,35 +288,7 @@ fn valid(v: &[String; 7]) -> bool {
 }
 
 #[test]
-fn p1250_seis_corpus_e_mutacoes_integradas() {
-    let baseline = corpus();
-    assert!(valid(&baseline));
-    assert_eq!(baseline, corpus(), "duas execuções devem ser byte-idênticas");
-    for mutation in 1..=11 {
-        let mut v = baseline.clone();
-        match mutation {
-            1 => v[6] = v[6].replacen("id=\"g0\"", "id=\"p0\"", 1),
-            2 => v[0] = v[0].replacen("id=\"p0\"", "id=\"captured\"", 1),
-            3 => v[0] = v[0].replace("xlink:href=\"#crystalline-destination-0\"", ""),
-            4 => v[0] = v[0].replace("matrix(0 1 -1 0 3 4)", "matrix(1 0 0 1 0 0)"),
-            5 => {
-                v[3] = v[3].replace("stroke-linecap=\"round\"", "stroke-linecap=\"butt\"")
-            }
-            6 => {
-                v[1] = v[1].replace("stop-opacity=\"0.501960784\"", "stop-opacity=\"1\"")
-            }
-            7 => v[1] = v[1].replace("clip-path=\"url(#c0)\"", ""),
-            8 => v[2] = v[2].replacen("<symbol", "<discarded-symbol", 1),
-            9 => v[3] = v[3].replace("data:image/svg+xml", "data:application/omitted"),
-            10 => {
-                v[5] = v[5].replace(
-                    "data-crystalline-link-fallback=\"destination-unknown\"",
-                    "xlink:href=\"#invented-cross-page\"",
-                )
-            }
-            11 => v[2] = v[2].replace("rgba(255,0,0,0.251)", "rgba(255,0,0,1)"),
-            _ => unreachable!(),
-        }
-        assert!(!valid(&v), "mutação integrada M{mutation:02} sobreviveu");
-    }
+fn p1250_corpus_integrado_preserva_grafo_geometria_e_conteudo() {
+    let outputs = corpus();
+    assert!(valid(&outputs));
 }

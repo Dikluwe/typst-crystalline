@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/introspect/from_tags.rs:422–472` reconstrói Equation com campos
@@ -209,25 +207,22 @@ ou array de inteiros não-negativos e é gravado na location do update.
 Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
 `compiler/introspect/from_tags.rs:85-136` calcula Func só no pós-walk e
 acrescenta Set sem recalcular Steps posteriores. Produção expande contextos
-antes desse runtime (`03_infra/src/pipeline.rs:644-666`). Os recibos
-`diagnosticos/p1339-where-counter-phase-probe-runs.json` e
-`diagnosticos/p1339-where-counter-phase-file-runs.json` registram:
+antes desse runtime (`03_infra/src/pipeline.rs:644-666`). A medição histórica
+registra:
 vanilla aceita assert de valor 12 em Step/Func/Step no contexto; sem consulta
 ao contador, panic do contexto precede panic no callback anterior. Portanto
 executar antecipadamente todas as Func para preparar contextos é refutado.
 O controle bare no cristalino falha assert; o filtro vazio falha antes, na
 construção where. Não atribuir a esta última falha prova de runtime.
 
-Medição focal posterior, anterior à decisão abaixo: o recibo
-`diagnosticos/p1339-where-counter-runtime-probe-runs.json`, SHA-256
-`178a8637df7eb75d21131a46ad68005b9f7e35670644c9cb9b7eeb93031d5ae3`,
-registra no mesmo HEAD, em 2026-09-10 às 01:36:19.991799–01:36:23.537105 UTC,
+Medição focal posterior, anterior à decisão abaixo: o registro histórico,
+no mesmo HEAD e em 2026-09-10 às 01:36:19.991799–01:36:23.537105 UTC,
 get anterior a callback com panic produzindo esse erro posterior. O callback
 que lê outro counter falha por ausência de contexto, mesmo criado dentro de
 context. A fonte vanilla `introspection/counter.rs:797-798` resolve a sequência
 antes do prefixo; `:612` chama Func com Context::none(). Updates gerados em
 context e assert dependente passam nos controles com uma página. Os estados
-da árvore, entradas e canais integrais estão no recibo; não há teste GREEN
+da árvore, entradas e canais integrais estão no registro; não há teste GREEN
 cristalino nesta medição.
 
 ### Decisão de fase aprovada — somente chaves contendo Element
@@ -262,23 +257,21 @@ O estado intermediário de replay é local à demanda, não uma mutação do
 snapshot público de eval. O log original não vira Set artificial e não é
 reescrito durante consulta. Otimização/cache não pode mudar ordem de erros,
 capturas, warnings ou reexecutar efeito observado; sua necessidade e política
-devem ser medidas antes de selo. Executar o corpo de Func sem contexto
+devem ser medidas antes de confirmação. Executar o corpo de Func sem contexto
 introspectivo disponível, preservando capturas lexicais e Engine: capturar
 Counter é válido, consultá-lo dentro desse callback deve produzir o erro
 contextual, não iniciar resolução recursiva. Não herdar o contexto da leitura
 nem da criação da closure. Eventos nascidos em context exigem controle com
 assert dependente, não só contagem de páginas; ausência no snapshot não prova
 estado zero nem convergência. A estabilização desses contextos foi incluída
-no escopo pelo dono em `diagnosticos/p1339-stabilization-approval.json`; sua
+no escopo pelo dono; sua
 orquestração e observações pertencem a `infra/pipeline.md` e
-`compiler/eval.md`. O gate público foi aprovado em
-`diagnosticos/p1339-observation-interface-approval.json`; a integração e os
+`compiler/eval.md`. O gate público foi aprovado pelo dono; a integração e os
 gates independentes permanecem pendentes.
 
-Mudança de fase autorizada pelo dono em
-`diagnosticos/p1339-where-counter-phase-approval.json` (ADR-0127 ponto 3).
+Mudança de fase autorizada pelo dono conforme o ADR-0127, ponto 3.
 Esta autorização não equivale a solução demonstrada nem dispensa contrato,
-selo, RED e validação independente do P1339.
+confirmação, RED e validação independente do P1339.
 
 ## P1140.4-C — materialização de suplementos de equação
 

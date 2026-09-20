@@ -1,5 +1,13 @@
 # P1263 — corrigir máximos interiores não saturados de cor e alpha
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — DEZ FRONTEIRAS FECHADAS, PROMOÇÃO NÃO APLICADA  
 **Predecessores:** P1259 e P1260  
 **Owner inicial:** `infra/export/gradients/adaptive`.
@@ -52,5 +60,5 @@ adicional só ocorre no segmento cujo observável viola o envelope.
 
 ## Resultado
 
-Implementação e recibos: `00_nucleo/diagnosticos/typst-p1263-nonsaturated-interior.md`.
+Implementação e recibos: relatório consolidado da limpeza.
 Veredito: **EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO**.

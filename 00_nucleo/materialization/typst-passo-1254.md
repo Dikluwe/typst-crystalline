@@ -1,5 +1,13 @@
 # P1254 — pré-selar o tiling declarativo materializado no layout
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO E SANEADO — MATERIALIZADO; REVALIDAÇÃO FOCAL PASS  
 **Predecessor:** P1245 aprovado e L0 confirmado  
 **Saída:** contrato, oráculos e ataques congeláveis antes de código.
@@ -76,8 +84,8 @@ atual foi executada sem atestação forte de isolamento.
 Resultados atuais:
 
 - P1254 core `5/5`, join produtivo SVG `1/1` e compatibilidade P1245 `3/3`;
-- gate P1254 repetido byte a byte, SHA-256
-  `5e492d8ab2304d2e1c1422fb0eb364790fea31665ca208ec13521271da484cbd`;
+- gate P1254 repetido byte a byte, identificador administrativo
+  [dado administrativo removido];
 - build, fmt, diff-check e V1/V5/V15/V26 passaram; lint integral terminou com
   exit `0`, mantendo dívida global V16=211, V19=358 e V20=635;
 - duas execuções integrais do workspace falharam somente no teste externo ao

@@ -1,5 +1,13 @@
 # Passo 1320 — verificar as lacunas reais de paridade após P1319
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: executado; auditoria concluída, paridade aberta.
 
 Objetivo: responder o que falta para paridade, com evidência atual, distinguindo
@@ -44,7 +52,7 @@ porque também não existe no vanilla ratificado. Export PDF/PNG requer classifi
 diferenças antes de propor reparos. Cobertura ampla permanece não verificada.
 
 Relatório substantivo e priorização:
-`00_nucleo/diagnosticos/p1320-o-que-falta-para-paridade.md`.
+relatório consolidado da limpeza.
 Proveniência e integridade:
 `00_nucleo/diagnosticos/p1320-reconciliation.json`.
 Falhas de invocação/sonda foram preservadas e corrigidas focalmente, não contadas

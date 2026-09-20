@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: ae6cc86f
+Hash do Código: ad0c447f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
@@ -105,7 +105,7 @@ contrato `FrameItem::Shape.fill: Option<Paint>`, o exporter deve:
   relative e corpo suportado. Corpo opaco/imagem sem geometria/tamanho
   resolvível não deve ser falsamente declarado equivalente;
 - manter Gradient Conic fora da alegação morfológica SVG nativa: sem modelo de
-  erro geométrico/cromático selado, não aproximar nem chamar pattern equivalente;
+  erro geométrico/cromático validado, não aproximar nem chamar pattern equivalente;
 - não converter espaços de cor não modelados para obter igualdade aparente.
 
 Quando um paint permanece fora da alegação (`Conic`, espaço de interpolação
@@ -123,7 +123,7 @@ alegação, nunca reduzidas silenciosamente a solid.
 ### P1229 — Linear/Radial multi-space por stops adaptativos
 
 Retificação P1235: o contrato expandido não fechou os 30 controles e P1234
-não selou causa mecânica. Por isso Linear/Oklab, Linear/LinearRgb e
+não demonstrou causa mecânica. Por isso Linear/Oklab, Linear/LinearRgb e
 Radial/Hsv regressam a `Unknown` com fallback explícito
 `gradient-color-space`; nenhuma das nove candidatas P1231 é promovida. Somente
 os controles Linear/Radial sRGB reutilizam a geometria nativa dos servidores
@@ -135,7 +135,7 @@ emitida uma vez ao final.
 Intervalos coincidentes não são subdivididos, deduplicados ou reordenados. Cada
 cor emitida conserva alpha, serializado separadamente como `stop-opacity`.
 Uma combinação Linear/Radial deixa de receber `gradient-color-space` somente
-quando satisfaz um envelope selado vigente. As três promoções invalidadas,
+quando satisfaz um envelope validado vigente. As três promoções invalidadas,
 CMYK Linear/Radial e tiling opaco continuam fallback explicitamente `Unknown`.
 CMYK não pode ser promovido enquanto a
 conversão ICC registrada no L0 de cor permanecer fora de escopo. Conic segue o
@@ -233,7 +233,7 @@ Medição antes da decisão: P1277 preservou a fronteira P1261 para
 Oklch/Hsl/Hsv e serializou offsets adaptativos anteriores ao último intervalo
 como `f32` decimal. A fonte ratificada `typst-svg/src/paint.rs:246-277` aplica
 `Ratio::repr` a todo stop original e intermediário independentemente do espaço.
-O contrafactual P1278 sobre os budgets selados melhorou Hsl de 14/24 para
+O contrafactual P1278 sobre os budgets validados melhorou Hsl de 14/24 para
 19/24 e Hsv de 13/24 para 18/24 por geometria, sem tocar em cor, alpha,
 subdivisão ou budget. Oklch isoladamente não fechou, demonstrando que a
 serialização é necessária, mas não suficiente sem o sampler preciso do owner
@@ -252,20 +252,14 @@ oráculos; bytes, IDs e contagem de stops não são gate, enquanto max/p95 de co
 premultiplicada e alpha antes de `u8`, raster, grafo e determinismo continuam
 obrigatórios. Qualquer falha mantém o par `Unknown`.
 
-#### P1280 — promoção dos seis pares polares certificados
+#### P1280 — promoção dos seis pares polares validados
 
 **Gate ADR-0127: L0 confirmado explicitamente pelo dono em 2026-08-29.** A
 mudança é comportamento por defeito: substitui fallback sólido por servidor
 SVG adaptativo somente em Linear/Radial × Oklch/Hsl/Hsv.
 
-Medição anterior à proposta: o certificado P1279 foi commitado em
-`ad93af9e80213fc410ffeda1f4916b031b088474`. O certificado
-`00_nucleo/diagnosticos/typst-p1279-offset-identity-certificate.md` tem SHA-256
-`be1e16cfb002c70b8d7af83421e7027f2abdb32324a1e8ff94ace7152ee1e3ed`; o
-resumo final tem SHA-256
-`c0628bc0e2723e664c587a6b5077c8c9a59bea70d2ffe93909a44efdb5b5c80a` e o
-manifesto de evidência tem SHA-256
-`8f44e3ac8da2b9f75ee075f0656a7917f8039c39734e1cef12951ca21916c1a3`.
+Medição anterior à proposta: a campanha P1279 foi registrada no commit
+`ad93af9e80213fc410ffeda1f4916b031b088474`.
 Sobre a população congelada P1276/P1277, cada um dos seis pares fechou grafo,
 envelope numérico, raster e custo em 24/24, totalizando 144/144; os 42/42
 inválidos polares foram rejeitados. O transporte lossless do harness eliminou
@@ -285,7 +279,7 @@ budgets, ordem, descontinuidades, alpha, IDs e política de `Unknown` não mudam
 
 Esta decisão substitui somente a proibição P1273/P1278 de
 promover Oklch/Hsl/Hsv em Linear/Radial. A proibição de promover Luma, CMYK ou
-pares não certificados permanece normativa. O certificado cobre apenas este
+pares não validados permanece normativa. A medição cobre apenas este
 fragmento e não prova equivalência SVG geral.
 
 Os testes do owner exigem, para os seis pares, referência local resolvida,
@@ -297,7 +291,7 @@ ou Tiling. A aceitação cobre subpromoção, sobrepromoção, referência pende
 solid disfarçado, bypass do sampler e mudança de budget; bytes e IDs não são
 critério de paridade.
 
-#### P1273 — promoção dos quatro pares certificados
+#### P1273 — promoção dos quatro pares validados
 
 **Gate ADR-0127:** proposta L0 confirmada explicitamente pelo dono em
 2026-08-29. A mudança é deliberadamente classificada como comportamento por
@@ -311,13 +305,8 @@ em sRGB, enquanto `write_svg_gradient_stops` já possui a rota adaptativa para
 Oklab e LinearRgb. Consequentemente, os quatro pares abaixo ainda recebem
 `gradient-color-space` antes de alcançar o writer adaptativo.
 
-O certificado P1272
-`00_nucleo/diagnosticos/typst-p1272-generalization-certificate.md`
-(SHA-256 `d07786a848af1778a02bdff7d468fd9db47a499c565281b36df02c21e76359ec`),
-pinado pelo manifesto final
-`00_nucleo/diagnosticos/p1272-final-manifest.tsv`
-(SHA-256 `0c711546ab246becb1468a61e859ea9e6202e79f0379658ff8eea7d7d699619c`),
-classificou individualmente como `Generalization-Preserved`, 24/24 cada:
+A campanha P1272 classificou individualmente como
+`Generalization-Preserved`, 24/24 cada:
 
 - Linear/Oklab;
 - Radial/Oklab;
@@ -333,7 +322,7 @@ fill/stroke.
 
 Hsv, Oklch, Hsl, Luma e CMYK continuam `Unknown` para Linear e Radial e mantêm
 o fallback explícito `gradient-color-space`. Qualquer espaço ou par não
-certificado também permanece `Unknown`; opacidade nunca é convertida em
+validado também permanece `Unknown`; opacidade nunca é convertida em
 `Preserved` por default. Conic e Tiling conservam os seus contratos e reasons
 próprios, sem promoção por arrasto.
 
@@ -385,7 +374,7 @@ exclusivo fora da máscara pode permanecer `Unknown` de integração externa.
 sRGB, Oklab, LinearRgb e Hsv só são promovidos individualmente quando grafo,
 geometria e budget passarem. CMYK permanece fallback `conic-gradient`
 explicitamente `Unknown` por ADR-0097; nenhum perfil ICC, download ou crate
-externa é incorporado por este owner. Espaços não selados também permanecem
+externa é incorporado por este owner. Espaços não validados também permanecem
 `Unknown`. O helper PDF `export/gradients/conic.rs` não é alterado nem
 compartilhado por arrasto.
 
@@ -633,7 +622,7 @@ writers do SVG standalone; não duplicar desenho no exporter HTML.
 IDs internos, ordem mecânica de atributos e bytes não são paridade. São
 observáveis a presença de SVG inline, transparência, dimensões, viewBox,
 display e morfologia visual suportada. A nova entry point e integração foram
-confirmadas pelo dono em 2026-09-16 e ficam limitadas pelo selo P1424.
+confirmadas pelo dono em 2026-09-16 e ficam limitadas pelo escopo de P1424.
 
 ### P1454 — paint atravessa `html.frame` sem reescrita
 

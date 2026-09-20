@@ -3,7 +3,7 @@ Hash do Código: 4f66513e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
 
 ## Módulo
@@ -22,7 +22,7 @@ Os testes possuem owner separado em `math/layout/tests.md`.
 P1291 já entregou ao `MathLayouter` o contexto passivo e o transcript puro de
 cancel, sem `Engine`/`World`. O despacho existente envia `MathCancel` a
 `cancel.rs`; ainda não possui identidades próprias de underline/vec e degrada a
-sintaxe `vec` a matrix. O recibo P1292 confirma que `vec.gap` percentual usa o
+sintaxe `vec` a matrix. O registro P1292 confirma que `vec.gap` percentual usa o
 eixo vertical da região efetiva e que, em `height:auto`, somente a parcela
 relativa colapsa a zero.
 
@@ -48,7 +48,7 @@ percentual ou propagar infinito ao resultado. Os owners finos são
 `compiler/math/layout/cancel.md`,
 `compiler/math/layout/underline.md` e `compiler/math/layout/vec.md`.
 
-### P1291 preservado por P1292 — contexto puro e transcript selado
+### P1291 preservado por P1292 — contexto puro e transcript validado
 
 #### Medição anterior à decisão
 
@@ -76,7 +76,7 @@ callback_pass: &MathCallbackPassState
 
 Não recebe trait de execução, `Engine`, `World` nem sink L3. O estado definido
 no consumer proprietário de `compiler/math/layout/callbacks.md` contém somente
-uma store selada opcional e um `RefCell<Vec<MathCancelRequest>>` local à
+uma store validada opcional e um `RefCell<Vec<MathCancelRequest>>` local à
 tentativa concreta. A referência compartilhada é deliberada: a mutação interior
 é estritamente local, sem `static`, `thread_local`, estado global ou `Arc`.
 Cada `MathLayouter` contém seu próprio `Cell<usize>` de occurrence, iniciado em
@@ -107,8 +107,8 @@ Não há registry/vtable para despacho de elementos nem reentrada layout→eval.
 O resultado da passagem é julgado na pipeline; mismatch, callback inválida ou
 não convergência viram diagnóstico antes da exportação.
 
-O transcript de cancel foi selado/materializado em P1291. As novas identidades
-e o contrato de vec P1292 continuam bloqueados até o novo selo explícito dos
+O transcript de cancel foi validado/materializado em P1291. As novas identidades
+e o contrato de vec P1292 continuam bloqueados até a nova confirmação explícita dos
 prompts proprietários; não há nova mudança de fase em P1292.
 
 ## P1444 — despacho de `MathPrimes` (MATERIALIZADO)

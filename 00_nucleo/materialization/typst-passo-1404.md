@@ -1,11 +1,19 @@
 # Passo 1404 — `outline.entry.inner()`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado congelado
 
 - baseline cristalino: `efd82c1eb08bf40c4849df53bdca8c763cecdaa4`, árvore limpa;
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário cristalino: SHA-256 `9f19d7e449d8adffe2b15dce81839c7de8d6d6ddd9c360e4512c3ca64c58dbfe`;
-- binário vanila: SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+- binário cristalino: identificador administrativo [dado administrativo removido];
+- binário vanila: identificador administrativo [dado administrativo removido];
 - medição: `2026-09-14T23:18:11-03:00`;
 - regime: protocolo completo como ensaio, executado sem atestação de isolamento.
 
@@ -26,11 +34,11 @@ vanila devolveu:
 - heading direto sem Location falha com `heading must have a location` e dica
   de customização por show rule.
 
-Fixtures: P1402 principal SHA-256
-`8203d182c1a5fbbda3fc7d04217b5725455107ef8314d1750431063e7c891bed`;
-fill none `5ef0fd0d578879677db201a244e62cedaa4c93db5259d214c63d9388f0e5838c`;
-body forte `f975c76d7526bf3e906d2c813e860b2c54647e99a1feab4b449ebf6bd3d273a3`;
-fill customizado `fa55b0e85977c31b70f3a7a831bdb4ad603c5077beaf211e2cc90e096d810651`.
+Fixtures: P1402 principal identificador administrativo
+[dado administrativo removido];
+fill none [dado administrativo removido];
+body forte [dado administrativo removido];
+fill customizado [dado administrativo removido].
 Fonte ratificada:
 `lab/typst-original/crates/typst-library/src/model/outline.rs:629-746`.
 
@@ -107,8 +115,8 @@ fechar o GREEN limitado, ressellar hashes, lintar e commitar atomicamente.
 
 Medição final em `2026-09-14T23:42:44-03:00`, sobre o baseline
 `efd82c1eb08bf40c4849df53bdca8c763cecdaa4` com working tree não commitado
-(os ficheiros exatos constam no commit deste passo), binário cristalino SHA-256
-`144267dc07596f4f0938881c38644d54955d4190128daf48da395c268950bfba`:
+(os ficheiros exatos constam no commit deste passo), binário cristalino identificador administrativo
+[dado administrativo removido]:
 
 - oito oráculos `typst eval --in` terminaram em ambos os binários e foram
   byte a byte iguais: identidade, default, fill none, body forte, fill

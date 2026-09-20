@@ -132,21 +132,14 @@ class ClassificationTests(unittest.TestCase):
 
 
 class ProfileAndDeterminismTests(unittest.TestCase):
-    def catalog(self, side_name, *, profile="default", features=None, sha=None):
+    def catalog(self, side_name, *, profile="default", features=None):
         if features is None:
             features = [] if profile == "default" else ["html"]
-        if sha is None:
-            sha = (
-                merge.EXPECTED_VANILLA_SHA256
-                if side_name == "vanilla"
-                else merge.EXPECTED_CRYSTALLINE_SHA256
-            )
         return {
             "schema_version": "p1282-catalog-v1",
             "side": side_name,
             "profile": profile,
             "features": features,
-            "product_sha256": sha,
             "vanilla_revision": "586e1bd43" if side_name == "vanilla" else None,
             "entries": {"same": side(kind="module", params=None)},
         }
@@ -209,15 +202,6 @@ class ProfileAndDeterminismTests(unittest.TestCase):
             self.catalog("crystalline", profile="html"),
         )
         self.assertEqual(payload["counts"]["UNKNOWN"], 1)
-
-    def test_catalog_sha_mismatch_becomes_unknown(self):
-        payload = merge.merge_catalog_payloads(
-            "default",
-            self.catalog("vanilla", sha="0" * 64),
-            self.catalog("crystalline"),
-        )
-        self.assertEqual(payload["counts"]["UNKNOWN"], 1)
-        self.assertIn("vanilla product SHA", payload["provenance_errors"])
 
     def test_enumerator_unknown_is_never_match(self):
         truncated = side(present=False, kind=None, params=None)

@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html/p1424-tests.md
-//! @prompt-hash 56d87a7f
+//! @prompt-hash b8022c0e
 //! @layer L1
 #![cfg(test)]
 //!
 //! Testes A/B independentes P1424. O implementador faz somente o wiring deste
-//! módulo depois do selo; este ficheiro não lê símbolos privados candidatos.
+//! módulo depois do contrato; este ficheiro não lê símbolos privados candidatos.
 
 use super::*;
 

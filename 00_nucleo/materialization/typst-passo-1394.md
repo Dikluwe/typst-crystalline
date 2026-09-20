@@ -1,5 +1,13 @@
 # Passo 1394 — selar o observador PNG com PPI explícito
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Corrigir exclusivamente o instrumento bilateral de paridade para que os casos
@@ -21,18 +29,18 @@ Entrada congelada em `2026-09-14T14:00:31-03:00`, HEAD
 `06e136d19fdc6d5f83fbbe44414b8b91e4dfd658`, com `git status --short` vazio
 e `git diff HEAD --stat` vazio antes da criação dos artefatos P1394:
 
-- manifesto `lab/parity/matrix/manifest.yaml`: 17.090 bytes, SHA-256
-  `8f443c60e426d814f931ec4c9097406275e4c8b83ec70a2c8b793edd344f127d`;
-- runner `lab/parity/matrix/runner.py`: 32.850 bytes, SHA-256
-  `9998b3d0f0c3dd8ea35c3e1f4e578ad769239cfaff42bd86bba10e504990cc03`;
-- fixture `lab/parity/matrix/fixtures/plain.typ`: 15 bytes, SHA-256
-  `9c168a60de075abeab24b85db0fe39259670378fafb3bc586fd7ae23efc335ae`;
+- manifesto `lab/parity/matrix/manifest.yaml`: 17.090 bytes, identificador administrativo
+  [dado administrativo removido];
+- runner `lab/parity/matrix/runner.py`: 32.850 bytes, identificador administrativo
+  [dado administrativo removido];
+- fixture `lab/parity/matrix/fixtures/plain.typ`: 15 bytes, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`, binário
-  `lab/typst-original/target/release/typst`: 52.149.176 bytes, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  `lab/typst-original/target/release/typst`: 52.149.176 bytes, identificador administrativo
+  [dado administrativo removido];
 - cristalino do baseline, binário `target/release/typst`: 49.150.488 bytes,
-  SHA-256
-  `9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479`.
+  identificador administrativo
+  [dado administrativo removido].
 
 P1393 mediu que o vanila, nos dois casos, tenta alocar 41.568.028.160 bytes
 quando o PPI fica implícito. Sob teto de 2 GiB a tentativa abortou sem consumir
@@ -41,12 +49,9 @@ essa grandeza. O controle explícito `--ppi 144` terminou com exit 0, gerou
 as mesmas dimensões e rejeita `--ppi`. A proveniência narrativa e os resultados
 da matriz estão congelados por:
 
-- `00_nucleo/diagnosticos/p1393-paridade-relatorio.md`, SHA-256
-  `ac3e1654c6095654a0c477e4ab4e41ca03623ead063a0e14e903d6d9efcab1e5`;
-- `00_nucleo/diagnosticos/p1393-paridade-gaps.md`, SHA-256
-  `f5747b54d354ae27219bcc08bcc26b66fc9296d94386ac4095b43adbf8737602`;
-- `00_nucleo/diagnosticos/p1393-paridade-matriz.json`, SHA-256
-  `7b40f551b80a7dd41bfe25535d192db9c804800084bd2826edfa1fa78e729b2f`.
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Esses números pertencem ao estado P1393 declarado nesses artefatos. Não foram
 reobtidos pela execução perigosa durante a autoria deste contrato.
@@ -56,19 +61,18 @@ reobtidos pela execução perigosa durante a autoria deste contrato.
 Depois do contrato inicial e antes de qualquer implementação candidata, o
 autor independente dos oráculos congelou:
 
-- `00_nucleo/diagnosticos/p1394-oracles.json`, SHA-256
-  `7144cac825aaa5505a6c5d8561d088241830e3505e60af3fdb8d7167413d1782`;
-- `lab/parity/matrix/test_runner.py`, SHA-256
-  `b49a8372fda516ea9142e571e318a319318fe06e69bbbcf5d368cd6de4c85eb0`.
+- relatório consolidado da limpeza;
+- `lab/parity/matrix/test_runner.py`, identificador administrativo
+  [dado administrativo removido].
 
 O RED de `SchemaTests`, executado sob 512 MiB/45 s sem iniciar binários Typst,
 rodou 20 testes e produziu 11 falhas esperadas, zero erros inesperados, pico de
 22.472 KiB e zero swap. Ele demonstrou duas causas: o manifesto ainda omite o
 par contratado e `validate_manifest` aceita mutações perigosas. Logo, somente
 editar o manifesto não torna a política fail-closed. Esta R1 sucede o passo
-inicial SHA-256 `afc6c2fcedf52cf7c76c47810ebed9406ac93b7e4fc886fb9b772060a9a6079a`
-e o contrato inicial SHA-256
-`6d3c3fc31bd48639914bd8c4c36226debb7785119802662a1d23c3459cba7328`.
+inicial identificador administrativo [dado administrativo removido]
+e o contrato inicial identificador administrativo
+[dado administrativo removido].
 
 ## Classificação e gate L0
 
@@ -181,7 +185,7 @@ mudar a classificação de paridade e precisa rejeitar assimetrias perigosas sem
 adaptar o contrato à solução.
 
 - autor do contrato: lê AGENTS, skill e referências, P1393, manifesto e runner
-  baseline; escreve somente este passo e `p1394-contract.json`; não lê a
+  baseline; escreve somente este passo e relatório consolidado da limpeza; não lê a
   implementação candidata, não escreve manifesto/testes/código e não emite
   veredito;
 - autor dos oráculos: lê este contrato e entradas congeladas; escreve somente
@@ -203,7 +207,7 @@ passo P1394 e resultados P1393; nenhuma implementação candidata foi recebida.
 P1394 só pode ser selado por autoridade independente quando:
 
 1. o contrato e seus oráculos foram congelados antes do patch candidato;
-2. o manifesto parte do SHA-256 congelado e difere somente nos dois
+2. o manifesto parte do identificador administrativo congelado e difere somente nos dois
    `oraculo.args` exatos;
 3. ambos os comandos vanila contêm exatamente um `--ppi 144`, e nenhum comando
    cristalino ou outro caso contém a adição;

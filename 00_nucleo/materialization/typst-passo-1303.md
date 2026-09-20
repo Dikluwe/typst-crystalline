@@ -1,5 +1,13 @@
 # Passo 1303 — selar os spans dos gates `pdf.*` e rebaixar a dívida residual
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado de partida
 
 Este passo parte do commit limpo:
@@ -13,17 +21,16 @@ O P1302 está fechado e commitado. Não reabrir, reescrever nem reinterpretar os
 vereditos históricos P1300/P1301/P1301r2/P1302.
 
 O baseline de linguagem continua sendo o vanilla ratificado `a51e02804`, pelo
-binário `/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+binário `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido].
 
 As evidências de seleção são:
 
 - `00_nucleo/diagnosticos/p1299-feature-matrix.json`;
-- `00_nucleo/diagnosticos/p1299-owner-ledger.tsv`, SHA-256
-  `79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69`;
-- `00_nucleo/diagnosticos/p1299-decision-report.md`;
-- `00_nucleo/diagnosticos/p1302-final-report.md`, SHA-256
-  `e421db23565da3fe60f1c1fed689d2bfa56e1380827b2b7e73f37d9ba9346211`.
+- `00_nucleo/diagnosticos/p1299-owner-ledger.tsv`, identificador administrativo
+  [dado administrativo removido];
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Essas medições foram produzidas em estados anteriores. Servem para selecionar a
 coorte, mas o executor deve reproduzir a medição no HEAD acima antes de decidir
@@ -192,7 +199,7 @@ Registrar em `p1303-baseline-status.txt`:
 - `git diff HEAD --stat`;
 - `git diff --cached --stat`;
 - timestamp com timezone;
-- SHA-256 dos quatro arquivos da allowlist, do binário vanilla e de todos os
+- identificador administrativo dos quatro arquivos da allowlist, do binário vanilla e de todos os
   inputs P1299 usados.
 
 A árvore deve estar limpa exceto por este passo. Qualquer alteração inesperada
@@ -209,13 +216,13 @@ e invertida. Preservar para cada execução:
 - argv integral;
 - hash do binário;
 - exit code;
-- stdout e stderr integrais e seus SHA-256;
+- stdout e stderr integrais e seus identificador administrativo;
 - duração em nanos;
 - perfil/features;
 - range de byte derivado do diagnóstico;
 - estado completo/Unknown.
 
-Gerar `p1303-pre-measurement.json` e `p1303-oracle-receipt.md`. O esperado é:
+Gerar relatório consolidado da limpeza e relatório consolidado da limpeza. O esperado é:
 
 ```text
 default:   3 DIFFERENT_DIAGNOSTIC
@@ -229,13 +236,13 @@ Qualquer outro vetor bloqueia a decisão e exige nova análise causal.
 
 ### P2 — contrato independente
 
-Materializar `C-P1303-v1` em `p1303-contract.md`, sem ler patch de
+Materializar `C-P1303-v1` em relatório consolidado da limpeza, sem ler patch de
 implementação. O contrato deve enumerar mensagem, hints, ranges, cardinalidade,
 perfis positivos/negativos e sentinelas. Hashar o contrato antes do RED.
 
 ### P3 — adversário antes do patch
 
-Criar `p1303-adversarial-plan.md` com, no mínimo, estes mutantes independentes:
+Criar relatório consolidado da limpeza com, no mínimo, estes mutantes independentes:
 
 1. manter `access.span()`;
 2. ancorar somente `pdf`;
@@ -284,7 +291,7 @@ Executar:
 cargo test -p typst-core p1303 -- --test-threads=1
 ```
 
-Gerar `p1303-red-tests-receipt.md` com output integral/hash, lista exata dos
+Gerar relatório consolidado da limpeza com output integral/hash, lista exata dos
 casos falhos e prova de que mensagem/hints/cardinalidade já coincidem. Se o RED
 falhar por outro motivo, corrigir o teste, não o produto.
 
@@ -299,7 +306,7 @@ não criar blacklist genérica, não alterar `Module`, `Scope`, `Features` nem a
 assinatura de qualquer função. Se a correção mínima não satisfizer o contrato,
 voltar à medição e produzir um redesenho novo antes de ampliar o patch.
 
-Gerar `p1303-implementation-receipt.md` com diff, hashes, RED→GREEN e limites da
+Gerar relatório consolidado da limpeza com diff, hashes, RED→GREEN e limites da
 alegação.
 
 ### P7 — ataques e verificação independente
@@ -369,7 +376,7 @@ mutantes e gates, mas não modifica produto. Deve emitir um dos vereditos:
 - `P1303_BLOCKED_SCOPE`;
 - `P1303_BLOCKED_ADR0127_RECLASSIFICATION`.
 
-Criar `p1303-final-report.md`, `p1303-certificate.json` e um manifesto detached,
+Criar relatório consolidado da limpeza, `p1303-certificate.json` e um manifesto detached,
 sem ciclos de auto-hash. O certificado deve pinar todos os artefatos e declarar
 explicitamente que a alegação se limita aos três spans feature-gated.
 

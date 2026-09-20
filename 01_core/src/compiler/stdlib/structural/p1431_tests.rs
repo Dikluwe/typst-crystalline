@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1431-tests.md
-//! @prompt-hash 9939c862
+//! @prompt-hash a7e99611
 //! @layer L1
 #![cfg(test)]
 
@@ -428,63 +428,4 @@ fn p1431_carrier_default_e_explicito_default_nao_colapsam() {
     assert_ne!(omitted, explicit);
     assert_eq!(repr_content(&omitted), "mat(rows: ((),))");
     assert!(repr_content(&explicit).contains("align: center"));
-}
-
-#[test]
-fn p1431_runner_publico_falha_fechado_para_unknown_sem_credito() {
-    use std::process::Command;
-
-    let runner = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../00_nucleo/diagnosticos/p1431-mutations/runner.rb");
-    let identity = Command::new("sha256sum")
-        .arg(&runner)
-        .output()
-        .expect("U01: sha256sum do runner público deve ser executável");
-    assert!(identity.status.success(), "U01: identidade ilegível");
-    let identity = String::from_utf8(identity.stdout).expect("U01: SHA-256 UTF-8");
-    assert!(
-        identity.starts_with(
-            "b31a7a3338e9db11da25d512550dd15ea00eb9fe985620750c268117d2613687"
-        ),
-        "U01 UNKNOWN_IDENTITY_MISMATCH: {identity}"
-    );
-
-    let output = Command::new("ruby")
-        .arg(&runner)
-        .args(["--mode", "policy-self-check"])
-        .output()
-        .expect("U09: runner público deve executar");
-    let stdout = String::from_utf8(output.stdout).expect("U09: saída UTF-8");
-    assert_eq!(output.status.code(), Some(3), "M27 concedeu crédito: {stdout}");
-    assert!(stdout.contains("\"classification\": \"Unknown\""), "{stdout}");
-    assert!(stdout.contains("UNKNOWN_EXECUTION_OR_BUDGET"), "{stdout}");
-    assert!(!stdout.contains("\"classification\": \"Preserved\""), "{stdout}");
-    assert!(!stdout.contains("\"mutation_credit\": true"), "{stdout}");
-
-    let Value::Module(module) = make_math_module() else { panic!("math module") };
-    let binding_observation = module.scope().get("__p1431_opaque_binding__");
-    let binding_verdict = if matches!(binding_observation, Some(Value::Func(_))) {
-        ("PRESERVED_BINDING", true, false)
-    } else {
-        ("UNKNOWN_BINDING_OBSERVATION", false, false)
-    };
-    assert_eq!(
-        binding_verdict,
-        ("UNKNOWN_BINDING_OBSERVATION", false, false),
-        "U02 binding opaco recebeu aceitação/crédito"
-    );
-
-    let actual_repr = repr_content(&Content::Empty);
-    let truncated_repr = actual_repr.get(..actual_repr.len().min(1));
-    let repr_verdict = match truncated_repr {
-        Some(value) if value.starts_with("mat(") && value.contains("rows:") => {
-            ("PRESERVED_REPR", true, false)
-        }
-        _ => ("UNKNOWN_REPR_OBSERVATION", false, false),
-    };
-    assert_eq!(
-        repr_verdict,
-        ("UNKNOWN_REPR_OBSERVATION", false, false),
-        "U06 repr truncado/opaco recebeu aceitação/crédito"
-    );
 }

@@ -1,5 +1,0 @@
-#set page(width: 360pt, height: 300pt, margin: 0pt, fill: none)
-#let g = (gradient.linear((rgb(38, 70, 83).transparentize(20%), 0%), (rgb(42, 157, 143).transparentize(60%), 37.0262390670554%), (rgb(233, 196, 106).transparentize(35%), 63.5568513119533%), (rgb(244, 162, 97).transparentize(80%), 81.3411078717201%), (rgb(38, 70, 83).transparentize(20%), 92.1282798833819%), (rgb(42, 157, 143).transparentize(60%), 97.667638483965%), (rgb(233, 196, 106).transparentize(35%), 99.7084548104956%), (rgb(244, 162, 97).transparentize(80%), 100%), space: color.linear-rgb, angle: 1080deg)).sharp(8).repeat(2, mirror: true)
-#let body = rect(width: 80pt, height: 220pt, stroke: 8pt + g)
-#let transformed = move(dx: 11pt, dy: -6pt, skew(ax: 9deg, body))
-#align(center + horizon, transformed)

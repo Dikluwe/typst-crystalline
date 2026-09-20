@@ -1,5 +1,13 @@
 # P1253 — fechar precisão Luma/Oklab e orçamento SVG LinearRgb
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — L1 FOCAL PRESERVADO; ZERO PROMOÇÕES SVG
 **Predecessores:** P1234, P1236, P1237 e P1252
 **Escopo:** correções internas de paridade em L1 e, somente se necessário,
@@ -144,7 +152,7 @@ Após cada correção produtiva:
 6. reexecução P1233 sobre as 30 fixtures e meshes 2048/4096;
 7. `cargo build` e `crystalline-lint .` com zero violations;
 8. repetição dos gates em ordem invertida com outputs semanticamente idênticos;
-9. registro de HEAD, `git diff HEAD --stat`, hora e SHA-256 de inputs/outputs.
+9. registro de HEAD, `git diff HEAD --stat`, hora e identificador administrativo de inputs/outputs.
 
 ## Gate de promoção
 
@@ -219,10 +227,10 @@ preexistentes do utilizador), `2026-08-27T17:41:20-03:00`.
   a whitelist anterior.
 - Linhagem: `crystalline-lint . --format n16-summary` terminou com exit code 0.
 
-Hashes das provas: P1234 `e6333743635d44e9f4d35055a60e8a82647002a76075ee21d710cbbebb486bcb`;
-P1236 `f2a08e423b157d16023142d791532a8bda6961ac2da40e8cf5f7193546a59bf3`;
-P1237 candidato `2094775b1eb689df1d127bbcc23ea5b19677417742fcefea6a577ca39922fbc6`;
-ensaio rejeitado `c497345f3f47b37bf83566ba32b3332767ab6662208ce7b8988df277b74c78f2`.
+Hashes das provas: P1234 [dado administrativo removido];
+P1236 [dado administrativo removido];
+P1237 candidato [dado administrativo removido];
+ensaio rejeitado [dado administrativo removido].
 
 Os quatro hashes acima não tinham artefatos P1253 preservados no repositório.
 Eles permanecem como registro histórico, não como certificado reproduzível. A

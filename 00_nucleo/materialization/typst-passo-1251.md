@@ -1,5 +1,13 @@
 # P1251 — fechamento noturno e próxima fronteira
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — CONSOLIDAÇÃO SANEADA E GATES PASS  
 **Predecessor:** P1250  
 **Saída:** estado reproduzível para retomada humana.

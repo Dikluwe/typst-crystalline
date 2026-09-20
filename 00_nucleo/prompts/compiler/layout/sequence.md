@@ -1,5 +1,5 @@
 # Prompt L0 — layout de sequência
-Hash do Código: 9cddef62
+Hash do Código: c677cd06
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
@@ -214,7 +214,7 @@ aninhado e wrap. P1374–P1380 e contextos não segmentados permanecem inalterad
 
 ### Medição anterior à decisão
 
-Com o P1382 selado, o prefixo `Lead #text(size: 18pt)[More]` já coincide com
+Com o P1382 validado, o prefixo `Lead #text(size: 18pt)[More]` já coincide com
 o vanila na morfologia e nas posições de tinta (`Lead=12,010`, `More=5,752`),
 mas o preflight fail-closed deixa `One=26,398` e `After=198,202`; o vanila usa
 `One=32,448` e `After=220,166`. O resíduo do primeiro Block é exatamente
@@ -270,7 +270,7 @@ fragmentos. Se o exterior vem primeiro, fixa a baseline pelo top-edge exterior
 e depois a desloca até o ascent maior; se o maior vem primeiro, fixa-a
 diretamente pelo ascent maior. Nos dois casos, o avanço seguinte usa ascent e
 leading exteriores. Portanto, a soma reservável continua sendo a mesma já
-selada por P1383: ascent maior + próximo ascent exterior + descent maior +
+validada por P1383: ascent maior + próximo ascent exterior + descent maior +
 leading exterior + fronteira exterior.
 
 ### Decisão interna
@@ -452,7 +452,7 @@ vereditos.
 No fixture P1387 de 200pt, cada coluna oferece 85pt. O par 20→20 permanece numa
 baseline tanto no vanila quanto no cristalino, mas o vanila produz
 `One=33,763990` e o cristalino `One=27,714`. A variação de largura parecia
-apontar para o certificado horizontal: o fallback persistia até 204pt e só
+apontar para a validação horizontal: o fallback persistia até 204pt e só
 desaparecia em 205pt. Quatro candidatas nessa direção — reconstrução local do
 estilo, supressão de checkpoint vazio, largura total/checkpoint e classificação
 de whitespace-only — não alteraram o resultado produtivo e foram refutadas.
@@ -465,12 +465,12 @@ margem e chamar `flush_line` antes de o iterador chegar ao Block. O preflight j�
 certificou o prefixo e devolveu sua boundary, mas `layout_parts` só a aplicava
 se `current_line` ainda estivesse não vazia. Assim, fechar a linha cedo fazia o
 handshake vertical desaparecer. Como controle, 21→21 quebra realmente no
-vanila e não recebe distribuição certificada.
+vanila e não recebe distribuição validada.
 
 ### Decisão interna
 
 A boundary devolvida por um `InlinePrefix { closes_line: true }` pertence ao
-handshake certificado entre o prefixo e o primeiro Block fracionário. Quando o
+handshake validado entre o prefixo e o primeiro Block fracionário. Quando o
 índice desse Block é alcançado, `layout_parts` fecha a linha somente se ela
 ainda estiver aberta, mas aplica a boundary incondicionalmente uma vez. O
 terminador que já chamou `flush_line` não consome essa boundary e, portanto,
@@ -485,7 +485,7 @@ proporcional, API pública ou mudança de fase.
 ### Aceitação
 
 Com e sem terminador que fecha antecipadamente a linha, o mesmo prefixo
-certificado produz a mesma posição de `One`; 20→20 fica em uma página e
+validado produz a mesma posição de `One`; 20→20 fica em uma página e
 coincide com o vanila em `Lead`, `More`, `One`, `Two`, `After` e `Tail`, dentro
 de 0,001pt. 21→21 continua com duas baselines e `Unknown`. P1387
 12→12–18→18, P1386 decrescente, P1385 e os controles P1374–P1384 preservam
@@ -546,7 +546,7 @@ exatamente antes do segundo fragmento. O vanila mantém uma página e
 
 ### Decisão interna
 
-O certificado de wrap único passa a aceitar também exatamente dois
+A validação de wrap único passa a aceitar também exatamente dois
 `Styled(Text)` size-only desiguais e estritamente maiores que o estilo
 exterior, com uma palavra não-whitespace por body, wrap somente na fronteira
 entre eles e reserva vertical completa na região.
@@ -580,7 +580,7 @@ também atrasa a segunda baseline.
 
 ### Decisão interna
 
-O certificado admite exatamente dois `Styled(Text)` size-only desiguais,
+A validação admite exatamente dois `Styled(Text)` size-only desiguais,
 uma palavra não-whitespace por body, quando um tamanho é exatamente o
 exterior e o outro é estritamente maior, existe um único wrap na fronteira e
 a reserva completa cabe. O carrier e os fechamentos exteriores de P1389 e a
@@ -618,7 +618,7 @@ maior→menor a primeira palavra overlong fecha antes do carrier.
 
 ### Decisão interna
 
-O certificado aceita exatamente dois `Styled(Text)` size-only, uma palavra
+A validação aceita exatamente dois `Styled(Text)` size-only, uma palavra
 não-whitespace por body, quando um tamanho é estritamente menor que o exterior,
 o outro é estritamente maior e existe um único wrap na fronteira. A reserva
 vertical completa deve caber. A soma linha-a-linha P1390, a boundary única

@@ -1,5 +1,13 @@
 # Passo 1361 — formatter puro de duração e adaptador S11
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Materializar em L2 o formatter público e determinístico de
@@ -8,7 +16,7 @@ Materializar em L2 o formatter público e determinístico de
 
 ## Entradas e owners
 
-- preflight: `00_nucleo/diagnosticos/p1361-duration-preflight.md`;
+- preflight: relatório consolidado da limpeza;
 - novo Prompt L0 proprietário:
   `00_nucleo/prompts/shell/duration.md` → `02_shell/src/duration.rs`;
 - owner do índice do crate:

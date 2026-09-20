@@ -164,8 +164,7 @@ eval_unary_op(Neg, Duration(3s))                == Duration(-3s)
 
 ### Medição anterior à decisão
 
-No baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+No baseline R4,
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree capturado,
 `01_core/src/compiler/eval/operators/mod.rs:40-41` encaminha Add a este nó.
 Seu match em `arithmetic.rs:54-134` aceita Array/Dict, mas não Args. O focal
@@ -173,8 +172,8 @@ independente `args.join-duplicates`, encerrado em
 `2026-09-07T17:37:05.017565+00:00`, observa sucesso no vanilla ratificado
 `a51e02804` e erro `cannot add arguments and arguments` no baseline.
 Fonte upstream `lab/typst-original/crates/typst-library/src/foundations/ops.rs`
-delega o par Args ao Add de `foundations/args.rs:468-482`. Recibo e texto
-prévio deste L0 estão em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`.
+delega o par Args ao Add de `foundations/args.rs:468-482`. Registro e texto
+prévio deste L0 estão na medição histórica.
 
 ### Decisão de roteamento da semântica já aprovada
 
@@ -195,11 +194,9 @@ encode nem o contrato público de Args.
 
 ### Medição anterior à decisão
 
-Baseline `p1308-baseline.json` SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+Baseline histórico,
 HEAD b303f1f15 mais working tree ali integralmente identificada.
-O recibo público `p1307-r6-public-matrix-2.json`, SHA-256
-`53737a33e636323f4e0ab50499bde3cbb0905fe50889cdc5d3d7c5d631f6e51c`,
+O registro público,
 mede erro em r4.args.join-none; a expectativa vanilla ratificada é identidade.
 Fonte `lab/typst-original/crates/typst-library/src/foundations/ops.rs:94–95`
 tem identidade None em ambas as ordens. O helper cristalino join já a possui;

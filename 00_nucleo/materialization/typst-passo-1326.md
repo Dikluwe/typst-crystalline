@@ -1,8 +1,16 @@
 # Passo 1326 — diagnóstico de campo em closures
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema e decisão
 
-A medição fresca `00_nucleo/diagnosticos/p1326-baseline.json` confirma:
+A medição fresca relatório consolidado da limpeza confirma:
 `{ let f() = 1; f.nope }` acusa genericamente `type function` e marca
 `f.nope` inteiro. Vanilla ratificado `a51e02804` identifica funções
 definidas pelo usuário e marca só `nope`. Alias, função anônima e With

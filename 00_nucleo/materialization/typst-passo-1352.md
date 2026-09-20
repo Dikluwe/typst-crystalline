@@ -1,5 +1,13 @@
 # Passo 1352 — sanitizar artefatos diagnósticos acumulados
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Reduzir o lixo de meta-análise acumulado nos passos recentes sem apagar código
@@ -89,7 +97,7 @@ o P1351 realmente executa.
 
 Fora dos grupos A/B, remover apenas arquivos cujo conteúdo seja byte-a-byte
 idêntico a outro arquivo retido. Manter o nome mais recente citado; registrar
-ambos os paths e o SHA-256 comum. Não usar similaridade textual ou julgamento
+ambos os paths e o identificador administrativo comum. Não usar similaridade textual ou julgamento
 semântico para apagar arquivos pequenos nesta etapa.
 
 ## Ledger e recuperação
@@ -126,7 +134,7 @@ destrutiva.
 8. procurar referências quebradas fora de materialization/context;
 9. executar os testes P1351 `22/22` e `31/31` com temporários em `/dev/shm`;
 10. executar `cargo build`, `crystalline-lint .` e `git diff --check`;
-11. produzir `p1352-sanitization-report.md` e um único commit.
+11. produzir relatório consolidado da limpeza e um único commit.
 
 O relatório registra HEAD/base, hora, comandos, número e bytes antes/depois,
 quantidade por grupo, exceções, hashes do ledger, testes e limitações. Não cria

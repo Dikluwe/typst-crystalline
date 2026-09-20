@@ -1,5 +1,13 @@
 # Passo 1456 — substituir a reescrita textual de ranges BibTeX
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — correção interna de paridade
 **Data da medição:** 2026-09-18T22:04:00-03:00
 **Commit medido:** `f1cfce3d75113960ccd31c8e17bc328fcf6509d6`
@@ -21,14 +29,14 @@ runs sobrepostos.
 
 Baseline cristalino:
 
-- L0 `compiler/layout/bib_csl.md` SHA-256
-  `796559c807fa4ed68a832eb75d1db808e4dde352b9947b7c729d106295d0b5cd`;
-- consumer `compiler/layout/bib_csl.rs` SHA-256
-  `e7c113d2c0653c75a951f51cdccba0f7b031264ee0c78dc604a30b99ad027a11`;
-- binário release cristalino SHA-256
-  `cfbfd03361331ee422c97007d4cf222e265d5922c0a86c2c16ba711b6f541ecc`;
-- vanilla ratificado SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+- L0 `compiler/layout/bib_csl.md` identificador administrativo
+  [dado administrativo removido];
+- consumer `compiler/layout/bib_csl.rs` identificador administrativo
+  [dado administrativo removido];
+- binário release cristalino identificador administrativo
+  [dado administrativo removido];
+- vanilla ratificado identificador administrativo
+  [dado administrativo removido].
 
 Um corpus IEEE com `pages = {45---67}` produz `pp. 45–67` no vanilla e
 `p. 45––67` no cristalino. A causa é reproduzível: `replace("--", "-")`
@@ -94,7 +102,7 @@ Resultados reproduzidos:
   `45---67`, e preservam `45--67` e `S12--S14` em paridade;
 - o caso múltiplo continua `pp. 1–37–9` no vanilla e `pp. 1–3, 7–9` no
   cristalino, diferença já presente antes do P1456 e fora desta correção;
-- `python3 00_nucleo/diagnosticos/p1456-mutation-runner.py`: 12/12 mutantes
+- `python3 [artefato protocolar removido]`: 12/12 mutantes
   mortos, score `1.0`, zero sobreviventes e sem promoção de `Unknown`;
 - `cargo build`, `cargo fmt --all -- --check`, `crystalline-lint .` e
   `git diff --check`: sucesso; o linter manteve zero violations;
@@ -105,11 +113,11 @@ Resultados reproduzidos:
 
 O resselo obrigatório atualizou somente o campo mecânico `Hash do Código` do
 L0 após o candidato. O preseal conserva o hash integral do L0 semântico
-anterior ao candidato (`44a3a15a...`); o L0 final tem SHA-256
-`b17c8ef1911dbf6a7d71d1833369970094c9dd02308b4c1576b76e86a1fdfbfe`,
+anterior ao candidato (`44a3a15a...`); o L0 final tem identificador administrativo
+[dado administrativo removido],
 o consumer final
-`2e14ab8de2a4c617ec68c55578979e48b0fdeb7742a5db3f6ca616649a3c8c74`
+[dado administrativo removido]
 e o binário release
-`c2022276ae8bb7d2053a80df91b4ccabb32c1fdcd7d4ff9ef916df8749e39b75`.
+[dado administrativo removido].
 Não se alega isolamento entre papéis: executado sem atestação de
 isolamento.

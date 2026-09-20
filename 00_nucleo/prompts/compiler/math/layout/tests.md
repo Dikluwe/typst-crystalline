@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/math/layout/tests` — suíte matemática
-Hash do Código: 91c2bac8
+Hash do Código: 72753b5b
 
 
 **Camada:** L1, testes
@@ -25,7 +25,7 @@ explicitamente pelo dono em 2026-09-16.
 
 ## P1427 — matriz RED/GREEN de `math.frac` (PROPOSTO; gate ADR-0127)
 
-Após o selo e a confirmação humana, a suíte cobre vertical, skewed e
+Após a atualização do L0 e a confirmação humana, a suíte cobre vertical, skewed e
 horizontal, estilo explícito versus omitido, set rule e sua precedência,
 associatividade de `/`, ambos os bits de deparenthesization e o controle
 `binom` sem barra. Os oráculos geométricos expressam relações de eixo,

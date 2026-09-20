@@ -1,12 +1,20 @@
 # Passo 1435 — fortalecer P26, corrigir M21 e retomar o selo P1431
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 Medição executada em `2026-09-17T16:07:51-03:00`, sobre HEAD limpo
 `a4a4767ca6da40dde825ec952d775ee5310d5798`, tree
 `c231fa7635f77e53f7df176144dc5258d0246254`.
 
-O veredito R8 `p1431-verifier-r8-nonseal.json` (SHA-256 `d1903797…`)
+O veredito R8 relatório consolidado da limpeza (identificador administrativo `d1903797…`)
 confirmou:
 
 - M05 R8 foi corrigido e morreu por `VIOLATED_PADDING`;
@@ -21,11 +29,11 @@ confirmou:
 
 Identidades medidas:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| L0 test-only layout P1431 | `7dbb6e6e32d830629e1b7eb1c3bf130bdf09c6bcc622ebb0546b5f60b67e50bd` |
-| consumer test-only | `1545fee27674d1c8e7cf369cd767b6ade9edcf4b6fc9fdc15c0e501b9d02d205` |
-| veredito R8 | `d19037979e595dfca2f1a6c4a9f0f5d6ab1e7cd4507b8132b7391734d99eb7f7` |
+| L0 test-only layout P1431 | [dado administrativo removido] |
+| consumer test-only | [dado administrativo removido] |
+| veredito R8 | [dado administrativo removido] |
 
 ## Classificação e decisão
 

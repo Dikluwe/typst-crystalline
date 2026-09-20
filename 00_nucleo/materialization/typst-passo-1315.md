@@ -1,5 +1,13 @@
 # Passo 1315 — ordinal correto no erro de campos CSV
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: implementado e validado — PASS restrito ao P1315, em 2026-09-08.
 
 O trabalho até P1314 foi commitado em `bc8213f36b7a29b4fdc30cfc74ddc23586117c64`.
@@ -12,7 +20,7 @@ Este passo não é L0. O owner normativo é
 Com primeiro registro `"a\nb",c` seguido de `1`, o cristalino informa
 `found 1 instead of 2 fields in line 3`; o vanilla ratificado `a51e02804`
 informa ordinal `line 2` e, separadamente, posição física `at 3:1`.
-Medição e proveniência: `00_nucleo/diagnosticos/p1315-measurement.json`.
+Medição e proveniência: relatório consolidado da limpeza.
 
 ## Execução
 
@@ -40,5 +48,5 @@ implementado sem commit adicional, salvo nova instrução.
 Correção do ordinal implementada após L0 e freeze A/B, com RED→GREEN.
 6.648 testes workspace passaram; 3.480 comparações A/B aprovadas; lint sem
 erros. Revisão independente PASS no recorte. Evidências, proveniência,
-hashes e dívidas restantes em `00_nucleo/diagnosticos/p1315-final-report.md`.
+hashes e dívidas restantes em relatório consolidado da limpeza.
 Nenhuma API ou valor CSV alterado. P1315 sem commit adicional.

@@ -1,13 +1,8 @@
 # Prompt L0 — testes independentes de `math.round` P1445
+Hash do Código: 471046f7
 
 **Camada**: L1 test-only  
 **Alvo**: `01_core/src/compiler/stdlib/structural/p1445_tests.rs`
-
-## Entradas congeladas
-
-Passo P1445 aprovado no commit `b90adbee7a315b420d51b393f882cacbb7f78579`,
-baseline `a748c433e8aa135690e2f880455a5a75533bed86`, fonte vanilla pinada
-`586e1bd43` e os dois Prompts L0 produtivos atualizados pela proposta.
 
 ## Obrigações observáveis
 
@@ -25,18 +20,4 @@ baseline `a748c433e8aa135690e2f880455a5a75533bed86`, fonte vanilla pinada
 - a rota bare e a qualificada delegam ao mesmo builder, avaliam cada ocorrência
   uma vez e preservam os mesmos diagnósticos e carrier;
 - cascata, short-fall, layout, igualdade e walkers permanecem os de `MathLr`
-  certificados em P1436.
-
-## Política e gate discriminatório
-
-Falha de build, timeout, identidade ambígua ou observação opaca é `Unknown` e
-bloqueia o selo. Mutantes válidos: ausência do binding; uso de
-`MathDelimited`; cerca esquerda/direita ausente ou trocada; presença de `size`
-apagada; zero/extra/`body:`/named aceito; inteiro aceito; rota bare deixada no
-braço histórico. Todos devem ser rejeitados; `mutation_score = 1.0`.
-
-## Regime
-
-`executed_without_isolation_attestation`: contrato, implementação e veredito
-ocorrem no mesmo workspace e não recebem alegação de isolamento. A ordem
-RED→GREEN e os hashes dos artefatos continuam obrigatórios como recibo.
+  definidos em P1436.

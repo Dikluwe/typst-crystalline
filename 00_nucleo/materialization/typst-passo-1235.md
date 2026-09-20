@@ -52,5 +52,5 @@ alterações preexistentes preservadas e snapshot exato registrado no relatório
 de saneamento. Execução sem atestação de isolamento: o host compartilha
 filesystem e não há alegação de materialização Tekt segregada.
 
-**Recibo saneado:** `00_nucleo/diagnosticos/typst-p1235-rollback-saneamento.md`
+**Recibo saneado:** relatório consolidado da limpeza
 e `00_nucleo/diagnosticos/p1235-gates.tsv`.

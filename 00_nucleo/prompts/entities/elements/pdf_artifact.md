@@ -1,23 +1,21 @@
 # Prompt L0 — `entities/elements/pdf_artifact` — `PdfArtifactElem`
 Hash do Código: 67b7a3a0
 
-**Estado do hash:** consumer materializado; o valor de `Hash do Código` é o
-selo calculado pelo `crystalline-lint --fix-hashes`.
+**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
+`crystalline-lint --fix-hashes`.
 
-**Camada:** L1 domínio  
-**Consumer exclusivo:** `01_core/src/entities/elements/pdf_artifact.rs`  
-**Contrato predecessor:** `00_nucleo/diagnosticos/p1286-contract-receipt.md`
-v2, SHA-256
-`16597543965ca13d37fdabf9be184f3477df92da4f6702ba14f0a4ca4918f9bb`  
+**Camada:** L1 domínio
+**Consumer exclusivo:** `01_core/src/entities/elements/pdf_artifact.rs`
+**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
 **Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.  
+e pode implementar”.
 **ADRs:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
 
 ## Medição anterior à decisão
 
 O vanilla pinado define `ArtifactElem { kind, body }` e doze kinds em
 `pdf/accessibility.rs:36-93`; o layout conserva visual/texto e o PDF mantém a
-identidade `/Artifact` sem MCID/StructElem. O receipt predecessor mediu
+identidade `/Artifact` sem MCID/StructElem. A medição anterior cobriu
 `other`, Header e Background, e registrou AT real como `Unknown`. A árvore
 cristalina já possui Formula P1140.6; passthrough que perca o kind é incorreto.
 

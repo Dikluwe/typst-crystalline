@@ -1,5 +1,13 @@
 # Passo 1349 — separar fault-injection meta do focal e supervisionar execuções
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Regime e objetivo
 
 Regime: **executado sem atestacao de isolamento**.
@@ -26,20 +34,20 @@ Medição em `2026-09-11T14:18:49-03:00`:
 
 - `HEAD = 496c45ac6279d4298079f848b24b5e97ba88edc1`;
 - working tree não commitado com 40 paths P1347–P1348 não rastreados;
-- SHA-256 de `git status --porcelain=v1`:
-  `477c9906ca12e0e545f65a35582ed696dd52d6a6c7ca948834389e7145ef7a9c`;
-- passo P1348, SHA-256
-  `4254d294e71427c7dd54ab28db674d7b20174e560bd4882bf3413dae217224c7`;
-- blocker P1348, SHA-256
-  `e5b9e9423e2e3ad20064cbc20f2594e25396f7e1bffe20123a4f8392cb8501de`;
-- contrato P1348 R1, SHA-256
-  `e9e3e10b069604f7bc45143da4625e728c34d6d3b7223c7fa9491173fa7131af`;
-- checker P1348 R1, SHA-256
-  `fd1c4a0e1601ea817ffb92ad6723367083ac9f5c7a0f9bcecb155e9148764249`;
-- suíte adversarial P1348 R1, SHA-256
-  `14f3f41b28cfaa927197f5b5767612833e38944a9db74fb9f5ace7ee9b32e30c`;
-- adapter P1348 R1, SHA-256
-  `bcec1c05eed907ec3ea8f45c55940ee5244fe9498c731e66458b9817d946edfa`.
+- identificador administrativo de `git status --porcelain=v1`:
+  [dado administrativo removido];
+- passo P1348, identificador administrativo
+  [dado administrativo removido];
+- blocker P1348, identificador administrativo
+  [dado administrativo removido];
+- contrato P1348 R1, identificador administrativo
+  [dado administrativo removido];
+- checker P1348 R1, identificador administrativo
+  [dado administrativo removido];
+- suíte adversarial P1348 R1, identificador administrativo
+  [dado administrativo removido];
+- adapter P1348 R1, identificador administrativo
+  [dado administrativo removido].
 
 O focal P1348 foi executado fora do sandbox, com ptrace disponível. O gate
 parou no caso `P1348-X06-failure-after-registry-commit`. Regressões, replays,

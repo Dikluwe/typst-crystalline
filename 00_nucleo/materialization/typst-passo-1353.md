@@ -1,5 +1,13 @@
 # Passo 1353 — sanitização produtiva pós-P1339 sem mudança semântica
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## 1. Objetivo
 
 Sanitizar o produto depois da poda documental P1352:
@@ -105,8 +113,8 @@ o catálogo P1335:
 
 - 4.718 IDs distintos;
 - perfis `default`, `html`, `a11y`, `html+a11y`;
-- vanilla `/usr/local/bin/typst`, SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+- vanilla `/usr/local/bin/typst`, identificador administrativo
+  [dado administrativo removido];
 - exit code, stdout e stderr exatos, sem normalização;
 - sucesso JSON parseável;
 - timeout/crash/saída impossível = `EXECUTION_UNKNOWN`.
@@ -127,7 +135,7 @@ paths divergentes           175
 ```
 
 Guardar a matriz integral apenas em RAM. O recibo compacto traz proveniência,
-hashes, contagens, paths divergentes e SHA-256 canônico das 18.872 células.
+hashes, contagens, paths divergentes e identificador administrativo canônico das 18.872 células.
 Qualquer desvio bloqueia a remoção.
 
 ## 6. Fase C — RED/GREEN e remoção estreita
@@ -182,9 +190,9 @@ preexistentes.
 Além de L0, consumers, hashes e deste passo:
 
 ```text
-00_nucleo/diagnosticos/p1353-baseline-compact.json
-00_nucleo/diagnosticos/p1353-final-compact.json
-00_nucleo/diagnosticos/p1353-relatorio.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 ```
 
 Cada JSON é compacto e menor que 1 MiB. Binários, fixtures e resultados por

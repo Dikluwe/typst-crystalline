@@ -1,11 +1,18 @@
 # Passo 1330 — rejeitar overflow inteiro em calc.abs
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema medido e recorte
 
 O fechamento P1329 deixou uma lacuna concreta: abs do menor inteiro satura
 no cristalino e falha no vanilla ratificado a51e02804. A nova medição está
-em `00_nucleo/diagnosticos/p1330-baseline.json`, SHA-256
-`a3f732bfb2fda2f177dbf3b33caddcd84b219af6fac22f96eae9644e784b6987`,
+em relatório consolidado da limpeza,
 com HEAD, working tree não commitado, diff/stat, inventários e binários.
 `calc.abs(-9223372036854775807 - 1)` devolve um inteiro saturado no baseline;
 vanilla devolve `the result is too large` no argumento.

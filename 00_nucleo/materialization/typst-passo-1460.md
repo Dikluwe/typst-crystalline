@@ -1,5 +1,13 @@
 # Passo 1460 — eliminar o hardcode de heading no serializer L2
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** IMPLEMENTADO — certificação segregada no commit subsequente
 
 **Data da medição:** 2026-09-19
@@ -23,24 +31,24 @@ delegar ao owner canónico P1459.
 Medição em `2026-09-19T03:02:37Z`, no commit e árvore acima, antes do
 candidato e com apenas os três L0 P1460 já editados no working tree:
 
-- consumer L2 SHA-256:
-  `012710821b5521c9da2f32d8c14e78a94bd0dd03cddc681830dfa8ad944bf7ae`;
-- owner L1 SHA-256:
-  `00c585aed035ca166ca96fc74a06a04ae1829a3e1571c446c580381a878c7fc3`;
-- hub L1 SHA-256:
-  `0f267c04aa43175748deb3031dd9eae36e5b6a114b15b212e1a969138f1f23eb`;
-- binário cristalino release SHA-256:
-  `ba5a128332f011aa312edd76c272c0c473cc4d484c8e2ef4c595d215af2a8be6`;
-- binário vanilla ratificado SHA-256:
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+- consumer L2 identificador administrativo:
+  [dado administrativo removido];
+- owner L1 identificador administrativo:
+  [dado administrativo removido];
+- hub L1 identificador administrativo:
+  [dado administrativo removido];
+- binário cristalino release identificador administrativo:
+  [dado administrativo removido];
+- binário vanilla ratificado identificador administrativo:
+  [dado administrativo removido].
 
 Para `heading[First]`, o cristalino produziu 211 bytes JSON compacto, 282
 bytes JSON pretty e 185 bytes YAML, com hashes respectivamente
-`5373144da06fd08c3fc6505b8daf61f4607129714242004fd407fb5ccb93e9e2`,
-`6cc53df5e7b5f4677e7dc09a0db0b1d57c8170df414b5ad2b8b0e886f65a1ada`
-e `0314d44bc96305e2d856b98d3355475bf48d8581bc063017b298b34c7f03a987`.
+[dado administrativo removido],
+[dado administrativo removido]
+e [dado administrativo removido].
 O vanilla produziu a forma menor de 57 bytes, hash
-`af8347704f0bdfde3646579fc65c4b96a42d3fbe6442468f637c862d797acc45`.
+[dado administrativo removido].
 Logo a referência do output P1460 é o baseline cristalino congelado; a forma
 raw vanilla delimita o que este passo não pode alegar.
 
@@ -90,8 +98,7 @@ explicitamente a ausência de atestação de isolamento.
 ## 7. Execução RED→GREEN
 
 O preseal foi congelado antes do candidato em
-`00_nucleo/diagnosticos/p1460-preseal.json`, SHA-256
-`6603c905f705a1ab7d3814a33aeeaf28e4f627429135802ed47d5d76b6209ab4`.
+relatório consolidado da limpeza.
 Contrato, oráculos e catálogo adversarial permaneceram imutáveis depois do
 selo. A primeira execução RED também encontrou uma ambiguidade de tipo na
 fixture de snapshot; ela foi corrigida ainda antes de código produtivo. O RED
@@ -124,15 +131,15 @@ postseal-amendment.json,preseal.json,static-attack-results.json}` em
 `00_nucleo/diagnosticos/`. Nenhum outro ficheiro estava alterado.
 
 - owner L1:
-  `4707e6e006c9b99208d525fe281b8fc1ea41242a739ecd10bbdf9007a7c7858e`;
+  [dado administrativo removido];
 - hub L1:
-  `85b8137b77f07b6d12546fca8a75aeff848b24f161bbb722b4ec219255238d2f`;
+  [dado administrativo removido];
 - CLI L2:
-  `0c34e51fb37776003dff8e3184c7b735495f83977604d2a785e71ab76a559498`;
+  [dado administrativo removido];
 - binário cristalino release:
-  `31fb105215bcb138a194708cb7b8b0c72b22779cb466d458544d4a9b3c61867c`;
+  [dado administrativo removido];
 - binário vanilla ratificado:
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+  [dado administrativo removido].
 
 Resultados:
 
@@ -143,7 +150,7 @@ Resultados:
   menor como três controles aprovados;
 - mutação compilada manual: 4 mutantes válidos, todos apanhados nas três
   ordens, 12/12 execuções, score 1,0; o arquivo candidato voltou ao mesmo
-  SHA-256 depois de cada campanha;
+  identificador administrativo depois de cada campanha;
 - ataques estáticos/de modelo: 16/16 rejeitados, score discriminatório 1,0;
   esse número não é apresentado como mutation testing compilado;
 - `cargo test --workspace --quiet`: o test binary de core conservou

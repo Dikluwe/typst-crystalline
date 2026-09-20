@@ -1,5 +1,13 @@
 # Passo 1429 — convergência vertical completa de `math.accent`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1428 certificou os observadores de `math.frac`; a fila residual P1422 mantém
@@ -12,13 +20,13 @@ acentos superiores no tamanho default.
 Medição executada em `2026-09-16T20:25:19-03:00`, sobre HEAD limpo
 `de2fa7be8e7ad06105e8cd4adb8297ad9947c46c`. Entradas principais:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| vanilla `typst-library/src/math/accent.rs` | `52c898c9bfa5f80a9ea72a212f44955e7df5a1e858224f038e9a06d8bc55d0e8` |
-| vanilla `typst-layout/src/math/accent.rs` | `3c8e7260ce50cae8d24d62acedec307bd5c87464e5031caa98bb96ffde15fc0b` |
-| cristalino `compiler/stdlib/structural/math.rs` | `85aaed3f51fdac91562a1641a79a02118eb349ebfa0ddc416dccf7912f166e42` |
-| cristalino `entities/elements/math_accent.rs` | `f1d7c7c1a35cea279ff6c24592ed9723f02ea7d96abb0bf0fc8eb6bc5c767015` |
-| cristalino `compiler/math/layout/accent.rs` | `8c6311089ed117e972d886b0d945a648630ea638d3c75d356bd9ed90dc81d3b0` |
+| vanilla `typst-library/src/math/accent.rs` | [dado administrativo removido] |
+| vanilla `typst-layout/src/math/accent.rs` | [dado administrativo removido] |
+| cristalino `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| cristalino `entities/elements/math_accent.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/accent.rs` | [dado administrativo removido] |
 
 O alvo continua o vanilla ratificado
 `586e1bd43fae6c9a973218163d3165c53ab8d16d`. A fonte mede quatro campos:

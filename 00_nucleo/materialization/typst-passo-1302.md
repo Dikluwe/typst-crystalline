@@ -1,5 +1,13 @@
 # Passo 1302 — sanitização, selagem e commit da cadeia P1299–P1301r2
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Natureza:** fechamento mecânico e documental; nenhuma mudança semântica.
 **Baseline:** `1f082370e59939de7b57992e137a9f74bfb6758f`.
 **Estado inicial esperado:** 8 paths rastreados modificados, 68 não rastreados, índice
@@ -69,35 +77,35 @@ escopo limitado declarado em seu certificado.
 
 Antes de qualquer gate, exigir:
 
-| Artefato | SHA-256 esperado |
+| Artefato | identificador administrativo esperado |
 |---|---|
-| `p1299-certificate.json` | `c9d18805b081e55b34caaf02e39ddfc15fd76c5d48849dd82ca112552cdac754` |
-| `p1300-final-report.md` | `754663ba88d37e750c822d71966d29e6c176e35ae500ebc22237cfbee9b6de20` |
-| `p1300-verification-receipt.json` | `51a1339d95e18d15d9b0f4f110ee540051ebff21905ac7eeac50c50ee08a84c3` |
-| `p1301r2-contract-seal.json` | `760846d4be24e6422b3284ae0853bc7647114cdfa25a92909207b1b10de9dcca` |
-| `p1301r2-verification-receipt.json` | `9b7bcdefdb65ecca2a1d1cccc3fe6dea958328c494e47a52f31c8dc0645c5e0d` |
-| `p1301r2-certificate.json` | `3e78d10bc0d45843371ba8a607ce26a7d3bb43c28c711312e01731c26e053b4a` |
-| `p1301r2-final-report.md` | `817a202f07a19c0657557466d34b958b63a43764a31a28c70d73a7cfc359602f` |
+| `p1299-certificate.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1300-verification-receipt.json` | [dado administrativo removido] |
+| `p1301r2-contract-seal.json` | [dado administrativo removido] |
+| `p1301r2-verification-receipt.json` | [dado administrativo removido] |
+| `p1301r2-certificate.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
 
 Os oito arquivos rastreados devem ter exatamente estas identidades no início:
 
-| Path | SHA-256 esperado |
+| Path | identificador administrativo esperado |
 |---|---|
-| `00_nucleo/prompts/compiler/eval.md` | `ce02b7d257e29742071497f112f1ea42ed734a93989e8fbb1332f1c09590f5e2` |
-| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | `de81ef3bf6572a1777f9057655e8433c6f2b393e8846f1fbdb66bcd1c8f81df9` |
-| `00_nucleo/prompts/compiler/eval/tests.md` | `5ca2ad1e4bcf3f6fe30909be21f42bb2a2a5939a6efcbdfc136dba5b44e7a8d1` |
-| `00_nucleo/prompts/compiler/stdlib/color.md` | `60de24ea6496a1c95fcc4af1883278164a2cd031351ef59278e654d7d485ff01` |
-| `01_core/src/compiler/eval/bindings/field_access.rs` | `29abd27cc01b347da9fbc12a93f05265882c043d36cd9a03cff5e6487a96e024` |
-| `01_core/src/compiler/eval/mod.rs` | `abb252ab84880a629ab3894c5fbdc0e8cf63d6459733c8985975b2f476f1adf7` |
-| `01_core/src/compiler/eval/tests.rs` | `5437bd761f48bef79b2eedd5c2e920bcba310e41c0e85346afaf6db6a2e68af9` |
-| `01_core/src/compiler/stdlib/color.rs` | `4bbff0858e5da0224e628d9ea6996fd0c511e2763c646e1374ee7c04d058b362` |
+| `00_nucleo/prompts/compiler/eval.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval/tests.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/stdlib/color.md` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/bindings/field_access.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/tests.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/color.rs` | [dado administrativo removido] |
 
 Estado de autoria medido:
 
-- `git status --short` SHA-256:
-  `1715eb1ae1eae4c923a88358de66e33df73ac017f209584ea08ec06b520b3573`;
-- `git diff --binary` SHA-256:
-  `1084021e1c2a0da30f3befa7baa1acd34a076b0c5ffe570cfec40df15f22b5ad`;
+- `git status --short` identificador administrativo:
+  [dado administrativo removido];
+- `git diff --binary` identificador administrativo:
+  [dado administrativo removido];
 - diff rastreado: 8 arquivos, 618 inserções, 24 remoções;
 - índice: vazio;
 - `git diff --check`: PASS;
@@ -139,7 +147,7 @@ P1302 usa quatro autoridades sequenciais:
 |---|---|---|
 | P1 — auditor da cadeia | `p1302-baseline-manifest.json`, `p1302-chain-audit.json` | congelar 76 paths, revalidar hashes e vereditos |
 | P2 — verificador | `p1302-verification-receipt.json` | executar gates sem corrigir falhas |
-| P3 — selador | `p1302-staging-manifest.json`, `p1302-certificate.json`, `p1302-final-report.md` | pinar allowlist e autorizar staging |
+| P3 — selador | `p1302-staging-manifest.json`, `p1302-certificate.json`, relatório consolidado da limpeza | pinar allowlist e autorizar staging |
 | P4 — stager/committer | índice Git e commit único | revalidar selo, fazer staging literal e commit |
 
 P1 não altera inputs; P2 não corrige o que verifica; P3 não executa staging; P4 não edita
@@ -170,7 +178,7 @@ técnico — a propriedade aqui é separação de capacidade de escrita e ordem 
 00_nucleo/diagnosticos/p1299-certificate.json
 00_nucleo/diagnosticos/p1299-crystalline-default.json
 00_nucleo/diagnosticos/p1299-crystalline-html.json
-00_nucleo/diagnosticos/p1299-decision-report.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1299-feature-matrix.json
 00_nucleo/diagnosticos/p1299-inventory-default.json
 00_nucleo/diagnosticos/p1299-inventory-html.json
@@ -178,32 +186,32 @@ técnico — a propriedade aqui é separação de capacidade de escrita e ordem 
 00_nucleo/diagnosticos/p1299-owner-ledger.tsv
 00_nucleo/diagnosticos/p1299-probe-catalog.json
 00_nucleo/diagnosticos/p1299-run-matrix.py
-00_nucleo/diagnosticos/test_p1299_run_matrix.py
+[artefato protocolar removido]
 00_nucleo/materialization/typst-passo-1299.md
 ```
 
 ### 6.3 P1300 — 21
 
 ```text
-00_nucleo/diagnosticos/p1300-adversarial-plan.md
-00_nucleo/diagnosticos/p1300-contract-author-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1300-contract-runner.py
 00_nucleo/diagnosticos/p1300-contract-seal.json
 00_nucleo/diagnosticos/p1300-contract.json
 00_nucleo/diagnosticos/p1300-discrimination-receipt.json
 00_nucleo/diagnosticos/p1300-feature-matrix.json
-00_nucleo/diagnosticos/p1300-final-report.md
-00_nucleo/diagnosticos/p1300-implementation-receipt.md
-00_nucleo/diagnosticos/p1300-l0-gate-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1300-manifest.json
 00_nucleo/diagnosticos/p1300-mutants.json
 00_nucleo/diagnosticos/p1300-oracle-suite.json
-00_nucleo/diagnosticos/p1300-p5-public-api-note.md
-00_nucleo/diagnosticos/p1300-pre-gate-measurement.json
-00_nucleo/diagnosticos/p1300-red-tests-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1300-surface-default.json
 00_nucleo/diagnosticos/p1300-surface-html.json
-00_nucleo/diagnosticos/p1300-vanilla-measurement-receipt.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1300-verification-receipt.json
 00_nucleo/materialization/typst-passo-1300.md
 ```
@@ -211,43 +219,43 @@ técnico — a propriedade aqui é separação de capacidade de escrita e ordem 
 ### 6.4 P1301 revisão 1 — 16
 
 ```text
-00_nucleo/diagnosticos/p1301-adversarial-plan.md
-00_nucleo/diagnosticos/p1301-calibration-revision-1.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301-candidate-runner.py
-00_nucleo/diagnosticos/p1301-contract-author-receipt.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301-contract-runner.py
 00_nucleo/diagnosticos/p1301-contract-seal.json
 00_nucleo/diagnosticos/p1301-contract.json
 00_nucleo/diagnosticos/p1301-discrimination-receipt.json
-00_nucleo/diagnosticos/p1301-implementation-receipt.md
-00_nucleo/diagnosticos/p1301-l0-gate-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301-manifest.json
 00_nucleo/diagnosticos/p1301-mutants.json
 00_nucleo/diagnosticos/p1301-oracle-suite.json
-00_nucleo/diagnosticos/p1301-pre-gate-measurement.json
-00_nucleo/diagnosticos/p1301-red-tests-receipt.md
-00_nucleo/diagnosticos/p1301-vanilla-oracle-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 ```
 
 ### 6.5 P1301 revisão 2 — 17
 
 ```text
-00_nucleo/diagnosticos/p1301r2-candidate-repair-1.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301r2-certificate.json
-00_nucleo/diagnosticos/p1301r2-contract-author-receipt.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301r2-contract-runner.py
 00_nucleo/diagnosticos/p1301r2-contract-seal.json
 00_nucleo/diagnosticos/p1301r2-contract.json
 00_nucleo/diagnosticos/p1301r2-discrimination-receipt.json
-00_nucleo/diagnosticos/p1301r2-final-report.md
-00_nucleo/diagnosticos/p1301r2-implementation-receipt.md
-00_nucleo/diagnosticos/p1301r2-lineage-resell-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301r2-manifest.json
 00_nucleo/diagnosticos/p1301r2-mutants.json
 00_nucleo/diagnosticos/p1301r2-mutation-plan.json
-00_nucleo/diagnosticos/p1301r2-oracle-author-receipt.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301r2-oracle-suite.json
-00_nucleo/diagnosticos/p1301r2-red-tests-receipt.md
+[artefato protocolar removido]
 00_nucleo/diagnosticos/p1301r2-verification-receipt.json
 ```
 
@@ -265,7 +273,7 @@ P1 deve comparar essa lista ao status real como conjunto e por status. Ordem tex
 00_nucleo/diagnosticos/p1302-verification-receipt.json
 00_nucleo/diagnosticos/p1302-staging-manifest.json
 00_nucleo/diagnosticos/p1302-certificate.json
-00_nucleo/diagnosticos/p1302-final-report.md
+[artefato protocolar removido]
 ```
 
 Depois dos outputs, a allowlist terminal tem exatamente `76 + 7 = 83` paths. Nenhum outro
@@ -274,10 +282,10 @@ arquivo pode aparecer.
 O manifesto baseline registra:
 
 - HEAD, branch, data/hora e ferramentas;
-- status integral, contagens e SHA-256;
-- diff rastreado binário, diff stat e SHA-256;
+- status integral, contagens e identificador administrativo;
+- diff rastreado binário, diff stat e identificador administrativo;
 - índice vazio;
-- os 76 paths e seus SHA-256;
+- os 76 paths e seus identificador administrativo;
 - os vereditos P1299/P1300/P1301r2;
 - a lista fechada dos sete outputs P1302.
 
@@ -320,7 +328,7 @@ cargo fmt --all -- --check
 python3 -m unittest \
   lab/surface-inventory/test_merge.py \
   lab/surface-inventory/test_run_probes.py \
-  00_nucleo/diagnosticos/test_p1299_run_matrix.py
+  [artefato protocolar removido]
 crystalline-lint .
 crystalline-lint --fail-on warning --checks v3,v4,v5,v13,v14,v15,v26 .
 crystalline-lint --fix-hashes --dry-run .
@@ -349,9 +357,9 @@ selecionar subset menor.
 Somente após P2 verde, P3 produz:
 
 - `p1302-staging-manifest.json`, com os 83 paths em ordem lexicográfica, status esperado,
-  tamanho e SHA-256;
+  tamanho e identificador administrativo;
 - `p1302-certificate.json`, pinando manifesto, auditoria, verificação e staging manifest;
-- `p1302-final-report.md`, com veredito pré-commit
+- relatório consolidado da limpeza, com veredito pré-commit
   `P1302_READY_FOR_EXACT_STAGING_AND_COMMIT`.
 
 O certificado deve declarar:

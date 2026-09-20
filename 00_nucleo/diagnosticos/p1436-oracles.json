@@ -1,9 +1,0 @@
-{
-  "schema": "tekt.materialization.oracles/v1",
-  "step": 1436,
-  "positive": ["P01_BINDING","P02_ZERO","P03_VARIADIC","P04_PRESENCE","P05_REPR","P06_WALKER","P07_OBSERVATION","P08_SPACING","P09_GEOMETRY","P10_BARE_QUALIFIED"],
-  "negative": ["N01_CONTENT_CAST","N02_SIZE_CAST","N03_UNKNOWN_NAMED","N04_BODY_NAMED","N05_DUPLICATE","N06_NO_COLLAPSE"],
-  "controls": ["C01_MATH_DELIMITED","C02_BINOM","C03_P912","C04_P919"],
-  "unknown": ["U01_IDENTITY","U02_RESOURCE","U03_OBSERVER"],
-  "expected_unmutated": "Preserved"
-}

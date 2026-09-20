@@ -1,5 +1,13 @@
 # P1249 — auditar glifos matemáticos e fallback textual SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — MATERIALIZADO; CERTIFICADO FINAL PASS  
 **Predecessor:** P1248  
 **Saída:** texto/glifo SVG classificado sem confundir outline e ortografia.

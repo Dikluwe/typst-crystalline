@@ -1,8 +1,16 @@
 # Passo 1314 — erros e ocorrências das opções CSV
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado: implementado e validado — PASS_SCOPED em 2026-09-08.**
 
-Fechamento em `00_nucleo/diagnosticos/p1314-final-report.md`, com evidência
+Fechamento em relatório consolidado da limpeza, com evidência
 e revisão independentes. Workspace: 6.645 testes passam; A/B: 2.808
 comparações passam; lint sem erros. Limites preservados estão no relatório.
 Sem stage, commit ou push.
@@ -10,8 +18,7 @@ Sem stage, commit ou push.
 ## Medição e resultado pretendido
 
 O diagnóstico da execução P1313 mantém parsing e opções CSV como dívidas
-distintas. A medição fresca `00_nucleo/diagnosticos/p1314-measurement.json`
-(SHA-256 `660fd77c95fe243e22590036b03dc5e364b0e3a107888592b35c4d166d557626`)
+distintas. A medição fresca relatório consolidado da limpeza
 mostra dois defeitos locais nas opções: erros sem origem do valor e validação
 apenas da última ocorrência depois de With/Args. Por exemplo, uma opção
 `delimiter: "ab"` pré-ligada é ignorada quando outra válida a sobrepõe;
@@ -20,7 +27,7 @@ o vanilla rejeita a primeira inválida e mostra sua origem.
 Duplicatas escritas diretamente já são rejeitadas antes da função nos dois
 produtos. Não confundir esse caso com ocorrências transportadas por With/Args.
 Baseline, fontes, executáveis, horários e estado não commitado estão nos
-recibos `p1314-baseline.json` e `p1314-measurement.json` em diagnósticos.
+recibos relatório consolidado da limpeza e relatório consolidado da limpeza em diagnósticos.
 
 ## Escopo
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/color` — construtores de cor
-Hash do Código: 40355d04
+Hash do Código: 33d3e62c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/color.rs`
@@ -36,7 +36,7 @@ erro com hint para `white`/`luma(100%)`; `luma(128, 0)`, `luma(128, 255)` e
 `luma(128, 40%)` são valores; `luma(128, alpha: 40%)` é erro; tipos e ranges
 inválidos são diagnósticos, nunca fallback branco. P1357 repetiu o recorte nos
 quatro perfis e encontrou a mesma classificação. Proveniência e tabela
-integral: `00_nucleo/diagnosticos/p1358-luma-preflight.md`.
+integral: a medição histórica.
 
 #### P1358 — decisão
 
@@ -104,7 +104,7 @@ segue fluxo contínuo ADR-0127.
 
 #### Medição antes da decisão
 
-A sonda selada `color-constructors-methods-and-aliases` em
+A sonda validada `color-constructors-methods-and-aliases` em
 `lab/surface-inventory/p1284-probes.json:196-199` exige chamadas reais
 `hsl(0deg, 100%, 50%)`, `hsv(0deg, 100%, 100%)`,
 `oklab(50%, 0, 0)` e `oklch(50%, 0, 0deg)`; as quatro devolvem `color` no

@@ -1,20 +1,26 @@
 # Passo 1313 — CSV com fonte Bytes e cast DataSource
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado: contrato aprovado pelo dono em 2026-09-08; implementação em curso.**
 
 A resposta específica «Autorizo» encerrou o gate abaixo. Aprovação, estado e
-hashes anteriores à execução: `00_nucleo/diagnosticos/p1313-implementation-baseline.json`.
+hashes anteriores à execução: relatório consolidado da limpeza.
 O registro da paragem permanece como histórico; não constitui bloqueio atual.
 
 ## Medição e escolha
 
 P1312 separou read de CSV: a antiga coorte loader-path-cast não tinha contrato
 homogêneo. O sucessor selecionado é o restante CSV, não uma extensão a read.
-Medição fresca `00_nucleo/diagnosticos/p1313-measurement.json`, SHA-256
-`f07efa356c554a4b80a5702c516c4e7f7bee51f4b70fc8cc419ea6cf8754cb43`,
+Medição fresca relatório consolidado da limpeza,
 com HEAD, working tree, horários, fontes, argv e saídas bilaterais.
-Baseline `00_nucleo/diagnosticos/p1313-baseline.json`, SHA-256
-`0ad67b8f92c25160f044c352241572916716e2489ad105a6314608d51f59de92`.
+Baseline relatório consolidado da limpeza.
 
 Vanilla ratificado a51e02804 aceita CSV Bytes, vazio, delimiter/row-type e With;
 cristalino rejeita Bytes como caminho inválido. Fonte vanilla csv.rs:27-46 e
@@ -40,7 +46,7 @@ O pedido para escrever/implementar o próximo passo precede este contrato.
 A ampliação CSV Path/Str → Bytes encontra dúvida real entre a permissão de
 paridade contínua e o gate de compatibilidade/precedente de casts P1141.
 A ADR-0127 determina parar na dúvida; parecer independente em
-`00_nucleo/diagnosticos/p1313-review-gate.md`.
+relatório consolidado da limpeza.
 Portanto: apresentar a proposta ao dono e obter confirmação específica antes
 de escrever testes L1 ou patch. Não ressellar header nem criar GREEN fictício.
 

@@ -282,7 +282,7 @@ Produzir:
 00_nucleo/diagnosticos/p1220-svg-diff-inicial.tsv
 00_nucleo/diagnosticos/p1220-svg-ataques.tsv
 00_nucleo/diagnosticos/p1220-svg-resultados.tsv
-00_nucleo/diagnosticos/typst-p1220-svg-morphology.md
+[artefato protocolar removido]
 ```
 
 O laudo deve separar claramente:

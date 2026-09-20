@@ -1,5 +1,13 @@
 # P1255 — localizar a causa dos envelopes SVG Oklab/LinearRgb
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — DIAGNÓSTICO; IMPLEMENTAÇÃO NÃO AUTORIZADA  
 **Predecessores:** P1237, P1250, P1253 e P1254  
 **Escopo:** medição causal do helper SVG comum; sem promoção de pares e sem

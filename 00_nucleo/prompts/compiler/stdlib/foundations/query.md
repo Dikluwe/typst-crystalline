@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/stdlib/foundations/query.rs:46–65` já tem locations ordenadas e
@@ -92,8 +90,8 @@ selector("<intro>")              -> Selector::Label(intro)
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
 `compiler/stdlib/foundations/query.rs:52-64,76-80` separa parsing,
-consulta e projeção. O store completo já está disponível. A sonda
-`diagnosticos/p1339-where-integration-probe-runs.json` registra query de
+consulta e projeção. O store completo já está disponível. A medição histórica
+registra query de
 strong/emph aceitas e text.where rejeitado com `text is not locatable`;
 fonte ratificada `introspection/query.rs:160-175` recebe LocatableSelector.
 
@@ -123,7 +121,7 @@ Medição complementar no mesmo HEAD, consumer intacto:
 `query.rs:53-65` projeta o store completo depois da seleção; `:77-81`
 devolve a primeira Location/None; `:99-105` consulta current_location;
 `:145-155` consulta contexto/target, sem ler o snapshot. Proveniência em
-`diagnosticos/p1339-observation-integration-receipt.json`.
+medição histórica.
 
 Após a validação de argumentos vigente, registrar query/locate com o Selector
 efetivo e seus resultados completos no registro privado de EvalContext.
@@ -135,7 +133,7 @@ que matches posteriores não observados permaneçam iguais.
 
 Revalidar pela mesma seleção/projeção contra candidate, sem executar corpos
 contextuais nem chamar constructors. Valores Func/Content dentro do resultado
-não podem ser certificados por Debug, repr ou apenas igualdade de Location;
+não podem ser validados por Debug, repr ou apenas igualdade de Location;
 o comparador de observações de eval deve cobrir a entrada ou declarar sua
 incompletude. Um resultado vazio também é uma observação.
 

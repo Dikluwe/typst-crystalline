@@ -8,11 +8,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `entities/introspector.rs:372,727` guarda HashMap<Location, Content> e
@@ -491,8 +489,7 @@ HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
 `entities/introspector.rs:559` contém o impl Introspector for TagIntrospector;
 query em `:634-724` tem Where/Regex vazios. O store `elements` já guarda
 IntrospectedContent; a identidade nativa e igualdade linguística pertencem a
-compiler, não a entities. O desenho/revisão registrado em
-`diagnosticos/p1339-where-query-design-review.md` demonstra que uma chamada
+compiler, não a entities. A medição histórica demonstra que uma chamada
 entities→compiler continuaria reversa mesmo com helper inerente.
 
 ### Decisão proprietária

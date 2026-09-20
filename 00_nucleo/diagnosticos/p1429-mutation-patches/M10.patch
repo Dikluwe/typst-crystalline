@@ -1,9 +1,0 @@
-diff --git a/01_core/src/compiler/math/layout/accent.rs b/01_core/src/compiler/math/layout/accent.rs
---- a/01_core/src/compiler/math/layout/accent.rs
-+++ b/01_core/src/compiler/math/layout/accent.rs
-@@ -112,4 +112,4 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
-         let min_width_du =
-             target_width * self.constants.upem / style.size.val().max(0.001);
--        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style, 0.5);
-+        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style, 0.4);
-         // **P988-B** — centragem horizontal com `TopAccentAttachment`

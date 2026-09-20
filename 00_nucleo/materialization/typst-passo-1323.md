@@ -1,5 +1,13 @@
 # Passo 1323 — completar o warning experimental HTML
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Resultado pretendido
 
 Entregar a headline e os três hints do warning experimental HTML, na ordem
@@ -13,11 +21,10 @@ P1322 selecionou `html-experimental-warning-hints`, prioridade 2: o L0
 mas `04_wiring/src/main.rs:388–392` imprime só a headline. A fonte vanilla
 `lab/typst-original/crates/typst/src/lib.rs:249–256` constrói três hints.
 Seleção sucessora: `00_nucleo/diagnosticos/p1322-classification-selection-r2.json`,
-SHA-256 `26f24e212bffa82ca9f3e48f8e46ce37c414cb514c96ae16cacaaea1050fc345`.
+identificador administrativo [dado administrativo removido].
 
 A medição fresca, anterior ao L0/código deste passo, está em
-`00_nucleo/diagnosticos/p1323-baseline.json`, SHA-256
-`8abba2b5f0e3280b4632e4d3bec1db6c2c7a8ee55ab3e9bc9d0d44f197eaa897`:
+relatório consolidado da limpeza:
 argv, fontes, UTC, saídas, HEAD e diff integral. O HEAD é
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, com as quatro alterações
 anteriores loading.md/rs e call_dispatch.md/rs preservadas. Não commitar,
@@ -69,7 +76,7 @@ Necessidade de outro owner/API/fase refuta o escopo e exige reabrir o gate.
 7. Rodar build/test workspace release --locked, fmt --check, lint,
    V5/V15/V26 e diff --check; publicar avisos/ignorados. Verificar que apenas
    o par proprietário mudou além dos quatro arquivos anteriores intactos.
-8. Relatório substantivo em `00_nucleo/diagnosticos/p1323-final-report.md`,
+8. Relatório substantivo em relatório consolidado da limpeza,
    com limite de cobertura e veredito separado. Não escrever P1324.
 
 Temporários: target exclusivo `/dev/shm/p1323-target.M0xPMi`, cache copiado

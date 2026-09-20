@@ -1,5 +1,13 @@
 # Passo 1400 — classificação semântica das 93 rotas fora da família `format`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Transformar as 93 rotas públicas fora da família `format` que aparecem
@@ -26,32 +34,32 @@ Baseline observado em `2026-09-14T18:40:50-03:00`:
 - vanila ratificado
   `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
 - binário vanila
-  `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino `target/release/typst`, SHA-256
-  `508842d9e0f3cf7684d1acea4f3850c616afdf38e3aa0fac1c0ab68d7e026fcc`;
+  `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- binário cristalino `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - enumerador vanila efetivamente executado pelo inventário, em
-  `lab/typst-original/target/release/p1140-inventory`, SHA-256
-  `11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13`;
-- enumerador cristalino reconstruído do HEAD, SHA-256
-  `0552b34e4b585b6869f4b453be72ebfaaddf78da1a868d6098f1f9c16597ede9`.
+  `lab/typst-original/target/release/p1140-inventory`, identificador administrativo
+  [dado administrativo removido];
+- enumerador cristalino reconstruído do HEAD, identificador administrativo
+  [dado administrativo removido].
 
-O inventário bilateral atual produziu SHA-256
-`b1d1ed0f827df3e2ad1efdb12305c12c20fb7df772e4b0b8322545606d9c16e2`.
+O inventário bilateral atual produziu identificador administrativo
+[dado administrativo removido].
 As quatro execuções canônicas/reversas produziram o mesmo hash
-`dd1eab1f9ab7801a72ecc89236615fcb5871a47f663525dda25ae76bd032f8ae`.
+[dado administrativo removido].
 
 ### Retificação de proveniência anterior ao congelamento
 
 Em `2026-09-14T18:59:56-03:00`, ainda antes da criação do manifesto e do
 contrato, a auditoria encontrou que o hash
-`6cbc7dfc6591f95e61ebe74cd9fa6de32ed23b8a203f9fbf6f231185ca3081d1`
+[dado administrativo removido]
 atribuído acima ao enumerador vanila não corresponde ao executável que gerou
 o inventário. O primeiro `argv` de `/tmp/p1400-current-inventory.json` nomeia
 literalmente
 `/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/p1140-inventory`;
 `sha256sum` desse ficheiro produz
-`11f3eab4ccfadc8239cdfc7fecdc87822238e625ff5bf4f755f3eb3b4ef8da13`
+[dado administrativo removido]
 e `stat` registra `mtime` `2026-09-14 18:37:40.576278087 -0300`. A busca
 `find /tmp /repos/Antigravity/typst-crystalline -type f -name p1140-inventory`
 encontrou somente esse executável; a busca textual pelo hash `6cbc7df...`
@@ -64,8 +72,8 @@ No instante da auditoria, o predecessor causal era HEAD
 `2ded754d01f36294536d0d0feeea63c31209eba9`; `git status --short` continha
 somente `?? 00_nucleo/materialization/typst-passo-1400.md` e
 `git diff HEAD --stat` estava vazio porque o único ficheiro de trabalho era
-novo e ainda não rastreado. O inventário tinha SHA-256
-`b1d1ed0f827df3e2ad1efdb12305c12c20fb7df772e4b0b8322545606d9c16e2`
+novo e ainda não rastreado. O inventário tinha identificador administrativo
+[dado administrativo removido]
 e `mtime` `2026-09-14 18:38:26.781275862 -0300`. Nenhuma lista ou contagem foi
 alterada por esta retificação.
 
@@ -239,11 +247,11 @@ papéis, hashes e sessões distintas não bastam para alegar isolamento material
 
 Antes de escrever o runner candidato, produzir:
 
-1. `00_nucleo/diagnosticos/p1400-manifest.json`;
-2. `00_nucleo/diagnosticos/p1400-contract.json`;
-3. `00_nucleo/diagnosticos/p1400-oracles.json`;
-4. `00_nucleo/diagnosticos/p1400-mutants.json`;
-5. `00_nucleo/diagnosticos/p1400-preseal.json`.
+1. relatório consolidado da limpeza;
+2. relatório consolidado da limpeza;
+3. relatório consolidado da limpeza;
+4. relatório consolidado da limpeza;
+5. relatório consolidado da limpeza.
 
 O manifesto registra pelo menos:
 
@@ -352,7 +360,7 @@ contrato nem converter `Unknown` em sucesso.
 
 ## Fase E — execução bilateral
 
-Criar `lab/parity/p1400_route_probe.py`. O runner deve:
+Criar `[artefato laboratorial removido]`. O runner deve:
 
 - validar hashes e lista antes de iniciar subprocessos;
 - executar uma rota por processo quando um diagnóstico anterior puder ocultar
@@ -394,17 +402,17 @@ de produto deverá redigir o L0 e parar para confirmação humana.
 
 Produzir:
 
-- `lab/parity/p1400_route_probe.py`;
-- `00_nucleo/diagnosticos/p1400-manifest.json`;
-- `00_nucleo/diagnosticos/p1400-contract.json`;
-- `00_nucleo/diagnosticos/p1400-oracles.json`;
-- `00_nucleo/diagnosticos/p1400-mutants.json`;
-- `00_nucleo/diagnosticos/p1400-preseal.json`;
-- `00_nucleo/diagnosticos/p1400-results.json`;
-- `00_nucleo/diagnosticos/p1400-owner-ledger.tsv`;
-- `00_nucleo/diagnosticos/p1400-backlog.json`;
-- `00_nucleo/diagnosticos/p1400-report.md`;
-- `00_nucleo/diagnosticos/p1400-verification.json`.
+- `[artefato laboratorial removido]`;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 O relatório separa obrigatoriamente:
 
@@ -424,10 +432,10 @@ somente para o denominador congelado de 93 rotas.
 Executar, sob limites registrados e sempre serialmente:
 
 ```sh
-python3 -m py_compile lab/parity/p1400_route_probe.py
-python3 lab/parity/p1400_route_probe.py --validate-only ...
-python3 lab/parity/p1400_route_probe.py --gate ...
-python3 lab/parity/p1400_route_probe.py --run ...
+python3 -m py_compile [artefato laboratorial removido]
+python3 [artefato laboratorial removido] --validate-only ...
+python3 [artefato laboratorial removido] --gate ...
+python3 [artefato laboratorial removido] --run ...
 cargo fmt --all -- --check
 crystalline-lint .
 git diff --check

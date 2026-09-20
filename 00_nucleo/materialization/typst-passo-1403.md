@@ -1,11 +1,19 @@
 # Passo 1403 — `outline.entry.prefix()` e `page()`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado congelado
 
 - baseline cristalino: `b7804e4daa9d3dd823dba5d1b828e60c845cc515`, árvore limpa;
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário cristalino: SHA-256 `fa9f0f346fb8a334f227bc26ab4e7820ed8cbf72f7246d8951f1cae88967f341`;
-- binário vanila: SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+- binário cristalino: identificador administrativo [dado administrativo removido];
+- binário vanila: identificador administrativo [dado administrativo removido];
 - medição: `2026-09-14T22:50:19-03:00`;
 - estado: executado sem atestação de isolamento.
 
@@ -27,8 +35,8 @@ vanila devolveu:
 - `indented([P], [I])` depende do outline pai e produz block com inset e
   alinhamento de prefixos.
 
-A fixture conjunta tem SHA-256
-`3d9d7f4df4191a57b817b405cbc85512fe82fd9478ae178e104ad3c807a14d18`.
+A fixture conjunta tem identificador administrativo
+[dado administrativo removido].
 A fonte ratificada é
 `lab/typst-original/crates/typst-library/src/model/outline.rs:524-746`.
 

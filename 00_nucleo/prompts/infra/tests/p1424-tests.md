@@ -1,6 +1,5 @@
 # Prompt L0 — integração HTML `html.frame` P1424
-
-Hash do Código: 30273a3c
+Hash do Código: 41874e7b
 
 **Camada:** L3 (testes)  
 **Ficheiro alvo exclusivo:** `03_infra/tests/p1424_html_frame.rs`  
@@ -32,16 +31,10 @@ provar no nível da linguagem:
 IDs, ordem de atributos, paths e igualdade de bytes SVG não são aceitação. O
 teste não lê nem adapta expectativas à implementação candidata.
 
-## Proveniência e limite
+## Limite
 
-Manifesto SHA-256 `e4164634bd958e5889778484d42ac2b37c11f7e8eaccefff89e0ab9271b2dfab`;
-contrato SHA-256 `d92d2ccf4efd592c92cfa59a30dcfc8beb5707976aa167f7ac6f90e87f6b8f31`.
-Baseline `79c7a6d60a29bcf53a3b06f15d800dcf286381a6`. Execução:
-**executado sem atestação de isolamento**.
-
-R4 acrescenta somente o witness executável de P13/M20 exigido pelo relatório
-independente P1424 (SHA-256 `bcb706743a34c786364c816028763546791a397bc206f5893ae9a5c34a0e9c91`)
-e pela verificação FAIL correspondente; os demais casos permanecem intactos.
+A cobertura limita-se ao comportamento público de `html.frame`; não valida
+autoria, isolamento, manifests, hashes ou relatórios externos.
 
 P1454 corrige a expectativa de paint do rect após medir bilateralmente a
 paleta pública: `red.to-hex()` é `#ff4136` nos dois produtos. A expectativa

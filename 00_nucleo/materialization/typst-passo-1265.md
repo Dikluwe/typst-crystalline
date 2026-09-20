@@ -1,5 +1,13 @@
 # P1265 — decidir a promoção produtiva dos quatro pares SVG certificados
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — OPÇÃO B CONFIRMADA, FALLBACK MANTIDO  
 **Predecessor:** P1264  
 **Regime:** preparação de decisão Tekt; nenhuma alteração produtiva autorizada
@@ -97,5 +105,5 @@ Consequências materializadas:
 - qualquer promoção futura volta obrigatoriamente a um novo gate ADR-0127.
 
 Decisão e certificado:
-`00_nucleo/diagnosticos/typst-p1265-owner-decision.md`.
+relatório consolidado da limpeza.
 

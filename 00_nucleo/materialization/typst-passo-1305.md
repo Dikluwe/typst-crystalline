@@ -1,5 +1,13 @@
 # P1305 — corrigir a repr de módulos nomeados e arrays longos
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** plano de execução; nenhuma implementação P1305 realizada.
 **Coorte:** `repr-module-and-large-array`, selecionada e verificada no P1304.
 Este passo coordena o trabalho. Não é Prompt L0 e não legitima código sozinho.
@@ -15,19 +23,19 @@ ao HEAD isolado nem ao commit que venha a guardar estes documentos.
 
 Entradas autoritativas, todas em `00_nucleo/diagnosticos/`:
 
-| Arquivo | SHA-256 |
+| Arquivo | identificador administrativo |
 |---|---|
-| `p1304-manifest.json` | `eeeb675a6496860dc8a12a681d64b086574fb2d7264011ac162a45b43583d862` |
-| `p1304-certificate.json` | `3e6aebcbedb2eb9fec44f3fed7446a68f1f63bc8b5d01c872034b3d8a97e86e4` |
-| `p1304-decision-report.md` | `92e7ecf2ac895c56831a0d4619ba79d703372cff029885bbe1101511f13425bd` |
-| `p1304-owner-ledger.tsv` | `01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770` |
-| `p1304-repr-refinement.json` | `6b300e95e456fd36828e68f8b15889af2a8184e514ee5be57ad2c8c1c0b4f6d2` |
+| `p1304-manifest.json` | [dado administrativo removido] |
+| `p1304-certificate.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1304-owner-ledger.tsv` | [dado administrativo removido] |
+| `p1304-repr-refinement.json` | [dado administrativo removido] |
 
 O certificado pina também catálogo, matriz, prontidão dos encoders e recibos.
 Verificar a cadeia antes de reutilizá-los; não editar artefatos históricos.
 O alvo é upstream/main ratificado `a51e02804`, não uma tag de versão.
-O vanilla `/usr/local/bin/typst` tem SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+O vanilla `/usr/local/bin/typst` tem identificador administrativo
+[dado administrativo removido].
 
 O refinamento separou dois defeitos de representação:
 
@@ -91,15 +99,15 @@ Qualquer outra mudança deve ser explicada antes de usar o resultado P1304.
 
 Owners permitidos para materialização:
 
-| Prompt L0 | Consumer | SHA-256 inicial do L0 |
+| Prompt L0 | Consumer | identificador administrativo inicial do L0 |
 |---|---|---|
-| `00_nucleo/prompts/compiler/eval/repr.md` | `01_core/src/compiler/eval/repr.rs` | `555b6df222a931991f1a521b11fe2d8d58ee185cdcf90cd3f0eaf6d3c40c9355` |
-| `00_nucleo/prompts/compiler/eval/tests.md` | `01_core/src/compiler/eval/tests.rs` | `f50afc2f609a738f3fff5e7c511cdc26d8e6c8c3878107862ef0881c0a45a479` |
+| `00_nucleo/prompts/compiler/eval/repr.md` | `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval/tests.md` | `01_core/src/compiler/eval/tests.rs` | [dado administrativo removido] |
 
 O primeiro é o único owner produtivo; o segundo é test-only. O consumer repr
-inicial tem SHA-256 `ef68c178e15c5d87d74e71c9b1bf3113851b440fc3129bf074784289f88aa9c9`.
+inicial tem identificador administrativo [dado administrativo removido].
 Ler integralmente esses L0 e os contratos consultados antes da alteração.
-Preservar ownership 1:1 e os pins de Núcleos; `Hash do Código`, SHA-256 do
+Preservar ownership 1:1 e os pins de Núcleos; `Hash do Código`, identificador administrativo do
 arquivo e `@prompt-hash` efetivo não são a mesma coisa.
 
 A execução usa a skill `tekt-materializacao-segregada`, protocolo completo,

@@ -1,48 +1,5 @@
 {
-  "schema": "tekt.p1284.oracle-suite.v2",
-  "seal": "SEALED_ORACLES_FOR_IMPLEMENTATION",
-  "oracle_id": "A-P1284-v5",
-  "role": "independent_oracle_author",
-  "contract": {
-    "id": "C-P1284-v7",
-    "path": "00_nucleo/diagnosticos/p1284-contract-receipt.md",
-    "sha256": "ea85130ae2954d0fb930e68ce82b5554780798ef5927bcab0cc7f109ab9c61f6",
-    "changed_l0s": [
-      {"path":"00_nucleo/prompts/compiler/stdlib/collections.md","sha256":"f474e4b654509de4c5dda75223499463388d2e683be36b4eff11dbaf732839e5"},
-      {"path":"00_nucleo/prompts/compiler/eval/bindings/field_access.md","sha256":"97122927d00c44fac5039b1ae45fc1705e6f6a4743fa5d31e8a7eedbe7e2e649"},
-      {"path":"00_nucleo/prompts/compiler/eval/call_dispatch.md","sha256":"9dfe195c585fa95acf71d0c2dec41541bf16b72dac4033c55a83159f8b68809f"},
-      {"path":"00_nucleo/prompts/compiler/eval/bindings/value_methods.md","sha256":"85d31916ee6091f9853e2605760c3ecc41d4be5c5a702f1fa7e4b3bacc1b6091"},
-      {"path":"00_nucleo/prompts/compiler/stdlib/foundations/str.md","sha256":"4b3fa3d5cb2c313fa13326dc8c398f70ef89efb229a6a8ae8b37c1e77bca0043"},
-      {"path":"00_nucleo/prompts/compiler/stdlib/foundations/color.md","sha256":"453059c00c2acefcb7c8610523e986a98edd1ed7a0a1b36fb24dcd357fa5b048"},
-      {"path":"00_nucleo/prompts/compiler/stdlib/color.md","sha256":"7149cf1a93c96dab1c4d31aa491fd2093bfccd06459681c6f9f04ee1eff2677c"}
-    ]
-  },
-  "vanilla": {
-    "commit": "a51e02804",
-    "binary": "/usr/local/bin/typst",
-    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
-    "reported_version": "typst 0.15.1 (e0e8ca4d)",
-    "note": "The reported version is not the provenance pin; a51e02804 plus the source hashes is authoritative."
-  },
-  "execution": {
-    "engine": "typst query",
-    "query_selector": "<p1284>",
-    "query_field": "value",
-    "one": true,
-    "source_protocol": "Write each probe source to an isolated .typ file, then run /usr/local/bin/typst query FILE '<p1284>' --field value --one. For compile_error probes run /usr/local/bin/typst compile FILE OUT.pdf and compare the normalized diagnostic.",
-    "normalization": {
-      "line_endings": "LF",
-      "diagnostic": "remove only absolute temporary paths and source coordinates; retain message text",
-      "color_token": "lowercase 0xrrggbbaa; normalize #rrggbb to 0xrrggbbff and #rrggbbaa to 0xrrggbbaa",
-      "color_map_digest": "SHA-256 of the comma-joined ordered color_token sequence with no whitespace"
-    }
-  },
-  "classifiers": {
-    "Preserved": "All declared existence, kind, metadata, real-call and value relations hold.",
-    "Violated": "Any declared relation is false, including a blocked surface being implemented or approximated.",
-    "Unknown": "Observation is impossible for a documented reason; never counts as success.",
-    "Blocked": "Absence is the required control state pending ADR-0127; excluded from success score."
-  },
+  "schema": "surface-probes-v1",
   "metadata_policy": {
     "observable_fields": ["name", "self", "order", "positional", "named", "required", "variadic", "settable", "default"],
     "instance_method_rule": "Every authorized instance method is resolved and called both as value.method(...) and type.method(value,...).",
@@ -290,35 +247,5 @@
       {"name":"flare","kind":"array","cardinality":256,"first":"0xedb081ff","last":"0x4b2362ff","sha256":"03f70bedc78f4fb3e22b3f7ed06a680d56d721321eca69218ab746d4c803f595"},
       {"name":"crest","kind":"array","cardinality":256,"first":"0xa5cd90ff","last":"0x2c3172ff","sha256":"660b6381c0f53156c07b4f0f86988a280c06578f46a44b734c1f388cadeaeb98"}
     ]
-  },
-  "blocked_controls": [
-    {"path":"color.spot","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"type, function, module, stub or passthrough is present"},
-    {"path":"color.spot.tint","required_state":"Unknown","reason":"blocked_by_ancestor:color.spot","pass_condition":"not claimed as success","fail_condition":"implemented, approximated or credited"},
-    {"path":"outline.entry","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"element, dict, module, stub or reused OutlineElem is present"},
-    {"path":"outline.entry.body|inner|page|prefix|indented","required_state":"Unknown","reason":"blocked_by_ancestor:outline.entry","pass_condition":"not claimed as success","fail_condition":"any child implemented, approximated or credited"},
-    {"path":"selector.before","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"present or approximated with Within/And/Or/Where"},
-    {"path":"selector.after","required_state":"Blocked","reason":"BLOCKED_ADR0127_PUBLIC_CONTRACT","pass_condition":"member absent","fail_condition":"present or approximated with Within/And/Or/Where"},
-    {"path":"outline metadata/defaults","required_state":"Blocked","reason":"default/compatibility gate","pass_condition":"existing crystalline defaults preserved and discrepancy reported","fail_condition":"defaults changed to residual vanilla values without a new ADR-0127 seal"}
-  ],
-  "score_policy": {
-    "denominator": "all authorized catalog members plus mandatory semantic probes",
-    "blocked_controls_in_denominator": false,
-    "unknown_counts_as_pass": false,
-    "seal_threshold": "all authorized observations Preserved and every blocked control remains Blocked/Unknown as declared"
-  },
-  "vanilla_validation": {
-    "timestamp": "2026-08-30T12:41:54-03:00",
-    "result": "52/52",
-    "success_error_probes": "37/37",
-    "success_error_breakdown": "6 six_sentinels + 1 required_extra_sentinel + 18 real_call_probes + 11 argument_and_error_probes + 1 nested unbound_projection_control = 37",
-    "color_map_identity_probes": "15/15",
-    "binary_sha256": "7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8",
-    "method": "After pinning C-P1284-v7 and confirming 23/23 final L0 hashes, each semantically unchanged source was piped to /usr/local/bin/typst query or compile through stdin; query JSON, exit status, normalized diagnostic needles, and canonical map digests were compared exactly."
-  },
-  "limitations": [
-    "This file was authored before and without reading candidate P1284 code, tests or diffs.",
-    "It is a declarative executable oracle suite; an implementation-side runner is still needed to materialize isolated .typ files and collect results.",
-    "The color-map digest oracle is source-pinned and canonical; it intentionally does not embed thousands of color literals.",
-    "Blocked controls are evidence of a closed gate, never authorized success."
-  ]
+  }
 }

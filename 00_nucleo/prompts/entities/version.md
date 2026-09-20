@@ -261,8 +261,8 @@ No baseline HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
 erro, resolve negativos pelo comprimento explícito e devolve zero quando
 positivo está além da lista. A fonte ratificada `a51e02804`,
 `lab/typst-original/crates/typst-library/src/foundations/version.rs:109–134`,
-documenta a mesma regra. As sondas `version-static-*`/`version-bound-*` em
-`00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json:2` registram
+documenta a mesma regra. A medição histórica dos casos `version-static-*` e
+`version-bound-*` registra
 proveniência integral, diff/stat vazio na medição, horários e saídas: negativos
 fora da lista dão `component index out of bounds (index: ..., len: ...)`;
 positivos além da lista dão zero, inclusive sobre versão vazia.

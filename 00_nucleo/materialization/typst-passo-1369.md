@@ -1,5 +1,13 @@
 # Passo 1369 — medição bilateral do vetor efetivo S02
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Consumir o observador P1368 numa matriz bilateral real e produzir um novo
@@ -7,16 +15,16 @@ veredito focal para precedência de PDF tagueado, sem alterar o produto.
 
 ## Entradas congeladas
 
-- vanila ratificado: `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino: `target/release/typst`, SHA-256
-  `60851811dca31074eca38f5d4e397ce04a89eccb7bf49c9d6e28f6759ba761f9`;
-- `pdfinfo` 26.05.0, SHA-256
-  `fee70ade670fb025343aca2b5c3a2aacacb8ed9edce1b716b233b5de924b6bf5`;
-- observador P1368, SHA-256
-  `fbd1a49c5389e0d469001083852216fd40c6bd223c8c14356ccdcdf8e96b0a06`;
-- contrato P1368, SHA-256
-  `c40baa32bb636185946f5fab0c41784fc0d11cbdeb6127570ab3c6c7c7356164`.
+- vanila ratificado: `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
+- `pdfinfo` 26.05.0, identificador administrativo
+  [dado administrativo removido];
+- observador P1368, identificador administrativo
+  [dado administrativo removido];
+- contrato P1368, identificador administrativo
+  [dado administrativo removido].
 
 ## Matriz e observável
 

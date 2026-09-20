@@ -12,8 +12,7 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
 commitado com diff/stat integral. A medição independente R5, SHA-256
 `82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
@@ -982,7 +981,7 @@ o passo e implementar.
 
 ### Medição antes da decisão
 
-O preflight `diagnosticos/p1360-preflight.md` mede no vanila ratificado
+A medição de preflight mede no vanila ratificado
 `586e1bd43` que compile aceita `--pretty`, `--pretty=true` e
 `--pretty=false` pelo mesmo protocolo `Option<bool>` de P1359: bare é true,
 valor explícito exige `=` e ausência é `None`. A opção pertence aos argumentos
@@ -1064,7 +1063,7 @@ consumer L4.
 
 ### Medição anterior à decisão
 
-Em `2026-09-02T12:14:19-03:00`, o recibo residual independente P1293/C
+Em `2026-09-02T12:14:19-03:00`, a medição residual independente P1293/C
 SHA-256 `4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
 mediu que o caminho HTML vigente produz uma serialização conservadora válida,
 enquanto a forma vanilla ratificada também é HTML válido e diverge apenas na

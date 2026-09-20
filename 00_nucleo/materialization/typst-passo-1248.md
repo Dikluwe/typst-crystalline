@@ -1,5 +1,13 @@
 # P1248 — auditar imagens SVG e formatos desconhecidos
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — MATERIALIZADO; CERTIFICADO FINAL PASS  
 **Predecessor:** P1247  
 **Saída:** matriz de preservação para raster, SVG embutido e formato Unknown.

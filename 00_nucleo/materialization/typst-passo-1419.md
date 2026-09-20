@@ -1,5 +1,13 @@
 # Passo 1419 — estilo compartilhado antes da primeira candidata de página
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Capturar o estilo tipográfico compartilhado de `par.line` no fechamento físico
@@ -12,11 +20,11 @@ coluna vazia não transfere para os números o estilo local da segunda coluna.
   isolamento; uma única autoridade exerce os papéis e não alega segregação;
 - baseline: commit `3a3d16604`, árvore limpa antes das quatro fixtures P1419;
 - medição inicial: `2026-09-16T09:53:41-03:00`;
-- cristalino: `target/release/typst`, SHA-256
-  `91d201ae78026cbf1aaef40008f7e3d5cc8c735031bfc39d137e64714d95eb3a`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - working tree na medição: somente `lab/parity/corpus/p1419/` não rastreado.
 
 Todas as sondas receberam 512 MiB de espaço virtual, uma thread e timeout de
@@ -42,12 +50,12 @@ física P1418 e possui `self.style`, mesmo quando a região não tem candidata.
 
 ## Oráculos congelados
 
-| Fixture | SHA-256 | Classificação |
+| Fixture | identificador administrativo | Classificação |
 |---|---|---|
-| `page-empty-first-large-to-small.typ` | `03a12e3aae804d59e04e471003d3d2ee860d7c6ca621038ff79357da29d59ba0` | positivo: shared 18 pt + dedup |
-| `page-empty-first-small-to-large.typ` | `e2cff20a7dcde9652a6594664f3f7caf2871db8e9907604d58ad5bf1738e22cb` | positivo: morfologia shared 8 pt |
-| `page-three-empty-first-shared-large.typ` | `ba3756ab445137ba4124c4638b9e527463890b5dc27f0b7233e7e3f9e49dd338` | positivo: N=3, primeira vazia |
-| `page-empty-first-callback-unknown.typ` | `85f496e71416a94c0380a439bc7a75fb823de518db49e04e38ac639d336c8fc6` | opaco `Unknown` |
+| `page-empty-first-large-to-small.typ` | [dado administrativo removido] | positivo: shared 18 pt + dedup |
+| `page-empty-first-small-to-large.typ` | [dado administrativo removido] | positivo: morfologia shared 8 pt |
+| `page-three-empty-first-shared-large.typ` | [dado administrativo removido] | positivo: N=3, primeira vazia |
+| `page-empty-first-callback-unknown.typ` | [dado administrativo removido] | opaco `Unknown` |
 
 Os casos foram escritos antes do candidato. Eles rejeitam “capturar da primeira
 candidata”, “usar sempre 11 pt”, “validar somente cardinalidade” e “promover
@@ -109,10 +117,10 @@ arquivos alterados eram exatamente:
 - este passo;
 - as quatro fixtures congeladas em `lab/parity/corpus/p1419/`.
 
-O binário cristalino final tem SHA-256
-`3771052adf04a8ea4334695ed6f7798cbe9b9d994acc4a4760ad5cdca619bc97`;
+O binário cristalino final tem identificador administrativo
+[dado administrativo removido];
 o vanila permaneceu
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+[dado administrativo removido].
 Nos três positivos, extração textual, sequência e caixas dos ordinais ficaram
 iguais ao vanila: dois números a 18 pt no caso 18→8, dois a 8 pt no caso 8→18
 e dois números a 18 pt em cada coluna ocupada no caso N=3. O callback conservou

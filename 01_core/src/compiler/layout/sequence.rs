@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash f8f708fb
+//! @prompt-hash a6ad4e07
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -408,7 +408,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
         });
     // P1392 — os dois wrappers atravessam estritamente o tamanho exterior.
     // Igualdade continua sob P1391; duas pontas no mesmo lado permanecem nos
-    // certificados anteriores ou no fallback opaco.
+    // casos confirmados anteriores ou no fallback opaco.
     let p1392_wrapped_below_and_above_outer = wrap_before.is_some()
         && text_fragments == 2
         && first_fragment_size_only
@@ -888,7 +888,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         }
         if inline_prefix.is_some_and(|prefix| prefix.block_index == part_index) {
             // P1388 — o whitespace terminal pode já ter fechado a linha.
-            // A boundary pertence ao prefixo certificado, não ao estado
+            // A boundary pertence ao prefixo confirmado, não ao estado
             // incidental de `current_line`, e deve ser aplicada uma vez.
             if !layouter.regions.current.current_line.is_empty() {
                 if inline_prefix.is_some_and(|prefix| prefix.wrap_before.is_some()) {

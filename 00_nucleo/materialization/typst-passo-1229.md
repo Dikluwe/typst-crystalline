@@ -230,7 +230,7 @@ Produzir:
 - `p1229-svg-multispace-resultados.tsv`;
 - `p1229-svg-multispace-error-budget.tsv`;
 - `p1229-tekt-manifesto.tsv` e `p1229-tekt-certificado.tsv`;
-- `typst-p1229-svg-multispace.md`;
+- `[artefato protocolar removido]`;
 - atualização limitada de `dsm/typst-correspondencias-v1.toml` e
   `p1213-fila-implementacao.tsv`.
 

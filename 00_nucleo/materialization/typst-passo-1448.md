@@ -1,5 +1,13 @@
 # Passo 1448 — Materializar `math.underbrace` com identidade e geometria de spreader inferior
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** IMPLEMENTADO E SELADO EM PRODUTO
 **Data da medição:** 2026-09-18T17:45:17-03:00
 **Commit medido:** `661c9b021be4b543d4a5f5770709c94e8445b14e`
@@ -28,16 +36,16 @@ posicional. `math/ir/resolve.rs` resolve o body, cria U+23DF (`⏟`) com classe
 do body com largura exata. O composto herda a classe matemática do body;
 quando presente, a annotation é adicionada abaixo em estilo de subscript.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/underover.rs` | `49fe33135766b83c16d27f84c51bd8f867cd5f3f790b075242e8043661a7e298` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
-| `lab/typst-original/crates/typst-library/src/math/mod.rs` | `a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957` |
+| `lab/typst-original/crates/typst-library/src/math/underover.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/mod.rs` | [dado administrativo removido] |
 
-O binário medido foi `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+O binário medido foi `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 igual ao build vanilla ratificado.
 
 ### 2.2 Observáveis públicos medidos no vanilla
@@ -77,23 +85,23 @@ ignora named e positionals excedentes. A geometria física madura já existe em
 `layout/underover.rs`; o defeito é de contrato, morfologia e fronteira de
 argumentos, não ausência da mecânica de spreader.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/entities/elements/math_underover.rs` | `d53e726bd0d8749c19fa6e9ef6faedda8a95712385961404c025188f948bfb69` |
-| `01_core/src/entities/content.rs` | `e2097377f367593c8d348094c73d30db0ca67de58c75972013ad668faa3a9423` |
-| `01_core/src/compiler/stdlib/structural/math.rs` | `0d9f5ed4673ff7b34d53b563cc55a6e563942c11f8b9b67c8a3cf11732672289` |
-| `01_core/src/compiler/eval/math.rs` | `f535ce04b5a3be8a392ce34ab9db96a7c74aa213c7effd087cdb86ac4aa4d8fa` |
-| `01_core/src/compiler/eval/repr.rs` | `cebd017e43fcfc6d2752450a736963ab4f01734a06af6530697fe814b3191199` |
-| `01_core/src/compiler/math/layout/underover.rs` | `1cba8a367819437592aeeca9992e1d9c2870a909f7bfa66169b618d11c725089` |
-| `01_core/src/compiler/math/layout/mod.rs` | `8695c454d506807303b06f9940aec0c94486eb7740e47fc680a386a756518e91` |
-| `01_core/src/compiler/math/layout/spacing.rs` | `a860d9add9f461d41234fa6dec0f53e60fdbc9f09a755d861977167639084baf` |
-| `01_core/src/compiler/eval/mod.rs` | `aff22826fb5c2b957201351136157586173da1b2104fc1a24255b3e70dddcd1e` |
-| `01_core/src/compiler/introspect.rs` | `d69d59b394214fe67790609405dac2318640b70c78cc5e5493deb675e63e08b9` |
-| `01_core/src/compiler/introspect/locatable.rs` | `4c4fd5106a7acb555fcbf45b6bbe63fbc655ad9b4726fbfa4efe1b62148d5578` |
-| `01_core/src/compiler/layout/mod.rs` | `62e14334c2de2d3ab0a0c9906f6fec63a6e62f7dc2c3cd0d07e810d41e837c7c` |
-| `03_infra/src/query_helpers.rs` | `2051ef58ad1753b57120a07e4e4231696bd4a86e375c4a3a2412b82662068ffe` |
+| `01_core/src/entities/elements/math_underover.rs` | [dado administrativo removido] |
+| `01_core/src/entities/content.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/underover.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/layout/mod.rs` | [dado administrativo removido] |
+| `03_infra/src/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 

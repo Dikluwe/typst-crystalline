@@ -1,5 +1,13 @@
 # P1274 — promover somente os pares aprovados pelo dono
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — RECIBO DE IMPLEMENTAÇÃO PUBLICADO
 **Predecessor:** gate ADR-0127 P1273 confirmado
 **Regime:** implementação produtiva L0-first já aprovada
@@ -40,5 +48,5 @@ Este passo implementa a decisão; não emite o veredito independente final.
 - workspace, build, formato e lint: PASS.
 
 Recibo principal:
-`00_nucleo/diagnosticos/typst-p1274-promocao-materializada.md`. Atestação de
+relatório consolidado da limpeza. Atestação de
 autoria única: sem isolamento e sem veredito independente final.

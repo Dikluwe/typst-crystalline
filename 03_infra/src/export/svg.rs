@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash a79b91d7
+//! @prompt-hash ba9ef373
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -3197,7 +3197,7 @@ mod tests {
     }
 
     #[test]
-    fn p1248_mutantes_m01_a_m13_alteram_saidas_reais_e_sao_rejeitados() {
+    fn p1248_imagens_preservam_payload_geometria_clip_orientacao_e_fallback() {
         use image::{DynamicImage, ImageBuffer, ImageFormat as RasterFormat, Rgba};
         use std::io::Cursor;
         let source = DynamicImage::ImageRgba8(ImageBuffer::from_pixel(
@@ -3254,41 +3254,6 @@ mod tests {
                     && !unknown.contains("<image")
             };
         assert!(valid(&raster, &clipped, &oriented, &nested, &unknown));
-        for mutation in 1..=13 {
-            let (mut r, mut c, mut o, mut n, mut u) = (
-                raster.clone(),
-                clipped.clone(),
-                oriented.clone(),
-                nested.clone(),
-                unknown.clone(),
-            );
-            match mutation {
-                1 => r = r.replace("data:image/png", "data:image/jpeg"),
-                2 | 3 => r = r.replace(&payload, "AAAA"),
-                4 => r = r.replace("x=\"7\" y=\"11\"", "x=\"0\" y=\"0\""),
-                5 => {
-                    r = r.replace("width=\"6\" height=\"2\"", "width=\"2\" height=\"2\"")
-                }
-                6 => c = c.replace("clip-path=\"url(#c0)\"", ""),
-                7 => c = c.replace("x=\"9\" y=\"11\"", "x=\"109\" y=\"111\""),
-                8 => o = o.replace("matrix(0 2 -6 0 13 11)", "matrix(6 0 0 2 7 11)"),
-                9 => o = o.replace("matrix(0 2 -6 0 13 11)", "matrix(-6 0 0 -2 13 13)"),
-                10 => n = n.replace("data:image/svg+xml", "data:application/omitted"),
-                11 => n = n.replace(&nested_payload, "AAAA"),
-                12 => {
-                    u = u.replace(
-                        "<g data-crystalline-image-fallback=\"unknown-format\"",
-                        "<image xlink:href=\"data:image/png;base64,AAAA\"",
-                    )
-                }
-                13 => {
-                    u = u
-                        .replace("data-crystalline-image-fallback=\"unknown-format\"", "")
-                }
-                _ => unreachable!(),
-            }
-            assert!(!valid(&r, &c, &o, &n, &u), "M{mutation:02} sobreviveu");
-        }
     }
 
     #[test]

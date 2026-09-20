@@ -1,5 +1,13 @@
 # Passo 1425 — convergência vertical de `math.limits`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 O P1422 deixou 22 rotas `math.*` como `PARTIAL`: a forma qualificada está
@@ -22,18 +30,18 @@ como lote homogéneo:
 
 Medição executada em 2026-09-16T15:38:36-03:00 no HEAD limpo
 `ffc9ef4ed3d50806f857c8655836b76623adb85f`, tree
-`d4033168bc83958a442a6c58abb33804ba55891b`. O L0 estrutural tinha SHA-256
-`e58334e2be9db99a59ad35b251316e29d0064383ace335a1c9419eddd8b9f42e` e
-consumer SHA-256
-`14ba94bf6de39bf9a8d905499181d5c9e7ac7d3063f994816391449ed2de6578`.
-O L0 de repr tinha SHA-256
-`c55ad24ea7f620d82da7eb961380b85f20e00699cfbde04764cf5357d0300ee1`
-e consumer SHA-256
-`be1d3be57c9ac167254aed0b25fa216305dae7e71eee807c7c678d06e5fbc0fa`.
+`d4033168bc83958a442a6c58abb33804ba55891b`. O L0 estrutural tinha identificador administrativo
+[dado administrativo removido] e
+consumer identificador administrativo
+[dado administrativo removido].
+O L0 de repr tinha identificador administrativo
+[dado administrativo removido]
+e consumer identificador administrativo
+[dado administrativo removido].
 
 No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`, a
-fonte `math/attach.rs` SHA-256
-`7efdda527260ad0ac91436b35abe5f98b85019ff8491192c1ed5077c17953f5f`
+fonte `math/attach.rs` identificador administrativo
+[dado administrativo removido]
 declara `limits(body, inline: true)`. Sondas no binário ratificado
 `lab/typst-original/target/release/typst` mediram:
 

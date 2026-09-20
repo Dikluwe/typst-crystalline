@@ -1,12 +1,20 @@
 # Passo 1351 — corrigir a projeção de executor com verificação A/B
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Motivo
 
 O protocolo completo aplicado aos diagnósticos tornou-se contraproducente: o
 Passo 1350 criou 48 artefatos, encontrou três incompatibilidades seriais e não
 chegou a executar a suíte principal. O último blocker está em
-`00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r3.json`, SHA-256
-`00a52590c1add3122010bebb2b5fe1f1c997d7687ba0bccc297db316ba9237d9`.
+`00_nucleo/diagnosticos/p1350-adapter-integration-blocker-r3.json`, identificador administrativo
+[dado administrativo removido].
 
 Este passo usa o regime **A/B reduzido** da skill Tekt. Não há contrato de
 refinamento a selar nem código produtivo: o risco relevante é somente o teste

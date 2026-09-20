@@ -1,5 +1,13 @@
 # Passo 1408 — aceitar largura fracionária pública em `box`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** implementado e verificado no recorte.
 
 ## Objetivo
@@ -14,18 +22,18 @@ da magnitude do número.
 
 - HEAD inicial: `363883a89d0e756d9cd701eca76ac3b980b02f4e`.
 - Referência vanila: `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
-- Binário cristalino: `target/release/typst`, SHA-256
-  `508842d9e0f3cf7684d1acea4f3850c616afdf38e3aa0fac1c0ab68d7e026fcc`.
-- Binário vanila: `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+- Binário cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido].
+- Binário vanila: `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido].
 - Medição: `2026-09-15T12:35:00-03:00`.
 - Working tree inicial: somente as quatro fixtures novas em
   `lab/parity/corpus/p1408/`; `git diff HEAD --stat` vazio porque eram
   untracked.
-- Hashes das fixtures: `one.typ` `f69a313a49531a97b9fe0f9e706dd1133fc6b1c18ab6d765afb98fc36e68c27b`,
-  `ratio.typ` `3f7aca701408042240a61838ae59e8b86ebc38b060976269dbdf7cb6b83c137c`,
-  `zero.typ` `12b142bdb8f215efda0de8985a47ae0a6c11e6019c2885f79dc1037e47e297fc`
-  e `negative.typ` `02c22faff7b13d3feaaf444a956af72a52edff68ac310a37f352104acfa85077`.
+- Hashes das fixtures: `one.typ` [dado administrativo removido],
+  `ratio.typ` [dado administrativo removido],
+  `zero.typ` [dado administrativo removido]
+  e `negative.typ` [dado administrativo removido].
 
 ## Medição antes da decisão
 
@@ -128,8 +136,8 @@ o resselo só podem começar depois de o humano confirmar este L0.
 - Estado final medido em `2026-09-15T12:55:45-03:00`, ainda sobre HEAD
   `363883a89d0e756d9cd701eca76ac3b980b02f4e` e working tree não commitado
   descrito por `git diff HEAD --stat`.
-- Binário cristalino final: `target/debug/typst`, SHA-256
-  `0f99e70676f61924ca33094011fe151709ac41fe55ea5c65daa396f395226b33`.
+- Binário cristalino final: `target/debug/typst`, identificador administrativo
+  [dado administrativo removido].
 - `native_box` separa largura histórica e peso fracionário em carriers
   mutuamente exclusivos. Não aceita fração em `height`.
 - Layouter mantém uma largura natural por fronteira em lista privada e finita.

@@ -1,5 +1,13 @@
 # Passo 1462 — materializar `format.svg` e a opção documental `pretty`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** L0 R2 PÓS-CONFIRMAÇÃO — CORREÇÃO DE PARIDADE CAUSAL ANTES DO CÓDIGO
 
 **Data da medição:** 2026-09-19
@@ -8,10 +16,10 @@
 **Working tree no baseline:** limpa
 **Vanilla ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
 **Tree vanilla:** `2847920eeaa98d26a41dc6fb0f9c02334b9d593b`
-**SHA-256 binário vanilla:**
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
-**SHA-256 binário cristalino:**
-`d3167689f50cc0f1cd4415f94efe7ab8fd2d5cae633d8664de93a806abd16f82`
+**identificador administrativo binário vanilla:**
+[dado administrativo removido]
+**identificador administrativo binário cristalino:**
+[dado administrativo removido]
 
 **Confirmação ADR-0127:** recebida em 2026-09-19, depois do commit causal
 `514b2ae8f35b661127e38620dcbdaefa9e158624`. A revisão R2 abaixo corrige uma
@@ -59,8 +67,7 @@ vanilla ratificado, a saída permaneceu indentada/`true` em `forward`,
 `reverse` e `forward-repeat`. Logo named omitido **não escreve** o default:
 uma set rule vazia é semanticamente neutra e preserva a decisão cascaded
 anterior. O diagnóstico reproduzível é
-`00_nucleo/diagnosticos/p1462-oraculos-independentes.md` (SHA-256
-`f452d0229c4dba6a87b5c3ed316daaaca84c9c066686a197034460555ed624d7`).
+relatório consolidado da limpeza.
 
 ### 2.2 Efeito e precedência no export
 
@@ -73,9 +80,9 @@ Uma página vazia de 10 pt foi exportada bilateralmente. No vanilla:
 | `pretty: true` | `--pretty=false` | compacta |
 | `pretty: false` | `--pretty=true` | indentada |
 
-Na fixture medida, a forma compacta tinha 243 bytes e SHA-256
-`daa6764b54a6521b0a68ca2e11177293b73fc2bbba1c1503467dd4a858f704ac`;
-a forma indentada tinha 248 bytes, três LF e SHA-256
+Na fixture medida, a forma compacta tinha 243 bytes e identificador administrativo
+[dado administrativo removido];
+a forma indentada tinha 248 bytes, três LF e identificador administrativo
 `bd2fbab674ae0cbdbcfb777772e2298ddcbf25867b24b66cfd72e954a3a0146`.
 Esses números identificam a medição e não são critério normativo de bytes.
 
@@ -99,17 +106,17 @@ opção documental ou associação a `PagedDocument`.
 ### 2.4 Proveniência das fontes medidas
 
 - `lab/typst-original/crates/typst-svg/src/format.rs` —
-  `2ef662dcd04bbe5efd27fa3f8f1fd5ed675e0c1c543d2bfaadefdebf474ef04b`
+  [dado administrativo removido]
 - `lab/typst-original/crates/typst-svg/src/lib.rs` —
-  `254107d5f264eb40070e4fa34071d144067845dc922d6102ee13ddec565739b5`
+  [dado administrativo removido]
 - `lab/typst-original/crates/typst-library/src/format.rs` —
-  `37ce18defae73642aa9e6f74cb8a78dffba575b004d9a8ddfbf52cb272898a1f`
+  [dado administrativo removido]
 - `lab/typst-original/crates/typst-realize/src/lib.rs` —
-  `860317758996d74c0f76547bdca141619064b777ab86b8f9e5294239af9e0b53`
+  [dado administrativo removido]
 - `lab/typst-original/crates/typst-cli/src/compile.rs` —
-  `a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703`
+  [dado administrativo removido]
 - `lab/typst-original/crates/typst-cli/src/world.rs` —
-  `25750a6dd5e7dcf086dcdeab9a416da4c7a3229e56ee0a5e505ceb0a7222328d`
+  [dado administrativo removido]
 
 ## 3. Classificação ADR-0107/0108
 
@@ -151,10 +158,10 @@ refutador reabre L0; não se corrige por exceção nominal ad hoc.
 
 O Núcleo Tekt
 `00_nucleo/prompts/_nuclei/export/format-option-precedence.toml` possui
-SHA-256 bruto
-`ac1500ecb978576471139f7525c6b824b273fa2fc3a02ff3ca304c6880598295` e
-SHA-256 efetivo V26
-`51f5e11108498faec8be851c97ce6ddc642cabf580eaada021b64369dd04cb9f`.
+identificador administrativo bruto
+[dado administrativo removido] e
+identificador administrativo efetivo V26
+[dado administrativo removido].
 O pin efetivo é consumido pelos prompts de pipeline e wiring. Código nunca
 aponta para o Núcleo.
 
@@ -203,10 +210,10 @@ redação dos oráculos adversariais além do contrato público necessário.
 
 Artefatos planejados em `00_nucleo/diagnosticos/`:
 
-- `p1462-contrato-congelado.md` — matriz de obrigação e inventário de owners;
-- `p1462-oraculos-independentes.md` — probes bilaterais e expected imutável;
-- `p1462-mutantes.md` — catálogo, execução e kill matrix;
-- `p1462-implementacao.md` — diff causal e desvios justificados;
+- relatório consolidado da limpeza — matriz de obrigação e inventário de owners;
+- relatório consolidado da limpeza — probes bilaterais e expected imutável;
+- relatório consolidado da limpeza — catálogo, execução e kill matrix;
+- relatório consolidado da limpeza — diff causal e desvios justificados;
 - `p1462-ataques.md` — repetição, inversão, negativos, controls e unknowns;
 - `p1462-preseal.md` — auditoria independente antes dos hashes;
 - `p1462-veredito.md` — proveniência final, gates e conclusão limitada.
@@ -302,14 +309,14 @@ elas não recebem crédito verde e devem ser separadas de qualquer regressão
 P1462. A conclusão só pode alegar o fragmento `format.svg` efetivamente
 provado, nunca paridade global de `format.*` ou SVG.
 
-## 11. Adendo de recuperação — ADR-0131
+## 11. Adendo de recuperação — protocolo de checkpoint revogado
 
 Em 2026-09-19, a campanha R4 concluiu o vetor `direct` com P00 preservado e
 M01–M18 rejeitados, mas uma interrupção externa durante `direct_repeat/M12`
 impediu a terceira ordem e o inventário P1357. O descarte integral foi
 registrado no commit `bb4ee22f9204764a75b0f191055e7800566942b8`.
 
-O dono aprovou ADR-0131 depois desse resultado. Para a retomada de P1462:
+O dono aprovou protocolo de checkpoint revogado depois desse resultado. Para a retomada de P1462:
 
 1. o vetor `direct` completo permanece evidência válida após auditoria dos
    pins registrados;

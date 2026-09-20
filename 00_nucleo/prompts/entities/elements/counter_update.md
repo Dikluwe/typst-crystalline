@@ -49,7 +49,7 @@ Construtor: `Content::counter_update(key, action)`.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1342-topology-audit-r1.md` mede que o elemento e o payload
+A medição histórica registra que o elemento e o payload
 clonam `key` e `action`; para `CounterUpdate::Func`, o `Func` real é o objeto
 que já atravessa Content, mapeamentos e walk. Um campo adicional no elemento
 não é necessário para a fixture medida.

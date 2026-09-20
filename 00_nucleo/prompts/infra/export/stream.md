@@ -474,7 +474,7 @@ escrito no content stream e nunca vira texto visual.
 
 ### Medição anterior à decisão
 
-O receipt P1286 observou `/Artifact BMC ... EMC` para `other`,
+A medição P1286 observou `/Artifact BMC ... EMC` para `other`,
 `/Artifact<</Attached[/Top]/Subtype/Header/Type/Pagination>>BDC` para header e
 `/Artifact<</Type/Background>>BDC` para background em PDF 2.0. O body fora do
 wrapper permaneceu na estrutura; dentro do artifact não ganhou MCID. AT real

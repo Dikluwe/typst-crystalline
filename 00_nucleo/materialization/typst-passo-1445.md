@@ -1,5 +1,13 @@
 # Passo 1445 — Materializar `math.round` sobre o carrier público `math.lr`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
 **Data da medição:** 2026-09-18T13:28:07-03:00  
 **Commit medido:** `a748c433e8aa135690e2f880455a5a75533bed86`  
@@ -26,15 +34,15 @@ obrigatório. O helper comum constrói `LrElem` com body
 `sequence(⌊, body, ⌉)` e só fixa `size` no elemento quando o argumento esteve
 presente. `math/mod.rs:77` registra a função no módulo.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/lr.rs` | `2a762699e7d3eed9a0b4b2d1afbbf5b58649339ec47ec12a2a82907519c107e0` |
-| `lab/typst-original/crates/typst-library/src/math/mod.rs` | `a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957` |
+| `lab/typst-original/crates/typst-library/src/math/lr.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/mod.rs` | [dado administrativo removido] |
 
-O binário `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+O binário `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 coincide byte a byte com o build ratificado em
 `lab/typst-original/target/release/typst`.
 
@@ -67,12 +75,12 @@ no braço histórico agregado, ignora named e constrói
 `equation(block: true, body: ⌊x⌉)`, apagando identidade `lr`, presença de
 `size`, cascata e nesting público.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/compiler/stdlib/structural/math.rs` | `b2789d0b4eac0dc3f428a54de60187a89a922012f7ffece1f53dc10faec863b0` |
-| `01_core/src/compiler/eval/math.rs` | `2f69e2affae050a5d9bd456e0aa05881439ae004c1ffdff8effa22defff86fdf` |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -164,4 +172,4 @@ fecha as rotas residuais de P1422.
 O candidato produtivo e os recibos foram fixados no commit
 `f2fa4aeb6ee954946be6412cc03360ca2b3d03bc`, árvore
 `316bc7f6a71827fd38675472c98ae2dcc9e5f9b0`. O certificado limitado ao
-fragmento P1445 é `00_nucleo/diagnosticos/p1445-verifier-certificate.json`.
+fragmento P1445 é relatório consolidado da limpeza.

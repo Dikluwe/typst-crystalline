@@ -1,18 +1,25 @@
 # Passo 1337 — diagnóstico de campo em Bool, None e Auto
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema medido e recorte
 
 O diagnóstico P1336 deixou abertas as fronteiras de tipos não abrangidas por
-Int/Str. A nova medição `00_nucleo/diagnosticos/p1337-measurement.json`, SHA-256
-`f318ee743fa9adfc372f1b44946897438ffdbd5eba0ba329f57ddee10bb8eab2`,
+Int/Str. A nova medição relatório consolidado da limpeza,
 concluída em `2026-09-09T19:09:59.299611+00:00`, confirma que `true.nope`
 publica `bool` em vez de `boolean`; Bool, None e Auto sublinham o acesso inteiro
 em vez do identificador. None/Auto já possuem a mensagem correta. Valores
 válidos permanecem iguais. Array tem ramo próprio e diagnóstico distinto;
 valores-tipo, pré-despacho de métodos e ordem de argumentos são outras causas.
 
-Baseline `p1337-baseline.json`, SHA-256
-`d84ebca44348e4d12d3a7d243a35751edda1b898599a03a898634302cd0ec672`,
+Baseline `p1337-baseline.json`, identificador administrativo
+[dado administrativo removido],
 working tree não commitada sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`. Preserva diff/stat, inventário,
 diagnósticos e temporários antecedentes. Vanilla ratificado a51e02804;
@@ -72,6 +79,6 @@ faltando; depois listar evidência, incidentes, proveniência e veredito delimit
 L0, testes e implementação realizados. Bool publica `boolean`; Bool/None/Auto
 ancoram o erro somente no campo. Array, valores-tipo e pré-despacho permanecem
 fora do recorte. Resultado, proveniência, gates e incidentes em
-`00_nucleo/diagnosticos/p1337-final-report.md`. O veredito independente e o
+relatório consolidado da limpeza. O veredito independente e o
 fechamento são artefatos separados em `p1337-review-final.json` e
 `p1337-closure.json`, na mesma pasta de diagnósticos. Sem commit neste pedido.

@@ -15,11 +15,9 @@ Núcleos Tekt:
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 O caso independente R4 `r2.construct-LocatedContent` conserva como controle
@@ -62,7 +60,7 @@ demais controles. Fallbacks que usam repr, inclusive CBOR de LocatedHeading,
 recebem deliberadamente essa nova string. Isso não converte CBOR Content em
 mapa nem declara paridade CBOR: o delta é string antiga→string realizada,
 medido/separado da saída estruturada vanilla. Aprovação R5 cobre esse delta;
-antes do candidato seu envelope tem de ser selado independentemente.
+antes do candidato seu envelope tem de ser validado independentemente.
 
 Aceitação: default, numbering distinto, língua distinta, label ignorada em
 repr mas preservada em fields; raw controle sem mudança; igualdade não usa
@@ -125,7 +123,7 @@ dono no gate P1425 em 2026-09-16.
 
 ### Medição anterior à decisão
 
-O recibo vanilla P1292 mediu defaults e formas explícitas. Medição adicional
+O registro vanilla P1292 mediu defaults e formas explícitas. Medição adicional
 no mesmo binário pinado confirmou que um named explicitamente igual ao default
 permanece no `repr`: por exemplo `inverted:false`, `angle:auto`,
 `align:center` e `gap:0.2em`. Logo comparar apenas valor com default perderia
@@ -154,8 +152,7 @@ observável no owner construtor (ADR-0108).
 #### Medição anterior à decisão
 
 Em `2026-09-01T02:15:43-03:00`, no vanilla ratificado
-`/usr/local/bin/typst` SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`,
+`/usr/local/bin/typst`,
 os pares sintaxe/chamada qualificada mediram:
 
 - `$vec(a,b)$.body` e `math.vec([a],[b])` →
@@ -217,29 +214,22 @@ qualquer variante estruturada cujo formatter próprio divergir permanecem
 Baseline medida em árvore não commitada, `HEAD`
 `53d21c5a602f4045a769a0ab0c935baa5ecd3b88`, em
 `2026-08-31T10:40:23-03:00`. O vanilla ratificado foi
-`/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
-O cristalino foi compilado dessa árvore, sem reutilizar binário antigo, por
-`CARGO_TARGET_DIR=/tmp/p1290-contract-target cargo build --release --bin typst`;
-o binário resultante tem SHA-256
-`acc52526e1c1cfde21c4583857330a6f64540f46caf1b7fa89c666da6deee64a`
-e reporta `typst 0.15.1 (53d21c5a)`.
+`/usr/local/bin/typst`.
+O cristalino foi compilado dessa árvore sem reutilizar binário antigo e
+reportou `typst 0.15.1 (53d21c5a)`.
 
-Os casos reproduzíveis estão em
-`00_nucleo/diagnosticos/p1290-contract-probes.typ:1`. O comando bilateral é
-`<binario> query 00_nucleo/diagnosticos/p1290-contract-probes.typ '<p1290-contract>' --field value --one --pretty`.
-Em `p1290-contract-probes.typ:4`, o vanilla mede `()`, `(0,)` e
+Na medição bilateral preservada, o vanilla produz `()`, `(0,)` e
 `(0, 1, 2)` para vazio, singleton e curto. Em
-`p1290-contract-probes.typ:8`, corpos internos ASCII de 49 e 50 caracteres
+corpos internos ASCII de 49 e 50 caracteres
 ficam lineares, enquanto 51 quebra. As sequências de zeros confirmam a mesma
 fronteira por largura, não por cardinalidade: 17 itens produzem corpo de 49 e
 ficam lineares; 18 produzem 52 e quebram. Em
-`p1290-contract-probes.typ:13`, um item já multilinha força o container externo
+um item já multilinha força o container externo
 a quebrar; cada nível acrescenta dois espaços, cada item termina em vírgula e
 o parêntese final volta à indentação do seu container.
 
-Em `p1290-contract-probes.typ:17`, o vanilla mede
-`math.csc`, `math.dim` e `math.arcsin` como, respectivamente,
+Na medição preservada, o vanilla mede `math.csc`, `math.dim` e
+`math.arcsin` como, respectivamente,
 `op(text: [csc], limits: false)`, `op(text: [dim], limits: false)` e
 `op(text: [arcsin], limits: false)`; `math.lim` mede
 `op(text: [lim], limits: true)`. `math.op("foo", limits: false)` e
@@ -249,10 +239,8 @@ aspas e barra invertida em string permanecem na morfologia do conteúdo.
 `math.sum` mede `symbol("∑", ("integral", "⨋"))`, portanto não é testemunha
 de `MathOp`.
 
-A invalidação registrada em
-`00_nucleo/diagnosticos/p1290-seal-invalidation.json:1`, SHA-256
-`c2e81e5db2810d720d80e2340cc79a600b12c3eea3725d20f342edd3e2d03d0e`,
-refutou o caso anterior `math.op([a \# "quote"], ...)`: o markup cristalino
+A invalidação funcional refutou o caso anterior
+`math.op([a \# "quote"], ...)`: o markup cristalino
 original já entrega aspas curvas como `Content::Text`, sem a proveniência
 `SmartQuote` que o vanilla ainda representa. Em
 `2026-08-31T11:43:44-03:00`, usando os mesmos binários congelados, o probe
@@ -260,9 +248,7 @@ substituto `math.op([a \# \*], limits: false)` mediu no vanilla
 `op(\n  text: sequence([a], [ ], [#], [ ], [*]),\n  limits: false,\n)` e no
 cristalino original `op(sequence([a], [ ], [#], [ ], [*]))`. Assim, `\#` e
 `\*` observam escaping sem introduzir proveniência destruída; a divergência
-restante pertence integralmente aos nomes/ordem dos campos deste owner. O
-comando bilateral permanece o documentado acima após substituir o caso em
-`p1290-contract-probes.typ:27`.
+restante pertence integralmente aos nomes/ordem dos campos deste owner.
 
 Esta medição observa morfologia pública, não a mecânica do algoritmo. Não se
 infere do comportamento qual helper, estrutura Rust ou unidade interna de
@@ -338,15 +324,11 @@ lower variádico, mono/script e formas curta/multiline de HTML.
 ### Medição anterior à decisão
 
 Sobre HEAD `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais o diff P1303
-não commitado, a medição independente
-`00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`, SHA-256
-`fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
-preserva status, diff/stat, fixtures, argv/cwd, binários e saídas integrais.
+não commitado, a medição independente preserva status, diff/stat, fixtures,
+argv/cwd e saídas integrais.
 Executada em `2026-09-07T13:48:28.580684+00:00` até
 `2026-09-07T13:51:19.266604+00:00`, usa o vanilla ratificado `a51e02804`
-SHA-256 `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`
-e baseline fresco SHA-256
-`4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d`.
+e baseline fresco.
 
 Em `01_core/src/compiler/eval/repr.rs:36-41`, o baseline representa todos
 os itens. Em `lab/typst-original/crates/typst-library/src/foundations/array.rs:1188-1199`,
@@ -364,9 +346,7 @@ nome armazenado entre `<module ` e `>` (`foundations/module.rs:174-179`).
 `named-modules`, `ordinary-collisions`, `reexport-collision`,
 `imported-route`, `nested-import-route` e `document-route` distinguem global,
 aliases e módulos ordinários. O carrier não distingue global de um arquivo
-`std.typ` que reexporta `std: *`; a contraprova anterior está em
-`00_nucleo/diagnosticos/p1305-contract.md`, SHA-256
-`bd7dfc46dbcd93087b7abd6c67bd64938c0162344cfb38606a4163083dcab038`.
+`std.typ` que reexporta `std: *`; a contraprova anterior está na medição histórica.
 O dono autorizou ampliar exclusivamente os owners de construção do global;
 seus L0 passam a guardar o nome público `global` no objeto, mantendo o
 binding lexical `std`. Este formatter não reconstrói origem por conteúdo.
@@ -412,17 +392,14 @@ entidade, fase, default de produto ou edição de diagnóstico neste owner.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1307-r2-repr-audit.md` e os recibos nele pinados
-medem State/Counter com dados disponíveis, mas omitidos por
+A medição histórica cobre State/Counter com dados disponíveis, mas omitidos por
 `01_core/src/compiler/eval/repr.rs:122-123`; Location usa três pontos em
 `:87`, e `:60-78,1033-1040` confunde With nativo com sua função interna.
-A medição R2 SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`
+A medição R2
 confirma `location(..)` pela rota contextual e `(..) => ..` para o encoder
 parcial, nos quatro perfis. Sua proveniência é HEAD
 `b303f1f15b610e09872b567027e0d806387fde8c` mais o working tree P1306, diff
-e fontes integrais no baseline R2 SHA-256
-`0c0e92fa4c84bb23a1e2adefc95e93ad75ffaf0f12f3edce58ab8e9393b2f611`.
+e fontes integrais no baseline R2.
 
 Na fonte ratificada `a51e02804`, sob
 `lab/typst-original/crates/typst-library/src/`, `introspection/state.rs:370-374`
@@ -474,8 +451,7 @@ Args com duplicatas antes de alegar aceitação.
 
 ## P1308 — largura de arguments e migração de expectativas
 
-Medição anterior à decisão: `00_nucleo/diagnosticos/p1308-measure.json`,
-SHA-256 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`,
+Medição anterior à decisão,
 fixa baseline e binários e reproduz, em quatro perfis e três ordens, a
 fronteira horizontal de 50 bytes e vertical a partir de 51 bytes. A fonte
 ratificada `foundations/args.rs:455-459` delega ao pretty-printer de sequência.
@@ -496,10 +472,10 @@ já a cumpre não há mudança produtiva. A expectativa de Location neste consum
 
 No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
 `repr.rs:1040-1069` tem match exaustivo sobre Selector e representa cada
-Where antigo separadamente. A sonda `p1339-where-l0-vanilla.json`, UTC
+Where antigo separadamente. A medição histórica, UTC
 `2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, mede
 grupo vazio `strong.where(:)` e grupo ordenado único para heading, em vez
-de chamadas Where encadeadas. Manifesto e recibos pinam binários e estado.
+de chamadas Where encadeadas. A medição preserva o estado e os resultados.
 Em `lab/typst-original/crates/typst-library/src/foundations/selector.rs:309-321`,
 a apresentação distingue ausência do filtro de filtro presente vazio.
 
@@ -532,14 +508,10 @@ variantes anteriores. Morfologia é linguagem; escolher um helper é mecânica.
 
 O estado causal é o HEAD limpo
 `c5af9f2af02bd830ec223f777a8d144356b03597`, observado em
-`2026-09-14T16:55:44-03:00`: este L0 tinha SHA-256
-`8ea0603d3de6efd00a231921754edce7f97169e7057a7851c36439e282fe942e`
-e seu consumer tinha SHA-256
-`ec9b82070b73b5a3cb4e3dd711f6236a94f6fec449934cf3f0934939ac8362ce`.
-O binário vanila ratificado tinha SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-o cristalino baseline, SHA-256
-`f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474`.
+`2026-09-14T16:55:44-03:00`: este L0 tinha
+e seu consumer tinha.
+O binário vanila ratificado tinha;
+o cristalino baseline.
 
 Sob limite de endereço virtual de 512 MiB, timeout de 60 s, execução serial e
 swap zero, as sondas `eval --format raw` mediram:
@@ -570,8 +542,7 @@ A intenção não é inferida apenas dessas saídas. Na fonte ratificada,
 `math/mod.rs:141-149` declara os campos públicos obrigatórios `class` e `body`;
 `foundations/content/mod.rs:626-640` representa elementos pelos nomes e campos
 declarados, enquanto `:759-788` dá a todo `StyledElem` a forma explícita
-`styled(child: ..., ..)`. Os arquivos têm, respectivamente, SHA-256
-`8b4ee3ebcb085a4810b164d03f1eb0fbb4f2ce9b01224cd32ef4352d3631a1d3`,
+`styled(child: ..., ..)`. Os arquivos têm, respectivamente,
 `a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957`
 e `a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245`.
 
@@ -602,7 +573,7 @@ assim exigirem. É proibido codificar a quebra ou as letras das testemunhas.
 
 Trata-se de correção interna de paridade no owner de representação, sem nova
 API, novo default de produto, troca de fase ou quebra deliberada; segue fluxo
-contínuo ADR-0127: L0 primeiro, RED, candidato, GREEN, resselo e revalidação.
+contínuo ADR-0127: L0 primeiro, RED, candidato, GREEN e revalidação.
 A hipótese é refutada se a revisão ratificada não transportar os campos acima,
 se uma sonda bilateral válida produzir outra forma para qualquer caso fechado,
 ou se preservar o wrapper mudar payload, igualdade, hash, eval ou layout.
@@ -636,15 +607,11 @@ monolítico para P1397.
 
 O estado causal é o HEAD limpo
 `bdec21bf935cbf7f61070756cd0f218e441b7e07`, observado em
-`2026-09-14T17:54:52-03:00`: este L0 tinha SHA-256
-`cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24`
-e seu único consumer produtivo tinha SHA-256
-`c31e786562cbbcd7d874c91ef3b8884fa802cb64ca7c84f421b761bb5ee9cc52`.
+`2026-09-14T17:54:52-03:00`: este L0 tinha
+e seu único consumer produtivo tinha.
 O binário vanila ratificado, commit
-`586e1bd43fae6c9a973218163d3165c53ab8d16d`, tinha SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-o cristalino baseline recém-construído tinha SHA-256
-`3ff85cea7a721adcc9be76807e04d8aeeb03e8290d60f796b850632575b7b2b4`.
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, tinha;
+o cristalino baseline recém-construído tinha.
 A construção serial sob `RLIMIT_DATA` de 2 GiB terminou em 8,84 s, com RSS
 máximo de 319.792 KiB e swap zero.
 
@@ -661,13 +628,10 @@ Entre `2026-09-14T17:54:52-03:00` e
 Na fonte ratificada,
 `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:626-640`
 delega a representação de um elemento à representação específica do handle
-ou aos seus fields públicos; o arquivo tem SHA-256
-`a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245`.
+ou aos seus fields públicos; o arquivo tem.
 Em
 `lab/typst-original/crates/typst-library/src/foundations/context.rs:65-83`,
-o único field de `ContextElem` é `func`, marcado interno; o arquivo tem
-SHA-256
-`259527ad0d9bea23790dd96df3d163ad39199adbe6aff68e1d5cd8bf10d7cd98`.
+o único field de `ContextElem` é `func`, marcado interno; o arquivo tem.
 Assim, nenhum field integra sua forma pública e a representação resultante é
 o constructor vazio `context()`. No cristalino baseline,
 `01_core/src/compiler/eval/repr.rs:1016` codifica `context(...)` para o braço
@@ -697,7 +661,7 @@ inalteradas.
 Trata-se de correção interna de paridade morfológica em um braço privado do
 consumer existente, sem nova API, entidade, default de produto, mudança de
 fase ou quebra deliberada. Segue fluxo contínuo ADR-0127: L0 primeiro, RED,
-candidato, GREEN, resselo e revalidação. A hipótese é refutada se a fonte
+candidato, GREEN e revalidação. A hipótese é refutada se a fonte
 ratificada expuser field público de `ContextElem`, se uma sonda bilateral
 válida de qualquer `ContextBlock` produzir forma pública distinta de
 `context()`, ou se a correção exigir alterar entidade, eval, layout, closure

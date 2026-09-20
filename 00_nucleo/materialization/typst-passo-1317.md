@@ -1,5 +1,13 @@
 # Passo 1317 — mensagem clara para CSV com UTF-8 inválido
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: escrito, implementado e validado; revisão independente PASS no recorte. Sem commit.
 
 O CSV com bytes inválidos ainda expõe a mensagem interna do parser, embora
@@ -7,8 +15,8 @@ a origem Bytes já esteja correta. Corrigir somente a causa textual para
 `failed to parse CSV (file is not valid UTF-8)`, tanto em cabeçalho quanto
 em dados, sem adicionar posição/caminho ou alterar a precedência do parser.
 
-Medições anteriores à decisão: `00_nucleo/diagnosticos/p1317-measurement.json`
-e `00_nucleo/diagnosticos/p1317-measurement-focal.json`. O passo coordena;
+Medições anteriores à decisão: relatório consolidado da limpeza
+e relatório consolidado da limpeza. O passo coordena;
 o L0 proprietário é `00_nucleo/prompts/compiler/stdlib/loading.md`, consumer
 único `01_core/src/compiler/stdlib/loading.rs`.
 
@@ -37,5 +45,5 @@ preservadas. RED→GREEN comprovado; build, 6.656 testes (três ignorados),
 4.644 comparações A/B e lint sem erros (240 warnings) passaram.
 
 Proveniência, recibos, parecer independente e dívidas restantes em
-`00_nucleo/diagnosticos/p1317-final-report.md`. Sem alegação de paridade geral
+relatório consolidado da limpeza. Sem alegação de paridade geral
 CSV ou isolamento técnico atestado. P1315/P1316 não commitados preservados.

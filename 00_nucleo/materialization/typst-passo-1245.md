@@ -1,5 +1,13 @@
 # P1245 — especificar o gap público de tiling sem implementá-lo
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — MATERIALIZADO E CERTIFICADO VIA P1254  
 **Predecessor:** P1244  
 **Saída:** proposta L0/ADR pronta para decisão humana, sem código incompatível.
@@ -30,7 +38,7 @@ rasterização precoce permanecem rejeitadas na proposta.
 
 Os L0 proprietários `entities/tiling` e `stdlib/tiling` foram propostos antes
 do código. O dono confirmou explicitamente os dois hashes registrados no recibo
-`p1245-owner-confirmation.tsv`, satisfazendo o gate humano ADR-0127. O texto
+relatório consolidado da limpeza, satisfazendo o gate humano ADR-0127. O texto
 histórico dentro dos L0 que ainda diz “não confirmado” não prevalece sobre o
 recibo posterior e byte-exato; ele foi preservado para não fabricar novo hash
 sem nova aprovação.
@@ -70,9 +78,9 @@ Certificado: `00_nucleo/diagnosticos/p1254-final-certificate.tsv`.
 
 Receipt: `00_nucleo/diagnosticos/p1245-closure-receipt.tsv`.
 
-Artefatos: `00_nucleo/diagnosticos/typst-p1245-tiling-contract-gap.md`,
-`p1245-tiling-consumers.tsv`, `p1245-tiling-options.tsv` e
-`p1245-tiling-l0-draft.md`. Nenhum código, whitelist ou header produtivo foi
+Artefatos: relatório consolidado da limpeza,
+relatório consolidado da limpeza, relatório consolidado da limpeza e
+relatório consolidado da limpeza. Nenhum código, whitelist ou header produtivo foi
 alterado.
 
 Receipt: `00_nucleo/diagnosticos/p1245-contract-gap-receipt.tsv`.

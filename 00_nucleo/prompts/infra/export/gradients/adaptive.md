@@ -121,7 +121,7 @@ alargamento do budget ou do cap e alteração global de `Color` são proibidos.
 
 ## P1278 — precisão e gamut dos espaços polares SVG
 
-Medição que precede a decisão: o certificado P1277 executou 144 fixtures
+Medição que precede a decisão: a validação P1277 executou 144 fixtures
 Linear/Radial × Oklch/Hsl/Hsv. Grafo e custo fecharam 144/144, mas somente
 84/144 fecharam o envelope numérico. A fonte ratificada
 `typst-library/src/visualize/gradient.rs:905-964,1461-1485` conserva `t` e os

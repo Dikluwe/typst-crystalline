@@ -1,5 +1,5 @@
 # Prompt L0 — elemento `strong`
-Hash do Código: 891600f6
+Hash do Código: 2500101d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:cafcd80a58c3e84a9b44a49eb92a93cd2422ddbcf530d295c3645ae54bf1e41b
@@ -33,14 +33,13 @@ No antecedente HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
 `entities/elements/strong.rs:38-69` implementa Element sem override de
 to_payload; o default de `entities/elements/mod.rs:173` devolve None.
 Vanilla ratificado `a51e02804`, `model/strong.rs:21`, declara Locatable e
-Tagged. A sonda congelada `diagnosticos/p1339-where-integration-probe-runs.json`
+Tagged. A medição histórica
 registra query/body/counter de strong e a proveniência integral.
 
 ### Decisão
 
 Implementar o método já existente `Element::to_payload` com
-`Some(ElementPayload::NativeElement)`, autorizado em
-`diagnosticos/p1339-where-payload-approval.json`. A unidade representa este
+`Some(ElementPayload::NativeElement)`, conforme autorizado pelo dono. A unidade representa este
 StrongElem, mesmo com body vazio; não o estilo dos descendentes. Não mudar
 body, kind, campos, assinatura/trait, mapas ou métodos de render. A identidade
 da função e o snapshot da ocorrência permanecem nos respectivos owners de

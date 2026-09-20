@@ -1,5 +1,13 @@
 # Passo 1374 — largura relativa e altura fracionária de `block`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar os dois scope-outs nomeados pelo P1373 sem sentinelas: preservar
@@ -23,7 +31,7 @@ Medição black-box limitada, página 200pt × 240pt e margem 10pt:
   rejeitou `height: 1fr` como `fraction`.
 
 Identidades: vanila `eb60986b…1468f`, cristalino P1373
-`0b318c3f…4e15`, `pdftotext` `0fb98ea1…565e7`. As sondas têm SHA-256
+`0b318c3f…4e15`, `pdftotext` `0fb98ea1…565e7`. As sondas têm identificador administrativo
 `2032e3c1…261` e `adb161d2…603`.
 
 ## Contrato proposto

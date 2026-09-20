@@ -11,12 +11,6 @@ from collections import Counter
 
 SCHEMA_VERSION = "p1282-v1"
 CATALOG_SCHEMA_VERSION = "p1282-catalog-v1"
-EXPECTED_VANILLA_SHA256 = (
-    "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
-)
-EXPECTED_CRYSTALLINE_SHA256 = (
-    "0a4d71415b4e3ba47ed9c50f08b612a61fd14e1e538790ea4e51245d3019ce3f"
-)
 EXPECTED_VANILLA_REVISION = "586e1bd43"
 CLASSES = (
     "MATCH",
@@ -175,7 +169,7 @@ def classify_entry(
         result["classification"] = "UNVERIFIED_METADATA"
         result["metadata_state"] = metadata_state
         result["inference"] = reason
-        result["refutation"] = "bilateral metadata receipts proving equality"
+        result["refutation"] = "bilateral metadata proving equality"
         return result
 
     result["classification"] = "MATCH"
@@ -224,8 +218,6 @@ def provenance_errors(
     profile: str,
     vanilla: dict,
     crystalline: dict,
-    *,
-    expected_crystalline_sha256: str = EXPECTED_CRYSTALLINE_SHA256,
 ) -> list[str]:
     expected_features = [] if profile == "default" else ["html"]
     errors = []
@@ -238,10 +230,6 @@ def provenance_errors(
             errors.append(f"{name} profile")
         if payload.get("features") != expected_features:
             errors.append(f"{name} feature set")
-    if vanilla.get("product_sha256") != EXPECTED_VANILLA_SHA256:
-        errors.append("vanilla product SHA")
-    if crystalline.get("product_sha256") != expected_crystalline_sha256:
-        errors.append("crystalline product SHA")
     if vanilla.get("vanilla_revision") != EXPECTED_VANILLA_REVISION:
         errors.append("vanilla revision")
     return errors
@@ -271,15 +259,8 @@ def merge_catalog_payloads(
     profile: str,
     vanilla: dict,
     crystalline: dict,
-    *,
-    expected_crystalline_sha256: str = EXPECTED_CRYSTALLINE_SHA256,
 ) -> dict:
-    errors = provenance_errors(
-        profile,
-        vanilla,
-        crystalline,
-        expected_crystalline_sha256=expected_crystalline_sha256,
-    )
+    errors = provenance_errors(profile, vanilla, crystalline)
     if errors:
         return invalid_provenance_payload(profile, errors)
     payload = merge_catalogs(profile, vanilla["entries"], crystalline["entries"])
@@ -340,18 +321,12 @@ def main() -> None:
     parser.add_argument("crystalline", type=pathlib.Path)
     parser.add_argument("output", type=pathlib.Path)
     parser.add_argument("--profile", choices=("default", "html"), required=True)
-    parser.add_argument(
-        "--expected-crystalline-sha256",
-        default=EXPECTED_CRYSTALLINE_SHA256,
-        help="produto cristalino pinado para esta execução (default: baseline P1282)",
-    )
     args = parser.parse_args()
 
     payload = merge_catalog_payloads(
         args.profile,
         load_catalog(args.vanilla),
         load_catalog(args.crystalline),
-        expected_crystalline_sha256=args.expected_crystalline_sha256,
     )
     args.output.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"

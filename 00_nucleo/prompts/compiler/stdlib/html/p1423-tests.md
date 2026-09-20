@@ -7,7 +7,7 @@ Hash do Código: 900e0f1b
 
 ## Obrigação
 
-Este consumer é exclusivamente de teste e materializa o contrato A/B selado
+Este consumer é exclusivamente de teste e materializa o contrato A/B validado
 do P1423 sem possuir código produtivo. Deve provar:
 
 - superfície exata de 43 bindings, sem `html.frame`, preservando os 69
@@ -25,7 +25,6 @@ produto, não legitima implementação produtiva e não amplia o escopo para
 
 ## Proveniência
 
-As expectativas derivam do L0 proprietário confirmado em 2026-09-16 e dos
-artefatos selados `p1423-contract.json`, `p1423-oracles.json` e
-`p1423-mutants.json`. Alterar fixtures ou asserções exige novo resselo; ajustes
-somente de cabeçalho/linhagem não mudam a substância do teste.
+As expectativas derivam do L0 proprietário e do comportamento público acima.
+Alterações nas fixtures devem continuar a provar essas invariantes, sem catálogos
+de mutantes, autoria, ordem de agentes ou hashes congelados da implementação.

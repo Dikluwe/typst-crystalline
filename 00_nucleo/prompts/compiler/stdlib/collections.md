@@ -375,8 +375,8 @@ Ver `01_core/src/compiler/eval/tests.rs`, secção P466 e P493, com testes E2E p
 
 ### 8.1 Medição anterior à decisão
 
-O contrato independente `C-P1284-v2`, selado antes de código candidato em
-`00_nucleo/diagnosticos/p1284-contract-receipt.md`, e a fonte vanilla
+O contrato independente `C-P1284-v2`, validado antes de código candidato, e a
+medição histórica da fonte vanilla
 ratificada `a51e02804` medem como ausentes no valor-tipo as projeções abaixo.
 No vanilla, cada método de instância também é uma função no scope do tipo:
 `type(array.len) == function` e `array.len((1, 2, 3)) == 3`. A forma ligada e
@@ -507,8 +507,7 @@ ocultadas como ajustes mecânicos de struct literal.
 
 ### Medição anterior à decisão
 
-Baseline P1308 SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`.
+Baseline P1308.
 A matriz pública R6 final, pinada no relatório predecessor, mede
 `expected boolean, found int` detached contra `integer` no parâmetro da
 closure. Fonte ratificada `foundations/args.rs:408–412` faz cast bool e

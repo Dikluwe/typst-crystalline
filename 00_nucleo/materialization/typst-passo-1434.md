@@ -1,5 +1,13 @@
 # Passo 1434 — reparar a materialização M05 e retomar o selo P1431
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 Medição executada em `2026-09-17T15:36:14-03:00`, sobre HEAD limpo
@@ -8,7 +16,7 @@ Medição executada em `2026-09-17T15:36:14-03:00`, sobre HEAD limpo
 produziu linhas.
 
 O veredito independente R7
-`p1431-verifier-r7-nonseal.json` (SHA-256 `74a6a707…`) reproduziu o bloqueio:
+relatório consolidado da limpeza (identificador administrativo `74a6a707…`) reproduziu o bloqueio:
 
 - a receita M05 exige somente desativar o preenchimento de linhas ragged com
   `Content::Empty`, preservando parsing e restante fluxo;
@@ -20,11 +28,11 @@ O veredito independente R7
 
 Identidades congeladas na medição:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| desenho R7 | `e050efb35c837e7d221c7c0416d7c6841782e6c7beb268701c50b2b59a0711a7` |
-| receita M05 | `036503788d5f30d9b2183afcba8907512e7dcdff20ad9832a987b0bddad649e2` |
-| veredito R7 | `74a6a7073ab122c7aa9548f67a99626cb54fe9e4d016dedcb8a1412c2fa0187a` |
+| desenho R7 | [dado administrativo removido] |
+| receita M05 | [dado administrativo removido] |
+| veredito R7 | [dado administrativo removido] |
 
 ## Classificação e decisão
 

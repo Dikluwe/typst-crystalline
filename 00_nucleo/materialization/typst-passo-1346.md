@@ -1,5 +1,13 @@
 # Passo 1346 — fechar o transporte do oráculo, pré-selar e materializar as 38 cápsulas
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Regime e objetivo
 
 Regime: **executado sem atestacao de isolamento**.
@@ -13,29 +21,29 @@ Estado medido em `2026-09-11T09:49:57-03:00`:
 
 - `HEAD = 2f42d64253547734564513a1159ee6b584c1c4b4`;
 - `sha256(git status --porcelain=v1) =
-  d0fe07af6aed468535557cbfd02834e72cb70b4cbfb6657cd19882436732f95b`;
+  [dado administrativo removido]`;
 - `sha256(git diff HEAD --stat) =
-  9783f07bc86c21e8874ebacec9d92ce5a12208e127748377c571b091a1c92e15`;
+  [dado administrativo removido]`;
 - working tree não commitado; alterações fora da allowlist P1346 são preservadas.
 
 ## Entradas protegidas e bloqueio medido
 
-- P1345: `typst-passo-1345.md`, SHA-256
-  `c2ef7ff7b0555a4f44ca6811ff3e687ef6d6a30f55e0cd106fba4118f3a18fb0`;
-- blocker final: `p1345-blocker-final-r1.md`, SHA-256
-  `dc1424e7f3ac1b2a4990aeb803ca4bb57caf6d445a75fac5e06443d7a82658cc`;
-- blocker receipt: `p1345-blocker-final-receipt-r1.json`, SHA-256
-  `db4405e38c845bf7855175485903f23527fb95e4e8e8cf89fda3c134ffad269f`;
+- P1345: `typst-passo-1345.md`, identificador administrativo
+  [dado administrativo removido];
+- blocker final: `p1345-blocker-final-r1.md`, identificador administrativo
+  [dado administrativo removido];
+- blocker receipt: `p1345-blocker-final-receipt-r1.json`, identificador administrativo
+  [dado administrativo removido];
 - contrato FINAL P1345: spec R2 SHA
-  `f40c2b42fe83a4b75e276ab2ea8a9639fa1553e80c06581caf8c53d948f9d38d`
+  [dado administrativo removido]
   e binding R2 SHA
-  `ecc3a8a403d9d14d51808a35876f1f43d7773732c1d20f58574dff42d5187778`;
+  [dado administrativo removido];
 - tabela canônica: SHA
-  `ffe9322a609c3f36ea152ce8a872407ebd7daddfef033660b495e235f0d2301f`;
+  [dado administrativo removido];
 - fixture positiva: SHA
-  `8cf4078146a3625931027d65a56f2610b132b2e9f6cf775ab4761b849a4d9e12`;
+  [dado administrativo removido];
 - source verifier R2: SHA
-  `9434ca3f2191cade3207d236a553b76045a016a2770da243251dc5d2d9527250`.
+  [dado administrativo removido].
 
 Medições que obrigam o passo:
 
@@ -86,8 +94,8 @@ Antes do freeze P1346, uma autoridade de baseline deve:
 
 1. copiar seus bytes exatamente para
    `00_nucleo/diagnosticos/p1346-opaque-probe-r1.rs.txt`;
-2. confirmar o mesmo SHA-256
-   `863fa1588083638ec9f52b7ee663023e260a09880244c61cc948df36e946e2dc`;
+2. confirmar o mesmo identificador administrativo
+   [dado administrativo removido];
 3. remover somente o path histórico `.rs` e registrar a relocação;
 4. compilar o `.rs.txt` explicitamente com `rustc --crate-name` para `/dev/shm`.
 

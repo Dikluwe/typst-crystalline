@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/elements/flush` — `FlushElem`
+Hash do Código: a3db4cd0
 
-**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** P1292 MATERIALIZADO.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/elements/flush.rs`

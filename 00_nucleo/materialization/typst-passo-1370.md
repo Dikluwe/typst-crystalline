@@ -1,5 +1,13 @@
 # Passo 1370 — retificação causal do oráculo S02
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Substituir, sem reescrever o histórico, a premissa P1368/P1369 refutada de que
@@ -24,8 +32,8 @@ CLI true sem setting no documento     -> true
 
 ## Contrato
 
-O reclassificador aceita somente `p1369-results.json` com SHA-256
-`1e6c38c2c7fe387e4877d18eb6890e11a25d8572e3a39483bbaf3261dded7b05`,
+O reclassificador aceita somente relatório consolidado da limpeza com identificador administrativo
+[dado administrativo removido],
 tamanho máximo 64 KiB, identidades congeladas, exatamente 24 jobs únicos e
 observações booleanas completas.
 

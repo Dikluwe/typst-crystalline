@@ -1,5 +1,13 @@
 # Passo 1432 — reparar o oráculo raster P35 e retomar o selo P1431
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 Medição executada em `2026-09-17T13:16:15-03:00`, sobre HEAD limpo
@@ -9,8 +17,8 @@ Medição executada em `2026-09-17T13:16:15-03:00`, sobre HEAD limpo
 
 O candidato P1431 está em `cf92c3d07c05a564b9d089e005b04e9daf03cb62`
 e passou 33 dos 34 oráculos congelados. O recibo adversarial
-`p1431-adversarial-post-candidate-blocker.json` (`7a392753…`) e a verificação
-independente `p1431-verifier-nonseal.json` (`49ca754f…`) localizaram a única
+relatório consolidado da limpeza (`7a392753…`) e a verificação
+independente relatório consolidado da limpeza (`49ca754f…`) localizaram a única
 falha em P35:
 
 - o contrato P1431 exige witnesses raster **otherwise equal** e stroke auto
@@ -23,13 +31,13 @@ falha em P35:
 
 Identidades de entrada:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| L0 test-only raster/PDF | `015a31b14f68386181d491a3dfa902f8f1ff2839285dd733303f0923100ac173` |
-| teste independente raster/PDF | `3969ebe04e583a5af2da313f4e7783edde2bb93f4bc6774f4600ff9d2b4b6675` |
-| oráculos R5 | `aa1a8ed7cd4d35f47b284da574fcb87893ee9ff1e5b265bffe4ade2cd84124ad` |
-| mutantes R5 | `43a4a706c61b62fe8eb04cc61647a060ba2b9a127dfd0e5c0f498dcf3bffb90c` |
-| pré-selo R5 | `8056b230630147c472df72fc3df0f9755c557a47c8792aaefb8a2aa5ceb9a9c7` |
+| L0 test-only raster/PDF | [dado administrativo removido] |
+| teste independente raster/PDF | [dado administrativo removido] |
+| oráculos R5 | [dado administrativo removido] |
+| mutantes R5 | [dado administrativo removido] |
+| pré-selo R5 | [dado administrativo removido] |
 
 ## Classificação e decisão
 

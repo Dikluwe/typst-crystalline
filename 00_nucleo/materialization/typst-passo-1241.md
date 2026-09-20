@@ -1,5 +1,13 @@
 # P1241 — re-selar a fronteira SVG multi-space
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — CONSOLIDAÇÃO DIAGNÓSTICA ACEITE  
 **Predecessor:** P1240  
 **Saída:** certificado final e mapa de paridade atualizado.
@@ -47,4 +55,4 @@ o limite conservador adjudicado; nenhuma promoção adicional foi autorizada.
 EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO. Os gates atuais registram separadamente
 os dois V5 externos já conhecidos; V15/V26 e os gates do fragmento passam.
 
-Recibo diagnóstico em `00_nucleo/diagnosticos/p1241-tekt-certificado.tsv`.
+Recibo diagnóstico em relatório consolidado da limpeza.

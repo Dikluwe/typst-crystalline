@@ -58,7 +58,7 @@ scope.define("pdf", make_pdf_module());
 
 ### Medição anterior à decisão
 
-O receipt vanilla P1286 (`e16ea033…`) mediu `pdf.attach` com path ou bytes,
+A medição vanilla P1286 cobriu `pdf.attach` com path ou bytes,
 metadata opcional, attachment invisível e erros de tipo/MIME/path/duplicado.
 Mediu também que `pdf.artifact` conserva visual/texto mas envolve a pintura em
 `/Artifact`; AT real e fallbacks por versão permanecem `Unknown`. A premissa

@@ -21,8 +21,6 @@ Asserções com posições observam somente a relação empilhado/lateral já
 estabelecida. Bytes de render, algoritmo, helper e representação Rust não são
 aceitação.
 
-## Proveniência e limite
+## Limite
 
-Baseline `d10f81161331000f81165c23109baa025613ce04`; manifesto P1425 e
-contrato P1425 congelam as entradas. Execução: **executado sem atestação de
-isolamento**. A cobertura limita-se ao fragmento P1425.
+A cobertura limita-se ao fragmento P1425 e não depende de artifacts externos.

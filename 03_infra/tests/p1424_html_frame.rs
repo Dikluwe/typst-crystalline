@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1424-tests.md
-//! @prompt-hash 856e8920
+//! @prompt-hash 6d58b6bc
 //! @layer L3
 //!
 //! Testes A/B independentes da integração HTML P1424.

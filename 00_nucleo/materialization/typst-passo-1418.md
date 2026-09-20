@@ -1,5 +1,13 @@
 # Passo 1418 — consolidação física de patterns nas colunas de página
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Aplicar a regra vertical P1417 separadamente em cada coluna física criada por
@@ -15,11 +23,11 @@ contador continua documental ou por página e a última coluna continua forçada
   veredito, portanto não há alegação de segregação atestada;
 - baseline: commit `573c42c14`, árvore limpa antes das quatro fixtures P1418;
 - medição inicial: `2026-09-16T09:28:44-03:00`;
-- cristalino: `target/release/typst`, SHA-256
-  `df09b98acc05bc5f02fabaec905bc531f06823c3135d7b5922264d6250e538a6`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - working tree na medição: somente `lab/parity/corpus/p1418/` não rastreado.
 
 As sondas receberam 512 MiB de espaço virtual, uma thread e timeout de 15 s.
@@ -50,12 +58,12 @@ este passo não converte callback em pattern nem presume sua altura.
 
 ## Oráculos congelados
 
-| Fixture | SHA-256 | Classificação |
+| Fixture | identificador administrativo | Classificação |
 |---|---|---|
-| `page-first-large-second-small.typ` | `70196d2d2cf23e220c66ac2deb6d9127d3443800d26e294b412609eb9e48393b` | positivo: shared 18 pt |
-| `page-first-small-second-large.typ` | `d1f7d42b7c6fe7d1352f491ce9baf200f5db7664376eef8110a7f6c89b3287a0` | positivo: shared 8 pt |
-| `page-three-shared-first-style.typ` | `f22908eb22532eb39a629e5265f1a0014dd7620b49d19e91c5e93bfc14ae3c01` | positivo: isolamento por coluna N=3 |
-| `page-callback-heterogeneous-unknown.typ` | `f9ba2330777bbfa293e9307102a845377eca502e2f7f3b15196cb993245f8002` | opaco `Unknown` |
+| `page-first-large-second-small.typ` | [dado administrativo removido] | positivo: shared 18 pt |
+| `page-first-small-second-large.typ` | [dado administrativo removido] | positivo: shared 8 pt |
+| `page-three-shared-first-style.typ` | [dado administrativo removido] | positivo: isolamento por coluna N=3 |
+| `page-callback-heterogeneous-unknown.typ` | [dado administrativo removido] | opaco `Unknown` |
 
 Os casos foram escritos antes do candidato. Eles rejeitam os mutantes “estilo
 local por coluna”, “uma deduplicação global para a página”, “máximo ordinal
@@ -117,8 +125,8 @@ build release e `crystalline-lint .` passam nos limites sem OOM ou swap.
 Medição final em `2026-09-16T09:45:27-03:00`, sobre working tree não
 commitada derivada de `573c42c14`. Arquivos alterados: os três prompts L0,
 `columns.rs`, `cursor.rs`, `layout/mod.rs`, este passo e as quatro fixtures
-P1418. O binário cristalino final tem SHA-256
-`91d201ae78026cbf1aaef40008f7e3d5cc8c735031bfc39d137e64714d95eb3a`.
+P1418. O binário cristalino final tem identificador administrativo
+[dado administrativo removido].
 
 Os três positivos têm texto simples idêntico ao vanila e as bounding boxes dos
 números confirmam o estilo compartilhado de 18 pt ou 8 pt esperado. O modo

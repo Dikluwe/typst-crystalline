@@ -1,5 +1,13 @@
 # Passo 1336 — diagnóstico de field ausente em instâncias Int/Str
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema e efeito esperado
 
 P1335 recomendou `primitive-instance-field-diagnostic`, após comparar as causas
@@ -8,10 +16,9 @@ e sublinha o acesso inteiro; vanilla publica `integer` e sublinha só `nope`.
 String tem a mesma causa, com `str` versus `string`. O erro deve apontar o campo
 correto e usar o nome público, sem criar campos nem alterar valores válidos.
 
-Origem: `00_nucleo/diagnosticos/p1336-baseline.json`, SHA-256
-`e81e034167a994ab3dd1c318a7dd7384cd18ef75e0d2b3c1c666eb26724e441f`;
-medição `p1336-measurement.json`, SHA-256
-`0865c045fde6b0d3689a77d83a9d255ea927e76185ad7cfb0dcb6dfb8ca3e375`.
+Origem: `00_nucleo/diagnosticos/p1336-baseline.json`, identificador administrativo
+[dado administrativo removido];
+medição relatório consolidado da limpeza.
 HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não commitada;
 diff/stat integral e todos os arquivos anteriores protegidos no baseline.
 Vanilla ratificado upstream/main a51e02804, sem resync.

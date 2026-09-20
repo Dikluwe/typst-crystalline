@@ -18,7 +18,7 @@ e deixa o caller decidir emissão.
 
 ### Medição anterior à decisão
 
-O arm one-shot P1391 pertence à linha exterior certificada. Herdá-lo por um
+O arm one-shot P1391 pertence à linha exterior validada. Herdá-lo por um
 sub-frame permitiria que um flush interno o consumisse ou que o estado interno
 vazasse de volta ao caller.
 
@@ -31,7 +31,7 @@ do sub-frame e não cria API, fase, alocação proporcional ou recursão.
 
 ## P1392 — preservação do mesmo isolamento
 
-O certificado P1392 reutiliza o arm one-shot sem alterar sua vida útil. O
+A validação P1392 reutiliza o arm one-shot sem alterar sua vida útil. O
 sub-frame continua salvando, limpando e restaurando o estado exterior em LIFO;
 nenhum flush interno pode consumir um arm P1391 ou P1392 do pai. Não há código
 ou geometria adicional neste owner além da linhagem atualizada.

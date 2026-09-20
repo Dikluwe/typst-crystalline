@@ -1,5 +1,13 @@
 # Passo 1459 — eliminar o hardcode bilingue de referências de heading
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** IMPLEMENTADO — certificação segregada no commit subsequente
 
 **Data da medição:** 2026-09-18
@@ -19,14 +27,14 @@ seria novo hardcode, não correção arquitetural.
 
 ## 2. Medição anterior à decisão
 
-- L0 de references SHA-256 anterior:
-  `4d51cc94a6d520c87fec7094b8fb5c9b4cc0c6980f472e6ac41a9d50e6724ba1`;
-- consumer references SHA-256:
-  `bd7b1219657b6a01200c3b8ad3902ddc6a29237de198eef91eede2f8590f71c0`;
-- vanilla ratificado SHA-256:
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino release SHA-256:
-  `02db6b60251198a0dd78e1e09f90fa0a55df8497ee6ca18a94c3f95d50e0d432`.
+- L0 de references identificador administrativo anterior:
+  [dado administrativo removido];
+- consumer references identificador administrativo:
+  [dado administrativo removido];
+- vanilla ratificado identificador administrativo:
+  [dado administrativo removido];
+- cristalino release identificador administrativo:
+  [dado administrativo removido].
 
 Na fixture `lab/parity/p1459_reference_supplements_de.typ`, o alvo alemão
 referenciado sob francês preserva `Abschnitt` no vanilla e vira `Section` no
@@ -69,8 +77,7 @@ commits separados.
 ## 7. Execução
 
 O preseal foi congelado antes do candidato em
-`00_nucleo/diagnosticos/p1459-preseal.json`, SHA-256
-`068cbed4cc304cf9ce231519ca1fad4e32a0c69abdaf1ef7cea79c6d0202259e`.
+relatório consolidado da limpeza.
 Contrato, oráculos e ataques permaneceram imutáveis depois desse ponto.
 
 O primeiro RED focal observou `Section` para alemão, contra `Abschnitt`. O
@@ -101,10 +108,10 @@ de `c7577a031847ff38e4780044bc4132c1d92a14b9`, árvore
 acrescentava os 14 ficheiros novos P1459 listados no manifesto/emenda,
 incluindo owner, L0, fixture, passo e dez artefactos diagnósticos.
 
-- binário vanilla: SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino release: SHA-256
-  `57644d2ef726a8eebc934fe485e0eff1a96e9b1f84e289913928eae827297990`;
+- binário vanilla: identificador administrativo
+  [dado administrativo removido];
+- binário cristalino release: identificador administrativo
+  [dado administrativo removido];
 - campanha pública bilateral: vanilla e cristalino retornaram sucesso e o
   texto extraído coincidiu byte a byte nas ordens forward, reverse e
   forward-repeat;

@@ -13,7 +13,7 @@ em sucesso implícito e sem alterar produção.
 
 O probe antigo foi descartado porque fundia B02/B03, calculava distância RGBA
 não premultiplicada e invocava `typst eval` incorretamente. O novo runner
-`lab/parity/matrix/p1234_precision.py` usa a superfície pública
+`[artefato laboratorial removido]` usa a superfície pública
 `Gradient.sample(...).components().map(repr)` para B01/B02 e os SVGs congelados
 do P1231 para B05–B07. B03/B04 ficam `Unknown` quando não observáveis.
 

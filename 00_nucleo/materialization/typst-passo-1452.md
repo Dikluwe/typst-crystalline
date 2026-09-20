@@ -1,5 +1,13 @@
 # Passo 1452 — recertificar as 66 rotas HTML/math após a convergência vertical
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — diagnóstico sem mudança de produto
 **Data da medição:** 2026-09-18T20:35:40-03:00
 **Commit medido:** `635e8b0a9338ee453fed168e416eb85b16b2718a`
@@ -25,16 +33,15 @@ O HEAD inicial está limpo. O binário release anterior estava obsoleto e ainda
 rejeitava `math.undershell`; por isso foi reconstruído a partir do HEAD medido.
 O binário reconstruído:
 
-- tem SHA-256 `6e0f6e94d698f2e13bee63de37b4984649e454138a0d437bd1bf514279506eda`;
+- tem identificador administrativo [dado administrativo removido];
 - reporta `typst 0.15.1 (635e8b0a)`;
 - devolve `"undershell(body: [x])"` para
   `repr(math.undershell([x]))`.
 
 O vanilla ratificado permanece `/usr/local/bin/typst`, revisão
-`586e1bd43fae6c9a973218163d3165c53ab8d16d`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
-O payload autoritativo continua `p1420-oracles.json`, SHA-256
-`1d904d795515de5acf18b5eab544bb56c7edad9a1ee2e88efb4dca056a4ef1d4`:
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, identificador administrativo
+[dado administrativo removido].
+O payload autoritativo continua relatório consolidado da limpeza:
 66 rotas, 154 probes e 12 controles por ordem.
 
 ## 3. Classificação anti-deriva

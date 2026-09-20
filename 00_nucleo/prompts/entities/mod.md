@@ -11,9 +11,8 @@ Registado `pub mod font_variations;` (P836, achado #21 de P831):
 tipo `FontVariations` de eixos OpenType explícitos — ver
 `entities/font_variations.md`.
 
-## P1462 — módulo `document_format_options` (CONFIRMADO; aguarda selo R2)
+## P1462 — módulo `document_format_options` (MATERIALIZADO)
 
-Depois do novo selo discriminatório R2, declarar
-`pub mod document_format_options;` para expor os carriers puros definidos no
+O módulo declara `pub mod document_format_options;` para expor os carriers puros definidos no
 L0 proprietário `entities/document_format_options.md`. Esta fachada não
 duplica defaults, parsing, extração documental ou precedência de exportação.

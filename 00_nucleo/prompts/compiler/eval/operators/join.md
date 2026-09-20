@@ -130,9 +130,8 @@ medição binária adicional dos casos de join é obrigação, não resultado j�
 ### P1307-R4 — distinguir helper de join do operador público
 
 Medição focal `args.join-duplicates` encerrada em
-`2026-09-07T17:37:05.017565+00:00`, baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
-conservada em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`, mostra
+`2026-09-07T17:37:05.017565+00:00`, baseline R4,
+conservada na medição histórica, mostra
 que o operador + ainda rejeita Args+Args no baseline. A fonte
 `01_core/src/compiler/eval/operators/mod.rs:40-41` encaminha Add para
 arithmetic; a presença do braço neste helper não prova disponibilidade da

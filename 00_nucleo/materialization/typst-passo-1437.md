@@ -1,5 +1,13 @@
 # Passo 1437 — Materializar `math.mid` com identidade, classe e stretch do `lr` mais próximo
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
 **Data da medição:** 2026-09-17T21:09:30-03:00  
 **Commit medido:** `39826a825a11d966be7adb832606fe6c14373e46`  
@@ -26,12 +34,12 @@ marca cada item real para stretch pelo `lr` exterior e força classe `Relation`.
 `resolve_lr` aplica então a mesma meta de stretch do grupo. Um `lr` aninhado
 estabelece a fronteira mais próxima; `mid` não calcula uma meta independente.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/lr.rs` | `2a762699e7d3eed9a0b4b2d1afbbf5b58649339ec47ec12a2a82907519c107e0` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
+| `lab/typst-original/crates/typst-library/src/math/lr.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
 
 ### 2.2 Observáveis públicos medidos no vanilla
 
@@ -56,23 +64,23 @@ O módulo `math` não contém `mid`; a forma qualificada falha. A forma bare
 classe `Relation` nem vínculo de stretch. `compiler/eval/rules.rs` já reconhece
 o nome no vocabulário de campos, mas não há carrier, builder, `repr` ou layout.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/entities/elements/math_delimited.rs` | `fd00c580a6d98cadac9ec79eb38fa5994677ef1756f1fb0cf5b7d8249a6d596a` |
-| `01_core/src/entities/content.rs` | `77133735eca113684f6fa6cbeadf0b3b83e84233c45768ed9097cf4ab037fc59` |
-| `01_core/src/compiler/stdlib/structural/math.rs` | `d1d872796e1d54a9dcded20f5d34580240ab862a2f9db0d5f23b064a7cf13006` |
-| `01_core/src/compiler/eval/math.rs` | `dfaee47456376a48eff77e9ac52d77c69a51ce470c8e381060254adb3f9442b3` |
-| `01_core/src/compiler/eval/repr.rs` | `d68c6707c15f9ff459cec2e981c70c03a9dc14f8fd4b9cc338d8fd9d6a94e959` |
-| `01_core/src/compiler/math/layout/delimited.rs` | `dbb096078771a4649ce873fee6a29e9a6daae8de8fd310f6424d077ff90df174` |
-| `01_core/src/compiler/math/layout/mod.rs` | `86e9f51e9ebddf11270ded454e48f4340f7dda00bcbc1ed45e04f09a795e6ee0` |
-| `01_core/src/compiler/math/layout/spacing.rs` | `c12029dc075e80871a461074b3ceb28cb8c93619619e759b2bf497feaee77bca` |
-| `01_core/src/compiler/eval/mod.rs` | `330e2781fc624262e9e0bd6722aabe19272c2d3acf20492c3d5bffbce0d61862` |
-| `01_core/src/compiler/introspect.rs` | `760b67f2220c76eb0eaca3ae5071cb3ba909c047d39d70adaae3f9e12e383803` |
-| `01_core/src/compiler/introspect/locatable.rs` | `269cff41d994020cbb42e181b722eeba907a8ae508360427683f8f216a4f1da3` |
-| `01_core/src/compiler/layout/mod.rs` | `4990b9cd303b91597ff334ab8959dca4b9dbd2236f75d51cb056b069a7b341cc` |
-| `03_infra/src/query_helpers.rs` | `02168b0bdbf6d3d172a21c94aaa86b06caf0879e14344fc8154c067c5267b6c3` |
+| `01_core/src/entities/elements/math_delimited.rs` | [dado administrativo removido] |
+| `01_core/src/entities/content.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/delimited.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/layout/mod.rs` | [dado administrativo removido] |
+| `03_infra/src/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -158,4 +166,4 @@ registradas como baseline e não recebem crédito de sucesso.
 O candidato produtivo e os recibos foram fixados no commit
 `e64b7faebcaae6a661c3cb0aab33c0adfa55a2df`, árvore
 `331904221159d452cc18935be2a7423f16baa45e`. O certificado limitado ao
-fragmento P1437 é `diagnosticos/p1437-verifier-certificate.json`.
+fragmento P1437 é relatório consolidado da limpeza.

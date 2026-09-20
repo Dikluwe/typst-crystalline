@@ -1,5 +1,13 @@
 # Passo 1350 — tornar a supervisão não contornável nas rotas herdadas
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado e objetivo
 
 O Passo 1349 terminou em `BLOCKED_NOT_SEALED`. A execução normal permaneceu
@@ -9,13 +17,13 @@ executor Python principal e no mesmo SID/PGID externo. Não houve resultado,
 score nem journal por caso; o verificador precisou terminar o PGID exato.
 
 A medição está congelada em
-`00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json`, SHA-256
-`16780a65c46ba958b6e1535184ea039d022f558a01fb384cc0c110c261d55417`.
-O adapter P1349 R2, SHA-256
-`f7cc942f4875817ccd965c9974c1f030ed6e9ab638a46689e6754181d8f47775`,
+`00_nucleo/diagnosticos/p1349-verifier-blocker-r2.json`, identificador administrativo
+[dado administrativo removido].
+O adapter P1349 R2, identificador administrativo
+[dado administrativo removido],
 supervisiona somente as doze operações novas e delega as 48 operações
-herdadas diretamente ao adapter R1/P1348. O checker P1349 R2, SHA-256
-`999971b4e25c6a44ae76542d0115d8304c3a8f28afbaf26bc1c9347db6edc267`,
+herdadas diretamente ao adapter R1/P1348. O checker P1349 R2, identificador administrativo
+[dado administrativo removido],
 possui deadline apenas nas rotas que efetivamente entram em `supervise`.
 
 O objetivo deste passo é fazer da supervisão uma fronteira obrigatória para

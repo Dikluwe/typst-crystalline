@@ -70,7 +70,7 @@ outro valor com diagnóstico explícito.
 Na forma Page:
 
 1. localizar o elemento alvo e sua `Location`;
-2. obter a página selada do alvo;
+2. obter a página validada do alvo;
 3. exigir numbering nessa página;
 4. obter o supplement resolvido dessa mesma página;
 5. aplicar a precedência do supplement da referência;
@@ -93,7 +93,7 @@ reference without page numbering` e hint equivalente a habilitar numbering com
 
 Referências anteriores ao alvo usam o fixpoint/introspector já existente. A
 primeira iteração pode não resolver; a iteração convergida deve usar o
-`PageStore` selado. L1 não lê arquivos de tradução em runtime, não usa estado
+`PageStore` validado. L1 não lê arquivos de tradução em runtime, não usa estado
 global mutável e não faz I/O.
 
 Owners:

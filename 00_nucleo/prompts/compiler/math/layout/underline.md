@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/math/layout/underline` — underline matemático
+Hash do Código: c5d0b118
 
 **Estado:** MATERIALIZADO P1292; mecanismo inline v3 refutado e substituído
 pelo amendment-3/v4 no owner `compiler/layout/equation.md`.
-Hash do Código: 99b6401e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c

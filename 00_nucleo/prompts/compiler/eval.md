@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 0e90ca01
+Hash do Código: a7b22ccf
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -70,9 +70,7 @@ no gate ADR-0127.
 #### Medição anterior à decisão
 
 Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
-`1f082370e59939de7b57992e137a9f74bfb6758f`, a matriz bilateral
-`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json` (SHA-256
-`1678b1aed89bfff7581a8fdd998a32f57df18f134226e680596c587620ea3efe`)
+`1f082370e59939de7b57992e137a9f74bfb6758f`, a medição histórica
 classificou, nos quatro perfis `default`, `html`, `a11y` e `html+a11y`, os
 nomes bare `hsl`, `hsv`, `linear_rgb` e seus pares sob `std` como
 `CRYSTALLINE_ONLY`. No mesmo corpus, `color.hsl`, `color.hsv`,
@@ -188,7 +186,7 @@ Em `2026-09-01T13:24:01-03:00`, no baseline
 corretos, mas passava nomes `grid_*`/`table_*` a `Func::native`. Os aliases flat
 separados permanecem em `:2083-2110`. A fonte vanilla pinada
 `layout/grid/mod.rs:422-438,574-677,767-768` e
-`model/table.rs:289-305,494-613,732-733` declara nomes curtos. O recibo P1293
+`model/table.rs:289-305,494-613,732-733` declara nomes curtos. O registro P1293
 mediu chamadas diretas e via `.with` para os dez siblings e confirmou que a
 causa da diferença pública é somente o primeiro argumento textual da instância
 namespaced.
@@ -232,19 +230,17 @@ humano P1293 antes do código.
 `lab/typst-original/crates/typst-library/src/lib.rs:374`. O nome do binding
 e o nome público do objeto são distintos no vanilla.
 
-A medição independente `00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`,
-SHA-256 `fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
+A medição independente,
 registra HEAD `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais diff P1303
 não commitado, status/diff/stat, fixtures e saídas completas entre
 `2026-09-07T13:48:28.580684+00:00` e
-`2026-09-07T13:51:19.266604+00:00`. O baseline fresco tem SHA-256
-`4a4e1bd46c053dd19bfcae2230537c9478fbfb2ff26a94dfd87d9f29fee2835d`;
+`2026-09-07T13:51:19.266604+00:00`. O baseline fresco tem;
 o vanilla, `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
 `named-modules`, `named-aliases` e `document-route` medem `module(std)`
 contra `<module global>`, preservando lookup. A contraprova de import
 `std.typ` com reexport integral impede corrigir isso somente no formatter.
 O dono respondeu `Autorizado` à ampliação de construção neste owner e em
-`compiler/eval/modules`; `p1305-r2-reopening.md` registra essa exceção.
+`compiler/eval/modules`; medição histórica registra essa exceção.
 
 ### Decisão
 
@@ -273,16 +269,13 @@ não corresponde a nova política de produto. `Unknown` obrigatório bloqueia.
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/eval/mod.rs:1723-1743`, no snapshot R3 SHA-256
-`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+`01_core/src/compiler/eval/mod.rs:1723-1743`, no snapshot R3,
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306
 integral ali capturado, registra json/yaml/toml sem namespace e CBOR com
-encode. Os recibos P1307 SHA-256
-`f1191d3de029dabf6f66f87872bee8146aa43106ae54e84facc22952afd238d0`
-e R2 SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`
+encode. Os registros P1307
+e R2
 medem os membros originais com kind function/repr encode, mantendo os pais
-chamáveis. O vanilla é upstream ratificado `a51e02804`; cada recibo conserva
+chamáveis. O vanilla é upstream ratificado `a51e02804`; cada registro conserva
 argv, binários, features, fontes e saídas. Partial With tem repr anônima,
 não a repr do membro original: são observáveis distintos.
 
@@ -313,8 +306,7 @@ With e perfis são obrigatórios; ausência baseline não é GREEN.
 
 ### Medição anterior à decisão
 
-Baseline `p1308-baseline.json` SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`
+Baseline histórico
 registra HEAD b303f1f15 mais working tree. `eval/mod.rs:347–363` cria Source
 parse_code local, mas entrega World original ao Engine. A matriz R6 final
 pinada no diagnóstico P1307 registra dez casos cujo stderr é prefixo do

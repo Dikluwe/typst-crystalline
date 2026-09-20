@@ -1,5 +1,13 @@
 # Passo 1368 — observador efetivo S02 para PDF tagueado
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar a limitação instrumental `S02_TOP_LEVEL_EFFECT` do P1357 sem alterar o
@@ -8,7 +16,7 @@ canônico e comparar as três testemunhas que isolam precedência.
 
 ## Contrato do harness
 
-`p1368_s02_observer.py` fornece:
+relatório consolidado da limpeza fornece:
 
 ```python
 parse_tagged_field(stdout: bytes) -> Observation

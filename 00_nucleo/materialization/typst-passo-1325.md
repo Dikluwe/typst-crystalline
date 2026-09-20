@@ -1,17 +1,25 @@
 # Passo 1325 — âncora de campo ausente em dicionário, conteúdo raw e float
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Medição e escolha
 
 Continuação a partir do fechamento P1324 em
 `00_nucleo/diagnosticos/p1324-closure.json`, preservando a árvore não commitada.
-O baseline fresco `00_nucleo/diagnosticos/p1325-baseline.json` registra HEAD,
+O baseline fresco relatório consolidado da limpeza registra HEAD,
 diff/stat integral, binários pinados, horários e saídas. A referência continua
 upstream `a51e02804`, não uma tag de versão.
 
 A prioridade seguinte da fila P1322, `math-symbol-binding-warning`, foi
 reaberta: nome `math` e `Module.content() == None` não provam builtin.
 `eval/modules.rs:105–114` também constrói módulos importados sem conteúdo.
-O recibo `00_nucleo/diagnosticos/p1325-review-math-identity-preflight.md`
+O recibo relatório consolidado da limpeza
 refuta a suficiência do guard proposto; não é prova de impossibilidade geral.
 Identidade nativa e owners necessários ficam pendentes, sem guard improvisado.
 
@@ -33,7 +41,7 @@ residual como paridade nem expandir este passo para disponibilidade.
    `01_core/src/compiler/eval/bindings/field_access.rs`. Não alterar lookup.
 5. GREEN, build, testes workspace, fmt, lint zero violations, linhagem;
    matriz bilateral normal/repetida/inversa e revisão independente.
-6. Relatório substantivo em `00_nucleo/diagnosticos/p1325-final-report.md`,
+6. Relatório substantivo em relatório consolidado da limpeza,
    incluindo limites e débitos; fechamento reproduzível sem commit.
 
 Regime: ensaio A/B da skill tekt-materializacao-segregada, com autor de testes

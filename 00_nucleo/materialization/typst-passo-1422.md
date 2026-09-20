@@ -1,5 +1,13 @@
 # Passo 1422 — retomar a campanha integral das 66 rotas P1420
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado de partida medido
 
 - O P1420 congelou 66 rotas (`44 html.*` e `22 math.*`), mas parou antes da
@@ -11,10 +19,10 @@
   altera o comportamento do produto nem os oráculos P1420.
 - Estado causal desta retomada: HEAD
   `fc803d05f0e7eec7f6bc6a8e363e3cfe1450077d`, tree
-  `11a404824b77d608b1eda29ad44fb281d89aef03`, binário cristalino SHA-256
-  `26f1534c7d19b8b8d8dcb320684966dc4e4cdcf27c5263c4eb68b73706b3e860`
-  e vanilla ratificado SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+  `11a404824b77d608b1eda29ad44fb281d89aef03`, binário cristalino identificador administrativo
+  [dado administrativo removido]
+  e vanilla ratificado identificador administrativo
+  [dado administrativo removido].
 - O recibo de inventário presence-only P1420 continua aplicável: a alteração
   P1421 não adicionou nem removeu membros públicos. O P1422 deve validar o seu
   hash e a presença literal das 66 rotas antes de executar produto.
@@ -49,7 +57,7 @@ declarar **“executado sem atestação de isolamento”**.
 
 ## Entradas protegidas
 
-O preseal deve proteger por SHA-256:
+O preseal deve proteger por identificador administrativo:
 
 1. este passo;
 2. manifesto, contrato, oráculos e mutantes P1422;
@@ -57,7 +65,7 @@ O preseal deve proteger por SHA-256:
 4. binários vanilla e cristalino;
 5. `p1420-{manifest,contract,oracles,mutants,preseal,results,verification}.json`;
 6. `p1421-{results,report,verification}.json`;
-7. `lab/parity/p1420_unknown_route_reprobe.py`.
+7. `[artefato laboratorial removido]`.
 
 Os oráculos públicos P1420 são reutilizados byte a byte. O contrato P1422 deve
 registrar a transformação nominal P1420→P1422, atualizar somente identidade do
@@ -66,7 +74,7 @@ mudança de fixture, expected, denominador ou regra de composição de estados.
 
 ## Instrumento sucessor
 
-Criar `lab/parity/p1422_unknown_route_reprobe.py`. O runner deve:
+Criar `[artefato laboratorial removido]`. O runner deve:
 
 - validar preseal, identidades, hashes históricos e denominador antes de produto;
 - exigir exatamente 66 rotas e 154 probes por ordem;
@@ -78,7 +86,7 @@ Criar `lab/parity/p1422_unknown_route_reprobe.py`. O runner deve:
   timeout de 15 s e 64 KiB por stream;
 - executar `direct`, `direct-repeat` e `reverse` e exigir vetor idêntico;
 - escrever brutos apenas em `/tmp` e o consolidado integral somente em
-  `00_nucleo/diagnosticos/p1422-results.json`;
+  relatório consolidado da limpeza;
 - nunca converter timeout, OOM, swap, truncamento, identidade divergente,
   baseline divergente ou projeção incompleta em sucesso.
 
@@ -100,11 +108,11 @@ ordens.
 Executar:
 
 ```sh
-python3 -m py_compile lab/parity/p1422_unknown_route_reprobe.py
-python3 lab/parity/p1422_unknown_route_reprobe.py --validate-only
-python3 lab/parity/p1422_unknown_route_reprobe.py --gate
-python3 lab/parity/p1422_unknown_route_reprobe.py --run --focal --output /tmp/p1422-focal.json
-python3 lab/parity/p1422_unknown_route_reprobe.py --run --output 00_nucleo/diagnosticos/p1422-results.json
+python3 -m py_compile [artefato laboratorial removido]
+python3 [artefato laboratorial removido] --validate-only
+python3 [artefato laboratorial removido] --gate
+python3 [artefato laboratorial removido] --run --focal --output /tmp/p1422-focal.json
+python3 [artefato laboratorial removido] --run --output [artefato protocolar removido]
 cargo fmt --all -- --check
 crystalline-lint .
 git diff --check
@@ -119,8 +127,8 @@ como `Unknown(IDENTITY_MISMATCH)`.
 Produzir:
 
 - `p1422-{manifest,contract,oracles,mutants,preseal}.json` antes do runner;
-- `lab/parity/p1422_unknown_route_reprobe.py` depois do preseal;
-- `p1422-{results,backlog,verification}.json` e `p1422-report.md` pelo
+- `[artefato laboratorial removido]` depois do preseal;
+- `p1422-{results,backlog,verification}.json` e relatório consolidado da limpeza pelo
   verificador.
 
 O passo fecha quando focal e campanha integral passam os gates, cada uma das 66

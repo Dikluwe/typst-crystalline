@@ -22,7 +22,7 @@ ou vetor. O vanilla ratificado mantém `UnderlineElem` math distinto do
 
 ### Decisão
 
-Depois do selo ADR-0127, o índice declara `math_underline`, `math_vec` e
+Depois da confirmação ADR-0127, o índice declara `math_underline`, `math_vec` e
 `flush`, cada
 qual com um único consumer e prompt proprietário:
 `entities/elements/math_underline.md`, `entities/elements/math_vec.md` e

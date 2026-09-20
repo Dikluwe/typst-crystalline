@@ -175,13 +175,11 @@ pública adicional descoberta na materialização volta ao gate ADR-0127.
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
 `entities/counter_registry.rs:25-36` contém estados e snapshots, não ações;
-`:69-84` distingue Step/Set/Func. O diagnóstico
-`diagnosticos/p1339-where-counter-integration-design.md` demonstra por fonte
+`:69-84` distingue Step/Set/Func. A medição histórica demonstra por fonte
 que inferir ações pelas diferenças de snapshots perde Set versus Step.
-Os recibos `diagnosticos/p1339-where-counter-phase-probe-runs.json` e
-`diagnosticos/p1339-where-counter-phase-file-runs.json` medem no vanilla
+A medição histórica registra no vanilla
 Step/Func/Step com chave filtrada resultando em 12, não apenas tamanho da query.
-Estado, UTC e binários estão nos recibos; não existe candidato implementado.
+Estado, UTC e binários estão nos registros; não existe candidato implementado.
 
 ### Contrato
 
@@ -200,8 +198,7 @@ de leitura materializada. O cálculo de uma chave arbitrária da linguagem
 devolve vetor owned no owner de compiler, não uma referência a temporário.
 
 Este log prepara dados para a resolução sob demanda de
-`compiler/introspect/from_tags.md`, aprovada pelo dono no recibo
-`diagnosticos/p1339-where-counter-phase-approval.json`. A aprovação de fase
+`compiler/introspect/from_tags.md`, aprovada pelo dono. A aprovação de fase
 não dispensa os demais gates do P1339 antes da implementação.
 
 ## Histórico de Revisões

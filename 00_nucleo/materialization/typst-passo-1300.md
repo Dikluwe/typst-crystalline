@@ -1,5 +1,13 @@
 # Passo 1300 — fechar a contradição dos constructors globais de cor
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado inicial:** autorizado para iniciar, mas não para ultrapassar o gate L0 sem nova
 confirmação humana.
 **Coorte selecionada por P1299:** `color-global-constructors`.
@@ -7,8 +15,8 @@ confirmação humana.
 **Rotas canônicas preservadas:** `color.hsl`, `color.hsv`, `color.linear-rgb`.
 **Regime:** protocolo completo de materialização segregada Tekt.
 **Baseline produtivo:** `1f082370e59939de7b57992e137a9f74bfb6758f`.
-**Vanilla ratificado:** `a51e02804`; `/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+**Vanilla ratificado:** `a51e02804`; `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido].
 **ADRs:** ADR-0107, ADR-0108, ADR-0127 e ADR-0129.
 
 ---
@@ -68,20 +76,20 @@ observada nos quatro perfis.
 
 Antes de agir, verificar no mínimo:
 
-| Artefato | SHA-256 esperado |
+| Artefato | identificador administrativo esperado |
 |---|---|
-| `00_nucleo/materialization/typst-passo-1299.md` | `574c0f77207a86bbe656bf191120c9603924d0c555e5b411760756a6b303b158` |
-| `00_nucleo/diagnosticos/p1299-certificate.json` | `c9d18805b081e55b34caaf02e39ddfc15fd76c5d48849dd82ca112552cdac754` |
-| `00_nucleo/diagnosticos/p1299-decision-report.md` | `332425ce95df73ce8ea8e54e84aec31d37286a6dec8b07ce9b6b5f77e33eeb2e` |
-| `00_nucleo/diagnosticos/p1299-owner-ledger.tsv` | `79261fe7f8b377b2fb28781b15e88828c8b87843e5b1d0d99cdf1e7a7355fa69` |
-| `00_nucleo/diagnosticos/p1299-feature-matrix.json` | `58f08430c479ba5dea093945301785a89e77f20e9af0809ae05c6641a7ecdc11` |
-| `00_nucleo/prompts/compiler/stdlib/color.md` | `fecc619d1b336a6f8ca8c39c22a302babdec4daf22d3387ce97ce28e36d87dc3` |
-| `00_nucleo/prompts/compiler/eval.md` | `98d8255070dd4f23626d174ef3eef021299d62bd0a039ff521a7b5d363848f79` |
-| `00_nucleo/prompts/compiler/eval/tests.md` | `4e5963393178ccec06850ca16e84db530675c6760e977d68d68839e1cf891848` |
-| `01_core/src/compiler/stdlib/color.rs` | `d40197461efdee472734ef850e7a681821eb490624856bf15510d1b8a9336fed` |
-| `01_core/src/compiler/eval/mod.rs` | `cafdcbf690f5ad8020bbe3da4457a759397c29ac091dc1624f33e14f5127c5b4` |
-| `01_core/src/compiler/eval/tests.rs` | `b6b87d6786874a39b3071c667476d062a4fc41a9298c6519d9434e0ae637df20` |
-| fonte vanilla `typst-library/src/lib.rs` | `0f43c11dd22fc2da64e6f526d20f4257f8e324b087c70b7986d13694f5abb5ee` |
+| `00_nucleo/materialization/typst-passo-1299.md` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1299-certificate.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1299-owner-ledger.tsv` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1299-feature-matrix.json` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/stdlib/color.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval.md` | [dado administrativo removido] |
+| `00_nucleo/prompts/compiler/eval/tests.md` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/color.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/tests.rs` | [dado administrativo removido] |
+| fonte vanilla `typst-library/src/lib.rs` | [dado administrativo removido] |
 
 Validar também todas as identidades declaradas no certificado P1299. Alteração de algum
 input protegido termina em `P1300_BLOCKED_INPUT_DRIFT`; não regenerar o P1299 dentro deste
@@ -155,7 +163,7 @@ repr((type(std.rgb), type(std.luma), type(std.oklab), type(std.oklch), type(std.
 ```
 
 Guardar argv, features, exit, stdout, stderr e spans integrais em
-`00_nucleo/diagnosticos/p1300-pre-gate-measurement.json`. Antes do candidato, os três
+relatório consolidado da limpeza. Antes do candidato, os três
 bare e os três `std.*` devem reproduzir a assimetria; as três rotas canônicas e os dez
 controles positivos devem permanecer bilaterais. Divergência diferente bloqueia o gate.
 
@@ -193,13 +201,13 @@ O diff normativo deve conter, sem antecipar código:
 
 ### 4.3 Receipt e parada
 
-Criar `00_nucleo/diagnosticos/p1300-l0-gate-receipt.md` com:
+Criar relatório consolidado da limpeza com:
 
 - baseline e working tree exatos;
 - hashes dos inputs P1299;
 - medição focal;
 - diff integral dos três L0s;
-- SHA-256 novo de cada L0;
+- identificador administrativo novo de cada L0;
 - classificação explícita `ADR0127_PUBLIC_CONTRACT_AND_COMPAT_BREAK`;
 - lista de arquivos ainda proibidos de alterar.
 
@@ -291,11 +299,11 @@ inserção, salvo quando a ordem se tornar observável na linguagem.
 
 P2 mede o contrato no vanilla pinado e produz:
 
-- `p1300-vanilla-measurement-receipt.md`;
+- relatório consolidado da limpeza;
 - `p1300-oracle-suite.json`;
 - casos de fronteira e pelo menos um caso opaco deliberado.
 
-P3 produz `p1300-adversarial-plan.md` e mutantes válidos que simulam, no mínimo:
+P3 produz relatório consolidado da limpeza e mutantes válidos que simulam, no mínimo:
 
 1. manter `hsl` global;
 2. manter `hsv` global;
@@ -341,7 +349,7 @@ O RED deve demonstrar separadamente:
 5. o contrato rejeita esconder a rota qualificada ou remover uma nativa.
 
 Guardar comandos, filtros, contagens e falhas exatas em
-`p1300-red-tests-receipt.md`. RED que falhe por compilação, import, fixture ou erro alheio
+relatório consolidado da limpeza. RED que falhe por compilação, import, fixture ou erro alheio
 não conta.
 
 ---
@@ -362,7 +370,7 @@ Não criar blacklist no lookup, filtro dependente de feature, wrapper, alias alt
 ramo especial em field access. A causa está na publicação indevida das três chaves; a
 correção deve atuar nesse ponto.
 
-P6 produz `p1300-implementation-receipt.md` com diff, hashes, testes próprios e declaração
+P6 produz relatório consolidado da limpeza com diff, hashes, testes próprios e declaração
 de que contrato/oráculos/testes P5 não foram editados.
 
 ---
@@ -405,7 +413,7 @@ cargo fmt --all -- --check
 python3 -m unittest \
   lab/surface-inventory/test_merge.py \
   lab/surface-inventory/test_run_probes.py \
-  00_nucleo/diagnosticos/test_p1299_run_matrix.py
+  [artefato protocolar removido]
 crystalline-lint .
 crystalline-lint --fail-on warning --check V3 .
 crystalline-lint --fail-on warning --check V4 .
@@ -429,7 +437,7 @@ Produzir:
 - `p1300-surface-default.json`;
 - `p1300-surface-html.json`;
 - `p1300-feature-matrix.json`;
-- `p1300-final-report.md`;
+- relatório consolidado da limpeza;
 - `p1300-certificate.json`.
 
 O certificado pina manifesto, L0s confirmados, contrato, oráculos, ataques, selo, testes,

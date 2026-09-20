@@ -169,7 +169,7 @@ sobrepõe binding math existente.
 
 ### P1292 — exposição canónica de cancel/underline/vec (GATE ADR-0127)
 
-**Medição anterior à decisão:** o recibo fresco P1292 confirma que os três
+**Medição anterior à decisão:** o registro fresco P1292 confirma que os três
 bindings são funções próprias do módulo `math`. Cancel já possui payload e
 runtime P1291, mas ainda não está exposto nesse namespace; underline/vec ainda
 não possuem consumers próprios. `make_math_module` deve registrar, antes do
@@ -208,7 +208,7 @@ Os owners dos payloads são `entities/elements/math_cancel.md`,
 `compiler/math/layout/vec.md`. Este módulo somente faz cast, cascata de estilos
 e construção.
 
-O runtime de callback de cancel permanece o selado em P1291. `math.vec`
+O runtime de callback de cancel permanece o validado em P1291. `math.vec`
 transporta `Rel<Length>` integral; a base percentual e a política
 `height:auto` pertencem aos owners de layout. Esta unidade não duplica layout
 nem assa região.

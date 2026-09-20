@@ -1,10 +1,18 @@
 # P1332 — nome intrínseco de calc.abs
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Evidência e objetivo
 
 O fechamento P1331, em diagnosticos/p1331-closure.json, deixa diferenças
-de nome nos traces. As medições novas p1332-baseline.json e
-p1332-name-consumers-public.json mostram que repr já usa abs, mas o nome
+de nome nos traces. As medições novas [artefato protocolar removido] e
+[artefato protocolar removido] mostram que repr já usa abs, mas o nome
 intrínseco registrado ainda vaza como calc.abs. Também é interpolado em
 erros de gradientes e show; mudar somente o trace mascararia a causa.
 

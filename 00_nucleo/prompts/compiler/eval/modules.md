@@ -22,8 +22,7 @@ Ficheiro, pacote, módulo, aliases, include, ausência e ciclos têm testes foca
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1327-baseline.json`, SHA-256
-`f8cee37f7f3556db93f935deb977790a0a13ddd232639334e3d3931cf8b504f8`,
+A medição histórica
 fixa HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree não
 commitado com diff/stat integral, UTC inicial `2026-09-09T10:40:09.228317+00:00`,
 binários e argv. O vanilla ratificado `a51e02804` emite
@@ -82,8 +81,7 @@ lexical da fonte; sua construção global usa o nome público `global`
 `01_core/src/entities/ast/code.rs:184-206`, retorna nome do identificador,
 nome do field ou stem do literal, e classifica outras formas como Dynamic.
 
-`00_nucleo/diagnosticos/p1305-r2-pre-measurement.json`, SHA-256
-`fd6354824e500e61f18b14116dd54b4f4838691289226a7f7e04236258dd9da0`,
+A medição histórica
 registra todas as execuções entre `2026-09-07T13:48:28.580684+00:00` e
 `2026-09-07T13:51:19.266604+00:00`, no HEAD
 `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais diff P1303 não commitado,

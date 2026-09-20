@@ -1,5 +1,13 @@
 # Passo 1293 — fecho acionável do perfil HTML e nomes públicos de namespaces
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução, sujeito ao gate L0/ADR-0127
 
 **Data de autoria:** 2026-09-01
@@ -55,22 +63,22 @@ compilador.
 - árvore não commitada;
 - estado exato:
   `00_nucleo/diagnosticos/p1293-authoring-baseline-status.txt`;
-- SHA-256 do manifesto de estado:
-  `a0b31236c089623b0cd757d1401a6e1a1b90a931cbe48e78eda009ee72087b8e`;
-- SHA-256 de `git status --short`:
-  `c230dcc0640c02d614315f290c7f19067c898995bee1973a67de0a2e4be0e2c8`;
-- SHA-256 de `git diff HEAD --stat`:
-  `913e2e7d9f17bc2ef6c43cf9cd23ae8af055c27c9226e58a124bb61073bcd4b3`.
+- identificador administrativo do manifesto de estado:
+  [dado administrativo removido];
+- identificador administrativo de `git status --short`:
+  [dado administrativo removido];
+- identificador administrativo de `git diff HEAD --stat`:
+  [dado administrativo removido].
 
 Artefatos medidos:
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `target/release/typst` | `ed5f85e03e6fe473c1a7a9a42cceafe8c5fbe075de4dad56a7c88c07ad2c3b6f` |
-| `/usr/local/bin/typst` | `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8` |
-| `p1292-surface-default.json` | `a827b192fc38541f9b00baa3b666fc94aa2ff6f691ca7867bf28aa3a451e5f15` |
-| `p1292-surface-html.json` | `646884f8268f74e0acab79cf19e82fc81cceebf9e4258daeeb3ec2474d0f950a` |
-| `p1292-final-certificate.json` | `2450600a111a23ab9318fedd3fb5610531a4d0e35dcfcf2503d7271c233346b9` |
+| `target/release/typst` | [dado administrativo removido] |
+| `/usr/local/bin/typst` | [dado administrativo removido] |
+| `p1292-surface-default.json` | [dado administrativo removido] |
+| `p1292-surface-html.json` | [dado administrativo removido] |
+| `p1292-final-certificate.json` | [dado administrativo removido] |
 
 Esses números são baseline de autoria, não prova final. A execução deve
 recapturar árvore, binários e ambas as superfícies antes de editar L0.
@@ -117,7 +125,7 @@ diferença pública de `repr`, não mera metadata interna.
 ## 3. Medir antes de fechar o contrato
 
 O medidor independente deve produzir
-`p1293-vanilla-measurement-receipt.md` antes de qualquer alteração normativa.
+relatório consolidado da limpeza antes de qualquer alteração normativa.
 Além da presença nominal, deve congelar:
 
 1. assinatura, defaults, aridade, casts, named desconhecidos e spans de A–D;
@@ -261,7 +269,7 @@ menção histórica “owners candidatos” em ownership 1:N.
 ### 5.2 Condição de paragem
 
 Depois da medição e da redação dos L0s, produzir
-`p1293-pre-gate-l0-receipt.md` com hashes, fontes `file:line`, inferências e o
+relatório consolidado da limpeza com hashes, fontes `file:line`, inferências e o
 que as refutaria, e **PARAR**.
 
 Os novos membros são superfície pública. Código só começa após confirmação
@@ -477,17 +485,17 @@ Produzir em `00_nucleo/diagnosticos/`:
 
 ```text
 p1293-manifest.json
-p1293-baseline-status.txt
-p1293-vanilla-measurement-receipt.md
-p1293-pre-gate-l0-receipt.md
-p1293-contract-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1293-contract-seal.json
-p1293-red-tests-receipt.md
-p1293-implementation-receipt-a.md
-p1293-implementation-receipt-b.md
-p1293-implementation-receipt-c.md
-p1293-implementation-receipt-d.md
-p1293-adversarial-plan.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1293-adversarial-receipt.json
 p1293-surface-default.json
 p1293-surface-html.json

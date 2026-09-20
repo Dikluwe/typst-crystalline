@@ -26,10 +26,10 @@ Selectors, regras, warnings, casts, composição, recursão e spans seguem
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 `rules.rs:2403-2408` delega Value::Selector ao conversor; `:476-480` e
 `:829-838` reconhecem somente NodeKind::Par nas rotas de parágrafo.
-As fixtures e recibos `p1339-full-show-final-*` medem aplicação real de
-strong/emph/text no vanilla ratificado `a51e02804`; os recibos fixam binários,
-working tree e UTC. A limitação CLI dos perfis cristalinos está separada em
-`p1339-full-a2.md` e não constitui evidência positiva de matching.
+As fixtures e registros `p1339-full-show-final-*` medem aplicação real de
+strong/emph/text no vanilla ratificado `a51e02804`; os registros fixam binários,
+working tree e UTC. A limitação CLI dos perfis cristalinos foi registrada
+separadamente e não constitui evidência positiva de matching.
 
 ### Decisão de integração
 
@@ -50,7 +50,7 @@ Show-set, precedência, RuleId, guardas, ponto-fixo e teto mantêm seu contrato.
 Testes devem distinguir transformação efetiva de simples repr não realizado,
 cobrir match/miss/vazio e coexistência de bases antiga/nova. Um caso que exija
 mudar fase ou informação pública adicional reabre o gate; não se resolve
-por aplicação extra. A extensão de dados foi aprovada no P1339; selo e RED
+por aplicação extra. A extensão de dados foi aprovada no P1339; aprovação e RED
 ainda são condições anteriores ao código.
 
 ## P1286 — `#set smartquote`
@@ -276,7 +276,7 @@ StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
 argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
 altera `size_explicit`, fields ou repr do carrier.
 
-## P1462 — set rule `format.svg` (MATERIALIZADA E CERTIFICADA)
+## P1462 — set rule `format.svg` (MATERIALIZADA)
 
 ### Medição anterior à decisão
 
@@ -291,8 +291,7 @@ Na calibração pré-candidata R1, o vanilla ratificado recebeu uma regra
 `pretty: true` seguida de `#set format.svg()`. A saída permaneceu pretty em
 `forward`, `reverse` e `forward-repeat`; portanto ausência do named não
 materializa o default e não apaga a cascata. A medição e a proveniência estão
-em `00_nucleo/diagnosticos/p1462-oraculos-independentes.md`, SHA-256
-`f452d0229c4dba6a87b5c3ed316daaaca84c9c066686a197034460555ed624d7`.
+na medição histórica.
 
 ### Decisão proposta
 
@@ -315,7 +314,7 @@ top-level e a mensagem de container pertencem ao owner puro
 Preservar todas as demais set/show rules, a ordem da cascata e a política de
 named desconhecido. `format.pdf`, `format.html` e qualquer outro campo não
 contratado continuam ausentes. A confirmação P1462 foi recebida em 2026-09-19
-e a materialização foi certificada; P1463 não reabre essa semântica.
+e a materialização foi validada; P1463 não reabre essa semântica.
 
 ## P1463 — set rule `format.png` (PROPOSTA; gate ADR-0127)
 

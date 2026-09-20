@@ -1,5 +1,13 @@
 # Passo 1345 — substituir o oráculo heurístico por gramática canônica fechada e materializar P1344
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado e regime
 
 Regime: **executado sem atestacao de isolamento**.
@@ -13,28 +21,28 @@ Estado medido em `2026-09-11T07:02:43-03:00`:
 
 - `HEAD = 2f42d64253547734564513a1159ee6b584c1c4b4`;
 - `sha256(git status --porcelain=v1) =
-  ee300649d6c028fe8f6bb2ba85455708ff8e069d1cd2a2005c223580bf1d5dfd`;
+  [dado administrativo removido]`;
 - `sha256(git diff HEAD --stat) =
-  9783f07bc86c21e8874ebacec9d92ce5a12208e127748377c571b091a1c92e15`;
+  [dado administrativo removido]`;
 - working tree não commitado: 76 arquivos no stat medido por P1344, com
   alterações anteriores que não pertencem automaticamente a este passo.
 
 ## Entradas protegidas
 
-- passo P1344: `00_nucleo/materialization/typst-passo-1344.md`, SHA-256
-  `1fff15c6f17800ca293379e17d8d2ed63b2fe9043a0aebb0baf16a9b9b0ea6f3`;
-- contrato P1344 R1: `p1344-contract-spec-r1.json`, SHA-256
-  `157877514d350947f6483ec371c356dd2181c2e0f98e8fa9eb5e465527983279`;
-- binding P1344 R1: `p1344-contract-binding-r1.json`, SHA-256
-  `1f4d8812d0a4e2a9451d2f8c08931fb71e1baa54a3484a411d2cf76727115bab`;
-- baseline de cápsulas P1344: `p1344-capsule-baseline-r1.json`, SHA-256
-  `f64744d5bdc31734f791af24acf4204949a77c019542d5baa61c48b07e7dcaea`;
-- freeze L0 P1344: `p1344-l0-freeze-r1.json`, SHA-256
-  `6cc3a61f2d5177b3ede1d7805f8db8f7edfcd0a2f9ea55aec50405db7832c75d`;
-- relatório adversarial P1344 R2: `p1344-adversary-report-r2.json`, SHA-256
-  `2c536123d13e3aa537d5c7071f2910bb5b502fdf14aea82eb931b875d9d6bf9f`;
-- recibo adversarial P1344 R2: `p1344-adversary-receipt-r2.json`, SHA-256
-  `0c830744ffa6714599bc7c428277b1d37246db6d7815364b04044045752b7c4b`.
+- passo P1344: `00_nucleo/materialization/typst-passo-1344.md`, identificador administrativo
+  [dado administrativo removido];
+- contrato P1344 R1: `p1344-contract-spec-r1.json`, identificador administrativo
+  [dado administrativo removido];
+- binding P1344 R1: `p1344-contract-binding-r1.json`, identificador administrativo
+  [dado administrativo removido];
+- baseline de cápsulas P1344: `p1344-capsule-baseline-r1.json`, identificador administrativo
+  [dado administrativo removido];
+- freeze L0 P1344: `p1344-l0-freeze-r1.json`, identificador administrativo
+  [dado administrativo removido];
+- relatório adversarial P1344 R2: `p1344-adversary-report-r2.json`, identificador administrativo
+  [dado administrativo removido];
+- recibo adversarial P1344 R2: `p1344-adversary-receipt-r2.json`, identificador administrativo
+  [dado administrativo removido].
 
 Todos os artefatos P1343/P1344 anteriores são história de ataque ou entradas
 compostas nos hashes acima. Nenhum deles é selo P1345.

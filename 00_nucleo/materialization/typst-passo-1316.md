@@ -1,11 +1,19 @@
 # Passo 1316 — apontar a origem do CSV fornecido em Bytes
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: escrito, implementado e validado; revisão independente PASS no recorte. Sem commit.
 
 Na chamada `csv(bytes("a,b\n1"))`, o erro atual não aponta para o argumento
 que contém o CSV. With/Args também perdem essa origem no consumer. Corrigir
 essa rota, sem atribuir a um argumento erros que deveriam apontar para um
-arquivo externo. Medição: `00_nucleo/diagnosticos/p1316-measurement.json`.
+arquivo externo. Medição: relatório consolidado da limpeza.
 
 O passo coordena; não é L0. A obrigação proprietária está em
 `00_nucleo/prompts/compiler/stdlib/loading.md` para o consumer único
@@ -40,5 +48,5 @@ puro, Path/Str e precedência legada permanecem preservados.
 RED estável seguido de GREEN; build e 6.652 testes passaram (três ignorados),
 3.960 comparações A/B passaram e lint terminou sem erros (240 warnings).
 Proveniência, recibos, revisão independente e limites estão em
-`00_nucleo/diagnosticos/p1316-final-report.md`. Não há paridade geral CSV
+relatório consolidado da limpeza. Não há paridade geral CSV
 nem atestação técnica de isolamento. P1315 e seus registros foram preservados.

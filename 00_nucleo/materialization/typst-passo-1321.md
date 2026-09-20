@@ -1,5 +1,13 @@
 # Passo 1321 — validar argumentos de CSV antes da leitura e do parsing
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: implementado e verificado em R2; PASS no recorte congelado.
 
 Corrigir o primeiro cluster P1320: ausência/named source, erro vencedor de
@@ -35,6 +43,6 @@ Loading continua dono da validação; nenhuma mudança de API/fase ou parser.
 Validador CSV e transporte agregado R2 implementados. RED→GREEN nos dois
 owners; A/B focal e integral aprovados, workspace/build/fmt/diff-check/lint e
 linhagem bidirecional aprovados. Os resultados, proveniência, falha R1 e
-lacunas remanescentes estão em `00_nucleo/diagnosticos/p1321-final-report.md`.
+lacunas remanescentes estão em relatório consolidado da limpeza.
 Oráculos originais preservados; sem alegação de paridade geral. Nenhum commit.
-Parecer independente: `00_nucleo/diagnosticos/p1321-review-final-r2.md`.
+Parecer independente: relatório consolidado da limpeza.

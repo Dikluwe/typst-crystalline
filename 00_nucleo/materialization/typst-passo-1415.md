@@ -1,5 +1,13 @@
 # Passo 1415 — realizar callbacks e coordenar colunas de `par.line`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Completar os dois subconjuntos que P1414 declarou incompletos: aceitar
@@ -12,11 +20,11 @@ interna do vanila.
 
 - baseline: commit `0a7de3dd9ac7de214066aa6b77f36bb4f9d178a4`, árvore limpa
   antes da criação dos cinco oráculos deste passo;
-- cristalino: `target/release/typst`, SHA-256
-  `271ae0a93f77fad737debe856c9913688bacd7b6b4367c91308163e82ebc5df6`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: commit `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - medição congelada às `2026-09-15T22:12:43-03:00`;
 - regime: protocolo Tekt completo em rehearsal, executado sem atestação de
   isolamento.
@@ -55,13 +63,13 @@ dois binários foi 40.828 KiB; não houve timeout, OOM nem swap.
 
 ## Oráculos congelados
 
-| Fixture | SHA-256 |
+| Fixture | identificador administrativo |
 |---|---|
-| `par-line-callback-arity-error.typ` | `3f7f165ad5d640cd67930618764eb4005d03c08d3ab37fc3152ca47c4437eb16` |
-| `par-line-callback-content.typ` | `149aa6232ec62e8950ff154bc47dc599bc34313ccd93d267575eb4f48782aa19` |
-| `par-line-callback-page-scope.typ` | `886b0948ca14d50f406d1019cfb6c51ae8ee9eaf98337284ec348cc08b611465` |
-| `par-line-callback-sparse.typ` | `19ce2f467fb7335f24b0ce1881ba1374ec8747fa3706a50f162f593adf39afd4` |
-| `par-line-last-column.typ` | `4003dc2d22d2cc67e157d7595c9c648e889f541c0c79fa0e6473b8154dc6d1df` |
+| `par-line-callback-arity-error.typ` | [dado administrativo removido] |
+| `par-line-callback-content.typ` | [dado administrativo removido] |
+| `par-line-callback-page-scope.typ` | [dado administrativo removido] |
+| `par-line-callback-sparse.typ` | [dado administrativo removido] |
+| `par-line-last-column.typ` | [dado administrativo removido] |
 
 Os arquivos em `lab/parity/corpus/p1415/` são externos ao candidato e não podem
 ser adaptados à implementação. O caso esparso exige também inspeção da

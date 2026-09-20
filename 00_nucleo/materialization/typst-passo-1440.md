@@ -1,5 +1,13 @@
 # Passo 1440 — Materializar `math.overbracket` com identidade e geometria de spreader
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
 **Data da medição:** 2026-09-18T06:33:18-03:00
 **Commit medido:** `fbd4f07dabc0e526d61b0fe14b1abe673fcf5032`
@@ -28,12 +36,12 @@ zero, e o combina como acento superior com largura exata. O item resultante
 herda a classe matemática do body. Quando há anotação, ela é adicionada como
 script superior.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/underover.rs` | `49fe33135766b83c16d27f84c51bd8f867cd5f3f790b075242e8043661a7e298` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
+| `lab/typst-original/crates/typst-library/src/math/underover.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
 
 ### 2.2 Observáveis públicos medidos no vanilla
 
@@ -61,23 +69,23 @@ silencia named e positional excedente, baixa diretamente para
 P1439 já existem em `layout/underover.rs`; o defeito é de contrato,
 morfologia e fronteira de argumentos, não ausência dessa mecânica.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/entities/elements/math_underover.rs` | `aad48fc246eebf39ee57f2eb225edeb8d6025e1636442f1b040bac6e7d392599` |
-| `01_core/src/entities/content.rs` | `f0c48afb31f1dbea27405c3c4a5645de8ffb473a9321a31f6dce50cdf1ff66ca` |
-| `01_core/src/compiler/stdlib/structural/math.rs` | `074575e14911e391c692aac77a0d9e6b468ec391cb8c338cdba96c05a8c4f9e2` |
-| `01_core/src/compiler/eval/math.rs` | `803e7b1fa1c7142eb0f89a1b1d1365bcee058db32d29fd38013f2b77696abb12` |
-| `01_core/src/compiler/eval/repr.rs` | `de30619511362a10cf1a408afbb311c029b9618566eaa71719d23e4d53c19f7f` |
-| `01_core/src/compiler/math/layout/underover.rs` | `4d79a9538ed42b03c8d55510dbc6d84e2622579378163b70b209b2217f86b942` |
-| `01_core/src/compiler/math/layout/mod.rs` | `294cc82d85de3304e2a4f800fdf31eefc5936f8bf3bad56aa0f446821e39c3dc` |
-| `01_core/src/compiler/math/layout/spacing.rs` | `314a2fce9c93a118d11ae0191ce79810e36bc24d6df512c7ef61b71ad7860865` |
-| `01_core/src/compiler/eval/mod.rs` | `2357b67ff95028ba0bf70692539570e4caefbb5535955e025fc9090ce7e09a73` |
-| `01_core/src/compiler/introspect.rs` | `77f42b1917bfc645c8a4d017b3ed808da9e90cf7b4b069c6aab5ec6694f564fc` |
-| `01_core/src/compiler/introspect/locatable.rs` | `2d7f6ac7f23534dd3316948eb69efffb128cf31b816a2b63a159b566d1011b5c` |
-| `01_core/src/compiler/layout/mod.rs` | `353562495b0de2698bde5100060303acdab0c3d6cc1937cc5e0ca70bb5ccfceb` |
-| `03_infra/src/query_helpers.rs` | `6986396512345530ac1b06f46a7734559e40fecc98e25aebdb170d75133d1838` |
+| `01_core/src/entities/elements/math_underover.rs` | [dado administrativo removido] |
+| `01_core/src/entities/content.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/underover.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/layout/mod.rs` | [dado administrativo removido] |
+| `03_infra/src/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 

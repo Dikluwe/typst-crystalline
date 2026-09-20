@@ -1,5 +1,13 @@
 # Passo 1340 — completar a estabilização contextual seletiva
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo e fronteira
 
 Implementar somente a pendência de coordenação da pipeline especificada no
@@ -64,7 +72,7 @@ Budget de calibração: no máximo três revisões de contrato e duas execuçõe
 completas pré-selo; duas revisões sem ganho causal exigem revisão de desenho.
 Esses limites não autorizam reduzir obrigações ou fabricar PASS.
 
-Relatório: `00_nucleo/diagnosticos/p1340-estabilizacao-contextual.md`.
+Relatório: relatório consolidado da limpeza.
 Veredito estreito: concluído somente com implementação e gates correspondentes;
 pendência externa ou pré-condição insuficiente permanece explícita.
 
@@ -72,7 +80,7 @@ pendência externa ou pré-condição insuficiente permanece explícita.
 
 Baseline, individualização L0, revisão independente e RED local executados.
 O dono aprovou a política terminal para estabilidade não comprovável com
-“Faça as correções”; o recibo `p1340-terminal-policy-approval.json` e o
+“Faça as correções”; o recibo relatório consolidado da limpeza e o
 contrato sucessor R2 preservam essa decisão. Não há repetição do gate humano.
 O selo R3 liberou a implementação estreita após C/D. A sessão privada L3
 foi criada e integrada; os testes focais da pipeline, build normal e check
@@ -112,7 +120,7 @@ implementação de novas portas L1. NT01–NT06, provenance/lifecycle e a matriz
 pública/lifecycle continuam pendentes; T05 valida o ramo terminal, não a
 descoberta de topologia impossível. Portanto não há F/PASS global, fechamento
 do P1339 ou commit. Os recibos, hashes e controles finais estão em
-`p1340-estabilizacao-contextual.md`.
+relatório consolidado da limpeza.
 
 ## Fecho do próprio passo: não forçar F
 

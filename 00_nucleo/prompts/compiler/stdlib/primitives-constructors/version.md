@@ -1,5 +1,5 @@
 # Prompt L0 — constructor primitivo `version` e adapter de `at`
-Hash do Código: 64e45df5
+Hash do Código: 70a81299
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
@@ -47,9 +47,8 @@ negativos, não inteiros e argumentos nomeados rejeitados.
 Vanilla ratificado `a51e02804`, fonte
 `lab/typst-original/crates/typst-library/src/foundations/version.rs:109–134`,
 documenta índice i64, extensão positiva por zero e índice negativo relativo
-aos componentes explícitos. A medição congelada
-`00_nucleo/diagnosticos/p1339-full-final-vanilla-runs.json:2` (UTC e
-proveniência integrais no recibo), sobre HEAD
+aos componentes explícitos. A medição histórica (UTC e
+proveniência integrais no registro), sobre HEAD
 `2f42d64253547734564513a1159ee6b584c1c4b4` com diff/stat vazio, contém os IDs
 `discovery-version.at`, `version-static-*`, `version-bound-*`,
 `version-invalid-*` e `version-method-value`; o suplemento boundaries cobre
@@ -105,6 +104,6 @@ refutada por erro/ordem que perca ocorrência entre estática e ligada.
 Constructor, major/minor/patch, repr, display, comparação e `PARITY_VERSION`
 permanecem intactos. A tensão histórica entre documentação e campos ausentes
 de versão não é corrigida por esta rota. Não fecha paridade geral de Version.
-Gate de implementação: contrato selado e RED independente P1339; depois
+Gate de implementação: contrato validado e RED independente P1339; depois
 verificar índices positivos/negativos/extremos, lista vazia, erros, aliases e
 preservações, com ownership 1:1 e V5/V15/V26 limpos.

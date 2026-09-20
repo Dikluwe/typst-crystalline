@@ -1,5 +1,13 @@
 # Passo 1406 — realizar `outline.entry` sob `show` antes do layout
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** implementado e verificado no recorte; diferença visual de fill
 encaminhada ao passo seguinte.
 
@@ -17,23 +25,23 @@ dentro do layouter.
 
 - HEAD: `fe3209458abaa9177f41bbf4795755916c277ae8`.
 - Referência vanila: `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
-- Binário cristalino: `target/debug/typst`, SHA-256
-  `5b2bb9d2492228f9ea77893dcf911aec799b5895e8f9970e829921f8a6f1148b`.
-- Binário vanila: `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+- Binário cristalino: `target/debug/typst`, identificador administrativo
+  [dado administrativo removido].
+- Binário vanila: `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido].
 - Medição iniciada em `2026-09-15T08:24:45-03:00`.
 - Working tree não commitado durante a medição: `git diff HEAD --stat` vazio e
   estes cinco ficheiros novos, ainda não rastreados:
   - `lab/parity/corpus/p1406/default.typ` —
-    `e023645aa816a7db12ed0e99b9d2ea073aef4ddc7f03cec90a85543775aaf1e2`;
+    [dado administrativo removido];
   - `lab/parity/corpus/p1406/custom.typ` —
-    `987a24f28c4994bec5784a12050663922844066b5f889d9f10918ffe409da9d6`;
+    [dado administrativo removido];
   - `lab/parity/corpus/p1406/where.typ` —
-    `91463a4578106ce31bed89ed0d23f1852e0d908ea1ff74a5804f147c7640ada9`;
+    [dado administrativo removido];
   - `lab/parity/corpus/p1406/parent.typ` —
-    `d2c05c32d78831225afac1e941b2c7bb70ade564158a961e14890f2b57c0f86d`;
+    [dado administrativo removido];
   - `lab/parity/corpus/p1406/lexical.typ` —
-    `2590056ba0320d56b45399b1e47dea57715d9a0648c6542730412e681b4182b0`.
+    [dado administrativo removido].
 - Cada compilação bilateral foi limitada a 512 MiB, um thread e 15 segundos;
   stdout/stderr guardado abaixo de 64 KiB.
 
@@ -173,8 +181,8 @@ recebida em 2026-09-15; implementação produtiva e resselo estão autorizados.
   `fe3209458abaa9177f41bbf4795755916c277ae8`, working tree não commitado com
   os ficheiros listados por `git diff HEAD --stat`; hora
   `2026-09-15T10:42:11-03:00`.
-- Binário cristalino final usado nas provas: SHA-256
-  `c64958da6386a012dcde83678f44917ac7af7b03b10db7b2223a4a2abc249d28`.
+- Binário cristalino final usado nas provas: identificador administrativo
+  [dado administrativo removido].
 - O seletor direto passou a reconhecer `outline.entry` pela identidade da
   função nativa, incluindo aliases; `where(level: 2)` atua sobre a entry
   gerada.

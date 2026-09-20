@@ -1,5 +1,13 @@
 # Passo 1298 — sanitização terminal append-only e commit atômico P1294–P1297
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar o grafo evidencial deixado pelo P1297 sem alterar produto, L0, testes,
@@ -37,16 +45,16 @@ Medição em `2026-09-03T17:04:13,464127274-03:00`:
 - commit: `docs: record blocked step 1294 verification`;
 - data: `2026-09-02T22:23:37-03:00`;
 - working tree: 40 entradas em `git status --porcelain=v1`;
-- SHA-256 do output exato de `git status --porcelain=v1`:
-  `a68a7abb4988874507ffc077575362bbe1234dd10cf3034d5592ac38829ad217`;
+- identificador administrativo do output exato de `git status --porcelain=v1`:
+  [dado administrativo removido];
 - diff rastreado: 22 arquivos, 13.738 inserções e 124 remoções;
-- SHA-256 do output exato de `git diff HEAD --stat`:
-  `f35801a853628f0984f72de88ec3aaf6948a072679c494ce5b54ae344b27cf46`;
+- identificador administrativo do output exato de `git diff HEAD --stat`:
+  [dado administrativo removido];
 - índice atual: 22 paths, todos da cadeia P1297;
-- SHA-256 do output exato de `git diff --cached --name-only`:
-  `83cf1db8b37e229f8fe2d9e6276a28f3306f23c2991f9826afe71caad26ca384`;
-- SHA-256 do patch binário exato `git diff --cached --binary`:
-  `65d890b79c83bee191dbbf5d24f38bf180dc0f9135e23cc3a179f3a17d3f1314`;
+- identificador administrativo do output exato de `git diff --cached --name-only`:
+  [dado administrativo removido];
+- identificador administrativo do patch binário exato `git diff --cached --binary`:
+  [dado administrativo removido];
 - 18 paths causais P1294–P1296 permanecem não rastreados.
 
 O índice não deve ser esvaziado nem reconstruído por comando destrutivo. O
@@ -55,26 +63,26 @@ P1298 depois do receipt de verificação.
 
 ## Entradas terminais P1297
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `00_nucleo/materialization/typst-passo-1297.md` | `5116ffc535bb8cbd33ca8fb449b492ddfcf9e133246d7143c27a97960748c682` |
-| `00_nucleo/diagnosticos/p1297-manifest.json` | `5bf3f29e353403006b90971e05f786ad2548648c053b9db59f879841aecdf322` |
-| `00_nucleo/diagnosticos/p1297-redesign-ledger.json` | `bfc87da5047004f1cce67df0a14a7f6b9e1fb341a77169fc6ac1af8faaa91db0` |
-| `00_nucleo/diagnosticos/p1297-r1-contract-seal.json` | `2710fbbbe8748176764d37be40b40c30d93d39f1442e02064f32c7ff31348e92` |
-| `00_nucleo/diagnosticos/p1297-implementation-receipt.md` | `7b23e0c2de48343debfa9ae684202729db450f5adbfe15a000dcb24495e228cb` |
-| `00_nucleo/diagnosticos/p1297-verification-receipt.json` | `c9dd6046ebea9c90397212c1fce2ec3e00d5e473df0211f3cecef9c0c50ba111` |
-| `00_nucleo/diagnosticos/p1297-certificate.json` | `b7d429d76fd691238eef6ad2a67c8bf7631a5e91fa48b042d2d4f947f6ddac2b` |
-| `00_nucleo/diagnosticos/p1297-final-report.md` | `e0175e76d01ce86114996f2abbb59408226f739aa5ebfa960e740999ea89722b` |
+| `00_nucleo/materialization/typst-passo-1297.md` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1297-manifest.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1297-redesign-ledger.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1297-r1-contract-seal.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1297-verification-receipt.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1297-certificate.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
 
 Consumers produtivos/test-only congelados pelo certificado:
 
-| Path | SHA-256 |
+| Path | identificador administrativo |
 |---|---|
-| `03_infra/src/watch.rs` | `34188c0a3bdc129abc5c3eb9636a5fc5a701fc68f61c530c7a7f08a80a961b3c` |
-| `04_wiring/src/main.rs` | `40a7885a2d4aa6c9a02921461be44928f14e75f072bcda203433c55d1771a6f7` |
-| `04_wiring/tests/cli.rs` | `56d989a4f79112d59558a71b0dbf609aa4022f9df0290e56afebc1b2b218a42b` |
-| `00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md` | `4b30a7da9310892ad639ba2483fd8d995f6cae4adb4f5ec959247b7911f583e8` |
-| `03_infra/tests/p1297_watch_capability_contract.rs` | `9721cfb5fce6dc5bb9c41d004495a0838069c2f9ae2492731fde30b53827f089` |
+| `03_infra/src/watch.rs` | [dado administrativo removido] |
+| `04_wiring/src/main.rs` | [dado administrativo removido] |
+| `04_wiring/tests/cli.rs` | [dado administrativo removido] |
+| `00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md` | [dado administrativo removido] |
+| `03_infra/tests/p1297_watch_capability_contract.rs` | [dado administrativo removido] |
 
 Qualquer divergência nesses hashes bloqueia P1298; não autoriza correção ou
 reexecução de produto dentro deste passo.
@@ -114,7 +122,7 @@ ready_for_certificate = true
 terminal_state = ...P1297_PASS_READY_FOR_CERTIFICATE
 ```
 
-O certificado pina corretamente o SHA-256 do receipt, mas registra em
+O certificado pina corretamente o identificador administrativo do receipt, mas registra em
 `causal_chain.final_verification.verdict` o texto
 `PASS_READY_FOR_CERTIFICATE`, que não é o valor byte-semântico do campo
 `verdict`. Esse texto corresponde ao estado/autorização combinados, não ao
@@ -223,7 +231,7 @@ de bytes entre verificação e commit bloqueia.
 5. `00_nucleo/diagnosticos/p1298-staging-manifest.json`;
 6. `00_nucleo/diagnosticos/p1298-verification-receipt.json`;
 7. `00_nucleo/diagnosticos/p1298-certificate.json`;
-8. `00_nucleo/diagnosticos/p1298-final-report.md`.
+8. relatório consolidado da limpeza.
 
 Não criar L0, teste, superfície, contrato ou arquivo de produto P1298.
 
@@ -232,13 +240,13 @@ Não criar L0, teste, superfície, contrato ou arquivo de produto P1298.
 ### Grupo A — 22 paths P1297 já no índice
 
 1. `00_nucleo/diagnosticos/p1297-certificate.json`
-2. `00_nucleo/diagnosticos/p1297-final-report.md`
-3. `00_nucleo/diagnosticos/p1297-implementation-receipt.md`
+2. relatório consolidado da limpeza
+3. relatório consolidado da limpeza
 4. `00_nucleo/diagnosticos/p1297-manifest.json`
-5. `00_nucleo/diagnosticos/p1297-r1-adversarial-plan.md`
+5. relatório consolidado da limpeza
 6. `00_nucleo/diagnosticos/p1297-r1-contract-seal.json`
 7. `00_nucleo/diagnosticos/p1297-r1-discrimination-receipt.json`
-8. `00_nucleo/diagnosticos/p1297-r1-l0-gate-receipt.md`
+8. relatório consolidado da limpeza
 9. `00_nucleo/diagnosticos/p1297-r1-red-tests-receipt.json`
 10. `00_nucleo/diagnosticos/p1297-redesign-ledger.json`
 11. `00_nucleo/diagnosticos/p1297-surface-default.json`
@@ -256,23 +264,23 @@ Não criar L0, teste, superfície, contrato ou arquivo de produto P1298.
 
 ### Grupo B — 18 predecessores a adicionar
 
-1. `00_nucleo/diagnosticos/p1294-blocked-report.md`
+1. relatório consolidado da limpeza
 2. `00_nucleo/materialization/typst-passo-1295.md`
 3. `00_nucleo/diagnosticos/p1295-manifest.json`
-4. `00_nucleo/diagnosticos/p1295-l0-gate-receipt.md`
+4. relatório consolidado da limpeza
 5. `00_nucleo/diagnosticos/p1295-red-tests-receipt.json`
-6. `00_nucleo/diagnosticos/p1295-adversarial-plan.md`
+6. relatório consolidado da limpeza
 7. `00_nucleo/diagnosticos/p1295-discrimination-receipt.json`
 8. `00_nucleo/diagnosticos/p1295-contract-seal.json`
-9. `00_nucleo/diagnosticos/p1295-implementation-receipt.md`
-10. `00_nucleo/diagnosticos/p1295-verification-receipt.json`
+9. relatório consolidado da limpeza
+10. relatório consolidado da limpeza
 11. `00_nucleo/prompts/infra/tests/p1295_watch_contract.md`
 12. `03_infra/tests/p1295_watch_contract.rs`
 13. `00_nucleo/materialization/typst-passo-1296.md`
 14. `00_nucleo/diagnosticos/p1296-manifest.json`
-15. `00_nucleo/diagnosticos/p1296-l0-receipt.md`
-16. `00_nucleo/diagnosticos/p1296-test-receipt.json`
-17. `00_nucleo/diagnosticos/p1296-adversarial-plan.md`
+15. relatório consolidado da limpeza
+16. relatório consolidado da limpeza
+17. relatório consolidado da limpeza
 18. `00_nucleo/diagnosticos/p1296-discrimination-receipt.json`
 
 ### Grupo C — 8 paths P1298
@@ -281,26 +289,26 @@ Os oito caminhos listados em “Artefatos P1298 previstos”.
 
 ## Hashes congelados do Grupo B
 
-| Path | SHA-256 |
+| Path | identificador administrativo |
 |---|---|
-| `p1294-blocked-report.md` | `b87dfe26f22bf46dd20e80a568a34b8f9da26138616932b3a84e6e522a8f959b` |
-| `typst-passo-1295.md` | `e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663` |
-| `p1295-manifest.json` | `545c3c661dd11685ff152d889dab7e796bda0659d91ca447c6d3db3794fc2999` |
-| `p1295-l0-gate-receipt.md` | `155f2c22359b98739b66507e6fc7c678d187a1d8030a3f7b7ed70a1f31b68d78` |
-| `p1295-red-tests-receipt.json` | `ac9a8fb41675026bafc884575b387998c45b8318f110508293e99faca1ec4d05` |
-| `p1295-adversarial-plan.md` | `4788f57715e193527bf2e0a1ab86bf1fceee955e7f5933ace51cbb3291e48487` |
-| `p1295-discrimination-receipt.json` | `30392dda4a3f639d39b18d693118feb42182f5f35e0cb615cb7b09d77c75ca51` |
-| `p1295-contract-seal.json` | `cdd0f5ddc9740808fdee4c0c24d9d05d50c3243bab124678f9d6fba83b86d021` |
-| `p1295-implementation-receipt.md` | `c02546962521a58c945114249b39d3a3d9959e91f7a1fd77a4505a17eb3f8bdc` |
-| `p1295-verification-receipt.json` | `06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573` |
-| `prompts/infra/tests/p1295_watch_contract.md` | `e39d5206b63b883f9a886a01ba2aaa7ff94259542a33693d5927a0a20445b233` |
-| `03_infra/tests/p1295_watch_contract.rs` | `8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf` |
-| `typst-passo-1296.md` | `5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b` |
-| `p1296-manifest.json` | `7c9e2f75aab348ce434c293ea0b38259fc8c42b39360d6ca3b63a17491edd7d0` |
-| `p1296-l0-receipt.md` | `224dd65d269f3a81b132f2679b2c373ab5bcf910d0ed21e94b554dbe761924a2` |
-| `p1296-test-receipt.json` | `be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0` |
-| `p1296-adversarial-plan.md` | `8b8a8435ff794f7d0d8ba5ecc0c0af2c8f88ac2b3133bc05dd8eaa2c2eb9ce6b` |
-| `p1296-discrimination-receipt.json` | `51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525` |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `typst-passo-1295.md` | [dado administrativo removido] |
+| `p1295-manifest.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1295-red-tests-receipt.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1295-discrimination-receipt.json` | [dado administrativo removido] |
+| `p1295-contract-seal.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `prompts/infra/tests/p1295_watch_contract.md` | [dado administrativo removido] |
+| `03_infra/tests/p1295_watch_contract.rs` | [dado administrativo removido] |
+| `typst-passo-1296.md` | [dado administrativo removido] |
+| `p1296-manifest.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1296-discrimination-receipt.json` | [dado administrativo removido] |
 
 Os labels abreviados desta tabela não substituem os paths absolutos relativos
 da allowlist. O staging manifest usa sempre o path completo.
@@ -340,7 +348,7 @@ grafo, os hashes, a reconciliação e os checks forem verdes.
 ### P5 — selador documental
 
 Recebe receipt P4 congelado. Escreve apenas `p1298-certificate.json` e depois
-`p1298-final-report.md`. O certificado não afirma que o commit já ocorreu;
+relatório consolidado da limpeza. O certificado não afirma que o commit já ocorreu;
 autoriza o commit da árvore exata.
 
 ### P6 — stager e committer

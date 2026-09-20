@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 9a7450a5
+Hash do Código: 62a4f93c
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -90,8 +90,7 @@ contradiziam a mudança de compatibilidade P1455 confirmada pelo dono.
 
 **Medição anterior à decisão:** no baseline
 `3f081c97f7dba59549a70e89d6bfb93afcc82b1a`, o consumer deste L0,
-`01_core/src/compiler/stdlib/mod.rs` SHA-256
-`18c3811be31af00eb8a0dcc2fa27ad33df4c9149850877cada4a9160538b813f`,
+`01_core/src/compiler/stdlib/mod.rs`,
 contém em `:12759-12777` os testes P299 de `liminf` e `limsup`. Seus expected
 e comentário ainda afirmam U+0020 (`"lim inf"`/`"lim sup"`), em contradição
 com a obrigação P1396 do owner estrutural e com U+2009 medido no vanila
@@ -130,14 +129,12 @@ amplia a API Rust externa.
 
 ### Medição anterior à decisão
 
-No baseline SHA-256
-`02d53b1588b008c295e2dcab0adc0e6ad2e8604d9972c5fa0b2503d340826f3f`,
+No baseline,
 `01_core/src/compiler/stdlib/mod.rs` declara `layout` como submódulo privado e
 constitui a fachada já consumida por `compiler/eval/mod.rs`. A lista de
 reexports de layout expõe as demais nativas necessárias ao registo, mas ainda
 omite `native_flush`. A implementação/construção de `native_flush` já pertence
-ao owner dedicado `compiler/stdlib/layout.md`, SHA-256
-`6ff688ec12444582ec9ec87bb7b432019ff568882fbb1c66170eb47367e62dc4`;
+ao owner dedicado `compiler/stdlib/layout.md`;
 movê-la para o hub violaria a atomização e o ownership 1:1.
 
 ### Decisão
@@ -155,7 +152,7 @@ wrapper, lookup, cast, validação ou branch, não torna o módulo `layout`
 público, não usa wildcard e não promove a função à API Rust externa.
 
 A superfície Typst `place.flush`, seus argumentos/erros e a construção de
-`Content::Flush` permanecem nos owners P1292 já selados. Esta correção só
+`Content::Flush` permanecem nos owners P1292 já validados. Esta correção só
 permite que o consumer da fachada alcance a função dedicada; não altera
 vetores A-D, default, fase de pipeline ou compatibilidade. Qualquer necessidade
 de lógica no hub, `pub use` externo, mudança em `layout.rs` ou segundo caminho
@@ -165,8 +162,7 @@ de implementação refuta este amendment e exige novo owner/escopo.
 
 ### Medição anterior à decisão
 
-No snapshot `00_nucleo/diagnosticos/p1307-r3-baseline.json`, SHA-256
-`b50e726c5830c0f91a6875d2d0a758903bc93b0bd719f4b5357828522a999293`,
+No snapshot histórico,
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais o diff P1306 integral
 ali guardado, `01_core/src/compiler/stdlib/mod.rs:134-137` reexporta as
 nativas de loading; `compiler/eval/mod.rs:1723-1725` registra os três
@@ -193,8 +189,7 @@ necessidade de lógica no hub ou alteração dos demais namespaces.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
-`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+A medição histórica
 identifica a árvore/UTC e perda de origem missing. Em
 `01_core/src/compiler/stdlib/mod.rs:24,76,211-214`, calc é privado,
 make_calc_module é reexportado e calc_abs só é importado em testes;
@@ -236,8 +231,8 @@ alterar PARITY_VERSION, criar fórmula/lookup ou usar wildcard no hub.
 
 Medição anterior: `stdlib/mod.rs:49,94,167` já encaminha os constructors
 atomizados. O pré-requisito ausente está documentado em
-`diagnosticos/p1339-array-prerequisite-measure-r2.json` com HEAD/árvore/UTC.
-A autorização `diagnosticos/p1339-array-authorization.md` permite reexportar
+medição histórica com HEAD/árvore/UTC.
+A autorização já registrada permite reexportar
 `primitives_constructors::native_array_bytes` somente em `pub(crate)`.
 Sem wrapper, validação, conversão, registro de Func ou API Rust externa.
 Esta exceção à proibição de ampliar constructors da seção version.at fica

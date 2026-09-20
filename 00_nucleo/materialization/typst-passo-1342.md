@@ -1,5 +1,13 @@
 # Passo 1342 — reautorizar o binding contra a topologia produtiva real
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Corrigir exclusivamente o fragmento de binding rejeitado no Passo 1341:
@@ -27,20 +35,20 @@ Medição em `2026-09-10T20:09:54Z`:
 
 - HEAD: `2f42d64253547734564513a1159ee6b584c1c4b4`;
 - working tree não commitada;
-- SHA-256 de `git status --porcelain=v1 -z`:
-  `69df14fde6d9e43aaf174c99b640bb4ebb0d136f12ec076d1599230662f3ba8f`;
-- SHA-256 de `git diff --binary HEAD`:
-  `02f7ee9a373030a62b79fb6816a964ff282c982b6d7ee49bf1f8a6b7ae8204d9`.
+- identificador administrativo de `git status --porcelain=v1 -z`:
+  [dado administrativo removido];
+- identificador administrativo de `git diff --binary HEAD`:
+  [dado administrativo removido].
 
 Entradas causais:
 
-- `00_nucleo/diagnosticos/p1341-execucao-r1.md`, SHA-256
-  `192a834c5d24783eebdc2c143db157c2fae5cf530bd951b6f76c80250c26b949`;
-- `00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json`, SHA-256
-  `cf63928e5bc2360b58f6f828a3e5bb5ff8c82034e7ec513e3f098186588121f2`,
+- `00_nucleo/diagnosticos/p1341-execucao-r1.md`, identificador administrativo
+  [dado administrativo removido];
+- `00_nucleo/diagnosticos/p1341-verifier-candidate-r1.json`, identificador administrativo
+  [dado administrativo removido],
   veredito `REJECTED`;
-- `00_nucleo/diagnosticos/p1341-verifier-preseal-r2.json`, SHA-256
-  `ead304d1bb43faf54cc2d69fad7960fc67cd7e79159bc188ff4406c008709adb`.
+- `00_nucleo/diagnosticos/p1341-verifier-preseal-r2.json`, identificador administrativo
+  [dado administrativo removido].
 
 O verificador mediu cinco causas independentes:
 

@@ -1,9 +1,0 @@
-{
-  "schema": "tekt-contract/v1",
-  "step": 1390,
-  "scope": "single inter-fragment wrap between two unequal above-outer size-only Styled(Text) words",
-  "owners": ["00_nucleo/prompts/compiler/layout/sequence.md", "00_nucleo/prompts/compiler/layout/tests.md"],
-  "acceptance": ["21->24 and 24->21 remain on one page", "After and Tail share y within 0.001pt", "P1389 and P1388 controls remain exact"],
-  "excluded": ["multiword", "size at or below outer", "compound style delta", "third fragment", "nested wrapper", "internal or multiple wrap", "insufficient vertical reservation"],
-  "isolation_attestation": false
-}

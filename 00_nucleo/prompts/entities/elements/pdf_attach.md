@@ -1,16 +1,14 @@
 # Prompt L0 — `entities/elements/pdf_attach` — `PdfAttachElem`
 Hash do Código: a32148c9
 
-**Estado do hash:** consumer materializado; o valor de `Hash do Código` é o
-selo calculado pelo `crystalline-lint --fix-hashes`.
+**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
+`crystalline-lint --fix-hashes`.
 
-**Camada:** L1 domínio  
-**Consumer exclusivo:** `01_core/src/entities/elements/pdf_attach.rs`  
-**Contrato predecessor:** `00_nucleo/diagnosticos/p1286-contract-receipt.md`
-v2, SHA-256
-`16597543965ca13d37fdabf9be184f3477df92da4f6702ba14f0a4ca4918f9bb`  
+**Camada:** L1 domínio
+**Consumer exclusivo:** `01_core/src/entities/elements/pdf_attach.rs`
+**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
 **Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.  
+e pode implementar”.
 **ADRs:** ADR-0029, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
 
 ## Medição anterior à decisão
@@ -18,7 +16,7 @@ e pode implementar”.
 O vanilla pinado preserva path virtual, bytes, relationship, MIME e descrição
 em `pdf/attach.rs:31-86`; coleta attachments globalmente e não gera conteúdo
 visual (`typst-layout/src/rules.rs:824`, `typst-pdf/src/attach.rs:13-67`). O
-receipt predecessor mediu path obrigatório, bytes como segundo posicional
+A medição anterior cobriu path obrigatório, bytes como segundo posicional
 opcional, extração byte-idêntica e erro por path duplicado. O contrato público
 aprovado adiciona `Content::PdfAttach(Arc<PdfAttachElem>)` sem `Value`, trait ou
 fase novos.

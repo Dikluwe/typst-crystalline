@@ -290,16 +290,14 @@ copiados para `EquationElem`. Hash/eq e matches exaustivos incluem os campos.
 
 ### Medição anterior à decisão
 
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto SHA-256
-`35fcddfd22a08c824c146a82b5feaea93c18d5751d256875b1550cb8255411a9`:
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
 o enum não possui payload para Strong/Emph. `compiler/introspect.rs:1278-1363`
 aloca Location e entrada de conteúdo somente se extract_payload retorna Some;
 `:1398-1401` atravessa Strong/Emph sem ocorrência própria. O L0 de locatable
 exige equivalência entre is_locatable e presença de payload. Portanto um
 Selector que conserve a função não cria por si só a ocorrência consultável.
 
-As sondas `p1339-where-integration-probe-runs.json` e
-`p1339-where-integration-probe-supplement-runs.json`, UTC respectivamente
+As medições históricas, em UTC respectivamente,
 `2026-09-10T00:18:55.842594+00:00`–`00:18:59.537177+00:00` e
 `00:20:17.650961+00:00`–`00:20:19.215281+00:00`, fixam o working tree
 não commitado e o vanilla ratificado `a51e02804`. Query/counter aceitam
@@ -350,7 +348,7 @@ mapa de propriedades ou método público adicional.
 ### Gates e alcance
 
 A variante quebra matches Rust externos exaustivos; o gate específico
-ADR-0127 foi aprovado em p1339-where-payload-approval.json, separadamente
+A mudança foi aprovada separadamente pelo dono conforme ADR-0127
 da aprovação de Selector/ShowSelector. A promoção completa
 exige L0s próprios de extração, locatability, walk, consulta, contagem e
 sincronização das Locations com layout antes de código; esta entidade não

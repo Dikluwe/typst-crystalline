@@ -26,7 +26,7 @@ prompt usado por vários consumers. O reparador antigo escrevia sucessivamente
 o mesmo prompt, conservava o hash do último consumer e podia deixar source e
 prompt parcialmente atualizados enquanto a segunda passagem fechava em zero.
 
-O manifesto P1179 mediu, sobre HEAD histórico
+O inventário P1179 mediu, sobre HEAD histórico
 `ce49041de76eb64c011e990e9774a0339f979211`, 22 prompts compartilhados por 107
 consumers e 23 prompts sem metadata canônica, afetando 78 consumers.
 
@@ -98,7 +98,7 @@ do consumer e critérios próprios não podem ser terceirizados ao Núcleo.
 - **ADR:** decisão arquitetural e sua motivação histórica;
 - **diagnóstico:** evidência e estado ex-post;
 - **passo:** coordenação operacional temporária;
-- **relatório:** recibo mínimo do que foi executado.
+- **relatório:** registro mínimo do que foi executado.
 
 ADRs, diagnósticos, passos e relatórios não podem ser referenciados como
 Núcleos. TOML fora de `_nuclei` não adquire identidade de Núcleo. A extensão
@@ -171,8 +171,8 @@ antes disso legitimaria uma relação inválida.
 Se o binário pinado deixar de provar V15/V26, preflight integral ou rollback,
 o saneamento deve parar antes de novos writes. Prompts já individualizados não
 voltam a ser compartilhados: preserva-se a bijeção e remove-se temporariamente
-apenas o consumo de Núcleos afetado, restaurando dos manifests os bytes dos
-prompts/pins do último lote válido. Uma nova versão da ferramenta exige
+apenas o consumo de Núcleos afetado, restaurando do último commit válido os
+prompts/pins afetados. Uma nova versão da ferramenta exige
 proveniência, dry-run duplo e decisão explícita antes de retomar.
 
 ## Gate ADR-0127

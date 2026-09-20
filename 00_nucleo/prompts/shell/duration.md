@@ -13,7 +13,7 @@ relógio, não mede execução, não dorme e não conhece `watch`, pipeline ou I
 
 ## Medição anterior à decisão
 
-O recibo `diagnosticos/p1361-duration-preflight.md` congela o formatter e o
+O registro histórico congela o formatter e o
 teste do vanila ratificado antes desta decisão. A fonte vanila seleciona peças
 de dia, hora e minuto, interrompe antes de segundos quando há dia ou hora,
 arredonda frações a duas casas e escolhe a unidade pelas fronteiras de um
@@ -111,5 +111,5 @@ pertencem ao consumidor/envelope. O formatter P1363 cobre somente o timestamp
 - vetor obrigatório e controles de fronteira passam em teste unitário exato;
 - determinismo por repetição e ordem inversa;
 - mutantes de unidade, limite inclusivo, omissão, arredondamento e relógio são
-  rejeitados pelo contrato selado;
+  rejeitados pelo contrato validado;
 - `cargo fmt --check`, `git diff --check` e `crystalline-lint .` passam.

@@ -4,9 +4,7 @@
 //! @layer L4
 //! @updated 2026-09-01
 //!
-//! Oraculos black-box independentes do Passo 1292.
-//!
-//! Congelados no baseline 0eb39f8 antes da implementacao candidata.
+//! Testes black-box funcionais das superfícies materializadas no Passo 1292.
 
 use std::env;
 use std::fs;

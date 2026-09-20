@@ -61,7 +61,7 @@ corpos que devem seguir `eval_math_expr`, mas não inclui `Expr::Closure` nem
 `angle: a => 0deg` de `math.cancel` é convertido em `Value::Content` e
 `angle: a => context ...` tenta avaliar `context` como identificador math. O
 avaliador genérico já materializa essas duas formas como valor executável e
-contextual; a falha ocorre antes da native e antes do transcript selado.
+contextual; a falha ocorre antes da native e antes do transcript validado.
 
 ### Decisão
 
@@ -82,7 +82,7 @@ L3, conforme `compiler/math/layout/callbacks.md` e `infra/pipeline.md`.
 
 Aceitação: closure literal direta ou sob wrapper math unitário chega à native
 como `Value::Func`; callback
-contextual observa o snapshot de estilo selado; expressão math comum continua
+contextual observa o snapshot de estilo validado; expressão math comum continua
 `Value::Content`; nenhuma callback é executada por `eval_math_arg_value`.
 
 ## P1285 — preservar grapheme distinto de número
@@ -134,7 +134,7 @@ delimitadores `(` e `)`, alinhamento `center`, gap `0.2em`. Cada positional é
 avaliado uma vez e preservado como um filho, inclusive zero ou um. `&` dentro
 do filho permanece conteúdo de alinhamento da célula, sem criar linha extra.
 
-Named desconhecido e casts inválidos propagam as mensagens medidas no recibo
+Named desconhecido e casts inválidos propagam as mensagens medidas no registro
 P1292; não há descarte silencioso. `delim` aceita array, `none`, symbol ou
 string e normaliza para o par tipado; `align` aceita somente alinhamento
 horizontal; `gap` aceita relative length. `Start`/`End` são preservados no
@@ -194,9 +194,8 @@ perdida em outro builder ou exigência de semântica math nova.
 
 ### P1307-R4 — transporte agregado nas chamadas genéricas
 
-O recibo `00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json`, SHA-256
-`6e2335e203c2ed888e97259159e5057c904f5a808d5dddde6cf9d3f0698b8912`,
-congela o estado anterior. `math.rs:551-597,1291-1352` dispõe da função
+O registro histórico congela o estado anterior. `math.rs:551-597,1291-1352`
+dispõe da função
 resolvida e `call.span()` até aplicar os Args. Vanilla ratificado
 `typst-eval/src/call.rs:149-157` usa a chamada inteira no agregado math;
 o diagnóstico missing de encoder aprovado depende desse dado.
@@ -302,7 +301,7 @@ absoluto e raiz. Comparação de bytes ou de variantes Rust não concede crédit
 
 Depois do candidato existir, mas sem o autor deste L0 o ler, o mesmo oráculo
 CLI foi executado diretamente contra o vanila ratificado
-`586e1bd43fae6c9a973218163d3165c53ab8d16d`. O recibo temporário
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`. O registro temporário
 `/tmp/p1395-vanila-r4.json`, SHA-256
 `145f6974f70b85a992ba02e43d3e36e1cc937b43304314af0e1bcbc5bf8adc22`,
 terminou em 4,55 s, RSS máximo 32.288 KiB e zero swap sob 512 MiB/60 s.

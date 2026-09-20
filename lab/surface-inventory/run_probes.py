@@ -79,7 +79,7 @@ def run_side(binary: pathlib.Path, expression: str, profile: str) -> dict:
     }
 
 
-def receipts_match(vanilla: dict, crystalline: dict) -> bool:
+def observables_match(vanilla: dict, crystalline: dict) -> bool:
     return (
         vanilla["exit_code"] == 0
         and crystalline["exit_code"] == 0
@@ -113,7 +113,7 @@ def main() -> None:
             expression = f'repr((type({probe["path"]}), repr({probe["path"]})))'
         vanilla = run_side(args.vanilla_bin, expression, args.profile)
         crystalline = run_side(args.crystalline_bin, expression, args.profile)
-        same = receipts_match(vanilla, crystalline)
+        same = observables_match(vanilla, crystalline)
         results.append(
             {
                 **probe,

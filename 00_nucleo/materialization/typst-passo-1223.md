@@ -237,7 +237,7 @@ Produzir:
 00_nucleo/diagnosticos/p1223-svg-stroke-resultados.tsv
 00_nucleo/diagnosticos/p1223-watch-estabilidade.tsv
 00_nucleo/diagnosticos/p1223-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1223-svg-paths-and-stroke.md
+[artefato protocolar removido]
 ```
 
 O laudo separa:

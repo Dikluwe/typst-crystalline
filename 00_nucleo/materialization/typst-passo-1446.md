@@ -1,5 +1,13 @@
 # Passo 1446 — Materializar `math.stretch` com tamanho causal e cascata
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)
 **Data da medição:** 2026-09-18T15:50:44-03:00
 **Commit medido:** `6f24506eaab9fcf2775238d9e5c55885827b7f86`
@@ -26,16 +34,16 @@ da cascata e chama `update_stretch` com short-fall zero. A atualização marca
 os eixos disponíveis do glifo; o alvo percentual é relativo à dimensão
 natural do eixo e o termo absoluto é resolvido no tamanho de fonte causal.
 
-Hashes SHA-256 das fontes medidas:
+Hashes identificador administrativo das fontes medidas:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/attach.rs` | `7efdda527260ad0ac91436b35abe5f98b85019ff8491192c1ed5077c17953f5f` |
-| `lab/typst-original/crates/typst-library/src/math/mod.rs` | `a8a64e505979b8a6fce3bb5fef978677a40200199e9dc36738a3343ae1104957` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
+| `lab/typst-original/crates/typst-library/src/math/attach.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/mod.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
 
-O binário `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+O binário `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 é byte a byte igual ao build ratificado em
 `lab/typst-original/target/release/typst`.
 
@@ -79,25 +87,25 @@ campos, tamanho causal, introspecção e cascata. O validador de `#set` conhece
 o nome `stretch.size`, mas o par não integra `MATH_SET_LIGADOS` e não chega ao
 layout.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `entities/elements/mod.rs` | `fd8b7f2a1ddc18ae88e5272f8775e138044f36b097c28a679f6c23af63ce534f` |
-| `entities/content.rs` | `160869242f41ae886d130fb84a384296fa2e49bfbcbddd32ff408baf1c7c372b` |
-| `compiler/stdlib/structural/math.rs` | `aeba757253893b15ccc14c9f3a2b432981b69f9a1e24fcaa0fd4630e2af25018` |
-| `compiler/eval/math.rs` | `751925bb44ea29c89e7b3ecf6c2b2c8dd380d58501e1f7176824da2476062a66` |
-| `compiler/eval/repr.rs` | `676b659e13a3426db0d95af0e0b5328888255521873339ba810d9ab48025a8b0` |
-| `compiler/eval/mod.rs` | `3ddd0f44d126f31063f2b9004f7b9706f345433c92f488ec1e11da161ff6c4e4` |
-| `compiler/eval/bindings/field_access.rs` | `f2676ec3f8d3e44f378c41a8393cfafac65bd8baed259f772b60a6a11b4ab269` |
-| `compiler/eval/rules.rs` | `69b2b34e14d504cf028fa7a727a9b6b987e9f763b241531d23c775969da93f46` |
-| `compiler/math/layout/mod.rs` | `cdc3f8c6dd9340bf33aa01c08cdc1a18a8a1f7f14970ee4469a64d4111b19267` |
-| `compiler/math/layout/stretchy.rs` | `5aac1f86fc8c6e19fd47eed1f6727581e7d82a214dab322dc109cdc29ff62751` |
-| `compiler/math/layout/spacing.rs` | `585f67a5da7d3c411c991e586e498e3725fe9b704945c924dcb9a2338e5f5f6f` |
-| `compiler/introspect.rs` | `12bdb42aab66edf5fc100d7b49a76608c656919af313a73415d2e2d3d5e91126` |
-| `compiler/introspect/locatable.rs` | `1c66808eae8a693f461cd5293fd3c503c24dc7c29af04883ee8a90a4b19b20c4` |
-| `compiler/layout/mod.rs` | `5e1d7f405f8c9622472f95f5608ed32e8be36f0fb0bf90e0ab504608cae64763` |
-| `infra/query_helpers.rs` | `21a3685ef4d81fb4622be4e77ab391a95b6f59194ac9ff8f7ff9fc3948d2fed3` |
+| `entities/elements/mod.rs` | [dado administrativo removido] |
+| `entities/content.rs` | [dado administrativo removido] |
+| `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `compiler/eval/math.rs` | [dado administrativo removido] |
+| `compiler/eval/repr.rs` | [dado administrativo removido] |
+| `compiler/eval/mod.rs` | [dado administrativo removido] |
+| `compiler/eval/bindings/field_access.rs` | [dado administrativo removido] |
+| `compiler/eval/rules.rs` | [dado administrativo removido] |
+| `compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `compiler/math/layout/stretchy.rs` | [dado administrativo removido] |
+| `compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `compiler/introspect.rs` | [dado administrativo removido] |
+| `compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `compiler/layout/mod.rs` | [dado administrativo removido] |
+| `infra/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -207,4 +215,4 @@ O candidato produtivo e os recibos foram fixados no commit
 `f974b8f0752f4ac38592931373d538d7cf526bc4`, árvore
 `7adcd567a192e2fe1ef34db49633bc17b37fc889`. O certificado limitado ao
 fragmento P1446 é
-`00_nucleo/diagnosticos/p1446-verifier-certificate.json`.
+relatório consolidado da limpeza.

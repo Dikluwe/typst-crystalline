@@ -1,5 +1,13 @@
 # Passo 1457 — eliminar o classificador hardcoded de escalares YAML
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — correção interna de paridade  
 **Data da medição:** 2026-09-18T22:17:12-03:00  
 **Commit medido:** `b2eba024821ed5f10a4667d6179da3ea2cebff8d`  
@@ -18,14 +26,14 @@ lista; deve eliminar a decisão e serializar toda entrada textual como string.
 
 ## 2. Medição anterior à decisão
 
-- L0 SHA-256 anterior:
-  `b17c8ef1911dbf6a7d71d1833369970094c9dd02308b4c1576b76e86a1fdfbfe`;
-- consumer SHA-256:
-  `2e14ab8de2a4c617ec68c55578979e48b0fdeb7742a5db3f6ca616649a3c8c74`;
-- vanilla ratificado SHA-256:
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino release SHA-256:
-  `c2022276ae8bb7d2053a80df91b4ccabb32c1fdcd7d4ff9ef916df8749e39b75`.
+- L0 identificador administrativo anterior:
+  [dado administrativo removido];
+- consumer identificador administrativo:
+  [dado administrativo removido];
+- vanilla ratificado identificador administrativo:
+  [dado administrativo removido];
+- cristalino release identificador administrativo:
+  [dado administrativo removido].
 
 Na fixture pública IEEE com `title = {True}`, o vanilla compila a
 bibliografia. O cristalino falha antes do CSL:
@@ -95,7 +103,7 @@ Resultados reproduzidos:
 - campanha IEEE pública, nas ordens forward, reverse e forward-repeat:
   vanilla e cristalino compilaram e extraíram
   `[1] A. Alpha, “True,” Journal, 2024.` em todas as execuções;
-- `python3 00_nucleo/diagnosticos/p1457-mutation-runner.py`: 12/12 mutantes
+- `python3 [artefato protocolar removido]`: 12/12 mutantes
   mortos, score `1.0`, zero sobreviventes e zero promoção de `Unknown`;
 - a busca por `needs_yaml_quotes` e pelo escaping com `s.replace` no consumer
   ficou vazia;
@@ -109,13 +117,13 @@ Resultados reproduzidos:
 
 O resselo atualizou somente os campos mecânicos de linhagem depois do
 candidato. O preseal preserva o L0 semântico anterior ao candidato
-(`342400dd...`); o L0 final tem SHA-256
-`f938a45fb6557998d02106d98df2879f8a092783f86aa2da1be702a4d78a4a16`,
+(`342400dd...`); o L0 final tem identificador administrativo
+[dado administrativo removido],
 o consumer final
-`741325e68722499c1bc6b7722b276e2dc5aaaa20452dce8a7cbc77dab7df4590`,
+[dado administrativo removido],
 o allowlist final
-`930af768be0ac69fd5587dafd16d3a2de68b5e5a01376367254fd34bc6185496`
+[dado administrativo removido]
 e o binário release
-`b24463da898a2fa98669e118954fa5bf622fc762c5cd6c7f1741613d96c7f4ff`.
+[dado administrativo removido].
 Não se alega isolamento entre papéis: executado sem atestação de
 isolamento.

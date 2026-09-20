@@ -1,5 +1,13 @@
 # Passo 1311 — campo ausente em função nativa sem namespace
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Medição e escolha
 
 P1310 fechou o cast de fonte dos cinco decoders. A próxima coorte elegível
@@ -7,8 +15,7 @@ na ordem registrada em `00_nucleo/diagnosticos/p1309-selection.json` é
 `plain-function-missing-field`, rank `[3,1,-3,1,id]`: `csv.encode`,
 `read.encode`, `xml.encode`. Não se agrupa o restante dos erros de field access.
 
-Revalidação fresca: `00_nucleo/diagnosticos/p1311-measurement.json`, SHA-256
-`f444074ac6c1e8be4509b08eed480ceb1e0188f7e8afec892bdaa31938a3d6c3`,
+Revalidação fresca: relatório consolidado da limpeza,
 em `2026-09-08T00:48:36.611014Z`, HEAD
 `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39` com P1310 não commitado.
 `csv.encode` e `csv.encode(1)` no vanilla ratificado `a51e02804` dão
@@ -64,7 +71,7 @@ refinamento completo ou score de mutação de produto.
    crystalline-lint e git diff/check. Reportar warnings/info e ignorados.
 7. Verificador recalcula contagens e hashes, comprova preservação de P1310 e
    mudanças limitadas ao owner/L0. Relatório substantivo em
-   `00_nucleo/diagnosticos/p1311-final-report.md`.
+   relatório consolidado da limpeza.
 
 Timeout, crash, fixture/binário trocado ou observável obrigatório ausente =
 Unknown bloqueante. Até duas revisões focais por causa; duas sem ganho exigem

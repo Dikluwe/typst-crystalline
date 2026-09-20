@@ -1,5 +1,13 @@
 # Passo 1409 — reclassificar rotas compiladas contaminadas por `--jobs`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** implementado e verificado no recorte.
 
 ## Objetivo
@@ -16,12 +24,12 @@ antes de escolher a próxima mudança pública.
 - Working tree inicial: limpo.
 - Instante: `2026-09-15T13:58:41-03:00`.
 - Vanila ratificado: `lab/typst-original/target/release/typst`, revisão
-  `586e1bd43fae6c9a973218163d3165c53ab8d16d`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
-- Cristalino: `target/debug/typst`, SHA-256
-  `0f99e70676f61924ca33094011fe151709ac41fe55ea5c65daa396f395226b33`.
-- Fonte dos casos e oráculos: `00_nucleo/diagnosticos/p1400-oracles.json`.
-- Fonte da seleção: `00_nucleo/diagnosticos/p1400-results.json`.
+  `586e1bd43fae6c9a973218163d3165c53ab8d16d`, identificador administrativo
+  [dado administrativo removido].
+- Cristalino: `target/debug/typst`, identificador administrativo
+  [dado administrativo removido].
+- Fonte dos casos e oráculos: relatório consolidado da limpeza.
+- Fonte da seleção: relatório consolidado da limpeza.
 
 ## Medição antes da decisão
 
@@ -83,9 +91,9 @@ mecânica dos oráculos contém exatamente 6 rotas e 14 sondas por ordem:
   de `1`, par duplicado, par não adjacente, remoção parcial e encerramentos por
   sinal tratados como simples artefato ausente.
 - O build release do HEAD inicial terminou sob limite de 2 GiB, um job,
-  incremental/debug desligados e 512 codegen units em 9 min 25 s. SHA-256 do
+  incremental/debug desligados e 512 codegen units em 9 min 25 s. identificador administrativo do
   binário produzido:
-  `21edbc26682f290db91d85455ce96bb6b372edcb1f9edcac4bf8d38fad38059d`.
+  [dado administrativo removido].
 - A campanha final executou 84 processos, com paralelismo 1, RSS máximo de
   68.676 KiB dentro do executor, swap zero, nenhum timeout e nenhuma
   truncagem. As três ordens produziram a mesma classificação.
@@ -102,13 +110,13 @@ mecânica dos oráculos contém exatamente 6 rotas e 14 sondas por ordem:
   e swap zero. Isso refuta a hipótese de que o teto de 512 MiB, sozinho,
   explique o comportamento e aponta crescimento/reserva virtual sem limite
   no caminho `eval --in`.
-- Resultado compacto: `00_nucleo/diagnosticos/p1409-results.json`.
+- Resultado compacto: relatório consolidado da limpeza.
 - Estado final medido em `2026-09-15T14:16:57-03:00`, sobre o mesmo HEAD
   inicial e working tree não commitado com três ficheiros novos: este passo,
-  o instrumento P1409 e o resultado compacto. O resultado tem SHA-256
-  `5b46cfccc882000aa831538dbf3974ed298740d7fa070d280153ca827dfa4378`;
-  o instrumento tem SHA-256
-  `24ab1247a52d63cffdc2cb93868cd54ff70e91e293df795b789283d5b4701250`.
+  o instrumento P1409 e o resultado compacto. O resultado tem identificador administrativo
+  [dado administrativo removido];
+  o instrumento tem identificador administrativo
+  [dado administrativo removido].
 - `python3 -m py_compile`, `git diff --check` e `crystalline-lint .`
   terminaram com código zero; o linter manteve zero violations e os warnings
   preexistentes. Nenhum harness monolítico de Rust foi compilado ou executado.

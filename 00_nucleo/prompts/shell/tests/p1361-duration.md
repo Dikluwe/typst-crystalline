@@ -11,9 +11,9 @@ Este Prompt possui exclusivamente o teste público binding-free do formatter de
 duração. A obrigação produtiva permanece em `shell/duration.md`; este owner não
 legitima outro código nem acrescenta comportamento.
 
-## Entrada selada
+## Entrada validada
 
-O teste deriva do contrato e selo P1361. Recebe `Duration` literais e observa
+O teste deriva do contrato e confirmação P1361. Recebe `Duration` literais e observa
 somente `format_duration(duration).to_string()`. Não lê relógio, não cria
 processos, não executa `watch`/`w`, não faz I/O e não usa tempo de execução como
 dado.
@@ -24,7 +24,7 @@ dado.
 - repete a ordem canônica e inversa três vezes;
 - distingue as fronteiras de ns/µs/ms/s, cinco minutos e um dia;
 - é executado apenas por nome exato com um job e timeout limitado;
-- recibo com zero testes, timeout ou OOM não recebe crédito.
+- registro com zero testes, timeout ou OOM não recebe crédito.
 
 P1362 acrescenta ao mesmo teste público as quatro variantes de `WatchStatus`
 com duração literal 2.8492 s, além de controles que provam que Error ignora

@@ -1,5 +1,13 @@
 # Passo 1414 — materializar `par.line` no fechamento físico de linhas
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar `P1400-ELEM-011 par.line`, a última rota `ABSENT` da matriz
@@ -10,11 +18,11 @@ fechadas pelo layout. Ao final, a matriz deve atingir `{MATCH: 6}`.
 ## Estado e proveniência inicial
 
 - baseline: commit `df196b35beec0c7bf35f797c86ea7f6e7e81358d`, árvore limpa;
-- cristalino: `target/release/typst`, SHA-256
-  `a11998f4bc84edc669b560e37aa6e1fa6f436e1f02770eef91e2c547c3bc3f74`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: commit `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário identificador administrativo
+  [dado administrativo removido];
 - medição congelada às `2026-09-15T20:08:24-03:00`;
 - regime: protocolo Tekt completo em rehearsal, executado sem atestação de
   isolamento.
@@ -46,17 +54,17 @@ linhas textuais, portanto a lacuna é configuração/emissão, não line breakin
 
 Os seis arquivos em `lab/parity/corpus/p1414/` cobrem constructor proibido,
 forma qualificada, explicit linebreak, wrap automático, `numbering: none`,
-reset por página e margem direita com alinhamento/clearance. Seus SHA-256 estão
+reset por página e margem direita com alinhamento/clearance. Seus identificador administrativo estão
 registrados na medição do passo e não podem ser adaptados ao candidato.
 
-| Fixture | SHA-256 |
+| Fixture | identificador administrativo |
 |---|---|
-| `par-line-constructor-invalid.typ` | `7ecbdee3a9ed86684867f7fe405b572893117c61b021631a3b6fe25d8bb5d6a2` |
-| `par-line-explicit.typ` | `c742f89956161fdb8bfc0cbf18d07c56005a03a0101f5bc65428ef78bccb5c29` |
-| `par-line-none.typ` | `829435117376988c1d20d5e1f00bb3ad3aa3fc542815e01738d89fb36d3d7030` |
-| `par-line-page-scope.typ` | `61865a6297b8fba095d4c87c7c15298c5d8c7faf6f4aafc2e577f0bfb9641094` |
-| `par-line-right.typ` | `3d12021577cc9761000cfecc4eb5789a6e43aef1c712e580e98dc58180eeee21` |
-| `par-line-wrap.typ` | `eb1485e0000c8cd83e259486f2ef3f44538fd1474ef0528ca3557fd387be1128` |
+| `par-line-constructor-invalid.typ` | [dado administrativo removido] |
+| `par-line-explicit.typ` | [dado administrativo removido] |
+| `par-line-none.typ` | [dado administrativo removido] |
+| `par-line-page-scope.typ` | [dado administrativo removido] |
+| `par-line-right.typ` | [dado administrativo removido] |
+| `par-line-wrap.typ` | [dado administrativo removido] |
 
 Política de `Unknown`: timeout, OOM, swap, output ausente ou configuração de
 callback/coluna fora deste recorte não contam como preservação. Observável
@@ -143,7 +151,7 @@ declarados para P1415; não foram absorvidos silenciosamente.
 Medição final às `2026-09-15T22:00:32-03:00`, sobre o checkpoint
 `c50abf1ab16d1de29242036ab0cb08e66170b37b` mais a working tree não commitada
 formada pelos oito consumers L1 alterados e por
-`00_nucleo/diagnosticos/p1414-reprobe.json`.
+relatório consolidado da limpeza.
 
 - build release definitivo limitado a 2 GiB/um job: `PASS` em 3 min 40 s;
 - cinco fixtures válidos: texto extraído bilateralmente idêntico;
@@ -158,9 +166,9 @@ formada pelos oito consumers L1 alterados e por
   máximo 43.192 KiB RSS e 0 KiB swap;
 - `cargo fmt --check`, `git diff --check` e `crystalline-lint .`: `PASS`;
   o linter terminou com exit 0 e zero violações;
-- binário cristalino: SHA-256
-  `271ae0a93f77fad737debe856c9913688bacd7b6b4367c91308163e82ebc5df6`;
-- relatório: SHA-256
-  `1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba`.
+- binário cristalino: identificador administrativo
+  [dado administrativo removido];
+- relatório: identificador administrativo
+  [dado administrativo removido].
 
 Regime Tekt: rehearsal completo, executado sem atestação de isolamento.

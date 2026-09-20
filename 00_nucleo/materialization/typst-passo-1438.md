@@ -1,5 +1,13 @@
 # Passo 1438 — Materializar `math.norm` sobre o carrier público `math.lr`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTA L0 — AGUARDA CONFIRMAÇÃO HUMANA (ADR-0127)  
 **Data da medição:** 2026-09-17T21:53:17-03:00  
 **Commit medido:** `c8071e1004c4ec5ee80cc1b87aeb234d6a5c7e14`  
@@ -26,11 +34,11 @@ posicional obrigatório. O helper `delimited` constrói um `LrElem` cujo body é
 a sequência `‖`, conteúdo, `‖`; só marca `size` quando o argumento está
 presente. O módulo `math` registra a função antes dos wrappers de estilo.
 
-SHA-256 da fonte medida:
+identificador administrativo da fonte medida:
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/lr.rs` | `2a762699e7d3eed9a0b4b2d1afbbf5b58649339ec47ec12a2a82907519c107e0` |
+| `lab/typst-original/crates/typst-library/src/math/lr.rs` | [dado administrativo removido] |
 
 ### 2.2 Observáveis públicos medidos no vanilla
 
@@ -56,12 +64,12 @@ comum de wrappers, descarta todos os named e constrói `MathDelimited`; assim
 `repr($ norm(x) $)` produz `equation(block: true, body: ‖x‖)`, sem identidade
 `lr`, presença de `size` ou convergência com a função qualificada.
 
-Hashes SHA-256 dos consumers antes da proposta:
+Hashes identificador administrativo dos consumers antes da proposta:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/compiler/stdlib/structural/math.rs` | `8fc188b1152e6b30196f8242dbf12f8544740883ccb730582ad06d4e6355c8bb` |
-| `01_core/src/compiler/eval/math.rs` | `6cc4031c9bde18d3fec0be8d448c93a4ac716605a12fdf6cd9f3bac1f4d8b364` |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 
@@ -147,4 +155,4 @@ fixa o commit e a árvore candidatos sem ampliar o recorte.
 O candidato produtivo e os recibos foram fixados no commit
 `a38af56fd041328cb0b600168fec6a7e4f89ba4d`, árvore
 `ff90bd3103af2fc3bddb210bed29fc03d642dbfa`. O certificado limitado ao
-fragmento P1438 é `00_nucleo/diagnosticos/p1438-verifier-certificate.json`.
+fragmento P1438 é relatório consolidado da limpeza.

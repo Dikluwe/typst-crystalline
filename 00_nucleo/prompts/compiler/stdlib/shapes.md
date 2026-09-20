@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 40970eaf
+Hash do Código: 148e4889
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -389,7 +389,7 @@ square(w) sem cores -> stroke preta 1pt (paridade com rect)
 
 O vanilla resolve `start` e `end` contra a região, calcula `delta=end-start`,
 define a caixa por `max(start, start+delta, zero)` e insere a linha em `start`
-(`typst-layout/src/shapes.rs:28-51`). O receipt P1286 mediu origens positiva e
+(`typst-layout/src/shapes.rs:28-51`). A medição P1286 cobriu origens positiva e
 negativa, vetor invertido, comprimento negativo e a precedência de `end` sobre
 `length`/`angle`. O cristalino já possui
 `ShapeKind::Path([MoveTo,LineTo])`; sua stdlib fornece dimensões ao layout.

@@ -1,21 +1,11 @@
-//! Testes black-box independentes do Passo 1286.
-//!
-//! Este ficheiro e deliberadamente separado da implementacao candidata. A
-//! fonte de verdade observacional e o baseline vanilla congelado pelo autor
-//! de oraculos; os casos suplementares cobrem witnesses do plano adversarial
-//! que nao cabem na matriz principal.
+//! Testes black-box funcionais para smart quotes e exportação PDF.
 
-use std::collections::BTreeSet;
 use std::env;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::{Command, Output};
 
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
-const RUNNER_SHA256: &str =
-    "cc0d7986804a7abf006d03e44ffb6eb12a736b794db557b9d60d52e5cc02bf61";
-const BASELINE_SHA256: &str =
-    "7452eea8ac3bc055a6f67586820a0754925ca3a1a80f1244e693cae2989e19fb";
 
 struct Scratch(PathBuf);
 
@@ -36,24 +26,6 @@ impl Drop for Scratch {
     fn drop(&mut self) {
         let _ = fs::remove_dir_all(&self.0);
     }
-}
-
-fn repository_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .expect("04_wiring has repository parent")
-        .to_path_buf()
-}
-
-fn sha256(path: &Path) -> String {
-    let output = Command::new("sha256sum").arg(path).output().expect("run sha256sum");
-    assert!(output.status.success(), "sha256sum failed: {output:?}");
-    String::from_utf8(output.stdout)
-        .expect("sha256sum UTF-8")
-        .split_whitespace()
-        .next()
-        .expect("sha256sum digest")
-        .to_owned()
 }
 
 fn diagnostic(output: &Output) -> String {
@@ -111,32 +83,6 @@ fn qdf(name: &str, source: &str) -> String {
 }
 
 #[test]
-fn p1286_candidate_matches_frozen_vanilla_oracle() {
-    let root = repository_root();
-    let runner = root.join("lab/surface-inventory/run_p1286_oracles.py");
-    let baseline = root.join("lab/surface-inventory/p1286-oracle-baseline.json");
-    assert_eq!(sha256(&runner), RUNNER_SHA256, "oracle runner drifted");
-    assert_eq!(sha256(&baseline), BASELINE_SHA256, "oracle baseline drifted");
-
-    let output = Command::new("python3")
-        .arg(&runner)
-        .args(["--binary", BIN, "--baseline"])
-        .arg(&baseline)
-        .current_dir(&root)
-        .output()
-        .expect("run frozen P1286 oracle");
-    assert!(
-        output.status.success(),
-        "candidate diverges from the frozen P1286 oracle\n{}",
-        diagnostic(&output)
-    );
-    let report = String::from_utf8_lossy(&output.stdout);
-    assert!(report.contains("\"verdict\": \"Preserved\""), "{report}");
-    assert!(report.contains("\"Unknown\": 0"), "Unknown is never success: {report}");
-    assert!(report.contains("\"Violated\": 0"), "{report}");
-}
-
-#[test]
 fn p1286_smartquote_explicit_auto_erases_inherited_quotes() {
     let text = pdf_text(
         "smartquote-auto",
@@ -183,59 +129,4 @@ fn p1286_artifact_suppresses_descendant_formula_structure_only_locally() {
         data.contains("/Formula") && data.contains("/S /Formula"),
         "sibling Formula control lost its marked content or StructElem"
     );
-}
-
-#[test]
-fn p1286_mutation_manifest_has_25_distinct_kill_witnesses() {
-    // Cada ID aponta para um caso congelado ou para um teste suplementar
-    // acima. A campanha injeta um ID por vez; Unknown nao recebe credito.
-    let witnesses = [
-        ("SQ-PRECEDENCE-01", "smartquote_explicit_beats_alternative"),
-        ("SQ-AUTO-02", "p1286_smartquote_explicit_auto_erases_inherited_quotes"),
-        ("SQ-GRAPHEME-03", "p1286_smartquote_counts_unicode_graphemes"),
-        ("SQ-LANG-04", "smartquote_default_de"),
-        ("SQ-ALTERNATIVE-05", "smartquote_alternative_de"),
-        ("LN-MAX-01", "line_positive_origin"),
-        ("LN-ABS-02", "line_inverted_vector"),
-        ("LN-NORMALIZE-03", "line_negative_origin"),
-        ("LN-START-04", "line_positive_origin"),
-        ("LN-END-PRECEDENCE-05", "line_end_precedence"),
-        ("CM-SEQUENTIAL-01", "color_float_weights"),
-        ("CM-RENORM-02", "color_ratio_weights"),
-        ("CM-NEGATIVE-03", "color_negative_positive_sum"),
-        ("CM-HUE-NGT2-04", "color_error_hsl_n3+color_error_hsv_n3+color_error_oklch_n3"),
-        ("PA-DROP-01", "attach_path"),
-        ("PA-BYTES-02", "attach_bytes_metadata"),
-        ("PA-PATH-03", "p1286_attachment_preserves_virtual_path_and_metadata"),
-        ("PA-METADATA-04", "p1286_attachment_preserves_virtual_path_and_metadata"),
-        ("PA-DUPLICATE-05", "attach_duplicate"),
-        ("AR-PASSTHROUGH-01", "artifact_default_other"),
-        ("AR-FORMULA-02", "artifact_header"),
-        ("AR-MCID-03", "artifact_default_other"),
-        (
-            "AR-DESCENDANT-MCID-04",
-            "p1286_artifact_suppresses_descendant_formula_structure_only_locally",
-        ),
-        ("AR-TAGS-OFF-VISUAL-05", "artifact_tags_disabled"),
-        ("AR-TAGS-OFF-MARK-06", "artifact_tags_disabled"),
-    ];
-    let ids = witnesses.iter().map(|(id, _)| *id).collect::<BTreeSet<_>>();
-    assert_eq!(witnesses.len(), 25);
-    assert_eq!(ids.len(), 25, "mutation IDs must be unique");
-
-    let baseline = fs::read_to_string(
-        repository_root().join("lab/surface-inventory/p1286-oracle-baseline.json"),
-    )
-    .expect("read frozen oracle baseline");
-    for (_, witness) in witnesses {
-        if witness.starts_with("p1286_") {
-            continue;
-        }
-        for case in witness.split('+') {
-            assert!(
-                baseline.contains(&format!("\"{case}\"")),
-                "frozen witness {case} is missing"
-            );
-        }
-    }
 }

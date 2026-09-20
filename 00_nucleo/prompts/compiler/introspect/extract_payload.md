@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/extract_payload`
-Hash do Código: 78c38134
+Hash do Código: d819ab1a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/extract_payload.rs`
@@ -114,8 +114,7 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
 `compiler/introspect/extract_payload.rs:20-94` delega payloads ao Element
 proprietário; Strong/Emph caem em None. `compiler/introspect.rs:1278`
-condiciona a ocorrência ao resultado desta função. O recibo
-`diagnosticos/p1339-where-integration-probe-runs.json` fixa a aceitação
+condiciona a ocorrência ao resultado desta função. A medição histórica fixa a aceitação
 vanilla de query/counter dessas famílias, antes desta decisão.
 
 ### Decisão

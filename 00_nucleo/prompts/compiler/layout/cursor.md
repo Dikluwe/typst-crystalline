@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 55219efb
+Hash do Código: 01c93c76
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -45,7 +45,7 @@ Ao fechar uma linha, este owner distingue três grandezas:
 
 Esta decomposição aplica-se quando a própria linha contém pelo menos dois
 tamanhos textuais distintos. Linha uniforme ou com um único fragmento textual
-mantém a fórmula anterior, já selada pelos casos P762/P1120/P1381; ampliar essa
+mantém a fórmula anterior, já validada pelos casos P762/P1120/P1381; ampliar essa
 regra exige uma medição própria.
 
 Se o ascent corrente excede o ascent assumido quando a baseline foi criada,
@@ -187,7 +187,7 @@ assinatura pública, entidade, fase eval/layout ou formato de documento muda.
 
 ### Aceitação focal e limites
 
-Prefix/suffix conserva as páginas/ordem seladas: flow anterior página 1,
+Prefix/suffix conserva as páginas/ordem validadas: flow anterior página 1,
 float-prefixo página 2, flow posterior e float-sufixo página 3. Top+bottom
 conserva top/flow na página 1 e bottom/flow posterior na página 2. No-flush
 continua permitindo flow posterior na página 1; no-floats é no-op; nested não
@@ -282,7 +282,7 @@ A medição sem Flush e sem float isolou duas divergências ordinárias anterior
 pendente ancorou no topo. Como ambas ocorrem sem marker, não pertencem a
 checkpoint, replay ou avanço paginado.
 
-Cursor conserva somente a coordenação já selada: abre a transação após marker,
+Cursor conserva somente a coordenação já validada: abre a transação após marker,
 faz commit/rollback, progride e reexecuta ocorrências. Ao reexecutar, usa a
 mesma origem que Block e Place produziriam no caminho ordinário; não observa
 genericamente o crescimento de `current_items`, não traduz caudas fora de uma
@@ -349,7 +349,7 @@ preflight, embora a regra de Cursor feche sua cauda.
 Singletons P1381, linhas realmente exteriores, linhas mistas P1382–P1386, fluxo ordinário e a
 tolerância terminal Amendment-12 preservam seus resultados.
 
-### Amendment-14 — fechamento de linha no wrap certificado P1389
+### Amendment-14 — fechamento de linha no wrap validado P1389
 
 #### Medição anterior à decisão
 
@@ -363,7 +363,7 @@ singletons P1381 que não nasceram deste wrap.
 
 #### Decisão interna
 
-Cursor oferece um fechamento interno exclusivo para o carrier certificado de
+Cursor oferece um fechamento interno exclusivo para o carrier validado de
 P1389. Ele reutiliza integralmente `flush_line`, mas marca a linha textual
 singleton como mista em relação ao estilo exterior ativo: máximo e descent
 continuam pertencendo ao item, enquanto próximo ascent e leading vêm do
@@ -400,11 +400,11 @@ explícito P1389 também limpa o arm antes de usar a mesma fórmula. Nenhuma
 outra parte do algoritmo, item, métrica ou decisão de paginação muda.
 
 O Cursor não reconhece Content nem decide quando armar: Sequence é o único
-dono do certificado. O estado não é global, não recursa e é consumido no
+dono da validação. O estado não é global, não recursa e é consumido no
 primeiro flush. Os quatro pares P1391 coincidem com o vanila em página e bbox;
 P1390, P1389, P1388 e singletons ordinários permanecem controles.
 
-### Amendment-16 — singleton menor certificado por P1392
+### Amendment-16 — singleton menor validado por P1392
 
 #### Medição anterior à decisão
 
@@ -416,15 +416,15 @@ exterior e antecipa `More` em 1,95pt/2,60pt.
 
 #### Decisão interna
 
-No fechamento singleton explicitamente certificado, o tamanho do único item
+No fechamento singleton explicitamente validado, o tamanho do único item
 textual real é comparado ao exterior, não apenas ao máximo que já inclui o
 fallback exterior. Se esse item é menor, baseline, ascent, alinhamento e
 próximo ascent continuam próprios do item; somente o leading usa o exterior.
 Classificá-lo como linha mista deslocaria a baseline menor, divergindo do
 vanila. Um singleton maior mantém a fórmula exterior completa de P1389.
-Máximo/descent e linhas não certificadas não mudam.
+Máximo/descent e linhas não validadas não mudam.
 
-O arm one-shot P1391 também pode ser emitido pelo certificado P1392 na ordem
+O arm one-shot P1391 também pode ser emitido pela validação P1392 na ordem
 maior→menor; Cursor apenas o consome e não reconhece Content. Os quatro pares
 P1392 coincidem com o vanila; P1391, P1390, P1389, singletons ordinários e
 deltas compostos permanecem controles.
@@ -491,7 +491,7 @@ números `3` e `4` à esquerda. A fonte pinada decide isso depois de conhecer o
 ### Decisão proposta
 
 No mesmo ponto pós-estabilização de P1414, pattern continua imediato; função
-avança o contador exatamente uma vez e consulta a resolução selada da
+avança o contador exatamente uma vez e consulta a resolução validada da
 ocorrência. Na primeira passagem, ausência de resolução registra request com
 função, número, chain e span, sem inserir número provisório. Na passagem
 resolvida, o `Content` retornado é disposto em subframe marginal e alinhado à
@@ -508,7 +508,7 @@ translação deslocaria a última numeração para fora da página.
 Cursor não chama `Func`, não converte `Content` em debug/texto e não guarda
 Engine. A realização e a passagem nova aguardam o gate ADR-0127 P1415.
 
-## Amendment-20 — supressão transversal certificada P1416
+## Amendment-20 — supressão transversal validada P1416
 
 ### Medição anterior à decisão
 

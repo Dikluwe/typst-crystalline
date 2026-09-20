@@ -212,7 +212,7 @@ Produzir antes e depois do código conforme a autoridade correspondente:
 00_nucleo/diagnosticos/p1224-svg-path-resultados.tsv
 00_nucleo/diagnosticos/p1224-svg-engineering-choices.tsv
 00_nucleo/diagnosticos/p1224-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1224-complex-stroke-and-paths.md
+[artefato protocolar removido]
 ```
 
 ## 12. Readjudicação DSM e fila

@@ -1,6 +1,14 @@
 # Passo 1334 — completar diagnósticos de argumentos da nativa calc.abs
 
-A medição `00_nucleo/diagnosticos/p1334-baseline-public.json` registra HEAD,
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
+A medição relatório consolidado da limpeza registra HEAD,
 árvore não commitada, comandos/UTC e binários. Missing ainda usa aridade
 portuguesa sem origem primária; named value carece de hint; named depois
 de extra posicional indevidamente vence a primeira sobra.
@@ -26,5 +34,5 @@ reais/detached/cross-source, duplicatas legais, ordem e controles anteriores.
 Após focal verde: build/workspace, fmt, linhagem/V15/V26, linter e CLI
 normal/repetido/invertido. Unknown obrigatório bloqueia; duas revisões
 focais sem ganho reabrem desenho. Relatório substantivo em
-`00_nucleo/diagnosticos/p1334-final-report.md`. Histórico preservado.
+relatório consolidado da limpeza. Histórico preservado.
 Sem commit, stage ou push.

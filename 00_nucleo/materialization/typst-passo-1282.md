@@ -1,5 +1,13 @@
 # Passo 1282 — Regerar o inventário bilateral da superfície pública
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Natureza
 
 Documento tático de execução. Não é Prompt L0 e não legitima código.
@@ -26,7 +34,7 @@ Passo 1281 fechado: harness executável, flags simétricas e proveniência repro
 
 ## Disciplina de medição
 
-- Toda contagem registra commit, estado da árvore, hora, comando, feature set e SHA-256
+- Toda contagem registra commit, estado da árvore, hora, comando, feature set e identificador administrativo
   dos binários.
 - Medir antes de classificar, conforme ADR-0108.
 - Marcar inferências e a evidência que poderia refutá-las.

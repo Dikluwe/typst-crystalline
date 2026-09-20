@@ -253,7 +253,7 @@ reparo silencioso.
 00_nucleo/diagnosticos/p1227-svg-paint-ab-recibos.tsv
 00_nucleo/diagnosticos/p1227-svg-engineering-choices.tsv
 00_nucleo/diagnosticos/p1227-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1227-svg-paint-servers.md
+[artefato protocolar removido]
 ```
 
 ## 13. DSM e fila

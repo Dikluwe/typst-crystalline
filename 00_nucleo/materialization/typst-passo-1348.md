@@ -1,5 +1,13 @@
 # Passo 1348 — ligar identidade, frescor, razões e ciclo completo do tracer
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Regime e objetivo
 
 Regime: **executado sem atestacao de isolamento**.
@@ -27,20 +35,20 @@ Medição em `2026-09-11T13:16:44-03:00`:
 - working tree não commitado, com 22 paths P1347 não rastreados; a lista exata
   está pinada no campo `provenance.git_status_porcelain_paths_before_output` do
   blocker P1347;
-- passo P1347, SHA-256
-  `c848a04d9bc3aaa9ed935ea8fef6e615cdb77a0533c13d0fcd62ef1a87ab9a1c`;
-- blocker independente P1347, SHA-256
-  `3b649ced677059a459262710ce3466cb2efbd69edbfb6e60c98df07cffa64522`;
-- checker P1347 R2, SHA-256
-  `9aa0e93591195eac7ddb67069abecbcf0722abeddd9e955fc062804a89d16ce5`;
-- adapter P1347 R1, SHA-256
-  `cc71d74b85b14e6624aae53630f25a3c5fe34724cab7d62222f84377d6845a7a`;
-- suíte adversarial P1347 R1, SHA-256
-  `d51fa54da1c68dcc5c812847b90097dfe94f1b4eb83f1009294230eb5f37dd4c`.
+- passo P1347, identificador administrativo
+  [dado administrativo removido];
+- blocker independente P1347, identificador administrativo
+  [dado administrativo removido];
+- checker P1347 R2, identificador administrativo
+  [dado administrativo removido];
+- adapter P1347 R1, identificador administrativo
+  [dado administrativo removido];
+- suíte adversarial P1347 R1, identificador administrativo
+  [dado administrativo removido].
 
 O focal decisivo foi executado fora do sandbox, onde ptrace está disponível, em
 `2026-09-11T12:46:27-03:00`. Normal, repeat e reverse produziram a mesma projeção
-SHA-256 `327a3c1889bf6170cfc8f995412c2f2f2c0012c1ae1a936b20007c03da799015`.
+identificador administrativo [dado administrativo removido].
 Dos 49 negativos válidos, 39 tiveram classificação e razão corretas; dez
 sobreviveram. Score `39/49 = 0.7959183673469388`. Replays, controles e full
 permaneceram em zero pelo gate congelado.

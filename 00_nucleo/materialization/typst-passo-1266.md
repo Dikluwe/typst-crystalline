@@ -1,5 +1,13 @@
 # P1266 — generalizar o envelope SVG Linear/Radial × Oklab/LinearRgb
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — QUATRO PARES `Unknown-generalization`; FALLBACK MANTIDO  
 **Predecessores:** P1264 e decisão B do P1265  
 **Regime:** protocolo Tekt completo; nenhuma promoção produtiva autorizada
@@ -24,7 +32,7 @@ Este passo mede e certifica um envelope maior. Não edita L0, não altera
 - L0s vigentes de entidade, stdlib e SVG;
 - consumers finais `gradient.rs`, `adaptive.rs` e `svg.rs` com hashes válidos;
 - política `Unknown` de `p1266-unknown-policy.tsv`;
-- matriz `p1266-generalization-matrix.tsv`.
+- matriz relatório consolidado da limpeza.
 
 Qualquer alteração dessas entradas invalida o preseal e reinicia a cadeia.
 

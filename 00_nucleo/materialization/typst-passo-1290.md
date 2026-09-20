@@ -1,5 +1,13 @@
 # Passo 1290 — `repr` público e morfologia de `math.csc`/`math.dim`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 > Documento de execução; não é Prompt L0. Frente B, iniciável em paralelo com
 > P1288. Este passo é o único dono autorizado de mudanças em
 > `01_core/src/compiler/eval/repr.rs` durante o lote P1288–P1291.
@@ -21,12 +29,12 @@ atuais passarem.
 Medição anterior à decisão, árvore não commitada em
 `2026-08-31T10:25:52-03:00`, `HEAD 53d21c5a602f4045a769a0ab0c935baa5ecd3b88`:
 
-- vanilla `/usr/local/bin/typst`: SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-- L0 `00_nucleo/prompts/compiler/eval/repr.md`: SHA-256
-  `a2b35c8b3e622432b5a129a4cad0bb20ab94b450d3e793fd1441c5af6bc2775c`;
-- consumer `01_core/src/compiler/eval/repr.rs`: SHA-256
-  `7c56b8c79f489abe568ec3a104cae79f08dab81d9be3bccae6689a15a6589bf4`;
+- vanilla `/usr/local/bin/typst`: identificador administrativo
+  [dado administrativo removido];
+- L0 `00_nucleo/prompts/compiler/eval/repr.md`: identificador administrativo
+  [dado administrativo removido];
+- consumer `01_core/src/compiler/eval/repr.rs`: identificador administrativo
+  [dado administrativo removido];
 - no consumer, `Value::Array` concatena manualmente com `", "`, apesar de
   `pretty_array_like`/`pretty_comma_list` já existirem no mesmo owner;
 - `Content::MathOp` representa atualmente `op(<text>)`, descartando os nomes
@@ -35,12 +43,12 @@ Medição anterior à decisão, árvore não commitada em
   vanilla `(content, "op(text: [csc], limits: false)")`, cristalino
   `(content, "op([csc])")`;
 - `math.dim` apresenta a mesma divergência;
-- o inventário P1284 congelado tem SHA-256
-  `da86beaf2f94dd21458f27f84696f47a621fd10c131ae3b1fb76ece4b0e211fb`.
+- o inventário P1284 congelado tem identificador administrativo
+  [dado administrativo removido].
 
 P1287 mediu 111 probes padrão, 72 iguais e 39 diferentes/desabilitados no
-estado registrado pelo relatório SHA-256
-`7ca2da4a24bcc04e588e28090010062d68c7b32290dda8a02da966da647e9d76`.
+estado registrado pelo relatório identificador administrativo
+[dado administrativo removido].
 Essas contagens não substituem uma nova baseline no início de P1290.
 
 ## Classificação e regime

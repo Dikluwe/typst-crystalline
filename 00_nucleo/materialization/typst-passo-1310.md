@@ -1,11 +1,19 @@
 # Passo 1310 — diagnóstico de tipo da fonte nos decoders
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Medição e decisão
 
 P1309 selecionou `loader-data-source-cast` no baseline
 `eb24cd657fc2333dc7ea5393f7cfebf8c7192d39`. Certificado:
-`00_nucleo/diagnosticos/p1309-certificate.json`, SHA-256
-`ba40e1a5189efd2191dfad8d04841e1ddfad9a6cb6052ddf478efde8fe22c376`.
+`00_nucleo/diagnosticos/p1309-certificate.json`, identificador administrativo
+[dado administrativo removido].
 A testemunha `json(42)` no vanilla ratificado upstream `a51e02804` informa
 `expected path, string, or bytes, found integer` e aponta para `42`;
 o cristalino usa mensagem portuguesa, tipo curto e origem detached.
@@ -66,7 +74,7 @@ técnico**. Não alegar selo do protocolo completo ou score de mutação de prod
 6. Rodar fmt, build workspace release, testes workspace release, linter e
    diff-check; publicar avisos/ignorados sem chamar exit zero de zero findings.
 7. Revisor confere escopo, hashes, RED→GREEN, saídas integrais e limites;
-   relatório substantivo em `00_nucleo/diagnosticos/p1310-final-report.md`.
+   relatório substantivo em relatório consolidado da limpeza.
 
 Timeout, crash, fixture/binário incompatível ou ausência de observável
 obrigatório são Unknown e bloqueiam fechamento. Budget: duas revisões focais

@@ -1,5 +1,13 @@
 # Passo 1356 — Rebaseline integral de paridade após o sync `586e1bd43`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Retificação de autoridade e política de continuidade
 
 Existe um único **vanilla** neste passo: o alvo ratificado
@@ -85,9 +93,9 @@ Antes de qualquer medição:
 3. registrar HEAD, árvore de trabalho (`git diff HEAD --stat`), UTC, versões de
    Rust/Python e ferramentas externas;
 4. verificar que os dois binários vanilla são byte-idênticos, reportam
-   `typst 0.15.1 (586e1bd4)` e têm SHA-256
-   `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-5. reconstruir o cristalino do HEAD medido e registrar seu SHA-256;
+   `typst 0.15.1 (586e1bd4)` e têm identificador administrativo
+   [dado administrativo removido];
+5. reconstruir o cristalino do HEAD medido e registrar seu identificador administrativo;
 6. congelar manifesto, contrato, corpus, ordem de perfis e política de
    `Unknown` antes do runner candidato.
 
@@ -209,12 +217,12 @@ Além do corpus global, medir no nível da linguagem:
 
 Produzir em `00_nucleo/diagnosticos/`:
 
-- `p1356-manifest.json`;
-- `p1356-harness-seal.json`;
-- `p1356-inventory-summary.json`;
-- `p1356-matrix-summary.json`;
-- `p1356-delta-attribution.json`;
-- `p1356-parity-report.md`.
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Cada número decisório deve trazer HEAD/working tree, UTC, comandos, hashes dos
 binários e hashes dos inputs. O relatório deve listar integralmente as rotas

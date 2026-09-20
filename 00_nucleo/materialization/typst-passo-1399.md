@@ -1,5 +1,13 @@
 # Passo 1399 — opacidade morfológica de `ContextBlock`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo e regime
 
 Corrigir exclusivamente a representação textual de todo
@@ -21,16 +29,16 @@ Estado causal observado em `2026-09-14T17:54:52-03:00`: HEAD limpo
 `bdec21bf935cbf7f61070756cd0f218e441b7e07`, com `git status --short` e
 `git diff HEAD --stat` vazios. Identidades congeladas:
 
-- L0 anterior `00_nucleo/prompts/compiler/eval/repr.md`, SHA-256
-  `cf13a3d23c7159125732b6dddeb3f8883a08c6b5cfa2ab9a877908b2761f8e24`;
+- L0 anterior `00_nucleo/prompts/compiler/eval/repr.md`, identificador administrativo
+  [dado administrativo removido];
 - único consumer produtivo baseline
-  `01_core/src/compiler/eval/repr.rs`, SHA-256
-  `c31e786562cbbcd7d874c91ef3b8884fa802cb64ca7c84f421b761bb5ee9cc52`;
+  `01_core/src/compiler/eval/repr.rs`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado, commit
-  `586e1bd43fae6c9a973218163d3165c53ab8d16d`, binário SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino baseline recém-construído, binário SHA-256
-  `3ff85cea7a721adcc9be76807e04d8aeeb03e8290d60f796b850632575b7b2b4`.
+  `586e1bd43fae6c9a973218163d3165c53ab8d16d`, binário identificador administrativo
+  [dado administrativo removido];
+- cristalino baseline recém-construído, binário identificador administrativo
+  [dado administrativo removido].
 
 O build baseline foi serial, uma job, sob `RLIMIT_DATA` de 2 GiB: terminou em
 8,84 s, RSS máximo 319.792 KiB e swap zero. Entre
@@ -48,12 +56,12 @@ bilaterais seriais sob `RLIMIT_AS` de 512 MiB mediram:
 
 Em
 `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:626-640`,
-SHA-256
-`a477eb1013d08d18a39da3c3341d666b37a4a9bab8d14d93e3327aff78674245`,
+identificador administrativo
+[dado administrativo removido],
 a fonte ratificada delega ao handle ou enumera somente fields públicos. Em
 `lab/typst-original/crates/typst-library/src/foundations/context.rs:65-83`,
-SHA-256
-`259527ad0d9bea23790dd96df3d163ad39199adbe6aff68e1d5cd8bf10d7cd98`,
+identificador administrativo
+[dado administrativo removido],
 o único field de `ContextElem` é `func`, marcado interno. Portanto a intenção
 de fonte é não expor esse payload e a forma pública do elemento não possui
 argumentos: `context()`. O baseline cristalino codifica `context(...)` em
@@ -155,7 +163,7 @@ stderr e classificação.
 - **Autor da intenção/contrato (`/root/contrato_p1399`)**: lê AGENTS.md,
   skill e referências, ADRs aplicáveis, L0 inteiro, baseline congelado,
   medições fornecidas e trechos ratificados; escreve somente este passo, o L0,
-  `p1399-manifest.json` e `p1399-contract.json`. Não lê patch candidato, não
+  relatório consolidado da limpeza e relatório consolidado da limpeza. Não lê patch candidato, não
   implementa, não escreve oráculos/mutantes e não sela nem julga.
 - **Autor dos oráculos**: recebe manifesto, L0 e contrato candidatos; escreve
   somente suite e recibo de oráculos. Não adapta expected ao candidato.

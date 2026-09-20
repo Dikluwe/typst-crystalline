@@ -1,5 +1,13 @@
 # Passo 1341 — separar expectativas semânticas de identidades runtime
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Desbloquear e concluir as obrigações lifecycle que o Passo 1340 encerrou como
@@ -16,8 +24,8 @@ Baseline: HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não
 commitada. O estado exato é congelado pelo manifesto P1341 antes de qualquer
 contrato ou edição.
 
-O veredito independente `p1340-verifier-final-r6.json`, SHA-256
-`519d4791626c7a3bfe325d5b4d2bba302b57b75b5a13627dee8838df2f0975a0`,
+O veredito independente `p1340-verifier-final-r6.json`, identificador administrativo
+[dado administrativo removido],
 é `NO_SEAL_STOP_REQUIRES_PROTOCOL_REDESIGN`. O adversário R6b matou 19 de
 41 mutantes e deixou 22 sobreviventes em oito classes. O autor das
 expectativas demonstrou que `callsite_witness_id`, `value_id`, `snapshot_id`,

@@ -1,11 +1,19 @@
 # Passo 1405 — `outline.entry.indented()`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado congelado
 
 - baseline cristalino: `a159b5f18ad42eab12393b4dd101c0d6f9c1b542`, árvore limpa;
 - vanila ratificado: `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário cristalino: SHA-256 `144267dc07596f4f0938881c38644d54955d4190128daf48da395c268950bfba`;
-- binário vanila: SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+- binário cristalino: identificador administrativo [dado administrativo removido];
+- binário vanila: identificador administrativo [dado administrativo removido];
 - medição iniciada em `2026-09-14T23:46:34-03:00`;
 - regime: protocolo completo como ensaio, executado sem atestação de isolamento.
 
@@ -38,12 +46,12 @@ que 64 KiB demonstraram:
 
 Fonte ratificada:
 `lab/typst-original/crates/typst-library/src/model/outline.rs:524-628,798-833`.
-Fixtures canónicas de dois níveis: auto SHA-256
-`573a010d978e9493caa8411b5d3980a4280b1d79f629e3593d5471d60535d51f`;
-fixa `bf0f79616b932f1642c1c7d8fd48d33c058d5017c517a7459d3bfe671bf7cfbb`;
-função `f79543247ebbe04d4d19dfab24a0acfca23c2b09f19510b9abd662b1ed7fcab5`;
-sem prefixo `6e792f89b54d8def7402ddbcf389d6c6db5ea612f276685dac35480d20e04911`;
-RTL `a73ca15d5f91b153578c58bba5d100d0ebd760b2dffa5411780382f914e74cde`.
+Fixtures canónicas de dois níveis: auto identificador administrativo
+[dado administrativo removido];
+fixa [dado administrativo removido];
+função [dado administrativo removido];
+sem prefixo [dado administrativo removido];
+RTL [dado administrativo removido].
 
 No cristalino, a identidade e o método não existem. Além disso,
 `#show outline.entry` ainda é rejeitado antes do helper, lacuna reservada a

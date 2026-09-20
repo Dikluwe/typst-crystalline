@@ -6,7 +6,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -623,7 +623,7 @@ já estabilizado. HTML não atravessa layout math paginado e fica fora até
 medição própria.
 
 Esta forma replica P240/P241/P1159: L3 realiza callbacks entre passagens e L1
-layout recebe somente dados selados. Não existe implementação L3 de trait L1,
+layout recebe somente dados validados. Não existe implementação L3 de trait L1,
 reentrada layout→eval ou execução em `native_math_cancel`. A ligação de fase
 continua gate ADR-0127.
 
@@ -658,7 +658,7 @@ com saída compacta (`pretty=false`).
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1340-baseline.json` congela o antecedente: a expansão
+A medição histórica congela o antecedente: a expansão
 `:244-281` aborta por Err e o ciclo `:721-760` termina por páginas iguais.
 As cláusulas P1339 antes contidas nesta seção continuam necessárias, mas
 sua coordenação passa ao owner individualizado, evitando acrescentar essa
@@ -828,7 +828,7 @@ L1 combinada. Ao receber requests de linha, L3 constrói `Engine` com o
 closure, aridade ou conversão aborta sem documento exportável; warnings da
 chamada são preservados uma vez e em ordem.
 
-Resoluções completas formam store selada e uma nova passagem. Transcript novo,
+Resoluções completas formam store validada e uma nova passagem. Transcript novo,
 store parcialmente consumido ou requests de qualquer família ainda pendentes
 continuam o ciclo sob teto oito. Somente `Complete(PagedDocument)` alcança
 realização P1159, shaping ou export. Antes de cada relayout externo de page
@@ -902,9 +902,9 @@ Não paginar o documento HTML inteiro, não trocar `EvalTarget::Html` da
 avaliação externa, não ativar feature implicitamente e não guardar SVG em L1.
 Falha de layout/render da ilha aborta a compilação; não apagar, substituir por
 texto ou emitir `<frame>`. A nova fase foi confirmada pelo dono em 2026-09-16
-e fica limitada pelo selo P1424.
+e fica limitada pelo escopo de P1424.
 
-## P1462 — extração e resolução de `format.svg.pretty` (MATERIALIZADO E CERTIFICADO)
+## P1462 — extração e resolução de `format.svg.pretty` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -961,15 +961,13 @@ inalterados até P1463–P1465.
 
 ### Aceitação e gate
 
-Testes de pipeline cobrem as quatro linhas da matriz, default, repetição e
-inversão de regras root, rejeição em containers, erro de tipo/named vindo de
-eval e neutralidade de PDF/PNG/HTML/frame HTML. Comparar estrutura/whitespace
-pertinente, não fixar os bytes auxiliares como contrato. Mutantes obrigatórios
-colapsam `None` cedo, invertem a precedência, ignoram documento, deixam regra
-nested passar e vazam a opção para outro target.
+Testes de pipeline cobrem as quatro linhas da matriz, default, regras root,
+rejeição em containers, erro de tipo/named vindo de eval e neutralidade de
+PDF/PNG/HTML/frame HTML. Comparar estrutura/whitespace pertinente, sem fixar
+bytes auxiliares como contrato.
 
 A nova API pública e a extração antes do documento completo foram
-materializadas e certificadas depois da confirmação humana de 2026-09-19.
+materializadas depois da confirmação humana de 2026-09-19.
 
 ## P1463 — resolução de `format.png.ppi` e override CLI (PROPOSTO; gate ADR-0127)
 
@@ -1030,7 +1028,6 @@ default documental, documento 72/2/1.5, CLI 72/288, precedência explícita,
 zero/negativo finito quanto à dimensão segura, ramos com/sem fontes e
 neutralidade de outros targets. Não congelar bytes PNG nem alegar não finitos.
 
-Mutantes obrigatórios dividem o documento por 72, deixam de dividir CLI,
-invertem precedência, colapsam `None`, aplicam opções só num ramo de fontes ou
-vazam para outro target. A nova API e o default efetivo aguardam confirmação
-humana posterior ao commit causal P1463 antes de consumer/header/teste RED.
+Os testes funcionais protegem a conversão documental, a divisão específica da
+CLI, a precedência, o tratamento de `None`, os dois ramos de fontes e a
+neutralidade dos outros targets.

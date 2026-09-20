@@ -327,7 +327,7 @@ Para `svg-morphology`:
 Produzir:
 
 ```text
-00_nucleo/diagnosticos/typst-p1221-svg-solid-shapes.md
+[artefato protocolar removido]
 ```
 
 O laudo deve declarar separadamente:

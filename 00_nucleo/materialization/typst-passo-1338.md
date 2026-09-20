@@ -1,9 +1,16 @@
 # Passo 1338 — diagnóstico de campo ausente em Array
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Recorte medido
 
-A medição fresca `00_nucleo/diagnosticos/p1338-measurement.json`, SHA-256
-`6bd65bffd487cf7103bbaa54e3655ff95467df557c852f6e5c7b44c96ea165e1`,
+A medição fresca relatório consolidado da limpeza,
 concluída em `2026-09-09T20:06:19.061817+00:00`, confirma que arrays vazios,
 populados e aliases Unicode usam mensagem de campo inexistente e sublinhado
 agregado no cristalino; vanilla ratificado a51e02804 usa
@@ -14,8 +21,8 @@ preservá-los, inclusive a diferença entre lookup puro e AST antecipada.
 Chamadas normais e wrappers estáticos continuam válidos. Valores-tipo e
 ordem de argumentos são outros recortes. Não alegar paridade geral Array.
 
-Baseline `p1338-baseline.json` SHA-256
-`6d85aece9e323950a8f722b11e87eb125b4a342a7404f969f60ea69595790b3c`:
+Baseline `p1338-baseline.json` identificador administrativo
+[dado administrativo removido]:
 working tree não commitada sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, diff/stat e inventários exatos.
 Nenhum passo histórico de materialization/context foi necessário à leitura.
@@ -59,6 +66,6 @@ Não atualizar inventário global de paridade nem sincronizar lab.
 L0, testes e implementação realizados. A referência documental herdada ao
 L0 de l-value foi corrigida por manifesto sucessor R1 antes de C, mantendo
 o recorte Array inalterado. Resultados, proveniência e limites em
-`00_nucleo/diagnosticos/p1338-final-report.md`; veredito e fechamento separados
+relatório consolidado da limpeza; veredito e fechamento separados
 em `p1338-review-final.json` e `p1338-closure.json` na pasta de diagnósticos.
 Sem commit neste pedido.

@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/elements/math_vec` — `MathVecElem`
+Hash do Código: 1ec657f5
 
-**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** P1292 MATERIALIZADO.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/elements/math_vec.rs`

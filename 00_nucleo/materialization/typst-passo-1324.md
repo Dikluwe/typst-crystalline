@@ -1,12 +1,19 @@
 # Passo 1324 — erro de field ausente em função nativa com namespace
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Medição e escolha
 
 P1323 fechou somente o warning experimental HTML. A fila diagnosticada em
 `00_nucleo/diagnosticos/p1322-classification-selection-r2.json` aponta depois
 `namespace-function-missing-field`. Isso não basta como aprovação histórica:
-a medição fresca `00_nucleo/diagnosticos/p1324-baseline.json`, SHA-256
-`8684dabd1370997232a61bc58a48a99528718e49ec0e81962eb14c70b3769b4d`,
+a medição fresca relatório consolidado da limpeza,
 confirma nome/aspas/âncora divergentes em json/yaml/toml/cbor/assert/table,
 incluindo alias, With e uso como callee. Registra fontes, argv, UTC, HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree/diff e binários.

@@ -17,19 +17,19 @@ class ProbeContractTests(unittest.TestCase):
         self.assertEqual(command[-2:], ["--features", "html"])
 
     def test_both_fail_are_not_match(self):
-        receipt = {"exit_code": 1, "stdout": ""}
-        self.assertFalse(run_probes.receipts_match(receipt, receipt))
+        result = {"exit_code": 1, "stdout": ""}
+        self.assertFalse(run_probes.observables_match(result, result))
 
     def test_one_failure_is_not_match(self):
         ok = {"exit_code": 0, "stdout": "1\n"}
         failed = {"exit_code": 1, "stdout": ""}
-        self.assertFalse(run_probes.receipts_match(ok, failed))
+        self.assertFalse(run_probes.observables_match(ok, failed))
 
     def test_both_success_must_have_equal_observable(self):
         first = {"exit_code": 0, "stdout": "1\n"}
         second = {"exit_code": 0, "stdout": "2\n"}
-        self.assertFalse(run_probes.receipts_match(first, second))
-        self.assertTrue(run_probes.receipts_match(first, dict(first)))
+        self.assertFalse(run_probes.observables_match(first, second))
+        self.assertTrue(run_probes.observables_match(first, dict(first)))
 
 
 if __name__ == "__main__":

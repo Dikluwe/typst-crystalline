@@ -240,17 +240,17 @@ Em HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer sem diff,
 `01_core/src/entities/selector.rs:28-61` não representa uma função de
 elemento com grupo de campos. `Kind(ElementKind)` não distingue filtro vazio
 de elemento nu e não contém identidades Strong/Emph/Text. Os resultados de
-`p1339-full-where-early-vanilla-runs.json` incluem `strong.where(:)` e
+As medições históricas incluem `strong.where(:)` e
 `text.where(text: "Hi")`; o antecedente os rejeita.
 
-Na sonda `diagnosticos/p1339-where-l0-vanilla.json`, sobre esse HEAD, UTC
+Na sonda histórica, sobre esse HEAD, UTC
 `2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, filtro vazio
 é diferente de `selector(elemento)`; aliases preservam igualdade;
 reordenar campos altera igualdade e repr; spread substitui o valor sem mover
 a primeira posição da chave. A fonte ratificada `a51e02804`,
 `foundations/selector.rs:75-81,309-321`, conserva identidade, presença do
 grupo e sua sequência; `foundations/func.rs:430-450` valida o elemento e os
-nomes dos campos. O manifesto da sonda fixa fontes, binários e status integral.
+nomes dos campos. A medição registra fontes, estado e resultados observáveis.
 
 ### Decisão proposta — contrato de dados
 

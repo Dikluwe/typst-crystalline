@@ -19,14 +19,6 @@ L0 proprietário. Compartilhamento `1:N` ocorre exclusivamente por Núcleos Tekt
 consumidos e pinados pelos prompts proprietários. V15/V26 bloqueiam reparos
 enquanto ownership ou grafo compartilhado estiverem inválidos.
 
-**Checkpoints retomáveis (ADR-0131):** interrupção externa é `Interrupted`,
-não `Unknown` semântico, e não invalida unidades já concluídas. Recibos
-atômicos com pins idênticos podem ser retomados a partir da primeira unidade
-incompleta. Um vetor discriminatório completo, score `1.0`, zero `Unknown`
-semântico e gates arquiteturais/inventários verdes autoriza o candidato;
-repetição e reordenação são dirigidas por risco na certificação final. Budget
-limita trabalho futuro, nunca apaga evidência válida.
-
 **Regra de Ouro (A Trava Arquitetural):**
 O assistente **nunca** pode instruir a escrita de código L1/L2/L3 se o Prompt L0 correspondente não existir em `00_nucleo/prompts/` ou estiver desatualizado.
 
@@ -127,7 +119,8 @@ O alvo de paridade é o **vanilla ratificado**: upstream/main **`586e1bd43`**, h
 **pinado** — re-sync futuro exige passo explícito. A ratificação anterior de
 `a51e02804` permanece registada no adendo do dono à retificação P990-P992
 (`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`); a substituição explícita pelo
-novo pin está registada em `diagnosticos/p1355-resync-relatorio.md`. **Não** é a tag
+novo pin está registrada no relatório consolidado
+`00_nucleo/diagnosticos/limpeza-tekt-2026-08-26.md`. **Não** é a tag
 0.15.0 nem a 0.15.1.
 
 Quatro armadilhas, todas medidas em 2026-08-13:
@@ -265,7 +258,6 @@ a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-010
 | ADR-0128 | HTML é target semântico separado do layout paginado; feature e target são eixos distintos |
 | ADR-0129 | Prompt L0 ↔ consumer é `1:1`; invariantes compartilhados são Núcleos Tekt `1:N`, pinados por prompts e validados por V26 |
 | ADR-0130 | Referências a Prompts L0 usam caminho completo canônico; headers `@prompt` apontam para o owner sem ambiguidade |
-| ADR-0131 | Materialização usa checkpoints retomáveis; interrupção externa não é `Unknown`; um vetor 18/18 pode autorizar candidato e repetição final é dirigida por risco |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 

@@ -1,5 +1,13 @@
 # Passo 1360 — `compile --pretty` por target, com execução limitada
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Materializar a opção tri-state `--pretty` do vanila ratificado para compile,
@@ -8,7 +16,7 @@ tagging, target, feature HTML e modo de escaping HTML.
 
 ## Ordem causal
 
-1. congelar a medição em `diagnosticos/p1360-preflight.md`;
+1. congelar a medição em relatório consolidado da limpeza;
 2. atualizar os Prompts L0 proprietários antes de código;
 3. congelar contrato, oráculos, mutantes, manifesto e selo;
 4. escrever testes independentes e confirmar RED somente com filtros focais;

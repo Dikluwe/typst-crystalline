@@ -1,5 +1,13 @@
 # Passo 1308 — concluir as quatro correções de paridade restantes
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Autorizado pelo dono: “Pode escrever o passo e implementar autorizo”, após
 explicação das quatro fronteiras no relatório P1307-R6. Este passo coordena
 a execução; os prompts L0 proprietários legitimam o código. Não autoriza
@@ -9,8 +17,7 @@ stage, commit, push, limpeza de históricos ou expansão geral do compilador.
 
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306/P1307
 não commitada; inventário, diff/stat e executáveis em
-`00_nucleo/diagnosticos/p1308-baseline.json`, SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`.
+relatório consolidado da limpeza.
 O executável anterior foi preservado em `/dev/shm/p1308-baseline.XzjFgA/typst`.
 Referência: vanilla upstream ratificado `a51e02804`, não string de versão.
 
@@ -58,7 +65,7 @@ Budget de calibração: duas tentativas por mesma causa; focal antes de corpus
 completo; nova execução global exige delta funcional ou gate final.
 Temporários podem usar /dev/shm; registrar fontes, horários, comandos e hashes.
 
-O resultado vai para `00_nucleo/diagnosticos/p1308-final-report.md`, separando
+O resultado vai para relatório consolidado da limpeza, separando
 correções concluídas, falhas reais, limites e dívida anterior. Concluir P1308
 não inventa certificado de toda a campanha P1307 nem substitui mutantes seus
 que não tenham sido executados. Não escrever outro passo sem necessidade.

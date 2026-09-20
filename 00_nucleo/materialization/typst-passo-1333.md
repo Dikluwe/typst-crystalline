@@ -1,8 +1,16 @@
 # Passo 1333 — erro do primeiro valor de `calc.abs` antes das sobras
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema medido
 
-O baseline público em `00_nucleo/diagnosticos/p1333-baseline-public.json`
+O baseline público em relatório consolidado da limpeza
 registra comandos, horários, binários e a árvore não commitada sobre HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`. `calc.abs([x], 2)`
 produz erro de aridade no cristalino, mas erro de tipo no vanilla ratificado
@@ -30,5 +38,5 @@ implementar, obter GREEN, build/workspace, fmt, linhagem e linter sem
 violações. Repetir corpus CLI congelado em ordem normal e inversa.
 Unknown obrigatório bloqueia conclusão; duas revisões focais sem ganho
 reabrem o desenho. Relatório substantivo e proveniência em
-`00_nucleo/diagnosticos/p1333-final-report.md`. Preservar mudanças anteriores.
+relatório consolidado da limpeza. Preservar mudanças anteriores.
 Sem commit, stage ou push neste pedido.

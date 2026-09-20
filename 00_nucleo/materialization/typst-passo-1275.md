@@ -1,5 +1,13 @@
 # P1275 — verificar e certificar a promoção produtiva
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — PROMOTED-PRESERVED SEM ATESTAÇÃO DE ISOLAMENTO
 **Predecessor:** implementação P1274
 **Regime:** veredito segregado e reproduzível
@@ -43,4 +51,4 @@ sido incorretamente tratado como preseal. A cadeia integral foi repetida com
 preseal separado e somente a segunda execução sustenta o certificado.
 
 Certificado:
-`00_nucleo/diagnosticos/typst-p1275-promotion-certificate.md`.
+relatório consolidado da limpeza.

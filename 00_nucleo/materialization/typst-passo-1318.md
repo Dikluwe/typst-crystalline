@@ -1,5 +1,13 @@
 # Passo 1318 — posição textual nos erros de CSV em Bytes
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: escrito e implementado; validação e revisão independente concluídas.
 
 Acrescentar `at linha:coluna` à causa de parsing em `csv(Bytes)`, preservando
@@ -8,7 +16,7 @@ o offset do parser, não a localização do byte inválido nem uma linha CSV
 reconstruída. Texto válido e binário inválido exigem regras distintas,
 incluindo o caso CRLF medido. Path/Str e decode_csv público ficam intactos.
 
-Medição: `00_nucleo/diagnosticos/p1318-measurement.json`. O passo coordena;
+Medição: relatório consolidado da limpeza. O passo coordena;
 o owner normativo é `00_nucleo/prompts/compiler/stdlib/loading.md`, consumer
 único `01_core/src/compiler/stdlib/loading.rs`.
 
@@ -40,5 +48,5 @@ três ordens, zero falhas/Unknown; parecer independente PASS.
 
 Números, estado não commitado, hashes, horários, peculiaridades CRLF/Utf8,
 incidente do writer e limites constam em
-`00_nucleo/diagnosticos/p1318-final-report.md`. O PASS é somente do recorte
+relatório consolidado da limpeza. O PASS é somente do recorte
 CSV Bytes; Path/Str e as demais dívidas continuam abertas. Sem commit.

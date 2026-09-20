@@ -144,7 +144,7 @@ tagueado. Número confirmado por listagem real do directório: último ficheiro
 1. **Compacto directo, sem modo verboso preservado** — rejeitada: perde a
    baseline de auditoria; sem a forma verbosa não há decalque possível e a
    verificação ficaria reduzida a "parece igual" (a classe de erro que
-   ADR-0119/L11 proíbem fechar sem recibo).
+   ADR-0119/L11 proíbem fechar sem registro).
 2. **Acessibilidade no mesmo eixo da compactação** — rejeitada: a compactação
    muda operadores de texto; o tagging muda a estrutura lógica do documento
    (`BDC`/`EMC`, structure tree). Misturá-los no mesmo passo torna impossível
@@ -178,7 +178,7 @@ Versão corrigida (P956):
   saber o que troca.
 - **Operacional:** o modo verboso é validado **directamente contra o vanilla**
   (operador a operador); a flag compacta é validada **por decalque contra o
-  verboso** — ambos com comando + recibo (ADR-0119/ADR-0121).
+  verboso** — ambos com comando + registro (ADR-0119/ADR-0121).
 
 Texto original (P954, rótulos invertidos — preservado):
 
@@ -193,7 +193,7 @@ Texto original (P954, rótulos invertidos — preservado):
   que o vanilla (estado medido em P884 — adiamento consciente, já registado).
 - **Operacional:** qualquer passo da frente de compactação tem de declarar no
   seu plano o decalque contra o modo verboso como gate de aceitação (comando
-  + recibo, per ADR-0119/ADR-0121).
+  + registro, per ADR-0119/ADR-0121).
 
 ## 6. Referências
 

@@ -31,7 +31,7 @@ Raster permanece auxiliar `Unknown`.
 
 ## Retomada e fechamento
 
-Foi materializado um harness local em `lab/parity/matrix/p1240_raster.py`.
+Foi materializado um harness local em `[artefato laboratorial removido]`.
 Transforms ancestrais são compostos e stroke/mask entram na geometria. O
 recibo declara os SVGs e o renderer usados, sem alegar auditoria dos acessos
 reais do processo. Linear, Radial e pattern passaram em 1x/2x/4x; percursos

@@ -131,4 +131,4 @@ attrs e não guarda bytes derivados. Sua única incorporação em Content perten
 ao owner `entities/content.md`.
 
 Tipo e campo públicos foram confirmados pelo dono em 2026-09-16 e devem ser
-materializados somente sob o selo P1424.
+materializados somente no escopo de P1424.

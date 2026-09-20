@@ -1,13 +1,20 @@
 # Passo 1328 — diagnóstico de calc.abs quando o argumento é conteúdo
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema e decisão
 
 Próximo item elegível da fila P1322: `calc-abs-content-diagnostic`.
 P1327 encerrou bare-import-warning. A pendência de identidade math de P1325
 continua fora; este recorte não identifica módulos por nome nem muda math.
 
-Medição nova: `00_nucleo/diagnosticos/p1328-baseline.json`, SHA-256
-`e049418db46ea039235b336254bfdbffd492253ac66c38782ac6bc56564f2ffb`,
+Medição nova: relatório consolidado da limpeza,
 com HEAD, working tree não commitado, diff/stat, horários e binários fixados.
 `$std.calc.abs(-1)$`, a rota por alias em math e `calc.abs([abc])`
 falham bilateralmente. No cristalino, a mensagem diverge e perde o argumento;
@@ -30,7 +37,7 @@ não a este passo. Classificação ADR-0127: paridade diagnóstica contínua.
 4. Validar build release/locked, workspace, fmt, lint geral e V5/V15/V26,
    linhagem recíproca e comparação CLI normal/repetida/invertida.
 5. Registrar resultado substantivo, causa e dívidas em
-   `00_nucleo/diagnosticos/p1328-final-report.md`, revisão e closure.
+   relatório consolidado da limpeza, revisão e closure.
 
 ## Limites
 

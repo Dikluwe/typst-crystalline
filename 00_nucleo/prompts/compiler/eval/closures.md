@@ -82,8 +82,7 @@ as regras vigentes; argumentos excedentes continuam `unexpected argument`.
 Baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306:
 `01_core/src/compiler/eval/closures.rs:72-114` consome named via mapa e
 posicionais por índice; `:117-131` reconstrói o sink apenas das views.
-A matriz `00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+A matriz histórica,
 mede `with-spread-closure-f/g`: as origens `51..58` e `88..95` sobrevivem
 ao sink e factory no vanilla. A fonte
 `lab/typst-original/crates/typst-eval/src/call.rs` aplica closures consumindo
@@ -120,16 +119,15 @@ não consomem o Args da aplicação seguinte. Unknown obrigatório bloqueia.
 
 ### P1307-R4 — ordem do sink medida antes do candidato
 
-A tentativa focal independente de `p1307-r4-measurement.json`, encerrada em
-`2026-09-07T17:37:05.017565+00:00` sobre baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+A tentativa focal independente, encerrada em
+`2026-09-07T17:37:05.017565+00:00` sobre baseline R4,
 refuta a premissa de ordem intercalada no sink: `args.sink-only` produz
 `arguments(key: 2, 1)` nos dois produtos, enquanto o constructor arguments
 preserva ordem lexical. `args.sink-mixed` vanilla conserva duplicatas como
 `arguments(z: 11, z: 33, a: 44, 22, 55)`. A fonte ratificada
 `lab/typst-original/crates/typst-eval/src/call.rs:693-715,728-735` consome
-posicionais para o sink e os anexa aos named restantes. O recibo focal foi
-copiado integralmente em `00_nucleo/diagnosticos/p1307-r4-contract-refinement.json`
+posicionais para o sink e os anexa aos named restantes. O registro focal foi
+copiado integralmente na medição histórica
 antes desta decisão; R3 permanece como histórico, não expectativa vigente.
 
 Depois de consumir parâmetros conforme os critérios vigentes, o resultado
@@ -149,8 +147,7 @@ dentro do carrier aprovado, sem nova API, default ou fase.
 
 ## P1308 — origem da closure capturada nos parâmetros
 
-Medição anterior à decisão: baseline P1308 SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+Medição anterior à decisão: baseline P1308,
 `closures.rs:243–252` cria Func só com body/params já reduzidos. Vanilla
 ratificado `typst-eval/src/call.rs:638` ancora Func em `self.params().span()`.
 

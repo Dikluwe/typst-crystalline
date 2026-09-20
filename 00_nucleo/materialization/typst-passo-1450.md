@@ -1,5 +1,13 @@
 # Passo 1450 — Materializar `math.underparen` com identidade e geometria de spreader inferior
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** L0 APROVADO — MATERIALIZAÇÃO AUTORIZADA (ADR-0127)
 **Data da medição:** 2026-09-18T19:18:31-03:00  
 **Commit medido:** `e3e0cced85ea675faa58a9a4c5facd57e5ac903a`  
@@ -23,13 +31,13 @@ opcional/posicional. `math/ir/resolve.rs:1347-1361` usa
 stretch horizontal de 100% com shortfall zero e annotation como script
 inferior. O composto conserva a classe matemática do body.
 
-| Fonte | SHA-256 |
+| Fonte | identificador administrativo |
 |---|---|
-| `lab/typst-original/crates/typst-library/src/math/underover.rs` | `49fe33135766b83c16d27f84c51bd8f867cd5f3f790b075242e8043661a7e298` |
-| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
+| `lab/typst-original/crates/typst-library/src/math/underover.rs` | [dado administrativo removido] |
+| `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
 
-O binário medido foi `/usr/local/bin/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+O binário medido foi `/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido],
 que reporta `typst 0.15.1 (586e1bd4)` e corresponde ao pin ratificado.
 
 ### 2.2 Observáveis públicos medidos no vanilla
@@ -64,22 +72,22 @@ contrato, morfologia e fronteira de argumentos.
 
 Hashes dos consumers no estado limpo medido:
 
-| Consumer | SHA-256 |
+| Consumer | identificador administrativo |
 |---|---|
-| `01_core/src/entities/elements/math_underover.rs` | `c92c5831f29d3625dd5b0dab6d39bd9ad7066f3384d717c1e055ea6c6d9a366e` |
-| `01_core/src/entities/content.rs` | `084073ada3402f913b7b0dde88390ed825adc239f90e3702d75c135ee0694c8c` |
-| `01_core/src/compiler/stdlib/structural/math.rs` | `61853ecbb2c580954fb0496ebf989054a10e8e1236fe7af51e16ab3079b52522` |
-| `01_core/src/compiler/eval/math.rs` | `420367e7ce795f7b4c07521853851ca98192b2c359023d11d85697d6cf53962a` |
-| `01_core/src/compiler/eval/repr.rs` | `438050952604f6ef17af146bf490e825a2a308963b49ccac503c38e9e9b9fd00` |
-| `01_core/src/compiler/eval/bindings/field_access.rs` | `82e0ac47f58101bb452d5ea452ad51099943f4ef7642fe760f813c22e6356d8a` |
-| `01_core/src/compiler/math/layout/underover.rs` | `2ba1def13469094097c53c9de27e15f11f902faa69ed66069bad60292783a216` |
-| `01_core/src/compiler/math/layout/mod.rs` | `e2a876c3ae145e4dba05b0fc7f5b2abbf2fb2db80a76f41270e0b0493bb22349` |
-| `01_core/src/compiler/math/layout/spacing.rs` | `b60f35c05d1e96f766ddd4c01b20d823af5792b74f5b9bb912ae1ca3f0ae1fee` |
-| `01_core/src/compiler/eval/mod.rs` | `56cdb57f9b5048aa12e2248be3d838066f5eadd86ffead059d1ec67921228500` |
-| `01_core/src/compiler/introspect.rs` | `4feb0329fc5437de7d2791b629fa38fbaef261a9bd96462bb5bd1f835b085961` |
-| `01_core/src/compiler/introspect/locatable.rs` | `d234e941233fed7b85c98a6171c04f85e0a8f28d34bddcb56e7c01e4ce74fc35` |
-| `01_core/src/compiler/layout/mod.rs` | `4dcb48e3ab81ed2416abd0cae40b2d1a9325f5e55d27918865ce154d806a1bb0` |
-| `03_infra/src/query_helpers.rs` | `f60b2b2fa79804e0d4564783da20ed8d8eaf351fe853c3569fa87d56df74b36c` |
+| `01_core/src/entities/elements/math_underover.rs` | [dado administrativo removido] |
+| `01_core/src/entities/content.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/math.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/repr.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/bindings/field_access.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/underover.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/math/layout/spacing.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/eval/mod.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/introspect/locatable.rs` | [dado administrativo removido] |
+| `01_core/src/compiler/layout/mod.rs` | [dado administrativo removido] |
+| `03_infra/src/query_helpers.rs` | [dado administrativo removido] |
 
 ## 3. Classificação anti-deriva
 

@@ -1,5 +1,13 @@
 # P1270 — decompor causalmente as divergências numéricas remanescentes
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — 2026-08-29
 **Predecessor:** P1269, somente se houver falhas numéricas
 **Regime:** diagnóstico causal; nenhuma implementação
@@ -45,7 +53,7 @@ bloqueante e não pode ser convertido em tolerância adicional.
 
 ## Fecho executado
 
-Relatório: `00_nucleo/diagnosticos/typst-p1270-causal-decomposition.md`.
+Relatório: relatório consolidado da limpeza.
 
 - população reproduzida: 24 fixtures / 28 métricas;
 - C1: 16 métricas `CONTRACT-ERROR` no carrier f32 do probe P1266;

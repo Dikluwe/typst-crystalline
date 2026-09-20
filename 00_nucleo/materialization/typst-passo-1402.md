@@ -1,5 +1,13 @@
 # Passo 1402 — `outline.entry`: identidade, consulta e `body()`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado de entrada:** `be15d0ab73af089860d03db390508edf21a4bdac`,
 working tree limpa antes deste passo, medido em `2026-09-14T22:02:33-03:00`.
 **Execução:** sem atestação de isolamento entre papéis.
@@ -23,14 +31,14 @@ como dívida explícita. Também não altera defaults de `outline`, `lof` ou `lo
 ## 2. Medição antes da decisão
 
 Referência ratificada: vanila `586e1bd43`, binário
-`lab/typst-original/target/release/typst`, SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
-Cristalino de entrada: `target/debug/typst`, SHA-256
-`c1222e45bef7a5245b531e56695d7744a5b151606682ed023630dd840cc3323d`.
+`lab/typst-original/target/release/typst`, identificador administrativo
+[dado administrativo removido].
+Cristalino de entrada: `target/debug/typst`, identificador administrativo
+[dado administrativo removido].
 
 Todas as sondas foram limitadas a 512 MiB de espaço virtual, 15 segundos e
-saída útil menor que 64 KiB. Fixture principal UTF-8, SHA-256
-`8203d182c1a5fbbda3fc7d04217b5725455107ef8314d1750431063e7c891bed`:
+saída útil menor que 64 KiB. Fixture principal UTF-8, identificador administrativo
+[dado administrativo removido]:
 
 ```typ
 #set heading(numbering: "1.")

@@ -1,5 +1,13 @@
 # Passo 1420 — retirar `Unknown` das rotas HTML e math do P1400
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Reabrir exclusivamente a observabilidade das 66 rotas que permaneceram
@@ -27,17 +35,17 @@ Estado medido em `2026-09-16T10:49:19-03:00`:
 - working tree limpa;
 - vanila ratificado
   `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário vanila SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino rebuildado do HEAD, SHA-256
-  `1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e`;
-- enumerador cristalino rebuildado do HEAD, SHA-256
-  `ec109dad8c7a38e8e08e01ed4be4ea842c5f86635584718c55915a8616a6f810`.
+- binário vanila identificador administrativo
+  [dado administrativo removido];
+- binário cristalino rebuildado do HEAD, identificador administrativo
+  [dado administrativo removido];
+- enumerador cristalino rebuildado do HEAD, identificador administrativo
+  [dado administrativo removido].
 
-O inventário atual tem SHA-256 de recibo
-`580a0307dc3758af395d658d9d3a7de5ac7ead3a84b535c5f15a19ebe090df15`
+O inventário atual tem identificador administrativo de recibo
+[dado administrativo removido]
 e quatro hashes de determinismo idênticos:
-`4109ae0d0f9a9403b1acc759e92438a3aeaa2edd6ae4292bb1b3ed16e265c28e`.
+[dado administrativo removido].
 Ele mede 504 células `VANILLA_ONLY`, 207 paths únicos e 124 paths da família
 `format`; portanto restam 83 paths não-`format.*`.
 
@@ -48,18 +56,18 @@ ordem direta, repetida e reversa.
 
 Entradas históricas que motivam esta reabertura:
 
-- contrato P1400 SHA-256
-  `b4be7e313c2772040f8473f0b00e689772060396eec6aa4821f6170c56fbc545`;
-- oráculos P1400 SHA-256
-  `75ff90569ca462b819024c186f1705bdd41619c71edb521345549f32fcf1ceb2`;
-- resultados P1400 SHA-256
-  `9da156aafbe572a0680f14a6c4b93aeff2b93ef63dde7bca6056a787feb62542`;
-- runner P1400 SHA-256
-  `a4bcf6f2807fab8354ce296275d3e3c8b0dd41c7a6a77066e1c2320eb656e016`;
-- reprobe P1409 SHA-256
-  `24ab1247a52d63cffdc2cb93868cd54ff70e91e293df795b789283d5b4701250`;
-- reprobe P1414 SHA-256
-  `1a854a43e4b7e88cd6d3fd3f06bc363f1bd5a7f27bf6df587eff40220adfacba`.
+- contrato P1400 identificador administrativo
+  [dado administrativo removido];
+- oráculos P1400 identificador administrativo
+  [dado administrativo removido];
+- resultados P1400 identificador administrativo
+  [dado administrativo removido];
+- runner P1400 identificador administrativo
+  [dado administrativo removido];
+- reprobe P1409 identificador administrativo
+  [dado administrativo removido];
+- reprobe P1414 identificador administrativo
+  [dado administrativo removido].
 
 A matriz focal atual permanece em 48 `MATCH`, seis `DIFFERENCE` mecânicas e
 zero `UNKNOWN`; ela é controle de regressão, não denominador deste passo.
@@ -142,7 +150,7 @@ math.underparen
 math.undershell
 ```
 
-O conjunto deve ser derivado novamente de `p1400-results.json` e confrontado
+O conjunto deve ser derivado novamente de relatório consolidado da limpeza e confrontado
 literalmente com a lista acima. Rota adicionada, removida ou já ausente do
 inventário atual produz `Unknown(BASELINE_DRIFT)` e reabre o escopo; não se
 edita a lista silenciosamente.
@@ -209,11 +217,11 @@ distintos não provam segregação material.
 
 Antes do runner candidato, produzir:
 
-- `00_nucleo/diagnosticos/p1420-manifest.json`;
-- `00_nucleo/diagnosticos/p1420-contract.json`;
-- `00_nucleo/diagnosticos/p1420-oracles.json`;
-- `00_nucleo/diagnosticos/p1420-mutants.json`;
-- `00_nucleo/diagnosticos/p1420-preseal.json`.
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 O manifesto registra hashes deste passo, produtos, inventário, artefatos
 P1400/P1409/P1414 usados, conjunto literal de rotas, capacidades por papel,
@@ -306,7 +314,7 @@ inversa com vetor idêntico. Mutante válido sobrevivente impede o selo.
 
 ## Fase E — runner e execução
 
-Criar `lab/parity/p1420_unknown_route_reprobe.py`. O runner deve:
+Criar `[artefato laboratorial removido]`. O runner deve:
 
 - selecionar literalmente as 66 rotas no P1400 e no inventário atual;
 - validar todos os hashes antes de executar produto;
@@ -345,16 +353,16 @@ converter `Unknown` em sucesso é proibido.
 
 Produzir:
 
-- `lab/parity/p1420_unknown_route_reprobe.py`;
-- `00_nucleo/diagnosticos/p1420-manifest.json`;
-- `00_nucleo/diagnosticos/p1420-contract.json`;
-- `00_nucleo/diagnosticos/p1420-oracles.json`;
-- `00_nucleo/diagnosticos/p1420-mutants.json`;
-- `00_nucleo/diagnosticos/p1420-preseal.json`;
-- `00_nucleo/diagnosticos/p1420-results.json`;
-- `00_nucleo/diagnosticos/p1420-backlog.json`;
-- `00_nucleo/diagnosticos/p1420-report.md`;
-- `00_nucleo/diagnosticos/p1420-verification.json`.
+- `[artefato laboratorial removido]`;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 O backlog agrupa por causa e owner comprovado, mas não altera ownership nem L0.
 Para cada rota não-`MATCH`, registrar menor witness, dois subvereditos, owner,
@@ -363,10 +371,10 @@ consumer, hipótese causal, condição de refutação e classe ADR-0127 prováve
 ## Gates finais
 
 ```sh
-python3 -m py_compile lab/parity/p1420_unknown_route_reprobe.py
-python3 lab/parity/p1420_unknown_route_reprobe.py --validate-only ...
-python3 lab/parity/p1420_unknown_route_reprobe.py --gate ...
-python3 lab/parity/p1420_unknown_route_reprobe.py --run ...
+python3 -m py_compile [artefato laboratorial removido]
+python3 [artefato laboratorial removido] --validate-only ...
+python3 [artefato laboratorial removido] --gate ...
+python3 [artefato laboratorial removido] --run ...
 cargo fmt --all -- --check
 crystalline-lint .
 git diff --check

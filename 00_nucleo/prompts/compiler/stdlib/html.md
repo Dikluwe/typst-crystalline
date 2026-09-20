@@ -129,7 +129,7 @@ aninhado. O resultado usa a mesma morfologia `elem` de `html.elem`.
 P1168 completa somente estes 12 bindings e a infraestrutura reutilizável dos
 76 globais. P1169 mede/materializa `ol` e `li`; P1170, `a`; P1171 introduz a
 tabela void e `br`. As demais tags e `html.frame` continuam incompletas. Esta
-secção foi aprovada pelo dono em 2026-08-25 e aguarda resselo no início de
+secção foi aprovada pelo dono em 2026-08-25 e aguarda revalidação no início de
 P1168.
 
 ### Correção descoberta durante P1168 — gate aprovado em 2026-08-25
@@ -514,7 +514,7 @@ produz `HtmlBody::Content`. `col` e `wbr` não recebem body nem qualquer
 positional e usam `HtmlBody::Unset`. Chamada vazia, extra, body named e cast
 inválido conservam os erros e spans medidos; nenhum named é ignorado.
 
-Todos aceitam os 76 atributos globais já selados. Além deles, somente os 48
+Todos aceitam os 76 atributos globais já validados. Além deles, somente os 48
 específicos abaixo pertencem a cada tag:
 
 | Tag | Contrato de casts específicos |
@@ -847,7 +847,7 @@ ausente e será P1424; MathML, CSS, browser/network behavior e qualquer tag fora
 da tabela continuam fora.
 
 Esta secção foi confirmada explicitamente pelo dono em 2026-09-16. O contrato
-aprovado deve ser selado pelo protocolo segregado antes da materialização.
+aprovado deve ser validado pelo protocolo segregado antes da materialização.
 
 ## P1424 — primitiva `html.frame` (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
@@ -872,4 +872,4 @@ sentinela, string SVG ou body simples. Target paged e HTML divergem no consumo,
 não na identidade construída. Feature off continua rejeitando o módulo.
 
 Esta adição é contrato público e compatibilidade. Foi confirmada explicitamente
-pelo dono em 2026-09-16; a materialização deve respeitar o selo P1424.
+pelo dono em 2026-09-16; a materialização deve respeitar o escopo de P1424.

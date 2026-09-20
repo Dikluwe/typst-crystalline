@@ -1,8 +1,8 @@
 # Prompt L0 — `wiring/tests/p1291_callback_runtime` — contrato black-box de callbacks math
-Hash do Código: 7b63f9c7
+Hash do Código: 6eb40e0c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 **Camada:** L4 — teste de integração
 **Ficheiro alvo:** `04_wiring/tests/p1291_callback_runtime.rs`

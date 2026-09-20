@@ -1,5 +1,13 @@
 # Passo 1294 — sanitização aditiva da selagem terminal do P1293
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado e natureza
 
 Este passo é exclusivamente de processo e evidência. Ele não implementa semântica,
@@ -32,24 +40,24 @@ Python `3.12.3` e o algoritmo canônico literal deste passo, encontrou:
 1. O bloco
    `$.updated_definitive_final_candidate_read_only` de
    `00_nucleo/diagnosticos/p1293-contract-seal.json` recalcula corretamente para
-   `04460e7920e9f87269b2594829aeb7e9cb878bd4373d1c94cb85ded45f2e8fbc`.
+   [dado administrativo removido].
 2. O inventário efetivo recalcula para
-   `33fe3dcd9cd287b24a82e255f7dffd2728cc76aab969ad5b049d35bbcf7b9c42`,
+   [dado administrativo removido],
    com `74/74` caminhos presentes e zero divergências.
 3. O bloco terminal `$.final_complete_read_only` possui `4.588` bytes canônicos
    e recalcula para
-   `077559cc1632cdd684532c2dec1638a9f57277b806b8263e519cadad7e50f045`,
+   [dado administrativo removido],
    exatamente o digest declarado pelo metadado irmão. A alegação anterior
-   `dcb5a0911cb9e9f7c1ecd8cb89a1697b8a058972b92bfd052be95ef24d5ff394`
+   [dado administrativo removido]
    está refutada e não pode ser promovida a digest real.
-4. O manifesto P1293 bruto, cujo SHA-256 permanece
-   `6c8571c03437749598d736025296b190a4e3839730eec68be6368e4b5479b03c`,
+4. O manifesto P1293 bruto, cujo identificador administrativo permanece
+   [dado administrativo removido],
    contém duas ocorrências da chave
    `$.contract_reopening_attach_ic_b.replacement_serial_seal`, com valores
    distintos. Em ordem textual, os valores canônicos medem `864` e `581` bytes
-   e têm SHA-256, respectivamente,
-   `181f102cb6c57b4a3d33e0ec3891f6e53e5683eee5a9f9d13140ca8a458c6679`
-   e `029fcf801a8ff169b2aba3024873fed28d5b45949247f104ba87135c39e50fb2`.
+   e têm identificador administrativo, respectivamente,
+   [dado administrativo removido]
+   e [dado administrativo removido].
    Um parser que aplica silently last-wins perde a primeira ocorrência; por
    isso a detecção usa pares de objeto e rejeição explícita de duplicatas.
 5. A primeira repetição de `cargo test --workspace -q` expirou no teste temporal
@@ -74,17 +82,17 @@ duplicada sem normalizar retroativamente o manifesto histórico.
 
 Hashes P1293 congelados:
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `00_nucleo/diagnosticos/p1293-manifest.json` | `6c8571c03437749598d736025296b190a4e3839730eec68be6368e4b5479b03c` |
-| `00_nucleo/diagnosticos/p1293-contract-seal.json` | `02701249dfeb7eaf0130c71b87393345bf93dfdefd87a72b489f897f5aba723c` |
-| `00_nucleo/diagnosticos/p1293-final-certificate.json` | `52d9f7f2d0aef71b697453c46c55aefdb695754470f0dd45f5f7ce85df378660` |
-| `00_nucleo/diagnosticos/p1293-final-verification-receipt.json` | `2ade14a5fc97b240e7c419925c6c3361b05c45e0315bc2f9ffadb244eefe87a6` |
-| `00_nucleo/diagnosticos/p1293-preservation-verification-receipt.json` | `396c05a5319df8549e934a3764f3a0c42183fb3fa2174b346783bf430f7aa1b5` |
-| `00_nucleo/diagnosticos/p1293-final-report.md` | `698362737ed9f1ffa2169a3d1ad519ad43a2bfa0513b2c39ebe59a7a2c092206` |
-| `04_wiring/tests/p1292_contract.rs` | `5104b48ff89766e9910cd3a39eef3706fe0c8539a0fa6cb7dafcb3cf66a7484a` |
-| `04_wiring/tests/p1293_contract.rs` | `2505aa34538067c743530f4a15feaf0a1b937c24bb51e2abdd64c1bc4151c7cb` |
-| `target/release/typst` | `c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90` |
+| `00_nucleo/diagnosticos/p1293-manifest.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1293-contract-seal.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1293-final-certificate.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1293-final-verification-receipt.json` | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1293-preservation-verification-receipt.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `04_wiring/tests/p1292_contract.rs` | [dado administrativo removido] |
+| `04_wiring/tests/p1293_contract.rs` | [dado administrativo removido] |
+| `target/release/typst` | [dado administrativo removido] |
 
 O binário em `target/` não pertence ao Git; seu hash serve como testemunha de
 reprodução e deve ser medido novamente depois de `cargo build --release`.
@@ -162,7 +170,7 @@ Depois de publicado e hasheado, o manifesto fica somente leitura.
 Entradas permitidas:
 
 - este passo;
-- manifesto S1 e seu SHA-256;
+- manifesto S1 e seu identificador administrativo;
 - artefatos P1293 congelados, somente leitura.
 
 Escrita permitida somente em `p1294-terminal-seal.json`.
@@ -214,9 +222,9 @@ json.dumps(
 ).encode("utf-8")
 ```
 
-As chaves são ordenadas recursivamente; arrays preservam ordem. O digest é SHA-256
+As chaves são ordenadas recursivamente; arrays preservam ordem. O digest é identificador administrativo
 dos bytes resultantes. A implementação usada deve ser registrada por caminho,
-versão da runtime, comando e SHA-256 quando houver script auxiliar.
+versão da runtime, comando e identificador administrativo quando houver script auxiliar.
 
 ## Gates de S1 — congelamento
 
@@ -225,11 +233,11 @@ versão da runtime, comando e SHA-256 quando houver script auxiliar.
 2. Confirmar árvore limpa antes da criação deste passo; depois, distinguir este
    passo das cinco futuras saídas.
 3. Recalcular os nove hashes congelados.
-4. Recalcular o bloco predecessor como `04460e7920e9f87269b2594829aeb7e9cb878bd4373d1c94cb85ded45f2e8fbc`.
+4. Recalcular o bloco predecessor como [dado administrativo removido].
 5. Recalcular os `4.588` bytes canônicos do terminal como
-   `077559cc1632cdd684532c2dec1638a9f57277b806b8263e519cadad7e50f045`.
+   [dado administrativo removido].
 6. Confirmar que o metadado histórico declara exatamente o mesmo digest.
-7. Confirmar que `dcb5a0911cb9e9f7c1ecd8cb89a1697b8a058972b92bfd052be95ef24d5ff394`
+7. Confirmar que [dado administrativo removido]
    não é produzido pelo algoritmo obrigatório e registrá-lo somente como
    alegação refutada.
 8. Detectar exatamente duas ocorrências de
@@ -237,7 +245,7 @@ versão da runtime, comando e SHA-256 quando houver script auxiliar.
    ordem textual e recalcular os hashes dos valores como `181f102c...` e
    `029fcf80...`; qualquer parser last-wins usado como prova bloqueia S2.
 9. Materializar e verificar o inventário: `74/74`, zero ausente, zero divergente,
-   digest `33fe3dcd9cd287b24a82e255f7dffd2728cc76aab969ad5b049d35bbcf7b9c42`.
+   digest [dado administrativo removido].
 
 Qualquer valor inesperado bloqueia S2.
 
@@ -246,14 +254,14 @@ Qualquer valor inesperado bloqueia S2.
 1. Validar JSON estrito e sem chaves duplicadas do manifesto e do selo. O
    manifesto P1293 histórico é validado como bytes congelados mais detecção da
    duplicata; não é silenciosamente normalizado nem aceito como entrada unívoca.
-2. Confirmar o SHA-256 bruto do manifesto recebido.
+2. Confirmar o identificador administrativo bruto do manifesto recebido.
 3. Recalcular `sanitized_terminal` duas vezes em processos novos.
 4. Recalcular em ordem de leitura inversa; o digest deve permanecer igual.
 5. Confirmar que o digest do selo aponta para o bloco correto e não para o
    documento inteiro.
 6. Confirmar que o selo contém zero autoridade de escrita futura e não declara
    aprovação funcional nova.
-7. Calcular o SHA-256 bruto do selo somente após sua última escrita.
+7. Calcular o identificador administrativo bruto do selo somente após sua última escrita.
 
 Qualquer divergência bloqueia S3.
 
@@ -288,8 +296,8 @@ de `p1137_watch_dependencias_recuperacao_e_filtro`, bloqueia o certificado naque
 execução. Uma repetição verde não apaga uma anterior vermelha: o recibo deve
 registrar ambas e classificar o flake sem atribuí-lo ao P1293 sem prova causal.
 
-Executar `cargo build --release` e confirmar o SHA-256 do binário como
-`c527b4111493f444d66e44e6d38d4823b2d09515c73d92eda1b9c4a2a86bff90`.
+Executar `cargo build --release` e confirmar o identificador administrativo do binário como
+[dado administrativo removido].
 
 ### Superfícies
 
@@ -305,10 +313,10 @@ Ambos exigem zero missing, zero unverified e zero `Unknown`.
 
 Não executar mutantes contra a árvore produtiva. Verificar:
 
-- runner `/tmp/p1293-final-observers-runner-31.py` com SHA-256
-  `300b6e5cf5f65cdc3727bfa9cf781f324d75d7ba93420eb0beeb73074168d70f`;
-- resultado `/tmp/p1293-final-74-results-31.json` com SHA-256
-  `a2ae8c75b7792201c902e8c8d38e6ec2071328ebbcb10a6e09f6d7372a051e55`;
+- runner `/tmp/p1293-final-observers-runner-31.py` com identificador administrativo
+  [dado administrativo removido];
+- resultado `/tmp/p1293-final-74-results-31.json` com identificador administrativo
+  [dado administrativo removido];
 - dois baselines verdes, 31 mutações forward, 31 reverse, score `1.0`, zero
   sobreviventes, zero `Unknown` e estabilidade de ordem.
 
@@ -347,7 +355,7 @@ O recibo S3 deve conter:
 - veredito `PASS_READY_FOR_CERTIFICATE` ou `BLOCKED`.
 
 O certificado só pode ser emitido depois de congelar o recibo. Ele deve piná-lo
-por SHA-256, além do manifesto, selo, baseline e bloco sanitizado. O certificado
+por identificador administrativo, além do manifesto, selo, baseline e bloco sanitizado. O certificado
 é a âncora terminal e não pode ser posteriormente inserido no manifesto ou no
 selo. O commit Git futuro será uma âncora externa adicional, não autorreferência.
 

@@ -1,5 +1,13 @@
 # Passo 1423 — completar os 43 constructors tipados HTML residuais
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 O P1422 reclassificou 44 rotas `html.*`: todas são `PARTIAL`, com forma
@@ -22,10 +30,10 @@ recorte para os 43 constructors realmente derivados da tabela tipada e reserva
 
 Estado causal da medição: HEAD
 `5b40e9b354e95fbb0195337512e26f1c8c0ab92b`, tree
-`9d56477e598613fd7869c1e5100743115c0c7a03`; L0 anterior SHA-256
-`c7d6d0271e244a6036150d9aeac130ad12ba30a440b10f8b4c78631069c8b6b6`;
-consumer anterior SHA-256
-`9194006bd095b49a93c2c482ca8ffe290e596621f3c5b4dbe6a78049bb515d6c`.
+`9d56477e598613fd7869c1e5100743115c0c7a03`; L0 anterior identificador administrativo
+[dado administrativo removido];
+consumer anterior identificador administrativo
+[dado administrativo removido].
 
 ## Classificação ADR-0127 e parada
 

@@ -1,5 +1,13 @@
 # P1246 — medir e implementar clip masks SVG modeláveis
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** FECHADO — MATERIALIZADO, SEGREGADO E CERTIFICADO  
 **Predecessor:** P1245  
 **Saída:** proposta L0 e rascunhos diagnósticos; nenhuma promoção ou código.

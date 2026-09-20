@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md
-//! @prompt-hash 3f27d67f
+//! @prompt-hash 80dbdcab
 //! @layer L1
 //! @updated 2026-06-22
 //!

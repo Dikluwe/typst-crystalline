@@ -1,13 +1,8 @@
 # Prompt L0 — testes independentes de `math.undershell` P1451
+Hash do Código: 0c2aa884
 
 **Camada**: L1 test-only
 **Alvo**: `01_core/src/compiler/stdlib/structural/p1451_tests.rs`
-
-## Entradas congeladas
-
-Passo P1451 aprovado no commit
-`89544dadd`, baseline `c2813b6f775172a63bf4da2ffe1b41ab54fbe238`
-e fonte vanilla pinada `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
 
 ## Obrigações observáveis
 
@@ -24,16 +19,3 @@ e fonte vanilla pinada `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
   classes esquerda/direita do body;
 - a redução interna usa U+23E1 abaixo do body e uma annotation inferior
   externa, reutilizando o owner de `MathUnderover`.
-
-## Política e gate discriminatório
-
-Falha de build alheia, timeout, identidade ambígua ou observação opaca é
-`Unknown` e bloqueia selo. Mutantes válidos removem binding/identidade/presença,
-aceitam assinatura inválida, alteram `repr`, trocam U+23E1/posição, perdem
-annotation ou classe e mantêm a rota bare histórica. Todos devem ser
-rejeitados; `mutation_score = 1.0`.
-
-## Regime
-
-`executed_without_isolation_attestation`: os papéis compartilham workspace; a
-ordem causal, os hashes e os recibos são preservados sem alegar isolamento.

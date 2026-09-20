@@ -350,8 +350,7 @@ inspeciona o scope capturado.
 
 Sobre HEAD `b303f1f15b610e09872b567027e0d806387fde8c` e working tree P1306
 preservado, `entities/func.rs:39-42,237-238` já guarda `Arc<(Func, Args)>`.
-Na matriz `00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+Na matriz histórica,
 `with-json-invalid-first-occurrence` e o paralelo TOML rejeitam o primeiro
 `pretty:"bad"` mesmo quando o último é true. `with-spread-arguments-f/g`
 preserva erros em origens distintas após factory. A fonte ratificada
@@ -386,8 +385,7 @@ encoders; esta limpeza de ownership textual não é um novo consumer.
 
 ### Medição anterior à decisão
 
-No baseline P1308 SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`,
+No baseline P1308,
 `entities/func.rs:20` armazena somente Arc da representação. O parâmetro
 lexical da closure não está no carrier; seu body não identifica o mesmo range.
 Vanilla ratificado `foundations/func.rs:380–389` guarda Span e o preenche
@@ -417,7 +415,7 @@ de diagnóstico autorizado em P1308, sem nova API pública ou fase.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1342-topology-audit-r1.md` mede que o Func exterior With é
+A medição histórica registra que o Func exterior With é
 transportado intacto dentro de `CounterUpdate::Func` e que o alvo interno é o
 mesmo `Func` clonado no dispatch. Esse é o carrier real mínimo; não é necessário
 alterar `ContextBlockElem`, `CounterRegistry`, `Value` ou `ElementPayload`.

@@ -1,5 +1,13 @@
 # Passo 1454 — preservar paint nomeado em `html.frame`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — correção interna de paridade
 **Data da medição:** 2026-09-18T21:30:54-03:00
 **Commit medido:** `3267d9083afef6a5b2a493221e08714e402ac7b8`

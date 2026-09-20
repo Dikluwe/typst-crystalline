@@ -1,8 +1,7 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: 982f8350
 
-**Estado:** P1462 MATERIALIZADO E CERTIFICADO; CONTRATO P1463 PROPOSTO —
-AGUARDA CONFIRMAÇÃO ADR-0127.
+**Estado:** P1462 E P1463 MATERIALIZADOS.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -84,7 +83,7 @@ obrigatória inverte precedência, faz regra vazia escrever `false`, ignora
 nested, trata nested como root, muda o default e aceita valor não booleano.
 Unknown bloqueia.
 
-A operação pública e a etapa de extração foram materializadas e certificadas
+A operação pública e a etapa de extração foram materializadas e validadas
 em P1462 depois da confirmação humana de 2026-09-19.
 
 ## P1463 — extração root de `format.png.ppi` (PROPOSTO; gate ADR-0127)

@@ -1,5 +1,13 @@
 # Passo 1458 — eliminar o hardcode bilingue de referências de figure
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUÇÃO AUTORIZADA — correção interna de paridade  
 **Data da medição:** 2026-09-18  
 **Commit medido:** `f6463768d8bb093a59577ff6f3262a9c5f8eb448`  
@@ -14,10 +22,10 @@ e pela introspecção; ampliar a duplicação seria novo hardcode.
 
 ## 2. Medição anterior à decisão
 
-- L0 SHA-256 anterior: `d52d9d1559c8145ec586394287fde48e74c0c0afe47bab5b224e409198d1dad2`;
-- consumer SHA-256: `5f154629f028d3658a4978dcc0cd1a74c30a1b3ef72e90c21077bf7c93f4a118`;
-- vanilla ratificado SHA-256: `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- cristalino release SHA-256: `b24463da898a2fa98669e118954fa5bf622fc762c5cd6c7f1741613d96c7f4ff`.
+- L0 identificador administrativo anterior: [dado administrativo removido];
+- consumer identificador administrativo: [dado administrativo removido];
+- vanilla ratificado identificador administrativo: [dado administrativo removido];
+- cristalino release identificador administrativo: [dado administrativo removido].
 
 Na fixture `lab/parity/p1458_figure_ref_de.typ`, o vanilla extrai
 `Abbildung 1: Bild` e `Siehe Abbildung 1.`. O cristalino extrai a legenda
@@ -86,10 +94,10 @@ Resultados reproduzidos:
 
 Identidade final do recorte:
 
-- L0: `4d51cc94a6d520c87fec7094b8fb5c9b4cc0c6980f472e6ac41a9d50e6724ba1`;
-- consumer: `bd7b1219657b6a01200c3b8ad3902ddc6a29237de198eef91eede2f8590f71c0`;
-- fixture: `8890c287edf359d5a6a62fa658ed5a2138b5e7df4fdd53ba6cc1bf5144020825`;
-- runner corrigido: `d88c87c49b96ffeea16830fe0e01e67c01216d0b4d2904dc82c73a4490ca36a8`;
-- binário release: `02db6b60251198a0dd78e1e09f90fa0a55df8497ee6ca18a94c3f95d50e0d432`.
+- L0: [dado administrativo removido];
+- consumer: [dado administrativo removido];
+- fixture: [dado administrativo removido];
+- runner corrigido: [dado administrativo removido];
+- binário release: [dado administrativo removido].
 
 Não se alega isolamento entre papéis: executado sem atestação de isolamento.

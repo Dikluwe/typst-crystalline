@@ -1,5 +1,13 @@
 # Passo 1309 — rebaseline global pós-P1307/P1308 e seleção do próximo lote
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução.
 
 **Natureza:** auditoria somente leitura do produto; não materializa paridade.
@@ -37,15 +45,15 @@ capacidades.
 O commit baseline integra os fechamentos anteriores. Os recibos predecessores
 relevantes são:
 
-| evidência | SHA-256 | alegação limitada |
+| evidência | identificador administrativo | alegação limitada |
 |---|---|---|
-| `p1307-r6-final-report.md` | `f956fa66ef757845613d9b446a7b9cd08f6502b21caaaa616ff446d816068d84` | implementação dos encoders e transporte, com bloqueios históricos daquele instante |
-| `p1307-r6-verification-final.json` | `48c89a1513ff0f6b56f79b286f1e81557b4bc5272423cd546a28a41b4edb1062` | veredito R6 então bloqueado |
-| `p1308-r2-final-report.md` | `fc114f4892545ecc815e0b252f0190dcb27f569d9044ba4e34640a5b9804568a` | entrega acumulada autorizada e gates finais |
-| `p1308-verification-r2-final.json` | `6f6d9cfd4d3cb8233915c0cf59f9734a1b021139486e09fb743f2646fa5c37c0` | PASS limitado P1308-R2 |
-| `p1308-r2-public-matrix.json` | `89db8675ebe23d3cd8a9ddba4347445a8354f018378b70209d8ff45e0e901882` | 1982 células focais preservadas |
-| `p1308-r2-workspace-tests.json` | `207dbd534febcdf207c914a5bd208e20416c9d9e1b5f35e7c561bb2fbb533c42` | 6620 testes passaram, zero falhas, três ignorados naquele estado |
-| `p1308-mutation-ledger.json` | `c636972025a884bf33af0dedb316b77c82ef44535ca02ca78057d804d32e2837` | seis mutantes P1308 rejeitados |
+| relatório consolidado da limpeza | [dado administrativo removido] | implementação dos encoders e transporte, com bloqueios históricos daquele instante |
+| `p1307-r6-verification-final.json` | [dado administrativo removido] | veredito R6 então bloqueado |
+| relatório consolidado da limpeza | [dado administrativo removido] | entrega acumulada autorizada e gates finais |
+| `p1308-verification-r2-final.json` | [dado administrativo removido] | PASS limitado P1308-R2 |
+| `p1308-r2-public-matrix.json` | [dado administrativo removido] | 1982 células focais preservadas |
+| `p1308-r2-workspace-tests.json` | [dado administrativo removido] | 6620 testes passaram, zero falhas, três ignorados naquele estado |
+| `p1308-mutation-ledger.json` | [dado administrativo removido] | seis mutantes P1308 rejeitados |
 
 Esses números possuem proveniência no working tree anterior ao commit e são
 somente antecedentes. P1309 deve produzir medições novas no commit limpo; não
@@ -89,12 +97,12 @@ catálogo para forçar estes números.
 
 Inputs históricos a preservar sem editar:
 
-| input | SHA-256 |
+| input | identificador administrativo |
 |---|---|
-| `p1299-probe-catalog.json` | `649dd46f05e67d376a8096756a31207a6a7d4087acf5fcbdd6688a59c4f934ae` |
-| `p1304-owner-ledger.tsv` | `01e038177dde246c3196af79bdb36eb13eb2e03364b0b091056cb2af8f4d6770` |
-| `p1304-decision-report.md` | `92e7ecf2ac895c56831a0d4619ba79d703372cff029885bbe1101511f13425bd` |
-| `p1304-encode-readiness.json` | `156f56b9f65ad5fd4310aa7785d4667c1f2c20e13f3f5c8be43b280700e7b950` |
+| `p1299-probe-catalog.json` | [dado administrativo removido] |
+| `p1304-owner-ledger.tsv` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `p1304-encode-readiness.json` | [dado administrativo removido] |
 
 ## 4. Papéis e capacidades
 
@@ -140,11 +148,11 @@ e veredito.
 Produzir `p1309-baseline.json` com:
 
 - HEAD exato, branch, UTC/local, `git status --short`, staged, diff/stat e seus
-  SHA-256;
+  identificador administrativo;
 - exigência de working tree tracked/staged limpa antes do primeiro build;
 - lista/hash dos untracked preexistentes, sem apagá-los;
-- `/usr/local/bin/typst` com SHA-256 esperado
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
+- `/usr/local/bin/typst` com identificador administrativo esperado
+  [dado administrativo removido];
 - build release fresco do commit baseline em target descartável dedicado,
   guardando argv, cwd, env, início/fim, exit, stdout/stderr e hash do binário;
 - hashes de scripts, catálogos, ledgers, fixtures e Prompts consultados;
@@ -250,7 +258,7 @@ históricos e acrescentando somente descobertas demonstradas. Cada linha contém
 - classe histórica e transição;
 - classe semântica atual;
 - fonte vanilla `file:line` e fonte cristalina `file:line`;
-- Prompt L0 proprietário, SHA-256, `Hash do Código` declarado e consumer único;
+- Prompt L0 proprietário, identificador administrativo, `Hash do Código` declarado e consumer único;
 - observável de linguagem, intenção normativa e distinção entre ambos;
 - hipótese causal e condição concreta de refutação;
 - gate ADR-0127 provável e ação recomendada;
@@ -447,7 +455,7 @@ p1309-adversarial-ledger.json
 p1309-gates.json
 p1309-verification.json
 p1309-certificate.json
-p1309-final-report.md
+[artefato protocolar removido]
 ```
 
 Vereditos possíveis:

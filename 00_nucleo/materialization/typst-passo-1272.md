@@ -1,5 +1,13 @@
 # P1272 — certificar a conjunção completa dos quatro pares
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO
 **Predecessores:** P1269 sem dívida ou todas as materializações P1271
 **Regime:** verificação segregada; sem escrita produtiva
@@ -48,6 +56,6 @@ rejeitados (`mutation_score=1.0`), com zero `Unknown` necessário.
 S20 preservou o stroke degenerado e S21 preservou fill sem área. O fallback
 produtivo permaneceu inalterado e a rota seguinte é P1273. Os gates de
 repositório passaram com zero violações. Evidência completa em
-`00_nucleo/diagnosticos/typst-p1272-generalization-certificate.md`.
+relatório consolidado da limpeza.
 
 **Atestação:** EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO.

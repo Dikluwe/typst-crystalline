@@ -1,11 +1,18 @@
 # Passo 1329 — calc.abs para valores dimensionais
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema medido
 
 P1328 corrigiu o erro de conteúdo, mas abs ainda rejeita length, angle,
 ratio e fraction. A medição nova está em
-`00_nucleo/diagnosticos/p1329-baseline.json` (SHA-256
-`d0e1787fac8b6264122ca6dcf5e29e4729552e8031e591ce6f4ee725e14cbd23`),
+relatório consolidado da limpeza,
 sobre HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093` e working tree
 P1328 não commitado, com diff/stat/inventários e UTC integral.
 Referência: upstream/main ratificado a51e02804, binário pinado no recibo.

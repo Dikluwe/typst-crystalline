@@ -75,7 +75,7 @@ do primeiro valor e não inventa trace. Aplicação sintética usa o agregado
 recebido. Esta precisão de contrato não exige alterar a implementação da
 mensagem; controles de validação preexistentes permanecem explícitos.
 
-O recibo P1308 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`
+O registro P1308 `ce758b5c2a18288bf9c8433178f577b50c52df80cedcddcb1f4daa4e785573fc`
 mede que named inválido ainda diverge em mensagem e origem no baseline.
 Essa dívida permanece fora desta correção: não trocar sua âncora pela
 chamada inteira nem declarar esses controles paritários.

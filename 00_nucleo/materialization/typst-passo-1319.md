@@ -1,5 +1,13 @@
 # Passo 1319 — localizar falhas de CSV em arquivos UTF-8 inválidos
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 Estado: implementado e validado; PASS no recorte delimitado.
 
 O commit `d31047d7b8af7837c84adae4ded3d2ff50c62093` integra os passos
@@ -43,7 +51,7 @@ e a linhagem bidirecional calculada explicitamente, também pelo revisor;
 a ferramenta externa não foi alterada. Parecer final PASS com limites.
 
 Proveniência exata, hashes, comandos, horários e fronteiras restantes:
-`00_nucleo/diagnosticos/p1319-final-report.md` e
-`00_nucleo/diagnosticos/p1319-review-final.md`.
+relatório consolidado da limpeza e
+relatório consolidado da limpeza.
 As medições finais pertencem ao working tree não commitado sobre o commit
 `d31047d7b8af7837c84adae4ded3d2ff50c62093`, não ao commit isolado.

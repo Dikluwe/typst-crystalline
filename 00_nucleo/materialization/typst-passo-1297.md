@@ -1,5 +1,13 @@
 # Passo 1297 — fechar P1296 por uma escada de redesenhos causais do `watch`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado inicial e regra de continuidade
 
 P1294, P1295 e P1296 permanecem corretamente `BLOCKED`. Nenhum deles recebe
@@ -31,27 +39,27 @@ Medição em `2026-09-03T08:28:18,757994335-03:00`:
 - data do commit: `2026-09-02T22:23:37-03:00`;
 - working tree não commitida: 24 entradas em
   `git status --porcelain=v1`;
-- SHA-256 do output exato de `git status --porcelain=v1`:
-  `aa39f054caa0f1ee1196996e0a472e06148962ac2535cfa80ed0be2617ed09c5`;
+- identificador administrativo do output exato de `git status --porcelain=v1`:
+  [dado administrativo removido];
 - diff rastreado: `6 files changed, 388 insertions(+), 93 deletions(-)`;
-- SHA-256 do output exato de `git diff HEAD --stat`:
-  `d7552c82635cd0f81f6995b0454860eb98fca3e0f6fe7649ea5eb91bc3943582`.
+- identificador administrativo do output exato de `git diff HEAD --stat`:
+  [dado administrativo removido].
 
 ### Entradas causais preservadas
 
-| Artefato | SHA-256 atual |
+| Artefato | identificador administrativo atual |
 |---|---|
-| `00_nucleo/materialization/typst-passo-1295.md` | `e0328b02cecdfefb8dc7acc29d3faff50a2ce5ab1cf92d8cd2d77a0c6e0f0663` |
-| `00_nucleo/materialization/typst-passo-1296.md` | `5a7f7c5d364fa6a373c1d411b8710131c68198bfeaaa4b19ec53fb17f7b8c00b` |
-| `00_nucleo/diagnosticos/p1295-verification-receipt.json` | `06104b7d41f8e456e67df90c8036ba4362af67f3247880278bfa587e1d2c0573` |
-| `00_nucleo/diagnosticos/p1296-manifest.json` | `7c9e2f75aab348ce434c293ea0b38259fc8c42b39360d6ca3b63a17491edd7d0` |
-| `00_nucleo/diagnosticos/p1296-l0-receipt.md` | `224dd65d269f3a81b132f2679b2c373ab5bcf910d0ed21e94b554dbe761924a2` |
-| `00_nucleo/diagnosticos/p1296-test-receipt.json` | `be8aaf3537bb068aab8eff1c5b656fe74c56cec8bd144f22e48a12b486d3e8a0` |
-| `00_nucleo/diagnosticos/p1296-adversarial-plan.md` | `8b8a8435ff794f7d0d8ba5ecc0c0af2c8f88ac2b3133bc05dd8eaa2c2eb9ce6b` |
-| `00_nucleo/diagnosticos/p1296-discrimination-receipt.json` | `51073959b26cc834f1f1dbe69b5c4e70b5e7f1c71d28282b7424e0306e641525` |
+| `00_nucleo/materialization/typst-passo-1295.md` | [dado administrativo removido] |
+| `00_nucleo/materialization/typst-passo-1296.md` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1296-manifest.json` | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| relatório consolidado da limpeza | [dado administrativo removido] |
+| `00_nucleo/diagnosticos/p1296-discrimination-receipt.json` | [dado administrativo removido] |
 
-O recibo P3 de P1296 pina a revisão 1 de `p1296-test-receipt.json` com SHA
-`b958974c3d9dd895a10cfd736eb64fd230d6a5fb98c284eb4aa906ba89b88768`.
+O recibo P3 de P1296 pina a revisão 1 de relatório consolidado da limpeza com SHA
+[dado administrativo removido].
 Depois daquela campanha, P2 consumiu publicamente o survivor MO1, tentou a
 revisão 2, restaurou o consumer byte a byte e substituiu seu próprio recibo
 pelo SHA atual `be8aaf35...`. Essa sequência é evidência causal válida, mas
@@ -60,15 +68,15 @@ permitido tratar o receipt P3 como gate verde atual.
 
 ### L0s e consumers atuais
 
-| Papel | Caminho | SHA-256 atual |
+| Papel | Caminho | identificador administrativo atual |
 |---|---|---|
-| L0 L3 | `00_nucleo/prompts/shell/watch.md` | `f39a63e6a1e2025d3539b61b34b46ffa3a3b0ea2aa64711ed7699abf3e3f7332` |
-| Consumer L3 | `03_infra/src/watch.rs` | `d543b1c32844b6f63085635ae34fa2beb01ba989c4ebed7f789bb5ae77e9ee41` |
-| L0 L4 | `00_nucleo/prompts/wiring.md` | `81db17f53cdb344cfbee0a5aee230ae1e480cab1856618f846a5a43a9551e0b5` |
-| Consumer L4 | `04_wiring/src/main.rs` | `e119a46479e1d2e7b3f0052df2b57ab5d31be573969bbe841dd8ee2d0e3e9c48` |
-| L0 CLI | `00_nucleo/prompts/wiring/tests/cli.md` | `ac81dcf4404d505cd10db05964351b35f5ba0e9b959d83ef903fd4b34241a49b` |
-| Consumer CLI | `04_wiring/tests/cli.rs` | `addf970325c6b9df11482b6d7f28bd1099cbb0d225080044268e3dc3a304206b` |
-| Contrato P1295 congelado | `03_infra/tests/p1295_watch_contract.rs` | `8dae68ffc12f2708b6bbe3d503a7d0d90a2cb92681762ff5a992ca3f178c7abf` |
+| L0 L3 | `00_nucleo/prompts/shell/watch.md` | [dado administrativo removido] |
+| Consumer L3 | `03_infra/src/watch.rs` | [dado administrativo removido] |
+| L0 L4 | `00_nucleo/prompts/wiring.md` | [dado administrativo removido] |
+| Consumer L4 | `04_wiring/src/main.rs` | [dado administrativo removido] |
+| L0 CLI | `00_nucleo/prompts/wiring/tests/cli.md` | [dado administrativo removido] |
+| Consumer CLI | `04_wiring/tests/cli.rs` | [dado administrativo removido] |
+| Contrato P1295 congelado | `03_infra/tests/p1295_watch_contract.rs` | [dado administrativo removido] |
 
 ## Medição antes da decisão
 
@@ -114,7 +122,7 @@ P1296 está esgotado.
 
 O L0 atual `shell/watch.md` ainda declara no cabeçalho
 `P1295 — contrato escrito; aguarda confirmação humana ADR-0127`, embora
-`p1295-l0-gate-receipt.md` registre a confirmação e a implementação já exista.
+relatório consolidado da limpeza registre a confirmação e a implementação já exista.
 `wiring.md` conserva a parada P1295 em linguagem presente, e
 `wiring/tests/cli.md` ainda contém O1/P1296 como obrigação vigente apesar da
 revisão 2 terminalmente bloqueada.
@@ -486,12 +494,12 @@ Artefatos comuns:
 
 1. `00_nucleo/diagnosticos/p1297-manifest.json`;
 2. `00_nucleo/diagnosticos/p1297-redesign-ledger.json`;
-3. `00_nucleo/diagnosticos/p1297-implementation-receipt.md`;
+3. relatório consolidado da limpeza;
 4. `00_nucleo/diagnosticos/p1297-surface-default.json`;
 5. `00_nucleo/diagnosticos/p1297-surface-html.json`;
 6. `00_nucleo/diagnosticos/p1297-verification-receipt.json`;
 7. `00_nucleo/diagnosticos/p1297-certificate.json`;
-8. `00_nucleo/diagnosticos/p1297-final-report.md`.
+8. relatório consolidado da limpeza.
 
 Para cada R realmente iniciado:
 
@@ -550,7 +558,7 @@ certificado, relatório final ou superfícies P1294/P1295/P1296.
 1. registrar HEAD, status, diff stat, `Cargo.lock`, `rustc -Vv`, `cargo -V` e
    inventário de fontes no instante do build;
 2. registrar o `TYPST_COMMIT_SHA` efetivamente usado;
-3. executar `cargo build --release` e pinar SHA-256 do binário real;
+3. executar `cargo build --release` e pinar identificador administrativo do binário real;
 4. confirmar `typst 0.15.1` e prefixo coerente com o SHA declarado;
 5. regenerar superfícies P1297 default e HTML pelos comandos canônicos P1293;
 6. exigir `111/99/12` e `115/104/11`, zero missing, unverified e `Unknown`;

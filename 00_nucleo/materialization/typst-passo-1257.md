@@ -1,5 +1,13 @@
 # P1257 — separar erro adaptativo de serialização SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — OWNERS SEPARADOS; SEM CORREÇÃO PRODUTIVA  
 **Predecessor:** P1256  
 **Escopo:** instrumentação `#[cfg(test)]` do owner L3.

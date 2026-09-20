@@ -1,5 +1,13 @@
 # Passo 1354 — retificação do L0 e retorno ao produto
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Problema
 
 Desde P1266–P1275, com inflexão em P1293, parte dos Prompts L0 passou a
@@ -80,7 +88,7 @@ proveniência indispensável para interpretar baseline pinado ou constante.
 
 ## Evidência permitida
 
-Criar somente `00_nucleo/diagnosticos/p1354-retificacao-l0.md`, com no máximo
+Criar somente relatório consolidado da limpeza, com no máximo
 400 linhas: proveniência, prompts alterados por classe, candidatos mantidos,
 gates finais e próxima lacuna do produto. Não criar JSONs, recibos, manifests,
 certificados ou cópias de diff.

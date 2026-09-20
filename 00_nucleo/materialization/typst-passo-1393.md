@@ -1,5 +1,13 @@
 # Passo 1393 — auditoria global de paridade com o vanila ratificado
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Medir o estado atual da paridade do cristalino com a linguagem observável do
@@ -43,11 +51,11 @@ Estado observado ao redigir este passo, em 2026-09-14, HEAD
    serial e limitada em memória.
 6. Identidades locais no momento da redação:
    - vanila `lab/typst-original/target/release/typst`:
-     `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+     [dado administrativo removido];
    - cristalino `target/release/typst`:
-     `1f2f392c64b77ff558d103327a94d9a9fa0ccc48606e773b2bf936e3d93f0c00`;
+     [dado administrativo removido];
    - manifesto:
-     `8f443c60e426d814f931ec4c9097406275e4c8b83ec70a2c8b793edd344f127d`.
+     [dado administrativo removido].
 
 As contagens acima são diagnóstico de entrada, não veredito de paridade.
 
@@ -115,14 +123,14 @@ uma única “percentagem de paridade” que esconda itens ainda não medidos.
 
 ### Fase A — congelar proveniência
 
-Registrar em `p1393-paridade-relatorio.md` antes de executar casos:
+Registrar em relatório consolidado da limpeza antes de executar casos:
 
 - timestamp ISO-8601 com timezone;
 - `git rev-parse HEAD`;
 - `git status --short` e `git diff HEAD --stat`;
 - pin completo do vanila;
-- caminho, tamanho e SHA-256 dos dois binários;
-- SHA-256 do manifesto e das listas de casos auxiliares;
+- caminho, tamanho e identificador administrativo dos dois binários;
+- identificador administrativo do manifesto e das listas de casos auxiliares;
 - comandos exatos e limites de memória/tempo.
 
 Se o cristalino não corresponder ao HEAD ou ao working tree declarado, marcar
@@ -142,7 +150,7 @@ evidência auxiliar, nunca identidade suficiente.
 6. Marcar `UNKNOWN` onde a revisão documental não bastar; não inferir suporte
    pela mera presença de símbolos no código.
 
-Saída: `00_nucleo/diagnosticos/p1393-paridade-inventario-atualizado.md`.
+Saída: relatório consolidado da limpeza.
 
 ### Fase C — auditar a capacidade da matriz
 
@@ -214,15 +222,15 @@ implementa.
 
 O passo entrega:
 
-1. `00_nucleo/diagnosticos/p1393-paridade-inventario-atualizado.md` —
+1. relatório consolidado da limpeza —
    denominador reconciliado e rastreável;
-2. `00_nucleo/diagnosticos/p1393-paridade-matriz.json` — resultados atuais e
+2. relatório consolidado da limpeza — resultados atuais e
    referências aos lotes temporários;
-3. `00_nucleo/diagnosticos/p1393-paridade-gaps.md` — fila priorizada do que
+3. relatório consolidado da limpeza — fila priorizada do que
    falta, separando produto de harness;
-4. `00_nucleo/diagnosticos/p1393-paridade-relatorio.md` — proveniência,
+4. relatório consolidado da limpeza — proveniência,
    contagens, limites, falhas e veredito;
-5. `00_nucleo/diagnosticos/p1393-paridade-gaps.json` — forma legível por máquina
+5. relatório consolidado da limpeza — forma legível por máquina
    com ID, eixo, estado, evidência e próximo witness.
 
 `lab/parity/reports/latest.md` só poderá ser atualizado depois de o relatório

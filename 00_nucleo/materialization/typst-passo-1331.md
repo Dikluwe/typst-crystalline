@@ -1,15 +1,22 @@
 # Passo 1331 — diagnósticos dos tipos rejeitados por calc.abs
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Recorte medido
 
-O baseline `00_nucleo/diagnosticos/p1331-baseline.json`, SHA-256
-`7287bfac86e29e8ff0e86955ce96f63e140b745fb781eb4b4b7410215c794b45`,
+O baseline relatório consolidado da limpeza,
 mostra que tipos não numéricos continuam rejeitados com mensagem antiga
 e span detached. Vanilla a51e02804 informa os tipos aceitos, o tipo real
 encontrado e a origem do argumento. `string` e `boolean` são nomes de
 diagnóstico diferentes dos nomes curtos `str` e `bool` do cristalino.
 Path e comprimento relativo também foram confirmados em
-`00_nucleo/diagnosticos/p1331-domain-probes.json`.
+relatório consolidado da limpeza.
 
 Corrigir somente o fallback de um argumento em
 `01_core/src/compiler/stdlib/calc.rs`, após os guards atuais. Nenhum tipo

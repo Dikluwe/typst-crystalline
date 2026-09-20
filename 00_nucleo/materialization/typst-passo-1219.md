@@ -260,7 +260,7 @@ Se surgir qualquer novo RED, abrir cluster nominal na fila antes de
 Produzir:
 
 ```text
-00_nucleo/diagnosticos/typst-p1219-decimal-int-arithmetic.md
+[artefato protocolar removido]
 ```
 
 O laudo deve conter medição antes da decisão, proveniência, RED→GREEN,

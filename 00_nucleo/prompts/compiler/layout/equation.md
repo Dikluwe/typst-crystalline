@@ -1,8 +1,8 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: b69ae077
+Hash do Código: fae016e3
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -476,7 +476,7 @@ governar o slack; ou se a solução exigir segunda inspeção/layout. Nesse caso
 parar no owner correspondente — nunca ajustar fator ou valor à fixture.
 
 Aceitação v4 mantém integralmente os resultados verticais públicos B já
-selados: Text `7.513`, Display `7.359`, Script `8.459` e Cramped `9.537pt`;
+validados: Text `7.513`, Display `7.359`, Script `8.459` e Cramped `9.537pt`;
 linha mista compartilha baseline e não altera o avanço da linha seguinte
 quando o underbar cabe no slack. Os valores de largura whole-wrapper escritos
 na tabela de medição acima são baseline histórica, não atribuição causal ao
@@ -630,7 +630,7 @@ apenas items visuais diretamente; `alt` não tem fronteira durável.
 Inline/block determina placement; numbering visual permanece descendente do
 mesmo grupo. O wrapper não altera bounds, cursor, baseline ou plain text.
 
-## P1291 — contexto puro da passagem math (RASCUNHO PARA SELO)
+## P1291 — contexto puro da passagem math (MATERIALIZADO)
 
 ### Medição anterior à decisão
 

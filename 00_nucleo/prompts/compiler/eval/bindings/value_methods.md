@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: d42c7a49
+Hash do Código: c8131715
 
 ## P1339 — adapter ligado de version.at sem parser duplicado
 
@@ -9,7 +9,7 @@ No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
 `value_methods.rs:623-662` valida índice ligado com mensagem genérica de
 aridade e não rejeita named; `entities/version.rs:103-120` já possui a
 regra de índice. As sondas P1339 full-final e boundaries medem as duas
-formas e suas origens; `diagnosticos/p1339-remaining-l0-design.md` fixa
+formas e suas origens; medição histórica fixa
 a classificação e a delegação proposta.
 
 ### Decisão
@@ -160,12 +160,11 @@ público, default ou fase é autorizada.
 ### Medição anterior à decisão
 
 Sobre HEAD `b303f1f15b610e09872b567027e0d806387fde8c` e working tree composto
-P1306 + L0 R3 aprovado, baseline R4 SHA-256
-`52df1c661c20d9eb612bbd5c89ae3cae8c44735aeab27c11e4a1da0d4d145e57`,
+P1306 + L0 R3 aprovado, baseline R4,
 `01_core/src/compiler/eval/bindings/value_methods.rs:202` insere Color em
 Args avaliado; `:256-284,524-548` constrói Args de display a partir de AST
 com spans disponíveis, mas guarda somente views. O texto L0 anterior foi
-congelado em `00_nucleo/diagnosticos/p1307-r4-transport-amendment.json`.
+congelado na medição histórica.
 Esses writers não podem manter Some incoerente após migração de eval_args.
 
 ### Decisão de adaptação interna
@@ -201,11 +200,11 @@ descarta spreads e exige ao menos um campo. No vanilla ratificado,
 `foundations/func.rs:412-450` documenta o filtro por função de elemento,
 valida nomes, não converte valores pelo tipo do parâmetro construtor e
 rejeita função não-elemento. `With(elemento)` também é rejeitado.
-`p1339-full-final-vanilla-runs.json` e `p1339-full-boundaries-vanilla-runs.json`
+As medições históricas
 medem tipo, repr, prioridade de falhas, spans e formas estática/ligada sobre
-o baseline e estado integral registrados em cada recibo.
+o baseline e estado integral registrados em cada registro.
 
-A sonda focal `p1339-where-l0-vanilla.json`, UTC
+A sonda focal, UTC
 `2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, confirma que
 o grupo preserva ordem e que spread sobrescreve o valor sem mover a chave.
 Isso é linguagem; a estrutura SmallVec do vanilla não prescreve a nossa.
@@ -332,7 +331,7 @@ este consumer apenas transporta os recursos já disponíveis.
 Medição no HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer
 intacto: `value_methods.rs:127-153` resolve label antes de state_at_location;
 uma ausência devolve Err antes de entrar no owner state. Rastrear apenas
-state_value perderia essa dependência. Proveniência no recibo de integração
+state_value perderia essa dependência. Proveniência no registro de integração
 de observações P1339.
 
 O helper interno de resolução registra label original, Location encontrada
@@ -354,7 +353,7 @@ continuam na ordem vigente, com suas leituras causais registradas normalmente.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1342-topology-audit-r1.md` mede que
+A medição histórica registra que
 `eval_counter_method_value` possui `args.span()` antes de `eval_args`, mas o
 descarta ao chamar `counter_update`. O span do callback não identifica a
 ocorrência de update.

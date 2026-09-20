@@ -305,7 +305,7 @@ Produzir:
 00_nucleo/diagnosticos/p1222-svg-extension-resultados.tsv
 00_nucleo/diagnosticos/p1222-svg-engineering-choices.tsv
 00_nucleo/diagnosticos/p1222-tekt-certificado.tsv
-00_nucleo/diagnosticos/typst-p1222-svg-analytic-and-extension.md
+[artefato protocolar removido]
 ```
 
 O laudo separa obrigatoriamente:

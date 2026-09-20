@@ -1,8 +1,8 @@
 # Prompt L0 — `math/layout/cancel` — `MathCancel`
-Hash do Código: 81399128
+Hash do Código: c51ac5ba
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cancel.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -108,7 +108,7 @@ modelo de `FrameItem` suportar, sem rebaixar silenciosamente o observável.
 `MathCancelAngle::Angle` usa o ângulo explícito em relação ao eixo vertical;
 `Auto` usa a diagonal ascendente dinâmica. Para `MathCancelAngle::Func`, cada
 linha consulta/registra uma request pura em
-`compiler/math/layout/callbacks.md` depois da medição. Uma resolução selada
+`compiler/math/layout/callbacks.md` depois da medição. Uma resolução validada
 correspondente fornece o ângulo; sem ela, o default desenhado é estritamente
 provisório e a request impede exportação até realização L3. `cross=true`
 produz duas requests/chamadas, uma por linha, como o vanilla; ambas recebem o

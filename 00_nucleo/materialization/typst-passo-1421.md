@@ -1,5 +1,13 @@
 # Passo 1421 — expandir `context` no target HTML sem layout paginado
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar a causa nova que bloqueou o P1420: o caminho HTML avalia
@@ -20,24 +28,24 @@ Medição em `2026-09-16T11:27:51-03:00`:
 - working tree limpa;
 - vanilla ratificado
   `586e1bd43fae6c9a973218163d3165c53ab8d16d`;
-- binário vanilla SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino pré-candidato SHA-256
-  `1eb24a50c4bebd08febe976da73c9b275d8c1200db7781ad8e9d7484089e547e`;
-- relatório P1420 `00_nucleo/diagnosticos/p1420-report.md`;
-- verificação P1420 SHA-256
-  `0251e7d443679b679ec8fcfa03f6d429b83649cc2bd2dac346328c8bcea06992`.
+- binário vanilla identificador administrativo
+  [dado administrativo removido];
+- binário cristalino pré-candidato identificador administrativo
+  [dado administrativo removido];
+- relatório P1420 relatório consolidado da limpeza;
+- verificação P1420 identificador administrativo
+  [dado administrativo removido].
 
 Hashes das entradas L0 e dos consumers antes desta proposta:
 
 - `prompts/infra/pipeline.md`:
-  `2f54bd4ed504849fd31d06a0f008cfda912d2a3851af48bc2b20e7a4ee62d607`;
+  [dado administrativo removido];
 - `prompts/infra/pipeline/context_stabilization.md`:
-  `6e918f2f6f9f09f7fe5200a2d1573348a17612375c5512be5cd22e30eb7a9b2f`;
+  [dado administrativo removido];
 - `03_infra/src/pipeline.rs`:
-  `435bc7a81f7d86d9818365d9c61b84ae828e7713109bc168da705e22354e0e6a`;
+  [dado administrativo removido];
 - `03_infra/src/pipeline/context_stabilization.rs`:
-  `91188ee82f8e15554d619d3e1381e454f3521bfaeff3c360c07b39dba59773f1`.
+  [dado administrativo removido].
 
 ## Medição anterior à decisão
 
@@ -63,11 +71,11 @@ resultado para o layout; esse marcador não pode chegar ao serializer HTML.
 Medição bilateral do vanilla ratificado, transporte
 `compile --features html --format html`, um processo por fixture:
 
-| Fixture | Exit | Bytes | SHA-256 | Morfologia pública |
+| Fixture | Exit | Bytes | identificador administrativo | Morfologia pública |
 |---|---:|---:|---|---|
-| `#context assert.eq(target(), "html")` | 0 | 154 | `52569b3f0175d7ded4383171fa34c563019206cbc8bac63a3572e775bb72adcf` | body vazio |
-| `#context target()` | 0 | 165 | `1f51255aef2eaf4fcbfdb0b08152ba5710258427f93be68692d5c200bc9321d0` | `<body><p>html</p></body>` |
-| `#context [#html.elem("div")]` | 0 | 165 | `fe18965c5ffb798226ea7d3335fda25c93b8a69817e9647e49812aa99c23f04c` | `<body><div></div></body>` |
+| `#context assert.eq(target(), "html")` | 0 | 154 | [dado administrativo removido] | body vazio |
+| `#context target()` | 0 | 165 | [dado administrativo removido] | `<body><p>html</p></body>` |
+| `#context [#html.elem("div")]` | 0 | 165 | [dado administrativo removido] | `<body><div></div></body>` |
 
 O cristalino pré-candidato termina as três antes de produzir artefato HTML.
 Isto mede uma lacuna de fase, não autoriza ensinar o serializer a ignorar o

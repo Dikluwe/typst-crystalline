@@ -1,8 +1,7 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
 Hash do Código: 4cb00912
 
-**Estado:** P1461/P1462 MATERIALIZADOS E CERTIFICADOS; CONTRATO P1463
-PROPOSTO — AGUARDA CONFIRMAÇÃO ADR-0127.
+**Estado:** P1461/P1462/P1463 MATERIALIZADOS.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -97,9 +96,9 @@ proveniência bloqueia; nunca é convertido em sucesso.
 ## Gate ADR-0127 de P1461
 
 O gate humano de P1461 foi satisfeito e a raiz pública vazia foi materializada
-e certificada. Esse fato não autoriza qualquer filho reservado.
+e validada. Esse fato não autoriza qualquer filho reservado.
 
-## P1462 — `format.svg` (MATERIALIZADO E CERTIFICADO)
+## P1462 — `format.svg` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -147,7 +146,7 @@ Nos quatro perfis públicos, `type(format.svg)` é `function`, `repr` é `svg`,
 `format.svg.pretty` é `false`, alias e `std.format.svg` preservam a identidade,
 e chamada direta produz o diagnóstico medido. Membro não contratado continua
 ausente. A confirmação humana posterior ao commit causal P1462 foi recebida em
-2026-09-19. O selo, candidato, ataques e veredito final foram concluídos no
+2026-09-19. O confirmação, candidato, ataques e veredito final foram concluídos no
 mesmo dia; P1463 não reabre esse contrato.
 
 ## P1463 — `format.png` e namespace `ppi` (PROPOSTO; gate ADR-0127)

@@ -88,7 +88,7 @@ máximo", não "a zero".
 Esta disciplina foi **escrita pelo assistente para pegar a própria deriva**. Uma regra que
 o autor escreve para se pegar tem um ponto cego: pode ser redigida para ser confortável de
 seguir **sem substância**. Por isso as regras são **verificáveis** (forma detectável), não
-exortativas; e por isso esta ADR é **selada pelo dono**, não pelo assistente. É a **regra 5**
+exortativas; e por isso esta ADR é **validada pelo dono**, não pelo assistente. É a **regra 5**
 (desconfiar do enquadramento cômodo) aplicada a si mesma: "uma disciplina que me absolve" é
 o enquadramento mais cômodo de todos.
 

@@ -317,4 +317,4 @@ O SVG não passa por escape HTML, não é embrulhado em `<p>` e é block-level p
 defeito. Texto/attrs HTML comuns, `html.elem("frame")`, modos de escaping e
 pretty externo permanecem inalterados. O exporter não chama layout, World nem
 filesystem. A nova integração de fase foi confirmada pelo dono em 2026-09-16
-e fica limitada pelo selo P1424.
+e fica limitada pelo escopo de P1424.

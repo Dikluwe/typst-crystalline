@@ -1,5 +1,13 @@
 # Passo 1322 — análise global de paridade após P1310–P1321
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução; somente o plano foi escrito.
 
 **Natureza:** auditoria do produto, sem implementar correções ou alterar L0.
@@ -54,14 +62,14 @@ diff HEAD integral/stat, arquivos untracked relevantes e hashes dos arquivos
 de produto/L0. HEAD sozinho não identifica este baseline.
 
 Compilar esse estado em target exclusivo, com Cargo --locked; registrar
-comando, ambiente relevante, saídas, duração e SHA-256 do executável. O binário
+comando, ambiente relevante, saídas, duração e identificador administrativo do executável. O binário
 P1321 serve de antecedente, não substitui a confirmação do estado atual.
 Usar /dev/shm se houver espaço e permissão; senão /tmp, registrando o motivo.
 Não usar hardlinks para cache mutável nem apagar temporários anteriores.
 
 Vanilla permanece upstream/main **a51e02804**, sem resync. Confirmar
-`/usr/local/bin/typst`, SHA-256 esperado
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`/usr/local/bin/typst`, identificador administrativo esperado
+[dado administrativo removido].
 O binário da raiz target é cristalino. Não usar --version como identidade.
 Mudança externa do estado protegido durante a execução invalida a medição
 afetada: preservar o recibo e recongelar antes de repetir.
@@ -70,14 +78,14 @@ afetada: preservar o recibo e recongelar antes de repetir.
 
 Todos os paths desta tabela estão em `00_nucleo/diagnosticos/`.
 
-| Entrada | SHA-256 na redação | Uso |
+| Entrada | identificador administrativo na redação | Uso |
 | --- | --- | --- |
-| p1309-final-report.md | 84286f9a0649e441edf15ef38f13f10109224ce491eb478b3a8416371f71c74b | análise global histórica |
-| p1309-probe-catalog.json | 20a5bdec9a848d24ebe1fcf451f143ce65499184e57984e4e5389aef5aecde3a | IDs e probes a reconciliar |
-| p1309-owner-ledger.tsv | 36deab222babd8edbf90b030a56977482d28c13c6b15a55b01f9ea546c7f23f4 | classificação histórica |
-| p1309-verification.json | b981a87a4f261a260000ea23d3871ed9a062bab6bb3dfa413c97cb1d9c6a9199 | veredito histórico |
-| p1320-o-que-falta-para-paridade.md | 8ec8ad7a18d8a59150a8a7d5dedbc2b3c08a49ce86ddb860830c8e72b8a4c80c | lacunas focais e retificações |
-| p1321-final-report.md | b5f04d62ddea0f1f7d8ec6656a86f14385101bb5762ad4794704de466681768d | fechamento delimitado de argumentos CSV |
+| [artefato protocolar removido] | [dado administrativo removido] | análise global histórica |
+| p1309-probe-catalog.json | [dado administrativo removido] | IDs e probes a reconciliar |
+| p1309-owner-ledger.tsv | [dado administrativo removido] | classificação histórica |
+| p1309-verification.json | [dado administrativo removido] | veredito histórico |
+| [artefato protocolar removido] | [dado administrativo removido] | lacunas focais e retificações |
+| [artefato protocolar removido] | [dado administrativo removido] | fechamento delimitado de argumentos CSV |
 
 P1309 observou 2182 probes, não apenas os 627 do catálogo predecessor. Esse
 número pertence ao estado histórico identificado em seu relatório. Reconciliar
@@ -230,7 +238,7 @@ Artefatos mínimos, todos com prefixo p1322 em diagnósticos:
 - catálogo/reconciliação, matrizes normal/repeat/reverse e suplemento;
 - ledger causal/transições, dívida de certificação e tabela de coortes;
 - seleção, controles/ataques do auditor e verificação independente;
-- `p1322-o-que-falta-para-paridade.md`, com resumo substantivo e links aos recibos.
+- relatório consolidado da limpeza, com resumo substantivo e links aos recibos.
 
 Rodar e registrar build/testes workspace release com --locked em target
 dedicado, fmt --check, crystalline-lint, V5/V15/V26 e git diff --check.

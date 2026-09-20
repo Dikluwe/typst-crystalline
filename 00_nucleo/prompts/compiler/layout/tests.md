@@ -1,5 +1,5 @@
 # Prompt L0 — regressões do motor de layout
-Hash do Código: de8a7954
+Hash do Código: 252fcdb8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -124,7 +124,7 @@ Adicionar controles independentes que congelem, por página e bbox:
    mesmos valores e página do controle sem float;
 3. variação explícita de `block.spacing`/`below` que prove resolução relativa
    e impeça hardcode de `13.2pt`;
-4. preservação do vetor transacional já selado em p3
+4. preservação do vetor transacional já validado em p3
    (`AFTER_FLOW=-2.596±0.002pt`, `AFTER_MARKER=4.642±0.002pt`).
 
 Os testes devem matar separadamente: gap omitido; Place ancorado no topo;
@@ -174,5 +174,5 @@ primeiro e automático overlong quando 40pt vem primeiro.
 
 Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um caso
 40↔8 cujo segundo wrapper também altera `fill` deve continuar opaco, provando
-que o certificado não ignora deltas compostos. Preservar P1391, P1390, P1389
+que a validação não ignora deltas compostos. Preservar P1391, P1390, P1389
 e P1388; não inspecionar carrier ou arm privados.

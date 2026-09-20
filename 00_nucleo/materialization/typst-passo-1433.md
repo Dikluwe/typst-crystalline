@@ -1,5 +1,13 @@
 # Passo 1433 — substituir o mutante equivalente M26 e concluir o selo P1431
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 Medição executada em `2026-09-17T14:24:00-03:00`, sobre HEAD limpo
@@ -13,7 +21,7 @@ HEAD medido é byte-idêntica. Os 34 oráculos R6 passam no candidato não
 mutado. A campanha forward R6 matou 26 das 30 famílias e não produziu
 `Unknown` inesperado, mas parou sem selo após M26 sobreviver.
 
-O veredito independente R6 (`p1431-verifier-r6-nonseal.json`, SHA-256
+O veredito independente R6 (relatório consolidado da limpeza, identificador administrativo
 `d21b953a…`) reproduziu o sobrevivente e demonstrou a causa em código:
 
 - `Content::math_matrix_full` armazena `0.5em` no carrier quando o wrapper

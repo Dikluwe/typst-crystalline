@@ -1,8 +1,8 @@
 # Prompt L0 — layout (infra)
-Hash do Código: f8888a93
+Hash do Código: e5445a4a
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 ## Módulo
 `03_infra/src/layout.rs`

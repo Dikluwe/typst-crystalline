@@ -222,7 +222,7 @@ Produzir:
 - `p1231-svg-multispace-frontier-ataques.tsv`;
 - `p1231-svg-multispace-frontier-resultados.tsv`;
 - `p1231-tekt-manifesto.tsv` e `p1231-tekt-certificado.tsv`;
-- `typst-p1231-svg-multispace-frontier.md`;
+- `[artefato protocolar removido]`;
 - atualização limitada de `svg-paint-servers` no mapa DSM e da fila P1213.
 
 O mapa deve nomear exatamente quais das nove combinações fecharam e quais

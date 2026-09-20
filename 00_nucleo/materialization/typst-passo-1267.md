@@ -1,5 +1,13 @@
 # P1267 — readjudicar a conjunção P1266 no nível da linguagem
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PLANEADO
 **Predecessor:** P1266
 **Regime:** auditoria de obrigação; nenhuma escrita produtiva
@@ -22,7 +30,7 @@ sucessor, nunca reescreve o passado.
   intervalo**, e `adaptive.md:75-76` declara mecânica a quantidade literal de
   stops. O máximo agregado 774 do P1266 não prova sozinho regressão.
 - `p1266-generalization-contract.tsv:8` exigiu paint de área zero para toda caixa
-  degenerada. `typst-p1266-svg-generalization.md:43-46` mediu que S20 possui
+  degenerada. `[artefato protocolar removido]:43-46` mediu que S20 possui
   stroke de 8pt e portanto área pintada positiva; S21 é fill de altura zero.
 - Todos os 74 casos que falharam a conjunção falharam G04; 24 também falharam
   budgets numéricos, 36 também o falso cap global e quatro também a obrigação
@@ -52,7 +60,7 @@ sucessor, nunca reescreve o passado.
 - inventário de observáveis língua/mecânica;
 - decisão explícita sobre S20, G04 e G10;
 - manifesto com P1266 final certificate
-  `sha256:dce8aabec0d6bbf8b714d75f8cfc22e38f83539d04f1c8d034110c8dfa1067ec`.
+  `sha256:[dado administrativo removido]`.
 
 ## Gate
 

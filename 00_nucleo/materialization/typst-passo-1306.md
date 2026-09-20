@@ -1,5 +1,13 @@
 # Passo 1306 — nome de módulo ordinário no diagnóstico de campo ausente
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## 1. Problema medido
 
 Um arquivo ordinário chamado `std.typ` já aparece como `<module std>` depois
@@ -11,8 +19,8 @@ Este é um **passo de execução**, não um Prompt L0. Sua redação não implem
 a correção, não atualiza o contrato produtivo nem constitui RED independente.
 
 A sondagem preparatória está em
-`00_nucleo/diagnosticos/p1306-planning-measurement.json`, SHA-256
-`eda5237e4dfafbcd1ac5d61c16a4be0172ea1a0090dff992d7dbd3d66f610cf8`.
+`00_nucleo/diagnosticos/p1306-planning-measurement.json`, identificador administrativo
+[dado administrativo removido].
 Foi executada entre `2026-09-07T14:52:36.331705+00:00` e
 `2026-09-07T14:52:42.497148+00:00`, sobre o commit
 `b303f1f15b610e09872b567027e0d806387fde8c`, sem alterações tracked/staged
@@ -21,16 +29,16 @@ preserva fixtures, script reproduzível, comandos, cwd, horários, saídas
 integrais, hashes e estados antes/depois da medição.
 
 Referência: vanilla ratificado upstream/main `a51e02804`, binário
-`/usr/local/bin/typst`, SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+`/usr/local/bin/typst`, identificador administrativo
+[dado administrativo removido].
 O cristalino utilizado foi o binário certificado do P1305 em
-`/dev/shm/p1305-r2-target.F7bquUC2/release/typst`, SHA-256
-`be51045f1df75ac42ee081801ddf7f738f709029e3694b9205473ba5fa8b31d4`.
+`/dev/shm/p1305-r2-target.F7bquUC2/release/typst`, identificador administrativo
+[dado administrativo removido].
 Ele foi construído antes do commit de consolidação, a partir dos mesmos
 arquivos produtivos; não foi reconstruído nem identificado pela string de
-versão. A relação está registrada em `p1305-commit-notes.md` e no certificado
-`p1305-r2-certificate.json` de SHA-256
-`414479e20c93251488e1840f1298118fc35e3b4698ba73ae35b7e923c769dccc`.
+versão. A relação está registrada em relatório consolidado da limpeza e no certificado
+`p1305-r2-certificate.json` de identificador administrativo
+[dado administrativo removido].
 
 Foram oito probes nos quatro perfis, dois binários e duas ordens: 128
 execuções, com repetição estável. O recorte observado foi:
@@ -82,10 +90,10 @@ parar e pedir decisão ao dono. Este passo não autoriza tal expansão.
 
 L0 vigentes lidos antes desta proposta:
 
-| Prompt proprietário | SHA-256 inicial | Consumer |
+| Prompt proprietário | identificador administrativo inicial | Consumer |
 |---|---|---|
-| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | `92aa897909abfb6095ab59191614b0fd87c0d648e8e593ed8f0702176c2a542e` | `01_core/src/compiler/eval/bindings/field_access.rs` |
-| `00_nucleo/prompts/compiler/eval/tests.md` | `0d90e29edd7c540a8605235f8a5b7930d827243e86539deb0a25138a5ed77e7a` | `01_core/src/compiler/eval/tests.rs` |
+| `00_nucleo/prompts/compiler/eval/bindings/field_access.md` | [dado administrativo removido] | `01_core/src/compiler/eval/bindings/field_access.rs` |
+| `00_nucleo/prompts/compiler/eval/tests.md` | [dado administrativo removido] | `01_core/src/compiler/eval/tests.rs` |
 
 Antes de qualquer Rust, a execução deve atualizar esses L0 com a medição
 independente e a decisão perene. O L0 de field access ainda descreve em

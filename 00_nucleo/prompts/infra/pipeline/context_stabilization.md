@@ -1,13 +1,12 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: a5ed756f
+Hash do Código: e9a23c1a
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`
 
 ## Medição anterior à individualização
 
-Baseline `diagnosticos/p1340-baseline.json`, SHA-256
-`0869202e774bd7b76278365aac7292d45a1c930be42cf83270845c985cb5000a`,
+Baseline histórico,
 registra HEAD `2f42d64253547734564513a1159ee6b584c1c4b4` e working tree
 não commitado com diff integral. `pipeline.rs:244-281` abandona a expansão
 no primeiro Err; `:721-760` reexecuta contextos e termina por páginas iguais.
@@ -37,31 +36,27 @@ exige nova decisão. Sem seleção efetiva, não introduzir ciclo novo no legado
 
 No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, `pipeline.rs:244-281`
 avalia blocos com o mesmo snapshot e só incorpora seus resultados depois que
-todos passam. O Err aborta antes de `:309-310` reintrospectar. O recibo
-`diagnosticos/p1339-context-dependency-probe-runs.json`, SHA-256
-`4da38b499916ed3d5946bb16c904f2eaa268a4ec2f788cc0149927f0d83260d1`,
-registra falha cristalina em assert dependente de update contextual, também
+todos passam. O Err aborta antes de `:309-310` reintrospectar. A medição
+histórica registra falha cristalina em assert dependente de update contextual, também
 com Set sem callback; vanilla passa. final anterior ao produtor também passa
 no vanilla, refutando resolver tudo por uma única passagem em ordem documental.
 O controle string é diagnóstico de causa, não autorização de reparar legado.
 
 `pipeline.rs:721-760` já reexpande entre layouts, mas encerra por quantidade
 de páginas; este owner P1159 exige também estabilidade de snapshots/conteúdo.
-`diagnosticos/p1339-stabilization-design.md` demonstra que hash_content e
-Arc de Func não certificam captura estável. O recibo vanilla
-`diagnosticos/p1339-stabilization-boundaries-runs.json`, SHA-256
-`4d82648d895ec5dba23a9775c2bf09dfae84a175603f3ce6d742c8c7f2a09241`,
-mede NaN estável, produtores aninhados e closure recriada; oscilação e
+A medição histórica demonstra que hash_content e
+Arc de Func não certificam captura estável. A medição no vanilla cobre NaN
+estável, produtores aninhados e closure recriada; oscilação e
 crescimento devolvem saída acompanhada de warning após cinco tentativas.
 Fonte `typst/src/lib.rs:133-180` e
 `typst-library/src/introspection/convergence.rs:16,56-64,71-116`: a condição
 de encerramento e o diagnóstico são distintos de sucesso de convergência.
-Os recibos conservam árvore, UTC, binários e saídas integrais.
+O commit, o intervalo UTC e as saídas relevantes ficaram registrados na medição.
 
 ### Decisão de fase autorizada e limites
 
 O dono autorizou incluir a estabilização dos contextos dependentes dos novos
-contadores filtrados, conforme `diagnosticos/p1339-stabilization-approval.json`.
+contadores filtrados, conforme a decisão registrada.
 Permanecem as fachadas públicas de expansão e compilação. A expansão original
 continua entre introspecção e layout; não mover show rules para outra fase,
 não usar a árvore pós-show como nova referência global nem corrigir P1037
@@ -116,7 +111,7 @@ Erro persistente em tentativa validada é devolvido com spans/traces originais;
 o controle assert provisório seguido de panic deve alcançar o panic final.
 Sinks são locais às tentativas: não publicar warnings de validações descartadas
 nem duplicar os da contribuição efetivamente conservada. A ordem observável de
-diagnósticos exige oráculo próprio antes de selo, sem ordenação arbitrária pelo
+diagnósticos exige oráculo próprio antes de confirmação, sem ordenação arbitrária pelo
 HashMap ou reclassificação textual de erros.
 
 O ciclo adicional integra a invalidação de pages/positions no ciclo paginado
@@ -146,8 +141,8 @@ Medição anterior à decisão: vanilla ratificado `typst/src/lib.rs:140-143`
 começa com EmptyIntrospector, `:156-184` valida o documento atual contra o
 snapshot que ele produziu, e `introspection/convergence.rs:267-278` distingue
 runs da projeção final. O baseline cristalino `pipeline.rs:644-654` usa
-introspecção estática já populada. `diagnosticos/p1339-observation-design-resolution.md`
-e o recibo de boundaries explicitam essa diferença: os controles oscilante
+introspecção estática já populada. A medição histórica
+e o registro de boundaries explicitam essa diferença: os controles oscilante
 e crescente observam o snapshot lido pela última tentativa, não o produzido.
 
 Executar a passagem ordinária de descoberta e preservar a contribuição/erro
@@ -164,7 +159,7 @@ nova avaliação por análise de AST ou por imaginar outro seed. O P1339 não
 afirma equivalência global para programas mistos que dependam dessa dívida.
 Contratos devem manter esse caso como controle explícito, não exigir reparo
 legado nem chamá-lo de paridade nova. A autorização até o fim do passo em
-`diagnosticos/p1339-completion-authorization.md` cobre essa integração no
+A decisão registrada cobre essa integração no
 escopo seletivo, sem necessidade de outro pedido de aprovação.
 
 Nomear A_k a tentativa que lê I_(k-1), produz árvore C_k/documento D_k e
@@ -202,10 +197,8 @@ exportação e não é removido pelos warnings de não convergência.
 ### Medição anterior à proposta
 
 `eval/mod.rs:5797-5804` reduz Different e Unproven ao mesmo booleano;
-`:5853-5881` não usa detalhes diagnósticos como detector de opacidade.
-`diagnosticos/p1340-verifier-feasibility-decision-r1.md`, SHA-256
-`91fc8f38dce007297a3d6d99a885fbda837000424d5d24adfd549e45d959d4ce`,
-confirma a lacuna: as cláusulas precedentes impedem certificar incapacidade
+`:5853-5881` não usa detalhes diagnósticos como detector de opacidade. A
+medição histórica confirma a lacuna: as cláusulas precedentes impedem certificar incapacidade
 como convergência, mas não escolhem retorno para corpo Ok sem estabilidade
 comprovável. A auditoria adversarial permite investigar autorreflexividade
 com as APIs existentes; não demonstrou necessidade de assinatura nova.

@@ -783,7 +783,7 @@ validadores externos e não adiciona opção pública de conformidade.
 ### Medição anterior à decisão
 
 O vanilla coleta `AttachElem` globalmente e cria EmbeddedFile/Filespec
-(`typst-pdf/src/attach.rs:13-67`). O receipt mediu nome e bytes extraídos,
+(`typst-pdf/src/attach.rs:13-67`). A medição cobriu nome e bytes extraídos,
 `/Desc`, MIME, `/AFRelationship /Supplement` em PDF/A-3b e erro de path
 duplicado. A árvore cristalina atual constrói somente StructElem de Formula.
 

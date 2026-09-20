@@ -80,9 +80,7 @@ Então iguala o corpo do ficheiro anterior (corte e cola, sem reescrita)
 
 ### P1307-R6 — re-exportação interna do método de snapshot aprovado
 
-Medição anterior à decisão: no baseline R6
-`00_nucleo/diagnosticos/p1307-r6-baseline.json`, SHA-256
-`8cc0eae00457d2e7d54b420024eae49344032b34b295b4eda536faeb1ec3c4a3`,
+Medição anterior à decisão: no baseline R6, a medição histórica
 `01_core/src/compiler/eval/bindings/mod.rs:27` já reexporta os helpers
 crate-internos de Content. O owner
 `00_nucleo/prompts/compiler/eval/bindings/field_access.md` R5 aprovado pelo

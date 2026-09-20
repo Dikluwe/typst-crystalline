@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/math/layout/vec` — vetor coluna
+Hash do Código: 210f5f92
 
-**Estado:** CONTRATO P1292 AGUARDA SELO ADR-0127 — sem consumer e sem
-`Hash do Código` até a materialização posterior ao gate humano.
+**Estado:** P1292 MATERIALIZADO.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
@@ -50,7 +50,7 @@ Altura da grade, tamanho da fonte e zero não são substitutos. Callers de teste
 fornecem região explícita, e o caminho produtivo não possui constructor que
 omita a base percentual.
 
-**Altura não-finita medida antes da decisão:** o recibo fresco P1292 mediu
+**Altura não-finita medida antes da decisão:** o registro fresco P1292 mediu
 `height:auto` bilateralmente. `gap:10%` produziu a mesma geometria que `0%`;
 `gap:1em` continuou ativo; `10% + 1em` produziu a mesma geometria que a parcela
 absoluta. Logo, quando `Regions::effective().height` não é finita, este owner

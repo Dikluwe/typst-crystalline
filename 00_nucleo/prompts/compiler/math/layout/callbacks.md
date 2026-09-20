@@ -1,10 +1,10 @@
-# Prompt L0 — `compiler/math/layout/callbacks` — transcript selado de callbacks math
+# Prompt L0 — `compiler/math/layout/callbacks` — transcript validado de callbacks math
 Hash do Código: 55473c8e
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
-**Estado:** MATERIALIZADO — consumer e linhagem selados no Passo 1291.
+**Estado:** MATERIALIZADO — consumer e linhagem validados no Passo 1291.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/math/layout/callbacks.rs`
@@ -16,7 +16,7 @@ Núcleos Tekt:
 `MathLayouter` mede o body de `cancel`, mas não possui `Engine`. A pipeline
 possui `Engine`, porém só pode conhecer o ângulo default depois de uma passagem
 de layout. Os precedentes P240/P241/P1159 executam callbacks exclusivamente na
-pipeline e entregam ao layouter vistas seladas da passagem anterior; o layouter
+pipeline e entregam ao layouter vistas validadas da passagem anterior; o layouter
 permanece puro (`ADR-0081:344-345,491-494` e
 `03_infra/src/pipeline.rs:678-680`).
 
@@ -66,7 +66,7 @@ pub enum MathLayoutPassOutcome {
 ```
 
 Cada tentativa concreta de `Layouter::new` cria um `MathCallbackPassState`
-novo. Esse estado possui somente a store selada de leitura e um
+novo. Esse estado possui somente a store validada de leitura e um
 `RefCell<Vec<MathCancelRequest>>` local para o transcript; não usa
 `static`, `thread_local`, estado global, `Arc` nem cache entre tentativas.
 Cada `MathLayouter` possui um `Cell<usize>` local, iniciado em zero para a
@@ -81,13 +81,13 @@ Ao encontrar uma linha com `MathCancelAngle::Func`:
    léxica com o `TextStyle` math efetivo pela normalização abaixo;
 3. constrói o id com a `Location` da equação, occurrence do elemento e linha
    `0|1`;
-4. usa o ângulo selado somente se a resolução desse id corresponder à mesma
+4. usa o ângulo validado somente se a resolução desse id corresponder à mesma
    função, default e estilo colapsado;
 5. sem correspondência, usa o default apenas para produzir a passagem
    provisória e registra a request como pendente.
 
 O documento provisório nunca atravessa a API: quando houver request pendente,
-store incompatível ou item selado não consumido, a passagem descarta o
+store incompatível ou item validado não consumido, a passagem descarta o
 `PagedDocument` construído e retorna somente `Pending(requests)`. Apenas uma
 passagem com store integralmente correspondente retorna `Complete(document)`.
 Store com item extra, ausente ou diferente é stale: nunca é aceita
@@ -159,7 +159,7 @@ erro da closure e cast inválido ancorados no span original depois de
 clone/walk/reflow; `Pending` incapaz de fornecer `PagedDocument`; e ausência
 total de `Engine`/L3/dyn execution no módulo. Integração negativa tenta
 exportar a primeira passagem em PDF, PNG e SVG e deve falhar antes do exporter.
-A mudança pública e a nova passagem eval↔layout exigem selo ADR-0127 antes de
+A mudança pública e a nova passagem eval↔layout exigem confirmação ADR-0127 antes de
 código.
 
 ## P1415 — finalização componível do transcript

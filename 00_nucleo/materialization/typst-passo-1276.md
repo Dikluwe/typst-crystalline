@@ -1,5 +1,13 @@
 # P1276 — congelar a próxima fronteira SVG multi-space
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — CONTRATO CANDIDATO CONGELADO; PRODUTO INALTERADO
 **Predecessor:** P1275 `PROMOTED-PRESERVED`
 **Regime:** protocolo Tekt completo, fase pré-candidato; sem atestação de isolamento
@@ -73,7 +81,7 @@ Artefatos canônicos:
 - `00_nucleo/diagnosticos/p1276-input-manifest.tsv`;
 - `00_nucleo/diagnosticos/p1276-preseal-receipt.tsv`;
 - `00_nucleo/diagnosticos/p1276-summary.json`;
-- `00_nucleo/diagnosticos/typst-p1276-preseal.md`.
+- relatório consolidado da limpeza.
 
 Próxima rota: P1277 materializa oráculos vanilla-first, ataques semânticos e
 adjudicação por par. Qualquer promoção posterior volta ao gate ADR-0127.

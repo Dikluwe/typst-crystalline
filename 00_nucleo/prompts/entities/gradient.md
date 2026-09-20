@@ -178,7 +178,7 @@ continuou a expor exatamente os mesmos Ratios arredondados. A nova inspeção
 localizou um segundo estreitamento serial no accessor de linguagem
 `native_gradient_stops`, que voltava a chamar `effective_offsets() -> Vec<f32>`.
 Logo C3 contém dois primeiros pontos independentes na cadeia: C3a na entrada
-de `repeat` e C3b na exposição dos stops; ambos recebem selo próprio.
+de `repeat` e C3b na exposição dos stops; ambos recebem testes funcionais próprios.
 
 **Decisão P1271-C3.** A resolução efetiva precisa é operação interna comum às
 três variantes e conserva `Ratio(f64)` até concluir auto-spacing. Linear,

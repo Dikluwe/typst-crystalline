@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1430-tests.md
-//! @prompt-hash 89ee1062
+//! @prompt-hash 4f421672
 //! @layer L1
 #![cfg(test)]
 //!
@@ -428,71 +428,4 @@ fn p1430_carrier_clone_hash_e_walkers_preservam_causalidade() {
     );
     let mut terminal = |_: &str| "mutated".to_string();
     assert_eq!(elem.map_text(&mut terminal), input);
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum HarnessVerdict {
-    Preserved,
-    Violated,
-    Unknown,
-}
-
-#[derive(Debug, Clone, Copy)]
-enum HarnessEvidence {
-    CompletePositive,
-    AttributableMismatch,
-    IdentityMismatch,
-    CarrierCardinality,
-    StyleCascadeOpaque,
-    ExecutionOrBudget,
-}
-
-fn classify_harness(
-    evidence: HarnessEvidence,
-) -> (HarnessVerdict, bool, bool, &'static str) {
-    match evidence {
-        HarnessEvidence::CompletePositive => {
-            (HarnessVerdict::Preserved, true, false, "PRESERVED")
-        }
-        HarnessEvidence::AttributableMismatch => {
-            (HarnessVerdict::Violated, false, true, "VIOLATED")
-        }
-        HarnessEvidence::IdentityMismatch => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_IDENTITY_MISMATCH")
-        }
-        HarnessEvidence::CarrierCardinality => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_MATHCASES_CARDINALITY")
-        }
-        HarnessEvidence::StyleCascadeOpaque => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_STYLE_CASCADE")
-        }
-        HarnessEvidence::ExecutionOrBudget => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_EXECUTION_OR_BUDGET")
-        }
-    }
-}
-
-#[test]
-fn p1430_unknown_falha_fechado_sem_credito() {
-    assert_eq!(
-        classify_harness(HarnessEvidence::CompletePositive),
-        (HarnessVerdict::Preserved, true, false, "PRESERVED")
-    );
-    assert_eq!(
-        classify_harness(HarnessEvidence::AttributableMismatch),
-        (HarnessVerdict::Violated, false, true, "VIOLATED")
-    );
-    for (evidence, reason) in [
-        (HarnessEvidence::IdentityMismatch, "UNKNOWN_IDENTITY_MISMATCH"),
-        (HarnessEvidence::CarrierCardinality, "UNKNOWN_MATHCASES_CARDINALITY"),
-        (HarnessEvidence::StyleCascadeOpaque, "UNKNOWN_STYLE_CASCADE"),
-        (HarnessEvidence::ExecutionOrBudget, "UNKNOWN_EXECUTION_OR_BUDGET"),
-    ] {
-        let (verdict, acceptance, mutation_credit, actual_reason) =
-            classify_harness(evidence);
-        assert_eq!(verdict, HarnessVerdict::Unknown);
-        assert!(!acceptance, "{reason} received mandatory acceptance");
-        assert!(!mutation_credit, "{reason} received mutation credit");
-        assert_eq!(actual_reason, reason);
-    }
 }

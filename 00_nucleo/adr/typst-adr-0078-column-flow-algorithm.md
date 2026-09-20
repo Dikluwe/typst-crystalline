@@ -5,8 +5,8 @@ IMPLEMENTADO 2026-05-12 — sub-fases (a)+(b) materializadas;
 DEBT-56 ENCERRADO simultaneamente).
 **Data**: 2026-05-12 (PROPOSTO P215 → IMPLEMENTADO P221).
 **Materialização**:
-- `00_nucleo/materialization/typst-passo-216a-relatorio.md` (sub-fase a parte 1).
-- `00_nucleo/materialization/typst-passo-216b-relatorio.md` (sub-fase a parte 2).
+- a medição histórica (sub-fase a parte 1).
+- a medição histórica (sub-fase a parte 2).
 - `00_nucleo/materialization/typst-passo-217-relatorio.md` (variant Columns).
 - `00_nucleo/materialization/typst-passo-218-relatorio.md` (stdlib native_columns).
 - `00_nucleo/materialization/typst-passo-219-relatorio.md` (consumer real graded Opção B).

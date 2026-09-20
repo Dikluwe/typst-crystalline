@@ -1,5 +1,13 @@
 # Passo 1431 — convergência vertical completa de `math.mat`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1430 fechou e certificou `math.cases`; restam 17 rotas `math.*` da coorte
@@ -13,18 +21,18 @@ Medição executada em `2026-09-17T08:12:07-03:00`, sobre HEAD limpo
 `4942241a8a49700f165ca4bd1c0450c1b3b3c418`. `git status --short` e
 `git diff HEAD --stat` não produziram linhas. Entradas principais:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| vanilla `typst-library/src/math/matrix.rs` | `fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f` |
-| vanilla `typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
-| cristalino `compiler/stdlib/structural/math.rs` | `c82b8ff8c8743eba08119cad737caa759934148a39d502a88b76867be8279756` |
-| cristalino `compiler/eval/math.rs` | `a413b664e99485be2a77f9e3f2ea0e815661956d44a0a8c560c0fe12b7e0cff9` |
-| cristalino `compiler/eval/repr.rs` | `6daff397e7ecbdd91f889e31b21fc0294aa191885fca04ef472168ccb3876930` |
-| cristalino `compiler/eval/rules.rs` | `92472b1dacc052880ee5e3197c60027b78a79ac6f3a1272e29b3f4ab5816abfa` |
-| cristalino `compiler/math/layout/matrix.rs` | `a7facbf2f648778bf4ab29e985deadb68177558685828e16b1f3ad3a54584c65` |
-| cristalino `compiler/math/layout/mod.rs` | `f54e3017110632972f976439d2a092990cb6d71e17533af1949f37eaeb28bc6d` |
-| cristalino `entities/content.rs` | `ad0f0ead17586b71a7f1c36079c36ca16ae65b60dd73ac00304faeb5b73e77a1` |
-| cristalino `entities/elements/math_matrix.rs` | `b03d3149399f23ead6e33b4be53a3de1efd934d772cd0df3e976deea26fab65a` |
+| vanilla `typst-library/src/math/matrix.rs` | [dado administrativo removido] |
+| vanilla `typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
+| cristalino `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/math.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/repr.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/rules.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/matrix.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/mod.rs` | [dado administrativo removido] |
+| cristalino `entities/content.rs` | [dado administrativo removido] |
+| cristalino `entities/elements/math_matrix.rs` | [dado administrativo removido] |
 
 O alvo permanece o vanilla ratificado
 `586e1bd43fae6c9a973218163d3165c53ab8d16d`. A fonte declara `MatElem` com

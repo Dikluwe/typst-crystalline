@@ -1,5 +1,13 @@
 # Passo 1412 — regras de estilo de `outline` e `outline.entry`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Fechar as duas rotas ainda `UNKNOWN` da matriz P1409 por paridade bilateral de
@@ -11,11 +19,11 @@ ampliar a superfície para outros campos.
 ## Estado e proveniência inicial
 
 - estado: commit `2ff1a23d4304e3b2b512d4d09f57e2e934db3398`, árvore limpa;
-- cristalino: `target/release/typst`, SHA-256
-  `b93c9927d3f5ad16bae9f1ef1b7dd1ec1f31426df267d7b68dc1fe92d2b72d90`;
+- cristalino: `target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - vanila ratificado: commit `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  binário `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
+  binário `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido];
 - preparação iniciada às `2026-09-15T18:16:57-03:00`;
 - working tree anterior ao RED: este passo e as seis fixtures focais P1412;
   um sétimo controle mínimo U+2060 foi acrescentado após a matriz parcial.
@@ -110,14 +118,13 @@ A primeira matriz depois das regras retornou `{ABSENT: 2, MATCH: 3, UNKNOWN:
 cobertura não reabria o OOM. No GREEN final, os sete processos cristalinos e
 os sete vanila terminaram com exit zero, stderr vazio e projeções extraídas
 idênticas; RSS cristalino máximo 43.148 KiB. O binário cristalino final tem
-SHA-256 `9e4c8876d5e588410a6fdab843cbda93522f82bdd031645c575f7c3e8d1d781c`.
+identificador administrativo [dado administrativo removido].
 
 ## Reprobe P1409 final
 
 Executado às `2026-09-15T18:38:24-03:00` sobre o baseline acima com working
 tree não commitada descrita por `git diff HEAD --stat` no commit P1412.
-Recibo `00_nucleo/diagnosticos/p1412-reprobe.json`, SHA-256
-`f3a6ab3af372e46ff2ca3e8f1e37c2919d259114b3fe4d82298978d2e729a996`:
+Recibo relatório consolidado da limpeza:
 
 - runner `PASS`, 84 processos, invariância nas três ordens;
 - estados `{ABSENT: 2, MATCH: 4}`;

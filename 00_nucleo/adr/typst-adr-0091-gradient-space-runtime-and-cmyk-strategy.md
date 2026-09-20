@@ -973,7 +973,7 @@ estrutural encerrado.
   consumo directo de fonte).
 
 Status `IMPLEMENTADO` preservado literal. Ver
-`00_nucleo/diagnosticos/typst-passo-273-5A-diagnostico.md` para Fase A
+A medição histórica para Fase A
 empírica + decisão 3γ híbrida + decisões fixadas.
 
 ## Anotação cumulativa P273.6 — Parent bbox real save/restore (fecho 3γ.2)
@@ -1070,7 +1070,7 @@ documentado para meta-formalização ADR potencial.
   sétimo consumo directo de fonte).
 
 Status `IMPLEMENTADO` preservado literal. Ver
-`00_nucleo/diagnosticos/typst-passo-273-6A-diagnostico.md` para Fase A
+A medição histórica para Fase A
 empírica + decisões 1/2/3 fixadas + critério §A.6 fecho
 `#[allow(dead_code)]`.
 
@@ -1191,7 +1191,7 @@ registada §7 spec P273.7.
   oitavo consumo directo de fonte).
 
 Status `IMPLEMENTADO` preservado literal. Ver
-`00_nucleo/diagnosticos/typst-passo-273-7A-diagnostico.md` para Fase A
+A medição histórica para Fase A
 empírica + Decisão 1 fixada + critério §A.6.
 
 ---

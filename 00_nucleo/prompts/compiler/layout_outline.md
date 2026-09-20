@@ -192,7 +192,7 @@ Se o carrier realizado estiver ausente num caminho que o exige, falhar de modo
 diagnosticado; não regressar silenciosamente ao texto legado. Confirmação humana
 explícita recebida em 2026-09-15; a mudança está autorizada pelo gate ADR-0127.
 
-## P1407 — resolução do fill antes do selo do link
+## P1407 — resolução do fill antes da confirmação do link
 
 ### Medição anterior à decisão
 

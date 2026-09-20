@@ -1,5 +1,13 @@
 # P1261 — corrigir os quatro máximos endpoint-near
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — QUATRO ENDPOINT-NEAR FECHADOS, ZERO PARES PROMOVIDOS  
 **Predecessor:** P1260  
 **Owner inicial:** `00_nucleo/prompts/infra/export/gradients/adaptive.md`
@@ -69,7 +77,7 @@ SVGs e preservando cap 64. Sete mutantes executáveis foram rejeitados
 
 O P1237 reexecutado ficou em 1/6, 1/6, 4/6 e 4/6 no gate numérico; nenhum par
 atingiu 6/6 ou foi promovido. Recibos em
-`00_nucleo/diagnosticos/typst-p1261-endpoint-near.md` e
+relatório consolidado da limpeza e
 `00_nucleo/diagnosticos/p1261-manifest.tsv`.
 
 **Veredito:** EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO.

@@ -1,5 +1,13 @@
 # Passo 1347 — autenticar workers, retirar autojulgamento e atestar a imagem executada
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Regime e objetivo
 
 Regime: **executado sem atestacao de isolamento**.
@@ -22,20 +30,20 @@ Medição em `2026-09-11T11:47:11-03:00`:
 
 - `HEAD = 496c45ac6279d4298079f848b24b5e97ba88edc1`;
 - working tree limpo antes da autoria deste passo;
-- P1346: `typst-passo-1346.md`, SHA-256
-  `33dc3b0f1f4772e9021a7fbe58803f52fa6c789337d662e2c85ce408031aee41`;
-- relatório adversarial P1346 R2 JSON, SHA-256
-  `60de39bf2588fab84953f3a2fefea4cfd842dac205f1b23b669830106ea6bdc6`;
-- relatório adversarial P1346 R2 Markdown, SHA-256
-  `bd0ada205586718106e2e4851dfb8cfb7f50475967bd272567ef10d92512b466`;
-- contrato P1346 R1, SHA-256
-  `baa9065e14d9a67cd3f804c8fcc4063e3fc6a176156409a36a03f630181e026f`;
-- checker P1346 R2, SHA-256
-  `c6c8e425b9387afd2d02d20d148d407c4f2b252cef3428ccb1eb1eec91894ec1`;
-- case runner P1346 R2, SHA-256
-  `09bfbd15cd7aec9fb600dbea85ed84c6e7059cd252c3c42ceb296ee7c6a67c96`;
-- caller P1346 R2, SHA-256
-  `ba4fd42247eadd04ee7a8af8519043a77113205340cb60edbe79128e29ceb120`.
+- P1346: `typst-passo-1346.md`, identificador administrativo
+  [dado administrativo removido];
+- relatório adversarial P1346 R2 JSON, identificador administrativo
+  [dado administrativo removido];
+- relatório adversarial P1346 R2 Markdown, identificador administrativo
+  [dado administrativo removido];
+- contrato P1346 R1, identificador administrativo
+  [dado administrativo removido];
+- checker P1346 R2, identificador administrativo
+  [dado administrativo removido];
+- case runner P1346 R2, identificador administrativo
+  [dado administrativo removido];
+- caller P1346 R2, identificador administrativo
+  [dado administrativo removido].
 
 Nota de reprodução: o autor do manifesto deve conferir todos os hashes antes do
 freeze; qualquer divergência é `PROTECTED_INPUT` e interrompe a cadeia. Neste
@@ -76,7 +84,7 @@ como prova suficiente de execução. A nova primitiva de worker deve:
 2. iniciar o filho por uma operação que devolva ao pai a identidade do processo;
 3. obter PID, término e status por observação do pai (`pidfd`/`waitpid`), nunca
    do stdout;
-4. ligar a resposta ao desafio e ao SHA-256 da invocação esperada;
+4. ligar a resposta ao desafio e ao identificador administrativo da invocação esperada;
 5. exigir envelope JSON canônico, schema fechado e tipos exatos;
 6. rejeitar stdout fabricado, ausência de filho real, PID textual, PID
    autoalegado divergente, linha extra, timeout ou status inesperado;
@@ -131,7 +139,7 @@ o pai deve atestar a imagem carregada:
 1. o filho solicita tracing antes do exec e chama `execve` pelo descritor;
 2. o pai recebe a paragem de exec do mesmo PID observado;
 3. enquanto o processo está parado, o pai abre a imagem real exposta pelo
-   kernel em `/proc/<pid>/exe`, mede stat, tamanho e SHA-256 e compara com o
+   kernel em `/proc/<pid>/exe`, mede stat, tamanho e identificador administrativo e compara com o
    executável pinado e com o memfd selado;
 4. somente após igualdade exata o pai permite continuar e envia a requisição;
 5. PID reutilizado, ausência de exec-stop, imagem ilegível, digest divergente,

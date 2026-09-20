@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: ef487f03
+Hash do Código: d58ed34c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`
@@ -151,8 +151,8 @@ o acesso público já tenha projeções em `bindings/field_access.rs:996-1049`.
 O helper `content_elem_func` nesse outro owner também tem fallback por nome
 (`:1146-1171`), que não prova identidade real de builtin.
 
-As fixtures e recibos `p1339-full-show-final-*` medem aplicação real de
-filtros strong/emph/text no vanilla; `p1339-full-a2.md` separa rejeição
+As fixtures e registros `p1339-full-show-final-*` medem aplicação real de
+filtros strong/emph/text no vanilla; a medição histórica separa rejeição
 semântica de falhas de transporte CLI. Não se toma repr de conteúdo ainda
 não realizado como prova de aplicação. Fonte de intenção:
 vanilla `foundations/selector.rs:134-140`, identidade do elemento e valores

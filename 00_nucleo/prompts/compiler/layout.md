@@ -3,7 +3,7 @@ Hash do Código: 43381647
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4bf17f1455eef032ab3e30ea038edabed721e8378b913aaecf2b544bf288a917
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
@@ -47,7 +47,7 @@ O layout interno observa target paged e conserva nesting: frame dentro de
 frame não cria uma segunda ilha. Erros e callbacks pendentes seguem os canais
 vigentes; não executar Func dentro do layouter nem importar L3. A assinatura
 pública nova e o novo braço foram confirmados pelo dono em 2026-09-16 e ficam
-limitados pelo selo P1424.
+limitados pelo escopo de P1424.
 
 ## P1374 — parcela fracionária interna proposta
 
@@ -103,7 +103,7 @@ não fazer refactor produtivo além de testes/linhagem necessários.
 ### Medição anterior à decisão
 
 O dispatcher não possui `Content::Flush`; floats são drenados somente em
-fronteiras existentes. O recibo P1292 demonstra que o marcador deve realizar
+fronteiras existentes. O registro P1292 demonstra que o marcador deve realizar
 o prefixo de floats no ponto exato antes do conteúdo seguinte, sem antecipar
 floats posteriores.
 
@@ -179,7 +179,7 @@ um Place não-float pós-marker na região rejeitada.
 No caso focal, PREFLOW permanece p1; FLOAT_BEFORE permanece p2; AFTER_MARKER,
 AFTER_FLOW e FLOAT_AFTER aparecem exatamente uma vez em p3. No-floats,
 no-flush, nested, clearance explícito e prefix identity preservam os resultados
-selados.
+validados.
 
 ### Amendment-11 — limite do checkpoint face ao flow ordinário
 
@@ -272,7 +272,7 @@ da tentativa candidata. Se essa candidata possui pendências, devolve apenas
 `Pending`; caso contrário pode devolver `Complete`. Esse ciclo de callbacks é
 ortogonal a `compiler::introspect::run_fixpoint` e não é fundido a ele.
 
-O selo/runtime P1291 já foi materializado. P1292 preserva integralmente esta
+O confirmação/runtime P1291 já foi materializado. P1292 preserva integralmente esta
 ligação e não cria nova fase. Contrato detalhado:
 `compiler/math/layout/callbacks.md`; implementação da capacidade:
 `infra/pipeline.md`.
@@ -298,7 +298,7 @@ fórmula, não usar `max_width` como eixo vertical e não resolver contra a altu
 do body. Alturas absolutas mantêm as expectativas existentes; width relativa
 e height fracionária permanecem no P1374.
 
-## P1391 — arm interno de fechamento overlong certificado
+## P1391 — arm interno de fechamento overlong validado
 
 ### Medição anterior à decisão
 
@@ -316,12 +316,12 @@ Sequence após o preflight certificar a forma P1391 completa. O primeiro
 por Cursor P1389. O estado inicia falso, integra checkpoint/rollback e é
 isolado em sub-frame; não sobrevive ao fechamento que o consome.
 
-Não há nova API pública, fase ou default. Ausência do certificado, prefixo
+Não há nova API pública, fase ou default. Ausência da validação, prefixo
 incompleto, outra célula de tamanho e fluxo ordinário nunca armam o estado.
 11→39, 39→11, 11→40 e 40→11 devem manter uma página e `After=Tail`;
 40→8 permanece opaco.
 
-## P1392 — reutilização do arm por certificado cruzado
+## P1392 — reutilização do arm por validado cruzado
 
 ### Medição anterior à decisão
 
@@ -334,7 +334,7 @@ estilo exterior; sem o arm, o cristalino usa 40pt e pagina a cauda.
 O mesmo booleano privado one-shot pode ser armado também depois de Sequence
 certificar a forma P1392 completa. Inicialização, consumo, checkpoint e
 isolamento permanecem idênticos a P1391; não se adiciona campo, API ou fase.
-Formas não certificadas nunca armam o estado. P1391 e os controles de replay
+Formas não validadas nunca armam o estado. P1391 e os controles de replay
 continuam invariantes.
 
 # P1402 — fallback de layout para entry
@@ -415,12 +415,12 @@ global. A ampliação de comportamento padrão aguarda confirmação humana.
 
 O Layouter P1414 conhece a linha física somente depois de wrap, fitting e
 baseline, mas L1 não possui nem pode possuir `Engine`. O precedente P1291 já
-separa medição pura e realização L3 por transcript selado. No baseline
+separa medição pura e realização L3 por transcript validado. No baseline
 `0a7de3dd9`, a entry point callback-aware cobre apenas math.
 
 ### Decisão proposta
 
-Generalizar a entry point explícita de passagem para receber stores seladas de
+Generalizar a entry point explícita de passagem para receber stores validadas de
 math e de `par.line` e devolver um outcome combinado. O estado privado da
 tentativa registra requests de linha em ordem causal com `Func`, inteiro
 lógico, `StyleChain` e span; não executa a função nem conserva documento no
@@ -662,14 +662,13 @@ Encaminhar `Content::MathUnderbracket` pelo caminho inline math. Este owner não
 interpreta U+23B5, annotation, classe ou stretch; a lógica permanece em
 `compiler/math/layout/underover.rs` e no spacing matemático.
 
-## P1462 — fachada de opções documentais de formato (CONFIRMADA; aguarda selo R2)
+## P1462 — fachada de opções documentais de formato (MATERIALIZADA)
 
-Declarar o descendente privado `format_options` e reexportar a função pura
+O descendente privado `format_options` reexporta a função pura
 pública `collect_document_format_options` definida e possuída por
 `00_nucleo/prompts/compiler/layout/format_options.md`. A fachada não conhece
 CLI, exporters ou `World`, não duplica a travessia e não incorpora a lógica ao
 dispatcher de render.
 
-A nova entry point L1 é superfície pública entre camadas. A confirmação humana
-de P1462 foi recebida em 2026-09-19; a materialização só começa depois do novo
-selo discriminatório R2. Nenhuma fase ou geometria do layout muda neste owner.
+A nova entry point L1 é superfície pública entre camadas. A mudança foi aprovada
+e materializada em 2026-09-19. Nenhuma fase ou geometria do layout muda neste owner.

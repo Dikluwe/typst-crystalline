@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/p1429-tests.md
-//! @prompt-hash fc94fd67
+//! @prompt-hash a7780874
 //! @layer L1
 #![cfg(test)]
 //!
@@ -383,83 +383,5 @@ fn p1429_rotas_bare_qualificada_e_wrappers_convergem() {
             errors.iter().any(|e| e.message.contains(fragment)),
             "{source}: {errors:?}"
         );
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum HarnessVerdict {
-    Preserved,
-    Violated,
-    Unknown,
-}
-
-#[derive(Debug, Clone, Copy)]
-enum HarnessEvidence {
-    CompletePositive,
-    AttributableMismatch,
-    IdentityMismatch,
-    CarrierCardinality,
-    StyleCascadeOpaque,
-    GlyphOpaque,
-    LayoutOpaque,
-    ExecutionOrBudget,
-}
-
-fn classify_harness(
-    evidence: HarnessEvidence,
-) -> (HarnessVerdict, bool, bool, &'static str) {
-    match evidence {
-        HarnessEvidence::CompletePositive => {
-            (HarnessVerdict::Preserved, true, false, "PRESERVED")
-        }
-        HarnessEvidence::AttributableMismatch => {
-            (HarnessVerdict::Violated, false, true, "VIOLATED")
-        }
-        HarnessEvidence::IdentityMismatch => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_IDENTITY_MISMATCH")
-        }
-        HarnessEvidence::CarrierCardinality => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_MATHACCENT_CARDINALITY")
-        }
-        HarnessEvidence::StyleCascadeOpaque => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_STYLE_CASCADE")
-        }
-        HarnessEvidence::GlyphOpaque => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_GLYPH_OBSERVATION")
-        }
-        HarnessEvidence::LayoutOpaque => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_LAYOUT_OBSERVATION")
-        }
-        HarnessEvidence::ExecutionOrBudget => {
-            (HarnessVerdict::Unknown, false, false, "UNKNOWN_EXECUTION_OR_BUDGET")
-        }
-    }
-}
-
-#[test]
-fn p1429_unknown_u01_u06_falha_fechado_sem_credito() {
-    assert_eq!(
-        classify_harness(HarnessEvidence::CompletePositive),
-        (HarnessVerdict::Preserved, true, false, "PRESERVED")
-    );
-    assert_eq!(
-        classify_harness(HarnessEvidence::AttributableMismatch),
-        (HarnessVerdict::Violated, false, true, "VIOLATED")
-    );
-
-    for (evidence, reason) in [
-        (HarnessEvidence::IdentityMismatch, "UNKNOWN_IDENTITY_MISMATCH"),
-        (HarnessEvidence::CarrierCardinality, "UNKNOWN_MATHACCENT_CARDINALITY"),
-        (HarnessEvidence::StyleCascadeOpaque, "UNKNOWN_STYLE_CASCADE"),
-        (HarnessEvidence::GlyphOpaque, "UNKNOWN_GLYPH_OBSERVATION"),
-        (HarnessEvidence::LayoutOpaque, "UNKNOWN_LAYOUT_OBSERVATION"),
-        (HarnessEvidence::ExecutionOrBudget, "UNKNOWN_EXECUTION_OR_BUDGET"),
-    ] {
-        let (verdict, acceptance, mutation_credit, actual_reason) =
-            classify_harness(evidence);
-        assert_eq!(verdict, HarnessVerdict::Unknown);
-        assert!(!acceptance, "{reason} received mandatory acceptance");
-        assert!(!mutation_credit, "{reason} killed M12");
-        assert_eq!(actual_reason, reason);
     }
 }

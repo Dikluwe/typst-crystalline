@@ -222,7 +222,7 @@ no passo subsequente.
   `cell_origin_*` replicado N=3" — registo formal pre-P273.17.
 - ADR-0091 §"Anotação cumulativa P273.9" §"Pattern DEBT-37 N=4
   cumulativo crossing limiar".
-- `00_nucleo/diagnosticos/typst-passo-273-6A-diagnostico.md` — Fase
+- a medição histórica — Fase
   A do consumer real Block.
 
 ---

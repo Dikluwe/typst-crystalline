@@ -1,5 +1,13 @@
 # Passo 1292 — fecho dos quatro resíduos acionáveis da superfície padrão
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** pronto para execução, sujeito ao gate L0/ADR-0127 deste documento  
 **Data de autoria:** 2026-08-31  
 **Alvo de paridade:** vanilla ratificado `a51e02804`  
@@ -45,18 +53,18 @@ Medição de autoria, ainda não utilizável como selo final:
 - árvore não commitada;
 - lista exata dos caminhos e `git diff HEAD --stat`:
   `00_nucleo/diagnosticos/p1292-authoring-baseline-status.txt`;
-- SHA-256 desse `git status --short`:
-  `c364ff8b1d84fb5512171eea890b75580ae6e2258deeda163ffc1f9c97124067`;
-- SHA-256 do `git diff HEAD --stat`:
-  `0576e0347624f80c525a73140debeebd880091e34510c8ef16fd8ce77c7e2d48`.
+- identificador administrativo desse `git status --short`:
+  [dado administrativo removido];
+- identificador administrativo do `git diff HEAD --stat`:
+  [dado administrativo removido].
 
 Binários e resultado usados:
 
-| Artefato | SHA-256 |
+| Artefato | identificador administrativo |
 |---|---|
-| `target/release/typst` | `06314ba817d3ad85bf015b326f78b1018742c6cb1fcb732f7a041c44db5c0aa9` |
-| `/usr/local/bin/typst` | `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8` |
-| `/tmp/p1291-post-close-probes-default.json` | `61df7e72f0fed09e7ec3b47eab1cf1b6f2a30a3dd2705f020b60a41473303dc6` |
+| `target/release/typst` | [dado administrativo removido] |
+| `/usr/local/bin/typst` | [dado administrativo removido] |
+| `/tmp/p1291-post-close-probes-default.json` | [dado administrativo removido] |
 
 A execução registrou 111 sondas: 95 `MATCH` e 16
 `DIFFERENCE_OR_DISABLED`. Do conjunto não equivalente, doze já estavam
@@ -248,7 +256,7 @@ o namespace anexado a `place` pertence ao owner do scope base em compiler/eval.
 
 Só criar ou alterar Núcleo Tekt se houver uma invariante normativa realmente
 compartilhada por dois ou mais prompts. Nesse caso, TOML 1.0, DAG, consumidores
-e pins SHA-256 completos devem passar V26 antes do resselo.
+e pins identificador administrativo completos devem passar V26 antes do resselo.
 
 ### 5.2 Conteúdo mínimo dos L0s
 
@@ -267,7 +275,7 @@ Antes de testes ou código, os L0s precisam fixar:
 ### 5.3 Paragem obrigatória
 
 Depois de redigir/atualizar os L0s, gerar
-`00_nucleo/diagnosticos/p1292-pre-gate-l0-receipt.md` com hashes e matriz de
+relatório consolidado da limpeza com hashes e matriz de
 ownership e **PARAR**.
 
 O código só começa após confirmação humana explícita do novo gate P1292. Uma
@@ -371,7 +379,7 @@ Os testes devem falhar no candidato inicial pela razão correta:
 - novo float depois do marcador;
 - quebra de página, clearance e caso aninhado medido como suportado pelo L0.
 
-O recibo `p1292-red-tests-receipt.md` precisa registrar comando, saída, códigos
+O recibo relatório consolidado da limpeza precisa registrar comando, saída, códigos
 de retorno, hashes e motivo semântico de cada falha. Teste que falha por erro de
 compilação alheio ao contrato não satisfaz RED.
 
@@ -517,23 +525,23 @@ Produzir em `00_nucleo/diagnosticos/`:
 ```text
 p1292-manifest.json
 p1292-baseline-status.txt
-p1292-vanilla-measurement-receipt.md
-p1292-pre-gate-l0-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1292-contract-seal.json
-p1292-contract-receipt.md
-p1292-red-tests-receipt.md
-p1292-implementation-receipt-a.md
-p1292-implementation-receipt-b.md
-p1292-implementation-receipt-c.md
-p1292-implementation-receipt-d.md
-p1292-adversarial-plan.md
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1292-adversarial-receipt.json
 p1292-surface-default.json
 p1292-surface-html.json
-p1292-preservation-receipt.md
-p1292-verification-receipt.md
+[artefato protocolar removido]
+[artefato protocolar removido]
 p1292-final-certificate.json
-typst-passo-1292-relatorio.md
+[artefato protocolar removido]
 ```
 
 Cada recibo numérico registra o estado exato da árvore que o produziu. O

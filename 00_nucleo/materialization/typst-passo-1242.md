@@ -1,5 +1,13 @@
 # P1242 — inventário pós-resselo das lacunas SVG
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** EXECUTADO — INVENTÁRIO DIAGNÓSTICO FECHADO (TILING PRIMEIRO)  
 **Predecessor:** P1241  
 **Saída:** fila fechada, ordenada e hash-pinned das lacunas SVG restantes.

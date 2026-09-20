@@ -34,7 +34,7 @@ ficam sob ADR-0127.
 O baseline `text/smartquote.rs:233-310` escolhe quatro glifos (single/double,
 open/close) por língua, região e `alternative`; depois aplica separadamente os
 overrides `single` e `double`. `:335-419` converte string por grapheme, array e
-dicionário. O receipt P1286 confirma a precedência no caso alemão e os erros
+dicionário. A medição P1286 confirma a precedência no caso alemão e os erros
 de cardinalidade/chave.
 
 ### Decisão

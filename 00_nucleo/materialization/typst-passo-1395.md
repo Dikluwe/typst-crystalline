@@ -1,5 +1,13 @@
 # Passo 1395 — precedência lexical de callees bare em math
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo
 
 Corrigir a lacuna de língua priorizada por P1393: uma função lexical local
@@ -20,21 +28,21 @@ Baseline congelado: HEAD
 `dd33334ca36e2d7abf79d16b200f07691d950c59`, árvore limpa antes de P1395.
 Consumers produtivo/test-only:
 
-- `01_core/src/compiler/eval/math.rs`, SHA-256
-  `16a75031fae22b4d2d5bb8631473ed8b71d536b1c8f7214c67f215a0290a146d`;
-- `01_core/src/compiler/eval/tests.rs`, SHA-256
-  `95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730`.
+- `01_core/src/compiler/eval/math.rs`, identificador administrativo
+  [dado administrativo removido];
+- `01_core/src/compiler/eval/tests.rs`, identificador administrativo
+  [dado administrativo removido].
 
-O L0 math anterior tinha SHA-256
-`87cf8ff73294a7dfafd90358fb2b9adb8e169ea523358a792e78eb237da80b81`
+O L0 math anterior tinha identificador administrativo
+[dado administrativo removido]
 e ainda pinava `a51e02804`. Antes de autorizar código, este passo corrigiu o
 pin para o vanila ratificado
 `586e1bd43fae6c9a973218163d3165c53ab8d16d` e acrescentou a obrigação P1395.
-O L0 resultante, `compiler/eval/math.md`, tem SHA-256
-`0f40bd06cc6913d9bdcd374d137ad232b23c09843dfcd12b3db237c5a717f14f`.
+O L0 resultante, `compiler/eval/math.md`, tem identificador administrativo
+[dado administrativo removido].
 Como o harness E2E puro está no consumer test-only dedicado, seu L0 também foi
-atualizado antes dos testes; `compiler/eval/tests.md` resultante tem SHA-256
-`04d06d391b873533a366e1a71a4856b5b970be441247a0ca0cf4206d1e6fd379`.
+atualizado antes dos testes; `compiler/eval/tests.md` resultante tem identificador administrativo
+[dado administrativo removido].
 Ownership permanece 1:1; nenhum Núcleo novo é necessário.
 
 Na fonte vanila ratificada:
@@ -57,13 +65,13 @@ mediram:
 | closure local `abs` | `LOCAL-ABS` | `|1|` | 31.636/39.104 KiB | 0,61/0,26 s |
 | closure local `sqrt` | `LOCAL-SQRT` | raiz nativa | 31.428/39.272 KiB | 0,41/0,09 s |
 
-Fixtures: `8a2f9a49115901ac783a2764b121d04ea0442e010220a1cd26dc0a93bffcef2d`
-e `856ac0ad5ba024adcdf1cd160161550c62e0aa9d63cfb224b2caf3267e6c9b63`.
+Fixtures: [dado administrativo removido]
+e [dado administrativo removido].
 Uma tentativa instrumental vanila com `--color` na posição errada terminou
 exit 2/RSS 10.080 KiB; foi descartada e não sustenta conclusão alguma.
 Binários congelados: vanila
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-cristalino `9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479`.
+[dado administrativo removido];
+cristalino [dado administrativo removido].
 
 ## Classificação e decisão
 
@@ -89,7 +97,7 @@ implementação, resselo e revalidação, sem gate humano intermediário.
 4. Ausência de binding local conserva integralmente `abs`, `sqrt` e todos os
    outros branches atuais.
 5. R3 revoga a alteração de `eval/tests.rs`: o oráculo independente fica em
-   `lab/parity/p1395_math_callee.py`, fora do lib-test monolítico.
+   `[artefato laboratorial removido]`, fora do lib-test monolítico.
 6. Resselar somente a relação `compiler/eval/math.md` ↔ `math.rs`.
 
 Fora do escopo: parser/AST, `Scopes`, Args público, field access, namespace
@@ -141,10 +149,10 @@ alocar 122.973.653 bytes; RSS máximo 220.020 KiB e zero swap. Portanto ainda
 **não existe RED semântico** e nenhum selo pode ser emitido a partir dessas
 duas execuções.
 
-Esta R1 sucede o passo R0 SHA-256
-`750770e2f6e346f46835573a5e7323cd05f6b00ff4285765225d84d6a2f8750f`
-e o contrato R0 SHA-256
-`50a0c39ed667c016908ff445637159d31b828a0025053172b6a89cb7ecd602d5`.
+Esta R1 sucede o passo R0 identificador administrativo
+[dado administrativo removido]
+e o contrato R0 identificador administrativo
+[dado administrativo removido].
 A causa observada é limite de recurso do processo de compilação, não falha dos
 asserts e não motivo para afrouxar qualquer expectativa de língua.
 
@@ -186,12 +194,10 @@ repetição do mesmo limite nem elevação do teto de 2 GiB.
 
 Ficam agora protegidos, antes de qualquer candidato:
 
-- `01_core/src/compiler/eval/tests.rs`, SHA-256
-  `38392faf4849fabd4691ee79c29de151e54f19fc178425476bb55b62686ec4f9`;
-- `00_nucleo/diagnosticos/p1395-oracles.json`, SHA-256
-  `f510559e47844968089b72c1e8dd4184e18d0630748b043c265899fa2977ece2`;
-- `00_nucleo/diagnosticos/p1395-mutants.json`, SHA-256
-  `e7b0b32efeca08c3c51a96ecd17f1c650bb3ecefcffbe36cc1522e0b9dc4bd4d`.
+- `01_core/src/compiler/eval/tests.rs`, identificador administrativo
+  [dado administrativo removido];
+- relatório consolidado da limpeza;
+- relatório consolidado da limpeza.
 
 Autoriza-se uma única tentativa de obter o RED, sem `RLIMIT_AS`, com
 `RLIMIT_DATA` de 2 GiB, uma só job Cargo, timeout de 180 s e testes P1395
@@ -219,15 +225,15 @@ harness monolítico antes do filtro. Repetir esse caminho não agrega evidência
 R3 invalida como oráculos os artefatos e hashes R2 ligados a
 `eval/tests.rs`. A cláusula P1395 foi removida de
 `00_nucleo/prompts/compiler/eval/tests.md`, restaurado exatamente ao baseline
-HEAD, SHA-256
-`5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33`.
-O próprio `eval/tests.rs` deve voltar byte-a-byte ao baseline SHA-256
-`95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730`
+HEAD, identificador administrativo
+[dado administrativo removido].
+O próprio `eval/tests.rs` deve voltar byte-a-byte ao baseline identificador administrativo
+[dado administrativo removido]
 antes do selo, sem mudança produtiva ou de ownership. O L0 math P1395
 permanece autoritativo e inalterado.
 
 O novo autor independente de oráculos pode escrever somente
-`lab/parity/p1395_math_callee.py` e seu recibo R3. O script usa apenas standard
+`[artefato laboratorial removido]` e seu recibo R3. O script usa apenas standard
 library Python, recebe `--binary PATH` e `--output PATH`, cria e remove fixtures
 e outputs num `TemporaryDirectory`, executa um processo por vez com timeout
 interno, extrai texto com `pdftotext` e retorna exit 0 somente se todos os casos
@@ -242,7 +248,7 @@ binário candidato. O RED usa exclusivamente o binário cristalino baseline já
 existente, sob `RLIMIT_AS` 512 MiB/60 s; o script não invoca Cargo nem rustc:
 
 ```bash
-bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red.json'
+bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 [artefato laboratorial removido] --binary target/release/typst --output /tmp/p1395-red.json'
 ```
 
 O implementador recebe o oráculo R3 selado e pode editar somente `math.rs`.
@@ -274,13 +280,13 @@ alteração afetasse qualquer outro caso, aceitasse ausência/troca do radical o
 mudasse o vetor fora desse controle.
 
 Antes do selo, autoriza-se somente trocar o expected literal do caso
-`native-sqrt-control` em `lab/parity/p1395_math_callee.py`, de `√1` para
+`native-sqrt-control` em `[artefato laboratorial removido]`, de `√1` para
 `√ 1`, e atualizar o recibo do oráculo. Nenhuma fixture, comando, timeout,
 classificador, outro expected ou caso pode mudar. Autoriza-se exatamente uma
 reexecução focal do mesmo RED sob `RLIMIT_AS` 512 MiB/60 s:
 
 ```bash
-bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red-r4.json'
+bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 [artefato laboratorial removido] --binary target/release/typst --output /tmp/p1395-red-r4.json'
 ```
 
 O delta discriminatório esperado é de `6 Difference / 1 Preserved` para
@@ -302,18 +308,16 @@ O gate adversarial possui 14 mutações aplicáveis e rejeitou as 14;
 `mutation_score = 14/14 = 1.0`. Essa pontuação cobre apenas o fragmento
 observável do contrato. As entradas finais, conferidas antes do candidato, são:
 
-- script `lab/parity/p1395_math_callee.py`, SHA-256
-  `268e9e52c4d14c97dca3a4b3ae95e655ec3353a0c9fd17138f267f6252a01c78`;
-- recibo `00_nucleo/diagnosticos/p1395-oracles.json`, SHA-256
-  `9a8c05c27f528c7c19cc879e507211f1c86b7e21adbab9bd5ea31bd358477e5c`;
-- catálogo `00_nucleo/diagnosticos/p1395-mutants.json`, SHA-256
-  `3d454633a7a0ae99844acdcc0bf421ef86bac699cfb2ed4f58bee09423bf256c`;
-- `eval/tests.rs` restaurado ao baseline, SHA-256
-  `95020fe449edece4e3c469dcd2efe306e3e6f1a6d3d4a03e91f28df22632e730`;
-- L0 de testes inalterado, SHA-256
-  `5347098452ec77a72e8e0e969ad656b453c1df8ee04c3d2f28fb87ecfa84be33`;
-- L0 math P1395, SHA-256
-  `0f40bd06cc6913d9bdcd374d137ad232b23c09843dfcd12b3db237c5a717f14f`.
+- script `[artefato laboratorial removido]`, identificador administrativo
+  [dado administrativo removido];
+- recibo relatório consolidado da limpeza;
+- catálogo relatório consolidado da limpeza;
+- `eval/tests.rs` restaurado ao baseline, identificador administrativo
+  [dado administrativo removido];
+- L0 de testes inalterado, identificador administrativo
+  [dado administrativo removido];
+- L0 math P1395, identificador administrativo
+  [dado administrativo removido].
 
 Com essas entradas o contrato está pronto para selo por autoridade distinta.
 Após o selo, o implementador pode alterar exclusivamente `math.rs` e a
@@ -326,8 +330,8 @@ candidato. Esta R5 não emite selo nem veredito.
 
 Após a existência do candidato, uma medição direta obrigatória executou o
 mesmo script contra o vanila ratificado sob `RLIMIT_AS` 512 MiB/60 s. O recibo
-`/tmp/p1395-vanila-r4.json`, SHA-256
-`145f6974f70b85a992ba02e43d3e36e1cc937b43304314af0e1bcbc5bf8adc22`,
+`/tmp/p1395-vanila-r4.json`, identificador administrativo
+[dado administrativo removido],
 terminou em 4,55 s, RSS máximo 32.288 KiB e zero swap. Ela refutou três
 expectativas do oráculo pré-selado:
 
@@ -344,8 +348,8 @@ distinta. Ela fica registrada como observável não representável e dívida for
 do escopo; P1395 não pode alegar `MATCH` diagnóstico integral.
 
 Como uma entrada de intenção protegida mudou depois do candidato, o estado
-“pronto para selo” R5 está invalidado. O novo L0 math R6 tem SHA-256
-`6e25eefa26e0cf55410866bb4633bb325c5f728458c7039ab1dcce613e5e4d65`.
+“pronto para selo” R5 está invalidado. O novo L0 math R6 tem identificador administrativo
+[dado administrativo removido].
 Nenhum resultado do candidato recebe crédito antes de novo selo independente.
 O autor deste contrato não leu o candidato.
 
@@ -361,12 +365,12 @@ Autoriza-se o autor independente do oráculo a alterar somente:
 Nenhum parser, capturador, fixture, comando, timeout, closure/native expected,
 classificador ou código pode mudar. Se necessário, autoriza-se uma única
 repetição RED contra o binário cristalino baseline **somente após confirmar**
-SHA-256
-`9088dfe1b298482722476bb3e4d6d5245f56d3ed26f34f73eb77af7752719479`,
+identificador administrativo
+[dado administrativo removido],
 sob o mesmo limite:
 
 ```bash
-bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 lab/parity/p1395_math_callee.py --binary target/release/typst --output /tmp/p1395-red-r6.json'
+bash -lc 'ulimit -v 524288; exec timeout 60s /usr/bin/time -v python3 [artefato laboratorial removido] --binary target/release/typst --output /tmp/p1395-red-r6.json'
 ```
 
 Se a identidade baseline não estiver disponível, não substituir pelo candidato:

@@ -29,7 +29,7 @@ No baseline confirmado, `01_core/src/entities/content.rs:1589-1618` expõe
 diretamente `MathAttachElem`. O inventário read-only encontrou chamadas
 produtivas nos owners de eval estrutural/sintático e duas reconstruções em
 `compiler/math/layout/mod.rs:2029-2037,2242-2250`; testes e fixtures possuem
-chamadas adicionais, mas não são novos owners produtivos. O recibo causal
+chamadas adicionais, mas não são novos owners produtivos. O registro causal
 P1293 SHA-256 `80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
 prova que a assinatura binária `Option` não pode transportar os três estados.
 
@@ -2953,7 +2953,7 @@ Prompts proprietários relacionados: `entities/elements/math_cancel.md`,
 `compiler/math/layout/_comum.md`, além de `compiler/layout/flush.md`.
 
 Esta alteração cria variantes/construtores públicos; permanece proibida até
-o selo humano ADR-0127. Os seis prompts de novos consumers (entidade/layout
+a confirmação humana ADR-0127. Os seis prompts de novos consumers (entidade/layout
 para underline, vec e flush) ficam
 deliberadamente sem consumer e sem metadado canônico de hash durante esta pausa.
 
@@ -3045,7 +3045,7 @@ apagar a variante; `func()` identifica `frame`; `repr` expõe a morfologia
 Layout paginado e pipeline HTML são consumers diferentes da mesma variante.
 Nenhum fallback pode convertê-la em Empty, HtmlElem ou body antes do consumer
 correto. A variante pública foi confirmada pelo dono em 2026-09-16 e deve ser
-materializada somente sob o selo P1424.
+materializada somente no escopo de P1424.
 
 # P1427 — construção completa de `MathFrac` (PROPOSTO; gate ADR-0127)
 

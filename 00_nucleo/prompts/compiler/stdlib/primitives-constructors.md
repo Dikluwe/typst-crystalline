@@ -69,9 +69,8 @@ uma operação at em constructor para satisfazer sua claim typed-result.
 ## P1339 — pré-requisito autorizado Array a partir de Bytes
 
 Medição anterior: `primitives_constructors.rs:9-16` declara owners privados
-e reexports; a ausência de Array foi medida com HEAD/árvore/UTC em
-`diagnosticos/p1339-array-prerequisite-measure-r2.json`. Após autorização em
-`diagnosticos/p1339-array-authorization.md`, declarar módulo privado `array`
+e reexports; a ausência de Array foi medida com HEAD/árvore/UTC. Após a
+autorização registrada pelo dono, declarar módulo privado `array`
 e reexportar somente `array::native_array_bytes` em `pub(crate)`.
 Sem wrapper, cast, validação ou API externa. A semântica limitada e seu
 estado incompleto pertencem a `primitives-constructors/array.md`.

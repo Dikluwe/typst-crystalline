@@ -1,5 +1,13 @@
 # Passo 1455 — eliminar a paleta string hardcoded de paint
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** PROPOSTO — BLOQUEADO NO GATE ADR-0127
 **Data da medição:** 2026-09-18T21:40:56-03:00
 **Commit medido:** `3360722a3eb3b63371d2ad9e2d1758d85cd9f98d`
@@ -19,10 +27,10 @@ aceitar strings onde a linguagem exige paint tipado.
 
 ## 2. Medição
 
-Vanilla ratificado: SHA-256
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
-Cristalino medido: SHA-256
-`1ae2028599b9e9ec2c5de9dc303b47f1efb184117ed6bfb6716d217c44e62d84`.
+Vanilla ratificado: identificador administrativo
+[dado administrativo removido].
+Cristalino medido: identificador administrativo
+[dado administrativo removido].
 
 | Expressão | Vanilla | Cristalino |
 |---|---|---|
@@ -33,10 +41,10 @@ Cristalino medido: SHA-256
 
 Hashes dos owners medidos:
 
-- L0 shapes: `335af3fc7e890f0c01b94819e9f793ed2a0e0ba5fb051514574f39810e0d8ce9`;
-- código shapes: `f8adf97bc7e6857c6f159f7d2e6f256f81c48624d934b899e3d502984393248f`;
-- L0 deco: `33d7957a8c3ffcbe5aab4100d7bf1156107b5aac5a2540c7ff281cf42679fec2`;
-- código deco: `991752687b93b9d3ac93aa768033a029e3fd0b4be4c2179f66eab784359b40e4`.
+- L0 shapes: [dado administrativo removido];
+- código shapes: [dado administrativo removido];
+- L0 deco: [dado administrativo removido];
+- código deco: [dado administrativo removido].
 
 ## 3. Escopo proposto
 
@@ -82,8 +90,8 @@ de string em shapes e decorações.
 
 Em 2026-09-19T00:57:04Z, no working tree não commitado derivado de
 `e5505f17ceb342b94424c2d1e5627cc523eb469a`, a campanha congelada executou 20
-casos contra vanilla SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
-e candidato SHA-256 `cfbfd03361331ee422c97007d4cf222e265d5922c0a86c2c16ba711b6f541ecc`:
+casos contra vanilla identificador administrativo [dado administrativo removido]
+e candidato identificador administrativo [dado administrativo removido]:
 zero falhas. Os testes focais de parse, rect, polygon, curve e highlight
 passaram; `cargo build`, `cargo fmt --all -- --check`, `crystalline-lint .` e
 `git diff --check` passaram.

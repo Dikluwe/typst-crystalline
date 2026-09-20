@@ -1,5 +1,13 @@
 # Passo 1430 — convergência vertical completa de `math.cases`
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado medido antes da decisão
 
 P1429 fechou e certificou `math.accent`. Recontando a lista nominal P1422 a
@@ -15,17 +23,17 @@ Medição executada em `2026-09-16T22:46:24-03:00`, sobre HEAD limpo
 `9f21b21802698c07dcf897b076aad429f51db251`. `git status --short` e
 `git diff HEAD --stat` não produziram linhas. Entradas principais:
 
-| artefato | SHA-256 |
+| artefato | identificador administrativo |
 |---|---|
-| vanilla `typst-library/src/math/matrix.rs` | `fb6ed72f7fac4bb5489170059b9aa0f919beb0b1a23bf4e862d4cff52905120f` |
-| vanilla `typst-library/src/math/ir/resolve.rs` | `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112` |
-| cristalino `compiler/stdlib/structural/math.rs` | `476e86c5d7afb2736d384b882a4bf76d962ac840c1ec077780d9d7ad5833fea1` |
-| cristalino `compiler/eval/math.rs` | `bac8132dbf073b214052091a8368e19a67be5cfa4303684cac237000ba669fcc` |
-| cristalino `entities/elements/math_cases.rs` | `ebc1aec8409799c6affb5db40f8ae8f25192a6f590f84efcb4634071ab58786c` |
-| cristalino `compiler/eval/repr.rs` | `159136456b172faaa8119ea06b06488bacb3795d247fe4a30d20f8c1d942a3db` |
-| cristalino `compiler/math/layout/cases.rs` | `34691c2bfcf5d141819de0fc6f1e18505e16cf46d3c7e53a455372abe5ebe11e` |
-| cristalino `entities/content.rs` | `538f7a8ff3e104262266f5a7342df13cc421d68f3b082eabcfb1f1b8c5336ac6` |
-| cristalino `compiler/eval/rules.rs` | `ec3e3236bfd8029c0ee7a808e2eaa1fc257f723a5cede7403e40a2256a1dcf7e` |
+| vanilla `typst-library/src/math/matrix.rs` | [dado administrativo removido] |
+| vanilla `typst-library/src/math/ir/resolve.rs` | [dado administrativo removido] |
+| cristalino `compiler/stdlib/structural/math.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/math.rs` | [dado administrativo removido] |
+| cristalino `entities/elements/math_cases.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/repr.rs` | [dado administrativo removido] |
+| cristalino `compiler/math/layout/cases.rs` | [dado administrativo removido] |
+| cristalino `entities/content.rs` | [dado administrativo removido] |
+| cristalino `compiler/eval/rules.rs` | [dado administrativo removido] |
 
 O alvo continua o vanilla ratificado
 `586e1bd43fae6c9a973218163d3165c53ab8d16d`. A fonte declara `CasesElem`

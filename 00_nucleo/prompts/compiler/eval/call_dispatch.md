@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 5680c9a5
+Hash do Código: 87ff695e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -16,7 +16,7 @@ Angle::to_rad/to_deg existem em `entities/layout_types.rs:1286-1290`.
 Fonte ratificada `layout/angle.rs:142-151` e `foundations/func.rs:372-374,
 395-409` documenta conversão e pré-aplicação. Sondas P1339 full-final e
 boundaries conservam valores, prioridades, spans e proveniência. Leitura
-e classificação dos owners em `diagnosticos/p1339-remaining-l0-design.md`.
+e classificação dos owners na medição histórica.
 
 ### Conversões de Angle
 
@@ -75,7 +75,7 @@ argumentos ficam intactas. Ligadas preservam também a origem real do receiver;
 sintéticos sem AST conservam origem legitimamente ausente.
 
 Traces continuam causais, incluindo retornos antecipados de intercepções.
-Não alterar is-nan/is-infinite certificados, Int, constructors, outros
+Não alterar is-nan/is-infinite validados, Int, constructors, outros
 namespaces, PARITY_VERSION, defaults ou fases. Esta seção completa a ligação
 das outras rotas do mesmo contrato.
 
@@ -83,11 +83,9 @@ das outras rotas do mesmo contrato.
 
 ### Medição anterior à decisão
 
-Baseline R5 `00_nucleo/diagnosticos/p1307-r5-baseline.json`, SHA-256
-`32bae26c9d5175cb4567a6c0b4c1cbae17e8bb0818466879182936fd473d5d7a`:
+Baseline histórico R5:
 HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
+commitado com diff/stat integral. A medição independente R5,
 preserva fontes, horários e executáveis; referência upstream `a51e02804`.
 
 `compiler/eval/call_dispatch.rs:1510–1518` envia apenas Content ao helper
@@ -397,7 +395,7 @@ Repetir e reordenar probes independentes produz o mesmo resultado.
 
 ### Medição antes da decisão
 
-O oráculo selado usa `arguments(1, x: 2)` como pré-condição de
+O oráculo validado usa `arguments(1, x: 2)` como pré-condição de
 `arguments.len`. Na fonte vanilla ratificada
 `foundations/args.rs:320-340`, `Args::construct` é `#[func(constructor)]`,
 recebe os argumentos externos como variádicos e devolve o `Args` integral.
@@ -470,9 +468,7 @@ persiste metadata em `Args` e não altera a quantidade ou ordem de avaliações.
 No baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
 `01_core/src/compiler/eval/call_dispatch.rs:389-430` dispõe dos spans AST
 antes de produzir Args; `:410-419` apaga a origem no spread; `:1016-1023`
-colapsa named e escolhe new.span em With. A matriz independente R2
-`00_nucleo/diagnosticos/p1307-r2-measurement.json`, SHA-256
-`847faabad41df603a82f7fc5c5d0435180cdec66c33ae9b3a1fd55d7ee320fa2`,
+colapsa named e escolhe new.span em With. A medição histórica
 mede `with-spread-arguments-f/g` com erro em `46..53`/`78..85` e
 `with-json-invalid-first-occurrence` com cast no valor antigo `25..30`.
 A fonte vanilla `lab/typst-original/crates/typst-eval/src/call.rs:412-460`
@@ -522,9 +518,7 @@ reexecução de factory ou world.source da última chamada.
 
 ### P1307-R4 — agregado da chamada para encoders
 
-Antes da decisão, o recibo
-`00_nucleo/diagnosticos/p1307-r4-call-span-refinement.json`, SHA-256
-`6e2335e203c2ed888e97259159e5057c904f5a808d5dddde6cf9d3f0698b8912`,
+Antes da decisão, a medição histórica
 congela este L0 e o estado sem candidato. A medição P1307 de
 `json/toml/yaml.encode()` ancora missing em `0..13`; `.encode.with()()`
 ancora em `0..20`. Vanilla ratificado `typst-eval/src/call.rs:28,56,64,78`
@@ -570,8 +564,7 @@ ou ampliados oportunisticamente por esta revisão.
 
 ### Medição anterior à decisão
 
-Baseline P1308 SHA-256
-`62c53690cbe3dd36b5b79168ea59a32f6eb88cc52ea52a8ca97365c5a9459394`;
+Baseline P1308;
 R6 final mede panic de map/filter na lista de argumentos em vez da chamada
 inteira. `call_dispatch.rs:1622` transporta call.span só para encoders;
 `stdlib/panic.rs:46` usa args.span. Vanilla ratificado
@@ -597,8 +590,7 @@ alias, With, callback e função do usuário chamada panic como controle.
 
 ### P1308 — refinamento focal do caminho rápido de arguments
 
-Medição anterior à decisão: execução `p1308-green-1.json`, SHA-256
-`963b0667b7e312c34ead6d131577932fcf71f72204f692501cb604a0dd89f24f`,
+Medição anterior à decisão: execução histórica,
 registra o estado exato e 13 testes verdes/5 falhas; todas as falhas são
 traces ausentes em filter com origem externa ao call ou detached.
 `call_dispatch.rs:1344-1354` retorna o resultado do dispatcher de coleções
@@ -620,12 +612,10 @@ sucessora antes da nova implementação, sem apagar o primeiro resultado.
 
 ### Medição anterior à decisão
 
-O recibo A/B `00_nucleo/diagnosticos/p1321-ab2-candidate.json`, SHA-256
-`d1699b5ae42327c7ba7254f5f1f2830453d0cd225fce8f79807cf329aa2a1a25`,
+O registro A/B histórico,
 conserva a falha R1: missing source tem a mensagem esperada, mas a âncora
 abrange só a lista de argumentos, inclusive alias/With/Args/sink/map.
-O baseline R2 (`p1321-r2-baseline.json`, SHA-256
-`8ca670bb4ab656a29667abd67fc06bc4d227a3dcc0afa9330a5e9ad49537f065`)
+O baseline R2 (
 registra HEAD, árvore não commitada, diff/stat e UTC com os dois owners.
 No código anterior, call_dispatch.rs:398 usa args_node.span(); :455–487
 transporta a chamada apenas para os três encoders e panic; :1630 dispõe
@@ -664,8 +654,7 @@ em mapeamento em fluxo contínuo ADR-0127, não mudança de contrato público.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1334-baseline-public.json`, SHA-256
-`bb1e8dde73ba8ae771b72d5c2e344092d797b0a6cf89c9418fa3c553503631aa`,
+A medição histórica
 registra HEAD/árvore/UTC/binários e missing em calc.abs, With vazio e
 `$std.calc.abs()$`. `01_core/src/compiler/eval/call_dispatch.rs:398,455-487,1634`
 tem a AST/helper seletivo, mas não inclui abs. Vanilla ratificado a51e02804,
@@ -754,7 +743,7 @@ intacto: `call_dispatch.rs:1007,1541` converge a forma estática e ligada em
 eval_location_method; `:1725-1755` lê position_of/page_numbering. O método
 page projeta apenas a página; position inclui página e coordenadas;
 page-numbering devolve Numbering cru, inclusive Func sem executar callback.
-Proveniência no recibo de integração de observações P1339.
+Proveniência no registro de integração de observações P1339.
 
 Registrar a operação efetiva com receiver Location, span disponível e
 resultado da projeção, incluindo seus defaults atuais. O helper privado
@@ -775,16 +764,15 @@ diferenças conhecidas; novas tentativas ficam restritas ao escopo aprovado.
 ### Medição anterior à decisão
 
 HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não commitada,
-registrada em `diagnosticos/p1339-array-prerequisite-measure-r2.json`:
+registrada na medição histórica:
 `call_dispatch.rs:1791-1830` não contém Type::Array e devolve diagnóstico
 no span do callee. Vanilla ratificado a51e02804,
 `foundations/array.rs:164-169,1176-1179`, aceita Bytes e preserva cada byte.
-A ausência impede os oráculos públicos identificados pelo parecer
-`diagnosticos/p1339-verifier-array-prerequisite-gap-r1.json`.
+A ausência impede os casos públicos identificados pela medição histórica.
 
 ### Decisão estreita
 
-O dono autorizou `diagnosticos/p1339-array-authorization.md`. Após avaliar
+O dono autorizou a mudança. Após avaliar
 callee e todos os argumentos exatamente uma vez pelo caminho vigente,
 o match fechado de Value::Type pode delegar Type::Array para
 `stdlib::native_array_bytes` somente se o primeiro positional é Value::Bytes.
@@ -828,7 +816,7 @@ alterar spans, executar callbacks adicionais ou afetar o build normal.
 
 ### Medição anterior à decisão
 
-`diagnosticos/p1342-topology-audit-r1.md` mede o braço real
+A medição histórica registra o braço real
 `FuncRepr::With(Arc<(Func, Args)>)` e sua recursão para o `inner`; não existe
 um segundo Func chamado `func.body`.
 

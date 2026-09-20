@@ -1,5 +1,13 @@
 # Passo 1397 — `repr` canônica de classe e estilo matemáticos
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Objetivo e regime
 
 Corrigir duas projeções morfológicas gerais no owner
@@ -19,15 +27,15 @@ Estado causal observado em `2026-09-14T16:55:44-03:00`: HEAD limpo
 `c5af9f2af02bd830ec223f777a8d144356b03597`, `git status --short` e
 `git diff HEAD --stat` vazios. Identidades:
 
-- L0 anterior `00_nucleo/prompts/compiler/eval/repr.md`, SHA-256
-  `8ea0603d3de6efd00a231921754edce7f97169e7057a7851c36439e282fe942e`;
-- consumer `01_core/src/compiler/eval/repr.rs`, SHA-256
-  `ec9b82070b73b5a3cb4e3dd711f6236a94f6fec449934cf3f0934939ac8362ce`;
+- L0 anterior `00_nucleo/prompts/compiler/eval/repr.md`, identificador administrativo
+  [dado administrativo removido];
+- consumer `01_core/src/compiler/eval/repr.rs`, identificador administrativo
+  [dado administrativo removido];
 - binário vanila ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-  SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`;
-- binário cristalino baseline, SHA-256
-  `f61dc66b40c76ec796b3ae569f4cdafdded5e38b20056054825aa3d1fbb88474`.
+  identificador administrativo
+  [dado administrativo removido];
+- binário cristalino baseline, identificador administrativo
+  [dado administrativo removido].
 
 Sondas seriais sob `ulimit -v 524288` e timeout de 60 s mediram no vanila:
 
@@ -51,7 +59,7 @@ descartado, sem uso decisório.
 A fonte ratificada fixa a intenção: `math/op.rs:49-54` constrói `dif`/`Dif` com
 `ClassElem(Unary, upright(...))`; `math/mod.rs:141-149` declara `class` e
 `body`; `foundations/content/mod.rs:626-640,759-788` define a repr por campos e
-a forma opaca de todo StyledElem. Os SHA-256 dessas fontes constam no contrato
+a forma opaca de todo StyledElem. Os identificador administrativo dessas fontes constam no contrato
 P1397. Assim a decisão mede língua antes de escolher mecânica (ADR-0108).
 
 ## Decisão e delta autorizado

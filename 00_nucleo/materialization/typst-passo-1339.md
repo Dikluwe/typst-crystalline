@@ -1,5 +1,13 @@
 # Passo 1339 — fechar 10 rotas públicas fundamentais ausentes
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 ## Estado do passo
 
 - **Tipo:** materialização semântica de paridade.
@@ -19,12 +27,12 @@ não-`math` que permaneceram ausentes no inventário P1335. Os dois lotes
 seguintes são sucessores explícitos e não podem ser antecipados aqui.
 
 **Retificação autorizada em 2026-09-09:** após a sonda e a revisão registradas
-em `diagnosticos/p1339-preflight-blocker.md` e
-`diagnosticos/p1339-review-preliminary.md`, o dono autorizou corrigir a
+em relatório consolidado da limpeza e
+relatório consolidado da limpeza, o dono autorizou corrigir a
 obrigação de ângulos e continuar. `angle.deg`/`angle.rad` são conversões
 `Angle → float`, não os construtores numéricos internos Rust. O texto
 anterior foi preservado em
-`diagnosticos/p1339-step-before-angle-retification.md`; os recibos anteriores
+relatório consolidado da limpeza; os recibos anteriores
 mantêm seus hashes e a natureza focal/histórica. As dez rotas e os demais
 gates não foram reduzidos.
 
@@ -87,8 +95,8 @@ Registrar:
 - UTC inicial e final;
 - HEAD, branch e `git status --short` integral;
 - `git diff HEAD --stat` e hashes de todos os arquivos tracked modificados;
-- caminhos e SHA-256 dos binários vanilla e cristalino usados;
-- SHA-256 da matriz P1335 e dos artefatos P1338 tomados como antecedente;
+- caminhos e identificador administrativo dos binários vanilla e cristalino usados;
+- identificador administrativo da matriz P1335 e dos artefatos P1338 tomados como antecedente;
 - comandos completos e canais integrais, sem resumir stderr;
 - `file:line` do owner atual de descoberta, semântica, dispatch e diagnóstico
   para cada família;

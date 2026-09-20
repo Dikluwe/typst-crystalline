@@ -1,5 +1,13 @@
 # Passo 1407 — expandir `repeat` na parcela horizontal fracionária
 
+> **Nota de preservação (limpeza de 2026-09-19):** este passo é mantido como
+> registro histórico. Menções a selos, recibos, certificados, manifests, hashes
+> administrativos, papéis de agentes e gates do protocolo revogado não criam
+> requisitos vigentes. Os artefatos removidos foram consolidados em
+> relatório consolidado da limpeza; o comportamento normativo
+> permanece nos Prompts L0 e nos testes funcionais atuais.
+
+
 **Estado:** implementado e verificado no recorte.
 
 ## Objetivo
@@ -13,17 +21,17 @@ de o destino interno ser selado em `FrameItem::Link`.
 
 - HEAD inicial: `ed7340ada45ea16f1561c20a35eb9887b433e6a4`.
 - Referência vanila: `586e1bd43fae6c9a973218163d3165c53ab8d16d`.
-- Binário cristalino: `target/debug/typst`, SHA-256
-  `c64958da6386a012dcde83678f44917ac7af7b03b10db7b2223a4a2abc249d28`.
-- Binário vanila: `lab/typst-original/target/release/typst`, SHA-256
-  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+- Binário cristalino: `target/debug/typst`, identificador administrativo
+  [dado administrativo removido].
+- Binário vanila: `lab/typst-original/target/release/typst`, identificador administrativo
+  [dado administrativo removido].
 - Medição: `2026-09-15T11:47:20-03:00`.
 - Working tree inicial: somente três fixtures novas em
   `lab/parity/corpus/p1407/`; `git diff HEAD --stat` vazio.
 - Hashes das fixtures:
-  - `repeat.typ`: `4242ed2345e44d8babc48ac7f51b5dd174804944bec67ffa746fad6487b9e90a`;
-  - `outline.typ`: `0de527c4ae84e84a164656ff1a346b1f29cae4b106cbe6eace700e5c205264ef`;
-  - `narrow.typ`: `58ce5ae0af11ad2c3f69b1edcde54e8a4643c5ddea33a370c82af718b3f8158d`.
+  - `repeat.typ`: [dado administrativo removido];
+  - `outline.typ`: [dado administrativo removido];
+  - `narrow.typ`: [dado administrativo removido].
 
 ## Medição antes da decisão
 
@@ -109,8 +117,8 @@ Fontes medidas antes da classificação:
 - Estado final medido em `2026-09-15T11:59:25-03:00`, ainda sobre HEAD
   `ed7340ada45ea16f1561c20a35eb9887b433e6a4` e working tree não commitado
   descrito por `git diff HEAD --stat`.
-- Binário cristalino final: SHA-256
-  `c918782129918da37052305def5cb5b0c4093806bcb622536b8e39712647ab2c`.
+- Binário cristalino final: identificador administrativo
+  [dado administrativo removido].
 - O owner `repeat.rs` registra somente peças inline finitas e multiplica clones
   por translação, sem reavaliar o body ou duplicar estado da linguagem.
 - Cursor desloca primeiro o suffix, usa a parcela fracionária exata quando ela

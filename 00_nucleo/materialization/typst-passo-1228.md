@@ -172,7 +172,7 @@ Atualizar:
 - `p1228-pre-svg-paint-sondas.tsv`;
 - `p1228-pre-svg-paint-ataques.tsv`;
 - `p1228-pre-svg-paint-resultados.tsv`;
-- `typst-p1228-pre-svg-paint-loss.md`;
+- `[artefato protocolar removido]`;
 - `dsm/typst-correspondencias-v1.toml`;
 - `p1213-fila-implementacao.tsv`.
 

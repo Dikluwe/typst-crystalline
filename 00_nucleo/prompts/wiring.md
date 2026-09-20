@@ -162,7 +162,7 @@ Fora dos passos 113–122:
 
 ### Medição anterior à decisão
 
-O recibo `diagnosticos/p1362-watch-status-preflight.md` registra que o vanila
+A medição histórica registra que o vanila
 possui quatro corpos de status em stderr e que o ciclo cristalino não os emite.
 `run_compile_observed` já detém a coleção tipada de warnings, mas devolve apenas
 exit e dependências. O formatter puro P1361 já existe em L2.
@@ -191,7 +191,7 @@ publicação, abandono, dependências ou eviction.
 
 ### Medição e decisão
 
-`diagnosticos/p1363-watch-timestamp-preflight.md` mede o envelope vanila
+A medição histórica registra o envelope vanila
 `[{hora local em %H:%M:%S}] {corpo}`. L4 declara a dependência `time` já pinada
 no workspace. P1363 introduziu dois helpers privados:
 
@@ -217,7 +217,7 @@ permanecem fora.
 
 ### Medição e decisão
 
-`diagnosticos/p1364-watch-spacing-preflight.md` mede em
+A medição histórica registra em
 `lab/typst-original/crates/typst-cli/src/watch.rs:97-109` que a mensagem já
 termina com uma quebra e que estados diferentes de `Compiling` recebem uma
 segunda quebra. O cristalino P1363 usa uma única `eprintln!` para todas as
@@ -241,7 +241,7 @@ toda mecânica do watcher permanecem fora. Nenhuma API pública muda.
 
 ### Medição e decisão
 
-`diagnosticos/p1365-watch-timer-boundary-preflight.md` mede que o vanila
+A medição histórica registra que o vanila
 ratificado captura o marcador monotônico antes de formar e emitir o status
 `Compiling`, enquanto o cristalino P1364 o captura depois. Como a duração
 resultante integra a mensagem pública de sucesso, a fronteira é observável;
@@ -264,7 +264,7 @@ muda.
 
 ### Medição e decisão
 
-`diagnosticos/p1366-watch-diagnostic-order-preflight.md` mede que o vanila
+A medição histórica registra que o vanila
 emite `Success`, `PartialSuccess` ou `Error` antes de apresentar warnings e
 errors. No cristalino P1365, `run_compile_observed` apresenta os diagnósticos
 antes de retornar, e `run_watch` só então emite o status terminal.
@@ -286,7 +286,7 @@ opt-in e toda mecânica do watcher permanecem fora. Nenhuma API pública muda.
 
 ### Medição e decisão
 
-`diagnosticos/p1367-watch-flush-preflight.md` mede que o vanila chama
+A medição histórica registra que o vanila chama
 `flush()` depois de formar cada status, enquanto o cristalino P1366 usa
 `eprint!` sem fronteira explícita observável. O flush é relevante porque o
 status `Compiling` deve chegar ao utilizador antes de uma compilação longa.
@@ -323,12 +323,10 @@ warning experimental medido no vanilla. Não traduz HTML para páginas/SVG/PDF.
 
 `04_wiring/src/main.rs:388–392` emite apenas a headline, enquanto
 `lab/typst-original/crates/typst/src/lib.rs:249–256` constrói headline e três
-hints. A medição fresca em `00_nucleo/diagnosticos/p1323-baseline.json`, SHA-256
-`8abba2b5f0e3280b4632e4d3bec1db6c2c7a8ee55ab3e9bc9d0d44f197eaa897`,
+hints. A medição fresca,
 registra os quatro perfis, saídas completas e fonte, HEAD
 `d31047d7b8af7837c84adae4ded3d2ff50c62093` com working tree não commitado
-e diff integral. O alvo é upstream `a51e02804`, binário SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
+e diff integral. O alvo é upstream `a51e02804`, binário.
 HTML habilitado produz o warning com os três hints no vanilla e somente a
 headline no cristalino. O formato HTML não ativa a feature quando ausente.
 
@@ -366,7 +364,7 @@ Rust do literal é mecânica. A intenção é a promessa específica deste L0.
 É inferência que a emissão fixa basta em um owner: formatter/API adicional,
 dados irrecuperáveis, outro consumer causal ou mudança de fase refutam essa
 suficiência e obrigam a reabrir o escopo antes de código. Correção interna
-ADR-0127 em fluxo contínuo, L0-first + resselo + RED→GREEN + revalidação.
+ADR-0127 em fluxo contínuo, L0-first + revalidação + RED→GREEN + revalidação.
 Aceitação inclui testes positivos, ausência com feature desligada, repetição
 e inversão, preservação dos artefatos e controles de outros formatos. Unknown
 obrigatório não é sucesso. Não inferir paridade HTML global deste warning.
@@ -495,14 +493,9 @@ existe no filesystem. Os demais comandos mantêm a resolução pelo `World`.
 
 ### Medição anterior à decisão
 
-`00_nucleo/diagnosticos/p1327-cli-candidate.json`, SHA-256
-`3940e04d86b519b248f57e3711f815726a9648b005df532146b9496c8df3a317`,
-registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`, working tree
-não commitado com diff/stat, UTC, comando e binário C1
-`5f00502b5055fedf8ca1dc2c879112ac1300e12621e11fdb2c731364450a62f9`.
-O corpus integral `p1327-ab-cli-candidate.json` em diagnosticos, SHA-256
-`6ffa5fc5ce6925eb0c85e40749adff5d1688ce006fe2400cdad3a4edeb47fafe`,
-tem 24 diferenças: somente dois casos com warning de import e erro posterior,
+A campanha bilateral registra HEAD `d31047d7b8af7837c84adae4ded3d2ff50c62093`,
+working tree não commitado com diff/stat, UTC e comando. O corpus integral tem
+24 diferenças: somente dois casos com warning de import e erro posterior,
 nos quatro perfis e três ordens. Exit, stdout e cada bloco diagnóstico são
 iguais; C1 imprime warning antes do erro, enquanto o vanilla ratificado
 `a51e02804` imprime erro antes do warning. Os oráculos não foram alterados.
@@ -511,10 +504,8 @@ iguais; C1 imprime warning antes do erro, enquanto o vanilla ratificado
 `:510-520` só depois imprime os errors. No vanilla,
 `lab/typst-original/crates/typst-cli/src/eval.rs:64-81` coleta errors, e
 `typst-cli/src/compile.rs:727` os apresenta antes dos warnings. A revisão
-`00_nucleo/diagnosticos/p1327-review-cli-failure.md` refuta a suficiência
-do owner modules para o transcript completo. O estado anterior a esta
-sucessão está em `p1327-r2-baseline.json` em diagnosticos, SHA-256
-`84056881f6481305cd530532849bf470837bbc966c4f7fd138b0094c46954b3e`.
+funcional refuta a suficiência do owner modules para o transcript completo;
+o estado anterior é o HEAD registrado acima.
 
 ### Decisão e aceitação
 
@@ -628,7 +619,7 @@ não inspeciona seletores e não duplica fases do compilador. Falha de leitura o
 compilação retorna exit 1 pelos diagnósticos normais; erro de parsing CLI segue
 exit 2 em L2. O fio público aguarda confirmação ADR-0127.
 
-## P1462 — preservar ausência de `pretty` no braço SVG (MATERIALIZADO E CERTIFICADO)
+## P1462 — preservar ausência de `pretty` no braço SVG (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -653,7 +644,7 @@ set rules e não formata SVG.
 
 A mudança de default observável no caminho SVG e a chamada de API nova foram
 confirmadas pelo humano em 2026-09-19, depois do commit causal P1462, e a
-materialização foi certificada no mesmo dia.
+materialização foi validada no mesmo dia.
 
 ## P1463 — transportar ausência/valor de `ppi` somente ao braço PNG (PROPOSTO; gate ADR-0127)
 
