@@ -21,3 +21,10 @@ execução.
 Temporários são exclusivos e processos têm timeout finito. A aceitação usa
 semântica, morfologia, diagnósticos, geometria e DOM; não usa catálogos de
 mutantes, autoria, ordem de agentes, confirmações, registros ou hashes de implementação.
+
+## P1466 — export PNG não pode mascarar OOM
+
+O caso black-box de PNG default exige sucesso, IHDR semanticamente correto e
+processo dentro do limite de memória. O default documental 144 PPI corresponde
+a 2 pixels por ponto; não comparar bytes comprimidos nem aceitar ausência de
+arquivo, signal ou timeout como resultado esperado.

@@ -1099,3 +1099,37 @@ A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20. A
 API tri-state, a consulta documental e a decisão única para HTML/`html.frame`
 foram materializadas e cobertas por testes focais e funcionais.
+
+## P1466 — estabilização PNG e preservação de `page-numbering` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Retificação da unidade PNG
+
+A regra P1463 que entregava o PPI documental diretamente a
+`RenderOptions::pixel_per_pt` fica superada. A semântica pública é pixels por
+polegada para as duas origens e a pipeline resolve uma única vez:
+
+```text
+effective_ppi = ppi_override.unwrap_or(document.format_options.png.ppi)
+pixel_per_pt  = effective_ppi / 72.0
+```
+
+O resultado convertido para `f32` alimenta o mesmo `RenderOptions` nos ramos
+com e sem fontes. `144` documental e `--ppi 144` produzem as mesmas dimensões;
+o override explícito continua vencendo. Uma página A4 default mede
+`1191 × 1684` pixels, não `85720 × 121232`. Zero e valores negativos finitos
+continuam sob a política segura já materializada no rasterizador.
+
+### Valor contextual de `location.page-numbering()`
+
+Em 2026-09-20, no pin `586e1bd43`, o probe com numbering closure e
+`#context repr(here().page-numbering())` produziu `(..) => ..`. O cristalino
+deve preservar `Numbering::Func` no snapshot injetado durante a estabilização
+e devolver a própria `Value::Func` ao contexto; o conteúdo já realizado da
+margem é uma vista separada e não substitui esse valor. Corrigir o primeiro
+ponto de perda comprovado sem executar relayout adicional, duplicar callback
+ou fabricar a string de repr.
+
+Aceitação exige o callback visível na margem e sua repr contextual
+`(..) => ..`, além dos quatro caminhos PNG que antes abortavam. Esta mudança
+do default PNG requer confirmação posterior ao commit causal conforme
+ADR-0127.

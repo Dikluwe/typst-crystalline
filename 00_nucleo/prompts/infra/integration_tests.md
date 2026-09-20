@@ -46,3 +46,16 @@ o transporte alterando expectativas, fixtures ou layout produtivo.
 - temporários são removidos;
 - testes passam sem mudar contratos produtivos para acomodar mecânica do
   observador.
+
+## P1466 — fixtures de cor e cercas invertidas
+
+Fixtures geométricas usam valores públicos de cor (`red`, `blue`, `black`),
+não strings com esses nomes. A retificação deve permitir que os testes de
+rect, ellipse e rotate alcancem as asserções originais de operadores,
+geometria e transformação; não trocar os observáveis nem aceitar erro de cast.
+
+O witness `sec_22.typ` preserva os dois pares de brackets, normal e invertido.
+Coletar `base_char`, `glyph_id` e avanço dos quatro itens e exigir mesma
+variante vertical por caractere quando o papel posicional muda. Esse teste
+protege a correção do owner `compiler/math/layout/delimited.md` e não requer
+estrutura `MathDelimited`.

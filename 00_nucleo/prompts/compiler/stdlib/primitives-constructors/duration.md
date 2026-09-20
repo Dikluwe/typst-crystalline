@@ -39,3 +39,11 @@ essa superfície; apenas individualiza seu owner.
 
 Cobrir zero, componentes de string, fração, sinal, componentes nomeados,
 negativos, tipos inválidos, mistura de formas e ordem/sufixo inválidos.
+
+## P1466 — aritmética `i128` sem comparação impossível
+
+Depois de somar os oito componentes em `i128`, não comparar `total` com
+`i128::MIN/MAX`: todo valor já representado satisfaz esse intervalo. Remover
+somente as comparações impossíveis apontadas pelo Clippy. Não estreitar a
+aritmética, não alterar parsing, unidade, sinal, diagnóstico ou
+`Duration::from_nanos`.

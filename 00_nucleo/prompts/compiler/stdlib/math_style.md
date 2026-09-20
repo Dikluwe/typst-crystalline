@@ -174,3 +174,11 @@ O hint é campo separado. Outro named continua `unexpected argument: <nome>`;
 Kind, body, cramped, defaults, ordem de avaliação, morfologia e layout não
 mudam. O helper continua comum; não duplicar wrappers nem estender a exceção a
 outra identidade.
+
+## P1466 — validação named sem loop fictício
+
+Quando qualquer named é inválido, selecionar explicitamente a primeira chave
+na ordem vigente e devolver o mesmo diagnóstico. `cramped` continua a única
+exceção nas identidades autorizadas; `body:` de `mono`/`script` conserva span e
+hint próprios. A alteração não reordena named, não aceita extras e não muda
+kind, body ou composição.

@@ -10,8 +10,8 @@ Hash do Código: 900e0f1b
 Este consumer é exclusivamente de teste e materializa o contrato A/B validado
 do P1423 sem possuir código produtivo. Deve provar:
 
-- superfície exata de 43 bindings, sem `html.frame`, preservando os 69
-  anteriores;
+- conjunto exato dos 43 bindings P1423, disjunto dos 69 anteriores;
+- módulo corrente com `elem`, os 112 constructors tipados e `frame` de P1424;
 - partição disjunta de body em 10 void, 2 raw e 31 content;
 - omissão/body fornecido e rejeições de tipo para as três classes;
 - casts representativos de globais, específicos, Presence, limites, enums,
@@ -22,6 +22,10 @@ do P1423 sem possuir código produtivo. Deve provar:
 O teste importa o módulo pai apenas sob `cfg(test)`. Não redefine contrato de
 produto, não legitima implementação produtiva e não amplia o escopo para
 `html.frame`, CSS, MathML ou comportamento de browser.
+
+`frame` não pertence ao conjunto P1423, mas pertence ao módulo atual por
+P1424. O teste deve provar simultaneamente essas duas afirmações e nunca voltar
+a exigir ausência global de `html.frame`.
 
 ## Proveniência
 

@@ -735,3 +735,11 @@ omissão e `none` explícito diferem.
 Registrar `math.undershell`; a nativa avalia uma vez, aplica casts e
 diagnósticos medidos e constrói `Content::MathUndershell` com presença causal.
 Não criar U+23E1 nem executar layout aqui.
+
+## P1466 — seleção explícita do primeiro named inválido
+
+Nos validators que devolvem erro incondicional na primeira chave named, usar
+`keys().next()` em vez de um loop que nunca itera além da primeira entrada.
+Ordem de diagnóstico, mensagem, span e hint permanecem idênticos; named vazio
+continua sem erro e nenhum argumento passa a ser aceito. Esta é correção
+mecânica de análise estática, não mudança de assinatura matemática.

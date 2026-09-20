@@ -959,3 +959,14 @@ O cristalino não possui repr próprio; o vanilla imprime
 
 Projetar `MathUndershell` como `undershell(body: <content>, annotation?:
 <content-ou-none>)`, nessa ordem; nesting preserva identidade.
+
+## P1466 — filho estruturado de `math.vec`
+
+Quando `MathVec.children` contém uma variante estruturada, o formatter recorre
+à repr pública vigente dessa variante. Em particular, `MathFrac` com linha é
+`frac(num: [a], denom: [1])`; não restaurar a sintaxe mecânica antiga
+`(a)/("1")`. Folhas matemáticas diretas continuam projetadas como conteúdo e
+markup não é duplicado.
+
+O teste deve comparar a morfologia canônica completa do vec, incluindo
+`strong(body: [b])` e `[quoted]`, sem congelar Debug Rust ou árvore interna.

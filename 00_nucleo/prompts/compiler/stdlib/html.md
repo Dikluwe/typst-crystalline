@@ -873,3 +873,11 @@ não na identidade construída. Feature off continua rejeitando o módulo.
 
 Esta adição é contrato público e compatibilidade. Foi confirmada explicitamente
 pelo dono em 2026-09-16; a materialização deve respeitar o escopo de P1424.
+
+## P1466 — oráculos históricos não negam sucessores
+
+Os testes P1168 continuam a provar que os doze bindings do primeiro lote
+existem, sem afirmar que o módulo atual termina nesse lote. `html.frame` foi
+materializado por P1424 e sua presença é obrigatória no módulo corrente. A
+retificação remove somente o negativo obsoleto; contagens e partições próprias
+dos constructors tipados continuam exatas.

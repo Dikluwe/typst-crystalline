@@ -4,7 +4,7 @@ Hash do Código: 52688f39
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** P1461–P1465 MATERIALIZADOS.
+**Estado:** P1461–P1465 MATERIALIZADOS; P1466 ESTABILIZAÇÃO PROPOSTA.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -255,9 +255,10 @@ proibida, reutilização dos cinco membros e gate de presença. Não legitima
 serialização pretty, PDF/A ou PDF/UA. Os passos que completam esses eixos são:
 
 - P1465: `format.html` e membros;
-- P1466: `tagged` e `pretty` de ponta a ponta;
-- P1467: `pages` e `--pages`;
-- P1468: `standard`, `--pdf-standard` e conformidade real.
+- P1466: estabilização da baseline e retificação da unidade PNG;
+- P1467: `tagged` e `pretty` de ponta a ponta;
+- P1468: `pages` e `--pages`;
+- P1469: `standard`, `--pdf-standard` e conformidade real.
 
 Nos perfis `default`, `a11y-extras`, `html` e `html+a11y`, exigir tipo/nome,
 os quatro defaults exatos, alias/`std`, rejeição da chamada direta, igualdade
@@ -268,7 +269,7 @@ Não dar crédito a opção documental ainda não transportada nem converter
 A confirmação humana explícita posterior ao commit causal P1464 foi recebida
 em 2026-09-20. Implementação e teste independente partiram desse baseline; o
 teste passou de RED (`1/4`) para GREEN (`4/4`) sem ampliar o recorte dos passos
-P1465–P1468.
+P1465–P1469.
 
 ## P1465 — `format.html`, `pretty` e membros reutilizados (MATERIALIZADO)
 
@@ -332,3 +333,10 @@ Aceitação cobre os quatro perfis, os 114 pares, alias/`std`/`.with`, gate,
 default e construção proibida. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20;
 o teste funcional passou de RED (0/4) para GREEN (4/4).
+
+## P1466 — deslocamento explícito do roadmap
+
+P1466 não acrescenta membro a `format` e não reabre as identidades já
+materializadas. A estabilização ocupa este número; os eixos PDF ainda não
+materializados passam a P1467–P1469 conforme a lista acima. Os registros
+históricos P1464/P1465 permanecem factualmente intactos.

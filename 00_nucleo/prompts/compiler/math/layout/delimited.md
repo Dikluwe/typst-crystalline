@@ -89,3 +89,19 @@ conservar geometria natural. No `lr` mais próximo, reutilizar a meta vertical
 do exterior, incluindo `size` explícito/cascata e short-fall `0.1em`; não
 calcular alvo independente nem atravessar `lr` interior. Aceitação usa
 witnesses para fora/dentro, `100%`, `150%`, `2em` e nesting.
+
+## P1466 — cercas invertidas de `MathLr`
+
+No corpus `sec_22.typ`, o último grupo é `lr(\]a/b\[)`: a primeira cerca é
+U+005D e a última é U+005B. O carrier público P1436 preserva essas cercas como
+itens posicionais no body; exigir `MathDelimited` apaga esse caso.
+
+Ao resolver `MathLr`, classificar o primeiro e o último item cercável pela
+posição no grupo, não apenas pela classe Unicode natural Opening/Closing. A
+primeira cerca recebe o papel de abertura e a última o de fechamento, mas
+`base_char`, variante extensível, avanço e ordem continuam pertencendo ao
+caractere original. Reutilizar a mesma meta vertical do par normal; não baixar
+para `MathDelimited`, trocar os caracteres, criar texto ou alterar `math.mid`.
+
+Aceitação coleta os quatro brackets dos pares normal e invertido e prova que
+cada caractere seleciona a mesma variante vertical/avanço quando muda de papel.

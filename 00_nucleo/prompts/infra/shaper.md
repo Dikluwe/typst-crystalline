@@ -963,3 +963,15 @@ fallback ou outra feature OpenType.
 
 TextItem em script não recebe `.st/.sts`; glifos e números continuam a
 recebê-la. Família, posições, tamanho e shaping não-`ssty` permanecem iguais.
+
+## P1466 — índice local denso e slot global no fallback
+
+`CandidateSet::covering_all` devolve índices no vetor local de candidatos.
+Depois de P1404, esse índice não é o slot global de `FontBook`; o consumer deve
+resolver o candidato local e então observar seu slot/fonte associado. O teste
+de coverage mantém três slots globais, torna apenas o slot 1 elegível e exige
+que o único candidato local resolva para esse slot, sem exigir que o índice
+local seja numericamente `1`.
+
+Não enfraquecer a prova para mera cardinalidade: carregar o slot errado deve
+continuar falhando.

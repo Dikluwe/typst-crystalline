@@ -85,7 +85,7 @@ documento externo.
 - `format.svg`, `format.png`, `format.pdf` e seus defaults permanecem;
 - o módulo global `html` e os 114 membros não são reconstruídos nem alterados;
 - gates `pdf.*`/`format.pdf.*` continuam ortogonais a `html`;
-- PDF mantém a resolução vigente até P1466; PNG ignora pretty; SVG usa sua
+- PDF mantém a resolução vigente até P1467; PNG ignora pretty; SVG usa sua
   própria opção documental;
 - os modos de serialização HTML Crystalline/Vanilla conservam seus escapes;
 - bundle, novas tags, target novo e paridade HTML geral ficam fora.

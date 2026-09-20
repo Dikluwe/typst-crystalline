@@ -176,3 +176,11 @@ Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um caso
 40↔8 cujo segundo wrapper também altera `fill` deve continuar opaco, provando
 que a validação não ignora deltas compostos. Preservar P1391, P1390, P1389
 e P1388; não inspecionar carrier ou arm privados.
+
+## P1466 — `cases` conserva align points até o layout
+
+O vanilla ratificado aceitou em 2026-09-20 a fixture
+`$ cases(x &, 0 &) $`. O teste vigente deve permanecer e alcançar layout com
+os dois `MathAlignPoint`; não substituir por `cases(x, 0)` nem capturar o panic
+como sucesso. A correção causal pertence ao eval matemático, enquanto este
+consumer continua verificando documento não vazio e ausência de panic.

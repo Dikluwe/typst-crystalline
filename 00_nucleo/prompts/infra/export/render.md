@@ -106,3 +106,12 @@ matriz chega como `Square`; stroke customizado conserva o cap escolhido.
 Este L0 não altera `FrameItem::Shape`, SVG, PDF nem outros targets. Aceitação
 mede endpoints/pixels suficientes para distinguir Butt de Square numa linha
 determinística e confirma que uma linha legada Butt não mudou.
+
+## P1466 — unidade recebida pelo rasterizador
+
+`RenderOptions::pixel_per_pt` é escala física em pixels por ponto e conserva
+default interno `2.0`. O exporter não recebe PPI, não lê CLI nem consulta
+`DocumentFormatOptions`; a pipeline entrega a escala já resolvida. Antes de
+alocar, dimensões continuam limitadas pela política segura vigente. Aceitação
+usa largura/altura do IHDR e nunca bytes comprimidos ou uma alocação gigante
+como observável.

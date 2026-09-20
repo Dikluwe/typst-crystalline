@@ -758,3 +758,10 @@ CLI, bytes serializados nem handles de exporter.
 documento. `Page`, `PageConfig`, frames, geometria e plain text não mudam.
 Trata-se de campo público. A mudança foi aprovada explicitamente e materializada
 em 2026-09-19.
+
+## P1466 — metadado de depreciação válido
+
+O atributo de `FrameItem::Text` usa uma versão semver válida em `since`; a
+mensagem e o status deprecated permanecem iguais. Esta correção é metadado
+Rust para satisfazer análise estática e não remove a variante, não altera
+fallback, layout, serialização ou API pública da linguagem.

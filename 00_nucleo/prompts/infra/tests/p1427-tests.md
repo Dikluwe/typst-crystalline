@@ -29,3 +29,16 @@ horizontal e isolamento de `binom`.
 
 Este prompt não autoriza código produtivo, equivalência geral do motor
 matemático nem igualdade de bytes de render.
+
+## P1466 — sucessão pelos observadores P1428
+
+Remover deste consumer somente:
+
+- `p1427_reprs_preservam_estilo_explicito_e_omissao`, substituído pela leitura
+  de texto HTML decodificado de P1428;
+- `p1427_parenteses_causais_so_aparecem_no_horizontal`, substituído pela
+  inspeção dos bits causais do carrier avaliado em P1428.
+
+Preservar os quatro testes P1427 de convergência das rotas, dezasseis
+diagnósticos, constantes MATH e isolamento de `binom`. A suíte P1428 é gate
+obrigatório; a sucessão não autoriza comparar bytes SVG nem source spelling.

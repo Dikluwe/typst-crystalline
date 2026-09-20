@@ -300,6 +300,18 @@ Após aprovação ADR-0127, testar que a forma bare preserva
 `fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
 Esses oráculos são congelados antes do candidato produtivo.
 
+## P1466 — oráculos posteriores ao carrier `MathLr`
+
+Os testes P981/P1132r que exercitam `lr(...)` devem localizar o
+`Content::MathLr` público e inspecionar seu body em ordem. Parênteses, chevrons
+e brackets continuam observáveis, mas nenhum teste pode exigir o carrier
+histórico `MathDelimited` depois de P1436. Os casos de `MathDelimited` que não
+passam por `lr` permanecem inalterados.
+
+A retificação conserva asserções discriminatórias: ausência do nome literal
+`lr`, cercas inicial/final corretas, fração presente e ordem do body. Não basta
+trocar a expectativa por qualquer variante ou comparar somente `plain_text`.
+
 ## P1451 — oráculos `math.undershell`
 
 Após aprovação ADR-0127, testar que a forma bare preserva

@@ -694,7 +694,7 @@ SVG/PDF ou inversamente.
 
 No braço `OutputFormat::Html`, chamar a nova entry point L3 de override
 parcial e passar `pretty_override` sem aplicar default. O booleano `pretty`
-vigente continua sendo calculado para o braço PDF até P1466; SVG mantém sua
+vigente continua sendo calculado para o braço PDF até P1467; SVG mantém sua
 rota própria já materializada; PNG ignora pretty. L4 não lê conteúdo, não
 consulta `DocumentFormatOptions`, não interpreta set rule e não formata HTML.
 
@@ -708,3 +708,14 @@ cobre `None`, os dois `Some`, os dois modos de serialização, compile/watch e
 neutralidade PDF/PNG/SVG. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
 braço HTML preserva o tri-state até a pipeline.
+
+## P1466 — transporte PNG permanece em PPI; roadmap PDF deslocado
+
+L4 continua a transportar `ppi: Option<f64>` sem default e sem conversão. A
+correção `/72` pertence exclusivamente à pipeline L3 depois da precedência
+CLI/documento; compile e watch usam a mesma rota. A estabilização P1466 não
+adiciona flag nem muda outros targets.
+
+Como P1466 foi ocupado pela restauração da baseline, a composição documental
+de `format.pdf.tagged/pretty` passa a P1467, pages/`--pages` a P1468 e
+standard/`--pdf-standard` a P1469. Nenhuma dessas opções é antecipada aqui.

@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: a74886c7
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -127,3 +127,15 @@ ortogonalidade SVG/PNG/HTML. Não acrescentar PDF, exporter, feature ou lógica
 de precedência neste owner. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
 novo tipo/campo e seus testes foram materializados.
+
+## P1466 — unidade pública do PNG (PROPOSTA; AGUARDA GATE ADR-0127)
+
+O campo `PngFormatOptions::ppi` continua a representar **pixels por polegada**,
+inclusive no default `144.0`. O carrier preserva o número documental resolvido
+sem conversão, porque a conversão para pixels por ponto pertence à fronteira de
+rasterização em L3. Esta retificação não altera tipo, campo, default, traits ou
+cascata e proíbe reinterpretar o valor como `pixel_per_pt`.
+
+Aceitação mantém os testes de entidade vigentes e acrescenta apenas a prova de
+unidade nos owners de pipeline/export. Nenhum sentinel, wrapper, `Option` ou
+segundo campo de escala é autorizado.

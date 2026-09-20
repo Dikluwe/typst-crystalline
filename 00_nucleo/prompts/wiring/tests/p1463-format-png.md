@@ -8,9 +8,10 @@ Hash do Código: 130ddd7c
 
 Executar o binário cristalino e ler dimensões diretamente do IHDR PNG.
 
-- default documental: 144 pixels por polegada;
-- documento entrega `ppi` diretamente como pixels por ponto;
-- CLI entrega `ppi / 72` e vence a opção documental quando explícita;
+- default documental: 144 pixels por polegada e A4 `1191 × 1684`;
+- documento e CLI convertem o PPI efetivo por `ppi / 72`;
+- CLI vence a opção documental quando explícita;
+- documento e CLI com o mesmo PPI produzem o mesmo IHDR;
 - zero e negativos finitos produzem dimensão mínima segura;
 - integer/float, cascata, regra vazia, diagnósticos e rejeição em container;
 - aliases de compile/watch aceitam a flag somente onde ela é pública;
@@ -22,3 +23,11 @@ Executar o binário cristalino e ler dimensões diretamente do IHDR PNG.
 
 Não comparar bytes comprimidos, metadados, tamanho do arquivo, hashes, scores
 ou artefatos administrativos. Não exercitar NaN ou infinito com risco de OOM.
+
+## Retificação P1466
+
+A assimetria histórica P1463 fica explicitamente superada: ela confundia a
+unidade pública do documento com pixels por ponto e fazia o default A4 tentar
+alocar `41568028160` bytes de RGBA. Os testes devem ler somente IHDR e impor
+dimensões semanticamente derivadas, com timeout e limite de memória; morte do
+processo, ausência de arquivo ou OOM nunca contam como sucesso.

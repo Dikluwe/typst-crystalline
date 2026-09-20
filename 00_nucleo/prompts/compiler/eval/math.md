@@ -653,3 +653,16 @@ o vanilla usa o mesmo elemento nas formas bare e qualificada.
 Construir argumentos math canônicos e delegar ao builder de
 `math.undershell`, preservando ordem, spread, avaliação única e diagnósticos.
 Não criar U+23E1 nem executar layout na avaliação.
+
+## P1466 — `MathAlignPoint` dentro de argumentos de `cases`
+
+Em 2026-09-20, o pin `586e1bd43` aceitou `$ cases(x &, 0 &) $`. Ao avaliar os
+argumentos posicionais de `cases`, um wrapper `Expr::Math` que contenha `&`
+permanece conteúdo matemático e produz `Content::MathAlignPoint` na posição
+original. A tentativa auxiliar de reparse em modo code não pode classificar ou
+descartar esse marcador.
+
+Preservar o constructor comum bare/qualificado, avaliação única, argumentos
+named e diagnósticos P1430. Não fabricar align points no layout, não trocar a
+fixture por uma sem `&` e não generalizar esta correção para sintaxe code que
+não pertence ao corpo matemático.

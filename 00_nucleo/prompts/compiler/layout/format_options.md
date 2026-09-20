@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: 7a7aad94
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -162,3 +162,12 @@ vazia, composição SVG+PNG+HTML, dois containers, tipo interno impossível e
 neutralidade PDF. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
 extração e os testes unitários foram materializados.
+
+## P1466 — preservar PPI, não escala de raster (PROPOSTA; AGUARDA GATE ADR-0127)
+
+`collect_document_format_options` continua a guardar em
+`options.png.ppi` o valor público em pixels por polegada. Este owner não divide
+por 72, não constrói `RenderOptions` e não conhece pontos tipográficos. A
+retificação P1466 corrige exclusivamente o consumer L3 que havia confundido a
+unidade; coleta, precedência, default `144.0`, erro de container e isolamento
+dos formatos permanecem idênticos.

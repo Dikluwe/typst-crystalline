@@ -88,3 +88,10 @@ A ordem `arm → publish/abandon → wait` pertence ao teste de integração L3 
 - Nenhum sucesso mascara warning, erro, output ausente ou processo encerrado.
 - Nenhuma fixture deixa processo de watch ou artefacto temporário vivo.
 - Alterações no harness não legitimam mudanças no produto.
+
+## P1466 — PNG default sob limite
+
+Os casos CLI que compilam PNG sem `--ppi` devem terminar normalmente a 144 PPI
+documentais, produzir IHDR A4 `1191 × 1684` e nunca depender de morte por OOM.
+Aplicar timeout e limite de memória ao subprocesso; ausência de artefato é
+falha. As asserções originais de status, stdout/stderr e assinatura continuam.
