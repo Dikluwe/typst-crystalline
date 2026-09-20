@@ -341,9 +341,9 @@ materializadas. A estabilização ocupa este número; os eixos PDF ainda não
 materializados passam a P1467–P1469 conforme a lista acima. Os registros
 históricos P1464/P1465 permanecem factualmente intactos.
 
-## P1467 — `tagged`/`pretty` de ponta a ponta (PROPOSTA; não altera este consumer)
+## P1467 — `tagged`/`pretty` de ponta a ponta (MATERIALIZADO; não alterou este consumer)
 
-P1467 materializa a validação (`compiler/eval/rules.md`), a extração
+P1467 materializou a validação (`compiler/eval/rules.md`), a extração
 (`compiler/layout/format_options.md`), o carrier
 (`entities/document_format_options.md`) e a resolução de precedência
 (`infra/pipeline.md`, `wiring.md`) de `format.pdf.tagged` e `format.pdf.pretty`.

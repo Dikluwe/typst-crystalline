@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 75b32671
+//! @prompt-hash c967c34f
 //! @layer L4
-//! @updated 2026-06-17
+//! @updated 2026-09-20
 //!
 //! CLI mínima do compilador cristalino — composição thin.
 //!
@@ -49,8 +49,8 @@ use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
-    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization,
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
@@ -649,17 +649,14 @@ fn run_compile_observed(
         typst_infra::export::StreamMode::Verbose
     };
     let pretty_override = pretty;
-    let pretty = pretty_override.unwrap_or(false);
-    let pdf_serialization = if pretty {
-        typst_infra::export::PdfSerializationMode::Pretty
-    } else {
-        typst_infra::export::PdfSerializationMode::Compact
-    };
-    let pdf_tags = match pdf_tagged {
-        Some(true) => typst_infra::export::PdfTags::Enabled,
-        Some(false) => typst_infra::export::PdfTags::Disabled,
-        None if no_pdf_tags => typst_infra::export::PdfTags::Disabled,
-        None => typst_infra::export::PdfTags::Enabled,
+    // **P1467** — preserva a ausência de decisão CLI (`None`) até a pipeline
+    // consultar `#set format.pdf(tagged: ...)` no documento (Núcleo
+    // `format-option-precedence`); só colapsa a precedência **entre as duas
+    // flags de CLI** (`--pdf-tagged` vence o legado `--no-pdf-tags`).
+    let pdf_tagged_override: Option<bool> = match pdf_tagged {
+        Some(explicit) => Some(explicit),
+        None if no_pdf_tags => Some(false),
+        None => None,
     };
     // **P980** — a flag `--oracle-pdf` (bool cru de L2) selecciona a
     // entrada do oráculo de paridade de operador (só afecta PDF).
@@ -674,41 +671,41 @@ fn run_compile_observed(
         OutputFormat::Pdf => {
             if oracle_pdf {
                 let (r, w) =
-                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_serialization(
+                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
                         &world,
                         &source,
                         full_error,
                         document_id,
                         stream_mode,
-                        pdf_tags,
+                        pdf_tagged_override,
                         features,
-                        pdf_serialization,
+                        pretty_override,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
                         &world,
                         &source,
                         full_error,
                         document_id,
                         stream_mode,
-                        pdf_tags,
+                        pdf_tagged_override,
                         features,
-                        pdf_serialization,
+                        pretty_override,
                     );
                 (r, w, t)
             } else {
                 let (r, w) =
-                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
+                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
                         &world,
                         &source,
                         full_error,
                         document_id,
                         stream_mode,
-                        pdf_tags,
+                        pdf_tagged_override,
                         features,
-                        pdf_serialization,
+                        pretty_override,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             }

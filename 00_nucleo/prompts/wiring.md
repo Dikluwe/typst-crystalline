@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: f2666e1f
+Hash do Código: da7e9140
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -720,7 +720,7 @@ Como P1466 foi ocupado pela restauração da baseline, a composição documental
 de `format.pdf.tagged/pretty` passa a P1467, pages/`--pages` a P1468 e
 standard/`--pdf-standard` a P1469. Nenhuma dessas opções é antecipada aqui.
 
-## P1467 — preservar `tagged` e `pretty` no braço PDF (PROPOSTA; gate ADR-0127)
+## P1467 — preservar `tagged` e `pretty` no braço PDF (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -790,6 +790,15 @@ Cobrir: ausência de ambas as flags PDF com documento `auto`/explícito nos
 dois campos (delega à pipeline), `--pdf-tagged`/`--no-pdf-tags`/`--pretty`
 explícitos vencendo documento em ambos os sentidos, `--pdf-tagged` vencendo
 `--no-pdf-tags` quando ambos presentes, compile e watch, e neutralidade de
-PNG/SVG/HTML. Este é um dos quatro L0s do gate ADR-0127 de P1467; aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+PNG/SVG/HTML. Este é um dos quatro L0s do gate ADR-0127 de P1467.
+
+A confirmação humana explícita posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
+Agente A trocou o colapso `pdf_tags`/`pdf_serialization` por
+`pdf_tagged_override`/`pretty_override` no braço `OutputFormat::Pdf` sem ver
+os testes; Agente B escreveu 10 testes de integração de binário a partir do
+mesmo baseline sem ver a implementação. O teste independente passou de RED
+(6/10 — só as precedências CLI puras e o caso onde `auto` já coincidia com o
+default) a GREEN (10/10) após a integração; a suíte de regressão dos irmãos
+(`p1462_format_svg`, `p1463_format_png`, `p1464_format_pdf`,
+`p1465_format_html`) permaneceu 22/22.

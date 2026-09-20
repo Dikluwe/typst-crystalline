@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 7774c898
+//! @prompt-hash f26880e5
 //! @layer L1
-//! @updated 2026-07-22
+//! @updated 2026-09-20
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -1565,6 +1565,79 @@ pub(super) fn eval_set_rule(
             if let Some(ppi) = ppi {
                 *engine.styles =
                     engine.styles.push_custom("format.png.ppi", Value::Float(ppi));
+            }
+            return Ok(Value::None);
+        }
+        if fa.target().to_untyped().text_str() == "format"
+            && fa.field().to_untyped().text_str() == "pdf"
+        {
+            let mut seen_tagged = false;
+            let mut seen_pretty = false;
+            for arg in set.args().items() {
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        target_span,
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                if key != "tagged" && key != "pretty" {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {key}"),
+                    )]);
+                }
+
+                if key == "tagged" {
+                    if seen_tagged {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            "duplicate argument: tagged",
+                        )]);
+                    }
+                    seen_tagged = true;
+
+                    let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    if !matches!(value, Value::Auto | Value::Bool(_)) {
+                        let found = match &value {
+                            Value::Int(_) => "integer",
+                            Value::Str(_) => "string",
+                            Value::Bool(_) => "boolean",
+                            other => other.type_name(),
+                        };
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            format!("expected boolean or auto, found {found}"),
+                        )]);
+                    }
+                    *engine.styles =
+                        engine.styles.push_custom("format.pdf.tagged", value);
+                } else {
+                    if seen_pretty {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            "duplicate argument: pretty",
+                        )]);
+                    }
+                    seen_pretty = true;
+
+                    let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    let Value::Bool(pretty) = value else {
+                        let found = match &value {
+                            Value::Int(_) => "integer",
+                            Value::Str(_) => "string",
+                            Value::Bool(_) => "boolean",
+                            other => other.type_name(),
+                        };
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            format!("expected boolean, found {found}"),
+                        )]);
+                    };
+                    *engine.styles = engine
+                        .styles
+                        .push_custom("format.pdf.pretty", Value::Bool(pretty));
+                }
             }
             return Ok(Value::None);
         }
@@ -3233,4 +3306,287 @@ pub(super) fn eval_show_rule(
     rules.push(ShowRule { id, selector, transform });
     *engine.show_rules = Arc::from(rules);
     Ok(Value::None)
+}
+
+// P1467 (RED — Agente B) — testes do braço `format.pdf` de `eval_set_rule`.
+//
+// `format.pdf` ainda não tem braço estrutural em `eval_set_rule` neste
+// baseline; hoje cai no fallback genérico de target desconhecido
+// (`unsupported_target_warn`, medido em `compiler/eval/rules.md` P1467).
+// Estes testes fixam o contrato do L0 (§P1467) — falham por asserção em
+// runtime (não erro de compilação), porque o campo público
+// `format.pdf.tagged`/`format.pdf.pretty` nunca é inserido em
+// `Styles.delta().custom` hoje.
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::compiler::eval::tests::{eval_for_test, eval_for_test_keep_sink};
+    use crate::contracts::world::World;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
+
+    struct MockWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+
+    impl World for MockWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn mock_world(src: &str) -> MockWorld {
+        let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        MockWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(id, src.to_string()),
+        }
+    }
+
+    fn eval_ok_content(src: &str) -> Content {
+        let world = mock_world(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).expect("eval deveria ter sucesso");
+        module.content().cloned().unwrap_or(Content::Empty)
+    }
+
+    fn eval_err(src: &str) -> Vec<SourceDiagnostic> {
+        let world = mock_world(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &source).expect_err("eval deveria falhar")
+    }
+
+    fn eval_warnings(src: &str) -> Vec<SourceDiagnostic> {
+        let world = mock_world(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let (_, sink) = eval_for_test_keep_sink(&world, &source);
+        sink.into_diagnostics()
+    }
+
+    /// Espelha `styled_custom_bool` de `compiler/eval/tests.rs`, mas
+    /// generalizado a qualquer `Value` e a toda a chain (não só um `Styles`
+    /// isolado): decisões mais internas (mais próximas do conteúdo real,
+    /// logo mais tardias lexicalmente) sobrepõem-se às mais externas.
+    fn collect_custom_into(content: &Content, acc: &mut Vec<(EcoString, Value)>) {
+        match content {
+            Content::Styled(inner, styles) => {
+                for (key, value) in styles.delta().custom.iter() {
+                    if let Some(slot) = acc.iter_mut().find(|(k, _)| k == key) {
+                        slot.1 = value.clone();
+                    } else {
+                        acc.push((key.clone(), value.clone()));
+                    }
+                }
+                collect_custom_into(inner, acc);
+            }
+            Content::Sequence(items) => {
+                for item in items.iter() {
+                    collect_custom_into(item, acc);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn custom_values(src: &str) -> Vec<(EcoString, Value)> {
+        let content = eval_ok_content(src);
+        let mut acc = Vec::new();
+        collect_custom_into(&content, &mut acc);
+        acc
+    }
+
+    fn custom_value<'a>(
+        values: &'a [(EcoString, Value)],
+        key: &str,
+    ) -> Option<&'a Value> {
+        values.iter().find(|(k, _)| k == key).map(|(_, v)| v)
+    }
+
+    #[test]
+    fn p1467_tagged_auto_inserts_value_auto() {
+        let values = custom_values("#set format.pdf(tagged: auto)\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Auto));
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), None);
+    }
+
+    #[test]
+    fn p1467_tagged_true_inserts_value_bool_true() {
+        let values = custom_values("#set format.pdf(tagged: true)\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p1467_tagged_false_inserts_value_bool_false() {
+        let values = custom_values("#set format.pdf(tagged: false)\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p1467_pretty_true_and_false_insert_bool() {
+        let true_values = custom_values("#set format.pdf(pretty: true)\nHello");
+        assert_eq!(
+            custom_value(&true_values, "format.pdf.pretty"),
+            Some(&Value::Bool(true))
+        );
+
+        let false_values = custom_values("#set format.pdf(pretty: false)\nHello");
+        assert_eq!(
+            custom_value(&false_values, "format.pdf.pretty"),
+            Some(&Value::Bool(false))
+        );
+    }
+
+    #[test]
+    fn p1467_tagged_and_pretty_together_use_independent_keys() {
+        let values = custom_values("#set format.pdf(tagged: true, pretty: true)\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Bool(true)));
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p1467_each_field_defined_alone_does_not_touch_the_other() {
+        let only_tagged = custom_values("#set format.pdf(tagged: false)\nHello");
+        assert_eq!(
+            custom_value(&only_tagged, "format.pdf.tagged"),
+            Some(&Value::Bool(false))
+        );
+        assert_eq!(custom_value(&only_tagged, "format.pdf.pretty"), None);
+
+        let only_pretty = custom_values("#set format.pdf(pretty: true)\nHello");
+        assert_eq!(custom_value(&only_pretty, "format.pdf.tagged"), None);
+        assert_eq!(
+            custom_value(&only_pretty, "format.pdf.pretty"),
+            Some(&Value::Bool(true))
+        );
+    }
+
+    #[test]
+    fn p1467_empty_rule_inserts_no_keys() {
+        let values = custom_values("#set format.pdf()\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), None);
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), None);
+    }
+
+    #[test]
+    fn p1467_unknown_named_argument_is_rejected() {
+        let errors = eval_err("#set format.pdf(nope: 1)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains("unexpected argument: nope")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_positional_argument_is_rejected() {
+        let errors = eval_err("#set format.pdf(true)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains("unexpected argument")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_duplicate_tagged_is_rejected() {
+        let errors = eval_err("#set format.pdf(tagged: true, tagged: false)\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("duplicate argument: tagged")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_duplicate_pretty_is_rejected() {
+        let errors = eval_err("#set format.pdf(pretty: true, pretty: false)\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("duplicate argument: pretty")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_tagged_wrong_type_has_auto_aware_message() {
+        // Diverge de propósito da mensagem dos irmãos só-booleanos
+        // (`expected boolean, found <tipo>`): `tagged` aceita `auto` além de
+        // `bool`, logo a forma de dois tipos é sempre errada aqui.
+        let errors = eval_err("#set format.pdf(tagged: 1)\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("expected boolean or auto, found integer")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_pretty_wrong_type_has_boolean_only_message() {
+        let errors = eval_err("#set format.pdf(pretty: 1)\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("expected boolean, found integer")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_generic_unsupported_target_warning_is_not_emitted_for_pdf() {
+        let warnings = eval_warnings("#set format.pdf(tagged: true)\nHello");
+        assert!(
+            !warnings.iter().any(|w| w.message.contains("ainda não suportado")),
+            "o aviso genérico de target não suportado não deve mais alcançar format.pdf: {warnings:?}"
+        );
+    }
+
+    #[test]
+    fn p1467_svg_png_html_set_rules_are_not_regressed() {
+        let svg = custom_values("#set format.svg(pretty: true)\nHello");
+        assert_eq!(custom_value(&svg, "format.svg.pretty"), Some(&Value::Bool(true)));
+
+        let png = custom_values("#set format.png(ppi: 300)\nHello");
+        assert_eq!(custom_value(&png, "format.png.ppi"), Some(&Value::Float(300.0)));
+
+        // `format.html` continua gated pela feature `html` (sem
+        // `Features::Html` neste harness); a regressão a provar é que o
+        // gate por si só continua intacto, não uma reintrodução do gate.
+        let html_errors = eval_err("#set format.html(pretty: true)\nHello");
+        assert!(
+            html_errors
+                .iter()
+                .any(|e| e.message.contains("the `html` feature is not enabled")),
+            "{html_errors:?}"
+        );
+    }
 }

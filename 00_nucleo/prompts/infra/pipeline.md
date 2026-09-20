@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: cff84ced
+Hash do Código: fe6c7e50
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1145,7 +1145,7 @@ Aceitação exige o callback visível na margem e sua repr contextual
 do default PNG requer confirmação posterior ao commit causal conforme
 ADR-0127.
 
-## P1467 — resolução documental de `format.pdf.tagged`/`format.pdf.pretty` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1467 — resolução documental de `format.pdf.tagged`/`format.pdf.pretty` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -1286,5 +1286,14 @@ estrutural), nunca igualdade total de bytes.
 
 Este é um dos quatro L0s do gate ADR-0127 de P1467 (mudança de comportamento
 por defeito do produto quando o documento contém `#set format.pdf(...)`).
-Aguarda confirmação humana explícita posterior ao commit causal somente-L0
-antes de qualquer teste RED ou código produtivo.
+
+A confirmação humana explícita posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
+Agente A implementou `resolve_pdf_tags`/`resolve_pdf_pretty` e as três
+entry points `_tagged_and_pretty_override` sem ver os testes, fazendo as 10
+entry points de compatibilidade delegarem preservando comportamento; Agente
+B escreveu 11 testes de pipeline a partir do mesmo baseline sem ver a
+implementação (RED por erro de compilação — entry point inexistente). O
+teste independente passou de RED a GREEN (79/79 no módulo `pipeline::tests`,
+incluindo os 11 novos e os pré-existentes de SVG/PNG/HTML) após a
+integração, sem regressão.

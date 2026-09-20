@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 192f12f7
+Hash do Código: a387ee46
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -400,7 +400,7 @@ quatro negativos de schema. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
 regra e seus testes comportamentais foram materializados.
 
-## P1467 — set rule `format.pdf(tagged, pretty)` (PROPOSTA; gate ADR-0127)
+## P1467 — set rule `format.pdf(tagged, pretty)` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -477,6 +477,13 @@ Cobrir os quatro perfis: `tagged` com `auto`/`true`/`false`, `pretty` com
 repetição/inversão lexical, os cinco negativos de schema (`nope`, positional,
 `tagged` duplicado, `tagged: 1`, `pretty: 1`) e ausência do aviso genérico de
 target não suportado. Este é um dos quatro L0s do gate ADR-0127 de P1467
-(campo público novo e mudança de comportamento por defeito); aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-RED ou código produtivo.
+(campo público novo e mudança de comportamento por defeito).
+
+A confirmação humana explícita posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
+Agente A implementou o braço `format.pdf` sem ver os testes; Agente B
+escreveu 15 testes comportamentais a partir do mesmo baseline sem ver a
+implementação (4/15 já passavam por coincidência mecânica — deteção
+genérica de duplicado e regra vazia; os 11 restantes exigiam o braço). O
+teste independente passou de RED (11/15 falhas) a GREEN (15/15) após a
+integração, sem regredir `format.svg`/`format.png`/`format.html`.

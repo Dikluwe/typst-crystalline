@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash df31b009
+//! @prompt-hash 7d991ecf
 //! @layer L3
-//! @updated 2026-04-24
+//! @updated 2026-09-20
 //!
 //! Pipeline de compilação — orquestra eval → introspect → layout
 //! → export_pdf, gere o boilerplate `comemo` (Route, Sink, Traced,
@@ -22,7 +22,7 @@ use comemo::{Track, TrackedMut};
 use typst_core::contracts::world::World;
 use typst_core::entities::args::Args;
 use typst_core::entities::content::Content;
-use typst_core::entities::document_format_options::DocumentFormatOptions;
+use typst_core::entities::document_format_options::{DocumentFormatOptions, PdfTagged};
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
@@ -770,20 +770,16 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
     features: typst_core::entities::compiler_features::Features,
     serialization: PdfSerializationMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
-    let mut timings = Timings::default();
-    let result = compile_to_pdf_bytes_impl(
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
         world,
         source,
         full_error,
         document_id,
         stream_mode,
-        pdf_tags,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
         features,
-        serialization,
-        false,
-        &mut timings,
-    );
-    (result.0, result.1, timings)
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
+    )
 }
 
 /// Compila `source` contra `world` até produzir um `PagedDocument` pronto
@@ -1387,15 +1383,51 @@ fn page_reference_pages(content: &Content, doc: &PagedDocument) -> HashSet<usize
     pages
 }
 
+/// **P1467** — resolve a precedência `--pdf-tagged` (override explícito) >
+/// `#set format.pdf(tagged: ...)` (documento) > `auto` (habilitado, sem
+/// seleção de páginas — P1468 revisita). Mesmo padrão de `resolve_svg_pretty`/
+/// `resolve_html_pretty`.
+fn resolve_pdf_tags(
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfTags {
+    let enabled = match tagged_override {
+        Some(explicit) => explicit,
+        None => match options.pdf.tagged {
+            PdfTagged::Explicit(value) => value,
+            // Sem seleção de páginas (P1468 revisita): auto resolve habilitado.
+            PdfTagged::Auto => true,
+        },
+    };
+    if enabled {
+        PdfTags::Enabled
+    } else {
+        PdfTags::Disabled
+    }
+}
+
+/// **P1467** — resolve a precedência `--pretty` (override explícito) >
+/// `#set format.pdf(pretty: ...)` (documento) > `false`.
+fn resolve_pdf_pretty(
+    pretty_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfSerializationMode {
+    if pretty_override.unwrap_or(options.pdf.pretty) {
+        PdfSerializationMode::Pretty
+    } else {
+        PdfSerializationMode::Compact
+    }
+}
+
 fn compile_to_pdf_bytes_impl(
     world: &dyn World,
     source: &Source,
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-    pdf_tags: PdfTags,
+    pdf_tagged_override: Option<bool>,
     features: typst_core::entities::compiler_features::Features,
-    serialization: PdfSerializationMode,
+    pretty_override: Option<bool>,
     oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
@@ -1413,6 +1445,8 @@ fn compile_to_pdf_bytes_impl(
             return (Err(errors), warnings);
         }
     };
+    let pdf_tags = resolve_pdf_tags(pdf_tagged_override, &doc.format_options);
+    let serialization = resolve_pdf_pretty(pretty_override, &doc.format_options);
 
     // P1286 — nomes duplicados só são erro no target PDF, onde ambos
     // disputariam a mesma chave da name tree `/EmbeddedFiles`.
@@ -1554,6 +1588,90 @@ fn compile_to_pdf_bytes_impl(
     (Ok(pdf), warnings)
 }
 
+/// **P1467** — variante que preserva a ausência de override de `tagged`/
+/// `pretty` até consultar `doc.format_options` (Núcleo
+/// `format-option-precedence`). Com instrumentação de tempos.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let result = compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        false,
+        &mut timings,
+    );
+    (result.0, result.1, timings)
+}
+
+/// **P1467** — mesma variante sem instrumentação de tempos.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        false,
+        &mut timings,
+    )
+}
+
+/// **P1467** — variante oráculo (`export/oracle.rs`) que preserva a ausência
+/// de override de `tagged`/`pretty` até consultar `doc.format_options`.
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        true,
+        &mut timings,
+    )
+}
+
 #[doc(hidden)]
 pub fn compile_to_pdf_bytes_full_error(
     world: &dyn World,
@@ -1626,18 +1744,15 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_seriali
     features: typst_core::entities::compiler_features::Features,
     serialization: PdfSerializationMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
         world,
         source,
         full_error,
         document_id,
         stream_mode,
-        pdf_tags,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
         features,
-        serialization,
-        false,
-        &mut timings,
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
     )
 }
 
@@ -1696,18 +1811,15 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_serialization(
     features: typst_core::entities::compiler_features::Features,
     serialization: PdfSerializationMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(
+    compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
         world,
         source,
         full_error,
         document_id,
         stream_mode,
-        pdf_tags,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
         features,
-        serialization,
-        true,
-        &mut timings,
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
     )
 }
 
@@ -3712,6 +3824,197 @@ mod tests {
             blocks.get(&5).unwrap().1.size(),
             11.0,
             "bloco irmão fora do Styled não deve herdar o #set do outro ramo"
+        );
+    }
+
+    // ── P1467 (RED — Agente B) — resolução documental/CLI de
+    // `format.pdf.tagged`/`format.pdf.pretty` ao nível de integração de
+    // pipeline. A entry point pública sugerida pelo L0
+    // (`infra/pipeline.md` §P1467 "API e resolução") ainda não existe
+    // neste baseline — a suite inteira falha por erro de compilação até
+    // `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override`
+    // ser materializada (Agente A, em paralelo).
+
+    fn has_tagged_pdf_morphology(pdf: &[u8]) -> bool {
+        let raw = String::from_utf8_lossy(pdf);
+        raw.contains("/StructTreeRoot") && raw.contains("/MarkInfo")
+    }
+
+    fn newline_count(pdf: &[u8]) -> usize {
+        pdf.iter().filter(|&&byte| byte == b'\n').count()
+    }
+
+    fn compile_pdf_with_overrides(
+        source_text: &str,
+        pdf_tagged_override: Option<bool>,
+        pretty_override: Option<bool>,
+    ) -> Vec<u8> {
+        let world = mock_world(source_text);
+        let (result, _warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                pdf_tagged_override,
+                typst_core::entities::compiler_features::Features::default(),
+                pretty_override,
+            );
+        result.expect("compilação PDF P1467 deve ter sucesso")
+    }
+
+    #[test]
+    fn p1467_pipeline_absence_of_both_resolves_document_auto_to_tagged() {
+        let pdf = compile_pdf_with_overrides("Hello", None, None);
+        assert!(
+            has_tagged_pdf_morphology(&pdf),
+            "auto sem seleção de páginas deve resolver para tagueado"
+        );
+    }
+
+    #[test]
+    fn p1467_pipeline_document_tagged_false_untags_without_override() {
+        let pdf = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: false)\nHello",
+            None,
+            None,
+        );
+        assert!(!has_tagged_pdf_morphology(&pdf));
+    }
+
+    #[test]
+    fn p1467_pipeline_document_tagged_true_is_explicit_and_tags() {
+        let pdf = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: true)\nHello",
+            None,
+            None,
+        );
+        assert!(has_tagged_pdf_morphology(&pdf));
+    }
+
+    #[test]
+    fn p1467_pipeline_override_false_wins_over_document_tagged_true() {
+        let pdf = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: true)\nHello",
+            Some(false),
+            None,
+        );
+        assert!(!has_tagged_pdf_morphology(&pdf));
+    }
+
+    #[test]
+    fn p1467_pipeline_override_true_wins_over_document_tagged_false() {
+        let pdf = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: false)\nHello",
+            Some(true),
+            None,
+        );
+        assert!(has_tagged_pdf_morphology(&pdf));
+    }
+
+    #[test]
+    fn p1467_pipeline_pretty_override_wins_over_document_pretty_false() {
+        let compact = compile_pdf_with_overrides(
+            "#set format.pdf(pretty: false)\nHello",
+            None,
+            None,
+        );
+        let pretty = compile_pdf_with_overrides(
+            "#set format.pdf(pretty: false)\nHello",
+            None,
+            Some(true),
+        );
+        assert!(
+            newline_count(&pretty) > newline_count(&compact),
+            "--pretty deve vencer o documento e produzir mais newlines estruturais"
+        );
+    }
+
+    #[test]
+    fn p1467_pipeline_pretty_override_false_wins_over_document_pretty_true() {
+        let baseline = compile_pdf_with_overrides("Hello", None, None);
+        let overridden = compile_pdf_with_overrides(
+            "#set format.pdf(pretty: true)\nHello",
+            None,
+            Some(false),
+        );
+        assert_eq!(
+            newline_count(&overridden),
+            newline_count(&baseline),
+            "override explícito false deve produzir a mesma forma compacta do baseline"
+        );
+    }
+
+    #[test]
+    fn p1467_pipeline_document_pretty_true_without_override() {
+        let compact = compile_pdf_with_overrides("Hello", None, None);
+        let pretty = compile_pdf_with_overrides(
+            "#set format.pdf(pretty: true)\nHello",
+            None,
+            None,
+        );
+        assert!(newline_count(&pretty) > newline_count(&compact));
+    }
+
+    #[test]
+    fn p1467_pipeline_absence_of_both_flags_is_compact_by_default() {
+        let baseline = compile_pdf_with_overrides("Hello", None, None);
+        let explicit_false = compile_pdf_with_overrides(
+            "#set format.pdf(pretty: false)\nHello",
+            None,
+            None,
+        );
+        assert_eq!(newline_count(&baseline), newline_count(&explicit_false));
+    }
+
+    #[test]
+    fn p1467_pipeline_tagged_and_pretty_combine_independently() {
+        let untagged_pretty = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: false)\n#set format.pdf(pretty: true)\nHello",
+            None,
+            None,
+        );
+        let untagged_compact = compile_pdf_with_overrides(
+            "#set format.pdf(tagged: false)\nHello",
+            None,
+            None,
+        );
+
+        assert!(!has_tagged_pdf_morphology(&untagged_pretty));
+        assert!(!has_tagged_pdf_morphology(&untagged_compact));
+        assert!(newline_count(&untagged_pretty) > newline_count(&untagged_compact));
+    }
+
+    #[test]
+    fn p1467_svg_output_is_neutral_to_pdf_format_options() {
+        let world_without = mock_world("#rect(width: 10pt, height: 10pt)");
+        let (without, _, _) =
+            compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                &world_without,
+                &world_without.source,
+                false,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+            );
+
+        let world_with_pdf = mock_world(
+            "#set format.pdf(tagged: false, pretty: true)\n#rect(width: 10pt, height: 10pt)",
+        );
+        let (with_pdf_options, _, _) =
+            compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                &world_with_pdf,
+                &world_with_pdf.source,
+                false,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+            );
+
+        assert_eq!(
+            without.expect("SVG sem opções PDF deve compilar"),
+            with_pdf_options
+                .expect("SVG com #set format.pdf deve compilar e ser idêntico"),
+            "P1467: format.pdf não pode influenciar o export SVG"
         );
     }
 }

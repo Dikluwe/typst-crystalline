@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/document_format_options`
-Hash do Código: a74886c7
+Hash do Código: b9b202a6
 
 **Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E CONTRATO
 P1467 PROPOSTOS; AGUARDAM GATE ADR-0127.
@@ -146,7 +146,7 @@ Aceitação mantém os testes de entidade vigentes e acrescenta apenas a prova d
 unidade nos owners de pipeline/export. Nenhum sentinel, wrapper, `Option` ou
 segundo campo de escala é autorizado.
 
-## P1467 — carrier `PdfFormatOptions` (`tagged`, `pretty`) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1467 — carrier `PdfFormatOptions` (`tagged`, `pretty`) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -232,6 +232,12 @@ Testes provam default (`Auto`/`false`), clone, `PartialEq`/`Eq` de
 com SVG/PNG/HTML. Não testar layout Rust, tamanho/alinhamento nem exporter
 como paridade. Este é um dos quatro L0s do gate ADR-0127 de P1467: campo
 público novo em `DocumentFormatOptions` e mudança de comportamento por
-defeito quando o documento contém `#set format.pdf(...)`. Aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+defeito quando o documento contém `#set format.pdf(...)`.
+
+A confirmação humana explícita posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
+Execução segregada (ADR-0108/protocolo de nucleação): Agente A implementou o
+carrier sem ver os testes; Agente B escreveu 6 testes de entidade a partir do
+mesmo baseline sem ver a implementação. O teste independente passou de RED
+(falha de compilação — `E0609`/`E0433` por `pdf`/`PdfTagged` inexistentes) a
+GREEN (6/6) após a integração.

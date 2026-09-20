@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: 7a7aad94
+Hash do Código: f056d980
 
 **Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E EXTRAÇÃO
 P1467 PROPOSTAS; AGUARDAM GATE ADR-0127.
@@ -173,7 +173,7 @@ retificação P1466 corrige exclusivamente o consumer L3 que havia confundido a
 unidade; coleta, precedência, default `144.0`, erro de container e isolamento
 dos formatos permanecem idênticos.
 
-## P1467 — extração root de `format.pdf.tagged` e `format.pdf.pretty` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1467 — extração root de `format.pdf.tagged` e `format.pdf.pretty` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -240,5 +240,13 @@ regra vazia depois de decisão anterior, composição com SVG/PNG/HTML, os dois
 campos PDF definidos independentemente na mesma regra e em regras distintas,
 pelo menos dois containers estruturalmente distintos, e tipo interno
 impossível para cada campo. Este é um dos quatro L0s do gate ADR-0127 de
-P1467; aguarda confirmação humana explícita posterior ao commit causal
-somente-L0 antes de qualquer teste RED ou código produtivo.
+P1467.
+
+A confirmação humana explícita posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
+Agente A implementou a extração sem ver os testes; Agente B escreveu 9
+testes a partir do mesmo baseline sem ver a implementação, todos falhando
+por erro de compilação (`options.pdf`/`PdfTagged` inexistentes). O teste
+independente passou de RED (9/9 falhas de compilação) a GREEN (9/9) após a
+integração, sem regredir SVG/PNG/HTML (16/16 no ficheiro, incluindo os
+irmãos).

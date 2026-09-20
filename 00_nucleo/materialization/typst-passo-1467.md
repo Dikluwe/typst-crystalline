@@ -1,10 +1,9 @@
 # Passo 1467 — materializar `format.pdf.tagged` e `format.pdf.pretty`
 
-**Estado:** L0S ESCRITOS (`compiler/eval/rules.md`, `compiler/layout/format_options.md`,
-`entities/document_format_options.md`, `infra/pipeline.md`, `wiring.md`,
-adendo em `compiler/stdlib/format.md` e `shell/cli.md`); V15/V26 verdes;
-AGUARDA COMMIT CAUSAL SOMENTE-L0 E CONFIRMAÇÃO HUMANA ADR-0127 antes de
-RED/código.
+**Estado:** MATERIALIZADO — confirmação ADR-0127 recebida diretamente do
+dono na mesma sessão, posterior ao commit causal somente-L0
+`e675e8b7acc29e272bd59939e44681a7b521acd3`. Execução segregada (Agente A/B/C)
+concluída; ver secção 10.
 
 **Data da auditoria:** 2026-09-20T17:40:24-03:00
 **Data da redação dos L0s e das sondas bilaterais adicionais:** 2026-09-20T19:18-03:00
@@ -222,4 +221,97 @@ git diff --check
 
 Registrar no próprio passo o commit ou o estado não commitado exato, hora,
 comandos e contagens. Não criar recibo ou relatório paralelo.
+
+## 8. Execução segregada (Agentes A/B/C)
+
+Confirmação humana explícita recebida em 2026-09-20, na mesma sessão,
+posterior ao commit causal somente-L0 `e675e8b7acc29e272bd59939e44681a7b521acd3`.
+Os três papéis da skill relida partiram todos desse mesmo baseline, em
+worktrees isoladas:
+
+- **Agente A (implementação):** commit
+  `11138de552ad8dc51543bd1dfbbf0a408da3d144`
+  ("feat(format): implement pdf tagged/pretty resolution (P1467, agente A)").
+  Implementou o carrier `PdfTagged`/`PdfFormatOptions`, o braço `format.pdf`
+  em `rules.rs`, a extração root/exaustiva em `format_options.rs`,
+  `resolve_pdf_tags`/`resolve_pdf_pretty` e as três entry points
+  `_tagged_and_pretty_override` em `pipeline.rs` (as 10 entry points de
+  compatibilidade preexistentes passaram a delegar, preservando byte a byte
+  o comportamento anterior), e o fold CLI-only em `main.rs`. Não escreveu
+  nenhum teste.
+- **Agente B (testes):** commit `1ead07a35477e7eb423ee559fd3a5d244cea4858`
+  ("test(format): freeze pdf tagged/pretty red contract (P1467, agente B)").
+  Escreveu 51 testes (6 em `document_format_options.rs`, 9 em
+  `format_options.rs`, 15 em `rules.rs`, 11 em `pipeline.rs`, 10 em
+  `04_wiring/tests/p1467_format_pdf_tagged_pretty.rs`) e o L0 de teste
+  `wiring/tests/p1467-format-pdf-tagged-pretty.md`, sem ver o código de A.
+  Confirmou RED por ficheiro contra o mesmo baseline (ver §9.1).
+- **Agente C (integração, o próprio dono desta execução):** extraiu os dois
+  patches, aplicou-os em sequência sobre o HEAD `Tekt` (sem conflito),
+  reconciliou os `@prompt-hash`/"Hash do Código" finais com
+  `crystalline-lint --fix-hashes .`, corrigiu formatação (`cargo fmt --all`)
+  e mediu os gates finais (§9).
+
+Ambas as worktrees dos agentes nasceram inicialmente desalinhadas (HEAD no
+pin vanilla `586e1bd43` em vez do tip `Tekt`); os dois agentes detectaram e
+corrigiram sozinhos com `git reset --hard` depois de confirmar árvore limpa
+e zero commits exclusivos a perder. Registado aqui como causa-raiz de
+infraestrutura a reportar (não é defeito de nenhum dos dois papéis).
+
+## 9. Medição final e proveniência
+
+**Instante:** 2026-09-20T20:44-03:00. **Estado:** working tree não commitada
+sobre o commit causal `e675e8b7acc29e272bd59939e44681a7b521acd3`, resultado
+da integração dos patches A (`11138de55`) e B (`1ead07a35`) mais os ajustes
+de C (reseal de hash e `cargo fmt`). `git diff HEAD --stat` nesse instante
+cobria exatamente os 12 ficheiros de produto/teste listados no §8 mais os 7
+`.md` L0 (hash reseal) — nenhum ficheiro do P1470 em curso foi tocado.
+
+### 9.1 RED → GREEN por ficheiro
+
+| Ficheiro | RED (baseline `e675e8b7a`) | GREEN (após integração) |
+|---|---|---|
+| `entities/document_format_options.rs` | erro de compilação (`E0609`/`E0433`, campo/tipo inexistente) | 8/8 (6 novos + 2 irmãos) |
+| `compiler/layout/format_options.rs` | erro de compilação (idem) | 16/16 (9 novos + 7 irmãos) |
+| `compiler/eval/rules.rs` | 4/15 (deteção de duplicado e regra vazia já eram genéricas; 11 exigiam o braço) | 15/15 |
+| `03_infra/src/pipeline.rs` | erro de compilação (`E0425`, entry point inexistente) | 79/79 (11 novos + 68 pré-existentes, incl. SVG/PNG/HTML) |
+| `04_wiring/tests/p1467_format_pdf_tagged_pretty.rs` | 6/10 (só precedências CLI puras e o caso onde `auto` já coincidia com o default) | 10/10 |
+
+### 9.2 Gates finais medidos
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo check --workspace --tests                              -> sucesso
+cargo test -p typst-core --lib                                -> 5965/5965
+cargo test -p typst-infra --lib                               -> 977/977
+cargo test -p typst-shell --lib                                -> 69/69
+cargo test -p typst-wiring --test p1467_format_pdf_tagged_pretty
+    (TMPDIR=/dev/shm, --test-threads=1)                        -> 10/10
+cargo test -p typst-wiring --test p1462_format_svg
+    --test p1463_format_png --test p1464_format_pdf
+    --test p1465_format_html (--test-threads=1)                -> 22/22 (regressão zero)
+cargo fmt --all -- --check                                    -> sucesso (após 1 `cargo fmt --all`
+                                                                   nos testes novos de B; sem mudança
+                                                                   semântica, testes reconfirmados GREEN)
+cargo clippy --workspace --all-targets --all-features          -> 0 erros; 0 avisos novos nos 6
+                                                                   ficheiros tocados (confirmado por
+                                                                   grep de nome de ficheiro no relatório)
+crystalline-lint .                                              -> 0 erros (avisos V16/V19/V20
+                                                                   pré-existentes, fora do diff)
+crystalline-lint --checks v5,v15,v26 .                          -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Não foi corrido `cargo test --workspace` completo nem a suíte de export PNG
+em massa de `typst-wiring`, pela mesma razão documentada em P1464 (pico
+histórico de ~40 GB de alocação por processo nesse caminho, não relacionado
+com este diff); a cobertura acima (todas as libs dos três crates tocados,
+mais os 5 testes de integração `format.*`) é proporcional ao raio do diff.
+
+O veredito final é: `format.pdf.tagged` e `format.pdf.pretty` resolvem
+corretamente a precedência `CLI explícito > legado --no-pdf-tags > documento
+> default`, ortogonais entre si e aos demais formatos, sem regressão em
+`format.svg`/`format.png`/`format.html`/módulo `pdf`. Não se declara
+paridade de `pdf.pages`, `pdf.standard`, PDF/A ou PDF/UA — reservados a
+P1468/P1469.
 
