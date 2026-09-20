@@ -1,5 +1,5 @@
 # Prompt L0 — constructor primitivo `duration`
-Hash do Código: defbd6c4
+Hash do Código: 19629e85
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736

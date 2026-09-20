@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: bb43110c
+Hash do Código: 26e7f812
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -311,6 +311,11 @@ passam por `lr` permanecem inalterados.
 A retificação conserva asserções discriminatórias: ausência do nome literal
 `lr`, cercas inicial/final corretas, fração presente e ordem do body. Não basta
 trocar a expectativa por qualquer variante ou comparar somente `plain_text`.
+
+O teste P702 de aplicação parcial usa um decimal neutro que continue provando
+arredondamento para duas casas sem coincidir com aproximações de constantes
+matemáticas rejeitadas pela análise estática. O valor escolhido não constitui
+contrato público; chamada, binding parcial e resultado arredondado constituem.
 
 ## P1451 — oráculos `math.undershell`
 

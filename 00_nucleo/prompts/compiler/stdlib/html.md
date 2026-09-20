@@ -1,5 +1,5 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 16c8425b
+Hash do Código: 7bdad02e
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  

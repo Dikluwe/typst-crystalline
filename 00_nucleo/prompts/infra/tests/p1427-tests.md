@@ -1,4 +1,5 @@
 # Prompt L0 — testes bilaterais públicos de `math.frac` P1427
+Hash do Código: ced3e3aa
 
 ## Owner produtivo
 

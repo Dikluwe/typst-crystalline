@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash ab0d776f
+//! @prompt-hash 1d0d95df
 //! @layer L3
 //! @updated 2026-04-03 (Passo 34)
 
@@ -1617,11 +1617,10 @@ mod integration {
 
     #[test]
     fn rect_ordem_operadores_pdf() {
-        // #rect(fill: "red", stroke: "black") deve produzir:
+        // #rect(fill: red, stroke: black) deve produzir:
         // q → rg (fill) → RG (stroke) → w → re (path) → B (paint) → Q
-        let (world, _dir) = world_from_str(
-            "#rect(width: 100pt, height: 50pt, fill: \"red\", stroke: \"black\")",
-        );
+        let (world, _dir) =
+            world_from_str("#rect(width: 100pt, height: 50pt, fill: red, stroke: black)");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
@@ -1863,7 +1862,7 @@ mod integration {
     #[test]
     fn export_ellipse_emite_quatro_operadores_bezier() {
         let (world, _dir) =
-            world_from_str("#ellipse(width: 80pt, height: 40pt, fill: \"blue\")");
+            world_from_str("#ellipse(width: 80pt, height: 40pt, fill: blue)");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
@@ -1889,7 +1888,7 @@ mod integration {
     #[test]
     fn pdf_export_emite_q_cm_q_para_transformacoes() {
         let (world, _dir) = world_from_str(
-            "#rotate(90deg, rect(width: 100pt, height: 100pt, fill: \"red\"))",
+            "#rotate(90deg, rect(width: 100pt, height: 100pt, fill: red))",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();

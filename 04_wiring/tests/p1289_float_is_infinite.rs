@@ -19,11 +19,7 @@ fn p1289_float_is_infinite_reports_finite_infinite_and_nan() {
          float.is-infinite(float(\"1e999\")), float.is-infinite(-float(\"1e999\")), \
          float.is-infinite(float(\"NaN\")))",
     );
-    assert!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
+    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
     assert_eq!(
         String::from_utf8_lossy(&output.stdout).trim(),
         "[false,false,true,true,false]"

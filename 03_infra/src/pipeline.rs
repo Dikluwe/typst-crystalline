@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash dcd315a4
+//! @prompt-hash df31b009
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -503,6 +503,20 @@ fn expand_realized_outline_contexts(
         }
         Ok(None)
     });
+    let mut has_new_context = false;
+    let _ = content.map_content(&mut |node| {
+        if let Content::ContextBlock(elem) = node {
+            has_new_context |= !existing.iter().any(|old| Arc::ptr_eq(old, elem));
+        }
+        Ok(None)
+    });
+    // Sem produtores introduzidos pela realização de outlines, a passagem
+    // seria um no-op semântico. Preservar os marcadores existentes é porém
+    // essencial: o layout atribui-lhes a Position usada por `here()` na
+    // iteração seguinte de `location.page-numbering()`.
+    if !has_new_context {
+        return Ok(content);
+    }
     let content = content.map_content(&mut |node| {
         let Content::ContextBlock(elem) = node else { return Ok(None) };
         Ok(existing
@@ -1830,10 +1844,8 @@ pub fn compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_overrid
     );
     let result = match doc_result {
         Ok(doc) => {
-            let pixel_per_pt = match ppi_override {
-                Some(ppi) => ppi / 72.0,
-                None => doc.format_options.png.ppi,
-            } as f32;
+            let effective_ppi = ppi_override.unwrap_or(doc.format_options.png.ppi);
+            let pixel_per_pt = (effective_ppi / 72.0) as f32;
             let render_options =
                 crate::export::RenderOptions { pixel_per_pt, render_bleed: false };
             let fonts = match resolve_and_instantiate_fonts(&doc, world) {
@@ -3094,7 +3106,16 @@ mod tests {
         let (result, _) =
             compile_to_paged_document_full_error(&w, &source, false, &mut timings);
         let doc = result.expect("page-numbering contextual deve compilar");
-        assert!(doc.pages[0].plain_text().contains("=>"));
+        assert!(
+            matches!(
+                &doc.pages[0].numbering,
+                Some(typst_core::entities::numbering::Numbering::Func(_))
+            ),
+            "a página deve preservar o callback de numbering: {:?}",
+            doc.pages[0].numbering
+        );
+        let text = doc.pages[0].plain_text();
+        assert!(text.contains("=>"), "repr contextual inesperada: {text:?}");
     }
 
     #[test]

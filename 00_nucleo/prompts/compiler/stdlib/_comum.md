@@ -1,5 +1,5 @@
 # Prompt L0 — fachada `compiler/stdlib/mod.rs`
-Hash do Código: 62a4f93c
+Hash do Código: 49d133b2
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -282,3 +282,9 @@ refuta o recorte.
 Esta ligação amplia a superfície pública Typst somente quando o owner de eval
 a registrar. Código e header de linhagem aguardam confirmação humana posterior
 ao commit causal P1461.
+
+## P1466 — fixture numérica neutra para análise estática
+
+O teste de rejeição de `str` com argumento float e `base` continua exercitando
+um float finito qualquer. A fixture não usa aproximação conhecida de constante
+matemática: o observável é a rejeição do tipo com `base`, não o número 3.14.

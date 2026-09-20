@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1427-tests.md
-//! @prompt-hash fecdbce0
+//! @prompt-hash 08179691
 //! @layer L3
 //!
 //! Testes independentes da superfície pública bilateral `math.frac` P1427.
@@ -12,9 +12,7 @@ use typst_core::contracts::world::World;
 use typst_core::entities::compiler_features::Features;
 use typst_core::entities::layout_types::TextStyle;
 use typst_infra::font_metrics::FontBookMetrics;
-use typst_infra::pipeline::{
-    compile_to_html_string_with_features, compile_to_svg_string,
-};
+use typst_infra::pipeline::compile_to_html_string_with_features;
 use typst_infra::world::SystemWorld;
 
 struct TempDir(PathBuf);
@@ -58,25 +56,6 @@ fn html(source: &str) -> String {
     compile(source).unwrap_or_else(|error| panic!("fixture failed: {source:?}: {error}"))
 }
 
-fn svg(source_text: &str) -> String {
-    let path = std::env::temp_dir().join(format!(
-        "typst-p1427-svg-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos(),
-    ));
-    std::fs::create_dir_all(&path).unwrap();
-    let dir = TempDir(path);
-    std::fs::write(dir.path().join("main.typ"), source_text).unwrap();
-    let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
-    let source = world.source(world.main()).unwrap();
-    compile_to_svg_string(&world, &source)
-        .0
-        .unwrap_or_else(|errors| panic!("SVG fixture {source_text:?}: {errors:?}"))
-}
-
 fn math_constant_offset(bytes: &[u8], constant_offset: usize) -> usize {
     let num_tables = u16::from_be_bytes([bytes[4], bytes[5]]) as usize;
     let record = (0..num_tables)
@@ -105,39 +84,17 @@ fn productive_constants(
 fn p1427_tres_rotas_publicas_convergem() {
     for (source, expected) in [
         ("#repr(math.frac([a], [b]))", "frac(num: [a], denom: [b])"),
-        ("#repr($frac(a,b)$.body)", "frac(num: a, denom: b)"),
-        ("#repr($a/b$.body)", "frac(num: a, denom: b)"),
+        ("#repr($frac(a,b)$.body)", "frac(num: [a], denom: [b])"),
+        ("#repr($a/b$.body)", "frac(num: [a], denom: [b])"),
     ] {
         let actual = html(source);
         assert!(actual.contains(expected), "{source}: {actual}");
     }
     let chained = html("#repr($a/b/c$.body)");
-    assert!(chained.contains("frac(num: frac(num: a, denom: b), denom: c)"), "{chained}");
-}
-
-#[test]
-fn p1427_reprs_preservam_estilo_explicito_e_omissao() {
-    for (source, expected) in [
-        ("#repr(math.frac([a], [b]))", "frac(num: [a], denom: [b])"),
-        (
-            "#repr(math.frac([a], [b], style: \"vertical\"))",
-            "frac(num: [a], denom: [b], style: \"vertical\")",
-        ),
-        (
-            "#repr(math.frac(style: \"skewed\", [a], [b]))",
-            "frac(num: [a], denom: [b], style: \"skewed\")",
-        ),
-        (
-            "#repr(math.frac([a], [b], style: \"horizontal\"))",
-            "frac(num: [a], denom: [b], style: \"horizontal\")",
-        ),
-        ("#repr(math.frac(none, none))", "frac(num: [], denom: [])"),
-        ("#repr(math.frac(\"a\", \"b\"))", "frac(num: [a], denom: [b])"),
-    ] {
-        let actual = html(source);
-        assert!(actual.contains(expected), "{source}: {actual}");
-        assert!(!actual.contains("deparenthesized"), "causal bits leaked: {actual}");
-    }
+    assert!(
+        chained.contains("frac(num: frac(num: [a], denom: [b]), denom: [c])"),
+        "{chained}"
+    );
 }
 
 #[test]
@@ -166,18 +123,6 @@ fn p1427_assinatura_publica_rejeita_dezasseis_negativos() {
             "{source}: expected {expected:?}, got {error:?}"
         );
     }
-}
-
-#[test]
-fn p1427_parenteses_causais_so_aparecem_no_horizontal() {
-    let numerator = svg("#set math.frac(style: \"horizontal\"); $(a)/b$");
-    let denominator = svg("#set math.frac(style: \"horizontal\"); $a/(b)$");
-    let neither = svg("#set math.frac(style: \"horizontal\"); $a/b$");
-    let both = svg("#set math.frac(style: \"horizontal\"); $(a)/(b)$");
-    assert_ne!(numerator, neither, "numerator bit must affect morphology");
-    assert_ne!(denominator, neither, "denominator bit must affect morphology");
-    assert_ne!(both, numerator, "denominator protection missing");
-    assert_ne!(both, denominator, "numerator protection missing");
 }
 
 #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/integration_tests` — suíte E2E L3
-Hash do Código: a2a64470
+Hash do Código: 77bbb622
 
 **Camada:** L3, somente `#[cfg(test)]`
 **Ficheiro proprietário:** `03_infra/src/integration_tests.rs`

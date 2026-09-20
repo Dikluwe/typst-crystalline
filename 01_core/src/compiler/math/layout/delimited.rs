@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/delimited.md
-//! @prompt-hash 09acdf08
+//! @prompt-hash 569ef396
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -17,6 +17,31 @@ use crate::entities::{
 };
 
 use super::MathBox;
+
+fn positional_lr_delimiters(body: &Content) -> Option<(char, Content, char)> {
+    let Content::MathSequence(items) = body else { return None };
+    if items.len() < 2 {
+        return None;
+    }
+
+    let open = super::single_math_leaf_char(items.first()?)?;
+    let close = super::single_math_leaf_char(items.last()?)?;
+    let open_class = super::spacing::node_math_class(items.first()?).0;
+    let close_class = super::spacing::node_math_class(items.last()?).1;
+    use crate::entities::math_class::MathClass::{Closing, Fence, Opening};
+    if !matches!(open_class, Opening | Closing | Fence)
+        || !matches!(close_class, Opening | Closing | Fence)
+    {
+        return None;
+    }
+
+    let middle = match &items[1..items.len() - 1] {
+        [] => Content::Empty,
+        [only] => only.clone(),
+        many => Content::MathSequence(std::sync::Arc::from(many.to_vec())),
+    };
+    Some((open, middle, close))
+}
 
 fn effective_lr_size(elem: &MathLrElem, cascaded: Option<Rel<Length>>) -> Rel<Length> {
     if elem.size_explicit {
@@ -161,6 +186,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 style,
             ),
             body => {
+                if let Some((open, middle, close)) = positional_lr_delimiters(body) {
+                    return self
+                        .layout_delimited_sized(open, &middle, close, size, style);
+                }
                 let inherited = self.mid_target_pt.replace(None);
                 let natural = self.layout_node(body, style);
                 let target =

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 82bbec0e
+//! @prompt-hash f37ca572
 //! @layer L1
 
 use std::sync::Arc;
@@ -2111,12 +2111,7 @@ mod tests {
         for tag in P1168_TAGS {
             assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
         }
-        for excluded in ["frame"] {
-            assert!(
-                module.scope().get(excluded).is_none(),
-                "binding fora do lote: {excluded}"
-            );
-        }
+        assert!(module.scope().get("frame").is_some(), "html.frame pertence ao P1424");
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash a4317807
+//! @prompt-hash a2950d5e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -578,10 +578,7 @@ fn repr_p1293_math_field(content: &Content) -> String {
 }
 
 fn repr_frac_field(content: &Content) -> String {
-    match content {
-        Content::MathIdent(_) | Content::MathText(_) => repr_content(content),
-        other => repr_p1293_math_field(other),
-    }
+    repr_p1293_math_field(content)
 }
 
 /// Projeção do body público de `limits`/`scripts`. A sintaxe matemática
@@ -2458,7 +2455,7 @@ mod tests {
 
         assert_eq!(
             repr_content(&vec),
-            "vec(children: ((a)/(\"1\"), strong(body: [b]), [quoted]))"
+            "vec(\n  children: (\n    frac(num: [a], denom: [1]),\n    strong(body: [b]),\n    [quoted],\n  ),\n)"
         );
     }
 

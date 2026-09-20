@@ -1,5 +1,5 @@
 # Prompt L0 — testes públicos de `math.frac` P1428
-Hash do Código: afa9f92b
+Hash do Código: 5c5f7ae8
 
 ## Owner
 

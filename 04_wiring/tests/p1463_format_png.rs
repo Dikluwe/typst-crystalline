@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1463-format-png.md
-//! @prompt-hash 7138c0e1
+//! @prompt-hash 0af202dd
 
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -347,28 +347,28 @@ fn set_validation_uses_normal_errors_without_legacy_warning_or_artifact() {
 #[test]
 fn one_point_ihdr_matrix_proves_defaults_cascade_precedence_and_limits() {
     let rows = [
-        ("default", "", None, (144, 144)),
-        ("empty", "#set format.png()\n", None, (144, 144)),
-        ("document-72", "#set format.png(ppi: 72)\n", None, (72, 72)),
-        ("document-2", "#set format.png(ppi: 2)\n", None, (2, 2)),
-        ("document-1-5", "#set format.png(ppi: 1.5)\n", None, (2, 2)),
+        ("default", "", None, (2, 2)),
+        ("empty", "#set format.png()\n", None, (2, 2)),
+        ("document-72", "#set format.png(ppi: 72)\n", None, (1, 1)),
+        ("document-2", "#set format.png(ppi: 2)\n", None, (1, 1)),
+        ("document-1-5", "#set format.png(ppi: 1.5)\n", None, (1, 1)),
         (
             "document-72-empty",
             "#set format.png(ppi: 72)\n#set format.png()\n",
             None,
-            (72, 72),
+            (1, 1),
         ),
         (
             "order-72-288",
             "#set format.png(ppi: 72)\n#set format.png(ppi: 288)\n",
             None,
-            (288, 288),
+            (4, 4),
         ),
         (
             "order-288-72",
             "#set format.png(ppi: 288)\n#set format.png(ppi: 72)\n",
             None,
-            (72, 72),
+            (1, 1),
         ),
         ("caller-72", "", Some("72"), (1, 1)),
         ("caller-288", "", Some("288"), (4, 4)),
@@ -389,6 +389,25 @@ fn one_point_ihdr_matrix_proves_defaults_cascade_precedence_and_limits() {
                 format!("{label}: expected IHDR {expected:?}, got {observed:?}"),
             );
         }
+    }
+    checks.finish();
+}
+
+#[test]
+fn a4_default_usa_144_ppi_sem_alocacao_gigante() {
+    let compiled = compile(
+        "a4-default",
+        "#rect(width: 1pt, height: 1pt, fill: black)\n",
+        "png",
+        None,
+        None,
+    );
+    let mut checks = Checks::default();
+    if let Some(observed) = observe_png(&mut checks, "a4-default", &compiled) {
+        checks.require(
+            observed == (1191, 1684),
+            format!("a4-default: expected IHDR (1191, 1684), got {observed:?}"),
+        );
     }
     checks.finish();
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — integração de `format.png`
-Hash do Código: 130ddd7c
+Hash do Código: 079b8f39
 
 **Camada:** L4
 **Consumer exclusivo:** `04_wiring/tests/p1463_format_png.rs`

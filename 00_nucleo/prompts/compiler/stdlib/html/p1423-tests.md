@@ -1,5 +1,5 @@
 # Prompt L0 — testes independentes dos constructors HTML P1423
-Hash do Código: 900e0f1b
+Hash do Código: 73bb9243
 
 **Camada:** L1 (testes)  
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/html/p1423_tests.rs`  

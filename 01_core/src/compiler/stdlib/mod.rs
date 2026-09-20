@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 353bfaf7
+//! @prompt-hash b6963259
 //! @layer L1
 //! @updated 2026-09-19
 
@@ -1773,7 +1773,7 @@ mod tests {
         .is_err());
         assert!(native_str(
             &mut ctx,
-            &pn(vec![Value::Float(3.14)], "base", Value::Int(16)),
+            &pn(vec![Value::Float(3.125)], "base", Value::Int(16)),
             &null_world(),
             test_file_id()
         )

@@ -1,5 +1,5 @@
 ---
-Hash do Código: a6ca7a06
+Hash do Código: 9d400389
 prompt: infra/shaper
 layer: L3
 created: 2026-06-27

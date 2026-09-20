@@ -303,8 +303,9 @@ fn collect_math_fracs(
 fn p1428_repr_compara_texto_html_decodificado() {
     for style in ["vertical", "skewed", "horizontal"] {
         let serialized = html(&format!("#repr(math.frac([a], [b], style: \"{style}\"))"));
-        let text = extract_html_text_once(&serialized)
-            .unwrap_or_else(|unknown| panic!("{style}: unexpected {unknown:?}: {serialized}"));
+        let text = extract_html_text_once(&serialized).unwrap_or_else(|unknown| {
+            panic!("{style}: unexpected {unknown:?}: {serialized}")
+        });
         let expected = format!("style: \"{style}\"");
         assert!(text.contains(&expected), "{style}: {text}");
     }
@@ -357,8 +358,8 @@ fn p1428_modulo_expoe_frac_unica_e_quatro_bits() {
 fn p1428_controles_rotas_diagnosticos_constantes_e_binom() {
     for (source, expected) in [
         ("#repr(math.frac([a], [b]))", "frac(num: [a], denom: [b])"),
-        ("#repr($frac(a,b)$.body)", "frac(num: a, denom: b)"),
-        ("#repr($a/b$.body)", "frac(num: a, denom: b)"),
+        ("#repr($frac(a,b)$.body)", "frac(num: [a], denom: [b])"),
+        ("#repr($a/b$.body)", "frac(num: [a], denom: [b])"),
     ] {
         let text = extract_html_text_once(&html(source)).unwrap();
         assert!(text.contains(expected), "{source}: {text}");

@@ -340,3 +340,45 @@ confirmar workspace limpo.
 | `03_infra/tests/p1427_math_frac.rs` | `708a39bc4da195ecfab55bdac0c780a9161a353fb1889375cf1b6ef950626ff7` |
 | `04_wiring/tests/cli.rs` | `59c66cc635bbeaeaf8aef6789aaf2cd451121e8533935b883e3929bb9c683375` |
 | `04_wiring/tests/p1293_contract.rs` | `ffd152c0373f5efd435f54d4a77f60fd24713d6125597424fad0e88737cde6ab` |
+
+## 11. Resultado da materialização
+
+Materialização executada sobre o commit causal
+`e5af71b9114966d9a6f73ab806b8d1a5646a6ff9`. A medição consolidada em
+2026-09-20T15:58:23-03:00 correspondeu a uma working tree não commitada com
+46 arquivos alterados, 225 inserções e 169 remoções (`git diff HEAD --stat`).
+
+O caminho PNG passou a converter PPI público para pixels por ponto uma única
+vez: 1 pt mede 2 px a 144 PPI, 1 px a 72 PPI e 4 px a 288 PPI. A página A4
+default mede 1191 × 1684 px. Os defeitos produtivos independentes também foram
+corrigidos: contextos locatable preexistentes são preservados, alinhamentos de
+`cases` chegam ao layout, delimitadores posicionais invertidos permanecem
+aceitos, a representação de frações usa os campos canônicos, o shaper conserva
+o índice global e as cores das fixtures usam valores da linguagem.
+
+Validações executadas com `ulimit -v 25165824`, `CARGO_BUILD_JOBS=1`,
+`CARGO_INCREMENTAL=0` e `RUST_TEST_THREADS=1`, usando somente
+`/dev/shm/p1466-target` e `/dev/shm/p1466-tmp`:
+
+- focais dos owners corrigidos: todos verdes, incluindo P1427 (4/4), P1428
+  (4/4), P1463 (7/7), P1292 (11/11), P1293 (10/10), P1462 (7/7), P1464
+  (4/4) e P1465 (4/4);
+- `cargo test --workspace --no-fail-fast -- --test-threads=1`: 7155 aprovados,
+  0 falhos e 3 ignorados;
+- `cargo clippy --workspace --all-targets --all-features`: verde;
+- `cargo build --workspace`: verde;
+- `cargo fmt --all -- --check`: verde;
+- `crystalline-lint .`: sem violações;
+- `crystalline-lint --checks v5,v15,v26 --fail-on warning .`: sem violações;
+- referências locais dos arquivos alterados e headers `@prompt`: íntegras;
+- `git diff --check`: verde.
+
+Depois da suíte completa foram neutralizados somente dois literais numéricos de
+testes antigos (P702 e P495), com os L0s e hashes correspondentes. Esse estado
+final foi coberto pelos dois testes focais, Clippy e build verdes; não se atribui
+a contagem da suíte completa a essas duas alterações posteriores.
+
+O maior RSS observado foi aproximadamente 2,3 GiB no `rustc`; a rasterização
+P1431 ficou em aproximadamente 560 MiB. Não houve OOM nem aproximação do teto
+de 32 GiB. As raízes P1466 em `/dev/shm` devem ser removidas depois do commit
+final, sem preservar cache, log ou temporário como artefato protocolar.

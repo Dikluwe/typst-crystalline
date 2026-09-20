@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/delimited` — `MathDelimited`
-Hash do Código: b748b712
+Hash do Código: 91769d6c
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/delimited.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

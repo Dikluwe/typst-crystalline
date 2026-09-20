@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 97301877
+//! @prompt-hash f7f6a8e0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -373,7 +373,7 @@ pub enum FrameItem {
     /// **P483 — DEPRECATED**: Use `FrameItem::TextShaped`.
     /// Preservado como fallback para fontes não carregadas ou Type1.
     #[deprecated(
-        since = "P483",
+        since = "0.1.0",
         note = "Use FrameItem::TextShaped. \
         Preserved as fallback for fonts not loaded or Type1."
     )]

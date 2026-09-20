@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash dc7f2db2
+//! @prompt-hash a6b16301
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -2340,8 +2340,12 @@ mod tests {
         );
 
         let all = candidates.covering_all('A');
+        let slots: Vec<_> = all
+            .into_iter()
+            .map(|candidate_idx| candidates.get(candidate_idx).unwrap().slot_idx)
+            .collect();
         assert_eq!(
-            all,
+            slots,
             vec![1],
             "só o slot com coverage do bloco de 'A' deve ser candidato"
         );

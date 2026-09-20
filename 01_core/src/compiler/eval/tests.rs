@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 82fe8122
+//! @prompt-hash 70cc897c
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -13480,10 +13480,10 @@ mod tests {
     #[test]
     fn p702_with_nativa_com_namespace_named_pre_ligado() {
         let world =
-            MockWorld::new("#let f = calc.round.with(digits: 2)\n#let x = f(3.14159)");
+            MockWorld::new("#let f = calc.round.with(digits: 2)\n#let x = f(1.23456)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("x"), Some(&Value::Float(3.14)));
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(1.23)));
     }
 
     #[test]
@@ -16777,15 +16777,54 @@ mod tests {
     mod tests_p981 {
         use super::*;
 
-        fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
+        fn find_mathlr_body(c: &Content) -> Option<&Content> {
             match c {
-                Content::MathDelimited(e) => Some((e.open, e.close)),
+                Content::MathLr(e) => Some(&e.body),
                 Content::Sequence(items) | Content::MathSequence(items) => {
-                    items.iter().find_map(find_mathdelimited_in)
+                    items.iter().find_map(find_mathlr_body)
                 }
-                Content::Equation(e) => find_mathdelimited_in(&e.body),
+                Content::Equation(e) => find_mathlr_body(&e.body),
                 _ => None,
             }
+        }
+
+        fn first_boundary(c: &Content) -> Option<char> {
+            match c {
+                Content::MathDelimited(e) => Some(e.open),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(first_boundary)
+                }
+                Content::Text(text)
+                | Content::MathText(text)
+                | Content::MathIdent(text) => {
+                    let mut chars = text.chars();
+                    let first = chars.next()?;
+                    chars.next().is_none().then_some(first)
+                }
+                _ => None,
+            }
+        }
+
+        fn last_boundary(c: &Content) -> Option<char> {
+            match c {
+                Content::MathDelimited(e) => Some(e.close),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().rev().find_map(last_boundary)
+                }
+                Content::Text(text)
+                | Content::MathText(text)
+                | Content::MathIdent(text) => {
+                    let mut chars = text.chars();
+                    let last = chars.next()?;
+                    chars.next().is_none().then_some(last)
+                }
+                _ => None,
+            }
+        }
+
+        fn lr_boundaries(c: &Content) -> Option<(char, char)> {
+            let body = find_mathlr_body(c)?;
+            Some((first_boundary(body)?, last_boundary(body)?))
         }
 
         /// **Caso da secção 22**: `lr((a/b))` — sem texto "lr" no conteúdo e
@@ -16799,11 +16838,11 @@ mod tests {
                 !texto.contains("lr"),
                 "o nome da função não pode vazar como texto: {texto:?}"
             );
-            let delims = find_mathdelimited_in(&content);
+            let delims = lr_boundaries(&content);
             assert_eq!(
                 delims,
                 Some(('(', ')')),
-                "lr((a/b)) deve produzir MathDelimited('(',')'): {content:?}"
+                "lr((a/b)) deve preservar os delimitadores posicionais: {content:?}"
             );
         }
 
@@ -16812,12 +16851,12 @@ mod tests {
         /// o vanilla estica-os ao conteúdo (`resolve.rs:880-891`). O
         /// cristalino reescreve para `math_delimited(⟨, meio, ⟩)`.
         #[test]
-        fn p981_lr_delimitadores_soltos_vira_delimited() {
+        fn p981_lr_delimitadores_soltos_preserva_extremos() {
             let world = MockWorld::new("$ lr(chevron.l a/b chevron.r) $");
             let content = extract_math_content(&world);
             let texto = content.plain_text();
             assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
-            let delims = find_mathdelimited_in(&content);
+            let delims = lr_boundaries(&content);
             assert_eq!(
                 delims,
                 Some(('⟨', '⟩')),
@@ -16829,11 +16868,11 @@ mod tests {
         /// nativa Closing e a última Opening. `lr` redefine os papéis pela
         /// posição, preservando os caracteres invertidos.
         #[test]
-        fn p1132r_lr_brackets_invertidos_vira_delimited() {
+        fn p1132r_lr_brackets_invertidos_preserva_extremos() {
             let world = MockWorld::new("$ lr(\\]a/b\\[) $");
             let content = extract_math_content(&world);
             assert_eq!(
-                find_mathdelimited_in(&content),
+                lr_boundaries(&content),
                 Some((']', '[')),
                 "brackets invertidos devem entrar no caminho escalável: {content:?}"
             );
@@ -16847,7 +16886,7 @@ mod tests {
             let content = extract_math_content(&world);
             let texto = content.plain_text();
             assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
-            assert_eq!(find_mathdelimited_in(&content), Some(('{', '}')));
+            assert_eq!(lr_boundaries(&content), Some(('{', '}')));
         }
     }
 

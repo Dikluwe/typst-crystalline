@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/math_style.md
-//! @prompt-hash 3ac44b98
+//! @prompt-hash f5a1ed53
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -73,7 +73,7 @@ fn wrap_math_style(
             None => Some(default),
         }
     } else {
-        for key in args.named.keys() {
+        if let Some(key) = args.named.keys().next() {
             let diagnostic =
                 if matches!(name, "mono" | "script") && key.as_str() == "body" {
                     SourceDiagnostic::error(

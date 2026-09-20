@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 8d134ea5
+//! @prompt-hash f3c9de71
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -2366,7 +2366,7 @@ pub(crate) fn math_binom_from_args(args: &Args) -> SourceResult<Content> {
             "missing argument: lower".to_string(),
         )]);
     }
-    for name in args.named.keys() {
+    if let Some(name) = args.named.keys().next() {
         if name.as_str() == "upper" {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
@@ -2518,7 +2518,7 @@ pub fn native_math_class(
         }
     };
 
-    for k in args.named.keys() {
+    if let Some(k) = args.named.keys().next() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("class(): argumento nomeado '{}' não suportado", k),

@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 5e4c94f9
+Hash do Código: cff84ced
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 137ed786
+//! @prompt-hash 6d1b9d87
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -224,6 +224,9 @@ fn eval_math_arg_value(
         // wrapper. Peel that wrapper only when its sole child is executable;
         // every ordinary math body keeps the existing Content path.
         Expr::Math(math) => {
+            if math.exprs().any(|expr| matches!(expr, Expr::MathAlignPoint(_))) {
+                return Ok(Value::Content(eval_math_content(scopes, ctx, engine, math)?));
+            }
             let text = math.to_untyped().clone().into_text();
             let reparsed = crate::compiler::parse::parse_anchored(
                 text.as_str(),

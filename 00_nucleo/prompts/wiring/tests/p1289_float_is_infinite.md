@@ -1,5 +1,5 @@
 # Prompt L0 — teste público de `float.is-infinite`
-Hash do Código: cd4d481b
+Hash do Código: 4381390d
 
 **Camada:** L4 — teste de integração
 **Ficheiro alvo exclusivo:** `04_wiring/tests/p1289_float_is_infinite.rs`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/duration.md
-//! @prompt-hash 535135bf
+//! @prompt-hash 5a5a3122
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -97,10 +97,6 @@ pub fn native_duration(
         + milliseconds as i128 * MILLI_NANOS
         + microseconds as i128 * MICRO_NANOS
         + nanoseconds as i128;
-
-    if total > i128::MAX || total < i128::MIN {
-        return err("duration(): excede o máximo suportado".to_string());
-    }
 
     Ok(Value::Duration(Duration::from_nanos(total)))
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html/p1423-tests.md
-//! @prompt-hash 6cd48dbb
+//! @prompt-hash 41abb3c3
 //! @layer L1
 #![cfg(test)]
 //!
@@ -282,11 +282,11 @@ fn p1423_ab_superficie_e_particao_sao_exatamente_43_sem_frame() {
     assert_eq!(dispatched.difference(&legacy).copied().collect::<BTreeSet<_>>(), p1423);
 
     let module = make_html_module();
-    assert_eq!(module.scope().len(), 113, "elem + 112 constructors tipados");
+    assert_eq!(module.scope().len(), 114, "elem + frame + 112 constructors tipados");
     for name in P1423_BINDINGS {
         assert!(module.scope().get(name).is_some(), "binding ausente: html.{name}");
     }
-    assert!(module.scope().get("frame").is_none(), "html.frame pertence ao P1424");
+    assert!(module.scope().get("frame").is_some(), "html.frame pertence ao P1424");
 }
 
 #[test]
