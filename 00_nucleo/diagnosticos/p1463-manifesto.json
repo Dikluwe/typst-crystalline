@@ -1,0 +1,258 @@
+{
+  "schema": "tekt-materializacao-segregada-manifesto/v1",
+  "step": "P1463",
+  "title": "format.png e transporte de ppi ate o raster",
+  "created_at": "2026-09-19T21:08:33-03:00",
+  "revision": {
+    "id": "R1",
+    "revised_at": "2026-09-19T21:14:28-03:00",
+    "predecessor_manifest_sha256": "d9127ba8edf81387319bbdce70ab6a85c539ddfbee17d446665d0ba41cd93ff2",
+    "predecessor_contract_sha256": "9bfbcb01c3ef98a0070cdcd797b232afcca30dc049b3a9b0cec0b39ff4d05537",
+    "hypothesis": "Separar o hash raw baseline do hash semantico normalizado do Prompt L0 permite o resselo deterministico de linhagem depois de RED/candidato sem aceitar deriva normativa.",
+    "cost": {
+      "full_mutation_vectors": 0,
+      "oracle_cases_executed": 0,
+      "repository_files_written": 2,
+      "scope": "manifesto-and-frozen-contract-only"
+    },
+    "discriminatory_delta": "Antes de R1, qualquer atualizacao legitima de Hash do Codigo ou @prompt-hash invalidaria toda a cadeia. Depois de R1, somente a transicao metadata-only, provada por recibo before/after e igualdade do hash semantico, e aceita; qualquer outra linha continua invalidante.",
+    "semantic_observables_changed": 0,
+    "classification_vector_changed": false
+  },
+  "regime": {
+    "kind": "protocolo-completo",
+    "reason": "A mudanca amplia superficie publica da linguagem e da CLI, altera contratos publicos entre camadas e exige contrato observavel, mutacao adversarial, ownership 1:1 e veredito segregado.",
+    "execution_claim": "executado sem atestação de isolamento",
+    "isolation_attested": false,
+    "limitation": "O workspace, o contexto conversacional e o filesystem sao compartilhados. Hashes fixam entradas e ordem causal, mas nao provam separacao de capacidades. Este manifesto nao alega segregacao atestada.",
+    "candidate_status": "absent-and-forbidden-before-seal",
+    "candidate_read_by_contract_author": false
+  },
+  "causal_baseline": {
+    "commit": "bf0a29cad5423f038cb51c8c8a079465a1d4ed65",
+    "tree": "3fa973a4461c438769b22c0971eccc041dade422",
+    "commit_time": "2026-09-19T20:57:50-03:00",
+    "operational_antecedent_commit": "23cd47e4ade4d6deb7095cb7400478feffb1e9f9",
+    "antecedent_to_baseline_delta": "Somente Passo P1463, oito Prompts L0, um Prompt L0 de teste e o Nucleo format-option-precedence; nenhum consumer L1-L4 foi alterado.",
+    "working_tree_observation": {
+      "observed_at": "2026-09-19T21:08:33-03:00",
+      "git_status_short": [],
+      "git_diff_head_stat": [],
+      "state": "clean-before-contract-authorship"
+    },
+    "authorized_writes_for_this_role": [
+      "00_nucleo/diagnosticos/p1463-manifesto.json",
+      "00_nucleo/diagnosticos/p1463-contrato-congelado.md"
+    ],
+    "vanilla": {
+      "commit": "586e1bd43fae6c9a973218163d3165c53ab8d16d",
+      "binary_paths": [
+        "lab/typst-original/target/release/typst",
+        "/usr/local/bin/typst"
+      ],
+      "binary_sha256": "eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f"
+    }
+  },
+  "protected_inputs": [
+    {"kind": "step", "path": "00_nucleo/materialization/typst-passo-1463.md", "sha256": "919fa5eb6a169acad0f304512eb62146be89ddaba91289980a1a6616972a8f8d"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/compiler/stdlib/format.md", "raw_baseline_sha256": "892e1d56d20189a4eb0c95d13383d5517156533a886f6db263be20fc7aeafc37", "semantic_sha256_without_code_hash_line": "4ca2e7d77f610b2026bd82795317abf82d493c45cac944de8e8e419e63aca4d0"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/compiler/eval/rules.md", "raw_baseline_sha256": "94444882ec98bf6ad932513745b9c0e1834aabde2f5f6cb5410da3fbd755fed4", "semantic_sha256_without_code_hash_line": "1214db59a58a55c436c6ebdfd1e1bc77d3108d9661580e74ef594e0ff4debc3f"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/compiler/layout/format_options.md", "raw_baseline_sha256": "9a4f4a41618dfa396aca8efe9301a718660055a0659cbce362f20a10e0dc0d79", "semantic_sha256_without_code_hash_line": "5e2c1a4e29cd701ca6537d7577ae82ee91d0e05b888c1ef63d3f2ad148b74bf0"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/entities/document_format_options.md", "raw_baseline_sha256": "52dbeeec49bba1992fb6b86f936cb7943c0af10fd6148d78967b1a12f2df709f", "semantic_sha256_without_code_hash_line": "18b2b57f5e238db9cd60722442768258ff84586cdf6386ffd05aa58c13ed06bb"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/shell/cli.md", "raw_baseline_sha256": "4f0cf474c2baa41102867dbf06a8589047803b6a6a791b872d1266640d83c4b9", "semantic_sha256_without_code_hash_line": "86d17aa1df32b03eed11a93b431ad444b0177b7bd9c48b45b24badf176544c1f"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/infra/pipeline.md", "raw_baseline_sha256": "ea9c658e42c68ec807cc159bddb75b8efbbabca021cd210cebdf8626cca95829", "semantic_sha256_without_code_hash_line": "7aedac0f75ffc06be3a201e29b53a1c1c809224c9e22bc71e652cfa3c5622092"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/wiring.md", "raw_baseline_sha256": "7f9adfb551b0cc69dc619f76a141138080a1f70448b7c2a89c9c85aab829d70e", "semantic_sha256_without_code_hash_line": "7ff655970922a5aaeddf1c648c07e2f03020d35e130c961ae20e898755f500bf"},
+    {"kind": "prompt", "path": "00_nucleo/prompts/wiring/tests/p1463-format-png.md", "raw_baseline_sha256": "19a9dbdadc35949890ce45f691ee1ab4da2dbbc8a8747f496ac6dc8fe84b94b2", "semantic_sha256_without_code_hash_line": "19a9dbdadc35949890ce45f691ee1ab4da2dbbc8a8747f496ac6dc8fe84b94b2", "baseline_code_hash_line": "absent-because-consumer-does-not-exist"},
+    {"kind": "nucleus-raw", "path": "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml", "sha256": "488b0699748cd2a662c0ac47b8dc3c1b801e3df7afc5e842c74f66be5b1d59e8"},
+    {"kind": "nucleus-effective-v26", "path": "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml", "sha256": "68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11"},
+    {"kind": "adr", "path": "00_nucleo/adr/typst-adr-0107-paridade-linguagem-nao-mecanica.md", "sha256": "e680d22bbf4486cf93f5bfb4ec85f4ae965e6db788c2a18c48f3be000029d49d"},
+    {"kind": "adr", "path": "00_nucleo/adr/typst-adr-0108-disciplina-anti-deriva.md", "sha256": "31daec5ae9e84cb5bbdcb806e9a2b6cb9160b7e90519df53e6e0bd8809076405"},
+    {"kind": "adr", "path": "00_nucleo/adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md", "sha256": "5e8581b5f9ebb0798d4213e59e39ee8dfcd4f41b34d4ca639b00b1f287699ad9"},
+    {"kind": "adr", "path": "00_nucleo/adr/typst-adr-0129-nucleos-tekt-l0-compartilhado.md", "sha256": "64756b81ce58ca62e1a166b3776303759bc7af507a1c97a4e3ad91a8dc5b906e"},
+    {"kind": "adr", "path": "00_nucleo/adr/typst-adr-0131-checkpoints-retomaveis-materializacao.md", "sha256": "2ba422df0147a6f6469e869d91aa07e3ddac102432554c800da9d03e65fad3cc"}
+  ],
+  "prompt_hash_policy": {
+    "raw_baseline": "SHA-256 dos bytes integrais do Prompt L0 no baseline causal.",
+    "semantic_normalization": "Remover exatamente uma linha inteira que comece por Hash do Código: e o seu terminador de linha; nenhuma outra normalizacao e permitida. Se a linha estiver ausente, os bytes permanecem inalterados.",
+    "semantic_identity": "O SHA-256 dos bytes normalizados deve permanecer igual ao semantic_sha256_without_code_hash_line registrado para cada prompt.",
+    "authorized_lineage_transition": {
+      "phase": "after-independent-RED-and-candidate-only",
+      "tool": "crystalline-lint --fix-hashes .",
+      "prompt_change_allowlist": ["substituir ou inserir somente a linha Hash do Código: <8 hex>"],
+      "consumer_change_allowlist": ["substituir ou inserir somente a linha de header //! @prompt-hash <8 hex>"],
+      "nucleus_requirement": "Bytes raw do Nucleo e pins efetivos nos prompts permanecem identicos.",
+      "receipt_required": true,
+      "receipt_fields": [
+        "commit/tree e working tree imediatamente antes e depois",
+        "comando, ferramenta, SHA-256 da ferramenta e timestamps",
+        "SHA-256 raw before/after de cada prompt e consumer tocado",
+        "SHA-256 semantico before/after de cada prompt",
+        "diff de linhas provando que somente Hash do Código e @prompt-hash mudaram",
+        "hash raw/efetivo do Nucleo e pins before/after",
+        "resultado V15/V26 depois do resselo"
+      ],
+      "failure_rule": "Qualquer outra linha alterada, hash semantico divergente, pin de Nucleo divergente ou recibo incompleto invalida a transicao e os checkpoints dependentes."
+    }
+  },
+  "baseline_code_inputs": [
+    {"path": "01_core/src/compiler/stdlib/format.rs", "sha256": "dafb38aba5cc5897abefc0e06f73b1e734f154942aa641bed8d77c3428beb4c0"},
+    {"path": "01_core/src/compiler/eval/rules.rs", "sha256": "a8dab18fcb61e89341bad0d5de47877443966fcc4088c5bd0966dfbd4fbfd482"},
+    {"path": "01_core/src/compiler/layout/format_options.rs", "sha256": "6791cba64baa3a49f69c91987f6e547e57b32f6e68a7576f0a74d9d8d76549fc"},
+    {"path": "01_core/src/entities/document_format_options.rs", "sha256": "82be0d061f3b09dea92efc507d0dcfb29d040d2c789d20591cc51460b1a5e5c4"},
+    {"path": "02_shell/src/cli.rs", "sha256": "0c34e51fb37776003dff8e3184c7b735495f83977604d2a785e71ab76a559498"},
+    {"path": "03_infra/src/pipeline.rs", "sha256": "357d276e058b8616455a640ddb6c7aea6409920b27bfbdc9b033fd3ad8d5e98c"},
+    {"path": "04_wiring/src/main.rs", "sha256": "488188fc9fb7603583a5736d179ceda9935b230bbc6aa7a87990bff70e6acb19"},
+    {"path": "04_wiring/tests/p1462_format_svg.rs", "sha256": "f48c24a73861affc40bd7668e84a5d1b1e540e7fc0a1f35365c992197c284000"}
+  ],
+  "vanilla_source_inputs": [
+    {"path": "lab/typst-original/crates/typst-render/src/format.rs", "sha256": "aac53e93ac8c83055f535f31747ad2a537aeffcd6162e65533239346a98c3cfd"},
+    {"path": "lab/typst-original/crates/typst-render/src/lib.rs", "sha256": "0c688f58c766a8d0c39441d601272c3f393086209418dbccd7e87f24777dcdc1"},
+    {"path": "lab/typst-original/crates/typst-library/src/format.rs", "sha256": "37ce18defae73642aa9e6f74cb8a78dffba575b004d9a8ddfbf52cb272898a1f"},
+    {"path": "lab/typst-original/crates/typst-cli/src/args.rs", "sha256": "b5f8eb7a01839a7c1e8a4cb3d27132397f52cb260a86b3ad946c57d619ae0064"},
+    {"path": "lab/typst-original/crates/typst-cli/src/compile.rs", "sha256": "a943a87637dd1f85a95f39c29175225c378cbf6d7a0e8d30645eb5cca7470703"}
+  ],
+  "contract": {
+    "path": "00_nucleo/diagnosticos/p1463-contrato-congelado.md",
+    "state": "written-after-this-manifest",
+    "protected_after_freeze": true
+  },
+  "observables": [
+    {"id": "O01", "name": "superficie-format-png", "requirement": "Nos quatro perfis, format.png e funcao nominal png; alias lexical e std.format.png preservam identidade e namespace; format.pdf e format.html continuam ausentes."},
+    {"id": "O02", "name": "namespace-default", "requirement": "format.png.ppi existe como float 144.0, e nao integer 144, 72 nem 2."},
+    {"id": "O03", "name": "construcao-proibida", "requirement": "format.png() falha com cannot be constructed manually e nao produz Content."},
+    {"id": "O04", "name": "set-root-numerico", "requirement": "#set format.png aceita exatamente o named opcional ppi; integer e float sao normalizados para float; zero e negativos finitos sao aceitos."},
+    {"id": "O05", "name": "validacao-set", "requirement": "Named desconhecido, positional, duplicado, string e boolean falham pelo canal de erro normal, sem o warning legado de target vazio e sem mutacao parcial."},
+    {"id": "O06", "name": "regra-vazia-neutra", "requirement": "#set format.png() nao escreve 144.0 e nao apaga decisao anterior."},
+    {"id": "O07", "name": "cascata", "requirement": "Repeticao root e inversao obedecem last-write-wins: 72->288 termina 288 e 288->72 termina 72."},
+    {"id": "O08", "name": "fronteira-root", "requirement": "Qualquer ocorrencia format.* contratada dentro de container falha com format set rules are not allowed inside of containers e nao publica artefato."},
+    {"id": "O09", "name": "carrier-documental", "requirement": "DocumentFormatOptions combina svg.pretty=false com png.ppi=144.0; png.ppi e f64 cru, PartialEq, sem Option e sem divisao por 72."},
+    {"id": "O10", "name": "cli-preserva-ausencia", "requirement": "compile/watch/aliases/legado aceitam --ppi como Option<f64>; ausencia e None; L2 nao aplica default nem /72; comandos alheios nao aceitam a flag."},
+    {"id": "O11", "name": "cli-invalido", "requirement": "--ppi texto falha no parser com exit 2; negativo finito usa a grafia normal --ppi=-72; nao finitos nao recebem alegacao positiva."},
+    {"id": "O12", "name": "precedencia", "requirement": "Somente no target PNG: Some(cli_ppi) vence o documento; None consulta document.format_options.png.ppi; ausencia total usa 144.0 documental."},
+    {"id": "O13", "name": "assimetria-de-unidade", "requirement": "Documento chega cru ao raster; CLI explicito chega como cli_ppi/72.0. Nunca dividir o documento nem passar o CLI cru."},
+    {"id": "O14", "name": "dimensoes-1pt", "requirement": "Pagina 1pt x 1pt produz default 144x144, doc72 72x72, doc2 2x2, doc1.5 2x2, cli72 1x1, cli288 4x4 e doc288+cli72 1x1."},
+    {"id": "O15", "name": "limite-zero-negativo", "requirement": "Zero e negativos finitos chegam ao raster e resultam na dimensao minima segura 1x1 no corpus congelado."},
+    {"id": "O16", "name": "paridade-ramos-fontes", "requirement": "O mesmo RenderOptions resolvido e usado nos ramos PNG com e sem fontes, produzindo as mesmas dimensoes para pagina equivalente."},
+    {"id": "O17", "name": "primeira-pagina", "requirement": "P1463 continua exportando somente a primeira pagina; multipagina, pages e templates de nome permanecem fora."},
+    {"id": "O18", "name": "neutralidade-target", "requirement": "--ppi e format.png.ppi sao neutros para PDF, SVG e HTML; nao alteram eval, layout em pontos, pretty, compact, tags, features, timings ou serializacao HTML."},
+    {"id": "O19", "name": "preservacao-format-svg", "requirement": "Toda a matriz P1462 de format.svg.pretty, CLI --pretty, nested, aliases e neutralidade permanece intacta."},
+    {"id": "O20", "name": "ownership-e-nucleo", "requirement": "Oito owners permanecem 1:1; codigo aponta apenas para Prompt L0; pipeline.md e wiring.md conservam o mesmo pin efetivo do Nucleo; V15 e V26 ficam verdes."},
+    {"id": "O21", "name": "inventario-p1357", "requirement": "Nos quatro perfis, format.png acrescenta exatamente um owner compartilhado; somente aliases bilaterais provados de format.svg.pretty e format.png.ppi sao coalescidos; nenhum sibling e normalizado por nome."},
+    {"id": "O22", "name": "diagnosticos-e-artefato", "requirement": "Exit, stdout/stderr, Unicode, mensagens e spans congelados sao comparados onde publicos; erro nao publica PNG; sucesso publica assinatura PNG e IHDR valido."},
+    {"id": "O23", "name": "mecanica-livre", "requirement": "Bytes comprimidos, metadados PNG, tamanho de ficheiro, endereco, layout Rust, numero de passes e algoritmo interno nao sao criterio de paridade."}
+  ],
+  "classification_policy": {
+    "Preserved": "Unidade concluida cujos observaveis positivos aplicaveis coincidem integralmente com o contrato e cujos controles protegidos nao regrediram.",
+    "Violated": "Unidade concluida com testemunha publica que rejeita uma mutacao semanticamente negativa, ou candidato que diverge de pelo menos um observavel aplicavel. Para mutation testing, Violated e o resultado esperado de cada mutante valido.",
+    "Unknown": "Unidade concluida sem informacao publica suficiente: identidade/pin ambiguo, parser ou saida opaca, timeout do proprio caso, crash/OOM do produto, PNG invalido, nao finito, instrumento sem suporte ou testemunha insuficiente. Unknown nunca conta como sucesso.",
+    "Interrupted": "Unidade nao concluida por causa externa comprovavel, como cancelamento, limite do agente, perda de sessao ou host. Nao recebe credito e nao invalida checkpoints concluidos com pins identicos.",
+    "Pending": "Unidade ainda nao iniciada. Nao recebe credito.",
+    "ordering": "Sob pins identicos, repeticao e reordenacao devem conservar a classificacao. Divergencia e Unknown e bloqueia selo ate explicacao causal."
+  },
+  "budget": {
+    "active_compute_minutes_preseal": 180,
+    "max_full_mutation_vectors_pre_candidate": 1,
+    "max_total_contract_or_oracle_revisions_before_human_review": 3,
+    "max_consecutive_revisions_without_discriminatory_gain": 2,
+    "focused_reruns_before_full_vector": true,
+    "post_candidate_risk_directed_repetition": [
+      "P00",
+      "documento-cru-vs-cli-dividido-por-72",
+      "precedencia-Some-sobre-documento",
+      "ramos-com-e-sem-fontes",
+      "nested-root-boundary",
+      "neutralidade-de-target",
+      "format-svg-preservado",
+      "P1357-quatro-perfis",
+      "V15-V26"
+    ],
+    "exhaustion_rule": "Budget esgotado impede iniciar nova unidade sem decisao humana; nao apaga checkpoints, nao converte Interrupted/Pending em Unknown e nao reduz o denominador de mutantes validos."
+  },
+  "roles": [
+    {
+      "role": "autor-da-intencao",
+      "authority": "dono/L0 causal",
+      "read_allowlist": ["dominio e objetivos P1463"],
+      "write_allowlist": ["00_nucleo/materialization/typst-passo-1463.md", "os nove Prompts L0 listados", "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml"],
+      "forbidden": ["aprovar a propria materializacao", "editar candidato para obter veredito"]
+    },
+    {
+      "role": "autor-do-contrato",
+      "authority": "esta execucao",
+      "read_allowlist": ["protected_inputs", "baseline_code_inputs", "vanilla_source_inputs"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1463-manifesto.json", "00_nucleo/diagnosticos/p1463-contrato-congelado.md"],
+      "forbidden": ["ler implementacao candidata", "propor ou corrigir implementacao", "escrever oraculos executaveis", "emitir selo ou veredito"],
+      "context_inherited": "Contexto compartilhado do task; por isso sem atestacao de isolamento."
+    },
+    {
+      "role": "autor-dos-oraculos",
+      "authority": "a designar, diferente do implementador",
+      "read_allowlist": ["protected_inputs", "p1463-manifesto.json", "p1463-contrato-congelado.md", "baseline_code_inputs", "vanilla_source_inputs"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1463-oraculos-*", "fixtures temporarias fora dos consumers", "recibos atomicos p1463-oraculo-*"],
+      "forbidden": ["ler patch candidato antes de congelar e hashear os oraculos", "adaptar expected ao candidato", "editar L0, contrato ou codigo produtivo"]
+    },
+    {
+      "role": "adversario",
+      "authority": "a designar, diferente do implementador e verificador",
+      "read_allowlist": ["protected_inputs", "p1463-manifesto.json", "p1463-contrato-congelado.md", "oraculos congelados", "baseline_code_inputs"],
+      "write_allowlist": ["mutantes efemeros em worktree ou diretorio temporario", "00_nucleo/diagnosticos/p1463-mutantes-*", "recibos atomicos p1463-mutacao-*"],
+      "forbidden": ["corrigir a solucao", "escolher a implementacao", "editar contrato/oraculos", "invalidar mutante sobrevivente por conveniencia"]
+    },
+    {
+      "role": "testador-a-b",
+      "authority": "a designar, independente do implementador ate congelar testes",
+      "read_allowlist": ["protected_inputs", "p1463-manifesto.json", "p1463-contrato-congelado.md", "baseline code sem patch"],
+      "write_allowlist": ["04_wiring/tests/p1463_format_png.rs"],
+      "forbidden": ["ler patch candidato antes de congelar/hashar o teste", "editar codigo produtivo", "alterar contrato/oraculos"]
+    },
+    {
+      "role": "implementador",
+      "authority": "a designar somente apos selo e gate ADR-0127",
+      "read_allowlist": ["protected_inputs", "manifesto e contrato selados", "oraculos publicos selados sem saida privada do testador", "baseline_code_inputs"],
+      "write_allowlist": ["01_core/src/compiler/stdlib/format.rs", "01_core/src/compiler/eval/rules.rs", "01_core/src/compiler/layout/format_options.rs", "01_core/src/entities/document_format_options.rs", "02_shell/src/cli.rs", "03_infra/src/pipeline.rs", "04_wiring/src/main.rs"],
+      "forbidden": ["editar manifesto, contrato, oraculos, mutantes, L0, Nucleo ou veredito", "antecipar format.pdf/format.html", "ampliar diff sem refutador medido e L0 anterior"]
+    },
+    {
+      "role": "resselador-de-linhagem-deterministico",
+      "authority": "ferramenta pinada, somente depois de RED/candidato",
+      "read_allowlist": ["Prompts L0 proprietarios", "consumers candidatos", "Nucleo e pins", "manifesto e contrato R1"],
+      "write_allowlist": ["somente linhas Hash do Código nos oito Prompts L0", "somente headers @prompt-hash nos oito consumers"],
+      "forbidden": ["alterar qualquer outra linha", "alterar corpo semantico de Prompt ou consumer", "alterar Nucleo ou pins", "executar sem recibo before/after"]
+    },
+    {
+      "role": "verificador",
+      "authority": "a designar, diferente do implementador",
+      "read_allowlist": ["todos os artefatos selados", "saida candidata", "recibos e checkpoints"],
+      "write_allowlist": ["00_nucleo/diagnosticos/p1463-preseal-*", "00_nucleo/diagnosticos/p1463-seal-*", "00_nucleo/diagnosticos/p1463-veredito-*", "00_nucleo/diagnosticos/p1463-certificado-*"],
+      "forbidden": ["corrigir material verificado", "editar candidato, contrato, oraculos ou mutantes", "converter Unknown/Interrupted em sucesso"]
+    }
+  ],
+  "preseal_gates": {
+    "human_gate_adr_0127": {
+      "status": "confirmed-after-causal-commit",
+      "causal_commit": "bf0a29cad5423f038cb51c8c8a079465a1d4ed65",
+      "provenance": "reported-by-orchestrator-from-human-confirmation-in-parent-thread",
+      "independently_verified_by_contract_author": false,
+      "limitation": "O registro autoriza a sequencia posterior conforme ADR-0127, mas nao constitui atestacao independente de isolamento."
+    },
+    "positive_control": "P00 complete and Preserved",
+    "mutation_score": "1.0 over all valid mutants",
+    "semantic_unknowns": 0,
+    "architecture": ["V15 green", "V26 green", "P1357 four profiles measured and canonical", "protected semantic hashes unchanged", "Nucleus raw/effective hashes and pins unchanged", "metadata-only lineage transition receipted when applicable"],
+    "baseline_v15_v26_observation": {
+      "command": "crystalline-lint --checks v15,v26 --fail-on warning .",
+      "observed_at": "2026-09-19T21:08:56-03:00",
+      "tool_path": "/home/dikluwe/.cargo/bin/crystalline-lint",
+      "tool_sha256": "e47974fe903b225e96fec580040604d80380edda054a7b2187bbf5b18da9a30b",
+      "exit": 0,
+      "stdout": "No violations found"
+    }
+  },
+  "invalidation": [
+    "Mudanca no hash semantico de qualquer Prompt L0, em protected_input nao-Prompt, baseline commit/tree, contrato, oraculo protegido ou denominador de mutantes invalida o selo e os agregados dependentes.",
+    "Mudanca de hash raw de Prompt/consumer e permitida somente na transicao metadata-only definida em prompt_hash_policy, depois de RED/candidato, com recibo before/after completo; qualquer outra linha alterada invalida a transicao.",
+    "Mudanca apenas numa unidade invalida seus checkpoints e agregados transitivos, nao checkpoints independentes com pins identicos.",
+    "Acesso de um papel fora da allowlist ou contexto proibido compartilhado impede alegacao de segregacao atestada.",
+    "Mutante valido sobrevivente, P00 nao Preserved, Unknown semantico, V15/V26 vermelho ou inventario P1357 inconclusivo impedem selo."
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "schema": "p1463-adversarial-mutant-catalog/v1",
+  "phase": "pre-candidate-catalog-only",
+  "state": "catalogued-not-materialized-not-executed",
+  "authority": {
+    "role": "adversario",
+    "task": "/root/p1463_adversario",
+    "regime": "protocolo-completo-de-materializacao-segregada",
+    "attestation": "executado-sem-atestacao-de-isolamento",
+    "read_scope": [
+      "Prompts L0 P1463 e Nucleo Tekt pinado",
+      "Passo 1463",
+      "manifesto e contrato R1 congelados",
+      "codigo produtivo do baseline causal",
+      "teste P1462 preservado"
+    ],
+    "write_scope": [
+      "00_nucleo/diagnosticos/p1463-mutantes.md",
+      "00_nucleo/diagnosticos/p1463-mutantes.json"
+    ],
+    "forbidden": [
+      "escolher ou corrigir a solucao",
+      "editar codigo, testes, L0, Nucleo, manifesto, contrato ou oraculos",
+      "executar mutacao sem base positiva pinada",
+      "reclassificar sobrevivente ou Unknown por conveniencia"
+    ]
+  },
+  "frozen_inputs": {
+    "baseline_commit": "bf0a29cad5423f038cb51c8c8a079465a1d4ed65",
+    "baseline_tree": "3fa973a4461c438769b22c0971eccc041dade422",
+    "manifest": {
+      "path": "00_nucleo/diagnosticos/p1463-manifesto.json",
+      "sha256": "4f087f97ea10ba298a97d9b1b0b32901d2538a06eb7cb311f8fe44ff6b20b739"
+    },
+    "contract": {
+      "path": "00_nucleo/diagnosticos/p1463-contrato-congelado.md",
+      "revision": "R1",
+      "sha256": "4a8baaf1aa23b6610205e1da1868d0f5577f25020379c26354537651337185da"
+    },
+    "step": {
+      "path": "00_nucleo/materialization/typst-passo-1463.md",
+      "sha256": "919fa5eb6a169acad0f304512eb62146be89ddaba91289980a1a6616972a8f8d"
+    },
+    "nucleus": {
+      "path": "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml",
+      "raw_sha256": "488b0699748cd2a662c0ac47b8dc3c1b801e3df7afc5e842c74f66be5b1d59e8",
+      "effective_v26_sha256": "68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11"
+    }
+  },
+  "phase_observation": {
+    "observed_at": "2026-09-19T21:19:01-03:00",
+    "candidate": "absent",
+    "mutations_executed": 0,
+    "ab_test": {
+      "path": "04_wiring/tests/p1463_format_png.rs",
+      "state": "arrived-unread-unfrozen-during-catalog-authorship",
+      "sha256": null,
+      "handling": "A autoridade verificadora deve congelar hash e origem antes da primeira execucao; o adversario nao leu o conteudo nesta fase."
+    },
+    "oracles": {
+      "glob": "00_nucleo/diagnosticos/p1463-oraculos-*",
+      "state": "not-arrived",
+      "handling": "A sua ausencia e Pending de infraestrutura futura, nao Unknown semantico."
+    },
+    "working_tree_before_outputs": [
+      "?? 00_nucleo/diagnosticos/p1463-contrato-congelado.md",
+      "?? 00_nucleo/diagnosticos/p1463-manifesto.json",
+      "?? 04_wiring/tests/p1463_format_png.rs"
+    ]
+  },
+  "classification": {
+    "P00_expected": "Preserved",
+    "mutant_expected": "Violated",
+    "Unknown_credit": false,
+    "Interrupted_credit": false,
+    "Pending_credit": false,
+    "validity_rule": "Uma instancia so e valida se partir de P00 pinado e limpo, aplicar apenas o desvio catalogado numa copia temporaria, compilar ou permanecer Rust-compilavel no caso metadata-only, alcancar a testemunha e ser nao equivalente ao contrato.",
+    "equivalence_rule": "Renome privado, branch morto, alteracao sem diferenca nos observaveis ou gate, ou desvio absorvido pela mesma semantica e Excluded-Equivalent e nao satisfaz a classe.",
+    "construction_failure_rule": "Erro de parse/aplicacao, build ou link causado pela construcao do mutante e Excluded-NonCompilable; deve-se recalibrar a mesma classe sem reduzir o denominador.",
+    "score": "valid_mutants_classified_Violated / valid_mutants",
+    "required_score": 1.0,
+    "required_class_coverage": "18/18"
+  },
+  "timeouts": {
+    "build_seconds": 900,
+    "public_process_seconds": 90,
+    "focused_suite_seconds": 300,
+    "full_ab_suite_seconds": 900,
+    "oracle_unit_seconds": 300,
+    "p1357_seconds": 900,
+    "lint_seconds": 180,
+    "timeout_classification": "Timeout do proprio caso ou produto e Unknown; cancelamento externo comprovado e Interrupted."
+  },
+  "mutants": [
+    {
+      "id": "M01",
+      "contract_class": "omitir-png-ou-corromper-identidade-publica",
+      "minimal_compilable_mutation": "No registro do scope de format em 01_core/src/compiler/stdlib/format.rs, trocar somente a chave publica do binding png por pnq, conservando a Func nominal png e seu namespace.",
+      "temporary_files": ["01_core/src/compiler/stdlib/format.rs"],
+      "public_witness": ["O01", "type/nome/descoberta de format.png, std.format.png e alias nos quatro perfis"],
+      "valid_when": "O build termina e a unica diferenca causal e a ausencia de format.png mais o binding errado pnq.",
+      "equivalent_or_invalid_contrast": "Renomear variavel Rust privada e equivalente; remover imports ou factory ate quebrar build e nao compilavel.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Confirmar apenas ancora literal no P00."}
+    },
+    {
+      "id": "M02",
+      "contract_class": "default-ou-namespace-ppi-errado",
+      "minimal_compilable_mutation": "No namespace publico de format.png, trocar somente Value::Float(144.0) por Value::Float(72.0).",
+      "temporary_files": ["01_core/src/compiler/stdlib/format.rs"],
+      "public_witness": ["O02", "repr((type(format.png), format.png, format.png.ppi)) deve ser (function, png, 144.0)"],
+      "valid_when": "O namespace observado muda para float 72.0 e a construcao continua proibida.",
+      "equivalent_or_invalid_contrast": "Alterar literal morto ou apenas o default documental sem mudar o namespace nao instancia esta classe; quebrar o tipo da factory e nao compilavel.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "Se P00 compartilhar uma constante entre namespace e carrier, isolar o ponto publico para evitar mutacao composta."}
+    },
+    {
+      "id": "M03",
+      "contract_class": "construcao-manual-permitida",
+      "minimal_compilable_mutation": "No native constructor de png, substituir o Err cannot be constructed manually por Ok(Value::None), sem mudar assinatura.",
+      "temporary_files": ["01_core/src/compiler/stdlib/format.rs"],
+      "public_witness": ["O03", "format.png() deve falhar e nao produzir Content"],
+      "valid_when": "format.png() passa a terminar com sucesso, enquanto type/nome/default permanecem observaveis.",
+      "equivalent_or_invalid_contrast": "Reconstruir o mesmo diagnostico por outra API e equivalente; retornar tipo Rust incompativel e nao compilavel.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "A assinatura e congelada pelo L0."}
+    },
+    {
+      "id": "M04",
+      "contract_class": "validacao-de-argumento-invalido-afrouxada",
+      "minimal_compilable_mutation": "No braco estrutural de #set format.png, trocar o erro de named desconhecido por continue, descartando apenas esse named e mantendo ppi valido.",
+      "temporary_files": ["01_core/src/compiler/eval/rules.rs"],
+      "public_witness": ["O05", "#set format.png(nope: 72) deve falhar com unexpected argument: nope, sem warning legado e sem artefato"],
+      "valid_when": "O caso nope passa ou e ignorado, e controles ppi integer/float continuam alcancaveis.",
+      "equivalent_or_invalid_contrast": "Reordenar branches preservando o mesmo erro e equivalente; erro de borrow/move e nao compilavel.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Ajustar somente sintaxe da ancora, sem trocar o subcaso nope."}
+    },
+    {
+      "id": "M05",
+      "contract_class": "regra-vazia-destrutiva",
+      "minimal_compilable_mutation": "No fim do braco #set format.png, quando nenhum ppi foi visto, empurrar format.png.ppi = Value::Float(144.0) em StyleDelta.custom.",
+      "temporary_files": ["01_core/src/compiler/eval/rules.rs"],
+      "public_witness": ["O06", "ppi 72 seguido de #set format.png() deve permanecer 72x72"],
+      "valid_when": "A regra vazia passa a escrever a chave e apaga a decisao 72, sem alterar o parse de named valido.",
+      "equivalent_or_invalid_contrast": "Criar 144 local sem inserir a chave e equivalente; mutacao que tambem rejeite regra vazia e outra classe.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "Materializar contra a representacao final de ausencia, seja bool seen_ppi ou Option<f64>, preservando desvio unico."}
+    },
+    {
+      "id": "M06",
+      "contract_class": "first-write-wins",
+      "minimal_compilable_mutation": "No coletor root de format.png.ppi, validar e contar todas as ocorrencias, mas atribuir options.png.ppi somente na primeira ocorrencia PNG; ocorrencias posteriores sao ignoradas.",
+      "temporary_files": ["01_core/src/compiler/layout/format_options.rs"],
+      "public_witness": ["O07", "72->288 deve terminar 288 e 288->72 deve terminar 72"],
+      "valid_when": "Ambas as regras continuam reconhecidas e root, mas a primeira decide o valor; SVG permanece inalterado.",
+      "equivalent_or_invalid_contrast": "Corpus de uma unica regra nao discrimina; reverter toda a arvore e alterar tambem SVG e mutacao composta.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "A forma mecanica do coletor e livre; inserir sentinela PNG sem usar 144.0 como sentinela, pois 144 explicito e valido."}
+    },
+    {
+      "id": "M07",
+      "contract_class": "fronteira-root-container-removida",
+      "minimal_compilable_mutation": "No collector, tornar falsa somente a condicao all_occurrences > root_occurrences que emite o erro nested, conservando as duas travessias.",
+      "temporary_files": ["01_core/src/compiler/layout/format_options.rs"],
+      "public_witness": ["O08", "root positivo mais block e box negativos com mensagem exata e nenhum artefato"],
+      "valid_when": "Root continua aceito e ao menos um nested antes rejeitado passa sem o erro congelado.",
+      "equivalent_or_invalid_contrast": "Mudar contador sem alterar a comparacao e equivalente; remover match ate nao compilar e invalido.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "A checagem ja existe no baseline e e ampliada pelo P1463."}
+    },
+    {
+      "id": "M08",
+      "contract_class": "none-colapsado-antes-do-documento",
+      "minimal_compilable_mutation": "Na construcao de CompileIntent em 02_shell/src/cli.rs, substituir o transporte ppi: args.ppi por ppi: Some(args.ppi.unwrap_or(144.0)).",
+      "temporary_files": ["02_shell/src/cli.rs"],
+      "public_witness": ["O10", "ausencia deve ser None", "O12/O14", "documento ppi 72 sem flag deve produzir 72x72"],
+      "valid_when": "Flag ausente vira Some(144.0) em L2 e vence o documento na integracao, mantendo flags explicitas parseaveis.",
+      "equivalent_or_invalid_contrast": "Aplicar default depois da consulta documental nao instancia colapso precoce; aridade quebrada e nao compilavel.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Confirmar o campo de inicializacao apos P00."}
+    },
+    {
+      "id": "M09",
+      "contract_class": "documento-dividido-por-72",
+      "minimal_compilable_mutation": "No resolver PNG L3, trocar apenas o braco None de document.format_options.png.ppi para document.format_options.png.ppi / 72.0.",
+      "temporary_files": ["03_infra/src/pipeline.rs"],
+      "public_witness": ["O13/O14", "documento ppi 72 deve produzir 72x72 e nunca 1x1"],
+      "valid_when": "CLI continua dividido como antes e somente a origem documental sofre a divisao extra.",
+      "equivalent_or_invalid_contrast": "Dividir e multiplicar de volta antes do raster e equivalente; alterar ambos os bracos e mutacao composta.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Resolver congelado tem dois bracos semanticamente identificaveis."}
+    },
+    {
+      "id": "M10",
+      "contract_class": "cli-nao-dividida-por-72",
+      "minimal_compilable_mutation": "No resolver PNG L3, trocar apenas Some(cli_ppi) -> cli_ppi / 72.0 por Some(cli_ppi) -> cli_ppi.",
+      "temporary_files": ["03_infra/src/pipeline.rs"],
+      "public_witness": ["O13/O14", "--ppi 72 deve produzir 1x1 e nunca 72x72"],
+      "valid_when": "Documento continua cru e somente o caller explicito deixa de ser convertido.",
+      "equivalent_or_invalid_contrast": "Mover a mesma divisao para helper chamado pelo braco e equivalente; remover API e quebrar callers e invalido.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Troca aritmetica local."}
+    },
+    {
+      "id": "M11",
+      "contract_class": "documento-vence-cli-explicita",
+      "minimal_compilable_mutation": "No braco Some do resolver PNG L3, ignorar cli_ppi e devolver document.format_options.png.ppi.",
+      "temporary_files": ["03_infra/src/pipeline.rs"],
+      "public_witness": ["O12/O14", "documento 288 mais --ppi 72 deve produzir 1x1"],
+      "valid_when": "O conflito explicito passa a produzir a dimensao documental, enquanto None ainda consulta o documento.",
+      "equivalent_or_invalid_contrast": "Reescrever unwrap_or por match equivalente nao e mutante; variavel nao usada pode exigir prefixo _ sem alterar semantica.",
+      "focused_timeout_seconds": 300,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Pode exigir renome _cli_ppi para manter warnings nao bloqueantes, sem outro desvio."}
+    },
+    {
+      "id": "M12",
+      "contract_class": "ppi-aplicado-em-apenas-um-ramo-de-fontes",
+      "minimal_compilable_mutation": "Depois de P00 construir um unico RenderOptions resolvido, trocar somente o argumento do ramo export_png sem fontes para &RenderOptions::default(), deixando export_png_with_fonts usar as opcoes resolvidas.",
+      "temporary_files": ["03_infra/src/pipeline.rs"],
+      "public_witness": ["O16", "fontes ausentes e resolvidas, com pagina de geometria equivalente e mesmo ppi, devem ter dimensoes iguais"],
+      "valid_when": "Os dois ramos continuam compilando e publicando PNG valido, mas divergem em dimensao para ppi nao default.",
+      "equivalent_or_invalid_contrast": "Usar duas instancias com o mesmo pixel_per_pt e equivalente; fixture que nao seleciona ambos os ramos nao valida a instancia.",
+      "focused_timeout_seconds": 600,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "Oraculo deve provar selecao real dos dois ramos; escolher ppi 72 ou 2 para evitar que RenderOptions::default() coincida por acaso."}
+    },
+    {
+      "id": "M13",
+      "contract_class": "vazamento-de-ppi-para-target-nao-png",
+      "minimal_compilable_mutation": "No braco SVG de 04_wiring/src/main.rs, passar pretty_override.or(ppi.map(|_| true)) em vez de pretty_override; assim a mera presenca de --ppi altera a serializacao SVG.",
+      "temporary_files": ["04_wiring/src/main.rs"],
+      "public_witness": ["O18", "mesma fixture SVG com e sem --ppi 72 deve ter saida publica identica"],
+      "valid_when": "PNG permanece recebendo ppi, SVG continua valido, mas a flag muda bytes/whitespace SVG; PDF e HTML sao controles de fronteira.",
+      "equivalent_or_invalid_contrast": "Alterar valor local nao consumido e equivalente; produzir SVG invalido e Unknown, nao kill valido desta classe.",
+      "focused_timeout_seconds": 600,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "Confirmar que o teste/oraculo congela igualdade de saida SVG, nao apenas morfologia normalizada."}
+    },
+    {
+      "id": "M14",
+      "contract_class": "sibling-futuro-antecipado-ou-inventario-falsificado",
+      "minimal_compilable_mutation": "Na factory format, acrescentar scope.define(\"pdf\", Value::None), sem alterar png/svg.",
+      "temporary_files": ["01_core/src/compiler/stdlib/format.rs"],
+      "public_witness": ["O01/O14", "format.pdf deve permanecer ausente", "O21", "inventario bruto e normalizado P1357 nos quatro perfis"],
+      "valid_when": "format.pdf passa a ser descobrivel e o inventario ganha sibling nao autorizado, com build verde.",
+      "equivalent_or_invalid_contrast": "Variavel privada chamada pdf sem binding publico e equivalente; mover Value sem clone ate erro de ownership e invalido.",
+      "focused_timeout_seconds": 900,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Value::None e API Scope::define ja existem no baseline."}
+    },
+    {
+      "id": "M15",
+      "contract_class": "ownership-de-prompt-corrompido",
+      "minimal_compilable_mutation": "No header de 01_core/src/entities/document_format_options.rs, trocar somente @prompt do owner entities/document_format_options.md para compiler/layout/format_options.md, criando consumer duplicado e owner orfao sem mudar Rust.",
+      "temporary_files": ["01_core/src/entities/document_format_options.rs"],
+      "public_witness": ["O20", "crystalline-lint --checks v15 --fail-on warning . deve terminar nao zero com PromptOwnership"],
+      "valid_when": "cargo check do consumer permanece verde e V15 rejeita a cardinalidade 1:1.",
+      "equivalent_or_invalid_contrast": "Mudar comentario fora do header reconhecido e equivalente; corromper sintaxe Rust e nao compilavel.",
+      "focused_timeout_seconds": 180,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Preservar @prompt-hash para que o desvio seja ownership, nao reparo coordenado."}
+    },
+    {
+      "id": "M16",
+      "contract_class": "codigo-aponta-diretamente-ao-nucleo",
+      "minimal_compilable_mutation": "No header de 03_infra/src/pipeline.rs, trocar somente @prompt para 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml, sem mudar Rust.",
+      "temporary_files": ["03_infra/src/pipeline.rs"],
+      "public_witness": ["O20", "crystalline-lint --checks v26 --fail-on warning . deve terminar nao zero com NucleusIntegrity"],
+      "valid_when": "O consumer continua Rust-compilavel e V26 detecta referencia direta de codigo ao Nucleo.",
+      "equivalent_or_invalid_contrast": "Mencao ao caminho em comentario comum nao reconhecido e equivalente; apagar o header inteiro mistura classes.",
+      "focused_timeout_seconds": 180,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Gate e caminho sao canonicos e ja pinados."}
+    },
+    {
+      "id": "M17",
+      "contract_class": "nucleo-ou-pin-atualizado-unilateralmente",
+      "minimal_compilable_mutation": "Em uma copia temporaria de 00_nucleo/prompts/infra/pipeline.md, trocar um unico nibble do pin efetivo 68c5...ae11 para 78c5...ae11, deixando wiring.md e o Nucleo raw intactos.",
+      "temporary_files": ["00_nucleo/prompts/infra/pipeline.md"],
+      "public_witness": ["O20", "crystalline-lint --checks v26 --fail-on warning . deve terminar nao zero por pin divergente"],
+      "valid_when": "Markdown permanece sintaticamente valido, codigo Rust continua compilavel e somente um dos dois consumers tem pin incorreto.",
+      "equivalent_or_invalid_contrast": "Atualizar ambos os pins para o hash efetivo correto e preservacao; texto fora da linha de pin que o linter nao le e equivalente.",
+      "focused_timeout_seconds": 180,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": true, "note": "O runner deve permitir exatamente este delta protegido na copia mutante e ainda exigir que a fonte P00 original conserve os hashes R1."}
+    },
+    {
+      "id": "M18",
+      "contract_class": "regressao-format-svg",
+      "minimal_compilable_mutation": "No namespace de format.svg em 01_core/src/compiler/stdlib/format.rs, trocar somente Value::Bool(false) por Value::Bool(true), deixando todo o fio PNG intacto.",
+      "temporary_files": ["01_core/src/compiler/stdlib/format.rs"],
+      "public_witness": ["O19", "matriz P1462 integral, iniciando por repr default false nos quatro perfis"],
+      "valid_when": "format.svg continua function/construcao proibida, mas seu default publico muda para true.",
+      "equivalent_or_invalid_contrast": "Alterar bool privado nao exposto e equivalente; mudar PNG junto e mutacao composta.",
+      "focused_timeout_seconds": 900,
+      "expected": "Violated",
+      "current": "Pending",
+      "calibration": {"required": false, "note": "Literal e witness P1462 existem no baseline."}
+    }
+  ],
+  "execution_plan": {
+    "authorization": "Nao executar enquanto P00 positivo, teste A/B, oraculos e autoridade verificadora nao estiverem pinados; esta fase nao autoriza candidato nem mutacao.",
+    "primary_order": [
+      "P00", "M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09",
+      "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18"
+    ],
+    "preflight": [
+      "Congelar SHA-256 do P00 source/tree e do binario, teste A/B, oraculos, manifesto, contrato, L0 semantico/raw, Nucleo raw/efetivo, ferramenta crystalline-lint e compilador.",
+      "Exigir P00 limpo, compilar e executar cargo test -p typst-wiring --test p1463_format_png e o comando canonico publicado pelos oraculos; P00 so recebe Preserved se todos os observaveis aplicaveis, P1357 e V15/V26 passarem.",
+      "Materializar cada Mxx a partir de nova copia do mesmo P00, nunca empilhar mutantes, e registrar diff/hash antes de build.",
+      "Executar primeiro witness focal e controles de fronteira; somente instancia valida segue ao conjunto completo necessario para a classificacao.",
+      "M15-M17 usam gates estaticos como witness; falha esperada especifica do gate e Violated, enquanto falha de build continua Excluded-NonCompilable."
+    ],
+    "canonical_commands_after_inputs_arrive": [
+      "cargo build --locked -p typst-wiring --bin typst",
+      "cargo test --locked -p typst-wiring --test p1463_format_png",
+      "<comando canonico congelado pelo autor dos oraculos, apontando ao binario da unidade e emitindo JSON>",
+      "crystalline-lint --checks v15,v26 --fail-on warning .",
+      "git diff --check"
+    ],
+    "oracle_reuse": "O catalogo nao duplica expected privados. O verificador mapeia public_witness de cada Mxx aos IDs do teste A/B e dos oraculos congelados e registra esse mapa antes da primeira unidade.",
+    "checkpoint": {
+      "unit": "uma unidade concluida P00 ou Mxx",
+      "future_path_template": "00_nucleo/diagnosticos/p1463-checkpoints/<vector-id>/<sequence>-<unit-id>.json",
+      "atomic_write": "escrever em arquivo temporario no mesmo diretorio, flush+fsync, renome atomico e fsync do diretorio",
+      "required_fields": [
+        "schema e instrument_version",
+        "vector_id, unit_id, logical_order e predecessor_receipt_sha256",
+        "baseline, P00 source/tree, manifest, contract, L0 semantic/raw, Nucleus, A/B, oracle, mutant diff/tree e binary hashes",
+        "comandos, cwd, toolchain, ambiente relevante, timestamps e custo ativo",
+        "exit/status, classificacao, reason_code e testemunha publica",
+        "hashes de stdout, stderr, artefatos e relatorio do oraculo",
+        "working tree antes/depois e prova de copia temporaria exclusiva"
+      ]
+    },
+    "resume": "Apos Interrupted, auditar pins e recibos, descartar somente a unidade parcial, criar diretorio temporario novo e retomar na primeira unidade incompleta. Unknown semantico nao e repetido oportunisticamente.",
+    "preseal_success": "P00 Preserved, M01-M18 validos e Violated, score 18/18=1.0, zero Unknown semantico, P1357 conclusivo e V15/V26 verdes no P00.",
+    "risk_directed_final_repetition": ["P00", "M06", "M07", "M08", "M09", "M10", "M11", "M12", "M13", "M17", "M18"],
+    "universal_pre_candidate_repetition": false,
+    "budget_active_compute_minutes": 180
+  },
+  "calibration_required_before_execution": [
+    {"id": "M02", "reason": "evitar que constante compartilhada transforme o default publico e o carrier em mutacao composta"},
+    {"id": "M05", "reason": "a representacao mecanica final de ausencia em eval ainda nao existe"},
+    {"id": "M06", "reason": "first-write-wins requer sentinela separada; 144.0 explicito nao pode servir de sentinela"},
+    {"id": "M12", "reason": "provar que os fixtures realmente selecionam ramos com e sem fontes e nao coincidem no default"},
+    {"id": "M13", "reason": "confirmar que o observador SVG compara a saida publica exigida, nao apenas morfologia normalizada"},
+    {"id": "M17", "reason": "separar a excecao deliberada da copia mutante da auditoria dos hashes protegidos do P00"}
+  ],
+  "known_risks": [
+    "O teste A/B apareceu durante a autoria, mas permaneceu deliberadamente nao lido e sem hash; o verificador deve congelar sua identidade e causalidade.",
+    "Oraculos P1463 ainda nao existem no workspace; nenhum mapa witness->case pode ser selado nesta fase.",
+    "A forma privada do futuro P00 e mecanica livre; receitas sem ancora unica devem ser calibradas sem mudar a classe semantica.",
+    "M15-M17 exigem distinguir falha esperada de gate de falha de preflight, build ou identidade.",
+    "Execucao em workspace compartilhado nao permite alegar isolamento atestado mesmo com hashes e copias temporarias."
+  ]
+}
