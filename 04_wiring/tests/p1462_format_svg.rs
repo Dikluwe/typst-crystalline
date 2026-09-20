@@ -851,9 +851,9 @@ fn svg_document_option_is_neutral_to_pdf_png_html_and_html_frame() {
 }
 
 #[test]
-fn future_siblings_remain_absent_and_p1357_overlay_is_canonical() {
+fn pdf_and_html_remain_absent_and_p1463_p1357_overlay_is_canonical() {
     let mut checks = Checks::default();
-    for sibling in ["png", "pdf", "html"] {
+    for sibling in ["pdf", "html"] {
         let observed = eval(&format!("repr(format.{sibling})"), None);
         checks.require(
             !observed.success
@@ -870,51 +870,51 @@ fn future_siblings_remain_absent_and_p1357_overlay_is_canonical() {
     let raw = [
         (
             "default",
-            InventoryCounts { both: 2000, vanilla_only: 21, crystalline_only: 43 },
+            InventoryCounts { both: 2001, vanilla_only: 20, crystalline_only: 44 },
         ),
         (
             "a11y-extras",
-            InventoryCounts { both: 2003, vanilla_only: 24, crystalline_only: 43 },
+            InventoryCounts { both: 2004, vanilla_only: 23, crystalline_only: 44 },
         ),
         (
             "html",
             InventoryCounts {
-                both: 2115,
-                vanilla_only: 136,
-                crystalline_only: 43,
+                both: 2116,
+                vanilla_only: 135,
+                crystalline_only: 44,
             },
         ),
         (
             "html+a11y",
             InventoryCounts {
-                both: 2118,
-                vanilla_only: 139,
-                crystalline_only: 43,
+                both: 2119,
+                vanilla_only: 138,
+                crystalline_only: 44,
             },
         ),
     ];
     let expected = [
         (
             "default",
-            InventoryCounts { both: 2000, vanilla_only: 21, crystalline_only: 42 },
+            InventoryCounts { both: 2001, vanilla_only: 20, crystalline_only: 42 },
         ),
         (
             "a11y-extras",
-            InventoryCounts { both: 2003, vanilla_only: 24, crystalline_only: 42 },
+            InventoryCounts { both: 2004, vanilla_only: 23, crystalline_only: 42 },
         ),
         (
             "html",
             InventoryCounts {
-                both: 2115,
-                vanilla_only: 136,
+                both: 2116,
+                vanilla_only: 135,
                 crystalline_only: 42,
             },
         ),
         (
             "html+a11y",
             InventoryCounts {
-                both: 2118,
-                vanilla_only: 139,
+                both: 2119,
+                vanilla_only: 138,
                 crystalline_only: 42,
             },
         ),
@@ -927,12 +927,12 @@ fn future_siblings_remain_absent_and_p1357_overlay_is_canonical() {
         let normalized = InventoryCounts {
             both: raw_counts.both,
             vanilla_only: raw_counts.vanilla_only,
-            crystalline_only: raw_counts.crystalline_only - 1,
+            crystalline_only: raw_counts.crystalline_only - 2,
         };
         checks.require(
             normalized == expected_counts,
             format!(
-                "P1357/{raw_profile}: canonical format.svg.pretty alias overlay differs: {normalized:?}"
+                "P1357/{raw_profile}: canonical format.svg.pretty/format.png.ppi alias overlay differs: {normalized:?}"
             ),
         );
     }

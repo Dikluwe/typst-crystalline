@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash d717e010
+//! @prompt-hash 9d2e70f4
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -300,6 +300,10 @@ struct CompileArgs {
     )]
     pretty: Option<bool>,
 
+    /// The PPI (pixels per inch) to use for PNG export.
+    #[arg(long = "ppi")]
+    ppi: Option<f64>,
+
     /// Define explicitamente se PDFs devem conter estrutura lógica tagueada.
     /// Sem valor, `--pdf-tagged` equivale a `--pdf-tagged=true`.
     #[arg(
@@ -501,6 +505,8 @@ pub struct CompileIntent {
     /// Raw tri-state selected by `compile --pretty`; L4 resolves `None` to
     /// `false` and forwards the result only to the selected encoder.
     pub pretty: Option<bool>,
+    /// Raw PNG override. Absence remains distinguishable for document options.
+    pub ppi: Option<f64>,
     /// Escolha moderna tri-state; `None` delega ao legado `no_pdf_tags`.
     pub pdf_tagged: Option<bool>,
     /// Polaridade pública do CLI; L4 traduz para `PdfTags`.
@@ -714,6 +720,7 @@ fn compile_intent(
         inputs,
         compact: args.compact,
         pretty: args.pretty,
+        ppi: args.ppi,
         pdf_tagged: args.pdf_tagged,
         no_pdf_tags: args.no_pdf_tags,
         oracle_pdf: args.oracle_pdf,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/document_format_options.md
-//! @prompt-hash 14cf779c
+//! @prompt-hash 18b2b57f
 //! @layer L1
 //! @updated 2026-09-19
 
@@ -10,10 +10,23 @@ pub struct SvgFormatOptions {
     pub pretty: bool,
 }
 
+/// Opções documentais do export PNG.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PngFormatOptions {
+    pub ppi: f64,
+}
+
+impl Default for PngFormatOptions {
+    fn default() -> Self {
+        Self { ppi: 144.0 }
+    }
+}
+
 /// Opções de formato resolvidas pela cascata do documento.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct DocumentFormatOptions {
     pub svg: SvgFormatOptions,
+    pub png: PngFormatOptions,
 }
 
 #[cfg(test)]

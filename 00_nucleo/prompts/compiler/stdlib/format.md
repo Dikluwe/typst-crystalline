@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
-Hash do Código: ac99324c
+Hash do Código: 4cb00912
 
 **Estado:** P1461/P1462 MATERIALIZADOS E CERTIFICADOS; CONTRATO P1463
 PROPOSTO — AGUARDA CONFIRMAÇÃO ADR-0127.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash 466a8435
+//! @prompt-hash 5e2c1a4e
 //! @layer L1
 //! @updated 2026-09-19
 
@@ -12,6 +12,7 @@ use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 const SVG_PRETTY_KEY: &str = "format.svg.pretty";
+const PNG_PPI_KEY: &str = "format.png.ppi";
 const NESTED_FORMAT_RULE_ERROR: &str =
     "format set rules are not allowed inside of containers";
 
@@ -32,6 +33,14 @@ fn explicit_svg_pretty_values(styles: &Styles) -> impl Iterator<Item = &Value> {
         .filter_map(|(key, value)| (key.as_str() == SVG_PRETTY_KEY).then_some(value))
 }
 
+fn explicit_png_ppi_values(styles: &Styles) -> impl Iterator<Item = &Value> {
+    styles
+        .delta()
+        .custom
+        .iter()
+        .filter_map(|(key, value)| (key.as_str() == PNG_PPI_KEY).then_some(value))
+}
+
 fn validate_svg_pretty(value: &Value) -> SourceResult<bool> {
     match value {
         Value::Bool(value) => Ok(*value),
@@ -39,6 +48,19 @@ fn validate_svg_pretty(value: &Value) -> SourceResult<bool> {
             Span::detached(),
             format!(
                 "expected boolean, found {} in internal {SVG_PRETTY_KEY}",
+                typst_type_name(other)
+            ),
+        )]),
+    }
+}
+
+fn validate_png_ppi(value: &Value) -> SourceResult<f64> {
+    match value {
+        Value::Float(value) => Ok(*value),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "expected float, found {} in internal {PNG_PPI_KEY}",
                 typst_type_name(other)
             ),
         )]),
@@ -61,6 +83,10 @@ fn collect_root_options(
                 options.svg.pretty = validate_svg_pretty(value)?;
                 *root_occurrences += 1;
             }
+            for value in explicit_png_ppi_values(styles) {
+                options.png.ppi = validate_png_ppi(value)?;
+                *root_occurrences += 1;
+            }
             collect_root_options(body, options, root_occurrences)?;
         }
         _ => {}
@@ -79,6 +105,10 @@ pub fn collect_document_format_options(
         if let Content::Styled(_, styles) = node {
             for value in explicit_svg_pretty_values(styles) {
                 validate_svg_pretty(value)?;
+                all_occurrences += 1;
+            }
+            for value in explicit_png_ppi_values(styles) {
+                validate_png_ppi(value)?;
                 all_occurrences += 1;
             }
         }

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 5a8ff709
+Hash do Código: a2b36f53
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58

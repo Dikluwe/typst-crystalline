@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 875dcd57
+//! @prompt-hash f1fdb30b
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -1452,6 +1452,56 @@ pub(super) fn eval_set_rule(
                 };
                 *engine.styles =
                     engine.styles.push_custom("format.svg.pretty", Value::Bool(pretty));
+            }
+            return Ok(Value::None);
+        }
+        if fa.target().to_untyped().text_str() == "format"
+            && fa.field().to_untyped().text_str() == "png"
+        {
+            let mut ppi = None;
+            for arg in set.args().items() {
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        target_span,
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                if key != "ppi" {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {key}"),
+                    )]);
+                }
+                if ppi.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        "duplicate argument: ppi",
+                    )]);
+                }
+
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let value = match value {
+                    Value::Int(value) => value as f64,
+                    Value::Float(value) => value,
+                    other => {
+                        let found = match &other {
+                            Value::Int(_) => "integer",
+                            Value::Str(_) => "string",
+                            Value::Bool(_) => "boolean",
+                            value => value.type_name(),
+                        };
+                        return Err(vec![SourceDiagnostic::error(
+                            named.expr().span(),
+                            format!("expected float, found {found}"),
+                        )]);
+                    }
+                };
+                ppi = Some(value);
+            }
+            if let Some(ppi) = ppi {
+                *engine.styles =
+                    engine.styles.push_custom("format.png.ppi", Value::Float(ppi));
             }
             return Ok(Value::None);
         }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash cdb71347
+//! @prompt-hash df4d1af6
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -1761,6 +1761,21 @@ pub fn compile_to_png_bytes_with_timings_full_error_and_features(
     full_error: bool,
     features: typst_core::entities::compiler_features::Features,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
+        world, source, full_error, features, None,
+    )
+}
+
+/// Variante PNG que preserva a ausência de override até consultar as opções
+/// resolvidas do documento.
+#[doc(hidden)]
+pub fn compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    ppi_override: Option<f64>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
         world,
@@ -1771,6 +1786,12 @@ pub fn compile_to_png_bytes_with_timings_full_error_and_features(
     );
     let result = match doc_result {
         Ok(doc) => {
+            let pixel_per_pt = match ppi_override {
+                Some(ppi) => ppi / 72.0,
+                None => doc.format_options.png.ppi,
+            } as f32;
+            let render_options =
+                crate::export::RenderOptions { pixel_per_pt, render_bleed: false };
             let fonts = match resolve_and_instantiate_fonts(&doc, world) {
                 Ok(f) => f,
                 Err(diag) => {
@@ -1795,13 +1816,9 @@ pub fn compile_to_png_bytes_with_timings_full_error_and_features(
                 items: vec![],
             });
             let png = if fonts.is_empty() {
-                export_png(&page, &crate::export::RenderOptions::default())
+                export_png(&page, &render_options)
             } else {
-                export_png_with_fonts(
-                    &page,
-                    &crate::export::RenderOptions::default(),
-                    &fonts,
-                )
+                export_png_with_fonts(&page, &render_options, &fonts)
             };
             timings.render_ms = duration_ms(Instant::now().duration_since(t_render));
             timings.total_ms = timings.eval_ms

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 131b68aa
+//! @prompt-hash 4ab4770c
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -51,7 +51,7 @@ use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization,
-    compile_to_png_bytes_with_timings_full_error_and_features,
+    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
 use typst_infra::world::SystemWorld;
@@ -579,6 +579,7 @@ fn run_compile_observed(
         inputs,
         compact,
         pretty,
+        ppi,
         pdf_tagged,
         no_pdf_tags,
         oracle_pdf,
@@ -714,14 +715,16 @@ fn run_compile_observed(
         }
         OutputFormat::Png => {
             if timings_json.is_some() {
-                let (r, w, t) = compile_to_png_bytes_with_timings_full_error_and_features(
-                    &world, &source, full_error, features,
-                );
+                let (r, w, t) =
+                    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
+                        &world, &source, full_error, features, ppi,
+                    );
                 (r, w, t)
             } else {
-                let (r, w, _) = compile_to_png_bytes_with_timings_full_error_and_features(
-                    &world, &source, full_error, features,
-                );
+                let (r, w, _) =
+                    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
+                        &world, &source, full_error, features, ppi,
+                    );
                 (r, w, typst_infra::pipeline::Timings::default())
             }
         }
