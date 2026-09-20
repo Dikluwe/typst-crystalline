@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: 982f8350
 
-**Estado:** P1462 E P1463 MATERIALIZADOS.
+**Estado:** P1462 E P1463 MATERIALIZADOS; P1465 CAUSAL — AGUARDA CONFIRMAÇÃO.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -86,7 +86,7 @@ Unknown bloqueia.
 A operação pública e a etapa de extração foram materializadas e validadas
 em P1462 depois da confirmação humana de 2026-09-19.
 
-## P1463 — extração root de `format.png.ppi` (PROPOSTO; gate ADR-0127)
+## P1463 — extração root de `format.png.ppi` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -121,5 +121,43 @@ ordem, default, isolamento por campo e fronteira root são contrato.
 
 Testar ausência/default, integer já convertido em eval, float, repetição nas
 duas ordens, regra vazia, composição SVG+PNG, containers distintos, tipo
-interno impossível e chave futura neutra. A ampliação do retorno público
-aguarda confirmação humana posterior ao commit causal P1463.
+interno impossível e chave futura neutra. A confirmação humana posterior ao
+commit causal P1463 foi recebida em 2026-09-19; a chave PNG foi materializada
+e validada sem alterar a semântica SVG.
+
+## P1465 — extração root de `format.html.pretty` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, as travessias
+vigentes reconhecem somente `format.svg.pretty` e `format.png.ppi`. No vanilla,
+`format.html.pretty` root controla o whitespace estrutural do export HTML, a
+última decisão não vazia vence, regra vazia é neutra e ocorrência em container
+falha com a mesma mensagem já contratada para SVG/PNG.
+
+### Contrato
+
+Ampliar as duas travessias existentes para a chave canônica
+`format.html.pretty`. A travessia root aceita somente `Value::Bool`, atualiza
+`options.html.pretty` em ordem lexical e começa do default `false`. A
+travessia exaustiva conta ocorrências HTML junto das ocorrências SVG/PNG;
+qualquer chave de formato fora dos envelopes root causa exatamente:
+
+```text
+format set rules are not allowed inside of containers
+```
+
+Regra vazia não produz chave. Uma chave HTML interna de variante diferente de
+`Value::Bool` falha fechada com diagnóstico atribuível, nunca volta ao default.
+SVG, PNG e HTML permanecem ortogonais: nenhuma chave altera o campo de outro
+formato. Chaves PDF futuras continuam neutras até L0 próprio.
+
+Este owner continua puro e não conhece feature, CLI, target, encoder ou
+serialização. A pipeline decide quando chamar a coleta no caminho semântico
+HTML. Implementação em um passe ou helpers separados é mecânica; default,
+ordem, isolamento, fronteira root e mensagem são contrato.
+
+Aceitação cobre ausência/default, true/false, repetição nas duas ordens, regra
+vazia, composição SVG+PNG+HTML, dois containers, tipo interno impossível e
+neutralidade PDF. A ampliação do retorno público aguarda confirmação humana
+posterior ao commit causal P1465.

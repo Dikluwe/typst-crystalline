@@ -646,7 +646,7 @@ A mudança de default observável no caminho SVG e a chamada de API nova foram
 confirmadas pelo humano em 2026-09-19, depois do commit causal P1462, e a
 materialização foi validada no mesmo dia.
 
-## P1463 — transportar ausência/valor de `ppi` somente ao braço PNG (PROPOSTO; gate ADR-0127)
+## P1463 — transportar ausência/valor de `ppi` somente ao braço PNG (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -671,6 +671,40 @@ finitude e não inspeciona bytes PNG.
 
 Preservar integralmente `pretty`, `compact`, `PdfTags`, feature HTML,
 serialização HTML, `document_id`, timings, publicação atômica de watch e
-códigos de saída. A nova chamada pública e o transporte do campo aguardam
-confirmação humana posterior ao commit causal P1463 antes de consumer/header/
-teste RED.
+códigos de saída. A confirmação humana posterior ao commit causal P1463 foi
+recebida em 2026-09-19; a chamada pública e o transporte do campo foram
+materializados e validados.
+
+## P1465 — preservar ausência de `pretty` no braço HTML (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, L4 conserva
+`CompileIntent.pretty: Option<bool>` em `pretty_override`, mas o converte logo
+em `bool` com `unwrap_or(false)`. O braço SVG usa o tri-state; o braço HTML
+recebe o booleano colapsado e por isso não pode consultar
+`format.html.pretty` do documento.
+
+No vanilla, `Some(true)` e `Some(false)` vencem a regra documental, enquanto
+`None` a preserva; ausência em ambos termina em false. O mesmo `--pretty`
+continua a ter significado por formato, sem transportar uma decisão HTML para
+SVG/PDF ou inversamente.
+
+### Decisão proposta
+
+No braço `OutputFormat::Html`, chamar a nova entry point L3 de override
+parcial e passar `pretty_override` sem aplicar default. O booleano `pretty`
+vigente continua sendo calculado para o braço PDF até P1466; SVG mantém sua
+rota própria já materializada; PNG ignora pretty. L4 não lê conteúdo, não
+consulta `DocumentFormatOptions`, não interpreta set rule e não formata HTML.
+
+Preservar feature gate/warning HTML, seleção de `HtmlSerializationMode`,
+timings, output, dependências, watch, códigos de saída, `compact`, tags PDF,
+PPI e document id. A flag sintaticamente aceita em targets diferentes continua
+afetando somente o formato que já a consome.
+
+Este fio aplica o Núcleo `format-option-precedence` pinado acima. Aceitação
+cobre `None`, os dois `Some`, os dois modos de serialização, compile/watch e
+neutralidade PDF/PNG/SVG. A nova chamada pública e a mudança de default efetivo
+aguardam confirmação humana posterior ao commit causal P1465 antes de
+consumer, header ou teste RED.

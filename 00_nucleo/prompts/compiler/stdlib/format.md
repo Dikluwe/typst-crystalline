@@ -4,7 +4,8 @@ Hash do Código: c8e79d4b
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** P1461/P1462/P1463/P1464 MATERIALIZADOS.
+**Estado:** P1461/P1462/P1463/P1464 MATERIALIZADOS; P1465 CAUSAL — AGUARDA
+CONFIRMAÇÃO ADR-0127.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -270,3 +271,66 @@ A confirmação humana explícita posterior ao commit causal P1464 foi recebida
 em 2026-09-20. Implementação e teste independente partiram desse baseline; o
 teste passou de RED (`1/4`) para GREEN (`4/4`) sem ampliar o recorte dos passos
 P1465–P1468.
+
+## P1465 — `format.html`, `pretty` e membros reutilizados (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, este consumer recebe
+somente o módulo PDF efetivo e expõe `svg`, `png` e `pdf`. O módulo global
+produzido por `compiler/stdlib/html.rs::make_html_module` já contém `elem`,
+`frame` e 112 constructors tipados, todos como funções produtivas.
+
+No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`, com a
+feature `html`:
+
+```text
+type(format.html)                   => function
+repr(format.html)                   => html
+format.html.pretty                  => false
+format.html()                       => cannot be constructed manually
+format.html.elem == html.elem       => true
+format.html.frame == html.frame     => true
+format.html.<cada tag> == html.<tag> => true (112/112)
+```
+
+Alias, `std.format.html` e `.with(pretty: true)` preservam nome e namespace.
+Sem a feature, o binding não existe na superfície e o acesso recebe o
+diagnóstico de feature `html` desativada. Tipo, nome, default, igualdade,
+presença e diagnóstico são linguagem pública; clones, endereços, ordem de
+inserção e forma da factory são mecânica.
+
+### Contrato do filho
+
+A factory passa a receber também a projeção efetiva já construída do módulo
+global `html`. Ela valida que o valor é o módulo `html`, cria uma função nativa
+nominalmente `html`, não construtível, e forma seu namespace com:
+
+```text
+pretty = false
+elem/frame/112 tags = clones dos bindings do módulo html efetivo
+```
+
+Este owner não chama `make_html_module`, não enumera nomes de tags, não cria
+wrappers e não reimplementa funções HTML. Todo binding projetado deve ser
+função; duplicação, ausência ou variante incompatível é erro de composição,
+nunca stub ou omissão silenciosa. Os clones preservam igualdade linguística,
+nome curto e descoberta através de `.with`.
+
+O valor `format.html` permanece presente internamente na definição de
+`format`, mas é gated na superfície pelo owner de field access. O target, o
+exporter e `a11y-extras` não ativam `html`. `format.svg`, `format.png`,
+`format.pdf` e o módulo global `html` permanecem semanticamente idênticos.
+
+### Opção documental e fronteira
+
+Este owner legitima a descoberta de `pretty: false`, não sua extração ou
+precedência. A set rule pertence a `compiler/eval/rules.md`; carrier e coleta
+pertencem aos owners documentais; resolução/export pertence a pipeline/wiring.
+O contrato vertical P1465 exige `--pretty > documento > false`, mas não move
+essas responsabilidades para esta factory.
+
+Aceitação cobre os quatro perfis, os 114 pares, alias/`std`/`.with`, gate,
+default e construção proibida. Esta ampliação pública aguarda confirmação
+humana explícita posterior ao commit causal P1465; antes dela não autoriza
+código, teste RED nem alteração de header.

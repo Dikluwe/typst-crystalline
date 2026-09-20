@@ -816,3 +816,46 @@ Aceitação exige identidade pública dos cinco pares, os quatro perfis
 `format.html` ausente. A confirmação humana posterior ao commit causal P1464
 foi recebida em 2026-09-20; a composição única foi materializada e o teste
 independente passou de RED para GREEN.
+
+## P1465 — composição única de `html` e projeção em `format.html` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`,
+`make_stdlib_with_features` constrói o módulo PDF antes de `format`, mas chama
+`make_html_module()` separadamente depois de registrar `format`. Logo a factory
+de formatos não pode reutilizar a instância HTML efetiva. O módulo HTML vigente
+já contém exatamente `elem`, `frame` e 112 funções tipadas.
+
+No vanilla ratificado, os 114 pares `format.html.<membro> == html.<membro>`
+são verdadeiros com a feature ativa. É inferência que construir uma única
+instância e clonar seus valores para o namespace da função preserva essa
+identidade linguística. Necessidade de segunda factory, catálogo paralelo ou
+alteração em `Module`/`Scope`/`Func` refuta a inferência e bloqueia o recorte.
+
+### Decisão de composição
+
+`make_stdlib_with_features` chama `make_html_module()` exatamente uma vez,
+mantém o `Value::Module` efetivo localmente, entrega-o por referência a
+`make_format_module` junto do PDF vigente e registra:
+
+```text
+format = módulo format com format.html projetado
+html   = o mesmo módulo HTML efetivo já construído
+```
+
+Clonar o carrier imutável ao inserir no scope é permitido; reconstruir módulo,
+funções ou catálogo é proibido. O owner `compiler/stdlib/format.md` decide o
+namespace e o default; este owner decide somente construção única e ligação no
+scope global.
+
+A composição ocorre nos quatro perfis. A presença interna não contorna o gate:
+lookup público continua condicionado exclusivamente a `Feature::Html` pelos
+owners do identificador/field access. Target HTML e `A11yExtras` não ativam a
+feature. PDF, demais bindings globais, módulos importados e `std` permanecem
+semanticamente estáveis.
+
+Aceitação exige igualdade dos 114 pares, uma única chamada produtiva à factory
+HTML, quatro perfis e ausência de regressão no módulo global. A ampliação
+pública aguarda confirmação humana posterior ao commit causal P1465; antes
+dela não autoriza consumer, header ou teste RED.

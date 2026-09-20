@@ -969,7 +969,7 @@ bytes auxiliares como contrato.
 A nova API pública e a extração antes do documento completo foram
 materializadas depois da confirmação humana de 2026-09-19.
 
-## P1463 — resolução de `format.png.ppi` e override CLI (PROPOSTO; gate ADR-0127)
+## P1463 — resolução de `format.png.ppi` e override CLI (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -1031,3 +1031,69 @@ neutralidade de outros targets. Não congelar bytes PNG nem alegar não finitos.
 Os testes funcionais protegem a conversão documental, a divisão específica da
 CLI, a precedência, o tratamento de `None`, os dois ramos de fontes e a
 neutralidade dos outros targets.
+
+A confirmação humana posterior ao commit causal P1463 foi recebida em
+2026-09-19; a API de override parcial e a resolução PNG foram materializadas e
+validadas.
+
+## P1465 — coleta e resolução de `format.html.pretty` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, a entry point HTML
+mais completa recebe `pretty: bool`; as fachadas anteriores delegam `false`.
+Depois do eval semântico, a pipeline prepara contexto e exporta sem consultar
+`DocumentFormatOptions`. O mesmo booleano recebido já alimenta o encoder HTML
+e o `SvgOptions` usado para cada `html.frame`.
+
+No vanilla ratificado, ausência de caller consulta `format.html.pretty`; um
+caller explícito true ou false vence o documento; ausência em ambos usa false.
+Regra root true produz whitespace estrutural pretty e regra em container falha
+antes de exportar. É inferência que coletar sobre o conteúdo avaliado antes da
+preparação contextual preserva os envelopes `Content::Styled` necessários.
+Perda desses envelopes, mudança do DOM ou necessidade de paginar o documento
+HTML refuta a inferência e exige reabrir o L0.
+
+### API e resolução
+
+Adicionar uma entry point pública explícita:
+
+```rust
+pub fn compile_to_html_string_with_features_and_serialization_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    features: Features,
+    mode: HtmlSerializationMode,
+    pretty_override: Option<bool>,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
+```
+
+As fachadas HTML sem parâmetro `pretty` delegam `None`. A fachada de
+compatibilidade que recebe `pretty: bool` conserva assinatura e delega
+`Some(pretty)`. Após eval e antes de `prepare_html`, chamar uma vez
+`collect_document_format_options(&content)` e resolver:
+
+```text
+pretty_override.unwrap_or(options.html.pretty)
+```
+
+Falha de coleta aborta antes do encoder. O booleano resolvido é a única decisão
+entregue tanto a `mode.export_with_resolved_frames` quanto ao `SvgOptions` do
+resolvedor de `html.frame`; não consultar o documento novamente dentro da
+closure e não permitir divergência entre HTML externo e frame inline.
+
+Este fio aplica o Núcleo `format-option-precedence` pinado acima. A pipeline
+não interpreta chaves, não valida named, não muda DOM/escaping nem ativa a
+feature. O gate HTML existente continua anterior ao eval. SVG, PNG, PDF,
+timings, fontes, introspecção e serialização Crystalline/Vanilla permanecem
+semanticamente estáveis.
+
+### Aceitação e gate
+
+Testes de pipeline cobrem default compacto, documento true/false, regra vazia,
+repetição, dois overrides explícitos, rejeição nested, propagação de erro de
+eval e igualdade do DOM entre modos. Cobrir também `html.frame` com a mesma
+decisão final e neutralidade dos outros targets. Não congelar bytes integrais.
+
+A nova API pública e a nova consulta documental aguardam confirmação humana
+posterior ao commit causal P1465 antes de consumer, header ou teste RED.

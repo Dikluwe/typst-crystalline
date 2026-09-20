@@ -2,6 +2,7 @@
 Hash do Código: a2b36f53
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 
 **Camada:** L1
@@ -316,7 +317,7 @@ named desconhecido. `format.pdf`, `format.html` e qualquer outro campo não
 contratado continuam ausentes. A confirmação P1462 foi recebida em 2026-09-19
 e a materialização foi validada; P1463 não reabre essa semântica.
 
-## P1463 — set rule `format.png` (PROPOSTA; gate ADR-0127)
+## P1463 — set rule `format.png` (MATERIALIZADA)
 
 ### Medição anterior à decisão
 
@@ -349,6 +350,51 @@ as demais regras.
 ### Aceitação e gate
 
 Cobrir integer/float, ausência, repetição/inversão, erros de named/tipo/
-positional/duplicado e ausência do warning antigo. A nova set rule pública
-aguarda confirmação humana posterior ao commit causal P1463; antes dela não
-alterar consumer, teste RED ou header.
+positional/duplicado e ausência do warning antigo. A confirmação humana
+posterior ao commit causal P1463 foi recebida em 2026-09-19; a set rule foi
+materializada e validada sem reabrir `format.svg`.
+
+## P1465 — set rule feature-gated `format.html` (PROPOSTA)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, os únicos targets
+`format.*` reconhecidos estruturalmente são `svg` e `png`; `format.html` cai no
+fallback textual e não transporta decisão. No vanilla ratificado, com a feature
+ativa, a regra aceita exatamente o named opcional `pretty: bool`; regra vazia é
+neutra, unknown/positional/duplicado/tipo inválido produzem os diagnósticos
+públicos normais.
+
+Uma expressão `nope: panic("arg")` é avaliada antes do erro de schema quando a
+feature está ativa. Sem a feature, o gate de `format.html` acontece antes de
+avaliar qualquer argumento e produz o diagnóstico de field feature-gated com
+dois hints. Essa ordem é observável e impede validar o nome desconhecido antes
+do gate ou descartar sua expressão depois do gate ativo.
+
+### Contrato
+
+Reconhecer estruturalmente somente `format.html`. Antes de percorrer os
+argumentos, exigir `Feature::Html`; se ausente, devolver no field `html`:
+
+```text
+cannot access field `html` because the `html` feature is not enabled
+hint: try enabling the `html` feature
+hint: see https://typst.app/help/compiler-features for more details
+```
+
+Com a feature ativa, avaliar as expressões de argumento em ordem antes da
+validação ordinária do respectivo schema. Aceitar zero ou um named `pretty` e
+exigir `Value::Bool`. Quando presente, inserir o valor sob a chave canônica
+`format.html.pretty`; quando ausente, não inserir chave e preservar decisão
+cascaded anterior. Positional, named desconhecido/duplicado e tipo inválido
+falham com as mensagens medidas, sem warning nem alteração parcial de styles.
+
+Este owner não decide top-level, não extrai opções, não lê CLI e não exporta
+HTML. A fronteira de containers pertence ao collector puro. Preservar
+`format.svg`, `format.png`, o gate bare de `html`, todas as demais regras e a
+ordem da cascata.
+
+Aceitação cobre os quatro perfis, gate antes de panic, avaliação ordinária dos
+argumentos com feature ativa, regra vazia, true/false, repetição/inversão e os
+quatro negativos de schema. A ampliação pública aguarda confirmação humana
+posterior ao commit causal P1465 antes de consumer, RED ou header.

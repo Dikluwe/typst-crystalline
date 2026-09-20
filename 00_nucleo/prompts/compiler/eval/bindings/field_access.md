@@ -1301,3 +1301,46 @@ perfis, mensagem integral, dois hints, span do field e controles homônimos.
 `Unknown` bloqueia. A confirmação humana posterior ao commit causal P1464 foi
 recebida em 2026-09-20; o diagnóstico foi materializado e coberto pelo ciclo
 RED→GREEN independente.
+
+## P1465 — diagnóstico gated sobre `format.html` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, o gate `html`
+existe somente no lookup de identificador bare em `compiler/eval/mod.rs`.
+P1465 introduz `html` como field do módulo `format`; sem intercept neste owner,
+o binding seria devolvido mesmo com a feature desligada, violando o pin
+`compiler-feature-gates`.
+
+O vanilla ratificado produz em `format.html` e `std.format.html`, sem a
+feature, exatamente um erro ancorado no identificador `html`:
+
+```text
+cannot access field `html` because the `html` feature is not enabled
+hint: try enabling the `html` feature
+hint: see https://typst.app/help/compiler-features for more details
+```
+
+`a11y-extras`, target ou exporter não alteram o resultado. Com `html` ativa,
+o lookup devolve a função projetada. Mensagem, hints, ordem e span são língua;
+o predicate Rust usado para reconhecer o módulo é mecânica.
+
+### Decisão e fronteira
+
+Antes do lookup ordinário, quando o field é exatamente `html`, reconhecer o
+módulo `format` efetivo pela combinação de nome público e superfície estrutural
+contratada (`svg`, `png`, `pdf` e `html` como funções de formato). Alias lexical
+e o caminho por `std` conservam esse carrier e recebem o mesmo gate. Não
+interceptar módulo importado apenas porque um alias local se chama `format`,
+nem funções, dicts ou módulos homônimos sem a superfície completa.
+
+Sem `Feature::Html`, devolver a mensagem e os dois hints acima, nessa ordem,
+com `access.field().span()`. Com a feature, cair no lookup normal. Fields
+diferentes, o identificador global `html`, `std.html`, os gates PDF, funções
+com `.with`, closures e todos os diagnósticos anteriores permanecem fora deste
+ramo.
+
+Aceitação cobre acesso direto, alias e `std`, perfis default/a11y/html/
+html+a11y, mensagem integral, hints, span e controles homônimos. `Unknown`
+bloqueia. A mudança aguarda confirmação humana posterior ao commit causal
+P1465 antes de consumer, teste RED ou header.

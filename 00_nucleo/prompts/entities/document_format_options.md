@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: 51e84ec4
 
-**Estado:** P1462 E P1463 MATERIALIZADOS.
+**Estado:** P1462 E P1463 MATERIALIZADOS; P1465 CAUSAL — AGUARDA CONFIRMAÇÃO.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -56,7 +56,7 @@ públicos ampliam contrato entre camadas. A confirmação humana posterior ao
 commit causal P1462 foi recebida em 2026-09-19; os carriers SVG foram
 materializados e validados.
 
-## Contrato público P1463 (PROPOSTO; gate ADR-0127)
+## Contrato público P1463 (MATERIALIZADO)
 
 Acrescentar o carrier público:
 
@@ -88,5 +88,41 @@ igualdade total, bit wrapper ou sentinela para preservar uma mecânica Rust.
 
 Testes provam defaults, clone, `PartialEq`, independência das instâncias e
 ortogonalidade SVG/PNG. Não aceitar `Option<f64>` no documento nem acrescentar
-PDF/HTML. Os campos e a alteração de trait público exigem confirmação humana
-posterior ao commit causal P1463 antes de consumer/header/teste RED.
+PDF/HTML nesse recorte. A confirmação humana posterior ao commit causal P1463
+foi recebida em 2026-09-19; os carriers PNG foram materializados e validados.
+
+## Contrato público P1465 (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, o carrier possui
+SVG e PNG. O vanilla resolve `format.html.pretty` como booleano documental com
+default `false`; o `Option<bool>` existe somente na fronteira do override CLI.
+
+### Contrato
+
+Acrescentar o carrier público:
+
+```rust
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct HtmlFormatOptions {
+    pub pretty: bool,
+}
+
+pub struct DocumentFormatOptions {
+    pub svg: SvgFormatOptions,
+    pub png: PngFormatOptions,
+    pub html: HtmlFormatOptions,
+}
+```
+
+`HtmlFormatOptions::default().pretty` e
+`DocumentFormatOptions::default().html.pretty` são `false`. O campo é o valor
+resolvido pela cascata do documento, não `Option<bool>` e não um alias do campo
+SVG. `DocumentFormatOptions` conserva `PartialEq` por causa do `f64` PNG;
+nenhuma mudança artificial de trait ou representação é autorizada.
+
+Testes provam default, clone, igualdade, independência de instâncias e
+ortogonalidade SVG/PNG/HTML. Não acrescentar PDF, exporter, feature ou lógica
+de precedência neste owner. O novo tipo e campo públicos aguardam confirmação
+humana posterior ao commit causal P1465 antes de consumer/header/teste RED.
