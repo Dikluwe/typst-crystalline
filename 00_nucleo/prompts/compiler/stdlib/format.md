@@ -1,7 +1,11 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
 Hash do Código: 4cb00912
 
-**Estado:** P1461/P1462/P1463 MATERIALIZADOS.
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+
+**Estado:** P1461/P1462/P1463 MATERIALIZADOS; P1464 PROPOSTO — AGUARDA
+CONFIRMAÇÃO ADR-0127.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -67,13 +71,14 @@ para este prompt (ADR-0129).
 O módulo P1461 é deliberadamente incompleto. Seu scope vazio é o estado
 contratado desta unidade, não uma alegação de fecho de `format.*`.
 
-- P1462 completou `format.svg` e suas opções;
-- P1463 propõe completar `format.png` e `ppi`;
-- P1464 completa `format.pdf` e seus cinco membros;
+- P1462 completou `format.svg` e seu namespace;
+- P1463 completou `format.png` e `ppi`;
+- P1464 propõe completar `format.pdf`, seus defaults de namespace e cinco
+  membros reutilizados;
 - P1465 completa `format.html`, `pretty`, gate `html` e seus membros.
 
-`format.svg` está materializado. Até os passos restantes terem L0 e autorização
-próprios, `format.png`, `format.pdf`, `format.html` e seus descendentes
+`format.svg` e `format.png` estão materializados. Até os passos restantes terem
+L0 e autorização próprios, `format.pdf`, `format.html` e seus descendentes
 permanecem ausentes. É proibido criar filhos, aliases globais ou passthroughs
 para antecipar a contagem dos passos seguintes.
 
@@ -149,7 +154,7 @@ ausente. A confirmação humana posterior ao commit causal P1462 foi recebida em
 2026-09-19. O confirmação, candidato, ataques e veredito final foram concluídos no
 mesmo dia; P1463 não reabre esse contrato.
 
-## P1463 — `format.png` e namespace `ppi` (PROPOSTO; gate ADR-0127)
+## P1463 — `format.png` e namespace `ppi` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -183,6 +188,85 @@ P1463 não cria `format.pdf`, `format.html`, aliases globais, campos além de
 ### Aceitação e gate
 
 Exigir tipo, nome, default float, alias/`std`, construção proibida e ausência
-dos siblings futuros nos quatro perfis. A ampliação pública exige confirmação
-humana posterior ao commit causal P1463. Antes dela este texto não autoriza
-teste RED, consumer nem alteração de header de linhagem.
+dos siblings futuros nos quatro perfis. A confirmação humana posterior ao
+commit causal P1463 foi recebida em 2026-09-19; código, testes e validação foram
+materializados no mesmo dia. P1464 não reabre o transporte produtivo de `ppi`.
+
+## P1464 — `format.pdf`, defaults e membros reutilizados (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `a1286f958f15a539dca17a3696ef83ef9e5b1b78`, este consumer cria
+somente `svg` e `png`. O módulo global produzido por
+`compiler/stdlib/pdf.rs::make_pdf_module` já contém `attach` e `artifact` em
+todos os perfis e contém `table-summary`, `header-cell` e `data-cell` somente
+com `a11y-extras`. O vanilla ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d` mede:
+
+```text
+repr((type(format.pdf), format.pdf, format.pdf.pages,
+      format.pdf.standard, format.pdf.tagged, format.pdf.pretty))
+=> (function, pdf, none, ("1.7",), auto, false)
+
+format.pdf.attach == pdf.attach       => true
+format.pdf.artifact == pdf.artifact   => true
+format.pdf()                           => cannot be constructed manually
+```
+
+Com `a11y-extras`, os três membros condicionais são funções com nomes curtos e
+iguais aos respectivos valores globais; sem a feature, não existem. Alias,
+`std.format.pdf` e a aplicação parcial `.with(pretty: true)` preservam o
+namespace funcional. A ordem de inserção, o endereço de `Arc` e a forma da
+factory são mecânica; tipo, nome, defaults, igualdade linguística, presença e
+diagnóstico são observáveis públicos.
+
+### Contrato do filho
+
+A factory de `format` recebe a projeção efetiva já construída do módulo global
+`pdf`; este owner não chama `make_pdf_module`, não duplica suas nativas e não
+reimplementa seus gates. Ela acrescenta um terceiro membro `pdf`, como
+`Value::Func` nativa nominalmente `pdf`, não construtível e com namespace:
+
+```text
+pages    = none
+standard = ("1.7",)
+tagged   = auto
+pretty   = false
+attach/artifact = clones dos bindings do módulo pdf efetivo
+trio a11y        = clones somente quando presentes no módulo pdf efetivo
+```
+
+Os clones preservam a identidade linguística de função: cada membro compara
+igual ao seu correspondente `pdf.*`, conserva o nome curto e continua
+disponível através de `.with`. A ausência de algum membro obrigatório no valor
+PDF recebido é erro de composição, nunca motivo para criar stub, função por
+nome ou fallback silencioso. A função `format.pdf` não é `Value::Module` e a
+chamada direta reutiliza exatamente `cannot be constructed manually`.
+
+O pin `compiler-feature-gates` exige que o trio condicionado esteja todo
+ausente sem `a11y-extras` e todo presente com a feature; target, `html` e o
+formato de saída não alteram o conjunto. `format.svg`, `format.png`, o módulo
+global `pdf` e os seus bindings permanecem semanticamente idênticos.
+`format.html` continua ausente até P1465.
+
+### Incompletude deliberada e aceitação
+
+P1464 legitima somente descoberta, identidade, defaults visíveis, construção
+proibida, reutilização dos cinco membros e gate de presença. Não legitima
+`#set format.pdf(...)`, transporte ao exportador, seleção de páginas, tagging,
+serialização pretty, PDF/A ou PDF/UA. Os passos que completam esses eixos são:
+
+- P1465: `format.html` e membros;
+- P1466: `tagged` e `pretty` de ponta a ponta;
+- P1467: `pages` e `--pages`;
+- P1468: `standard`, `--pdf-standard` e conformidade real.
+
+Nos perfis `default`, `a11y-extras`, `html` e `html+a11y`, exigir tipo/nome,
+os quatro defaults exatos, alias/`std`, rejeição da chamada direta, igualdade
+dos membros, nomes curtos, gate integral e namespace preservado por `.with`.
+Não dar crédito a opção documental ainda não transportada nem converter
+`Unknown` em sucesso.
+
+Esta ampliação de superfície pública aguarda confirmação humana explícita
+posterior ao commit causal P1464. Antes dela este texto não autoriza código
+produtivo, teste RED nem alteração de header de linhagem.

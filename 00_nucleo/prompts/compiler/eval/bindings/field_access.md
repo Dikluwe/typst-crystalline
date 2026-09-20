@@ -2,6 +2,7 @@
 Hash do Código: 0a7414ce
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
 ## P1444 — superfície de campo de `MathPrimes` (MATERIALIZADO)
@@ -1247,3 +1248,55 @@ No vanilla, `body` está sempre assente; annotation omitida não aparece em
 
 Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
 ordem declarada, preservando `Value::None` e a função pública.
+
+## P1464 — diagnóstico gated sobre `format.pdf` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `a1286f958f15a539dca17a3696ef83ef9e5b1b78`, o ramo especial de
+`a11y-extras` reconhece somente `Value::Module` cujo nome público é `pdf`.
+P1464 introduz `format.pdf` como função nativa com namespace; sem ampliação
+deste owner, o acesso ao trio gated cairia no erro genérico de função em vez do
+diagnóstico público de feature desativada.
+
+O vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d` produz, para
+`table-summary`, `header-cell` e `data-cell`, exatamente um erro ancorado no
+identificador do field:
+
+```text
+cannot access field `<field>` because the `a11y-extras` feature is not enabled
+hint: try enabling the `a11y-extras` feature
+hint: see https://typst.app/help/compiler-features for more details
+```
+
+Com a feature ativa, o lookup devolve a função projetada. Mensagem, hints,
+ordem e span são linguagem pública; o predicate Rust usado para reconhecer a
+função e atravessar `Func::With` é mecânica.
+
+### Decisão e fronteira
+
+O intercept existente aceita dois alvos legítimos para o mesmo gate:
+
+1. o módulo global nomeado `pdf`;
+2. a função nativa `format.pdf`, inclusive envolvida por uma ou mais camadas
+   de `.with`, desde que conserve o namespace de formato contratado.
+
+O segundo caso não pode ser reconhecido somente por alias lexical ou por uma
+string de nome: deve ser uma função nativa cuja identidade subjacente seja
+`pdf` e cujo namespace contenha os bindings permanentes `attach` e `artifact`
+e os defaults `pages`, `standard`, `tagged` e `pretty`. Closures de utilizador,
+plugins, elementos homônimos e funções nativas sem esse namespace continuam
+nos seus diagnósticos vigentes.
+
+Sem `A11yExtras`, exatamente os três fields gated recebem a mensagem e os dois
+hints acima, nessa ordem, com `access.field().span()`. Com a feature, o
+intercept não executa e o lookup ordinário devolve os bindings presentes.
+Fields diferentes, `format.svg`, `format.png`, `format.html`, módulos
+homônimos, o módulo global `pdf` e todas as obrigações P1303 permanecem
+inalterados. Não fabricar valor, mutar namespace, duplicar catálogo nem ativar
+feature por target.
+
+Aceitação cobre os três fields, acesso direto/alias/`std`/`.with`, os quatro
+perfis, mensagem integral, dois hints, span do field e controles homônimos.
+`Unknown` bloqueia. A ampliação pública depende do commit causal e da
+confirmação humana P1464 antes de código ou RED.

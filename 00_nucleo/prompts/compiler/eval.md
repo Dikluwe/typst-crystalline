@@ -767,3 +767,52 @@ global. Aceitação exige `format` e `std.format` como o mesmo módulo nominal,
 alias estável, diagnóstico genérico de field ausente e ausência de todos os
 filhos. Código, testes e header de linhagem aguardam confirmação humana
 posterior ao commit causal P1461.
+
+## P1464 — composição única de `pdf` e projeção em `format.pdf` (PROPOSTO)
+
+### Medição anterior à decisão
+
+No baseline `a1286f958f15a539dca17a3696ef83ef9e5b1b78`,
+`make_stdlib_with_features` registra `format` antes de construir e registrar o
+módulo global `pdf`. Por isso a factory de `format` não recebe a instância PDF
+efetiva e `format.pdf` permanece ausente. `make_pdf_module(features)` já aplica
+o gate `A11yExtras` e devolve todos e somente os bindings produtivos que P1464
+deve reutilizar.
+
+No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
+`format.pdf.attach == pdf.attach` e `format.pdf.artifact == pdf.artifact`; com
+`a11y-extras`, as três igualdades adicionais também são verdadeiras. É
+inferência que construir uma única instância efetiva e clonar seus valores de
+binding preserva essa identidade linguística. Necessidade de duplicar factory,
+inferir feature por nome ou alterar `Value`, `Module`, `Func` ou `Scope`
+refutaria a inferência e bloquearia o recorte.
+
+### Decisão de composição
+
+`make_stdlib_with_features` chama `make_pdf_module(features)` exatamente uma
+vez. Mantém o `Value` resultante localmente, entrega por referência essa mesma
+projeção efetiva a `make_format_module` e registra:
+
+```text
+format = módulo format que contém a função format.pdf projetada
+pdf    = o mesmo valor de módulo PDF efetivo já construído
+```
+
+Clonar o carrier imutável para inserção no scope é permitido; reconstruir o
+módulo, suas funções ou catálogo é proibido. A ordem interna das definições é
+mecânica desde que ambos os bindings recebam a mesma projeção e todos os
+bindings anteriores permaneçam semanticamente estáveis. O owner
+`compiler/stdlib/format.md` decide os defaults e o namespace da função; este
+owner decide somente a construção única e a ligação no scope global.
+
+O conjunto efetivo de features continua vindo exclusivamente do argumento
+`features`. `html`, target e exporter não ativam `a11y-extras`; sem a feature,
+o trio não aparece nem no módulo global nem na projeção. Não criar aliases
+globais novos, wrappers, stubs, segunda chamada a `make_pdf_module` ou lógica
+de exportação.
+
+Aceitação exige identidade pública dos cinco pares, os quatro perfis
+`default`/`a11y-extras`/`html`/`html+a11y`, módulo global `pdf` inalterado e
+`format.html` ausente. Esta mudança pública aguarda confirmação humana
+posterior ao commit causal P1464; antes dela não há autorização para código ou
+teste RED.
