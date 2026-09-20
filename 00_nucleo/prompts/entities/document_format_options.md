@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
-Hash do Código: b9b202a6
+Hash do Código: 4733bd82
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E CONTRATO
-P1467 PROPOSTOS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466
+PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`

@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: f056d980
+Hash do Código: ddfad15d
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E EXTRAÇÃO
-P1467 PROPOSTAS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466
+PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`

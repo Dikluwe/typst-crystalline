@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: a387ee46
+Hash do Código: 780d94dc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
