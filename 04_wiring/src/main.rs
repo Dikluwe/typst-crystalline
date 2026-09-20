@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 2586c743
+//! @prompt-hash 1501a41b
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -761,12 +761,12 @@ fn run_compile_observed(
                 }
             };
             let (r, w) =
-                typst_infra::pipeline::compile_to_html_string_with_features_and_serialization_and_pretty(
+                typst_infra::pipeline::compile_to_html_string_with_features_and_serialization_and_pretty_override(
                     &world,
                     &source,
                     features,
                     html_serialization,
-                    pretty,
+                    pretty_override,
                 );
             (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
         }

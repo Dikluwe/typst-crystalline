@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: eb2dc89f
+Hash do Código: f2666e1f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -675,7 +675,7 @@ códigos de saída. A confirmação humana posterior ao commit causal P1463 foi
 recebida em 2026-09-19; a chamada pública e o transporte do campo foram
 materializados e validados.
 
-## P1465 — preservar ausência de `pretty` no braço HTML (PROPOSTO)
+## P1465 — preservar ausência de `pretty` no braço HTML (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -705,6 +705,6 @@ afetando somente o formato que já a consome.
 
 Este fio aplica o Núcleo `format-option-precedence` pinado acima. Aceitação
 cobre `None`, os dois `Some`, os dois modos de serialização, compile/watch e
-neutralidade PDF/PNG/SVG. A nova chamada pública e a mudança de default efetivo
-aguardam confirmação humana posterior ao commit causal P1465 antes de
-consumer, header ou teste RED.
+neutralidade PDF/PNG/SVG. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
+braço HTML preserva o tri-state até a pipeline.

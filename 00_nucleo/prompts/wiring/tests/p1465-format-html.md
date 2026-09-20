@@ -1,7 +1,8 @@
 # Prompt L0 — integração de `format.html`
 
-**Estado:** CONTRATO DE TESTE P1465 PROPOSTO — AGUARDA CONFIRMAÇÃO ADR-0127;
-sem consumer e sem `Hash do Código` até o gate posterior ao commit causal.
+Hash do Código: 58a60d1f
+
+**Estado:** CONTRATO DE TESTE P1465 MATERIALIZADO; gate ADR-0127 satisfeito.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -94,9 +95,9 @@ e logs descartáveis usam exclusivamente uma raiz de tarefa em `/dev/shm`, sem
 fallback ao disco. Execução serial, limite por processo e watchdog respeitam o
 teto de 32 GiB; falta de espaço, OOM ou timeout é `Unknown`, nunca sucesso.
 
-## Gate
+## Gate satisfeito
 
-O consumer e o primeiro RED só podem ser criados depois de confirmação humana
-explícita posterior ao commit causal P1465. Então o consumer apontará
-exclusivamente para este prompt, o header será ressellado e os testes
-comportamentais precederão a implementação produtiva.
+A confirmação humana explícita posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20. O
+consumer exclusivo foi criado depois do gate; o primeiro RED teve 0/4 testes
+verdes e a implementação produtiva levou a matriz a 4/4.

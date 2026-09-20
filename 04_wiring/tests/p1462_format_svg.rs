@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1462-format-svg.md
-//! @prompt-hash d0ca19bd
+//! @prompt-hash e128c1dc
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};
@@ -844,14 +844,17 @@ fn svg_document_option_is_neutral_to_pdf_png_html_and_html_frame() {
 }
 
 #[test]
-fn html_remains_absent_from_format_namespace() {
+fn p1465_successor_html_is_feature_gated_from_format_namespace() {
     let mut checks = Checks::default();
     let observed = eval("repr(format.html)", None);
     checks.require(
         !observed.success
-            && observed.stderr.contains("module `format` does not contain `html`"),
+            && observed.stderr.contains(
+                "cannot access field `html` because the `html` feature is not enabled",
+            )
+            && observed.stderr.contains("try enabling the `html` feature"),
         format!(
-            "sibling/html: expected strict absence, code={:?}, stderr={}",
+            "sibling/html: expected feature gate, code={:?}, stderr={}",
             observed.code, observed.stderr
         ),
     );

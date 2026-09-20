@@ -1,11 +1,10 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
-Hash do Código: c8e79d4b
+Hash do Código: 52688f39
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** P1461/P1462/P1463/P1464 MATERIALIZADOS; P1465 CAUSAL — AGUARDA
-CONFIRMAÇÃO ADR-0127.
+**Estado:** P1461–P1465 MATERIALIZADOS.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -75,11 +74,10 @@ contratado desta unidade, não uma alegação de fecho de `format.*`.
 - P1463 completou `format.png` e `ppi`;
 - P1464 completou `format.pdf`, seus defaults de namespace e cinco
   membros reutilizados;
-- P1465 completa `format.html`, `pretty`, gate `html` e seus membros.
+- P1465 completou `format.html`, `pretty`, gate `html` e seus membros.
 
-`format.svg`, `format.png` e `format.pdf` estão materializados. Até P1465 ter
-L0 e autorização próprios, `format.html` e seus descendentes permanecem
-ausentes. É proibido criar filhos, aliases globais ou passthroughs para
+`format.svg`, `format.png`, `format.pdf` e `format.html` estão materializados.
+É proibido criar filhos, aliases globais ou passthroughs para
 antecipar a contagem dos passos seguintes.
 
 ## Aceitação linguística limitada
@@ -247,7 +245,7 @@ O pin `compiler-feature-gates` exige que o trio condicionado esteja todo
 ausente sem `a11y-extras` e todo presente com a feature; target, `html` e o
 formato de saída não alteram o conjunto. `format.svg`, `format.png`, o módulo
 global `pdf` e os seus bindings permanecem semanticamente idênticos.
-`format.html` continua ausente até P1465.
+`format.html` permaneceu ausente nesse recorte e foi materializado por P1465.
 
 ### Incompletude deliberada e aceitação
 
@@ -272,7 +270,7 @@ em 2026-09-20. Implementação e teste independente partiram desse baseline; o
 teste passou de RED (`1/4`) para GREEN (`4/4`) sem ampliar o recorte dos passos
 P1465–P1468.
 
-## P1465 — `format.html`, `pretty` e membros reutilizados (PROPOSTO)
+## P1465 — `format.html`, `pretty` e membros reutilizados (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -331,6 +329,6 @@ O contrato vertical P1465 exige `--pretty > documento > false`, mas não move
 essas responsabilidades para esta factory.
 
 Aceitação cobre os quatro perfis, os 114 pares, alias/`std`/`.with`, gate,
-default e construção proibida. Esta ampliação pública aguarda confirmação
-humana explícita posterior ao commit causal P1465; antes dela não autoriza
-código, teste RED nem alteração de header.
+default e construção proibida. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20;
+o teste funcional passou de RED (0/4) para GREEN (4/4).

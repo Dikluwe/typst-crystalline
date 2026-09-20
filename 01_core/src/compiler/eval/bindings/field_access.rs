@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 5eabca3d
+//! @prompt-hash 7cb82510
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -497,6 +497,13 @@ fn is_a11y_pdf_target(target: &Value) -> bool {
     }
 }
 
+fn is_effective_format_module(module: &crate::entities::module::Module) -> bool {
+    module.name() == "format"
+        && ["svg", "png", "pdf", "html"].into_iter().all(|name| {
+            matches!(module.scope().get(name), Some(Value::Func(func)) if func.name() == Some(name))
+        })
+}
+
 pub(in crate::compiler::eval) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
     scopes: &mut Scopes<'_>,
@@ -507,6 +514,23 @@ pub(in crate::compiler::eval) fn eval_field_access(
 
     let target = eval_expr(access.target(), scopes, ctx, engine)?;
     let field = access.field().as_str();
+
+    // P1465 — `format.html` existe no módulo efetivo em todos os perfis, mas
+    // o acesso público é feature-gated. A checagem ocorre antes do lookup e,
+    // portanto, antes de qualquer avaliação dos argumentos de uma set rule.
+    if field == "html"
+        && matches!(&target, Value::Module(module) if is_effective_format_module(module))
+        && !ctx
+            .features
+            .contains(crate::entities::compiler_features::Feature::Html)
+    {
+        return Err(vec![SourceDiagnostic::error(
+            access.field().span(),
+            "cannot access field `html` because the `html` feature is not enabled",
+        )
+        .with_hint("try enabling the `html` feature")
+        .with_hint("see https://typst.app/help/compiler-features for more details")]);
+    }
 
     // P509 — field access em coleções despacha para métodos de instância.
     if let Some(result) = crate::compiler::stdlib::try_dispatch_collection_method(

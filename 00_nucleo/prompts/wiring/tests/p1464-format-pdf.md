@@ -1,5 +1,5 @@
 # Prompt L0 — integração de `format.pdf`
-Hash do Código: ddb99a61
+Hash do Código: 4534f7f4
 
 **Estado:** MATERIALIZADO APÓS CONFIRMAÇÃO ADR-0127.
 
@@ -58,7 +58,9 @@ permanecer descobertos através de `.with`.
 - `format.svg` e `format.png` mantêm tipo, nome e defaults vigentes;
 - o módulo global `pdf`, seus dois membros permanentes e o gate do trio não
   mudam;
-- `format.html` continua ausente nos quatro perfis, inclusive com `html`;
+- sucessão P1465: sem `html`, `format.html` recebe o gate público dessa
+  feature; com `html`, o teste apenas confirma que o sibling existe como
+  função e deixa namespace, set rule e export ao owner P1465;
 - uma closure de utilizador chamada `pdf`, com ou sem fields homônimos, não
   recebe o diagnóstico especial de feature;
 - nenhum caso usa `#set format.pdf(...)` como comportamento suportado;
@@ -88,3 +90,8 @@ papel B sem acesso ao código do papel A. Contra o baseline causal, o primeiro
 RED teve `1` teste aprovado e `3` reprovados; após a integração, os `4` testes
 passaram. O header e o hash bidirecional são selados no commit de
 materialização.
+
+O controle de sibling foi sucedido pelo contrato P1465 confirmado depois do
+commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`: ausência estrita
+deixou de ser expectativa válida e foi substituída por gate/presença conforme
+o perfil, sem ampliar a responsabilidade PDF deste teste.

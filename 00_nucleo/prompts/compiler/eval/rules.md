@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: a2b36f53
+Hash do Código: 192f12f7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -354,7 +354,7 @@ positional/duplicado e ausência do warning antigo. A confirmação humana
 posterior ao commit causal P1463 foi recebida em 2026-09-19; a set rule foi
 materializada e validada sem reabrir `format.svg`.
 
-## P1465 — set rule feature-gated `format.html` (PROPOSTA)
+## P1465 — set rule feature-gated `format.html` (MATERIALIZADA)
 
 ### Medição anterior à decisão
 
@@ -396,5 +396,6 @@ ordem da cascata.
 
 Aceitação cobre os quatro perfis, gate antes de panic, avaliação ordinária dos
 argumentos com feature ativa, regra vazia, true/false, repetição/inversão e os
-quatro negativos de schema. A ampliação pública aguarda confirmação humana
-posterior ao commit causal P1465 antes de consumer, RED ou header.
+quatro negativos de schema. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
+regra e seus testes comportamentais foram materializados.

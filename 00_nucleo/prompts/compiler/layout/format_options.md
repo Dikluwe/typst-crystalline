@@ -1,7 +1,7 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: 982f8350
+Hash do Código: 7a7aad94
 
-**Estado:** P1462 E P1463 MATERIALIZADOS; P1465 CAUSAL — AGUARDA CONFIRMAÇÃO.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -125,7 +125,7 @@ interno impossível e chave futura neutra. A confirmação humana posterior ao
 commit causal P1463 foi recebida em 2026-09-19; a chave PNG foi materializada
 e validada sem alterar a semântica SVG.
 
-## P1465 — extração root de `format.html.pretty` (PROPOSTO)
+## P1465 — extração root de `format.html.pretty` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -159,5 +159,6 @@ ordem, isolamento, fronteira root e mensagem são contrato.
 
 Aceitação cobre ausência/default, true/false, repetição nas duas ordens, regra
 vazia, composição SVG+PNG+HTML, dois containers, tipo interno impossível e
-neutralidade PDF. A ampliação do retorno público aguarda confirmação humana
-posterior ao commit causal P1465.
+neutralidade PDF. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
+extração e os testes unitários foram materializados.

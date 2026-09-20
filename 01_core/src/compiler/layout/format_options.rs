@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash cbe86a88
+//! @prompt-hash 68caa035
 //! @layer L1
 //! @updated 2026-09-19
 
@@ -13,6 +13,7 @@ use crate::entities::value::Value;
 
 const SVG_PRETTY_KEY: &str = "format.svg.pretty";
 const PNG_PPI_KEY: &str = "format.png.ppi";
+const HTML_PRETTY_KEY: &str = "format.html.pretty";
 const NESTED_FORMAT_RULE_ERROR: &str =
     "format set rules are not allowed inside of containers";
 
@@ -41,6 +42,14 @@ fn explicit_png_ppi_values(styles: &Styles) -> impl Iterator<Item = &Value> {
         .filter_map(|(key, value)| (key.as_str() == PNG_PPI_KEY).then_some(value))
 }
 
+fn explicit_html_pretty_values(styles: &Styles) -> impl Iterator<Item = &Value> {
+    styles
+        .delta()
+        .custom
+        .iter()
+        .filter_map(|(key, value)| (key.as_str() == HTML_PRETTY_KEY).then_some(value))
+}
+
 fn validate_svg_pretty(value: &Value) -> SourceResult<bool> {
     match value {
         Value::Bool(value) => Ok(*value),
@@ -67,6 +76,19 @@ fn validate_png_ppi(value: &Value) -> SourceResult<f64> {
     }
 }
 
+fn validate_html_pretty(value: &Value) -> SourceResult<bool> {
+    match value {
+        Value::Bool(value) => Ok(*value),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "expected boolean, found {} in internal {HTML_PRETTY_KEY}",
+                typst_type_name(other)
+            ),
+        )]),
+    }
+}
+
 fn collect_root_options(
     content: &Content,
     options: &mut DocumentFormatOptions,
@@ -85,6 +107,10 @@ fn collect_root_options(
             }
             for value in explicit_png_ppi_values(styles) {
                 options.png.ppi = validate_png_ppi(value)?;
+                *root_occurrences += 1;
+            }
+            for value in explicit_html_pretty_values(styles) {
+                options.html.pretty = validate_html_pretty(value)?;
                 *root_occurrences += 1;
             }
             collect_root_options(body, options, root_occurrences)?;
@@ -109,6 +135,10 @@ pub fn collect_document_format_options(
             }
             for value in explicit_png_ppi_values(styles) {
                 validate_png_ppi(value)?;
+                all_occurrences += 1;
+            }
+            for value in explicit_html_pretty_values(styles) {
+                validate_html_pretty(value)?;
                 all_occurrences += 1;
             }
         }
@@ -138,6 +168,10 @@ mod tests {
         Content::Styled(Box::new(body), Styles::new().push_custom(SVG_PRETTY_KEY, value))
     }
 
+    fn html_pretty(body: Content, value: Value) -> Content {
+        Content::Styled(Box::new(body), Styles::new().push_custom(HTML_PRETTY_KEY, value))
+    }
+
     #[test]
     fn p1462_absence_and_unrelated_styles_keep_default_false() {
         let content = Content::Styled(
@@ -148,6 +182,7 @@ mod tests {
         let options = collect_document_format_options(&content).unwrap();
 
         assert!(!options.svg.pretty);
+        assert!(!options.html.pretty);
     }
 
     #[test]
@@ -200,5 +235,37 @@ mod tests {
         let errors = collect_document_format_options(&content).unwrap_err();
 
         assert!(errors[0].message.contains("expected boolean, found integer"));
+    }
+
+    #[test]
+    fn p1465_html_root_cascade_is_last_write_wins() {
+        let content = html_pretty(
+            Content::sequence(vec![
+                Content::text("before"),
+                html_pretty(Content::text("after"), Value::Bool(false)),
+            ]),
+            Value::Bool(true),
+        );
+        assert!(!collect_document_format_options(&content).unwrap().html.pretty);
+
+        let reversed = Content::sequence(vec![
+            html_pretty(Content::Empty, Value::Bool(false)),
+            html_pretty(Content::Empty, Value::Bool(true)),
+        ]);
+        assert!(collect_document_format_options(&reversed).unwrap().html.pretty);
+    }
+
+    #[test]
+    fn p1465_html_nested_and_non_boolean_values_fail_closed() {
+        let nested = Content::Par {
+            body: Box::new(html_pretty(Content::Empty, Value::Bool(true))),
+        };
+        let errors = collect_document_format_options(&nested).unwrap_err();
+        assert_eq!(errors[0].message, NESTED_FORMAT_RULE_ERROR);
+
+        let invalid = html_pretty(Content::Empty, Value::Int(1));
+        let errors = collect_document_format_options(&invalid).unwrap_err();
+        assert!(errors[0].message.contains("expected boolean, found integer"));
+        assert!(errors[0].message.contains(HTML_PRETTY_KEY));
     }
 }

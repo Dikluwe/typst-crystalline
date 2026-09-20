@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1463-format-png.md
-//! @prompt-hash af74f54b
+//! @prompt-hash 7138c0e1
 
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -477,14 +477,17 @@ fn png_document_and_caller_options_are_byte_neutral_to_svg() {
 }
 
 #[test]
-fn html_remains_absent_from_format_namespace() {
+fn p1465_successor_html_is_feature_gated_from_format_namespace() {
     let mut checks = Checks::default();
     let observed = eval("repr(format.html)", None);
     checks.require(
         !observed.success
-            && observed.stderr.contains("module `format` does not contain `html`"),
+            && observed.stderr.contains(
+                "cannot access field `html` because the `html` feature is not enabled",
+            )
+            && observed.stderr.contains("try enabling the `html` feature"),
         format!(
-            "sibling/html: expected strict absence, code={:?}, stderr={}",
+            "sibling/html: expected feature gate, code={:?}, stderr={}",
             observed.code, observed.stderr
         ),
     );

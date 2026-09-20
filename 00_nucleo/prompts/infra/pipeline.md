@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 2bcccc14
+Hash do Código: 5e4c94f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1036,7 +1036,7 @@ A confirmação humana posterior ao commit causal P1463 foi recebida em
 2026-09-19; a API de override parcial e a resolução PNG foram materializadas e
 validadas.
 
-## P1465 — coleta e resolução de `format.html.pretty` (PROPOSTO)
+## P1465 — coleta e resolução de `format.html.pretty` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -1095,5 +1095,7 @@ repetição, dois overrides explícitos, rejeição nested, propagação de erro
 eval e igualdade do DOM entre modos. Cobrir também `html.frame` com a mesma
 decisão final e neutralidade dos outros targets. Não congelar bytes integrais.
 
-A nova API pública e a nova consulta documental aguardam confirmação humana
-posterior ao commit causal P1465 antes de consumer, header ou teste RED.
+A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20. A
+API tri-state, a consulta documental e a decisão única para HTML/`html.frame`
+foram materializadas e cobertas por testes focais e funcionais.

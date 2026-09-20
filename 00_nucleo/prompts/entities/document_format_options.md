@@ -1,7 +1,7 @@
 # Prompt L0 — `entities/document_format_options`
-Hash do Código: 51e84ec4
+Hash do Código: a74886c7
 
-**Estado:** P1462 E P1463 MATERIALIZADOS; P1465 CAUSAL — AGUARDA CONFIRMAÇÃO.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -91,7 +91,7 @@ ortogonalidade SVG/PNG. Não aceitar `Option<f64>` no documento nem acrescentar
 PDF/HTML nesse recorte. A confirmação humana posterior ao commit causal P1463
 foi recebida em 2026-09-19; os carriers PNG foram materializados e validados.
 
-## Contrato público P1465 (PROPOSTO; gate ADR-0127)
+## Contrato público P1465 (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -124,5 +124,6 @@ nenhuma mudança artificial de trait ou representação é autorizada.
 
 Testes provam default, clone, igualdade, independência de instâncias e
 ortogonalidade SVG/PNG/HTML. Não acrescentar PDF, exporter, feature ou lógica
-de precedência neste owner. O novo tipo e campo públicos aguardam confirmação
-humana posterior ao commit causal P1465 antes de consumer/header/teste RED.
+de precedência neste owner. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
+novo tipo/campo e seus testes foram materializados.

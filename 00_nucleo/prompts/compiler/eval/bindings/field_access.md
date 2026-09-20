@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 51c2a38a
+Hash do Código: 9cec12b0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1302,7 +1302,7 @@ perfis, mensagem integral, dois hints, span do field e controles homônimos.
 recebida em 2026-09-20; o diagnóstico foi materializado e coberto pelo ciclo
 RED→GREEN independente.
 
-## P1465 — diagnóstico gated sobre `format.html` (PROPOSTO)
+## P1465 — diagnóstico gated sobre `format.html` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -1342,5 +1342,6 @@ ramo.
 
 Aceitação cobre acesso direto, alias e `std`, perfis default/a11y/html/
 html+a11y, mensagem integral, hints, span e controles homônimos. `Unknown`
-bloqueia. A mudança aguarda confirmação humana posterior ao commit causal
-P1465 antes de consumer, teste RED ou header.
+bloqueia. A confirmação humana posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
+gate foi materializado e coberto pelo RED→GREEN funcional.

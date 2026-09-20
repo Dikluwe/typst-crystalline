@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 8975d596
+Hash do Código: 1445b30e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -817,7 +817,7 @@ Aceitação exige identidade pública dos cinco pares, os quatro perfis
 foi recebida em 2026-09-20; a composição única foi materializada e o teste
 independente passou de RED para GREEN.
 
-## P1465 — composição única de `html` e projeção em `format.html` (PROPOSTO)
+## P1465 — composição única de `html` e projeção em `format.html` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -856,6 +856,6 @@ feature. PDF, demais bindings globais, módulos importados e `std` permanecem
 semanticamente estáveis.
 
 Aceitação exige igualdade dos 114 pares, uma única chamada produtiva à factory
-HTML, quatro perfis e ausência de regressão no módulo global. A ampliação
-pública aguarda confirmação humana posterior ao commit causal P1465; antes
-dela não autoriza consumer, header ou teste RED.
+HTML, quatro perfis e ausência de regressão no módulo global. A confirmação
+humana posterior ao commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`
+foi recebida em 2026-09-20; implementação e teste RED→GREEN foram concluídos.

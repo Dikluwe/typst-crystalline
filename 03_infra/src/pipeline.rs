@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 1fa5154f
+//! @prompt-hash dcd315a4
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -22,6 +22,7 @@ use comemo::{Track, TrackedMut};
 use typst_core::contracts::world::World;
 use typst_core::entities::args::Args;
 use typst_core::entities::content::Content;
+use typst_core::entities::document_format_options::DocumentFormatOptions;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
@@ -225,8 +226,8 @@ pub fn compile_to_html_string_with_features_and_serialization(
     features: typst_core::entities::compiler_features::Features,
     mode: crate::export::HtmlSerializationMode,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_html_string_with_features_and_serialization_and_pretty(
-        world, source, features, mode, false,
+    compile_to_html_string_with_features_and_serialization_and_pretty_override(
+        world, source, features, mode, None,
     )
 }
 
@@ -236,6 +237,29 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
     features: typst_core::entities::compiler_features::Features,
     mode: crate::export::HtmlSerializationMode,
     pretty: bool,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_html_string_with_features_and_serialization_and_pretty_override(
+        world,
+        source,
+        features,
+        mode,
+        Some(pretty),
+    )
+}
+
+fn resolve_html_pretty(
+    pretty_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> bool {
+    pretty_override.unwrap_or(options.html.pretty)
+}
+
+pub fn compile_to_html_string_with_features_and_serialization_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    features: typst_core::entities::compiler_features::Features,
+    mode: crate::export::HtmlSerializationMode,
+    pretty_override: Option<bool>,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     if !features.contains(typst_core::entities::compiler_features::Feature::Html) {
         return (
@@ -259,6 +283,8 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
     );
     let html = result.and_then(|module| {
         let content = module.content().cloned().unwrap_or(Content::Empty);
+        let format_options = collect_document_format_options(&content)?;
+        let pretty = resolve_html_pretty(pretty_override, &format_options);
         let intr = introspect_with_introspector(&content);
         let (prepared, contextual_warnings) = context_stabilization::prepare_html(
             content, &intr, world, source, false, features,
@@ -298,6 +324,24 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty(
             .map_err(|error| vec![error])
     });
     (html, warnings)
+}
+
+#[cfg(test)]
+mod p1465_tests {
+    use super::*;
+
+    #[test]
+    fn html_pretty_precedence_is_override_then_document_then_false() {
+        let mut options = DocumentFormatOptions::default();
+        assert!(!resolve_html_pretty(None, &options));
+
+        options.html.pretty = true;
+        assert!(resolve_html_pretty(None, &options));
+        assert!(!resolve_html_pretty(Some(false), &options));
+
+        options.html.pretty = false;
+        assert!(resolve_html_pretty(Some(true), &options));
+    }
 }
 
 /// **P506** — Expande todos os `Content::ContextBlock` do documento

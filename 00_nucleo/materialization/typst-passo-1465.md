@@ -1,7 +1,7 @@
 # Passo 1465 — materializar `format.html` e transportar `pretty` até o export HTML
 
-**Estado:** L0 CAUSAL ESCRITO — AGUARDA CONFIRMAÇÃO HUMANA PÓS-COMMIT
-(ADR-0127)
+**Estado:** MATERIALIZADO — GATES FOCAIS VERDES; DÍVIDA GLOBAL REPRODUZIDA NO
+COMMIT CAUSAL
 **Data da medição:** 2026-09-20T10:54:00-03:00
 **Baseline cristalino:** `8e74134a721310cc4fb2a596a195398e16f1d5db`
 **Tree do baseline:** `9e34e0233998ca60ad86145ab3ad8771e67a8726`, limpa
@@ -271,7 +271,10 @@ amplia a extração de opções entre eval e export. A paragem é obrigatória:
 3. **parar para confirmação humana posterior ao commit causal**;
 4. somente depois criar teste RED, alterar código e ressellar linhagem.
 
-A confirmação de P1464 não autoriza P1465.
+A confirmação posterior ao commit causal
+`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20 e
+autorizou a materialização. A confirmação de P1464, isoladamente, não
+autorizava P1465.
 
 ## 7. Testes após confirmação
 
@@ -324,3 +327,80 @@ alocação de aproximadamente 40,5 GB observada no passo anterior.
 Nenhum manifesto administrativo, selo, recibo, certificado, catálogo de
 mutantes ou cadeia de hashes deve ser criado. Artefatos versionados do passo:
 este documento, L0s, código e testes funcionais.
+
+## 9. Resultado da materialização
+
+Medição final em `2026-09-20T13:00:19-03:00`, sobre working tree não commitado
+baseado em `e300314e2f87e90e543c4923a8cae97f9ad978a8`. No instante da medição havia
+23 arquivos tracked no `git diff HEAD --stat` (392 inserções e 104 remoções) e
+o novo `04_wiring/tests/p1465_format_html.rs` com 635 linhas. Os caminhos exatos
+eram:
+
+```text
+00_nucleo/prompts/compiler/eval.md
+00_nucleo/prompts/compiler/eval/bindings/field_access.md
+00_nucleo/prompts/compiler/eval/rules.md
+00_nucleo/prompts/compiler/layout/format_options.md
+00_nucleo/prompts/compiler/stdlib/format.md
+00_nucleo/prompts/entities/document_format_options.md
+00_nucleo/prompts/infra/pipeline.md
+00_nucleo/prompts/wiring.md
+00_nucleo/prompts/wiring/tests/p1462-format-svg.md
+00_nucleo/prompts/wiring/tests/p1463-format-png.md
+00_nucleo/prompts/wiring/tests/p1464-format-pdf.md
+00_nucleo/prompts/wiring/tests/p1465-format-html.md
+01_core/src/compiler/eval/bindings/field_access.rs
+01_core/src/compiler/eval/mod.rs
+01_core/src/compiler/eval/rules.rs
+01_core/src/compiler/layout/format_options.rs
+01_core/src/compiler/stdlib/format.rs
+01_core/src/entities/document_format_options.rs
+03_infra/src/pipeline.rs
+04_wiring/src/main.rs
+04_wiring/tests/p1462_format_svg.rs
+04_wiring/tests/p1463_format_png.rs
+04_wiring/tests/p1464_format_pdf.rs
+04_wiring/tests/p1465_format_html.rs
+```
+
+O teste P1465 foi observado RED antes da implementação e GREEN depois dela.
+Os gates funcionais finais deram:
+
+- P1465: 4/4;
+- regressão P1462: 7/7;
+- regressão P1463: 6/6;
+- regressão P1464: 4/4;
+- unidades focais P1465 em L1: 4/4;
+- regressão `p1424_html_frame` em L3: 4/4;
+- `cargo build --workspace`: sucesso;
+- `crystalline-lint .`: sucesso;
+- `crystalline-lint --checks v5,v15,v26 --fail-on warning .`: sucesso;
+- formatação dos arquivos Rust alterados: sucesso;
+- referências de documentação e headers `@prompt` alterados: nenhuma quebrada;
+- `git diff --check`: sucesso.
+
+`cargo test --workspace --no-fail-fast -- --test-threads=1` percorreu todos os
+alvos e preservou 20 falhas já presentes no commit causal: oito no lib de L1,
+seis no lib de L3, duas em `p1427_math_frac`, três no teste CLI e uma em
+`p1293_contract`. Os mesmos oito nomes de L1, os seis nomes de L3 e as duas
+falhas P1427 foram reproduzidos diretamente em clone isolado do commit causal.
+As quatro falhas PNG também foram reproduzidas nesse commit com o mesmo
+observável: tentativa de alocar exatamente `41568028160` bytes, bloqueada pelo
+limite. Nenhuma dessas falhas pertence à superfície `format.html`; os quatro
+testes novos e as três regressões predecessoras ficaram verdes na mesma
+execução completa.
+
+`cargo clippy --workspace --all-targets --all-features` parou no lib de L1 com
+seis erros em código não alterado por P1465: um `deprecated_since` em
+`entities/layout_types.rs`, três `never_loop` em `structural/math.rs` e
+`math_style.rs`, e dois `absurd_extreme_comparisons` no constructor de
+`duration`. Os seis foram reproduzidos com os mesmos arquivos, linhas,
+categorias e total de 353 warnings diretamente no commit causal. O projeto
+também conserva dois desvios de `cargo fmt --check` em
+`03_infra/tests/p1428_math_frac.rs` e
+`04_wiring/tests/p1289_float_is_infinite.rs`, ambos fora do diff.
+
+Todos os lotes usaram `TMPDIR` e `CARGO_TARGET_DIR` sob `/dev/shm`,
+`CARGO_BUILD_JOBS=1`, `CARGO_INCREMENTAL=0`, `RUST_TEST_THREADS=1` e
+`ulimit -v 25165824` (24 GiB). O limite impediu a reincidência do estouro de
+aproximadamente 40,5 GB sem derrubar o processo controlador ou o host.

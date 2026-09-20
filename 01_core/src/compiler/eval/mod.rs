@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash d12a4964
+//! @prompt-hash cf044b0c
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -7770,9 +7770,10 @@ fn make_stdlib_with_features(
         native_yaml_encode,
     };
     let pdf = make_pdf_module(features);
+    let html = Value::Module(make_html_module());
     let mut scope = Scope::new();
-    scope.define("format", Value::Module(make_format_module(&pdf)));
-    scope.define("html", Value::Module(make_html_module()));
+    scope.define("format", Value::Module(make_format_module(&pdf, &html)));
+    scope.define("html", html);
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
     scope.define("repr", Value::Func(Func::native("repr", native_repr)));

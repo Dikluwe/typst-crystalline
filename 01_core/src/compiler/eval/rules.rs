@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash ebec7164
+//! @prompt-hash 7774c898
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -1411,6 +1411,69 @@ pub(super) fn eval_set_rule(
     // P456: guarda o pattern string (não Bool) para formatar via format_counter,
     // análogo a figure.numbering (P454) e heading.numbering.pattern (P451).
     if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "format"
+            && fa.field().to_untyped().text_str() == "html"
+        {
+            if !ctx
+                .features
+                .contains(crate::entities::compiler_features::Feature::Html)
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    fa.field().to_untyped().span(),
+                    "cannot access field `html` because the `html` feature is not enabled",
+                )
+                .with_hint("try enabling the `html` feature")
+                .with_hint(
+                    "see https://typst.app/help/compiler-features for more details",
+                )]);
+            }
+
+            let mut seen_pretty = false;
+            for arg in set.args().items() {
+                let value = match arg {
+                    Arg::Pos(expr) => eval_expr(expr, scopes, ctx, engine)?,
+                    Arg::Named(named) => eval_expr(named.expr(), scopes, ctx, engine)?,
+                    Arg::Spread(spread) => eval_expr(spread.expr(), scopes, ctx, engine)?,
+                };
+
+                let Arg::Named(named) = arg else {
+                    return Err(vec![SourceDiagnostic::error(
+                        arg.to_untyped().span(),
+                        "unexpected argument",
+                    )]);
+                };
+                let key = named.name().as_str();
+                if key != "pretty" {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        format!("unexpected argument: {key}"),
+                    )]);
+                }
+                if seen_pretty {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.name().to_untyped().span(),
+                        "duplicate argument: pretty",
+                    )]);
+                }
+                seen_pretty = true;
+
+                let Value::Bool(pretty) = value else {
+                    let found = match &value {
+                        Value::Int(_) => "integer",
+                        Value::Str(_) => "string",
+                        Value::Bool(_) => "boolean",
+                        other => other.type_name(),
+                    };
+                    return Err(vec![SourceDiagnostic::error(
+                        named.expr().span(),
+                        format!("expected boolean, found {found}"),
+                    )]);
+                };
+                *engine.styles =
+                    engine.styles.push_custom("format.html.pretty", Value::Bool(pretty));
+            }
+            return Ok(Value::None);
+        }
         if fa.target().to_untyped().text_str() == "format"
             && fa.field().to_untyped().text_str() == "svg"
         {

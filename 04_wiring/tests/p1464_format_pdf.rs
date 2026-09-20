@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1464-format-pdf.md
-//! @prompt-hash 2310d619
+//! @prompt-hash 8d005fff
 
 use std::ffi::{OsStr, OsString};
 use std::path::Path;
@@ -398,23 +398,28 @@ fn p1464_svg_png_global_pdf_html_and_homonymous_closure_controls() {
         );
 
         let html_expression = "format.html";
-        let absent_html = eval(html_expression, profile.features);
-        let html_label = format!("format-html-absent/{}", profile.name);
-        checks.require(
-            absent_html.code == Some(1)
-                && absent_html.stdout.is_empty()
-                && absent_html
-                    .stderr
-                    .starts_with("error: module `format` does not contain `html`\n"),
-            format!("{html_label}: format.html must remain absent, got {absent_html:?}"),
-        );
-        require_field_span(
-            &mut checks,
-            &html_label,
-            html_expression,
-            "html",
-            &absent_html.stderr,
-        );
+        let observed_html = eval(html_expression, profile.features);
+        let html_label = format!("format-html-successor/{}", profile.name);
+        if profile.features.is_some_and(|features| features.contains("html")) {
+            checks.expect_json(&html_label, &observed_html, "\"html\"");
+        } else {
+            checks.require(
+                observed_html.code == Some(1)
+                    && observed_html.stdout.is_empty()
+                    && observed_html.stderr.starts_with(
+                        "error: cannot access field `html` because the `html` feature is not enabled\n",
+                    )
+                    && observed_html.stderr.contains("try enabling the `html` feature"),
+                format!("{html_label}: expected P1465 feature gate, got {observed_html:?}"),
+            );
+            require_field_span(
+                &mut checks,
+                &html_label,
+                html_expression,
+                "html",
+                &observed_html.stderr,
+            );
+        }
     }
 
     for (label, expression) in [
