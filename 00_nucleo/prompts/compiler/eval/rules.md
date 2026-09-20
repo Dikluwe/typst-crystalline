@@ -399,3 +399,84 @@ argumentos com feature ativa, regra vazia, true/false, repetição/inversão e o
 quatro negativos de schema. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
 regra e seus testes comportamentais foram materializados.
+
+## P1467 — set rule `format.pdf(tagged, pretty)` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `306ca50022104619447fae2625090b8d9c7b0a35`,
+`01_core/src/compiler/eval/rules.rs:1413-1570` reconhece estruturalmente os
+targets pontuados `format.html`, `format.svg` e `format.png`; não existe braço
+para `format.pdf`. Medido via `./target/release/typst eval`:
+
+```text
+{ set format.pdf(tagged: true) }
+=> warning: set: target '' ainda não suportado
+   hint: targets suportados: heading, page, figure, text, par, table, smartquote
+```
+
+Este aviso genérico é ele próprio uma divergência do vanilla, que nunca o
+produz para `format.pdf`. No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
+medido via `typst eval` em 2026-09-20:
+
+```text
+{ set format.pdf(tagged: true, pretty: true) }        -> aceito, sem diagnóstico
+{ set format.pdf(nope: 1) }                            -> unexpected argument: nope
+{ set format.pdf(true) }                                -> unexpected argument
+{ set format.pdf(tagged: true, tagged: false) }         -> duplicate argument: tagged
+{ set format.pdf(tagged: 1) }                           -> expected boolean or auto, found integer
+{ set format.pdf(pretty: 1) }                           -> expected boolean, found integer
+```
+
+O diagnóstico de tipo de `tagged` difere do padrão `svg`/`png`/`html`: aceita
+`auto` além de `bool`, logo a mensagem de tipo é
+`expected boolean or auto, found <tipo>`, nunca a forma de dois tipos usada
+pelos irmãos somente-booleanos. `format.pdf` não é feature-gated (P1464); os
+dois campos existem e são aceitos nos quatro perfis, sem o gate `html`/
+`a11y-extras` que `format.html` exige.
+
+### Contrato
+
+Reconhecer estruturalmente somente `format.pdf`. Aceitar zero, um ou dois
+named dentre `tagged` e `pretty`, em qualquer ordem; positional, named
+desconhecido e named duplicado falham como nos irmãos já materializados. Para
+cada named presente:
+
+- `tagged`: aceitar `Value::Auto` ou `Value::Bool`; qualquer outra variante
+  falha com `expected boolean or auto, found <tipo>`. Valor validado insere
+  `Value::Auto` ou `Value::Bool` sob a chave canônica `format.pdf.tagged`.
+- `pretty`: aceitar somente `Value::Bool`; outra variante falha com
+  `expected boolean, found <tipo>` (mesma forma de `format.svg.pretty`/
+  `format.html.pretty`). Valor validado insere `Value::Bool` sob
+  `format.pdf.pretty`.
+
+Os dois campos são independentes: uma regra que só nomeia um deles não insere
+chave para o outro e não apaga decisão cascaded anterior desse outro campo.
+Regra vazia (`#set format.pdf()`) não insere nenhuma chave. Named
+desconhecido, positional ou duplicado falham antes de qualquer inserção em
+`StyleChain`, pelo canal normal de `SourceResult`, nunca warning nem descarte
+silencioso — isto também substitui o aviso genérico `target '' ainda não
+suportado` hoje emitido para `format.pdf`, que deixa de ser alcançado por
+este target.
+
+Este owner não extrai opção documental, não decide top-level/container e não
+exporta PDF. A fronteira top-level e a mensagem de container continuam em
+`compiler/layout/format_options.md`; a resolução de precedência CLI/documento
+continua em `infra/pipeline.md`. Este owner não reabre a descoberta/namespace
+de `format.pdf` já materializada em P1464 (`compiler/stdlib/format.md`), nem
+`pdf.pages`/`pdf.standard` (P1468/P1469).
+
+Preservar integralmente `format.svg`, `format.png`, `format.html` (incluindo
+seu gate de feature) e a ordem/política de named desconhecido das demais set
+rules.
+
+### Aceitação e gate
+
+Cobrir os quatro perfis: `tagged` com `auto`/`true`/`false`, `pretty` com
+`true`/`false`, os dois juntos e cada um isolado, regra vazia neutra,
+repetição/inversão lexical, os cinco negativos de schema (`nope`, positional,
+`tagged` duplicado, `tagged: 1`, `pretty: 1`) e ausência do aviso genérico de
+target não suportado. Este é um dos quatro L0s do gate ADR-0127 de P1467
+(campo público novo e mudança de comportamento por defeito); aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+RED ou código produtivo.

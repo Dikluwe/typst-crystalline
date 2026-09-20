@@ -1005,6 +1005,17 @@ as suas flags `pretty: bool` preexistentes e independentes. O gate público
 ADR-0127 foi confirmado pelo dono em 2026-09-12 ao pedir a implementação do
 próximo passo.
 
+**Nota P1467 (não reabre este contrato):** `pdf_tagged: Option<bool>`,
+`no_pdf_tags: bool` e `pretty: Option<bool>` continuam com exatamente o
+parsing, tipos e defaults fixados por P1359/P1360/P1140.6 acima; L2 não muda.
+O que muda é exclusivamente a resolução L4/L3 desses três valores quando o
+documento contém `#set format.pdf(tagged: ...)`/`#set format.pdf(pretty: ...)`
+e nenhum deles decide: antes, a ausência colapsava para tagueado/compacto; a
+partir de P1467, a ausência é preservada até a pipeline poder consultar o
+documento (Núcleo `format-option-precedence`, já pinado em `wiring.md` e
+`infra/pipeline.md`). Ver as seções P1467 desses dois prompts para a
+propriedade completa; este prompt não ganha novo contrato público.
+
 ## P1286 — aceitação compatível de `--pdf-standard`
 
 ### Medição anterior à decisão

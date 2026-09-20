@@ -1,7 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: 7a7aad94
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E EXTRAÇÃO
+P1467 PROPOSTAS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -171,3 +172,73 @@ por 72, não constrói `RenderOptions` e não conhece pontos tipográficos. A
 retificação P1466 corrige exclusivamente o consumer L3 que havia confundido a
 unidade; coleta, precedência, default `144.0`, erro de container e isolamento
 dos formatos permanecem idênticos.
+
+## P1467 — extração root de `format.pdf.tagged` e `format.pdf.pretty` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `306ca50022104619447fae2625090b8d9c7b0a35`, as travessias vigentes
+reconhecem `format.svg.pretty`, `format.png.ppi` e `format.html.pretty`; não há
+braço para chaves `format.pdf.*`. `compiler/eval/rules.rs` ainda não produz
+essas chaves (ver `compiler/eval/rules.md` P1467), então hoje elas nunca
+aparecem em `Styles.delta().custom`.
+
+Probes contra o vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+(medidos em 2026-09-20T19:18 via `typst compile`) confirmam, no root do
+documento:
+
+```text
+#set format.pdf(tagged: false)                    -> PDF sem struct tree
+#set format.pdf(tagged: false); #set format.pdf() -> regra vazia neutra;
+                                                       PDF permanece sem struct tree
+#set format.pdf(tagged: false); #set format.pdf(pretty: true)
+                                                   -> tagged:false E pretty:true
+                                                      (campos independentes)
+#block[ #set format.pdf(tagged: false) ... ]      -> error: format set rules
+                                                      are not allowed inside
+                                                      of containers
+```
+
+Essa é a mesma mensagem já contratada para SVG/PNG/HTML, medida no mesmo
+ponto (`typst-realize/src/lib.rs:603-670` no vanilla).
+
+### Contrato
+
+Ampliar as duas travessias existentes (exaustiva e root) para reconhecer
+também as chaves canônicas `format.pdf.tagged` e `format.pdf.pretty`,
+seguindo exatamente o padrão já aplicado a SVG/PNG/HTML:
+
+- `format.pdf.tagged` aceita `Value::Auto` ou `Value::Bool`. A travessia root
+  atualiza `options.pdf.tagged` para `PdfTagged::Auto` ou
+  `PdfTagged::Explicit(bool)`, em ordem lexical, começando do default
+  `PdfTagged::Auto`. Uma variante interna diferente dessas duas falha fechada
+  com diagnóstico atribuível (estado interno impossível), nunca retorna ao
+  default.
+- `format.pdf.pretty` aceita somente `Value::Bool`, atualiza
+  `options.pdf.pretty` em ordem lexical a partir do default `false`, e falha
+  fechada do mesmo modo para variante interna inválida.
+
+A travessia exaustiva conta ocorrências de qualquer chave `format.*`
+(SVG/PNG/HTML/PDF, os dois campos PDF inclusive); qualquer ocorrência fora dos
+envelopes root causa exatamente `format set rules are not allowed inside of
+containers`, sem produzir `PagedDocument` parcial. Regra vazia não produz
+chave para nenhum dos dois campos e por isso não apaga decisão anterior de
+nenhum dos dois. Os dois campos de PDF são ortogonais entre si e com
+SVG/PNG/HTML: uma chave nunca altera o campo de outro formato ou do outro
+campo do mesmo formato.
+
+Este owner continua puro: não conhece CLI, `PdfTags`, `PdfSerializationMode`,
+override externo ou exporter. `pdf.pages`/`pdf.standard` continuam neutros até
+P1468/P1469. Implementação em um passe único ou helpers por chave é mecânica
+livre; ordem, default, isolamento por campo e fronteira root são contrato.
+
+### Aceitação e gate
+
+Testar ausência/default (`Auto`/`false`), `auto`/`true`/`false` para
+`tagged`, `true`/`false` para `pretty`, repetição/inversão em ambas as ordens,
+regra vazia depois de decisão anterior, composição com SVG/PNG/HTML, os dois
+campos PDF definidos independentemente na mesma regra e em regras distintas,
+pelo menos dois containers estruturalmente distintos, e tipo interno
+impossível para cada campo. Este é um dos quatro L0s do gate ADR-0127 de
+P1467; aguarda confirmação humana explícita posterior ao commit causal
+somente-L0 antes de qualquer teste RED ou código produtivo.

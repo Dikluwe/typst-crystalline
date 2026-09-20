@@ -340,3 +340,15 @@ P1466 não acrescenta membro a `format` e não reabre as identidades já
 materializadas. A estabilização ocupa este número; os eixos PDF ainda não
 materializados passam a P1467–P1469 conforme a lista acima. Os registros
 históricos P1464/P1465 permanecem factualmente intactos.
+
+## P1467 — `tagged`/`pretty` de ponta a ponta (PROPOSTA; não altera este consumer)
+
+P1467 materializa a validação (`compiler/eval/rules.md`), a extração
+(`compiler/layout/format_options.md`), o carrier
+(`entities/document_format_options.md`) e a resolução de precedência
+(`infra/pipeline.md`, `wiring.md`) de `format.pdf.tagged` e `format.pdf.pretty`.
+Nenhum desses eixos toca a factory `make_format_module`/`01_core/src/compiler/stdlib/format.rs`:
+os defaults `auto`/`false` no namespace de `format.pdf` já foram materializados
+em P1464 e permanecem exatamente como medido. Este owner não ganha novo
+contrato em P1467; a entrada acima existe apenas para manter o roadmap
+verificável a partir deste prompt.

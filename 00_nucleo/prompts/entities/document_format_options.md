@@ -1,7 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: a74886c7
 
-**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA.
+**Estado:** P1462, P1463 E P1465 MATERIALIZADOS; RETIFICAÇÃO P1466 E CONTRATO
+P1467 PROPOSTOS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -42,8 +43,13 @@ O carrier P1462 é deliberadamente incompleto e registra os subconjuntos que o
 completam:
 
 - P1463 propõe acrescentar opções de `format.png`;
-- P1464 acrescenta opções de `format.pdf`;
-- P1465 acrescenta opções de `format.html`.
+- P1465 acrescenta opções de `format.html`;
+- P1467 acrescenta a primeira fatia de opções de `format.pdf` (`tagged`,
+  `pretty`); `pages` e `standard` continuam reservados a P1468/P1469.
+
+P1464 materializou somente descoberta/namespace de `format.pdf` em
+`compiler/stdlib/format.md`; não tocou este carrier e não é citado acima como
+dono de subconjunto.
 
 Até cada gate próprio, não antecipar campos, enums, placeholders ou maps
 abertos. O uso de structs fechadas não afirma que o conjunto futuro terminou.
@@ -139,3 +145,93 @@ cascata e proíbe reinterpretar o valor como `pixel_per_pt`.
 Aceitação mantém os testes de entidade vigentes e acrescenta apenas a prova de
 unidade nos owners de pipeline/export. Nenhum sentinel, wrapper, `Option` ou
 segundo campo de escala é autorizado.
+
+## P1467 — carrier `PdfFormatOptions` (`tagged`, `pretty`) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `306ca50022104619447fae2625090b8d9c7b0a35`, o carrier possui SVG,
+PNG e HTML; não existe `PdfFormatOptions`. `compiler/stdlib/format.rs`
+(P1464) já publica os defaults nominais `format.pdf.tagged == auto` e
+`format.pdf.pretty == false` no namespace da função nativa, mas nenhuma
+entidade documental os transporta até a pipeline.
+
+Probes bilaterais contra o vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+(medidos em 2026-09-20T19:18 via `typst eval`/`typst compile` com
+`/usr/local/bin/typst`, SHA-256 `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`,
+confirmado idêntico ao binário pinado):
+
+```text
+repr((type(format.pdf.tagged), format.pdf.tagged,
+      type(format.pdf.pretty), format.pdf.pretty))
+=> (type(auto), auto, bool, false)
+
+#set format.pdf(tagged: false)   -> PDF exportado sem /StructTreeRoot,/MarkInfo
+#set format.pdf(tagged: true)    -> PDF exportado com /StructTreeRoot,/MarkInfo
+ausência de #set format.pdf(...) -> PDF exportado com /StructTreeRoot,/MarkInfo
+                                     (auto resolve tagueado sem seleção de páginas)
+#set format.pdf(pretty: true)    -> serialização com whitespace estrutural
+                                     (337 linhas vs. 114 no mesmo documento compacto)
+tagged:false + pretty:true       -> sem struct tree, com whitespace pretty
+                                     (campos ortogonais)
+```
+
+O domínio de `tagged` tem três estados reais na linguagem (`auto`, `true`,
+`false`); não é um `Option<bool>` de conveniência do override externo — essa
+distinção pertence exclusivamente ao override de CLI em L3/L4
+(`infra/pipeline.md` P1467), não a esta entidade L1.
+
+### Contrato
+
+Acrescentar ao owner os tipos públicos:
+
+```rust
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum PdfTagged {
+    #[default]
+    Auto,
+    Explicit(bool),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct PdfFormatOptions {
+    pub tagged: PdfTagged,
+    pub pretty: bool,
+}
+
+pub struct DocumentFormatOptions {
+    pub svg: SvgFormatOptions,
+    pub png: PngFormatOptions,
+    pub html: HtmlFormatOptions,
+    pub pdf: PdfFormatOptions,
+}
+```
+
+`PdfFormatOptions::default()` produz `tagged == PdfTagged::Auto` e
+`pretty == false`; `DocumentFormatOptions::default()` combina os quatro
+formatos sem alterar os defaults SVG/PNG/HTML já materializados.
+`DocumentFormatOptions` conserva `PartialEq` (não `Eq`, por causa do `f64`
+PNG); `PdfFormatOptions` e `PdfTagged` conservam `Eq` porque não contêm `f64`.
+Não usar sentinela, wrapper nem `Option<bool>` para representar o terceiro
+estado de `tagged`.
+
+### Incompletude deliberada e fronteira
+
+Este carrier fecha somente `tagged` e `pretty`. `pdf.pages` (P1468) e
+`pdf.standard`/conformidade (P1469) continuam reservados; não antecipar campo,
+enum ou variante para eles. Este owner não decide precedência entre CLI e
+documento — isso pertence a `infra/pipeline.md`; não decide o cast do valor
+recebido do `Styles` — isso pertence a `compiler/eval/rules.md` e
+`compiler/layout/format_options.md`; não sabe que existe CLI, exporter ou
+`PdfTags`/`PdfSerializationMode`.
+
+### Aceitação e gate
+
+Testes provam default (`Auto`/`false`), clone, `PartialEq`/`Eq` de
+`PdfTagged`/`PdfFormatOptions`, independência de instâncias e ortogonalidade
+com SVG/PNG/HTML. Não testar layout Rust, tamanho/alinhamento nem exporter
+como paridade. Este é um dos quatro L0s do gate ADR-0127 de P1467: campo
+público novo em `DocumentFormatOptions` e mudança de comportamento por
+defeito quando o documento contém `#set format.pdf(...)`. Aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.

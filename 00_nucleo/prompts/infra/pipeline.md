@@ -506,6 +506,14 @@ transformação aos três ramos `export_pdf*`. O chamador de produção L4 usa
 presente. PNG, SVG e HTML permanecem inalterados. `PdfTags` não depende de
 `StreamMode` e não ativa validação PDF/UA nem diagnóstico por falta de alt.
 
+**Retificado por P1467** (ver seção própria abaixo): "o chamador de produção
+L4 usa `Enabled` na ausência de `--no-pdf-tags`" deixa de ser exato quando o
+documento contém `#set format.pdf(tagged: ...)`. A partir de P1467, a ausência
+de decisão CLI (moderna e legada) não colapsa mais em `Enabled` — é preservada
+como `None` até a pipeline poder consultar `document.format_options.pdf.tagged`.
+O restante desta seção (threading de `PdfTags` até os três ramos `export_pdf*`,
+independência de `StreamMode`, ausência de validação PDF/UA) permanece exato.
+
 ## P1159 — realização de page numbering
 
 Após o primeiro layout, a pipeline realiza cada `Numbering` com Engine em duas
@@ -645,8 +653,11 @@ duplicar o enum ou observar esse modo no pipeline paginado.
 A pipeline oferece variantes explícitas que acrescentam `pretty: bool` às
 entrypoints usadas por L4, preservando wrappers anteriores com `false`.
 No PDF, o valor é encaminhado como `PdfSerializationMode` aos três ramos
-font-aware, sem alterar `StreamMode`, `PdfTags`, features, documento ou fases.
-No SVG, constrói `SvgOptions { pretty, ..Default::default() }`. No HTML,
+font-aware, sem alterar `StreamMode`, `PdfTags`, features, documento ou fases
+(este owner não *muta* o documento; a partir de P1467, as três novas entry
+points *leem* `document.format_options.pdf.pretty` quando o caller não
+decide — ver seção própria). No SVG, constrói
+`SvgOptions { pretty, ..Default::default() }`. No HTML,
 encaminha o valor ao exporter junto do `HtmlSerializationMode` já resolvido.
 PNG não recebe parâmetro novo.
 
@@ -1133,3 +1144,147 @@ Aceitação exige o callback visível na margem e sua repr contextual
 `(..) => ..`, além dos quatro caminhos PNG que antes abortavam. Esta mudança
 do default PNG requer confirmação posterior ao commit causal conforme
 ADR-0127.
+
+## P1467 — resolução documental de `format.pdf.tagged`/`format.pdf.pretty` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `306ca50022104619447fae2625090b8d9c7b0a35`,
+`compile_to_pdf_bytes_impl` (`03_infra/src/pipeline.rs:1390-1401`) recebe
+`pdf_tags: PdfTags` e `serialization: PdfSerializationMode` já resolvidos
+pelo caller; nunca consulta `doc.format_options` (populado em
+`:1046` pela mesma função, antes do render em `:1477`). Ao contrário de
+`resolve_svg_pretty` (`:1964`) e `resolve_html_pretty` (`:250`), não existe
+`resolve_pdf_tags`/`resolve_pdf_pretty`: os 13 entry points públicos
+`compile_to_pdf_bytes*` (incluindo os 3 oráculo) tomam o enum já decidido e o
+repassam sem transformação aos três ramos `export_pdf*` font-aware.
+
+Medido em 2026-09-20 com `/usr/local/bin/typst` (vanilla ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, SHA-256 confirmado idêntico ao
+pin): `#set format.pdf(tagged: false)` root produz PDF sem
+`/StructTreeRoot`/`/MarkInfo`; ausência da regra produz PDF tagueado (auto
+resolve habilitado sem seleção de páginas); `--pdf-tagged=false` e
+`--no-pdf-tags` vencem a regra do documento; `--pretty` vence
+`#set format.pdf(pretty: false)`. O Núcleo `format-option-precedence` pinado
+acima (`absence-defers-to-document`, `no-early-collapse`) já proíbe
+exatamente o colapso hoje presente nesta função para o eixo PDF; SVG/HTML já
+cumprem o Núcleo desde P1462/P1465.
+
+### API e resolução
+
+Introduzir dois resolvedores privados, no mesmo padrão de
+`resolve_svg_pretty`/`resolve_html_pretty`:
+
+```rust
+fn resolve_pdf_tags(
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfTags {
+    let enabled = match tagged_override {
+        Some(explicit) => explicit,
+        None => match options.pdf.tagged {
+            PdfTagged::Explicit(value) => value,
+            // Sem seleção de páginas (P1468 revisita): auto resolve habilitado.
+            PdfTagged::Auto => true,
+        },
+    };
+    if enabled { PdfTags::Enabled } else { PdfTags::Disabled }
+}
+
+fn resolve_pdf_pretty(
+    pretty_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfSerializationMode {
+    if pretty_override.unwrap_or(options.pdf.pretty) {
+        PdfSerializationMode::Pretty
+    } else {
+        PdfSerializationMode::Compact
+    }
+}
+```
+
+Acrescentar três entry points públicas explícitas, análogas às `_override` já
+existentes para PNG/SVG/HTML, que substituem `pdf_tags: PdfTags` por
+`pdf_tagged_override: Option<bool>` e `serialization: PdfSerializationMode`
+por `pretty_override: Option<bool>`:
+
+```rust
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings)
+
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)
+
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)
+```
+
+`compile_to_pdf_bytes_impl` troca seus parâmetros `pdf_tags: PdfTags` e
+`serialization: PdfSerializationMode` pelos dois overrides acima. Imediatamente
+depois de obter `doc` (logo após `:1405-1415`, antes da resolução de fontes),
+chamar os dois resolvedores uma única vez e vincular os nomes locais `pdf_tags`
+e `serialization` já usados pelo resto do corpo da função — nenhuma outra
+linha do corpo muda. Os três ramos `export_pdf*` continuam recebendo os enums
+já resolvidos e continuam ignorantes de CLI/documento/override.
+
+Os 10 entry points públicos pré-existentes que hoje recebem `pdf_tags`/
+`serialization` já resolvidos **preservam assinatura e comportamento**: cada
+um passa a delegar para a nova entry point equivalente envolvendo seu próprio
+valor em `Some(...)` (`Some(matches!(pdf_tags, PdfTags::Enabled))` para o eixo
+tagged; `Some(matches!(serialization, PdfSerializationMode::Pretty))` para o
+eixo pretty), reproduzindo exatamente o comportamento anterior — um override
+explícito sempre vence, então o documento nunca é consultado por esses
+caminhos de compatibilidade. Nenhuma assinatura pública existente quebra;
+somente as três entry points novas expõem a consulta documental, e são elas
+que L4 passa a chamar (ver `wiring.md` P1467).
+
+Este fio aplica o Núcleo `format-option-precedence` pinado acima:
+`Some` explícito vence, `None` é preservado até o documento, e o default por
+formato (`auto`→habilitado sem páginas; `false` para pretty) só se aplica
+quando caller e documento silenciam. `pdf_tagged_override`/`pretty_override`
+não alteram `StreamMode`, features, `document_id`, timings nem os três ramos
+font-aware. PNG, SVG e HTML permanecem inalterados.
+
+### Neutralidade e aceitação
+
+`tagged`/`pretty` não alteram eval, layout, PNG, SVG, HTML, `compact`,
+`document_id`, timings, resolução de fontes ou o caminho oráculo além do que
+já é medido (oráculo aplica a mesma resolução, sem mudar a transformação de
+paridade de operador). Testes de pipeline cobrem: `None`/`None` com documento
+`Auto`/`false` (habilitado, compacto), `None`/`None` com documento explícito
+nos dois campos, `Some` explícito vencendo documento nos dois sentidos para
+cada campo, os dois campos definidos independentemente, orthogonalidade com
+`compact`/PPI/serialização HTML, e que as 10 entry points de compatibilidade
+preservam exatamente seu comportamento anterior (regressão zero). Não
+congelar bytes PDF íntegros como contrato; inspecionar presença de
+`/StructTreeRoot`/`/MarkInfo` e a forma de serialização (whitespace
+estrutural), nunca igualdade total de bytes.
+
+Este é um dos quatro L0s do gate ADR-0127 de P1467 (mudança de comportamento
+por defeito do produto quando o documento contém `#set format.pdf(...)`).
+Aguarda confirmação humana explícita posterior ao commit causal somente-L0
+antes de qualquer teste RED ou código produtivo.

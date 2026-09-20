@@ -719,3 +719,77 @@ adiciona flag nem muda outros targets.
 Como P1466 foi ocupado pela restauração da baseline, a composição documental
 de `format.pdf.tagged/pretty` passa a P1467, pages/`--pages` a P1468 e
 standard/`--pdf-standard` a P1469. Nenhuma dessas opções é antecipada aqui.
+
+## P1467 — preservar `tagged` e `pretty` no braço PDF (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `306ca50022104619447fae2625090b8d9c7b0a35`,
+`run_compile_observed` (`04_wiring/src/main.rs:646-663`) colapsa os dois eixos
+PDF antes de chamar a pipeline:
+
+```rust
+let pretty_override = pretty;
+let pretty = pretty_override.unwrap_or(false);
+let pdf_serialization = if pretty { Pretty } else { Compact };
+let pdf_tags = match pdf_tagged {
+    Some(true) => Enabled,
+    Some(false) => Disabled,
+    None if no_pdf_tags => Disabled,
+    None => Enabled,
+};
+```
+
+Isso é exatamente o padrão que P1360 fixou e que P1462/P1465 já corrigiram
+para os braços SVG e HTML (seções próprias acima); o braço PDF é o único que
+ainda descarta a ausência de decisão CLI em vez de preservá-la. Os braços
+SVG (`:731-753`, `pretty_override` passado em `:739` e `:749`) e HTML
+(`:754-772`, `pretty_override` passado em `:769`) já passam `pretty_override`
+intocado para a pipeline; o braço PDF (`:674-715`, três chamadas em `:677`,
+`:690` e `:703`) é o único que ainda passa os enums já resolvidos
+`pdf_tags`/`pdf_serialization`.
+
+### Decisão proposta
+
+No braço `OutputFormat::Pdf`, parar de colapsar os dois eixos:
+
+- Substituir `pdf_serialization` por `pretty_override` (a mesma variável
+  `Option<bool>` já usada intocada pelos braços SVG/HTML) na chamada às três
+  entry points PDF.
+- Substituir o `match` que produz `pdf_tags: PdfTags` por um fold que produz
+  somente a precedência **entre as duas flags de CLI** (`--pdf-tagged` vence
+  o legado `--no-pdf-tags`, que vence a ausência de ambos) e preserva essa
+  ausência como `None` em vez de forçar `Enabled`:
+
+```text
+Some(true)         -> Some(true)
+Some(false)        -> Some(false)
+None + no_pdf_tags -> Some(false)
+None sem legado    -> None   (delega à pipeline/documento; antes: Enabled)
+```
+
+- Chamar as três novas entry points de `infra/pipeline.md` P1467
+  (`..._with_features_and_tagged_and_pretty_override` e as variantes
+  `_with_timings_.../_oracle_...`) em vez das três `..._and_serialization`
+  atuais, passando `pdf_tagged_override: Option<bool>` e o `pretty_override`
+  já existente.
+
+Este fio aplica o Núcleo `format-option-precedence` pinado acima. A única
+mudança de comportamento observável é: um documento com
+`#set format.pdf(tagged: ...)`/`#set format.pdf(pretty: ...)` e nenhuma das
+duas flags CLI agora produz o PDF decidido pelo documento, em vez de sempre
+tagueado/compacto. `--pdf-tagged`, `--no-pdf-tags` e `--pretty` explícitos
+continuam vencendo o documento, byte-idênticos ao comportamento atual.
+`--compact`/`StreamMode`, PNG, SVG, HTML, feature HTML, `document_id`,
+timings, watch e códigos de saída não mudam. L4 não lê `PagedDocument`, não
+interpreta set rules e não formata PDF.
+
+### Aceitação e gate
+
+Cobrir: ausência de ambas as flags PDF com documento `auto`/explícito nos
+dois campos (delega à pipeline), `--pdf-tagged`/`--no-pdf-tags`/`--pretty`
+explícitos vencendo documento em ambos os sentidos, `--pdf-tagged` vencendo
+`--no-pdf-tags` quando ambos presentes, compile e watch, e neutralidade de
+PNG/SVG/HTML. Este é um dos quatro L0s do gate ADR-0127 de P1467; aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.
