@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 9eab713d
+//! @prompt-hash d12a4964
 //! @layer L1
-//! @updated 2026-09-19
+//! @updated 2026-09-20
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -7769,8 +7769,9 @@ fn make_stdlib_with_features(
         native_yaml,
         native_yaml_encode,
     };
+    let pdf = make_pdf_module(features);
     let mut scope = Scope::new();
-    scope.define("format", Value::Module(make_format_module()));
+    scope.define("format", Value::Module(make_format_module(&pdf)));
     scope.define("html", Value::Module(make_html_module()));
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
@@ -8354,7 +8355,7 @@ fn make_stdlib_with_features(
     // P735 — módulos `emoji` (tabela codex, 1 codepoint + face) e `pdf`
     // (attach = scope-out com erro; artifact = passthrough do body).
     scope.define("emoji", build_emoji_module());
-    scope.define("pdf", make_pdf_module(features));
+    scope.define("pdf", pdf);
     // P476 — operadores de cor. **P736** — `color` é `Value::Type`
     // (paridade vanilla — medido: `type(color)` → `type`); fields via
     // `color_type_field` em field access.

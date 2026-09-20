@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 0a7414ce
+Hash do Código: 51c2a38a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1249,7 +1249,7 @@ No vanilla, `body` está sempre assente; annotation omitida não aparece em
 Expor `body` sempre e `annotation` somente quando `annotation_explicit`, na
 ordem declarada, preservando `Value::None` e a função pública.
 
-## P1464 — diagnóstico gated sobre `format.pdf` (PROPOSTO)
+## P1464 — diagnóstico gated sobre `format.pdf` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -1298,5 +1298,6 @@ feature por target.
 
 Aceitação cobre os três fields, acesso direto/alias/`std`/`.with`, os quatro
 perfis, mensagem integral, dois hints, span do field e controles homônimos.
-`Unknown` bloqueia. A ampliação pública depende do commit causal e da
-confirmação humana P1464 antes de código ou RED.
+`Unknown` bloqueia. A confirmação humana posterior ao commit causal P1464 foi
+recebida em 2026-09-20; o diagnóstico foi materializado e coberto pelo ciclo
+RED→GREEN independente.

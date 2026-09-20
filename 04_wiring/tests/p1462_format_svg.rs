@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1462-format-svg.md
-//! @prompt-hash 8d709e29
+//! @prompt-hash d0ca19bd
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};
@@ -844,21 +844,17 @@ fn svg_document_option_is_neutral_to_pdf_png_html_and_html_frame() {
 }
 
 #[test]
-fn pdf_and_html_remain_absent_from_format_namespace() {
+fn html_remains_absent_from_format_namespace() {
     let mut checks = Checks::default();
-    for sibling in ["pdf", "html"] {
-        let observed = eval(&format!("repr(format.{sibling})"), None);
-        checks.require(
-            !observed.success
-                && observed
-                    .stderr
-                    .contains(&format!("module `format` does not contain `{sibling}`")),
-            format!(
-                "sibling/{sibling}: expected strict absence, code={:?}, stderr={}",
-                observed.code, observed.stderr
-            ),
-        );
-    }
+    let observed = eval("repr(format.html)", None);
+    checks.require(
+        !observed.success
+            && observed.stderr.contains("module `format` does not contain `html`"),
+        format!(
+            "sibling/html: expected strict absence, code={:?}, stderr={}",
+            observed.code, observed.stderr
+        ),
+    );
 
     checks.finish();
 }

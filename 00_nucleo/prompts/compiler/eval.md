@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: a7b22ccf
+Hash do Código: 8975d596
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -768,7 +768,7 @@ alias estável, diagnóstico genérico de field ausente e ausência de todos os
 filhos. Código, testes e header de linhagem aguardam confirmação humana
 posterior ao commit causal P1461.
 
-## P1464 — composição única de `pdf` e projeção em `format.pdf` (PROPOSTO)
+## P1464 — composição única de `pdf` e projeção em `format.pdf` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -813,6 +813,6 @@ de exportação.
 
 Aceitação exige identidade pública dos cinco pares, os quatro perfis
 `default`/`a11y-extras`/`html`/`html+a11y`, módulo global `pdf` inalterado e
-`format.html` ausente. Esta mudança pública aguarda confirmação humana
-posterior ao commit causal P1464; antes dela não há autorização para código ou
-teste RED.
+`format.html` ausente. A confirmação humana posterior ao commit causal P1464
+foi recebida em 2026-09-20; a composição única foi materializada e o teste
+independente passou de RED para GREEN.

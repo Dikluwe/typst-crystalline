@@ -1,11 +1,10 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
-Hash do Código: 4cb00912
+Hash do Código: c8e79d4b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
-**Estado:** P1461/P1462/P1463 MATERIALIZADOS; P1464 PROPOSTO — AGUARDA
-CONFIRMAÇÃO ADR-0127.
+**Estado:** P1461/P1462/P1463/P1464 MATERIALIZADOS.
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/stdlib/format.rs`
@@ -73,14 +72,14 @@ contratado desta unidade, não uma alegação de fecho de `format.*`.
 
 - P1462 completou `format.svg` e seu namespace;
 - P1463 completou `format.png` e `ppi`;
-- P1464 propõe completar `format.pdf`, seus defaults de namespace e cinco
+- P1464 completou `format.pdf`, seus defaults de namespace e cinco
   membros reutilizados;
 - P1465 completa `format.html`, `pretty`, gate `html` e seus membros.
 
-`format.svg` e `format.png` estão materializados. Até os passos restantes terem
-L0 e autorização próprios, `format.pdf`, `format.html` e seus descendentes
-permanecem ausentes. É proibido criar filhos, aliases globais ou passthroughs
-para antecipar a contagem dos passos seguintes.
+`format.svg`, `format.png` e `format.pdf` estão materializados. Até P1465 ter
+L0 e autorização próprios, `format.html` e seus descendentes permanecem
+ausentes. É proibido criar filhos, aliases globais ou passthroughs para
+antecipar a contagem dos passos seguintes.
 
 ## Aceitação linguística limitada
 
@@ -192,7 +191,7 @@ dos siblings futuros nos quatro perfis. A confirmação humana posterior ao
 commit causal P1463 foi recebida em 2026-09-19; código, testes e validação foram
 materializados no mesmo dia. P1464 não reabre o transporte produtivo de `ppi`.
 
-## P1464 — `format.pdf`, defaults e membros reutilizados (PROPOSTO)
+## P1464 — `format.pdf`, defaults e membros reutilizados (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -267,6 +266,7 @@ dos membros, nomes curtos, gate integral e namespace preservado por `.with`.
 Não dar crédito a opção documental ainda não transportada nem converter
 `Unknown` em sucesso.
 
-Esta ampliação de superfície pública aguarda confirmação humana explícita
-posterior ao commit causal P1464. Antes dela este texto não autoriza código
-produtivo, teste RED nem alteração de header de linhagem.
+A confirmação humana explícita posterior ao commit causal P1464 foi recebida
+em 2026-09-20. Implementação e teste independente partiram desse baseline; o
+teste passou de RED (`1/4`) para GREEN (`4/4`) sem ampliar o recorte dos passos
+P1465–P1468.

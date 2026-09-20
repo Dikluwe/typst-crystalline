@@ -1,14 +1,14 @@
 # Prompt L0 — integração de `format.pdf`
+Hash do Código: ddb99a61
 
-**Estado:** CONTRATO DE TESTE P1464 PROPOSTO — AGUARDA CONFIRMAÇÃO ADR-0127;
-sem consumer e sem `Hash do Código` até o gate posterior ao commit causal.
+**Estado:** MATERIALIZADO APÓS CONFIRMAÇÃO ADR-0127.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 
 **Camada:** L4 (testes de integração)
-**Alvo planejado:** `04_wiring/tests/p1464_format_pdf.rs`
-**Consumer futuro exclusivo:** `04_wiring/tests/p1464_format_pdf.rs`
+**Ficheiro alvo:** `04_wiring/tests/p1464_format_pdf.rs`
+**Consumer exclusivo:** `04_wiring/tests/p1464_format_pdf.rs`
 **Vanilla ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
 **ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
 
@@ -82,7 +82,9 @@ permanecem na suíte; mutantes e resultados intermediários ficam somente em
 
 ## Gate
 
-O consumer e o primeiro RED só podem ser criados depois de confirmação humana
-explícita posterior ao commit causal P1464. Então o consumer apontará
-exclusivamente para este prompt, o header será selado e os testes precederão o
-candidato produtivo.
+A confirmação humana explícita foi recebida em 2026-09-20, depois do commit
+causal `dffb6b91ceb96503375b71e1afab5699c4eafc12`. O consumer foi escrito pelo
+papel B sem acesso ao código do papel A. Contra o baseline causal, o primeiro
+RED teve `1` teste aprovado e `3` reprovados; após a integração, os `4` testes
+passaram. O header e o hash bidirecional são selados no commit de
+materialização.

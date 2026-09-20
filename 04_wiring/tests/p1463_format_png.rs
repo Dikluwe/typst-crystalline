@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1463-format-png.md
-//! @prompt-hash 54ce2fa6
+//! @prompt-hash af74f54b
 
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -477,20 +477,16 @@ fn png_document_and_caller_options_are_byte_neutral_to_svg() {
 }
 
 #[test]
-fn future_format_siblings_remain_absent() {
+fn html_remains_absent_from_format_namespace() {
     let mut checks = Checks::default();
-    for sibling in ["pdf", "html"] {
-        let observed = eval(&format!("repr(format.{sibling})"), None);
-        checks.require(
-            !observed.success
-                && observed
-                    .stderr
-                    .contains(&format!("module `format` does not contain `{sibling}`")),
-            format!(
-                "sibling/{sibling}: expected strict absence, code={:?}, stderr={}",
-                observed.code, observed.stderr
-            ),
-        );
-    }
+    let observed = eval("repr(format.html)", None);
+    checks.require(
+        !observed.success
+            && observed.stderr.contains("module `format` does not contain `html`"),
+        format!(
+            "sibling/html: expected strict absence, code={:?}, stderr={}",
+            observed.code, observed.stderr
+        ),
+    );
     checks.finish();
 }

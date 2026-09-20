@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 66fbe515
+//! @prompt-hash 5eabca3d
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-20
 //!
 //! Acesso a campo (`a.b`) sobre valores e sobre `Content`, os métodos de
 //! `Content`, e as mensagens de erro de campo e de callee não-chamável.
@@ -455,6 +455,48 @@ fn is_user_defined_closure(mut func: &Func) -> bool {
     }
 }
 
+fn is_format_pdf_namespace(namespace: &crate::entities::scope::Scope) -> bool {
+    matches!(namespace.get("pages"), Some(Value::None))
+        && matches!(
+            namespace.get("standard"),
+            Some(Value::Array(standards))
+                if matches!(
+                    standards.as_slice(),
+                    [Value::Str(standard)] if standard.as_str() == "1.7"
+                )
+        )
+        && matches!(namespace.get("tagged"), Some(Value::Auto))
+        && matches!(namespace.get("pretty"), Some(Value::Bool(false)))
+        && matches!(namespace.get("attach"), Some(Value::Func(_)))
+        && matches!(namespace.get("artifact"), Some(Value::Func(_)))
+}
+
+fn is_format_pdf_function(mut func: &Func) -> bool {
+    use crate::entities::func::FuncRepr;
+
+    loop {
+        match func.repr() {
+            FuncRepr::With(with) => func = &with.0,
+            FuncRepr::Native(native) => {
+                return native.name == "pdf"
+                    && native.namespace.as_deref().is_some_and(is_format_pdf_namespace);
+            }
+            FuncRepr::Closure(_)
+            | FuncRepr::NativeWithEngine(_)
+            | FuncRepr::Element(_)
+            | FuncRepr::Plugin(_) => return false,
+        }
+    }
+}
+
+fn is_a11y_pdf_target(target: &Value) -> bool {
+    match target {
+        Value::Module(module) => module.name() == "pdf",
+        Value::Func(func) => is_format_pdf_function(func),
+        _ => false,
+    }
+}
+
 pub(in crate::compiler::eval) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
     scopes: &mut Scopes<'_>,
@@ -501,27 +543,31 @@ pub(in crate::compiler::eval) fn eval_field_access(
         }
     }
 
+    // P1464 — o módulo global e a função format.pdf partilham o gate
+    // a11y-extras. A função é reconhecida por identidade nativa e namespace,
+    // inclusive através de aplicação parcial.
+    if is_a11y_pdf_target(&target)
+        && matches!(field, "table-summary" | "header-cell" | "data-cell")
+        && !ctx
+            .features
+            .contains(crate::entities::compiler_features::Feature::A11yExtras)
+    {
+        return Err(vec![SourceDiagnostic::error(
+            access.field().span(),
+            format!(
+                "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
+            ),
+        )
+        .with_hint("try enabling the `a11y-extras` feature")
+        .with_hint("see https://typst.app/help/compiler-features for more details")]);
+    }
+
     // P820 (achado #7 de P810) — acesso a símbolo **depreciado** do módulo
     // `sym` (`#sym.join`): warning verbatim do vanilla com span no campo
     // (medido: `#sym.join` → warning @1:5, exit 0). O mecanismo geral do
     // vanilla é `Deprecation` em `Binding` (`foundations/scope.rs:288`);
     // aqui, data-driven pela tabela `SYM_DEPRECATED` do módulo `sym`.
     if let Value::Module(ref m) = target {
-        if m.name() == "pdf"
-            && matches!(field, "table-summary" | "header-cell" | "data-cell")
-            && !ctx
-                .features
-                .contains(crate::entities::compiler_features::Feature::A11yExtras)
-        {
-            return Err(vec![SourceDiagnostic::error(
-                access.field().span(),
-                format!(
-                    "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
-                ),
-            )
-            .with_hint("try enabling the `a11y-extras` feature")
-            .with_hint("see https://typst.app/help/compiler-features for more details")]);
-        }
         if m.name() == "sym" {
             if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(field) {
                 engine.sink.warn_note(access.field().span(), msg, "");

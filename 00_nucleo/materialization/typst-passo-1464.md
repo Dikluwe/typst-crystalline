@@ -1,7 +1,7 @@
 # Passo 1464 — materializar `format.pdf` e projetar os cinco membros de `pdf`
 
-**Estado:** L0 CAUSAL ESCRITO — AGUARDA CONFIRMAÇÃO HUMANA PÓS-COMMIT
-(ADR-0127)
+**Estado:** MATERIALIZADO — confirmação ADR-0127 recebida após o commit causal
+`dffb6b91ceb96503375b71e1afab5699c4eafc12`
 **Data da medição:** 2026-09-19T22:06:57-03:00
 **Baseline cristalino:** `a1286f958f15a539dca17a3696ef83ef9e5b1b78`
 **Tree do baseline:** `15bba96f8a7d4ada71345df6fe67d4b3e1bfcd04`, limpa
@@ -239,6 +239,12 @@ Logo exige a única paragem obrigatória deste passo:
 
 A confirmação de P1463 não autoriza P1464.
 
+O commit causal foi criado sem código ou teste P1464. A confirmação humana
+explícita foi recebida em 2026-09-20; somente então os papéis segregados A e B
+partiram do mesmo baseline causal. O teste independente produziu RED contra
+esse baseline (`1` passou, `3` falharam) e GREEN após a integração (`4`
+passaram, `0` falharam).
+
 ## 7. Execução segregada após confirmação
 
 Aplicar exatamente os três papéis da skill relida:
@@ -306,3 +312,80 @@ O veredito final deve dizer apenas: superfície `format.pdf`, defaults de
 namespace, cinco membros reutilizados e gates medidos. Não declarar paridade
 de opções documentais, export PDF, PDF/A, PDF/UA, seleção de páginas, tagging
 ou serialização pretty.
+
+## 10. Medição final e proveniência
+
+**Instante:** 2026-09-20T10:35:01-03:00. **Estado:** working tree não
+commitado sobre o commit causal
+`dffb6b91ceb96503375b71e1afab5699c4eafc12`. O `git diff HEAD --stat`
+abrangia doze ficheiros rastreados e o consumer novo tinha 451 linhas ainda
+não rastreadas. Ficheiros alterados nesse instante:
+
+```text
+00_nucleo/materialization/typst-passo-1464.md
+00_nucleo/prompts/compiler/eval.md
+00_nucleo/prompts/compiler/eval/bindings/field_access.md
+00_nucleo/prompts/compiler/stdlib/format.md
+00_nucleo/prompts/wiring/tests/p1462-format-svg.md
+00_nucleo/prompts/wiring/tests/p1463-format-png.md
+00_nucleo/prompts/wiring/tests/p1464-format-pdf.md
+01_core/src/compiler/eval/bindings/field_access.rs
+01_core/src/compiler/eval/mod.rs
+01_core/src/compiler/stdlib/format.rs
+04_wiring/tests/p1462_format_svg.rs
+04_wiring/tests/p1463_format_png.rs
+04_wiring/tests/p1464_format_pdf.rs (novo)
+```
+
+### 10.1 Comportamento e inventário
+
+- O teste independente P1464 fez RED `1/4` no baseline causal e GREEN `4/4`
+  após integração; a repetição final serial fechou `4/4` em 254,94 s.
+- Os controles de ausência de `format.html` em P1462 e P1463 passaram `1/1`
+  cada depois de deixarem de classificar o sibling P1464 como futuro.
+- Três mutações dirigidas — default `1.7`, projeção do trio gated e travessia
+  por `.with` — foram mortas (`3/3`).
+- Os probes bilaterais nos quatro perfis confirmaram defaults idênticos,
+  identidade dos membros e diagnóstico gated idêntico ao vanilla ratificado.
+- O inventário P1357 bruto mediu, respectivamente em
+  `default`/`html`/`a11y-extras`/`html+a11y`:
+  `2004/17/48`, `2119/132/48`, `2010/17/48` e `2125/132/48` para
+  `BOTH/VANILLA_ONLY/CRYSTALLINE_ONLY`. Os quatro defaults de `format.pdf`
+  aparecem como rotas extras somente porque o enumerador vanilla os modela
+  como parâmetros; o relatório não normaliza nem transforma isso em crédito
+  falso de paridade.
+
+### 10.2 Gates e falhas preservadas
+
+- `cargo build --workspace`: sucesso.
+- `cargo test -p typst-shell`: `69/69` na lib e `3/3` na integração.
+- `cargo test -p typst-core`: `5924` passaram e `8` falharam; o mesmo comando
+  no commit causal reproduziu exatamente os mesmos oito nomes (`5924/8`).
+- `cargo test -p typst-infra`: `959/6` na lib e `4/2` em
+  `p1427_math_frac`; são as oito falhas históricas fora do diff P1464.
+- O workspace wiring foi executado por alvo. P1464, lib, contracts e os
+  demais alvos passaram, exceto quatro testes que atravessam o export PNG.
+  A auditoria no commit causal reproduziu os mesmos quatro e revelou a causa:
+  `typst` tenta alocar `41.568.028.160` bytes por processo. Portanto são
+  falhas resource-bound anteriores ao P1464, não regressão do namespace.
+- `cargo clippy --workspace --all-targets --all-features` permanece bloqueado
+  por erros históricos. A auditoria causal enumerou os mesmos oito: um
+  `deprecated_semver`, três `never_loop`, duas comparações extremas e dois
+  `approx_constant`; nenhum está nos ficheiros P1464.
+- `rustfmt --check` nos seis ficheiros Rust tocados: sucesso. O gate global
+  continua divergindo somente em `03_infra/tests/p1428_math_frac.rs` e
+  `04_wiring/tests/p1289_float_is_infinite.rs`, ambos fora do diff.
+- `crystalline-lint .`: zero violações e zero drift de hash.
+- A busca de referências P1464 não encontrou link Markdown nem apontamento
+  para caminho inexistente. `git diff --check`: sucesso.
+
+### 10.3 Controle de RAM e temporários
+
+A primeira execução concorrente do wiring atingiu aproximadamente 40,5 GB às
+09:31, coerente com a tentativa causal de alocar 41.568.028.160 bytes no
+export PNG. A retomada usou testes seriais, limite virtual de 24 GiB por
+processo, watchdog a cada 2 s, teto de 32 GiB em `/dev/shm` e aborto quando
+`MemAvailable` caísse abaixo de 30 GiB. O maior lote concluído usou 5,9 GiB de
+tmpfs; o focal final usou 3,86 GiB e conservou pelo menos 52,6 GiB disponíveis.
+Cada lote removeu clone, cache, target, log e temporários ao terminar, sem
+fallback para o disco.
