@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 49d7faf3
+//! @prompt-hash ade15c17
 //! @layer L2
-//! @updated 2026-07-21
+//! @updated 2026-09-20
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -20,10 +20,13 @@
 
 use std::ffi::OsString;
 use std::io::IsTerminal;
+use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use clap::{CommandFactory, Parser, Subcommand};
 use typst_core::compiler::lang::heading_supplement_for_lang;
+use typst_core::entities::document_format_options::{PageRange, PageRanges};
 use typst_core::entities::elements::math_attach::MathAttachSlot;
 use typst_core::entities::value::Value;
 
@@ -225,6 +228,57 @@ struct Args {
     cert_path: Option<PathBuf>,
 }
 
+/// **P1468** — newtype de L2 que hospeda `impl FromStr` para `--pages`,
+/// reproduzindo exatamente o algoritmo `split('-').map(trim)` do vanilla
+/// ratificado (`typst-cli/src/args.rs:779-813`), incluindo
+/// `parse_page_number`. Reexporta `PageRange` de L1 (`entities::
+/// document_format_options`) só como o carrier tipado do intervalo já
+/// parseado.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct PageRangeArg(PageRange);
+
+impl FromStr for PageRangeArg {
+    type Err = &'static str;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value.split('-').map(str::trim).collect::<Vec<_>>().as_slice() {
+            [] | [""] => Err("page range must not be empty"),
+            [single_page] => {
+                let page_number = pages_arg_parse_page_number(single_page)?;
+                Ok(PageRangeArg(PageRange::at(page_number)))
+            }
+            ["", ""] => Err("page range must have start or end"),
+            [start, ""] => Ok(PageRangeArg(PageRange {
+                start: Some(pages_arg_parse_page_number(start)?),
+                end: None,
+            })),
+            ["", end] => Ok(PageRangeArg(PageRange {
+                start: None,
+                end: Some(pages_arg_parse_page_number(end)?),
+            })),
+            [start, end] => {
+                let start = pages_arg_parse_page_number(start)?;
+                let end = pages_arg_parse_page_number(end)?;
+                if start > end {
+                    Err("page range must end at a page after the start")
+                } else {
+                    Ok(PageRangeArg(PageRange { start: Some(start), end: Some(end) }))
+                }
+            }
+            [_, _, _, ..] => Err("page range must have a single hyphen"),
+        }
+    }
+}
+
+/// Espelha `parse_page_number` do vanilla (`typst-cli/src/args.rs:806-813`).
+fn pages_arg_parse_page_number(value: &str) -> Result<NonZeroUsize, &'static str> {
+    if value == "0" {
+        Err("page numbers start at one")
+    } else {
+        NonZeroUsize::from_str(value).map_err(|_| "not a valid page number")
+    }
+}
+
 #[derive(Debug, clap::Args)]
 struct CompileArgs {
     /// Enables in-development compiler features.
@@ -328,6 +382,14 @@ struct CompileArgs {
     /// paridade) em vez do PDF normal. Não é um formato de produção.
     #[arg(long = "oracle-pdf", action = clap::ArgAction::SetTrue)]
     oracle_pdf: bool,
+
+    /// **P1468** — quais páginas exportar no PDF. Ausente = todas. Tokens
+    /// separados por vírgula, cada um `N`, `A-B`, `A-` ou `-B` (números
+    /// físicos, 1-indexed, não afetados pelo contador de página da
+    /// linguagem). Só afeta o export PDF (ver scope-out medido em
+    /// `shell/cli.md` P1468: PNG/SVG multi-ficheiro não existe ainda).
+    #[arg(long = "pages", value_delimiter = ',')]
+    pages: Option<Vec<PageRangeArg>>,
 }
 
 #[derive(Debug, clap::Args)]
@@ -515,6 +577,11 @@ pub struct CompileIntent {
     /// `compile_to_pdf_bytes_oracle` quando presente (só PDF).
     pub oracle_pdf: bool,
     pub cert_path: Option<PathBuf>,
+    /// **P1468** — seleção de páginas de `--pages`, já convertida ao
+    /// carrier tipado de L1. `None` = todas as páginas. L4 decide a
+    /// precedência face a `#set format.pdf(pages: ...)` e a interação com
+    /// `tagged` (`wiring.md`/`infra/pipeline.md` P1468).
+    pub pages: Option<PageRanges>,
 }
 
 #[derive(Debug)]
@@ -725,6 +792,9 @@ fn compile_intent(
         no_pdf_tags: args.no_pdf_tags,
         oracle_pdf: args.oracle_pdf,
         cert_path,
+        pages: args
+            .pages
+            .map(|ranges| PageRanges::new(ranges.into_iter().map(|r| r.0).collect())),
     }
 }
 
@@ -2326,6 +2396,137 @@ mod tests {
                 panic!("eval esperado");
             };
             assert_eq!(eval.input.as_deref(), Some(Path::new(input)));
+        }
+    }
+
+    // ── P1468 (RED — Agente B) — flag `compile --pages`. `CompileArgs`
+    // ainda não tem o campo `pages` neste baseline; este módulo falha por
+    // erro de compilação até `PageRangeArg`/`CompileArgs.pages`/
+    // `CompileIntent.pages` serem materializados (Agente A, em paralelo),
+    // conforme `shell/cli.md` §P1468.
+    use typst_core::entities::document_format_options::{PageRange, PageRanges};
+
+    fn single_page_ranges(n: usize) -> PageRanges {
+        let p = std::num::NonZeroUsize::new(n).unwrap();
+        PageRanges::new(vec![PageRange { start: Some(p), end: Some(p) }])
+    }
+
+    fn compile_args_for(argv: &[&str]) -> CompileArgs {
+        let parsed = Args::try_parse_from(argv).expect("forma P1468 deve parsear");
+        match parsed.command {
+            Command::Compile(args) => args.compile,
+            Command::Watch(args) => args,
+            _ => panic!("comando compile/watch esperado"),
+        }
+    }
+
+    #[test]
+    fn p1468_pages_absent_is_none_in_args_and_intent() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ"]);
+        assert_eq!(compile.pages, None);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(intent.pages, None);
+    }
+
+    #[test]
+    fn p1468_pages_single_token_parses_single_page_range() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ", "--pages=3"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(intent.pages, Some(single_page_ranges(3)));
+    }
+
+    #[test]
+    fn p1468_pages_closed_range_parses_start_and_end() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ", "--pages=2-5"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(
+            intent.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: Some(std::num::NonZeroUsize::new(2).unwrap()),
+                end: Some(std::num::NonZeroUsize::new(5).unwrap()),
+            }]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_open_at_end_parses_start_only() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ", "--pages=3-"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(
+            intent.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: Some(std::num::NonZeroUsize::new(3).unwrap()),
+                end: None,
+            }]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_open_at_start_parses_end_only() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ", "--pages=-2"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(
+            intent.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: None,
+                end: Some(std::num::NonZeroUsize::new(2).unwrap()),
+            }]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_multiple_tokens_with_space_are_trimmed() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ", "--pages=1, 2"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(
+            intent.pages,
+            Some(PageRanges::new(vec![
+                PageRange {
+                    start: Some(std::num::NonZeroUsize::new(1).unwrap()),
+                    end: Some(std::num::NonZeroUsize::new(1).unwrap()),
+                },
+                PageRange {
+                    start: Some(std::num::NonZeroUsize::new(2).unwrap()),
+                    end: Some(std::num::NonZeroUsize::new(2).unwrap()),
+                },
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_compile_watch_and_alias_all_accept_the_flag() {
+        for command in ["compile", "watch", "w"] {
+            let compile = compile_args_for(&["typst", command, "in.typ", "--pages=2"]);
+            assert!(compile.pages.is_some(), "{command}");
+            let intent =
+                compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+            assert_eq!(intent.pages, Some(single_page_ranges(2)), "{command}");
+        }
+    }
+
+    #[test]
+    fn p1468_pages_seven_schema_negatives_use_cli_specific_messages() {
+        let cases = [
+            ("", "page range must not be empty"),
+            ("1--3", "page range must have a single hyphen"),
+            ("-", "page range must have start or end"),
+            ("abc", "not a valid page number"),
+            ("0", "page numbers start at one"),
+            // Mensagem CLI-only, DIFERENTE da versão documental
+            // ("start of page range cannot be larger than end") —
+            // `shell/cli.md` P1468 confirma que são dois pontos de
+            // validação distintos, não o mesmo texto reaproveitado.
+            ("3-1", "page range must end at a page after the start"),
+        ];
+
+        for (token, expected) in cases {
+            let argv = ["typst", "compile", "in.typ", &format!("--pages={token}")];
+            let error = Args::try_parse_from(argv)
+                .expect_err(&format!("token {token:?} deveria falhar"));
+            assert!(
+                error.to_string().contains(expected),
+                "token {token:?}: esperava {expected:?}; erro: {error}"
+            );
         }
     }
 }

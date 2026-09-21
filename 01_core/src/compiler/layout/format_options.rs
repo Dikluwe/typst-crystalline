@@ -1,11 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash 88f5c97e
+//! @prompt-hash 39a45a5e
 //! @layer L1
 //! @updated 2026-09-20
 
+use std::num::NonZeroUsize;
+
 use crate::entities::content::Content;
-use crate::entities::document_format_options::{DocumentFormatOptions, PdfTagged};
+use crate::entities::document_format_options::{
+    DocumentFormatOptions, PageRange, PageRanges, PdfTagged,
+};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::Styles;
@@ -16,6 +20,7 @@ const PNG_PPI_KEY: &str = "format.png.ppi";
 const HTML_PRETTY_KEY: &str = "format.html.pretty";
 const PDF_TAGGED_KEY: &str = "format.pdf.tagged";
 const PDF_PRETTY_KEY: &str = "format.pdf.pretty";
+const PDF_PAGES_KEY: &str = "format.pdf.pages";
 const NESTED_FORMAT_RULE_ERROR: &str =
     "format set rules are not allowed inside of containers";
 
@@ -66,6 +71,14 @@ fn explicit_pdf_pretty_values(styles: &Styles) -> impl Iterator<Item = &Value> {
         .custom
         .iter()
         .filter_map(|(key, value)| (key.as_str() == PDF_PRETTY_KEY).then_some(value))
+}
+
+fn explicit_pdf_pages_values(styles: &Styles) -> impl Iterator<Item = &Value> {
+    styles
+        .delta()
+        .custom
+        .iter()
+        .filter_map(|(key, value)| (key.as_str() == PDF_PAGES_KEY).then_some(value))
 }
 
 fn validate_svg_pretty(value: &Value) -> SourceResult<bool> {
@@ -134,6 +147,85 @@ fn validate_pdf_pretty(value: &Value) -> SourceResult<bool> {
     }
 }
 
+/// **P1468** — converte um `Value::Int`/`Dict` já validado por
+/// `compiler/eval/rules.rs` (braço `format.pdf`) num `PageRange` tipado.
+/// A validação de domínio (inteiro positivo, chaves `from`/`to`, `from <=
+/// to`) já ocorreu no `set`; aqui um valor fora do domínio é estado interno
+/// impossível, falha fechada, nunca um novo diagnóstico de schema.
+fn pdf_page_number_from_i64(nr: i64) -> SourceResult<NonZeroUsize> {
+    if nr < 1 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected positive integer, found {nr} in internal {PDF_PAGES_KEY}"),
+        )]);
+    }
+    usize::try_from(nr).ok().and_then(NonZeroUsize::new).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected positive integer, found {nr} in internal {PDF_PAGES_KEY}"),
+        )]
+    })
+}
+
+fn pdf_page_range_from_value(value: &Value) -> SourceResult<PageRange> {
+    match value {
+        Value::Int(nr) => Ok(PageRange::at(pdf_page_number_from_i64(*nr)?)),
+        Value::Dict(dict) => {
+            let parse_bound = |key: &str| -> SourceResult<Option<NonZeroUsize>> {
+                match dict.get(key) {
+                    None => Ok(None),
+                    Some(Value::Int(nr)) => Ok(Some(pdf_page_number_from_i64(*nr)?)),
+                    Some(other) => Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "expected integer, found {} in internal {PDF_PAGES_KEY}",
+                            typst_type_name(other)
+                        ),
+                    )]),
+                }
+            };
+            let start = parse_bound("from")?;
+            let end = parse_bound("to")?;
+            Ok(PageRange { start, end })
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "expected integer or dictionary, found {} in internal {PDF_PAGES_KEY}",
+                typst_type_name(other)
+            ),
+        )]),
+    }
+}
+
+/// **P1468** — extração root de `format.pdf.pages`: `Value::None` reafirma
+/// "todas as páginas"; `Int`/`Dict`/`Array` (incluindo array vazio, seleção
+/// vazia explícita — distinta de `None`) convertem para `PageRanges`
+/// tipado. Não normaliza, deduplica nem ordena a lista (ver
+/// `entities/document_format_options.md` P1468).
+fn validate_pdf_pages(value: &Value) -> SourceResult<Option<PageRanges>> {
+    match value {
+        Value::None => Ok(None),
+        Value::Int(_) | Value::Dict(_) => {
+            Ok(Some(PageRanges::new(vec![pdf_page_range_from_value(value)?])))
+        }
+        Value::Array(items) => {
+            let mut ranges = Vec::with_capacity(items.len());
+            for item in items {
+                ranges.push(pdf_page_range_from_value(item)?);
+            }
+            Ok(Some(PageRanges::new(ranges)))
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "expected integer, dictionary, array, or none, found {} in internal {PDF_PAGES_KEY}",
+                typst_type_name(other)
+            ),
+        )]),
+    }
+}
+
 fn collect_root_options(
     content: &Content,
     options: &mut DocumentFormatOptions,
@@ -164,6 +256,10 @@ fn collect_root_options(
             }
             for value in explicit_pdf_pretty_values(styles) {
                 options.pdf.pretty = validate_pdf_pretty(value)?;
+                *root_occurrences += 1;
+            }
+            for value in explicit_pdf_pages_values(styles) {
+                options.pdf.pages = validate_pdf_pages(value)?;
                 *root_occurrences += 1;
             }
             collect_root_options(body, options, root_occurrences)?;
@@ -200,6 +296,10 @@ pub fn collect_document_format_options(
             }
             for value in explicit_pdf_pretty_values(styles) {
                 validate_pdf_pretty(value)?;
+                all_occurrences += 1;
+            }
+            for value in explicit_pdf_pages_values(styles) {
+                validate_pdf_pages(value)?;
                 all_occurrences += 1;
             }
         }
@@ -498,5 +598,227 @@ mod tests {
         let options = collect_document_format_options(&both_in_distinct_rules).unwrap();
         assert_eq!(options.pdf.tagged, PdfTagged::Explicit(false));
         assert!(options.pdf.pretty);
+    }
+
+    // ── P1468 (RED — Agente B) — extração root de `format.pdf.pages`.
+    // `DocumentFormatOptions::pdf.pages`, `PageRange` e `PageRanges` ainda
+    // não existem neste baseline (`0b322a926dd2f86b49aabfeb0d2f287ce06aaace`);
+    // este módulo falha por erro de compilação até o carrier P1468 (mesmo
+    // gate ADR-0127) ser materializado por outro agente em paralelo.
+    use crate::entities::document_format_options::{PageRange, PageRanges};
+    use ecow::EcoString;
+    use indexmap::IndexMap;
+    use rustc_hash::FxBuildHasher;
+    use std::num::NonZeroUsize;
+
+    const PDF_PAGES_KEY: &str = "format.pdf.pages";
+
+    fn page(n: usize) -> NonZeroUsize {
+        NonZeroUsize::new(n).unwrap()
+    }
+
+    fn single_range(n: usize) -> PageRanges {
+        PageRanges::new(vec![PageRange { start: Some(page(n)), end: Some(page(n)) }])
+    }
+
+    fn dict_value(pairs: &[(&str, i64)]) -> Value {
+        let mut map: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        for (key, value) in pairs {
+            map.insert((*key).into(), Value::Int(*value));
+        }
+        Value::Dict(map)
+    }
+
+    fn pdf_pages(body: Content, value: Value) -> Content {
+        Content::Styled(Box::new(body), Styles::new().push_custom(PDF_PAGES_KEY, value))
+    }
+
+    #[test]
+    fn p1468_absence_keeps_default_none_pages() {
+        let content = Content::Styled(
+            Box::new(Content::text("body")),
+            Styles::new().push_custom("text.example", Value::Bool(true)),
+        );
+
+        let options = collect_document_format_options(&content).unwrap();
+
+        assert_eq!(options.pdf.pages, None);
+    }
+
+    #[test]
+    fn p1468_pages_integer_root_extraction() {
+        let content = pdf_pages(Content::Empty, Value::Int(3));
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.pages, Some(single_range(3)));
+    }
+
+    #[test]
+    fn p1468_pages_dict_open_and_closed_root_extraction() {
+        let open_end = pdf_pages(Content::Empty, dict_value(&[("from", 2)]));
+        let options = collect_document_format_options(&open_end).unwrap();
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![PageRange { start: Some(page(2)), end: None }]))
+        );
+
+        let open_start = pdf_pages(Content::Empty, dict_value(&[("to", 2)]));
+        let options = collect_document_format_options(&open_start).unwrap();
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![PageRange { start: None, end: Some(page(2)) }]))
+        );
+
+        let closed = pdf_pages(Content::Empty, dict_value(&[("from", 1), ("to", 3)]));
+        let options = collect_document_format_options(&closed).unwrap();
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: Some(page(1)),
+                end: Some(page(3))
+            }]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_array_mixed_and_empty_root_extraction() {
+        let mixed = pdf_pages(
+            Content::Empty,
+            Value::Array(vec![Value::Int(1), dict_value(&[("from", 3), ("to", 5)])]),
+        );
+        let options = collect_document_format_options(&mixed).unwrap();
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![
+                PageRange { start: Some(page(1)), end: Some(page(1)) },
+                PageRange { start: Some(page(3)), end: Some(page(5)) },
+            ]))
+        );
+
+        // Array vazio é presente (seleção vazia), distinto de `None`.
+        let empty = pdf_pages(Content::Empty, Value::Array(vec![]));
+        let options = collect_document_format_options(&empty).unwrap();
+        assert_eq!(options.pdf.pages, Some(PageRanges::new(vec![])));
+        assert_ne!(options.pdf.pages, None);
+    }
+
+    #[test]
+    fn p1468_pages_empty_rule_after_previous_decision_preserves_it() {
+        // Regra externa define `pages`; regra interna só toca uma chave não
+        // relacionada — não deve apagar a decisão de `pages`.
+        let content = pdf_pages(
+            Content::Styled(
+                Box::new(Content::text("after")),
+                Styles::new().push_custom("other.key", Value::Bool(true)),
+            ),
+            Value::Int(2),
+        );
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.pages, Some(single_range(2)));
+    }
+
+    #[test]
+    fn p1468_pages_none_value_reaffirms_none_after_prior_decision() {
+        // `Value::None` é uma decisão EXPLÍCITA ("todas as páginas"),
+        // distinta de nunca ter existido a chave — e, como qualquer outra
+        // decisão root, a mais lexicalmente interna/posterior vence.
+        let content = pdf_pages(pdf_pages(Content::Empty, Value::None), Value::Int(2));
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.pages, None);
+    }
+
+    #[test]
+    fn p1468_pages_root_sequence_and_styled_use_lexical_last_write_wins() {
+        let content = pdf_pages(
+            Content::sequence(vec![
+                Content::text("before"),
+                pdf_pages(Content::text("after"), Value::Int(5)),
+            ]),
+            Value::Int(2),
+        );
+        assert_eq!(
+            collect_document_format_options(&content).unwrap().pdf.pages,
+            Some(single_range(5))
+        );
+
+        let reversed = Content::sequence(vec![
+            pdf_pages(Content::Empty, Value::Int(5)),
+            pdf_pages(Content::Empty, Value::Int(2)),
+        ]);
+        assert_eq!(
+            collect_document_format_options(&reversed).unwrap().pdf.pages,
+            Some(single_range(2))
+        );
+    }
+
+    #[test]
+    fn p1468_pdf_pages_rule_in_distinct_containers_fails_closed() {
+        for nested in [
+            Content::Par {
+                body: Box::new(pdf_pages(Content::Empty, Value::Int(1))),
+            },
+            Content::SmallCaps {
+                body: Box::new(pdf_pages(Content::Empty, dict_value(&[("from", 1)]))),
+            },
+        ] {
+            let errors = collect_document_format_options(&nested).unwrap_err();
+            assert_eq!(errors[0].message, NESTED_FORMAT_RULE_ERROR);
+        }
+    }
+
+    #[test]
+    fn p1468_pages_composition_with_svg_png_html_tagged_pretty() {
+        let content = Content::sequence(vec![
+            svg_pretty(Content::Empty, Value::Bool(true)),
+            html_pretty(Content::Empty, Value::Bool(true)),
+            Content::Styled(
+                Box::new(Content::Empty),
+                Styles::new().push_custom(PNG_PPI_KEY, Value::Float(300.0)),
+            ),
+            pdf_tagged(Content::Empty, Value::Bool(false)),
+            pdf_pretty(Content::Empty, Value::Bool(true)),
+            pdf_pages(Content::Empty, dict_value(&[("from", 2), ("to", 4)])),
+        ]);
+
+        let options = collect_document_format_options(&content).unwrap();
+        assert!(options.svg.pretty);
+        assert!(options.html.pretty);
+        assert_eq!(options.png.ppi, 300.0);
+        assert_eq!(options.pdf.tagged, PdfTagged::Explicit(false));
+        assert!(options.pdf.pretty);
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: Some(page(2)),
+                end: Some(page(4))
+            }]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_field_is_independent_of_tagged_and_pretty() {
+        let only_pages = pdf_pages(Content::Empty, Value::Int(7));
+        let options = collect_document_format_options(&only_pages).unwrap();
+        assert_eq!(options.pdf.pages, Some(single_range(7)));
+        assert_eq!(options.pdf.tagged, PdfTagged::Auto);
+        assert!(!options.pdf.pretty);
+    }
+
+    #[test]
+    fn p1468_pages_internal_type_impossible_fails_closed() {
+        // `format.pdf.pages` já foi validado em `compiler/eval/rules.rs`
+        // (só Int/Dict/Array/None chegam à StyleChain); um `Value::Bool`
+        // interno é estado impossível e deve falhar fechado, nunca cair de
+        // volta a `None`. Não fixamos aqui a forma exata da mensagem de
+        // topo (isso é `compiler/eval/rules.md`); só que a falha é fechada,
+        // atribuível e cita a chave canônica.
+        let content = pdf_pages(Content::Empty, Value::Bool(true));
+
+        let errors = collect_document_format_options(&content).unwrap_err();
+
+        assert!(errors[0].message.contains(PDF_PAGES_KEY), "{errors:?}");
+        assert!(
+            errors[0].message.contains("boolean"),
+            "mensagem deve nomear o tipo interno encontrado: {errors:?}"
+        );
     }
 }

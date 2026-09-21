@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 54415e3a
+//! @prompt-hash dbfe4b8b
 //! @layer L3
 //! @updated 2026-09-20
 //!
@@ -22,7 +22,9 @@ use comemo::{Track, TrackedMut};
 use typst_core::contracts::world::World;
 use typst_core::entities::args::Args;
 use typst_core::entities::content::Content;
-use typst_core::entities::document_format_options::{DocumentFormatOptions, PdfTagged};
+use typst_core::entities::document_format_options::{
+    DocumentFormatOptions, PageRanges, PdfTagged,
+};
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
@@ -65,9 +67,9 @@ use typst_core::entities::value::Value;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 
 use crate::export::{
-    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization,
-    export_pdf_with_document_id_and_tags_and_serialization,
-    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization,
+    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages,
+    export_pdf_with_document_id_and_tags_and_serialization_and_pages,
+    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages,
     export_png, export_png_with_fonts, export_svg_with_context,
     export_svg_with_fonts_and_contexts, FontKey, GlyphFontRequest, PdfSerializationMode,
     PdfTags, StreamMode, SvgDestinationContext, SvgGlyphFontContext,
@@ -1406,6 +1408,57 @@ fn resolve_pdf_tags(
     }
 }
 
+/// **P1468** — estende `resolve_pdf_tags` com a precedência `pages_override`
+/// (CLI, `--pages`) > `options.pdf.pages` (documento, `#set format.pdf
+/// (pages: ...)`) > `None` (todas as páginas), e decide a interação com
+/// `tagged` medida em `typst-pdf/src/lib.rs:95-118` do vanilla ratificado:
+/// documento pedindo `tagged: true` explícito + `pages` ativo é erro
+/// (`"cannot enable tagged PDF and export a page range"`); `tagged` que só
+/// resolveria `Enabled` por `Auto` produz o warning documental (2 hints) e
+/// força `Disabled`; `tagged` já `Disabled` (CLI ou documento explícitos)
+/// não emite diagnóstico novo. A checagem CLI-only (`--pdf-tagged=true` +
+/// `--pages`) é barrada antes desta função, em `wiring.md` — aqui só é
+/// alcançável o `tagged_override == Some(true)` caso o gate de wiring não
+/// tenha corrido (mantém `Enabled` sem diagnóstico, mesmo comportamento
+/// anterior). Sem `pages` resolvido, delega integralmente a
+/// `resolve_pdf_tags` (comportamento P1467 byte-idêntico).
+fn resolve_pdf_pages_and_tags(
+    pages_override: Option<PageRanges>,
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> SourceResult<(Option<PageRanges>, PdfTags, Vec<SourceDiagnostic>)> {
+    let pages = pages_override.or_else(|| options.pdf.pages.clone());
+    let Some(pages) = pages else {
+        return Ok((None, resolve_pdf_tags(tagged_override, options), Vec::new()));
+    };
+
+    let (tags, diagnostics) = match (tagged_override, &options.pdf.tagged) {
+        (Some(false), _) => (PdfTags::Disabled, Vec::new()),
+        // Combinação CLI-only barrada em `wiring.md` antes de chegar aqui;
+        // preservada como não-erro se alcançada por outra via (ex.: teste
+        // directo desta função).
+        (Some(true), _) => (PdfTags::Enabled, Vec::new()),
+        (None, PdfTagged::Explicit(false)) => (PdfTags::Disabled, Vec::new()),
+        (None, PdfTagged::Explicit(true)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "cannot enable tagged PDF and export a page range",
+            )]);
+        }
+        (None, PdfTagged::Auto) => (
+            PdfTags::Disabled,
+            vec![SourceDiagnostic::warning(
+                Span::detached(),
+                "exporting a page range disables PDF tagging",
+            )
+            .with_hint("the resulting PDF will be inaccessible")
+            .with_hint("set `pdf(tagged: false)` to silence this warning")],
+        ),
+    };
+
+    Ok((Some(pages), tags, diagnostics))
+}
+
 /// **P1467** — resolve a precedência `--pretty` (override explícito) >
 /// `#set format.pdf(pretty: ...)` (documento) > `false`.
 fn resolve_pdf_pretty(
@@ -1428,10 +1481,11 @@ fn compile_to_pdf_bytes_impl(
     pdf_tagged_override: Option<bool>,
     features: typst_core::entities::compiler_features::Features,
     pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
     oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let (doc_result, warnings) = compile_to_paged_document_full_error_and_features(
+    let (doc_result, mut warnings) = compile_to_paged_document_full_error_and_features(
         world, source, full_error, features, timings,
     );
     let doc = match doc_result {
@@ -1445,7 +1499,25 @@ fn compile_to_pdf_bytes_impl(
             return (Err(errors), warnings);
         }
     };
-    let pdf_tags = resolve_pdf_tags(pdf_tagged_override, &doc.format_options);
+    // **P1468** — resolve `pages` (precedência CLI > documento > `None`) e a
+    // interação com `tagged` antes de qualquer resolução de fontes; erro
+    // documental aborta aqui, mesmo padrão do erro de anexo duplicado abaixo.
+    let (pages, pdf_tags, pages_diagnostics) = match resolve_pdf_pages_and_tags(
+        pages_override,
+        pdf_tagged_override,
+        &doc.format_options,
+    ) {
+        Ok(resolved) => resolved,
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms;
+            return (Err(errors), warnings);
+        }
+    };
+    warnings.extend(pages_diagnostics);
     let serialization = resolve_pdf_pretty(pretty_override, &doc.format_options);
 
     // P1286 — nomes duplicados só são erro no target PDF, onde ambos
@@ -1511,6 +1583,11 @@ fn compile_to_pdf_bytes_impl(
     let t_render = Instant::now();
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
+    // **P1468** — `pages` não é fiado até esta família (scope-out
+    // deliberado de `infra/export/mod.md` P1468 — só `export_pdf`/
+    // `export_pdf_with_font`/`export_pdf_multifont` ganham variantes
+    // `_and_pages`); o `PdfBuilder` do oráculo continua sem filtro de
+    // páginas, comportamento anterior preservado.
     let (pdf, subset_ms) = if oracle {
         let (pdf, subset) = crate::export::export_pdf_oracle_and_serialization(
             &doc,
@@ -1524,12 +1601,13 @@ fn compile_to_pdf_bytes_impl(
     } else {
         match resolved.as_slice() {
             [] => (
-                export_pdf_with_document_id_and_tags_and_serialization(
+                export_pdf_with_document_id_and_tags_and_serialization_and_pages(
                     &doc,
                     document_id,
                     stream_mode,
                     pdf_tags,
                     serialization,
+                    pages.clone(),
                 ),
                 0.0,
             ),
@@ -1546,32 +1624,35 @@ fn compile_to_pdf_bytes_impl(
                     )
                     .is_empty()
                 {
-                    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
+                    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
                         &doc,
                         std::slice::from_ref(single),
                         document_id,
                         stream_mode,
                         pdf_tags,
                         serialization,
+                        pages.clone(),
                     )
                 } else {
-                    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization(
+                    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages(
                         &doc,
                         bytes,
                         document_id,
                         stream_mode,
                         pdf_tags,
                         serialization,
+                        pages.clone(),
                     )
                 }
             }
-            many => export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
+            many => export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
                 &doc,
                 many,
                 document_id,
                 stream_mode,
                 pdf_tags,
                 serialization,
+                pages.clone(),
             ),
         }
     };
@@ -1588,11 +1669,11 @@ fn compile_to_pdf_bytes_impl(
     (Ok(pdf), warnings)
 }
 
-/// **P1467** — variante que preserva a ausência de override de `tagged`/
-/// `pretty` até consultar `doc.format_options` (Núcleo
-/// `format-option-precedence`). Com instrumentação de tempos.
+/// **P1468** — variante que também recebe a seleção de páginas resolvida
+/// (`pages_override`, precedência CLI > documento > `None`, `infra/
+/// pipeline.md` P1468). Com instrumentação de tempos.
 #[doc(hidden)]
-pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
     world: &dyn World,
     source: &Source,
     full_error: bool,
@@ -1601,6 +1682,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
     pdf_tagged_override: Option<bool>,
     features: typst_core::entities::compiler_features::Features,
     pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let result = compile_to_pdf_bytes_impl(
@@ -1612,13 +1694,74 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
         pdf_tagged_override,
         features,
         pretty_override,
+        pages_override,
         false,
         &mut timings,
     );
     (result.0, result.1, timings)
 }
 
+/// **P1467** — variante que preserva a ausência de override de `tagged`/
+/// `pretty` até consultar `doc.format_options` (Núcleo
+/// `format-option-precedence`). Com instrumentação de tempos.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado. Usar a variante `..._and_pages_override` para `--pages`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        None,
+    )
+}
+
+/// **P1468** — mesma variante sem instrumentação de tempos, com `pages`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        false,
+        &mut timings,
+    )
+}
+
 /// **P1467** — mesma variante sem instrumentação de tempos.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado.
 #[doc(hidden)]
 pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
     world: &dyn World,
@@ -1630,8 +1773,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
     features: typst_core::entities::compiler_features::Features,
     pretty_override: Option<bool>,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
         world,
         source,
         full_error,
@@ -1640,14 +1782,16 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
         pdf_tagged_override,
         features,
         pretty_override,
-        false,
-        &mut timings,
+        None,
     )
 }
 
-/// **P1467** — variante oráculo (`export/oracle.rs`) que preserva a ausência
-/// de override de `tagged`/`pretty` até consultar `doc.format_options`.
-pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+/// **P1468** — variante oráculo com `pages_override`. O `PageRanges`
+/// resolvido ainda decide o diagnóstico `tagged`+`pages` (documental), mas
+/// não filtra o PDF do oráculo — `infra/export/mod.md` P1468 não estende a
+/// família `export_pdf_oracle*` (ferramenta de diagnóstico de paridade de
+/// operador, `prompts/infra/export/oracle.md`).
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
     world: &dyn World,
     source: &Source,
     full_error: bool,
@@ -1656,6 +1800,7 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
     pdf_tagged_override: Option<bool>,
     features: typst_core::entities::compiler_features::Features,
     pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
@@ -1667,8 +1812,36 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
         pdf_tagged_override,
         features,
         pretty_override,
+        pages_override,
         true,
         &mut timings,
+    )
+}
+
+/// **P1467** — variante oráculo (`export/oracle.rs`) que preserva a ausência
+/// de override de `tagged`/`pretty` até consultar `doc.format_options`.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado.
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        None,
     )
 }
 
@@ -4015,6 +4188,226 @@ mod tests {
             with_pdf_options
                 .expect("SVG com #set format.pdf deve compilar e ser idêntico"),
             "P1467: format.pdf não pode influenciar o export SVG"
+        );
+    }
+
+    // ── P1468 (RED — Agente B) — resolução de `format.pdf.pages` e
+    // interação com `tagged`. `resolve_pdf_pages_and_tags` (contrato de
+    // `infra/pipeline.md` §P1468) ainda não existe neste baseline (só
+    // `resolve_pdf_tags`, P1467); a nova entry point pública
+    // `..._tagged_and_pretty_and_pages_override` também não existe. A
+    // suite inteira falha por erro de compilação até ambas serem
+    // materializadas (Agente A, em paralelo).
+    use typst_core::entities::document_format_options::{PageRange, PageRanges};
+
+    fn single_page(n: usize) -> PageRanges {
+        let p = std::num::NonZeroUsize::new(n).unwrap();
+        PageRanges::new(vec![PageRange { start: Some(p), end: Some(p) }])
+    }
+
+    #[test]
+    fn p1468_resolve_pages_absent_matches_p1467_tagged_resolution() {
+        let auto = DocumentFormatOptions::default();
+        let (pages, tags, diagnostics) = resolve_pdf_pages_and_tags(None, None, &auto)
+            .expect("sem pages, sem erro (comportamento P1467)");
+        assert_eq!(pages, None);
+        assert_eq!(tags, PdfTags::Enabled, "auto sem pages continua tagueado (P1467)");
+        assert!(diagnostics.is_empty());
+
+        let mut tagged_false = DocumentFormatOptions::default();
+        tagged_false.pdf.tagged = PdfTagged::Explicit(false);
+        let (pages, tags, diagnostics) =
+            resolve_pdf_pages_and_tags(None, None, &tagged_false)
+                .expect("sem pages, sem erro (comportamento P1467)");
+        assert_eq!(pages, None);
+        assert_eq!(tags, PdfTags::Disabled);
+        assert!(diagnostics.is_empty());
+    }
+
+    #[test]
+    fn p1468_resolve_pages_present_with_document_tagged_explicit_true_errors() {
+        let mut options = DocumentFormatOptions::default();
+        options.pdf.tagged = PdfTagged::Explicit(true);
+        let errors = resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+            .expect_err("documento pede tagged:true + pages deve falhar");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("cannot enable tagged PDF and export a page range")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_resolve_pages_present_with_auto_tagged_warns_and_disables() {
+        let options = DocumentFormatOptions::default(); // tagged == Auto
+        let (pages, tags, diagnostics) =
+            resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+                .expect("auto + pages não deve ser erro, só warning");
+        assert_eq!(pages, Some(single_page(1)));
+        assert_eq!(tags, PdfTags::Disabled);
+        assert!(
+            diagnostics.iter().any(|d| d
+                .message
+                .contains("exporting a page range disables PDF tagging")),
+            "{diagnostics:?}"
+        );
+        let hints: Vec<_> = diagnostics.iter().flat_map(|d| d.hints.iter()).collect();
+        assert!(
+            hints
+                .iter()
+                .any(|h| h.contains("the resulting PDF will be inaccessible")),
+            "{hints:?}"
+        );
+        assert!(
+            hints
+                .iter()
+                .any(|h| h.contains("set `pdf(tagged: false)` to silence this warning")),
+            "{hints:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_resolve_pages_present_with_document_tagged_explicit_false_is_silent() {
+        let mut options = DocumentFormatOptions::default();
+        options.pdf.tagged = PdfTagged::Explicit(false);
+        let (pages, tags, diagnostics) =
+            resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+                .expect("tagged:false + pages não deve falhar");
+        assert_eq!(pages, Some(single_page(1)));
+        assert_eq!(tags, PdfTags::Disabled);
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+    }
+
+    #[test]
+    fn p1468_resolve_pages_cli_override_wins_over_document_pages() {
+        let mut options = DocumentFormatOptions::default();
+        options.pdf.tagged = PdfTagged::Explicit(false);
+        options.pdf.pages = Some(single_page(5));
+        let (pages, _tags, _diagnostics) =
+            resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+                .expect("override deve vencer, sem erro");
+        assert_eq!(
+            pages,
+            Some(single_page(1)),
+            "override CLI de pages deve vencer o documento"
+        );
+    }
+
+    #[test]
+    fn p1468_resolve_pages_falls_back_to_document_then_none() {
+        let mut with_document_pages = DocumentFormatOptions::default();
+        with_document_pages.pdf.tagged = PdfTagged::Explicit(false);
+        with_document_pages.pdf.pages = Some(single_page(3));
+        let (pages, _, _) = resolve_pdf_pages_and_tags(None, None, &with_document_pages)
+            .expect("documento define pages, sem override");
+        assert_eq!(pages, Some(single_page(3)));
+
+        let neither = DocumentFormatOptions::default();
+        let (pages, _, _) = resolve_pdf_pages_and_tags(None, None, &neither)
+            .expect("nenhum define pages");
+        assert_eq!(pages, None);
+    }
+
+    #[test]
+    fn p1468_resolve_pages_tagged_override_still_applies_when_pages_absent() {
+        // Regressão P1467: `tagged_override` continua a funcionar quando
+        // `pages` não está presente (comportamento idêntico a
+        // `resolve_pdf_tags`).
+        let options = DocumentFormatOptions::default();
+        let (pages, tags, diagnostics) =
+            resolve_pdf_pages_and_tags(None, Some(false), &options)
+                .expect("override tagged sem pages não deve falhar");
+        assert_eq!(pages, None);
+        assert_eq!(tags, PdfTags::Disabled);
+        assert!(diagnostics.is_empty());
+    }
+
+    #[test]
+    fn p1468_pipeline_new_entry_point_with_none_pages_matches_old_entry_point() {
+        let world = mock_world("#set format.pdf(pretty: true)\nHello");
+        let (old_result, _old_warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                None,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+            );
+        let (new_result, _new_warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                None,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+                None,
+            );
+        assert_eq!(
+            old_result.expect("compilação antiga deve suceder"),
+            new_result.expect("compilação nova deve suceder"),
+            "P1468: entry point antiga (P1467) deve continuar byte-idêntica quando pages=None"
+        );
+    }
+
+    #[test]
+    fn p1468_pipeline_pages_override_without_document_tagged_decision_disables_tags_with_warning(
+    ) {
+        let world = mock_world("Hello\n#pagebreak()\nWorld");
+        let (result, warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                None,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+                Some(single_page(1)),
+            );
+        let pdf =
+            result.expect("pages sem tagged explícito não deve falhar a compilação");
+        assert!(
+            !has_tagged_pdf_morphology(&pdf),
+            "auto + pages deve resolver destagueado (warning, não erro)"
+        );
+        assert!(
+            warnings.iter().any(|w| w
+                .message
+                .contains("exporting a page range disables PDF tagging")),
+            "{warnings:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pipeline_pages_override_with_document_tagged_true_errors_end_to_end() {
+        let world = mock_world("#set format.pdf(tagged: true)\nHello");
+        let (result, _warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                None,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+                Some(single_page(1)),
+            );
+        let errors =
+            result.expect_err("documento pede tagged:true + pages CLI deve falhar");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("cannot enable tagged PDF and export a page range")),
+            "{errors:?}"
         );
     }
 }

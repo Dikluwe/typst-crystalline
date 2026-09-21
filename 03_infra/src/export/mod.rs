@@ -1,10 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 8065ec81
+//! @prompt-hash d616b331
 //! @layer L3
-//! @updated 2026-07-23
+//! @updated 2026-09-20
 
 use ttf_parser::Face;
+/// **P1468** — reexportado para as assinaturas `_and_pages` das entry
+/// points PDF abaixo (mesmo padrão de `StreamMode`/`PdfTags`/
+/// `PdfSerializationMode`, definidos localmente neste módulo).
+pub use typst_core::entities::document_format_options::PageRanges;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -284,11 +288,34 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization(
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags_and_serialization_and_pages(
+        doc,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        None,
+    )
+}
+
+/// **P1468** — variante explícita com seleção de páginas (`pages`,
+/// `None` = todas). Mesmo padrão de `StreamMode`(P956)/`PdfTags`(P1140.6)/
+/// `PdfSerializationMode`(P1360): novo último parâmetro, variante anterior
+/// delega `None` (comportamento byte-idêntico preservado).
+pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages(
+    doc: &PagedDocument,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
+        .with_pages(pages)
         .build(doc, None)
         .0
 }
@@ -345,11 +372,33 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization(
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> Vec<u8> {
+    export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        None,
+    )
+}
+
+/// **P1468** — variante explícita com seleção de páginas.
+pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
+        .with_pages(pages)
         .build(doc, Some(font_data))
         .0
 }
@@ -406,11 +455,33 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> (Vec<u8>, f64) {
+    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        None,
+    )
+}
+
+/// **P1468** — variante explícita instrumentada com seleção de páginas.
+pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+) -> (Vec<u8>, f64) {
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
-        .with_serialization(serialization);
+        .with_serialization(serialization)
+        .with_pages(pages);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -475,12 +546,34 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> Vec<u8> {
+    export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        None,
+    )
+}
+
+/// **P1468** — variante explícita com seleção de páginas.
+pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
+            .with_pages(pages)
             .build(doc, None)
             .0;
     }
@@ -495,6 +588,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
+            .with_pages(pages)
             .build(doc, None)
             .0;
     }
@@ -503,6 +597,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
+        .with_pages(pages)
         .build_multifont(doc, fonts, &faces)
         .0
 }
@@ -559,12 +654,34 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> (Vec<u8>, f64) {
+    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        None,
+    )
+}
+
+/// **P1468** — variante explícita instrumentada com seleção de páginas.
+pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
+            .with_pages(pages)
             .build(doc, None);
         return (pdf, 0.0);
     }
@@ -579,13 +696,15 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
+            .with_pages(pages)
             .build(doc, None);
         return (pdf, 0.0);
     }
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
-        .with_serialization(serialization);
+        .with_serialization(serialization)
+        .with_pages(pages);
     let builder = builder.with_pdf_tags(pdf_tags);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)

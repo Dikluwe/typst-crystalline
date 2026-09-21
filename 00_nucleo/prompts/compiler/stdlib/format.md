@@ -353,7 +353,7 @@ em P1464 e permanecem exatamente como medido. Este owner não ganha novo
 contrato em P1467; a entrada acima existe apenas para manter o roadmap
 verificável a partir deste prompt.
 
-## P1468 — `pages` de ponta a ponta (PROPOSTA; não altera este consumer)
+## P1468 — `pages` de ponta a ponta (MATERIALIZADO; não alterou este consumer)
 
 Pela mesma razão de P1467: `format.pdf.pages == none` já é um dos quatro
 defaults nominais materializados em P1464 no namespace da função nativa.

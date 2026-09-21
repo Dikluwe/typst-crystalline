@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: ccb5b3cd
+Hash do Código: 2ec5dea3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1298,7 +1298,7 @@ teste independente passou de RED a GREEN (79/79 no módulo `pipeline::tests`,
 incluindo os 11 novos e os pré-existentes de SVG/PNG/HTML) após a
 integração, sem regressão.
 
-## P1468 — resolução de `format.pdf.pages` e interação com `tagged` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1468 — resolução de `format.pdf.pages` e interação com `tagged` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -1387,6 +1387,14 @@ Testes de pipeline cobrem: `pages` ausente (comportamento P1467 idêntico),
 (warning + Disabled), `Explicit(false)` (Disabled sem warning), precedência
 CLI/documento de `pages`, e que as três novas entry points delegam
 corretamente das antigas. Este é um dos L0s do gate ADR-0127 de P1468
-(mudança de comportamento por defeito, novos diagnósticos); aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+(mudança de comportamento por defeito, novos diagnósticos).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+`resolve_pdf_pages_and_tags` e as três entry points `_and_pages_override`
+sem ver os testes (removendo os imports das três funções de export sem
+`_and_pages` que ficaram órfãs — correção mecânica de integração, papel C);
+Agente B escreveu 10 testes a partir do mesmo baseline sem ver a
+implementação (RED por erro de compilação). O teste independente passou de
+RED a GREEN (89/89 no módulo `pipeline::tests`, incluindo os 10 novos e os
+79 pré-existentes) após a integração, sem regressão.

@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 49604185
+Hash do Código: 1f450b3a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -803,7 +803,7 @@ default) a GREEN (10/10) após a integração; a suíte de regressão dos irmão
 (`p1462_format_svg`, `p1463_format_png`, `p1464_format_pdf`,
 `p1465_format_html`) permaneceu 22/22.
 
-## P1468 — `--pages` no braço PDF e gate CLI-only (PROPOSTA; gate ADR-0127)
+## P1468 — `--pages` no braço PDF e gate CLI-only (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -843,6 +843,12 @@ com `--pdf-tagged=true` explícito (erro CLI-only, exit 1, sem I/O de
 compilação); `--pages` presente sem `--pdf-tagged` (delega à pipeline, que
 decide warning/erro documental); `--pages` presente com
 `--pdf-tagged=false` explícito (delega, sem erro); compile e watch;
-neutralidade de PNG/SVG/HTML. Este é um dos L0s do gate ADR-0127 de P1468;
-aguarda confirmação humana explícita posterior ao commit causal somente-L0
-antes de qualquer teste RED ou código produtivo.
+neutralidade de PNG/SVG/HTML. Este é um dos L0s do gate ADR-0127 de P1468.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+o gate CLI-only e o transporte de `pages` às três entry points novas sem ver
+os testes; Agente B escreveu os 12 testes de integração de binário (contados
+em `infra/export/builder.md` P1468, mesmo ficheiro de teste cobre ambos os
+owners) a partir do mesmo baseline sem ver a implementação. O teste
+independente passou de RED a GREEN após a integração, sem regressão.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: d56a8f73
+Hash do Código: c8981f21
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -848,7 +848,7 @@ summary ou atributos de tabela. Com tags desabilitadas não cria nó nem MCID;
 seus items visuais continuam presentes. Esta fatia não afirma estrutura
 completa de listas ou do outline, reservada a passos próprios.
 
-## P1468 — seleção de páginas: `PageIndexConverter`, links, destinos, outline (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1468 — seleção de páginas: `PageIndexConverter`, links, destinos, outline (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -1010,6 +1010,22 @@ ausente da árvore); `/Count`/`/Kids` refletindo só as páginas exportadas;
 neutralidade de PNG/SVG/HTML. Inspecionar estrutura parseada (contagem de
 `/Type /Page`, presença/ausência/parentesco de `/Annots`/`/Outlines`/entradas
 de `/Dests`), nunca igualdade total de bytes. Este é um dos L0s do gate
-ADR-0127 de P1468 (mudança de comportamento por defeito do exportador);
-aguarda confirmação humana explícita posterior ao commit causal somente-L0
-antes de qualquer teste RED ou código produtivo.
+ADR-0127 de P1468 (mudança de comportamento por defeito do exportador).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+o `PageIndexConverter` **dentro de `builder.rs`** (não num submódulo
+`page_selection.rs` separado como o contrato admitia como opção mecânica
+livre) — criar um segundo ficheiro exigiria um segundo Prompt L0 e
+violaria a cardinalidade 1:1 do ADR-0129 (V15), fora do mandato de
+implementação pura do Agente A; a decisão de organização "neste ficheiro"
+já estava prevista no contrato. Reindexou as três variantes `build_*` e os
+três `emit_*` (incluindo `emit_xmp_metadata`'s `NPages`, não citado
+explicitamente no contrato original mas exigido pela mesma reindexação) sem
+ver os testes. Agente B escreveu 12 testes de integração de binário
+(`04_wiring/tests/p1468_format_pdf_pages.rs`) a partir do mesmo baseline sem
+ver a implementação, cobrindo explicitamente o comportamento retificado do
+outline (headings de páginas incluídas sobrevivem; reparenting quando o pai
+é excluído) — não o bug do vanilla. O teste independente passou de RED a
+GREEN (12/12) após a integração, sem regressão na suíte de PDF (32/32 nos
+irmãos p1462/p1463/p1464/p1465/p1467).

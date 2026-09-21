@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
-Hash do Código: 4733bd82
+Hash do Código: 1b68276b
 
-**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466 E
-CARRIER P1468 PROPOSTOS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
+P1466 PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -242,7 +242,7 @@ mesmo baseline sem ver a implementação. O teste independente passou de RED
 (falha de compilação — `E0609`/`E0433` por `pdf`/`PdfTagged` inexistentes) a
 GREEN (6/6) após a integração.
 
-## P1468 — carrier `PageRanges`/`PageRange` e campo `PdfFormatOptions::pages` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1468 — carrier `PageRanges`/`PageRange` e campo `PdfFormatOptions::pages` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -337,5 +337,12 @@ início, aberto no fim, universal); `PageRanges::includes_page` com múltiplos
 ranges sobrepostos/disjuntos; `PageRanges::default()`/`PdfFormatOptions::default().pages
 == None`; `Eq`/clone/independência de instâncias; ortogonalidade com
 `tagged`/`pretty`/SVG/PNG/HTML. Este é um dos L0s do gate ADR-0127 de P1468
-(campo público novo); aguarda confirmação humana explícita posterior ao
-commit causal somente-L0 antes de qualquer teste RED ou código produtivo.
+(campo público novo).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` (retificação da decisão de outline) foi recebida em
+2026-09-20/21. Agente A implementou o carrier sem ver os testes; Agente B
+escreveu 9 testes a partir do mesmo baseline sem ver a implementação. O
+teste independente passou de RED (erro de compilação — `PageRange`/
+`PageRanges` inexistentes) a GREEN (17/17 no ficheiro, incluindo os 8
+pré-existentes de P1462/P1465/P1467) após a integração, sem regressão.

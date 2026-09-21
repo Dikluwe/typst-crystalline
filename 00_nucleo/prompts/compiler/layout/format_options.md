@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: ddfad15d
+Hash do Código: bcbe93ae
 
-**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466 E
-EXTRAÇÃO P1468 PROPOSTAS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
+P1466 PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -251,7 +251,7 @@ independente passou de RED (9/9 falhas de compilação) a GREEN (9/9) após a
 integração, sem regredir SVG/PNG/HTML (16/16 no ficheiro, incluindo os
 irmãos).
 
-## P1468 — extração root de `format.pdf.pages` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1468 — extração root de `format.pdf.pages` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -296,6 +296,12 @@ emerge de quem consulta `includes_page`, não daqui).
 Cobrir: `none` explícito, inteiro único, dict aberto/fechado, array
 vazio/misto, regra vazia depois de decisão anterior, repetição/inversão
 lexical, composição com SVG/PNG/HTML/tagged/pretty, container, e tipo
-interno impossível. Este é um dos L0s do gate ADR-0127 de P1468; aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+interno impossível. Este é um dos L0s do gate ADR-0127 de P1468.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+a extração sem ver os testes; Agente B escreveu 11 testes a partir do mesmo
+baseline sem ver a implementação, todos falhando por erro de compilação
+(`options.pdf.pages`/`PageRanges` inexistentes). O teste independente passou
+de RED (11/11 falhas de compilação) a GREEN (27/27 no ficheiro, incluindo os
+16 pré-existentes) após a integração, sem regredir SVG/PNG/HTML.

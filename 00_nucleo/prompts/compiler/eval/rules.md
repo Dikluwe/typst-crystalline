@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 780d94dc
+Hash do Código: 13781d95
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -488,7 +488,7 @@ genérica de duplicado e regra vazia; os 11 restantes exigiam o braço). O
 teste independente passou de RED (11/15 falhas) a GREEN (15/15) após a
 integração, sem regredir `format.svg`/`format.png`/`format.html`.
 
-## P1468 — named `pages` em `format.pdf(...)` (PROPOSTA; gate ADR-0127)
+## P1468 — named `pages` em `format.pdf(...)` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -567,5 +567,13 @@ existe CLI e não exporta PDF.
 Cobrir: inteiro único, dict aberto/fechado nos dois lados, array vazio/misto,
 `none` explícito, os oito negativos de schema medidos acima, independência
 face a `tagged`/`pretty`, e não regressão dos irmãos. Este é um dos L0s do
-gate ADR-0127 de P1468; aguarda confirmação humana explícita posterior ao
-commit causal somente-L0 antes de qualquer teste RED ou código produtivo.
+gate ADR-0127 de P1468.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+o named `pages` sem ver os testes; Agente B escreveu 20 testes a partir do
+mesmo baseline sem ver a implementação. O teste independente passou de RED
+(compilava mas falhava em runtime, já que `rules.rs` não depende de tipos
+ainda inexistentes noutros ficheiros) a GREEN (35/35 no módulo, incluindo os
+15 pré-existentes de P1467) após a integração, sem regredir
+`format.svg`/`format.png`/`format.html`.

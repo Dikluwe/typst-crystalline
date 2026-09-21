@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — fachada pública dos exporters
-Hash do Código: e9075de4
+Hash do Código: 8a6e35ac
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -171,7 +171,7 @@ A fachada HTML também reexporta
 já público. PNG permanece sem opção. Nenhuma combinação de nomes autoriza
 tratar `StreamMode::Compact` como serialização compacta de ficheiro.
 
-## P1468 — fachada de seleção de páginas (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1468 — fachada de seleção de páginas (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Seguindo o mesmo padrão de P956/P1140.6/P1360 (cada eixo acrescentado como
 novo último parâmetro às três entry points PDF), adicionar `pages:
@@ -188,3 +188,12 @@ páginas), preservando comportamento exato. `pages` é ortogonal a
 já resolvido e o `PageRanges` já resolvido, como dois parâmetros
 independentes. O `mod.rs` não interpreta a interação entre eles; isso é
 `infra/export/builder.md`.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A acrescentou
+as variantes `_and_pages` às três famílias `export_pdf`/`export_pdf_with_font`/
+`export_pdf_multifont` (incluindo variantes non-timing, por paridade de
+família com os eixos já existentes) sem ver os testes. Validado por
+compilação e pelos testes de `03_infra/src/pipeline.rs`/
+`04_wiring/tests/p1468_format_pdf_pages.rs` (este owner não tem testes
+próprios, é reexportado por eles).

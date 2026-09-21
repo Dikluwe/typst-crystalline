@@ -1,10 +1,8 @@
 # Passo 1468 — materializar `pdf.pages` e `compile --pages`
 
-**Estado:** L0S ESCRITOS E RETIFICADOS (9 ficheiros — ver secção 8; retificação
-da decisão de outline em §8.1 item 2, autorizada explicitamente pelo dono);
-V15/V26 verdes; commit causal somente-L0 feito; confirmação humana ADR-0127
-recebida em 2026-09-20 na mesma sessão. Aguarda execução segregada (Agentes
-A/B/C).
+**Estado:** MATERIALIZADO. 9 L0s (retificação de outline em §8.1 item 2,
+autorizada pelo dono), execução segregada A/B/C concluída, integração sem
+regressão. Ver secção 9 para RED→GREEN e gates finais.
 
 **Data da auditoria original:** 2026-09-20T17:40:24-03:00
 **Data da execução (rebase + medição extensa + L0s):** 2026-09-20T21:00 a
@@ -233,4 +231,100 @@ Após `crystalline-lint --fix-hashes .` e validação V15/V26, commit causal
 somente-L0 (sem código produtivo, sem RED) e parada para confirmação humana
 explícita — a confirmação de P1467 não cobre P1468 (repetido do L0 original,
 seção 5).
+
+## 9. Execução segregada e integração (2026-09-20/21)
+
+Confirmação humana explícita recebida em 2026-09-21, na mesma sessão,
+posterior aos commits causais somente-L0 `9bb20b8e8` (L0s originais) e
+`70d09eae2` (retificação da decisão de outline — ver §8.1 item 2 e a nota no
+topo deste ficheiro). Os três papéis partiram desse baseline em worktrees
+isoladas; ambos os agentes sofreram uma interrupção por limite de taxa da
+sessão a meio do trabalho (sem código/testes ainda escritos nesse ponto) e
+foram retomados via `SendMessage` sem perda de progresso.
+
+- **Agente A (implementação):** commit `ff4274d0e373ab7434f3310c80f44c0342361b5a`
+  ("feat(format): implement pdf pages selection (P1468, agente A)"). Um
+  desvio mecânico do plano original, dentro do mandato de implementação:
+  moveu `PageIndexConverter` para dentro de `builder.rs` em vez de um
+  submódulo `page_selection.rs` separado, porque este último exigiria um
+  segundo Prompt L0 e violaria V15 (ownership 1:1, ADR-0129) — decisão
+  compatível com o contrato, que já previa "neste ficheiro ou num submódulo
+  próprio... decisão de organização livre".
+- **Agente B (testes):** commit `a1ebf6911` ("test(format): freeze pdf
+  pages red contract (P1468, agente B)"). 70 testes novos, RED confirmado
+  por ficheiro (compilação falha em `document_format_options.rs`/
+  `format_options.rs`/`cli.rs`/`pipeline.rs`; runtime falha nos 20 novos de
+  `rules.rs` e em 11/12 do teste de integração de binário). Achado à parte:
+  `#link(<label>)` não é suportado no cristalino atual (só URL); o teste de
+  link usou `@target` (referência cruzada) em vez de `#link`.
+- **Agente C (integração, o próprio dono desta execução):** extraiu os dois
+  patches, aplicou sem conflito, e fez três correções mecânicas de
+  integração: (1) `PageRangeArg` (L2) não derivava `PartialEq`/`Eq`,
+  necessário para os testes de comparação do Agente B — acrescentado sem
+  mudar comportamento; (2) três imports de funções de export sem `_and_pages`
+  ficaram órfãos em `pipeline.rs` depois de A trocar as chamadas internas
+  para as versões `_and_pages` — removidos; (3) um falso positivo do próprio
+  parser interno do `crystalline-lint` (`[PARSE]` numa função Rust
+  sintaticamente válida, confirmada por `rustc`/`cargo build`, envolvendo
+  slice de string com range aberto seguido de combinador de iterador
+  encadeado) foi contornado reescrevendo `parsed_count_field` com um `for`
+  explícito — reportado como feedback da ferramenta, não é defeito do
+  Agente B.
+
+### 9.1 RED → GREEN por ficheiro
+
+| Ficheiro | RED (baseline `70d09eae2`) | GREEN (após integração) |
+|---|---|---|
+| `entities/document_format_options.rs` | erro de compilação (`PageRange`/`PageRanges` inexistentes) | 17/17 (9 novos + 8 irmãos) |
+| `compiler/layout/format_options.rs` | erro de compilação (idem) | 27/27 (11 novos + 16 irmãos) |
+| `compiler/eval/rules.rs` | compilava isolado; falhava em runtime (20/20) | 35/35 (20 novos + 15 irmãos) |
+| `02_shell/src/cli.rs` | erro de compilação (`pages` inexistente) | 77/77 na suíte (8 novos) |
+| `03_infra/src/pipeline.rs` | erro de compilação (`resolve_pdf_pages_and_tags`/entry point inexistentes) | 89/89 (10 novos + 79 irmãos) |
+| `04_wiring/tests/p1468_format_pdf_pages.rs` | 1/12 (só o caso trivial "não crasha") | 12/12 |
+
+### 9.2 Gates finais medidos
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo check --workspace --tests                              -> sucesso
+cargo test -p typst-core --lib                                -> 6005/6005
+cargo test -p typst-infra --lib                                -> 987/987
+cargo test -p typst-shell --lib                                -> 77/77
+cargo test -p typst-wiring --test p1468_format_pdf_pages
+    (TMPDIR=/dev/shm, --test-threads=1)                        -> 12/12
+cargo test -p typst-wiring --test p1462_format_svg
+    --test p1463_format_png --test p1464_format_pdf
+    --test p1465_format_html --test p1467_format_pdf_tagged_pretty
+    (--test-threads=1)                                         -> 32/32 (regressão zero)
+cargo fmt --all -- --check                                    -> sucesso (após 1 `cargo fmt --all`;
+                                                                   sem mudança semântica, testes
+                                                                   reconfirmados GREEN)
+cargo clippy --workspace --all-targets --all-features          -> 0 erros; 0 avisos novos nos
+                                                                   ficheiros tocados (1 import órfão
+                                                                   detectado e removido antes desta
+                                                                   medição — ver §9)
+crystalline-lint .                                              -> 0 erros (1 falso positivo [PARSE]
+                                                                   do próprio parser da ferramenta,
+                                                                   contornado — ver §9; avisos
+                                                                   V16/V19/V20 pré-existentes, fora
+                                                                   do diff)
+crystalline-lint --checks v5,v15,v26 .                          -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Não foi corrido `cargo test --workspace` completo nem a suíte de export PNG
+em massa de `typst-wiring`, pela mesma razão documentada em P1464/P1467
+(pico histórico de RAM no export PNG, não relacionado com este diff); a
+cobertura acima (todas as libs dos quatro crates tocados, mais os 6 testes
+de integração `format.*`) é proporcional ao raio do diff.
+
+O veredito final é: `format.pdf.pages` e `compile --pages` selecionam
+páginas do export PDF com a mesma precedência `--pages CLI > pdf.pages
+documental > todas as páginas` do vanilla, a mesma interação com `tagged`
+(erro/warning/silêncio conforme medido), a mesma omissão de links/named
+destinations para páginas removidas, e — divergindo deliberadamente do
+vanilla por instrução explícita do dono — bookmarks nativos que sobrevivem
+para páginas incluídas em vez de desaparecerem sempre. Não se declara
+paridade de `pdf.standard`, conformidade PDF/A/PDF/UA, `/PageLabel` nem
+slicing de PNG/SVG — reservados a P1469/passos futuros.
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 036947ac
+//! @prompt-hash 21563a44
 //! @layer L4
 //! @updated 2026-09-20
 //!
@@ -49,8 +49,8 @@ use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
-    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
@@ -584,7 +584,28 @@ fn run_compile_observed(
         no_pdf_tags,
         oracle_pdf,
         cert_path,
+        pages,
     } = intent;
+
+    // **P1468** — gate CLI-only do braço PDF: `--pages` + `--pdf-tagged=true`
+    // explícito é erro antes de compilar (não envolve `PagedDocument` nem
+    // pipeline — checagem puramente entre duas flags já parseadas,
+    // `wiring.md` P1468). Verificado aqui, antes de `SystemWorld`/`Source`
+    // (construídos mais abaixo para todos os formatos), para não tentar I/O
+    // de compilação — mesmo comportamento medido no vanilla
+    // (`typst-cli/src/compile.rs:162-165`). Neutro para PNG/SVG/HTML.
+    // Distinta do erro documental de `infra/pipeline.md` P1468, que só
+    // dispara quando é o documento a pedir `tagged: true`.
+    if matches!(output_format, OutputFormat::Pdf)
+        && pages.is_some()
+        && pdf_tagged == Some(true)
+    {
+        report_in_order(
+            || report_status(ExitCode::from(1), false),
+            || eprintln!("error: cannot enable PDF tags when exporting a page range"),
+        );
+        return (ExitCode::from(1), vec![input], false);
+    }
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -671,7 +692,7 @@ fn run_compile_observed(
         OutputFormat::Pdf => {
             if oracle_pdf {
                 let (r, w) =
-                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
                         &world,
                         &source,
                         full_error,
@@ -680,11 +701,12 @@ fn run_compile_observed(
                         pdf_tagged_override,
                         features,
                         pretty_override,
+                        pages.clone(),
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
                         &world,
                         &source,
                         full_error,
@@ -693,11 +715,12 @@ fn run_compile_observed(
                         pdf_tagged_override,
                         features,
                         pretty_override,
+                        pages.clone(),
                     );
                 (r, w, t)
             } else {
                 let (r, w) =
-                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
                         &world,
                         &source,
                         full_error,
@@ -706,6 +729,7 @@ fn run_compile_observed(
                         pdf_tagged_override,
                         features,
                         pretty_override,
+                        pages.clone(),
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             }

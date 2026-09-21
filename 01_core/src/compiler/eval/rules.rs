@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 03a67b56
+//! @prompt-hash b4999a4d
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -107,6 +107,98 @@ pub(crate) fn edge_cast_error(
         diag = diag.with_hint(format!("a length needs a unit - did you mean {i}pt?"));
     }
     diag
+}
+
+/// **P1468** — nome do tipo no vocabulário do vanilla para as mensagens de
+/// `format.pdf(pages: ...)` (mesmo mapeamento de `expected_length_error`/
+/// `edge_cast_error`: `int`/`str`/`bool` → `integer`/`string`/`boolean`).
+fn pdf_pages_found_name(value: &Value) -> &'static str {
+    match value.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    }
+}
+
+/// **P1468** — valida um candidato a página única (`Value::Int`) ou
+/// intervalo (`Value::Dict` com `from`/`to`), tanto no topo de
+/// `format.pdf(pages: ...)` quanto como elemento de `Value::Array` (cast
+/// recursivo de um nível, `typst-library/src/layout/page.rs:806-847` do
+/// vanilla ratificado). Não constrói o tipo tipado `PageRange` — isso é
+/// `compiler/layout/format_options.rs`; aqui só valida e preserva o
+/// `Value` original para inserção no `Styles`.
+fn validate_pdf_page_range_element(value: &Value, span: Span) -> SourceResult<()> {
+    match value {
+        Value::Int(nr) => {
+            if *nr < 1 {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "page numbers start at one",
+                )]);
+            }
+            Ok(())
+        }
+        Value::Dict(dict) => {
+            if let Some(key) =
+                dict.keys().find(|k| k.as_str() != "from" && k.as_str() != "to")
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "unexpected key \"{key}\", valid keys are \"from\" and \"to\""
+                    ),
+                )]);
+            }
+            let from = dict.get("from");
+            let to = dict.get("to");
+            if from.is_none() && to.is_none() {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "page range must not be empty",
+                )]);
+            }
+            let parse_bound = |bound: Option<&Value>| -> SourceResult<Option<i64>> {
+                match bound {
+                    None => Ok(None),
+                    Some(Value::Int(nr)) => {
+                        if *nr < 1 {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                "page numbers start at one",
+                            )]);
+                        }
+                        Ok(Some(*nr))
+                    }
+                    Some(other) => Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "expected integer, found {}",
+                            pdf_pages_found_name(other)
+                        ),
+                    )]),
+                }
+            };
+            let from_nr = parse_bound(from)?;
+            let to_nr = parse_bound(to)?;
+            if let (Some(f), Some(t)) = (from_nr, to_nr) {
+                if f > t {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "start of page range cannot be larger than end",
+                    )]);
+                }
+            }
+            Ok(())
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected integer or dictionary, found {}",
+                pdf_pages_found_name(other)
+            ),
+        )]),
+    }
 }
 
 /// **P837** — domínios enumerados válidos de `top-edge`/`bottom-edge`
@@ -1573,6 +1665,7 @@ pub(super) fn eval_set_rule(
         {
             let mut seen_tagged = false;
             let mut seen_pretty = false;
+            let mut seen_pages = false;
             for arg in set.args().items() {
                 let Arg::Named(named) = arg else {
                     return Err(vec![SourceDiagnostic::error(
@@ -1581,7 +1674,7 @@ pub(super) fn eval_set_rule(
                     )]);
                 };
                 let key = named.name().as_str();
-                if key != "tagged" && key != "pretty" {
+                if key != "tagged" && key != "pretty" && key != "pages" {
                     return Err(vec![SourceDiagnostic::error(
                         named.name().to_untyped().span(),
                         format!("unexpected argument: {key}"),
@@ -1612,7 +1705,7 @@ pub(super) fn eval_set_rule(
                     }
                     *engine.styles =
                         engine.styles.push_custom("format.pdf.tagged", value);
-                } else {
+                } else if key == "pretty" {
                     if seen_pretty {
                         return Err(vec![SourceDiagnostic::error(
                             named.name().to_untyped().span(),
@@ -1637,6 +1730,43 @@ pub(super) fn eval_set_rule(
                     *engine.styles = engine
                         .styles
                         .push_custom("format.pdf.pretty", Value::Bool(pretty));
+                } else {
+                    // **P1468** — `pages`: `Value::Int`/`Dict`/`Array`/`None`,
+                    // validado por completo aqui (mesmo momento do `set` que
+                    // `tagged`/`pretty`); o `Value` já validado é inserido tal
+                    // como recebido — a conversão para `PageRanges` tipado é
+                    // feita por `compiler/layout/format_options.rs`.
+                    if seen_pages {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            "duplicate argument: pages",
+                        )]);
+                    }
+                    seen_pages = true;
+
+                    let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    let span = named.expr().span();
+                    match &value {
+                        Value::None => {}
+                        Value::Int(_) | Value::Dict(_) => {
+                            validate_pdf_page_range_element(&value, span)?;
+                        }
+                        Value::Array(items) => {
+                            for item in items {
+                                validate_pdf_page_range_element(item, span)?;
+                            }
+                        }
+                        other => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!(
+                                    "expected integer, dictionary, array, or none, found {}",
+                                    pdf_pages_found_name(other)
+                                ),
+                            )]);
+                        }
+                    }
+                    *engine.styles = engine.styles.push_custom("format.pdf.pages", value);
                 }
             }
             return Ok(Value::None);
@@ -3581,6 +3711,240 @@ mod tests {
         // `format.html` continua gated pela feature `html` (sem
         // `Features::Html` neste harness); a regressão a provar é que o
         // gate por si só continua intacto, não uma reintrodução do gate.
+        let html_errors = eval_err("#set format.html(pretty: true)\nHello");
+        assert!(
+            html_errors
+                .iter()
+                .any(|e| e.message.contains("the `html` feature is not enabled")),
+            "{html_errors:?}"
+        );
+    }
+
+    // ── P1468 (RED — Agente B) — named `pages` no braço `format.pdf`.
+    // Neste baseline (`0b322a926dd2f86b49aabfeb0d2f287ce06aaace`), o braço
+    // só reconhece `tagged`/`pretty` (P1467); `pages` cai no ramo
+    // `unexpected argument: pages`. Estes testes falham em runtime
+    // (não erro de compilação) até o terceiro `seen_*` ser acrescentado.
+    use indexmap::IndexMap;
+    use rustc_hash::FxBuildHasher;
+
+    fn dict_value(pairs: &[(&str, i64)]) -> Value {
+        let mut map: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        for (key, value) in pairs {
+            map.insert((*key).into(), Value::Int(*value));
+        }
+        Value::Dict(map)
+    }
+
+    #[test]
+    fn p1468_pages_integer_inserts_value_int() {
+        let values = custom_values("#set format.pdf(pages: 1)\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.pages"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn p1468_pages_dict_closed_inserts_value_dict() {
+        let values = custom_values("#set format.pdf(pages: (from: 1, to: 3))\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.pages"),
+            Some(&dict_value(&[("from", 1), ("to", 3)]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_dict_open_at_end_inserts_value_dict() {
+        // Só `from`: aberto no fim.
+        let values = custom_values("#set format.pdf(pages: (from: 2))\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.pages"),
+            Some(&dict_value(&[("from", 2)]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_dict_open_at_start_inserts_value_dict() {
+        // Só `to`: aberto no início.
+        let values = custom_values("#set format.pdf(pages: (to: 2))\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.pages"),
+            Some(&dict_value(&[("to", 2)]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_array_mixed_inserts_value_array() {
+        let values =
+            custom_values("#set format.pdf(pages: (1, (from: 3, to: 5)))\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.pages"),
+            Some(&Value::Array(vec![
+                Value::Int(1),
+                dict_value(&[("from", 3), ("to", 5)]),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_array_empty_inserts_value_array_empty() {
+        // Array vazio é uma seleção vazia PRESENTE, distinta de `none`
+        // (todas as páginas) — ver `entities/document_format_options.md`.
+        let values = custom_values("#set format.pdf(pages: ())\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.pages"),
+            Some(&Value::Array(vec![]))
+        );
+    }
+
+    #[test]
+    fn p1468_pages_none_inserts_value_none_distinct_from_absent() {
+        let none_values = custom_values("#set format.pdf(pages: none)\nHello");
+        assert_eq!(custom_value(&none_values, "format.pdf.pages"), Some(&Value::None));
+
+        let absent_values = custom_values("#set format.pdf()\nHello");
+        assert_eq!(custom_value(&absent_values, "format.pdf.pages"), None);
+    }
+
+    #[test]
+    fn p1468_pages_empty_rule_inserts_no_pages_key() {
+        let values = custom_values("#set format.pdf()\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.pages"), None);
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), None);
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), None);
+    }
+
+    #[test]
+    fn p1468_pages_is_independent_of_tagged_and_pretty() {
+        let values = custom_values(
+            "#set format.pdf(pages: 1, tagged: false, pretty: true)\nHello",
+        );
+        assert_eq!(custom_value(&values, "format.pdf.pages"), Some(&Value::Int(1)));
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Bool(false)));
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), Some(&Value::Bool(true)));
+
+        let only_pages = custom_values("#set format.pdf(pages: 2)\nHello");
+        assert_eq!(custom_value(&only_pages, "format.pdf.tagged"), None);
+        assert_eq!(custom_value(&only_pages, "format.pdf.pretty"), None);
+    }
+
+    #[test]
+    fn p1468_pages_duplicate_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: 1, pages: 2)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains("duplicate argument: pages")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_dict_empty_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: (:))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("page range must not be empty")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_dict_extra_key_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: (from: 1, extra: 2))\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains(
+                "unexpected key \"extra\", valid keys are \"from\" and \"to\""
+            )),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_dict_from_greater_than_to_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: (from: 5, to: 2))\nHello");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("start of page range cannot be larger than end")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_zero_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: 0)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains("page numbers start at one")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_negative_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: -1)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message.contains("page numbers start at one")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_float_top_level_type_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: 1.5)\nHello");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("expected integer, dictionary, array, or none, found float")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_string_top_level_type_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: \"1\")\nHello");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("expected integer, dictionary, array, or none, found string")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_auto_top_level_type_is_rejected() {
+        let errors = eval_err("#set format.pdf(pages: auto)\nHello");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("expected integer, dictionary, array, or none, found auto")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_pages_array_element_type_message_differs_from_top_level() {
+        // A mensagem de elemento de array NÃO menciona `array`/`none`
+        // (um elemento não pode ser ele próprio array/none) — distinta da
+        // mensagem de topo testada acima.
+        let errors = eval_err("#set format.pdf(pages: (1, \"x\"))\nHello");
+        assert!(
+            errors.iter().any(|e| e
+                .message
+                .contains("expected integer or dictionary, found string")),
+            "{errors:?}"
+        );
+        assert!(
+            !errors.iter().any(|e| e.message.contains("array, or none")),
+            "mensagem de elemento não deve reutilizar a forma de topo: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1468_svg_png_html_set_rules_are_not_regressed_by_pages() {
+        let svg = custom_values("#set format.svg(pretty: true)\nHello");
+        assert_eq!(custom_value(&svg, "format.svg.pretty"), Some(&Value::Bool(true)));
+
+        let png = custom_values("#set format.png(ppi: 300)\nHello");
+        assert_eq!(custom_value(&png, "format.png.ppi"), Some(&Value::Float(300.0)));
+
         let html_errors = eval_err("#set format.html(pretty: true)\nHello");
         assert!(
             html_errors

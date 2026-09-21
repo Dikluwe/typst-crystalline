@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 73690ca8
+//! @prompt-hash 7bad6a86
 //! @layer L3
-//! @updated 2026-07-08
+//! @updated 2026-09-20
 //!
 //! `PdfBuilder` — orquestrador L3 que constrói o ficheiro PDF
 //! agregando objects, xref, trailer. Três caminhos: Helvetica
@@ -112,6 +112,7 @@ mod p1360_ab_tests {
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
+use typst_core::entities::document_format_options::PageRanges;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -145,6 +146,59 @@ use super::{
 };
 
 use crate::font_metrics::build_math_glyph_reverse_map;
+
+/// **P1468** — mapeia índice físico de página (0-indexed) para o novo
+/// índice sequencial das páginas **incluídas** por uma seleção `pages:
+/// Option<PageRanges>` (`#set format.pdf(pages: ...)` ou `--pages`).
+/// Páginas excluídas não entram no mapa (`new_index` devolve `None`). Sem
+/// seleção (`ranges == None`), o mapeamento é a identidade e
+/// `exported_count() == total_pages` — comportamento byte-idêntico ao
+/// anterior a P1468. A "ordenação"/"deduplicação" observável da seleção
+/// emerge exclusivamente desta iteração em ordem física crescente, nunca de
+/// normalizar a lista de `PageRange` guardada em `PageRanges` (ver
+/// `entities/document_format_options.md` P1468).
+struct PageIndexConverter {
+    /// Índice físico antigo (0-indexed) -> novo índice (0-indexed), `None`
+    /// se a página foi excluída da seleção.
+    mapping: Vec<Option<usize>>,
+    exported_count: usize,
+}
+
+impl PageIndexConverter {
+    fn new(total_pages: usize, ranges: Option<&PageRanges>) -> Self {
+        let Some(ranges) = ranges else {
+            return Self {
+                mapping: (0..total_pages).map(Some).collect(),
+                exported_count: total_pages,
+            };
+        };
+
+        let mut mapping = Vec::with_capacity(total_pages);
+        let mut next = 0usize;
+        for old_index in 0..total_pages {
+            // Página física 1-indexed (`old_index` é 0-indexed).
+            let page = std::num::NonZeroUsize::new(old_index + 1)
+                .expect("old_index + 1 nunca é zero");
+            if ranges.includes_page(page) {
+                mapping.push(Some(next));
+                next += 1;
+            } else {
+                mapping.push(None);
+            }
+        }
+        Self { mapping, exported_count: next }
+    }
+
+    /// Número de páginas efetivamente exportadas (`n`/`/Count` filtrado).
+    fn exported_count(&self) -> usize {
+        self.exported_count
+    }
+
+    /// `None` se a página (0-indexed) foi excluída da seleção.
+    fn new_index(&self, old_index: usize) -> Option<usize> {
+        self.mapping.get(old_index).copied().flatten()
+    }
+}
 
 /// **P956** — entrada `/ColorSpace << /c0 [/ICCBased <icc_id> 0 R] >>` para
 /// os recursos de página em modo verbose (o `/c0` dos blocos de texto aponta
@@ -700,6 +754,11 @@ pub(super) struct PdfBuilder {
     /// flag `--oracle-pdf`). Aplica as transformações de
     /// `export/oracle.rs` aos content streams. `false` no caminho normal.
     oracle: bool,
+    /// **P1468** — seleção de páginas a exportar (`None` = todas, o
+    /// caminho anterior a P1468, byte-idêntico). Consultado via
+    /// `PageIndexConverter` dentro de `build_helvetica`/`build_cidfont`/
+    /// `build_multifont`.
+    pages: Option<PageRanges>,
 }
 
 impl PdfBuilder {
@@ -714,7 +773,15 @@ impl PdfBuilder {
             serialization: PdfSerializationMode::default(),
             pdf_tags: super::PdfTags::default(),
             oracle: false,
+            pages: None,
         }
+    }
+
+    /// **P1468** — fixa a seleção de páginas a exportar. `None` (omisso por
+    /// omissão) preserva o comportamento anterior (todas as páginas).
+    pub(super) fn with_pages(mut self, pages: Option<PageRanges>) -> Self {
+        self.pages = pages;
+        self
     }
 
     /// **P980** — activa o modo oráculo (transformações de paridade de
@@ -834,7 +901,17 @@ impl PdfBuilder {
     // ── Caminho Helvetica (fallback, Type1 sem embedding) ─────────────────
 
     fn build_helvetica(mut self, doc: &PagedDocument) -> (Vec<u8>, f64) {
-        let n = doc.pages.len().max(1);
+        // **P1468** — `n`/`/Count` refletem só as páginas incluídas pela
+        // seleção (`self.pages`); sem seleção, `pic` é a identidade e `n`
+        // permanece `doc.pages.len()` (byte-idêntico ao caminho anterior).
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        // `doc.pages` nunca está vazio aqui (`build()` já substitui pelo
+        // documento em branco de 1 página antes de chamar este caminho), logo
+        // sem seleção `pic.exported_count() == doc.pages.len() >= 1` sempre —
+        // preserva o `n.max(1)` anterior sem reintroduzir o `.max(1)`
+        // explícito (que produziria um `/Kids` com objecto nunca emitido se
+        // a seleção excluir todas as páginas).
+        let n = pic.exported_count();
         let first_page = 3usize;
         let first_stream = first_page + n;
         let font_f1 = first_stream + n;
@@ -871,8 +948,12 @@ impl PdfBuilder {
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id = first_page + i;
-            let stream_id = first_stream + i;
+            // **P1468** — página excluída pela seleção: não emitir objecto
+            // de página nem stream (comportamento idêntico ao anterior
+            // quando `self.pages` é `None`, já que `pic` é a identidade).
+            let Some(new_i) = pic.new_index(i) else { continue };
+            let page_id = first_page + new_i;
+            let stream_id = first_stream + new_i;
             let w = page.canvas_width();
             let h = page.canvas_height();
 
@@ -972,7 +1053,9 @@ impl PdfBuilder {
         face: &Face<'_>,
         font_data: &[u8],
     ) -> (Vec<u8>, f64) {
-        let n = doc.pages.len().max(1);
+        // **P1468** — ver nota equivalente em `build_helvetica`.
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let n = pic.exported_count();
         let first_page = 3usize;
         let first_stream = first_page + n;
         let font_id = first_stream + n; // Type0 — /F1
@@ -1174,8 +1257,10 @@ impl PdfBuilder {
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id = first_page + i;
-            let stream_id = first_stream + i;
+            // **P1468** — página excluída pela seleção: não emitir.
+            let Some(new_i) = pic.new_index(i) else { continue };
+            let page_id = first_page + new_i;
+            let stream_id = first_stream + new_i;
             let w = page.width;
             let h = page.height;
 
@@ -1348,7 +1433,9 @@ impl PdfBuilder {
         fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
         faces: &[Face<'_>],
     ) -> (Vec<u8>, f64) {
-        let n_pages = doc.pages.len().max(1);
+        // **P1468** — ver nota equivalente em `build_helvetica`.
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let n_pages = pic.exported_count();
         let n_fonts = fonts.len();
         let first_page = 3usize;
         let first_stream = first_page + n_pages;
@@ -1655,8 +1742,10 @@ impl PdfBuilder {
         self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>"));
 
         for (i, page) in doc.pages.iter().enumerate() {
-            let page_id = first_page + i;
-            let stream_id = first_stream + i;
+            // **P1468** — página excluída pela seleção: não emitir.
+            let Some(new_i) = pic.new_index(i) else { continue };
+            let page_id = first_page + new_i;
+            let stream_id = first_stream + new_i;
             let w = page.width;
             let h = page.height;
 
@@ -2113,6 +2202,13 @@ impl PdfBuilder {
     fn emit_link_annotations(&mut self, doc: &PagedDocument) {
         const FIRST_PAGE_ID: usize = 3;
 
+        // **P1468** — `pic` decide tanto a origem (páginas excluídas não têm
+        // annotations, a página inteira já não é emitida) quanto o destino
+        // (`LinkTarget::Destination` para uma página excluída é omitido por
+        // completo — comportamento 2 medido no vanilla,
+        // `typst-pdf/src/link.rs:191-209`).
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
 
         // Coletar links por página (coordenadas globais de página).
@@ -2124,10 +2220,26 @@ impl PdfBuilder {
             per_page.push(links);
         }
 
-        let mut page_annotation_ids: Vec<Vec<usize>> = vec![Vec::new(); doc.pages.len()];
+        let mut page_annotation_ids: Vec<Vec<usize>> =
+            vec![Vec::new(); pic.exported_count()];
         for (page_idx, links) in per_page.iter().enumerate() {
+            // Página excluída da seleção: a página inteira não é exportada.
+            let Some(new_idx) = pic.new_index(page_idx) else { continue };
             let page_h = doc.pages[page_idx].height;
             for (target, pos, size) in links {
+                // **P1468** — destino de página excluída: omitir a
+                // annotation inteira (não emitir o objecto nem referenciá-lo
+                // em `/Annots`).
+                if let LinkTarget::Destination(label) = target {
+                    if let Some(&target_page) = doc.extracted_label_pages.get(label) {
+                        let excluded =
+                            target_page == 0 || pic.new_index(target_page - 1).is_none();
+                        if excluded {
+                            continue;
+                        }
+                    }
+                }
+
                 let annot_id = next_id;
                 next_id += 1;
 
@@ -2156,16 +2268,17 @@ impl PdfBuilder {
                        /A {action} >>"
                     ),
                 );
-                page_annotation_ids[page_idx].push(annot_id);
+                page_annotation_ids[new_idx].push(annot_id);
             }
         }
 
-        // Reescrever os dicionários das páginas que possuem annotations.
-        for (page_idx, ids) in page_annotation_ids.iter().enumerate() {
+        // Reescrever os dicionários das páginas (já reindexadas) que
+        // possuem annotations.
+        for (new_idx, ids) in page_annotation_ids.iter().enumerate() {
             if ids.is_empty() {
                 continue;
             }
-            let page_id = FIRST_PAGE_ID + page_idx;
+            let page_id = FIRST_PAGE_ID + new_idx;
             let refs =
                 ids.iter().map(|id| format!("{id} 0 R")).collect::<Vec<_>>().join(" ");
             if let Some((_, content)) =
@@ -2194,6 +2307,12 @@ impl PdfBuilder {
             return;
         }
 
+        // **P1468** — label cuja página foi validamente excluída pela
+        // seleção: a entrada não é criada (comportamento 3 medido no
+        // vanilla, `typst-pdf/src/convert.rs:858-872`). Distinto do
+        // fallback abaixo (número de página que nunca existiu).
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+
         // Juntar labels comuns a label_pages e label_positions.
         let mut entries: Vec<(EcoString, usize, Point)> = Vec::new();
         for (label, &page) in &doc.extracted_label_pages {
@@ -2220,11 +2339,18 @@ impl PdfBuilder {
         let mut dests_dict = String::from("<< ");
         for (name, page, pos) in entries {
             let page_idx = page.saturating_sub(1);
-            let page_ref = if page_idx < doc.pages.len() {
-                format!("{} 0 R", FIRST_PAGE_ID + page_idx)
+            let page_ref = if page_idx >= doc.pages.len() {
+                // Fallback existente: número de página que nunca existiu no
+                // array `doc.pages` (caso distinto de exclusão pela
+                // seleção). Aponta para a última página efetivamente
+                // exportada.
+                format!("{} 0 R", FIRST_PAGE_ID + pic.exported_count().saturating_sub(1))
+            } else if let Some(new_idx) = pic.new_index(page_idx) {
+                format!("{} 0 R", FIRST_PAGE_ID + new_idx)
             } else {
-                // Fallback: última página válida.
-                format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
+                // **P1468** — página validamente excluída pela seleção: não
+                // adicionar a entrada ao dicionário `/Dests`.
+                continue;
             };
             let page_h = doc
                 .pages
@@ -2352,6 +2478,15 @@ impl PdfBuilder {
             return;
         }
 
+        // **P1468** — divergência deliberada do vanilla (não o bug de sinal
+        // invertido de `typst-pdf/src/outline.rs:25-31`, ver
+        // `infra/export/builder.md` P1468 §4 retificado): um heading cuja
+        // página está incluída permanece na árvore; um heading cuja página
+        // foi validamente excluída é omitido, e os seus descendentes são
+        // reparentados ao ancestral incluído mais próximo (ou promovidos a
+        // top-level).
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+
         struct Node {
             id: usize,
             title: String,
@@ -2371,17 +2506,31 @@ impl PdfBuilder {
 
         for (label, _number, body, level) in &doc.extracted_headings {
             let page = doc.extracted_label_pages.get(label).copied().unwrap_or(1);
+            let page_idx = page.saturating_sub(1);
+
+            let page_ref = if page_idx >= doc.pages.len() {
+                // Fallback existente: número de página que nunca existiu no
+                // array `doc.pages` (caso distinto de exclusão pela
+                // seleção) — mantém o comportamento anterior a P1468.
+                Some(format!(
+                    "{} 0 R",
+                    FIRST_PAGE_ID + pic.exported_count().saturating_sub(1)
+                ))
+            } else if let Some(new_idx) = pic.new_index(page_idx) {
+                Some(format!("{} 0 R", FIRST_PAGE_ID + new_idx))
+            } else {
+                None
+            };
+            // **P1468** — página validamente excluída: não criar nó para
+            // este heading nem empilhar; a pilha (`stack`) fica inalterada,
+            // reparentando automaticamente qualquer descendente seguinte.
+            let Some(page_ref) = page_ref else { continue };
+
             let pos = doc
                 .extracted_label_positions
                 .get(label)
                 .copied()
                 .unwrap_or(Point::ZERO);
-            let page_idx = page.saturating_sub(1);
-            let page_ref = if page_idx < doc.pages.len() {
-                format!("{} 0 R", FIRST_PAGE_ID + page_idx)
-            } else {
-                format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
-            };
             let page_h = doc
                 .pages
                 .get(page_idx)
@@ -2547,7 +2696,11 @@ impl PdfBuilder {
             now.second()
         );
 
-        let n_pages = doc.pages.len().max(1);
+        // **P1468** — `xmpTPg:NPages` é uma contagem pública observável;
+        // reflete só as páginas efetivamente exportadas (`pic`), igual a
+        // `/Count`. Sem seleção, `pic` é a identidade (byte-idêntico).
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let n_pages = pic.exported_count();
 
         // Campos condicionais a metadados do utilizador.
         let title_elem = doc

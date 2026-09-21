@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: f6aee0ec
+Hash do Código: ff8ca5a2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1186,7 +1186,7 @@ dimensões ou precedência em L2. A nova flag e o campo público exigem
 confirmação humana posterior ao commit causal P1463 antes de código, teste RED
 ou header.
 
-## P1468 — flag `compile --pages` (PROPOSTA; gate ADR-0127)
+## P1468 — flag `compile --pages` (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Medição anterior à decisão
 
@@ -1261,8 +1261,16 @@ export PDF.
 ### Aceitação e gate
 
 Cobrir: ausência, token único, range fechado/aberto nos dois lados, múltiplos
-tokens com espaço, os sete negativos de schema medidos acima (vazio, hífen
-duplo, só-hífen, texto, zero, e os dois lados de range invertido pelo texto
-CLI específico), e compile/watch/alias. Este é um dos L0s do gate ADR-0127
-de P1468 (flag pública nova); aguarda confirmação humana explícita posterior
-ao commit causal somente-L0 antes de qualquer teste RED ou código produtivo.
+tokens com espaço, os seis negativos de schema medidos acima (vazio, hífen
+duplo, só-hífen, texto, zero, e range invertido pelo texto CLI específico —
+a contagem corrige de "sete" para "seis", confirmada por recontagem direta
+das mensagens distintas listadas nesta secção durante a execução), e
+compile/watch/alias. Este é um dos L0s do gate ADR-0127 de P1468 (flag
+pública nova).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
+`PageRangeArg`/`--pages` sem ver os testes; Agente B escreveu 8 testes a
+partir do mesmo baseline sem ver a implementação. O teste independente
+passou de RED (erro de compilação — campo/tipo inexistentes) a GREEN (8/8)
+após a integração, sem regredir a suíte de `typst-shell` (77/77 no total).
