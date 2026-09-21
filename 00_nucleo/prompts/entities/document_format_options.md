@@ -420,6 +420,16 @@ Mensagens exatas medidas via `typst eval`/`typst compile` em 2026-09-21
                                       hint: "PDF/A-1b requires version PDF 1.4"  (min==max: sem "between")
 ("a-4","1.7")                    -> "PDF 1.7 is not compatible with PDF/A-4"
                                       hint: "PDF/A-4 requires version PDF 2.0"
+("a-4","ua-1")  (interseção vazia: a-4 é 2.0..2.0, ua-1 é 1.4..1.7, sem overlap)
+                                  -> "PDF/A-4 and PDF/UA-1 are mutually incompatible because they do
+                                      not have any overlapping PDF versions"
+                                      hint: "PDF/A-4 requires version PDF 2.0"
+                                      hint: "PDF/UA-1 requires a version between PDF 1.4 and PDF 1.7"
+("a-1b","ua-1","1.7")  (interseção não vazia — 1.4..1.4 — mas versão explícita 1.7 fora dela;
+                        DOIS validators no mesmo erro, não "interseção vazia")
+                                  -> "PDF 1.7 is not compatible with PDF/A-1b and PDF/UA-1"
+                                      hint: "PDF/A-1b requires version PDF 1.4"
+                                      hint: "PDF/UA-1 requires a version between PDF 1.4 and PDF 1.7"
 "3.0" (nome inválido)             -> "expected \"1.4\", \"1.5\", \"1.6\", \"1.7\", \"2.0\", \"a-1b\",
                                       \"a-1a\", \"a-2b\", \"a-2u\", \"a-2a\", \"a-3b\", \"a-3u\", \"a-3a\",
                                       \"a-4\", \"a-4f\", \"a-4e\", \"ua-1\", or array"
@@ -430,6 +440,14 @@ none                               -> mesma mensagem + ", found none"  (standard
                                       erro de PageRange, não de PdfStandard — PdfStandard dentro de
                                       array espera string, não dict/int)
 ```
+
+Tanto `NoOverlappingRange` quanto `VersionOutOfRange` (quando o conjunto
+tem mais de um validator archival/accessibility — no máximo dois, já que só
+há uma família de cada) citam **todos** os validators envolvidos, unidos
+por `"and"` (dois itens: `"X and Y"`; a fonte usa `to_and_list()`, que para
+3+ itens usaria vírgulas — irrelevante aqui, pois só há no máximo um
+archival e uma accessibility, logo no máximo 2 validators no mesmo erro), e
+emitem um hint por validator citado, na mesma ordem.
 
 ### Contrato
 
@@ -468,16 +486,31 @@ impl Default for PdfStandards {
     }
 }
 
+/// Um validador nomeado (archival ou accessibility) para compor mensagens
+/// que citam "todos os validators envolvidos" (`NoOverlappingRange`/
+/// `VersionOutOfRange` com mais de um validator no conjunto).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PdfValidator {
+    Archival(PdfArchival),
+    Accessibility(PdfAccessibility),
+}
+
 /// Motivo estruturado de rejeição; o consumer (compiler/eval/rules.rs)
 /// formata a mensagem final exata a partir destes dados — este owner não
 /// formata texto de diagnóstico (fronteira igual à de outros carriers L1).
+/// `validators`, quando presente, preserva a ordem de citação medida
+/// (mesma ordem em que os hints devem ser emitidos).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PdfStandardsConflict {
     ConflictingVersions(PdfVersion, PdfVersion),
     MultipleArchival,
     MultipleAccessibility,
-    NoOverlappingRange,
-    VersionOutOfRange { version: PdfVersion },
+    /// Nenhuma versão comum entre os validators do conjunto (sem versão
+    /// explícita envolvida — dois nomes, já que só há uma família archival
+    /// e uma accessibility no máximo).
+    NoOverlappingRange { validators: Vec<PdfValidator> },
+    /// Versão explícita fora do range de um ou mais validators do conjunto.
+    VersionOutOfRange { version: PdfVersion, validators: Vec<PdfValidator> },
 }
 
 impl PdfStandards {
