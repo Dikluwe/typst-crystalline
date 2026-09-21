@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 35d7f45b
+//! @prompt-hash 3058503c
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -548,11 +548,19 @@ impl TagIntrospector {
     /// retornar sempre `None`.
     ///
     /// Pattern de uso:
-    /// ```ignore
-    /// let mut intr = introspect_with_introspector(content);
-    /// let doc = layout_with_introspector(content, intr.clone());
+    /// ```rust
+    /// use typst_core::compiler::introspect::introspect_with_introspector;
+    /// use typst_core::compiler::layout::layout_with_introspector;
+    /// use typst_core::entities::content::Content;
+    /// use typst_core::entities::element_kind::ElementKind;
+    /// use typst_core::entities::introspector::Introspector;
+    ///
+    /// let content = Content::heading(1, Content::text("Title"));
+    /// let mut intr = introspect_with_introspector(&content);
+    /// let location = intr.query_first(ElementKind::Heading).unwrap();
+    /// let doc = layout_with_introspector(&content, intr.clone());
     /// intr.inject_positions(doc.extracted_positions.clone());
-    /// // Agora intr.position_of(loc) devolve Some(Position) reais.
+    /// assert!(intr.position_of(location).is_some());
     /// ```
     ///
     /// Per ADR-0074 (PROPOSTO 2026-05-07; F3 minimal). Fecha
@@ -570,16 +578,22 @@ impl TagIntrospector {
     /// `page_supplement`) começam a resolver.
     ///
     /// Padrão de uso típico:
-    /// ```ignore
-    /// let mut intr = introspect_with_introspector(content);
-    /// let doc = layout_with_introspector(content, intr.clone());
-    /// intr.inject_positions(doc.extracted_positions.clone());
-    /// // P207D: injectar page_store minimal (P207E completará
-    /// // com numberings + supplements quando captura no walk
-    /// // existir).
-    /// if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
-    ///     intr.inject_pages(PageStore::from_total_pages(total));
-    /// }
+    /// ```rust
+    /// use std::num::NonZeroUsize;
+    /// use typst_core::compiler::introspect::introspect_with_introspector;
+    /// use typst_core::compiler::layout::layout_with_introspector;
+    /// use typst_core::entities::content::Content;
+    /// use typst_core::entities::element_kind::ElementKind;
+    /// use typst_core::entities::introspector::Introspector;
+    /// use typst_core::entities::page_store::PageStore;
+    ///
+    /// let content = Content::heading(1, Content::text("one page"));
+    /// let mut intr = introspect_with_introspector(&content);
+    /// let location = intr.query_first(ElementKind::Heading).unwrap();
+    /// let doc = layout_with_introspector(&content, intr.clone());
+    /// let total = NonZeroUsize::new(doc.pages.len()).unwrap();
+    /// intr.inject_pages(PageStore::from_total_pages(total));
+    /// assert_eq!(intr.pages(location), Some(total));
     /// ```
     pub fn inject_pages(&mut self, page_store: PageStore) {
         self.page_store = page_store;

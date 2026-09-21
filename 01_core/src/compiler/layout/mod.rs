@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9b273695
+//! @prompt-hash e77c0741
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -3117,9 +3117,15 @@ pub fn layout(content: &Content) -> PagedDocument {
 /// usar `query_by_label` em vez de `state.figure_label_numbers` legacy.
 ///
 /// Caller típico:
-/// ```ignore
+/// ```rust
+/// use typst_core::compiler::introspect::introspect_with_introspector;
+/// use typst_core::compiler::layout::layout_with_introspector;
+/// use typst_core::entities::content::Content;
+///
+/// let content = Content::text("Hello");
 /// let intr = introspect_with_introspector(&content);
 /// let doc = layout_with_introspector(&content, intr);
+/// assert!(doc.plain_text().contains("Hello"));
 /// ```
 ///
 /// **P190I (M6 fechado)**: signature drop `initial_state:

@@ -1,8 +1,16 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 3360e776
+Hash do Código: c53394ea
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1470 — exemplos executáveis de injeção pós-layout
+
+Os exemplos públicos de `inject_positions` e `inject_pages` são doctests Rust
+executáveis, não pseudocódigo ignorado. Cada exemplo declara imports e entradas
+completos e verifica o observável correspondente: uma posição real para a
+`Location` locatável e o total não nulo de páginas injetado. Não usar `no_run`,
+I/O, fixture externa nem API privada para obter verde.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 

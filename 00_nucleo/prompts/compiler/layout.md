@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 43381647
+Hash do Código: 51c74e18
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -23,6 +23,13 @@ preservam referencial e causalidade.
 Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição final
 são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
 ADR-0127.
+
+## P1470 — exemplo executável do entry point com introspector
+
+A documentação de `layout_with_introspector` contém um doctest Rust completo:
+constrói `Content` textual, produz o `TagIntrospector` pela API pública, executa
+o entry point e verifica o texto público do documento. O exemplo não pode ser
+marcado `ignore`, `no_run` nem depender de fixture, I/O ou item privado.
 
 ## P1424 — layout intrínseco de frame HTML (APROVADO NO GATE ADR-0127 EM 2026-09-16)
 
