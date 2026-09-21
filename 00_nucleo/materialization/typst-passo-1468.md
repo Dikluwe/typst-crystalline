@@ -1,8 +1,10 @@
 # Passo 1468 — materializar `pdf.pages` e `compile --pages`
 
-**Estado:** L0S ESCRITOS (9 ficheiros — ver secção 8); V15/V26 verdes; AGUARDA
-COMMIT CAUSAL SOMENTE-L0 E CONFIRMAÇÃO HUMANA ADR-0127 antes de RED/código. A
-confirmação de P1467 não cobre P1468 (declarado explicitamente no L0 original).
+**Estado:** L0S ESCRITOS E RETIFICADOS (9 ficheiros — ver secção 8; retificação
+da decisão de outline em §8.1 item 2, autorizada explicitamente pelo dono);
+V15/V26 verdes; commit causal somente-L0 feito; confirmação humana ADR-0127
+recebida em 2026-09-20 na mesma sessão. Aguarda execução segregada (Agentes
+A/B/C).
 
 **Data da auditoria original:** 2026-09-20T17:40:24-03:00
 **Data da execução (rebase + medição extensa + L0s):** 2026-09-20T21:00 a
@@ -164,9 +166,17 @@ Registrar no próprio passo o estado exato e as contagens produzidas.
    — headings em páginas *incluídas* contam como `visible=false`), cujo
    efeito combinado com a poda de `OutlineNode::build_tree`
    (`typst-library/src/model/outline.rs:338-395`) é: nenhum heading
-   sobrevive à árvore, seja qual for a seleção. **P1468 reproduz este
-   comportamento observável fielmente** (ADR-0107 — paridade com o medido,
-   não com a leitura "pretendida" do código); não é uma correção de bug.
+   sobrevive à árvore, seja qual for a seleção. Não há nenhuma razão de
+   produto para isto — é um erro claro de sinal, não uma escolha de design
+   (diferente do warning de tagging, que tem justificação de
+   acessibilidade). **Decisão do dono (2026-09-20): correções fazem sentido
+   no Tekt quando o vanilla tem um erro claro; não é para copiar esse
+   erro.** P1468 diverge deliberadamente: preserva bookmarks de headings em
+   páginas incluídas e reparenta os descendentes de headings excluídos ao
+   ancestral incluído mais próximo (mesmo princípio de poda de
+   `OutlineNode::build_tree`, sem a inversão de sinal). Registado como
+   divergência intencional (não lacuna de paridade) em
+   `infra/export/builder.md` P1468.
 3. **Links para páginas removidas são removidos, não redirecionados.** Um
    teste inicial com `#outline()` + heading-alvo removido pareceu mostrar um
    link "sobrevivente" redirecionado para a última página do range — depois

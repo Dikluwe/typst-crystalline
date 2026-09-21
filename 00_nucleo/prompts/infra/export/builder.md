@@ -887,22 +887,30 @@ confirmado por leitura de `typst-pdf/src/convert.rs:877-908`,
    destino nomeado para um heading com label se a página desse heading
    **está incluída**; caso contrário a entrada não é criada e qualquer link
    que dependa dela cai no comportamento 2 (omitido).
-4. **Bookmark tree nativa (`/Outlines`)**: fica **sempre vazia** quando
-   `pdf.pages` está definido (`Some`), **independentemente de quais páginas
-   foram selecionadas** — confirmado exportando `--pages 1-4` num documento
-   de 4 páginas (nenhuma removida): `/Outlines` continua ausente do
-   catálogo. Efeito de `typst-pdf/src/outline.rs:25-31` (`visible =
-   pages.v.is_none_or(|ranges| !ranges.includes_page(...))` — o `!` faz
-   headings em páginas **incluídas** contarem como `visible=false` e
-   headings em páginas **excluídas** contarem como `visible=true`;
-   conjugado com `include = bookmarked && visible` e a poda de
-   `OutlineNode::build_tree` em `typst-library/src/model/outline.rs:338-395`
-   (um nó não incluído na árvore nunca tem seus filhos promovidos, e um nó
-   cujo `pos_to_xyz` falha em `convert_node` é descartado de qualquer
-   forma), o resultado observável é: nenhum heading sobrevive à árvore
-   quando há qualquer seleção de páginas ativa. Isto é reproduzido fielmente
-   (ADR-0107: paridade com o observável medido, não com a leitura "correta"
-   pretendida do código) — não é uma correção de bug proposta por este L0.
+4. **Bookmark tree nativa (`/Outlines`) — bug identificado, não reproduzido.**
+   No vanilla medido, a árvore fica **sempre vazia** quando `pdf.pages` está
+   definido, **mesmo quando a seleção cobre todas as páginas**
+   (`--pages 1-4` num documento de 4 páginas → `/Outlines` ausente do
+   catálogo). A causa, lida em `typst-pdf/src/outline.rs:25-31`, é uma
+   inversão de sinal: `visible = pages.v.is_none_or(|ranges|
+   !ranges.includes_page(...))` faz headings em páginas **incluídas**
+   contarem como `visible=false` e headings em páginas **excluídas**
+   contarem como `visible=true` — o oposto do que o nome da variável e o
+   uso em `include = bookmarked && visible` evidentemente pretendem. Não há
+   nenhuma razão de produto para "selecionar páginas apaga todos os
+   bookmarks mesmo quando nada foi removido"; isto não é uma escolha de
+   design (como o warning de tagging, que tem uma justificação de
+   acessibilidade), é um erro claro de sinal. **Decisão do dono
+   (2026-09-20): não copiar este erro.** O cristalino diverge
+   deliberadamente do observável medido e implementa o comportamento que a
+   estrutura do vanilla evidentemente pretendia: um heading cuja página está
+   **incluída** aparece na árvore; um heading cuja página foi **excluída** é
+   omitido, e os seus descendentes (se houver, pela hierarquia de `level`)
+   são reparentados ao ancestral incluído mais próximo — mesmo princípio de
+   poda de `OutlineNode::build_tree`
+   (`typst-library/src/model/outline.rs:338-395`), sem a inversão de sinal.
+   Isto é registado como divergência intencional, não como lacuna de
+   paridade.
 5. **PageLabel**: o vanilla preserva o número físico original via
    `/PageLabel` quando páginas são omitidas
    (`typst-pdf/src/convert.rs:130-141`). **Scope-out explícito**: o
@@ -965,10 +973,21 @@ por `FIRST_PAGE_ID + new_index` no `page_ref` emitido. O fallback existente
 nunca existiu no documento) continua a existir **apenas** para esse caso
 distinto — não se aplica a página validamente excluída pela seleção.
 
-Em `emit_outlines`: se `pages.is_some()` (qualquer seleção ativa, mesmo
-cobrindo todas as páginas), `return` antes de construir qualquer nó — a
-árvore de outline nativa fica vazia, replicando o comportamento 4 medido.
-Sem `pages`, comportamento idêntico ao atual.
+Em `emit_outlines`: para cada `(label, _number, body, level)` de
+`doc.extracted_headings`, resolver a página física via
+`extracted_label_pages` e checar `pic.new_index(page - 1)`. Se `Some`
+(página incluída), processar exatamente como hoje — empilhar/desempilhar por
+`level`, criar o nó, encadear `/Parent`/`/Prev`/`/Next`/`/First`/`/Last` — só
+que o `page_ref` usa o **novo** índice (`FIRST_PAGE_ID + new_index`), não o
+físico. Se `None` (página excluída), **não criar nó para este heading e não
+o empilhar** — mas continuar a percorrer a lista normalmente. Como o topo da
+pilha (`stack.last()`) só é atualizado por headings efetivamente empilhados,
+um heading de nível mais profundo que segue um heading excluído é
+automaticamente reparentado ao último ancestral **incluído** ainda na pilha
+(ou promovido a top-level, se nenhum ancestral incluído sobrar) — sem
+necessidade de um "nível mais alto pulado" explícito como no vanilla, porque
+a estrutura cristalina já é uma pilha por nível, não uma árvore genérica.
+Sem `pages`, comportamento idêntico ao atual (nenhum heading é filtrado).
 
 ### Fronteiras
 
@@ -983,11 +1002,14 @@ Testes cobrem: `pages: None` (regressão byte-idêntica nas três variantes de
 build e nos três `emit_*`); seleção de página única, range fechado, limites
 abertos; página física removida cujo destino é referenciado por um link
 comum (annotation omitida) e por um heading com label (named destination
-ausente); outline nativa vazia com seleção parcial e com seleção que cobre
-todo o documento; `/Count`/`/Kids` refletindo só as páginas exportadas;
+ausente); outline nativa com seleção cobrindo todas as páginas (todos os
+headings sobrevivem, divergência deliberada do vanilla — ver medição 4);
+outline com página intermediária removida cujo heading tem filhos de nível
+mais profundo (filhos reparentados ao ancestral incluído, heading excluído
+ausente da árvore); `/Count`/`/Kids` refletindo só as páginas exportadas;
 neutralidade de PNG/SVG/HTML. Inspecionar estrutura parseada (contagem de
-`/Type /Page`, presença/ausência de `/Annots`/`/Outlines`/entradas de
-`/Dests`), nunca igualdade total de bytes. Este é um dos L0s do gate
+`/Type /Page`, presença/ausência/parentesco de `/Annots`/`/Outlines`/entradas
+de `/Dests`), nunca igualdade total de bytes. Este é um dos L0s do gate
 ADR-0127 de P1468 (mudança de comportamento por defeito do exportador);
 aguarda confirmação humana explícita posterior ao commit causal somente-L0
 antes de qualquer teste RED ou código produtivo.
