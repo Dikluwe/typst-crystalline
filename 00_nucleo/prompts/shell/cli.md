@@ -1035,6 +1035,13 @@ Isto cobre somente a invocação medida de PDF 2.0; suporte real e exposição n
 help exigem contrato próprio. O gate público de P1286 foi confirmado pelo
 humano em 2026-08-30.
 
+**Retificado por P1469** (ver seção própria abaixo): a flag deixa de ser
+oculta/descartada e passa a ser pública, parseada, validada e transportada
+até `CompileIntent`. P1469 não anuncia capacidade de conformidade PDF/A/UA
+real (escopo reduzido, ver `entities/document_format_options.md` P1469) —
+só o "contrato de linguagem": os 17 nomes, conflitos e a versão efetiva do
+header. O texto acima permanece correto como registo do estado até P1469.
+
 ## P1288 — perfil CLI `a11y-extras` (PROPOSTO; gate ADR-0127)
 
 ### Medição anterior à decisão
@@ -1274,3 +1281,88 @@ A confirmação humana explícita posterior aos commits causais somente-L0
 partir do mesmo baseline sem ver a implementação. O teste independente
 passou de RED (erro de compilação — campo/tipo inexistentes) a GREEN (8/8)
 após a integração, sem regredir a suíte de `typst-shell` (77/77 no total).
+
+## P1469 — flag `compile --pdf-standard` pública (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21) e a retificação da seção P1286 acima.
+
+### Medição anterior à decisão
+
+No vanilla ratificado, `--pdf-standard` usa `value_delimiter = ','` e um
+`ValueEnum` clap com os 17 nomes (mensagem de erro do próprio clap: `invalid
+value '3.0' for '--pdf-standard <PDF_STANDARD>' [possible values: 1.4, 1.5,
+1.6, 1.7, 2.0, a-1b, a-1a, a-2b, a-2u, a-2a, a-3b, a-3u, a-3a, a-4, a-4f,
+a-4e, ua-1]`, com `tip: a similar value exists: '2.0'` quando aplicável —
+exit 2). Precedência confirmada por compilação real: `--pdf-standard`
+presente substitui o conjunto documental como unidade (não concatena);
+ausente delega ao documento; ambos ausentes usa o default `("1.7",)`.
+
+Medido `typst-cli/src/compile.rs:180-201`: existe um **gate CLI-only**,
+antes de compilar, análogo ao de P1468 — verifica só os valores crus da CLI
+(`args.pdf_standard`, `args.pdf_tagged`, `args.no_pdf_tags`, `args.pages`),
+nunca o documento:
+
+```text
+tagged_resolvido_so_CLI == Some(false)  (mesma resolução de P1467/P1468: explícito,
+                                          ou colapsado via no_pdf_tags/pages)
+  E args.pdf_standard contém a-1a|a-2a|a-3a|ua-1
+    -> se args.no_pdf_tags: "cannot disable PDF tags when exporting a {name} document"  (sem hint)
+    -> senão: mesma mensagem + hint "using --pages implies --pdf-tagged=false"
+              SÓ SE args.pages presente; senão sem hint
+```
+
+Medido via `typst compile` em 2026-09-21:
+
+```text
+--pdf-standard=a-1a --pdf-tagged=false
+  -> "cannot disable PDF tags when exporting a PDF/A-1a document"  (exit 1, sem hint)
+--pdf-standard=ua-1 --pages 1  (sem --pdf-tagged explícito)
+  -> "cannot disable PDF tags when exporting a PDF/UA-1 document"
+     hint: "using --pages implies --pdf-tagged=false"             (exit 1)
+```
+
+Nota: a mensagem CLI-only usa "cannot **disable**" (não "cannot **set**
+\`pdf(tagged: false)\`"), diferente da mensagem documental equivalente —
+dois textos distintos para o mesmo conflito semântico, mesmo padrão já
+registado para `pages`+`tagged` em P1467/P1468.
+
+### Contrato
+
+`CompileArgs` deixa de ter `_pdf_standard: Option<String> (hide=true)` e
+ganha:
+
+```rust
+#[arg(long = "pdf-standard", value_delimiter = ',')]
+pdf_standard: Vec<PdfStandardArg>,
+```
+
+`PdfStandardArg` é um `ValueEnum` clap com os 17 nomes (reexportando
+`entities::document_format_options::PdfStandard` de L1 ou um newtype fino —
+decisão mecânica livre), reproduzindo a mensagem de erro nativa do clap
+(incluindo `tip:` de sugestão por proximidade, que é comportamento do
+próprio clap, não texto a replicar manualmente). `CompileIntent` ganha `pub
+pdf_standard: Vec<PdfStandard>` — a lista **crua** da CLI, **não** validada
+como `PdfStandards` em L2 (a validação de conflitos entre nomes pertence a
+`entities/document_format_options.md`, consumida por `infra/pipeline.md`;
+L2 só faz parsing sintático). `compile`, `watch` e `w` reutilizam o mesmo
+`CompileArgs`.
+
+L2 **não** implementa o gate CLI-only acima (que cruza `pdf_standard` com
+`tagged`/`pages`, informação de dois nomes de campo diferentes numa decisão
+única) — isso pertence a `wiring.md` P1469, mesmo padrão já usado para o
+gate CLI-only `pages`+`tagged` de P1468. L2 também não decide a interação
+documental (isso é `infra/pipeline.md`) e não valida conformidade
+estrutural (scope-out).
+
+### Aceitação e gate
+
+Cobrir: ausência (`Vec::new()`), um nome, múltiplos nomes separados por
+vírgula, nome inválido (mensagem nativa do clap com `tip:` quando
+aplicável), compile/watch/alias `w`. A validação de conflitos entre nomes e
+o gate CLI-only ficam para os testes de `infra/pipeline.md`/`wiring.md`
+respetivamente (este owner só prova parsing sintático). Este é um dos L0s
+do gate ADR-0127 de P1469 (flag pública nova, comportamento por defeito
+muda de "aceita e descarta" para "aceita e aplica"); aguarda confirmação
+humana explícita posterior ao commit causal somente-L0 antes de qualquer
+teste RED ou código produtivo.

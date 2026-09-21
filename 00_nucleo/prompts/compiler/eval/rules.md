@@ -577,3 +577,96 @@ mesmo baseline sem ver a implementação. O teste independente passou de RED
 ainda inexistentes noutros ficheiros) a GREEN (35/35 no módulo, incluindo os
 15 pré-existentes de P1467) após a integração, sem regredir
 `format.svg`/`format.png`/`format.html`.
+
+## P1469 — named `standard` em `format.pdf(...)` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21): este owner materializa parsing e
+validação de nomes/conflitos, não conformidade estrutural real.
+
+### Medição anterior à decisão
+
+No baseline `85b7fc5f1eda67e89494a478c2458de36d4ee20d`, o braço `format.pdf`
+(P1467/P1468) aceita `tagged`/`pretty`/`pages`. Medido via `typst eval`/
+`typst compile` em 2026-09-21 (mensagens completas e tabela de compatibilidade
+de versão em `entities/document_format_options.md` P1469):
+
+```text
+"1.7" (string válida)                 -> aceito
+("a-1b", "1.7") (array misto)          -> aceito (elementos são sempre string)
+() (array vazio)                       -> aceito; efetivo 1.7 sem validators (== default)
+none                                    -> expected "1.4", ..., "ua-1", or array, found none
+17 (integer)                            -> expected "1.4", ..., "ua-1", or array, found integer
+true (boolean)                          -> expected "1.4", ..., "ua-1", or array, found boolean
+"3.0" (string não reconhecida)          -> expected "1.4", ..., "ua-1", or array   (SEM ", found string")
+("1.7", "xyz") (elemento inválido)      -> expected "1.4", ..., or "ua-1"          (SEM "array"/"found",
+                                            forma de lista com "or" antes do último item)
+```
+
+Diferença crucial: quando o `Value` **não é string nem array** (int/bool/
+dict/etc.), a mensagem ganha o sufixo `, found {tipo}`; quando **é uma
+string mas não corresponde a nenhum dos 17 nomes**, a mensagem não tem esse
+sufixo (mesmo padrão de qualquer `cast!` Typst para enum de string literais
+— não é peculiaridade deste named). Dentro de um elemento de array, a lista
+de opções perde `"...", or array` e vira `"...", or "ua-1"` (sem a opção
+`array`, já que um elemento não pode ser array aninhado).
+
+`standard` **não aceita `Value::None`** — diferente de `pages` (P1468), que
+tem `none` como forma explícita de "resetar". A única forma de "documento
+não decide" é a ausência do named; a única forma de "conjunto vazio
+explícito" (que resolve para o mesmo default 1.7 mas é tecnicamente uma
+decisão presente, não ausência) é o array vazio `()`.
+
+### Contrato
+
+Estender o braço `format.pdf` para aceitar também o named `standard`,
+independente de `tagged`/`pretty`/`pages` (quatro campos, cada um com seu
+próprio `seen_*`). Para o valor recebido:
+
+- `Value::Str`: mapear para um dos 17 `PdfStandard`; se não corresponder,
+  erro sem sufixo de tipo (lista de 17 opções + `"or array"`);
+- `Value::Array`: cada elemento deve ser `Value::Str` mapeável para um dos
+  17 nomes; elemento inválido falha com a mesma lista de 17 opções, mas sem
+  `"or array"` (forma "or" antes do último item, não vírgula-espaço);
+  array vazio é uma seleção válida (conjunto sem nomes);
+- qualquer outra variante (incluindo `Value::None`) falha com a lista de 17
+  opções + `"or array"` + `, found {tipo}`.
+
+Depois de coletar a lista de `PdfStandard` nomeados (um elemento para
+`Value::Str`, N elementos para `Value::Array`), chamar
+`PdfStandards::new(&lista)` (`entities/document_format_options.md` P1469)
+**só para validar** (mesma disciplina dos três campos irmãos: a validação
+completa acontece aqui, no momento do `set`, mas o valor armazenado em
+`Styles.custom` permanece um `Value` nativo — nunca um tipo L1 opaco). Se
+`Err(conflict)`, mapear o `PdfStandardsConflict` estruturado para a
+mensagem exata medida (tabela acima e em `entities/document_format_options.md`
+P1469) — este owner é responsável pelo texto final do diagnóstico, o tipo
+L1 só carrega os dados. Se `Ok(_)` (validação passou), inserir sob a chave
+canônica `format.pdf.standard` o **`Value::Array` original recebido**
+(normalizado: se o named veio como `Value::Str` único, envolver num array
+de um elemento — o vanilla já representa o valor resolvido como array de
+strings, `repr(format.pdf.standard) == ("1.7",)`, então este owner só
+precisa preservar essa forma, não inventar transporte novo). A reconstrução
+de `PdfStandards` a partir desse array (chamando `PdfStandards::new` de novo
+sobre um array já validado) é responsabilidade do extractor puro
+(`compiler/layout/format_options.md`), exatamente como os três campos
+irmãos: uma segunda falha nessa reconstrução seria estado interno
+impossível, nunca um novo diagnóstico de schema.
+
+Preservar integralmente `tagged`, `pretty`, `pages`, `format.svg`,
+`format.png`, `format.html` e a política de named desconhecido/duplicado.
+Este owner não decide interação `standard`+`tagged` nem `standard`+`pages`
+(isso é `infra/pipeline.md`), não sabe que existe CLI e não exporta PDF.
+
+### Aceitação e gate
+
+Cobrir: os 17 nomes individuais, array com múltiplos nomes válidos, array
+vazio, os cinco conflitos estruturados (duas versões, dois PDF/A, dois
+PDF/UA, interseção vazia, versão explícita fora do range — reusar os casos
+de `entities/document_format_options.md` P1469), os quatro negativos de
+schema medidos acima (`none`, inteiro, boolean, string não reconhecida,
+elemento de array inválido — cinco ao todo), independência face a
+`tagged`/`pretty`/`pages`, e não regressão dos irmãos. Este é um dos L0s do
+gate ADR-0127 de P1469 (flag antes inerte torna-se funcional); aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.

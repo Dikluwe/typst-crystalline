@@ -852,3 +852,60 @@ os testes; Agente B escreveu os 12 testes de integração de binário (contados
 em `infra/export/builder.md` P1468, mesmo ficheiro de teste cobre ambos os
 owners) a partir do mesmo baseline sem ver a implementação. O teste
 independente passou de RED a GREEN após a integração, sem regressão.
+
+## P1469 — validação de `--pdf-standard` e gate CLI-only (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21).
+
+### Medição anterior à decisão
+
+No vanilla, o gate CLI-only de `standard`+`tagged` (mensagens exatas e
+condição em `shell/cli.md` P1469) acontece **antes** da validação de
+conflitos entre os nomes da própria lista `--pdf-standard`
+(`typst-cli/src/compile.rs:180-207`, já citado em `shell/cli.md` P1469): o
+gate testa `args.pdf_standard.contains(standard)` sobre a lista **crua**,
+só depois `PdfStandards::new(args.pdf_standard...)` valida conflitos entre
+si. Reproduzir essa ordem exata: um `--pdf-standard 1.4,1.7` (dois versões
+conflitantes) combinado com `--pdf-tagged=false` e `--pdf-standard`
+contendo um perfil acessível dispara primeiro o gate CLI-only (se aplicável)
+ou, se não houver perfil acessível na lista, o erro de conflito entre
+versões aparece depois.
+
+### Contrato
+
+No braço `OutputFormat::Pdf` de `run_compile_observed`, antes de qualquer
+chamada à pipeline: destruturar `pdf_standard: Vec<PdfStandard>` de
+`CompileIntent` (lista crua, já parseada por L2). Reaproveitar a resolução
+de `tagged` CLI-only já existente (P1468: `pdf_tagged`/`no_pdf_tags`/`pages`)
+e, se o resultado for `Some(false)`, para cada um dos quatro perfis
+acessíveis (`a-1a`, `a-2a`, `a-3a`, `ua-1`) presente em `pdf_standard`
+(`Vec::contains`), abortar com exit 1 e a mensagem CLI-only exata (com ou
+sem hint de `pages`, conforme medido em `shell/cli.md` P1469) — mesmo canal
+de erro já usado pelo gate `pages`+`tagged` de P1468.
+
+Se o gate não disparar, validar `PdfStandards::new(pdf_standard)`
+(`entities/document_format_options.md` P1469); se `Err`, abortar com a
+mensagem documental de conflito correspondente (mesmo texto que
+`compiler/eval/rules.md` P1469 usa para o caso documental — é a mesma
+função de validação, reaproveitada) antes de compilar. Se `Ok`, produzir
+`standard_override: Some(resultado)`; lista vazia produz `None` (delega à
+pipeline/documento).
+
+Passar `pages`/`pdf_tagged`/`pretty` exatamente como P1468 e o novo
+`standard_override` às três entry points novas de `infra/pipeline.md`
+P1469 (`..._tagged_and_pretty_and_pages_and_standard_override`) em vez das
+três de P1468. PNG, SVG e HTML permanecem neutros — `pdf_standard` não é
+destruturado nesses braços. L4 não valida conformidade estrutural nem
+decide a interação documental completa (isso é `infra/pipeline.md`).
+
+### Aceitação e gate
+
+Cobrir: `--pdf-standard` ausente (comportamento P1468 idêntico); lista com
+perfil acessível + `--pdf-tagged=true` explícito (gate CLI-only, exit 1, sem
+I/O de compilação); lista com conflito entre nomes sem perfil acessível
+(erro de conflito, exit 1, mensagem documental reaproveitada); lista válida
+sem conflito (delega à pipeline); lista vazia (delega ao documento); compile
+e watch; neutralidade de PNG/SVG/HTML. Este é um dos L0s do gate ADR-0127
+de P1469; aguarda confirmação humana explícita posterior ao commit causal
+somente-L0 antes de qualquer teste RED ou código produtivo.

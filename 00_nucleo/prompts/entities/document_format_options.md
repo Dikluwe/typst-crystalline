@@ -2,7 +2,7 @@
 Hash do Código: 1b68276b
 
 **Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
-P1466 PROPOSTA; AGUARDA GATE ADR-0127.
+P1466 E CARRIER P1469 (ESCOPO REDUZIDO) PROPOSTOS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -346,3 +346,185 @@ escreveu 9 testes a partir do mesmo baseline sem ver a implementação. O
 teste independente passou de RED (erro de compilação — `PageRange`/
 `PageRanges` inexistentes) a GREEN (17/17 no ficheiro, incluindo os 8
 pré-existentes de P1462/P1465/P1467) após a integração, sem regressão.
+
+## P1469 — carrier `PdfStandards` (contrato de linguagem; ESCOPO REDUZIDO por decisão do dono) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Escopo reduzido — decisão do dono, 2026-09-21
+
+O L0 original do passo pedia "conformidade observável real" para PDF/A e
+PDF/UA (estrutura XMP, restrições de cor/transparência/fontes, validação por
+ferramenta externa). Medição prévia à decisão: (1) o vanilla delega essa
+mecânica inteira à crate `krilla` (`~/.cargo/git/checkouts/krilla-*/crates/krilla/src/configure/`,
+só o módulo de *seleção* de validador já tem >1500 linhas; a imposição real
+das regras de cada perfil está espalhada pelo resto da crate), que o
+cristalino não usa; (2) não há validador de conformidade PDF/A/PDF/UA
+disponível neste ambiente (sem veraPDF, sem `pikepdf`; só `qpdf`/`mutool`,
+que validam estrutura genérica de PDF, não conformidade A/UA). O próprio L0
+original antecipa esta situação: "se um perfil não puder ser implementado de
+forma real nesta fatia, o L0 deve reduzir explicitamente o conjunto
+anunciado; não aceitar e ignorar". Consultado, o dono confirmou: materializar
+apenas o **contrato de linguagem** (parsing, validação de conflitos,
+mensagens, versão efetiva do header) — sem implementar nem alegar
+conformidade PDF/A ou PDF/UA real. Registado aqui e em
+`00_nucleo/materialization/typst-passo-1469.md`.
+
+### Medição anterior à decisão
+
+No baseline `85b7fc5f1eda67e89494a478c2458de36d4ee20d`, `PdfFormatOptions` não
+tem campo `standard`; `02_shell/src/cli.rs:377-378` mantém `--pdf-standard`
+como flag oculta e descartada (`_pdf_standard: Option<String>`, nunca lida).
+
+O vanilla ratificado (`typst-library/src/layout` não se aplica aqui — a
+fonte é `typst-pdf/src/format.rs:552-719` e a crate `krilla::configure`)
+modela o domínio em três níveis:
+
+```rust
+// nomes brutos aceites pelo cast (17 no total)
+enum PdfStandard { V_1_4, V_1_5, V_1_6, V_1_7, V_2_0,
+    A_1b, A_1a, A_2b, A_2u, A_2a, A_3b, A_3u, A_3a, A_4, A_4f, A_4e, UA_1 }
+
+// conjunto validado e resolvido
+struct PdfStandards { config: krilla::configure::Configuration }
+// Configuration { validators: Validators (archival: Option<Archival>,
+//                 accessibility: Option<Accessibility>), version: PdfVersion }
+```
+
+Tabela de compatibilidade de versão medida diretamente em
+`krilla/src/configure/validate.rs:993-1013,1187-1201` (não em `typst-pdf`):
+
+| Perfil | min | max |
+|---|---|---|
+| `a-1a`, `a-1b` | PDF 1.4 | PDF 1.4 |
+| `a-2a`, `a-2b`, `a-2u`, `a-3a`, `a-3b`, `a-3u` | PDF 1.4 | PDF 1.7 |
+| `a-4`, `a-4f`, `a-4e` | PDF 2.0 | PDF 2.0 |
+| `ua-1` | PDF 1.4 | PDF 1.7 |
+
+Resolução da versão efetiva (`krilla/src/configure/mod.rs:68-96`, medida via
+`typst compile`): versão explícita dentro do range da interseção dos
+validators escolhidos → usa-a; fora do range → erro; sem versão explícita e
+com validators → usa o **máximo** do range da interseção (`a-2b` sozinho →
+efetivo `1.7`; `a-1b` sozinho → efetivo `1.4`); sem validators e sem versão
+→ default `1.7`. Interseção vazia entre validators → erro distinto do erro
+de versão explícita fora do range.
+
+Mensagens exatas medidas via `typst eval`/`typst compile` em 2026-09-21
+(`/usr/local/bin/typst`, SHA-256 confirmado idêntico ao pin):
+
+```text
+("1.4","1.7")                    -> "PDF cannot conform to PDF 1.4 and PDF 1.7 at the same time"
+("a-1b","a-2b")                  -> "choose at most one PDF/A standard"
+("ua-1","ua-1")                  -> "choose at most one PDF/UA standard"
+("ua-1","2.0")                   -> "PDF 2.0 is not compatible with PDF/UA-1"
+                                      hint: "PDF/UA-1 requires a version between PDF 1.4 and PDF 1.7"
+("a-1b","1.7")                   -> "PDF 1.7 is not compatible with PDF/A-1b"
+                                      hint: "PDF/A-1b requires version PDF 1.4"  (min==max: sem "between")
+("a-4","1.7")                    -> "PDF 1.7 is not compatible with PDF/A-4"
+                                      hint: "PDF/A-4 requires version PDF 2.0"
+"3.0" (nome inválido)             -> "expected \"1.4\", \"1.5\", \"1.6\", \"1.7\", \"2.0\", \"a-1b\",
+                                      \"a-1a\", \"a-2b\", \"a-2u\", \"a-2a\", \"a-3b\", \"a-3u\", \"a-3a\",
+                                      \"a-4\", \"a-4f\", \"a-4e\", \"ua-1\", or array"
+17 (inteiro)                      -> mesma mensagem + ", found integer"
+none                               -> mesma mensagem + ", found none"  (standard NÃO tem "none"
+                                      explícito como pages — regra vazia é a única forma de "ausente")
+(1, "x") array com elemento str   -> "expected integer or dictionary, found string"  (nota: este é o
+                                      erro de PageRange, não de PdfStandard — PdfStandard dentro de
+                                      array espera string, não dict/int)
+```
+
+### Contrato
+
+Acrescentar ao owner os tipos públicos:
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PdfVersion { V1_4, V1_5, V1_6, V1_7, V2_0 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PdfArchival { A1a, A1b, A2a, A2b, A2u, A3a, A3b, A3u, A4, A4f, A4e }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PdfAccessibility { Ua1 }
+
+/// Um dos 17 nomes brutos aceites pelo cast documental/CLI, antes de
+/// categorizados em versão/archival/accessibility.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PdfStandard {
+    V1_4, V1_5, V1_6, V1_7, V2_0,
+    A1a, A1b, A2a, A2b, A2u, A3a, A3b, A3u, A4, A4f, A4e,
+    Ua1,
+}
+
+/// Conjunto validado e resolvido de standards PDF.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PdfStandards {
+    pub version: PdfVersion,
+    pub archival: Option<PdfArchival>,
+    pub accessibility: Option<PdfAccessibility>,
+}
+
+impl Default for PdfStandards {
+    fn default() -> Self {
+        Self { version: PdfVersion::V1_7, archival: None, accessibility: None }
+    }
+}
+
+/// Motivo estruturado de rejeição; o consumer (compiler/eval/rules.rs)
+/// formata a mensagem final exata a partir destes dados — este owner não
+/// formata texto de diagnóstico (fronteira igual à de outros carriers L1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PdfStandardsConflict {
+    ConflictingVersions(PdfVersion, PdfVersion),
+    MultipleArchival,
+    MultipleAccessibility,
+    NoOverlappingRange,
+    VersionOutOfRange { version: PdfVersion },
+}
+
+impl PdfStandards {
+    /// Valida uma lista de nomes brutos e produz o conjunto resolvido, na
+    /// mesma ordem/regras medidas em `krilla::configure::ConfigurationBuilder`.
+    pub fn new(
+        names: impl IntoIterator<Item = PdfStandard>,
+    ) -> Result<Self, PdfStandardsConflict> { /* ver Contrato acima */ }
+}
+```
+
+`PdfFormatOptions` ganha `pub standard: Option<PdfStandards>` (default
+`None` — documento não decidiu; distinto de `Some(PdfStandards::default())`,
+que também é alcançável explicitamente via `#set format.pdf(standard: ())`,
+array vazio — ver `compiler/eval/rules.md` P1469). `PdfStandards` deriva
+`Eq`/`Hash` (todos os campos são enums simples); `PdfFormatOptions` continua
+a derivar `Eq` (já conquistado em P1468).
+
+### Scope-out explícito (ver nota no topo desta secção)
+
+Este owner não implementa nem afirma:
+
+- conformidade estrutural real PDF/A (restrições de cor/transparência/fontes,
+  identificação XMP com nível de conformidade correto, ausência de
+  encriptação, etc.);
+- conformidade estrutural real PDF/UA (validação de estrutura de tags além
+  do que P1140.5-A/P1405 já materializam, contraste, alt-text obrigatório);
+- qualquer mudança estrutural do PDF específica de cada versão além do
+  header declarado (`infra/export/builder.md` P1469) — xref, tipos de
+  objeto e o resto do corpo do PDF continuam idênticos independentemente da
+  versão declarada;
+- validação por ferramenta externa (nenhuma disponível neste ambiente).
+
+Um passo futuro, quando houver uma biblioteca de geração PDF/A/UA conforme
+ou um validador disponível, pode reabrir estes eixos sem quebrar este
+contrato (que continua correto como validação/resolução de *nomes* e
+*versão*, independentemente da conformidade estrutural).
+
+### Aceitação e gate
+
+Testes provam: `PdfStandards::new` para cada um dos cinco conflitos
+estruturados (`ConflictingVersions`, `MultipleArchival`,
+`MultipleAccessibility`, `NoOverlappingRange`, `VersionOutOfRange`);
+resolução de versão efetiva (explícita válida, ausente com validators →
+máximo do range, ausente sem validators → default `1.7`); a tabela de
+min/max por perfil (14 casos); `PdfStandards::default()`; `Eq`/`Hash`/clone;
+ortogonalidade com `pages`/`tagged`/`pretty`/SVG/PNG/HTML. Este é um dos L0s
+do gate ADR-0127 de P1469 (campo público novo, flag antes inerte torna-se
+funcional); aguarda confirmação humana explícita posterior ao commit causal
+somente-L0 antes de qualquer teste RED ou código produtivo.

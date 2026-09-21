@@ -197,3 +197,26 @@ família com os eixos já existentes) sem ver os testes. Validado por
 compilação e pelos testes de `03_infra/src/pipeline.rs`/
 `04_wiring/tests/p1468_format_pdf_pages.rs` (este owner não tem testes
 próprios, é reexportado por eles).
+
+## P1469 — fachada de standards PDF (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21).
+
+Seguindo o mesmo padrão de P956/P1140.6/P1360/P1468 (cada eixo acrescentado
+como novo último parâmetro às três entry points PDF), adicionar `standard:
+PdfStandards` (reexportado de
+`typst_core::entities::document_format_options::PdfStandards`) como novo
+último parâmetro nas variantes explícitas de `export_pdf`/
+`export_pdf_with_font`/`export_pdf_multifont` (sufixo `_and_standard`); as
+variantes anteriores delegam com `PdfStandards::default()` (versão `1.7`,
+sem validators), preservando comportamento exato. Diferente de `pages`
+(`Option<PageRanges>`, "nenhuma seleção" é um estado real), `standard` não é
+`Option`: há sempre um valor efetivo (o default já é o "nenhum perfil"),
+resolvido antes de chegar a este owner (`infra/pipeline.md` P1469).
+`standard` é ortogonal a `StreamMode`, `PdfTags`, `PdfSerializationMode` e
+`PageRanges` como parâmetros independentes — a interação `standard`+`tagged`
+já foi decidida em `infra/pipeline.md` antes de chegar aqui. O `mod.rs` não
+valida conformidade estrutural nem invoca nenhuma verificação; só encaminha
+o valor a `infra/export/builder.md` para o único observável desta fatia (a
+versão do header).

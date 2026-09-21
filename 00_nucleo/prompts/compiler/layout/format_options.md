@@ -2,7 +2,7 @@
 Hash do Código: bcbe93ae
 
 **Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
-P1466 PROPOSTA; AGUARDA GATE ADR-0127.
+P1466 E EXTRAÇÃO P1469 (ESCOPO REDUZIDO) PROPOSTAS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -305,3 +305,56 @@ baseline sem ver a implementação, todos falhando por erro de compilação
 (`options.pdf.pages`/`PageRanges` inexistentes). O teste independente passou
 de RED (11/11 falhas de compilação) a GREEN (27/27 no ficheiro, incluindo os
 16 pré-existentes) após a integração, sem regredir SVG/PNG/HTML.
+
+## P1469 — extração root de `format.pdf.standard` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21).
+
+### Medição anterior à decisão
+
+`compiler/eval/rules.md` P1469 já valida completamente o `Value::Array` na
+chave `format.pdf.standard` antes de inserir no `Styles` (array de strings,
+cada uma um dos 17 nomes, sem conflitos). Este owner converte esse array já
+validado para `Option<PdfStandards>` (domínio de
+`entities/document_format_options.md` P1469), reconstruindo via
+`PdfStandards::new` — uma segunda falha nessa reconstrução é estado interno
+impossível (o array já foi validado em `rules.rs`), nunca um novo
+diagnóstico de schema.
+
+### Contrato
+
+Ampliar as duas travessias (root e exaustiva) para a chave canônica
+`format.pdf.standard`. Na travessia root, para cada ocorrência (ordem
+lexical), `Value::Array` (nunca outra variante — `rules.rs` só insere
+array) → reconstruir os `PdfStandard` nomeados a partir de cada elemento
+`Value::Str` e chamar `PdfStandards::new`; `options.pdf.standard =
+Some(resultado)`. Qualquer falha da reconstrução (elemento não-string,
+nome não reconhecido, ou conflito que `rules.rs` deveria ter barrado) é
+estado interno impossível e falha fechada com diagnóstico atribuível, nunca
+retorna a `None` nem ao default.
+
+Regra vazia (ausência do named `standard` na regra) não insere a chave e
+não apaga decisão anterior — igual aos irmãos. A travessia exaustiva conta
+ocorrências de `format.pdf.standard` junto das demais chaves `format.*`;
+qualquer ocorrência fora dos envelopes root continua a causar `format set
+rules are not allowed inside of containers`. `standard` é ortogonal a
+`tagged`/`pretty`/`pages`/SVG/PNG/HTML.
+
+Este owner continua puro: não decide a interação `standard`+`tagged` nem
+`standard`+`pages` (isso é `infra/pipeline.md`), não sabe que existe CLI ou
+exporter, não valida conformidade estrutural (scope-out, ver
+`entities/document_format_options.md` P1469).
+
+### Aceitação e gate
+
+Cobrir: ausência/default (`None`), array de um nome, array de múltiplos
+nomes (versão + archival, versão + accessibility, archival + accessibility
+compatíveis), array vazio (`Some(PdfStandards::default())`, distinto de
+`None`), regra vazia depois de decisão anterior, repetição/inversão
+lexical, composição com SVG/PNG/HTML/tagged/pretty/pages, container, e tipo
+interno impossível (elemento não-string dentro do array já inserido — só
+alcançável como estado impossível, já que `rules.rs` já barra isso). Este é
+um dos L0s do gate ADR-0127 de P1469; aguarda confirmação humana explícita
+posterior ao commit causal somente-L0 antes de qualquer teste RED ou código
+produtivo.

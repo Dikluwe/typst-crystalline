@@ -1398,3 +1398,93 @@ Agente B escreveu 10 testes a partir do mesmo baseline sem ver a
 implementação (RED por erro de compilação). O teste independente passou de
 RED a GREEN (89/89 no módulo `pipeline::tests`, incluindo os 10 novos e os
 79 pré-existentes) após a integração, sem regressão.
+
+## P1469 — resolução de `format.pdf.standard` e interação com `tagged`/`pages` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21): esta secção resolve *nomes* e
+*versão efetiva*, não conformidade estrutural.
+
+### Medição anterior à decisão
+
+No vanilla ratificado (`typst-pdf/src/lib.rs:120-143`, já citado em
+`infra/pipeline.md` P1468), depois de resolver `pages`/`tagged` (checagem já
+materializada em P1468), uma segunda checagem itera os quatro perfis
+acessíveis (`A_1a`, `A_2a`, `A_3a`, `UA_1`): se algum está no conjunto de
+standards **já resolvido** (CLI combinado com documento) e o `tagged`
+**final** (já considerando a checagem de `pages` anterior) é `false`, falha:
+
+```text
+tagged_final == false
+  E standards_final.contains(a-1a|a-2a|a-3a|ua-1)
+    -> "cannot set `pdf(tagged: false)` when exporting a {name} document"
+    -> hint "using `pdf(pages: ...)` implies `pdf(tagged: false)`" SÓ SE
+       pages estava ativo E tagged não foi explicitamente `false` por CLI/documento
+       (isto é, a causa raiz do `false` foi o colapso por `pages`, não uma escolha)
+```
+
+Esta é a checagem **documental completa** (depois de CLI+documento
+combinados); a checagem CLI-only equivalente (só a lista crua da CLI, antes
+de compilar) pertence a `wiring.md` P1469, mesmo padrão de duas camadas já
+usado para `pages`+`tagged` em P1467/P1468.
+
+### Contrato
+
+Ampliar `resolve_pdf_pages_and_tags` (P1468) para
+`resolve_pdf_pages_tags_and_standards`, recebendo também `standard_override:
+Option<PdfStandards>` (já validado por `wiring.md` a partir da lista crua da
+CLI — a pipeline não valida conflitos entre nomes CLI, só resolve
+precedência) e devolvendo também o `PdfStandards` efetivo:
+
+```rust
+fn resolve_pdf_pages_tags_and_standards(
+    pages_override: Option<PageRanges>,
+    tagged_override: Option<bool>,
+    standard_override: Option<PdfStandards>,
+    options: &DocumentFormatOptions,
+) -> SourceResult<(Option<PageRanges>, PdfTags, PdfStandards, Vec<SourceDiagnostic>)>
+```
+
+Ordem de resolução (preserva P1468 integralmente, acrescenta um passo
+final):
+
+1. `pages_final = pages_override.or_else(|| options.pdf.pages.clone())`.
+2. `standards_final = standard_override.unwrap_or_else(|| options.pdf.standard
+   .clone().unwrap_or_default())` — precedência `CLI > documento >
+   PdfStandards::default()`, mesmo Núcleo `format-option-precedence` já
+   pinado.
+3. Resolver `tagged` exatamente como P1468 (considerando `pages_final`):
+   produz `PdfTags` e os diagnósticos de `pages`+`tagged` já existentes.
+4. Se `standards_final.archival` é `Some(A1a|A2a|A3a)` **ou**
+   `standards_final.accessibility` é `Some(Ua1)`, e o `PdfTags` do passo 3 é
+   `Disabled`: falha com a mensagem documental exata acima. O hint condicional
+   só aparece quando a causa raiz de `Disabled` foi `pages_final.is_some()`
+   sem um `tagged` explícito `false` de CLI/documento — reaproveitar a
+   informação já calculada no passo 3 para decidir isto, sem recalcular.
+
+As três entry points `_tagged_and_pretty_and_pages_override` (P1468) ganham
+`standard_override: Option<PdfStandards>` como novo último parâmetro,
+renomeadas para `_tagged_and_pretty_and_pages_and_standard_override`; as três
+antigas de P1468 continuam a existir e delegam `None` para `standard`
+(comportamento byte-idêntico preservado — default `PdfStandards::default()`
+quando o documento também não decide).
+
+O `PdfStandards` efetivo (versão + archival + accessibility) é passado à
+camada de export (`infra/export/mod.md`/`infra/export/builder.md` P1469)
+para ajustar o header `%PDF-{version}`. Este owner não sabe que existe
+`krilla`, não valida conformidade estrutural e não altera a estrutura
+interna do PDF além da versão declarada.
+
+### Aceitação e gate
+
+Testes de pipeline cobrem: `standard` ausente (comportamento P1468 idêntico,
+default `1.7`); `standard` presente sem perfil acessível + `tagged: false`
+(sem erro); perfil acessível + `tagged` documental `Explicit(false)` (erro,
+sem hint de pages); perfil acessível + `pages` ativo sem `tagged` explícito
+(erro, com hint de pages); perfil acessível + `tagged: true`/documento sem
+decisão (sem erro, tagged habilitado); precedência CLI/documento de
+`standard`; e que a nova entry point delega corretamente da antiga quando
+`standard` é `None`. Este é um dos L0s do gate ADR-0127 de P1469 (mudança de
+comportamento por defeito, novos diagnósticos); aguarda confirmação humana
+explícita posterior ao commit causal somente-L0 antes de qualquer teste RED
+ou código produtivo.

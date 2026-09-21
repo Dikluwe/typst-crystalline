@@ -1029,3 +1029,62 @@ outline (headings de páginas incluídas sobrevivem; reparenting quando o pai
 é excluído) — não o bug do vanilla. O teste independente passou de RED a
 GREEN (12/12) após a integração, sem regressão na suíte de PDF (32/32 nos
 irmãos p1462/p1463/p1464/p1465/p1467).
+
+## P1469 — header `%PDF-{version}` dinâmico (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `entities/document_format_options.md` P1469 para a nota de escopo
+reduzido (decisão do dono, 2026-09-21) — **este owner só ajusta o header
+declarado, nunca a estrutura interna do PDF.**
+
+### Medição anterior à decisão
+
+No baseline `85b7fc5f1eda67e89494a478c2458de36d4ee20d`, `serialize`
+(`:3300-3302`) escreve `b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n"` — literal fixo,
+único ponto de escrita do header em todo o exportador (`grep` confirma
+zero outras ocorrências de `%PDF-` fora de testes/comentários). Vários
+testes existentes (`export/tests.rs`, ~8 ocorrências) fixam
+`pdf.starts_with(b"%PDF-1.7")` como asserção — o comportamento *default*
+(sem `standard` explícito, de nenhuma fonte) tem de continuar a produzir
+exatamente `%PDF-1.7`.
+
+### Contrato
+
+`PdfBuilder` (ou o tipo que hoje carrega `stream_mode`/`pdf_tags`/
+`pdf_serialization`, mesmo padrão) ganha um campo `standard: PdfStandards`,
+propagado desde a nova entry point de `infra/export/mod.md` P1469. Em
+`serialize`, substituir o literal `b"%PDF-1.7"` por
+`format!("%PDF-{}", self.standard.version.as_str()).as_bytes()` (ou
+equivalente), onde `PdfVersion::as_str()` produz exatamente `"1.4"`, `"1.5"`,
+`"1.6"`, `"1.7"`, `"2.0"` (strings já fechadas em
+`entities/document_format_options.md` P1469 — mesmos nomes usados no cast
+documental/CLI). O comentário binário (`%\xe2\xe3\xcf\xd3\n`) e o resto da
+estrutura do PDF (xref, tipos de objeto, `/Catalog`, tudo o resto que
+`build_helvetica`/`build_cidfont`/`build_multifont`/`emit_*` já produzem)
+**não mudam com a versão declarada** — isto é uma declaração de versão no
+header, não uma adaptação estrutural real a cada versão.
+
+### Scope-out explícito (repete a nota de `entities/document_format_options.md` P1469)
+
+Este owner não implementa: estruturas específicas de PDF/A (identificação
+XMP com nível de conformidade, restrições de cor/fontes/transparência),
+estruturas específicas de PDF/UA além do que P1140.5-A/P1405 já cobrem
+(tagging básico, não os requisitos completos de acessibilidade do perfil),
+nem qualquer recurso específico de PDF 2.0 (ex.: xref stream obrigatório —
+o cristalino continua a emitir a mesma estrutura de xref independentemente
+da versão declarada). Declarar `%PDF-2.0` sem adotar exclusivamente
+recursos de 2.0 é aceitável porque PDF 2.0 é retrocompatível com estruturas
+válidas em versões anteriores (xref clássica continua válida); não é
+alegação de conformidade completa com o perfil.
+
+### Aceitação e gate
+
+Testes cobrem: default sem `standard` nenhum continua `%PDF-1.7` (regressão
+zero nos ~8 testes existentes que fixam isso); `standard` documental/CLI
+para cada uma das cinco versões (`1.4`/`1.5`/`1.6`/`1.7`/`2.0`) produz o
+header correspondente; um perfil PDF/A ou PDF/UA sem versão explícita
+produz o header do **máximo** do seu range (`a-2b` sozinho → `%PDF-1.7`;
+`a-1b` sozinho → `%PDF-1.4`; `a-4` sozinho → `%PDF-2.0`); resto da estrutura
+do PDF (contagem de objetos, xref, tipos) idêntico entre versões, provando
+que só o header muda. Este é um dos L0s do gate ADR-0127 de P1469; aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.

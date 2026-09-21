@@ -362,3 +362,16 @@ de precedência/interação com `tagged` (ver `compiler/eval/rules.md`,
 `compiler/layout/format_options.md`, `entities/document_format_options.md`,
 `shell/cli.md`, `infra/pipeline.md`, `infra/export/mod.md`,
 `infra/export/builder.md`, `wiring.md`), nenhum dos quais toca este owner.
+
+## P1469 — `standard` de ponta a ponta, escopo reduzido (PROPOSTA; não altera este consumer)
+
+Pela mesma razão de P1467/P1468: `format.pdf.standard == ("1.7",)` já é um
+dos quatro defaults nominais materializados em P1464 no namespace da função
+nativa. P1469 materializa a validação, extração, carrier, CLI
+`--pdf-standard` e resolução de precedência/interação com `tagged`/`pages`
+(ver os mesmos oito owners citados em P1468, mais o ajuste do header
+`%PDF-{version}` em `infra/export/builder.md`), nenhum dos quais toca este
+owner. Por decisão do dono (2026-09-21, ver
+`entities/document_format_options.md` P1469), o escopo é reduzido ao
+contrato de linguagem — não implementa nem alega conformidade PDF/A/PDF/UA
+estrutural real.
