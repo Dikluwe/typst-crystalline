@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — fachada pública dos exporters
-Hash do Código: 8a6e35ac
+Hash do Código: 3ff8a8e7
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -198,7 +198,7 @@ compilação e pelos testes de `03_infra/src/pipeline.rs`/
 `04_wiring/tests/p1468_format_pdf_pages.rs` (este owner não tem testes
 próprios, é reexportado por eles).
 
-## P1469 — fachada de standards PDF (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1469 — fachada de standards PDF (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21).
@@ -220,3 +220,10 @@ já foi decidida em `infra/pipeline.md` antes de chegar aqui. O `mod.rs` não
 valida conformidade estrutural nem invoca nenhuma verificação; só encaminha
 o valor a `infra/export/builder.md` para o único observável desta fatia (a
 versão do header).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A acrescentou as
+variantes `_and_standard` às três famílias de export sem ver os testes.
+Validado por compilação e pelos testes de `03_infra/src/pipeline.rs`/
+`04_wiring/tests/p1469_format_pdf_standard.rs` (este owner não tem testes
+próprios).

@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
-Hash do Código: bcbe93ae
+Hash do Código: 27d79eb3
 
-**Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
-P1466 E EXTRAÇÃO P1469 (ESCOPO REDUZIDO) PROPOSTAS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465, P1467, P1468 E P1469 (ESCOPO REDUZIDO)
+MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -306,7 +306,7 @@ baseline sem ver a implementação, todos falhando por erro de compilação
 de RED (11/11 falhas de compilação) a GREEN (27/27 no ficheiro, incluindo os
 16 pré-existentes) após a integração, sem regredir SVG/PNG/HTML.
 
-## P1469 — extração root de `format.pdf.standard` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1469 — extração root de `format.pdf.standard` (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21).
@@ -355,6 +355,12 @@ compatíveis), array vazio (`Some(PdfStandards::default())`, distinto de
 lexical, composição com SVG/PNG/HTML/tagged/pretty/pages, container, e tipo
 interno impossível (elemento não-string dentro do array já inserido — só
 alcançável como estado impossível, já que `rules.rs` já barra isso). Este é
-um dos L0s do gate ADR-0127 de P1469; aguarda confirmação humana explícita
-posterior ao commit causal somente-L0 antes de qualquer teste RED ou código
-produtivo.
+um dos L0s do gate ADR-0127 de P1469.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou a
+extração sem ver os testes; Agente B escreveu 10 testes a partir do mesmo
+baseline sem ver a implementação, todos falhando por erro de compilação
+(`options.pdf.standard`/`PdfStandards` inexistentes). O teste independente
+passou de RED (10/10 falhas de compilação) a GREEN (37/37 no ficheiro,
+incluindo os 27 pré-existentes) após a integração, sem regredir SVG/PNG/HTML.

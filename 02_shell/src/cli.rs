@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash ade15c17
+//! @prompt-hash 34b17703
 //! @layer L2
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -26,7 +26,7 @@ use std::str::FromStr;
 
 use clap::{CommandFactory, Parser, Subcommand};
 use typst_core::compiler::lang::heading_supplement_for_lang;
-use typst_core::entities::document_format_options::{PageRange, PageRanges};
+use typst_core::entities::document_format_options::{PageRange, PageRanges, PdfStandard};
 use typst_core::entities::elements::math_attach::MathAttachSlot;
 use typst_core::entities::value::Value;
 
@@ -279,6 +279,77 @@ fn pages_arg_parse_page_number(value: &str) -> Result<NonZeroUsize, &'static str
     }
 }
 
+/// **P1469** (escopo reduzido — contrato de linguagem) — os 17 nomes brutos
+/// aceites por `--pdf-standard`, mesma ordem/grafia do `ValueEnum` clap do
+/// vanilla ratificado (medido em `shell/cli.md` P1469: "possible values:
+/// 1.4, 1.5, 1.6, 1.7, 2.0, a-1b, a-1a, a-2b, a-2u, a-2a, a-3b, a-3u, a-3a,
+/// a-4, a-4f, a-4e, ua-1"). Newtype fino de L2 que só faz parsing sintático
+/// (mensagem nativa do clap, incluindo `tip:` de sugestão por proximidade);
+/// a validação de conflitos entre nomes pertence a `entities::
+/// document_format_options::PdfStandards::new` (L1), consumida por
+/// `infra/pipeline.md`/`wiring.md`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum PdfStandardArg {
+    #[value(name = "1.4")]
+    V1_4,
+    #[value(name = "1.5")]
+    V1_5,
+    #[value(name = "1.6")]
+    V1_6,
+    #[value(name = "1.7")]
+    V1_7,
+    #[value(name = "2.0")]
+    V2_0,
+    #[value(name = "a-1b")]
+    A1b,
+    #[value(name = "a-1a")]
+    A1a,
+    #[value(name = "a-2b")]
+    A2b,
+    #[value(name = "a-2u")]
+    A2u,
+    #[value(name = "a-2a")]
+    A2a,
+    #[value(name = "a-3b")]
+    A3b,
+    #[value(name = "a-3u")]
+    A3u,
+    #[value(name = "a-3a")]
+    A3a,
+    #[value(name = "a-4")]
+    A4,
+    #[value(name = "a-4f")]
+    A4f,
+    #[value(name = "a-4e")]
+    A4e,
+    #[value(name = "ua-1")]
+    Ua1,
+}
+
+impl From<PdfStandardArg> for PdfStandard {
+    fn from(value: PdfStandardArg) -> Self {
+        match value {
+            PdfStandardArg::V1_4 => PdfStandard::V1_4,
+            PdfStandardArg::V1_5 => PdfStandard::V1_5,
+            PdfStandardArg::V1_6 => PdfStandard::V1_6,
+            PdfStandardArg::V1_7 => PdfStandard::V1_7,
+            PdfStandardArg::V2_0 => PdfStandard::V2_0,
+            PdfStandardArg::A1b => PdfStandard::A1b,
+            PdfStandardArg::A1a => PdfStandard::A1a,
+            PdfStandardArg::A2b => PdfStandard::A2b,
+            PdfStandardArg::A2u => PdfStandard::A2u,
+            PdfStandardArg::A2a => PdfStandard::A2a,
+            PdfStandardArg::A3b => PdfStandard::A3b,
+            PdfStandardArg::A3u => PdfStandard::A3u,
+            PdfStandardArg::A3a => PdfStandard::A3a,
+            PdfStandardArg::A4 => PdfStandard::A4,
+            PdfStandardArg::A4f => PdfStandard::A4f,
+            PdfStandardArg::A4e => PdfStandard::A4e,
+            PdfStandardArg::Ua1 => PdfStandard::Ua1,
+        }
+    }
+}
+
 #[derive(Debug, clap::Args)]
 struct CompileArgs {
     /// Enables in-development compiler features.
@@ -372,10 +443,14 @@ struct CompileArgs {
     #[arg(long = "no-pdf-tags", action = clap::ArgAction::SetTrue)]
     no_pdf_tags: bool,
 
-    /// P1286 — compatibilidade de invocação para o fragmento PDF 2.0
-    /// medido; oculto porque conformidade/seleção real ainda não existe.
-    #[arg(long = "pdf-standard", value_name = "STANDARD", hide = true)]
-    _pdf_standard: Option<String>,
+    /// **P1469** (escopo reduzido — contrato de linguagem; retificação de
+    /// P1286, que a mantinha oculta/descartada) — conjunto de standards
+    /// PDF. Ausente = delega ao documento/default. Lista crua, **não**
+    /// validada como `PdfStandards` em L2 (a validação de conflitos entre
+    /// nomes pertence a `entities::document_format_options::PdfStandards`,
+    /// consumida por `infra/pipeline.md`/`wiring.md`).
+    #[arg(long = "pdf-standard", value_enum, value_delimiter = ',')]
+    pdf_standard: Vec<PdfStandardArg>,
 
     /// P980 — FERRAMENTA DE DIAGNÓSTICO: emite o PDF do oráculo de
     /// paridade de operador (transformações `Tj`/`TJ` e futuras checks de
@@ -582,6 +657,13 @@ pub struct CompileIntent {
     /// precedência face a `#set format.pdf(pages: ...)` e a interação com
     /// `tagged` (`wiring.md`/`infra/pipeline.md` P1468).
     pub pages: Option<PageRanges>,
+    /// **P1469** (escopo reduzido — contrato de linguagem) — lista **crua**
+    /// de `--pdf-standard`, não validada como `PdfStandards` em L2 (a
+    /// validação de conflitos entre nomes pertence a `entities::
+    /// document_format_options::PdfStandards::new`, consumida por
+    /// `wiring.md`/`infra/pipeline.md` P1469). Vazio = ausente, delega ao
+    /// documento/default.
+    pub pdf_standard: Vec<PdfStandard>,
 }
 
 #[derive(Debug)]
@@ -795,6 +877,7 @@ fn compile_intent(
         pages: args
             .pages
             .map(|ranges| PageRanges::new(ranges.into_iter().map(|r| r.0).collect())),
+        pdf_standard: args.pdf_standard.into_iter().map(PdfStandard::from).collect(),
     }
 }
 
@@ -2527,6 +2610,82 @@ mod tests {
                 error.to_string().contains(expected),
                 "token {token:?}: esperava {expected:?}; erro: {error}"
             );
+        }
+    }
+
+    // ── P1469 (RED — Agente B) — flag `compile --pdf-standard` pública
+    // (contrato de linguagem, escopo reduzido — ver `shell/cli.md` P1469,
+    // e a retificação da secção `## P1286` no mesmo L0). `CompileArgs`
+    // ainda tem só `_pdf_standard: Option<String>` (oculto, descartado)
+    // neste baseline (`65e68ad45dcbfd8db00aeda78d0d2fbaaadefb27`); este
+    // módulo falha por erro de compilação até `PdfStandardArg`/
+    // `CompileArgs.pdf_standard`/`CompileIntent.pdf_standard` serem
+    // materializados (Agente A, em paralelo).
+    use typst_core::entities::document_format_options::PdfStandard;
+
+    #[test]
+    fn p1469_pdf_standard_absent_is_empty_in_args_and_intent() {
+        let compile = compile_args_for(&["typst", "compile", "in.typ"]);
+        assert!(compile.pdf_standard.is_empty());
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert!(intent.pdf_standard.is_empty());
+    }
+
+    #[test]
+    fn p1469_pdf_standard_single_name_parses_to_one_element() {
+        let compile =
+            compile_args_for(&["typst", "compile", "in.typ", "--pdf-standard=a-2b"]);
+        assert_eq!(compile.pdf_standard.len(), 1);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(intent.pdf_standard, vec![PdfStandard::A2b]);
+    }
+
+    #[test]
+    fn p1469_pdf_standard_multiple_names_comma_separated_parses_in_order() {
+        let compile =
+            compile_args_for(&["typst", "compile", "in.typ", "--pdf-standard=a-2b,ua-1"]);
+        let intent = compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(intent.pdf_standard, vec![PdfStandard::A2b, PdfStandard::Ua1]);
+    }
+
+    #[test]
+    fn p1469_pdf_standard_all_seventeen_names_are_individually_valid_clap_values() {
+        for name in [
+            "1.4", "1.5", "1.6", "1.7", "2.0", "a-1b", "a-1a", "a-2b", "a-2u", "a-2a",
+            "a-3b", "a-3u", "a-3a", "a-4", "a-4f", "a-4e", "ua-1",
+        ] {
+            let argv = ["typst", "compile", "in.typ", &format!("--pdf-standard={name}")];
+            Args::try_parse_from(argv)
+                .unwrap_or_else(|e| panic!("nome {name:?} deveria parsear: {e}"));
+        }
+    }
+
+    #[test]
+    fn p1469_pdf_standard_invalid_name_uses_clap_native_message_with_possible_values() {
+        let error =
+            Args::try_parse_from(["typst", "compile", "in.typ", "--pdf-standard=3.0"])
+                .expect_err("nome inválido deve falhar");
+        let rendered = error.to_string();
+        assert!(
+            rendered.contains("invalid value '3.0'"),
+            "erro deve nomear o valor inválido (mensagem nativa do clap): {rendered}"
+        );
+        assert!(
+            rendered.contains("possible values"),
+            "erro deve listar os valores possíveis (comportamento nativo do clap, \
+             não replicado manualmente): {rendered}"
+        );
+    }
+
+    #[test]
+    fn p1469_pdf_standard_compile_watch_and_alias_all_accept_the_flag() {
+        for command in ["compile", "watch", "w"] {
+            let compile =
+                compile_args_for(&["typst", command, "in.typ", "--pdf-standard=a-4"]);
+            assert_eq!(compile.pdf_standard.len(), 1, "{command}");
+            let intent =
+                compile_intent(compile, HtmlSerialization::Crystalline, false, None);
+            assert_eq!(intent.pdf_standard, vec![PdfStandard::A4], "{command}");
         }
     }
 }

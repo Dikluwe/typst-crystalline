@@ -199,3 +199,121 @@ explícita sobre os L0s específicos — a confirmação de P1467/P1468 (e a
 confirmação já recebida sobre o *escopo*, §7.1) não substitui a confirmação
 do *contrato* escrito.
 
+## 8. Execução segregada e integração (2026-09-21)
+
+Confirmação humana explícita recebida em 2026-09-21, na mesma sessão,
+posterior aos commits causais somente-L0 `65e68ad45` (L0s originais) e
+`e14002d55` (correção das mensagens exatas `NoOverlappingRange`/
+`VersionOutOfRange` medidas contra o binário — ver §7.2). Os três papéis
+partiram desse baseline em worktrees isoladas; ambos os agentes sofreram
+pelo menos uma interrupção por limite de taxa da sessão a meio do trabalho
+e foram retomados via `SendMessage`, com instrução explícita de verificar
+primeiro o que já estava no worktree antes de continuar, sem perda nem
+repetição de progresso.
+
+- **Agente A (implementação):** commit `99917beacc82bec6b913cac1aa1bf4b73d985429`
+  ("feat(format): implement pdf standard language contract (P1469, agente
+  A)"), parent único `e14002d55`. Implementou `PdfVersion`/`PdfArchival`/
+  `PdfAccessibility`/`PdfStandard`/`PdfStandards`/`PdfValidator`/
+  `PdfStandardsConflict` em `document_format_options.rs`, a extração em
+  `format_options.rs`, o braço `format.pdf.standard` em `rules.rs`, `--pdf-
+  standard` em `cli.rs`, a resolução de precedência e a interação com
+  `tagged` em `pipeline.rs`, as variantes `_and_standard` em `export/mod.rs`,
+  o campo `standard: PdfStandards` e o header `%PDF-{version}` dinâmico em
+  `export/builder.rs`, e os gates CLI-only em `main.rs` — sem ver os testes.
+- **Agente B (testes):** commit `c38712e31` ("test(format): freeze pdf
+  standard red contract (P1469, agente B)"), parent `65e68ad45`. 64 testes
+  novos, RED confirmado por ficheiro (compilação falha nos tipos/módulos
+  ainda inexistentes; runtime falha nos 17 novos de `rules.rs` e nos 10
+  novos do teste de integração de binário) — sem ver a implementação.
+- **Agente C (integração, o próprio dono desta execução):** extraiu os dois
+  patches, aplicou sem conflito de merge, e fez as correções mecânicas de
+  integração: (1) três testes do Agente B usavam a forma antiga de
+  `PdfStandardsConflict` (sem o campo `validators`, acrescentado pela
+  correção `e14002d55` que chegou depois do commit do Agente B) — corrigidos
+  manualmente com os dados reais medidos (§7.2); (2) dois `clone()`
+  redundantes em tipos `Copy` (`Option<PdfStandards>` em `pipeline.rs` e
+  `PageRange` num teste de `document_format_options.rs`) detectados por
+  clippy — removidos; (3) após a suíte completa GREEN, dois avisos clippy
+  genuinamente novos (não pré-existentes ao baseline `e14002d55`, confirmado
+  por comparação em worktree isolada) — `impl Default for PdfVersion`
+  manual (convertido para `#[derive(Default)]` com `#[default]` no variant
+  `V1_7`) e uma closure redundante `.then(|| label())` em `main.rs`
+  (substituída por `.then(label)`) — corrigidos sem mudança de
+  comportamento e reconfirmados GREEN. Os `42` avisos clippy
+  `too_many_arguments`/`type_complexity` que também apareceram novos em
+  `pipeline.rs`/`export/mod.rs` **não** foram tratados como defeito: são a
+  consequência direta e documentada (`infra/export/mod.md`/`infra/
+  pipeline.md` §P1469) de `standard` ser o quinto eixo acrescentado como
+  novo último parâmetro às mesmas entry points que já acumulavam
+  `StreamMode`/`PdfTags`/`PdfSerializationMode`/`PageRanges` — o limiar
+  clippy de 7 argumentos, nunca cruzado pelos quatro eixos anteriores, é
+  cruzado pela primeira vez nesta série de passos. Comparação feita via
+  `git worktree add` no commit baseline `e14002d55` (sem tocar a árvore de
+  trabalho), clippy corrido com o mesmo comando dos dois lados.
+
+### 8.1 RED → GREEN por ficheiro
+
+| Ficheiro | Novos testes (RED no baseline `e14002d55`) | GREEN (após integração) |
+|---|---|---|
+| `entities/document_format_options.rs` | 13 novos — erro de compilação (`PdfVersion`/`PdfStandard`/... inexistentes) | 30/30 (13 novos + 17 irmãos) |
+| `compiler/layout/format_options.rs` | 10 novos — erro de compilação (idem) | 37/37 (10 novos + 27 irmãos) |
+| `compiler/eval/rules.rs` | 17 novos — compilava isolado; falhava em runtime (17/17) | 52/52 (17 novos + 35 irmãos) |
+| `02_shell/src/cli.rs` | 6 novos — erro de compilação (`--pdf-standard` inexistente) | 83/83 na suíte typst-shell (6 novos) |
+| `03_infra/src/pipeline.rs` | 8 novos — erro de compilação (entry points `_and_standard` inexistentes) | 97/97 (8 novos + 89 irmãos) |
+| `04_wiring/tests/p1469_format_pdf_standard.rs` | 10 novos — 1/10 (só o caso trivial "não crasha") | 10/10 |
+
+Total: **64/64 testes novos GREEN** (13+10+17+6+8+10).
+
+### 8.2 Gates finais medidos (2026-09-21, working tree sobre `e14002d55`)
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo test -p typst-core --lib                                -> 6045/6045
+cargo test -p typst-shell --lib                                -> 83/83
+cargo test -p typst-infra --lib                                -> 995/995
+cargo test -p typst-wiring --test p1469_format_pdf_standard
+    (TMPDIR=/dev/shm, --test-threads=1)                        -> 10/10
+cargo test -p typst-wiring --test p1462_format_svg
+    --test p1463_format_png --test p1464_format_pdf
+    --test p1465_format_html --test p1467_format_pdf_tagged_pretty
+    --test p1468_format_pdf_pages (--test-threads=1)            -> 44/44 (regressão zero:
+                                                                    7+7+4+4+10+12)
+cargo fmt --all -- --check                                     -> sucesso (após 1 `cargo fmt --all`;
+                                                                    sem mudança semântica, testes
+                                                                    reconfirmados GREEN)
+cargo clippy --workspace --all-targets --all-features          -> 0 erros; 2 avisos novos
+                                                                    identificados e corrigidos
+                                                                    (derive de PdfVersion, closure
+                                                                    redundante em main.rs); 42 avisos
+                                                                    novos aceites como consequência
+                                                                    documentada da acumulação de eixos
+                                                                    (ver §8); resto é ruído
+                                                                    pré-existente confirmado por
+                                                                    comparação em worktree baseline
+crystalline-lint .                                              -> 0 erros (só info V20
+                                                                    pré-existente, fora do diff)
+crystalline-lint --checks v5,v15,v26 .                          -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Não foi corrido `cargo test --workspace` completo nem a suíte de export PNG
+em massa de `typst-wiring`, pela mesma razão documentada em P1464/P1467/
+P1468 (pico histórico de RAM no export PNG, não relacionado com este diff);
+a cobertura acima (todas as libs dos quatro crates tocados, mais os 7
+testes de integração `format.*`) é proporcional ao raio do diff.
+
+O veredito final é: `format.pdf.standard`/`--pdf-standard` parseiam os 17
+nomes de perfil PDF/A e PDF/UA, validam conflitos entre standards (mensagens
+exatas medidas contra `/usr/local/bin/typst`, §7.2), resolvem a versão
+efetiva do PDF pela precedência explícita > máximo do range dos validators >
+default `1.7`, e ajustam o header `%PDF-{version}` gerado — com a mesma
+interação `standard`+`tagged` medida e replicada (dois canais de erro
+distintos, hint condicional quando a causa raiz é o colapso por `--pages`).
+**Não se implementa nem se alega conformidade estrutural PDF/A ou PDF/UA
+real** (sem structure tree adicional, sem validação além do parsing e do
+conflito de linguagem) — escopo reduzido por decisão explícita do dono
+(§7.1), documentado como reabrível quando houver validador disponível
+(veraPDF, a instalar como próximo passo desta sessão, fora do escopo de
+código deste passo).
+

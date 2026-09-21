@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: c8981f21
+Hash do Código: c7de2e18
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1030,7 +1030,7 @@ outline (headings de páginas incluídas sobrevivem; reparenting quando o pai
 GREEN (12/12) após a integração, sem regressão na suíte de PDF (32/32 nos
 irmãos p1462/p1463/p1464/p1465/p1467).
 
-## P1469 — header `%PDF-{version}` dinâmico (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1469 — header `%PDF-{version}` dinâmico (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21) — **este owner só ajusta o header
@@ -1085,6 +1085,13 @@ header correspondente; um perfil PDF/A ou PDF/UA sem versão explícita
 produz o header do **máximo** do seu range (`a-2b` sozinho → `%PDF-1.7`;
 `a-1b` sozinho → `%PDF-1.4`; `a-4` sozinho → `%PDF-2.0`); resto da estrutura
 do PDF (contagem de objetos, xref, tipos) idêntico entre versões, provando
-que só o header muda. Este é um dos L0s do gate ADR-0127 de P1469; aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+que só o header muda. Este é um dos L0s do gate ADR-0127 de P1469.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A acrescentou
+`PdfBuilder.standard: PdfStandards` e o header dinâmico em `serialize()` sem
+ver os testes. Agente B escreveu 10 testes de integração de binário
+(`04_wiring/tests/p1469_format_pdf_standard.rs`) a partir do mesmo baseline
+sem ver a implementação. O teste independente passou de RED a GREEN (10/10)
+após a integração, sem regressão na suíte de PDF (44/44 nos irmãos
+p1462/p1463/p1464/p1465/p1467/p1468).

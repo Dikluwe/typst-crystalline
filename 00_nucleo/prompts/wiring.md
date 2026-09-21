@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: 1f450b3a
+Hash do Código: a67a0f55
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -853,7 +853,7 @@ em `infra/export/builder.md` P1468, mesmo ficheiro de teste cobre ambos os
 owners) a partir do mesmo baseline sem ver a implementação. O teste
 independente passou de RED a GREEN após a integração, sem regressão.
 
-## P1469 — validação de `--pdf-standard` e gate CLI-only (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+## P1469 — validação de `--pdf-standard` e gate CLI-only (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21).
@@ -907,5 +907,12 @@ I/O de compilação); lista com conflito entre nomes sem perfil acessível
 (erro de conflito, exit 1, mensagem documental reaproveitada); lista válida
 sem conflito (delega à pipeline); lista vazia (delega ao documento); compile
 e watch; neutralidade de PNG/SVG/HTML. Este é um dos L0s do gate ADR-0127
-de P1469; aguarda confirmação humana explícita posterior ao commit causal
-somente-L0 antes de qualquer teste RED ou código produtivo.
+de P1469.
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou o
+gate CLI-only e o transporte de `standard` à pipeline sem ver os testes;
+Agente B escreveu os 10 testes de integração de binário (contados em
+`infra/export/builder.md` P1469, mesmo ficheiro de teste cobre ambos os
+owners) a partir do mesmo baseline sem ver a implementação. O teste
+independente passou de RED a GREEN após a integração, sem regressão.

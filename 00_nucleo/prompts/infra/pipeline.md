@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 2ec5dea3
+Hash do Código: c6614dc8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1399,7 +1399,7 @@ implementação (RED por erro de compilação). O teste independente passou de
 RED a GREEN (89/89 no módulo `pipeline::tests`, incluindo os 10 novos e os
 79 pré-existentes) após a integração, sem regressão.
 
-## P1469 — resolução de `format.pdf.standard` e interação com `tagged`/`pages` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1469 — resolução de `format.pdf.standard` e interação com `tagged`/`pages` (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21): esta secção resolve *nomes* e
@@ -1485,6 +1485,15 @@ sem hint de pages); perfil acessível + `pages` ativo sem `tagged` explícito
 decisão (sem erro, tagged habilitado); precedência CLI/documento de
 `standard`; e que a nova entry point delega corretamente da antiga quando
 `standard` é `None`. Este é um dos L0s do gate ADR-0127 de P1469 (mudança de
-comportamento por defeito, novos diagnósticos); aguarda confirmação humana
-explícita posterior ao commit causal somente-L0 antes de qualquer teste RED
-ou código produtivo.
+comportamento por defeito, novos diagnósticos).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou
+`resolve_pdf_pages_tags_and_standards` como um wrapper sobre
+`resolve_pdf_pages_and_tags` (P1468, preservada sem alteração — evita
+qualquer risco de regressão nos testes já existentes dessa função) e as três
+entry points `_and_standard_override` sem ver os testes; Agente B escreveu 8
+testes a partir do mesmo baseline sem ver a implementação. O teste
+independente passou de RED (erro de compilação) a GREEN (97/97 no módulo
+`pipeline::tests`, incluindo os 8 novos e os 89 pré-existentes) após a
+integração, sem regressão.

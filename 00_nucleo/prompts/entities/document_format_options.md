@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
-Hash do Código: 1b68276b
+Hash do Código: dfcf8fbb
 
-**Estado:** P1462, P1463, P1465, P1467 E P1468 MATERIALIZADOS; RETIFICAÇÃO
-P1466 E CARRIER P1469 (ESCOPO REDUZIDO) PROPOSTOS; AGUARDAM GATE ADR-0127.
+**Estado:** P1462, P1463, P1465, P1467, P1468 E P1469 (ESCOPO REDUZIDO)
+MATERIALIZADOS; RETIFICAÇÃO P1466 PROPOSTA; AGUARDA GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -347,7 +347,7 @@ teste independente passou de RED (erro de compilação — `PageRange`/
 `PageRanges` inexistentes) a GREEN (17/17 no ficheiro, incluindo os 8
 pré-existentes de P1462/P1465/P1467) após a integração, sem regressão.
 
-## P1469 — carrier `PdfStandards` (contrato de linguagem; ESCOPO REDUZIDO por decisão do dono) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1469 — carrier `PdfStandards` (contrato de linguagem; ESCOPO REDUZIDO por decisão do dono) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 ### Escopo reduzido — decisão do dono, 2026-09-21
 
@@ -559,5 +559,16 @@ máximo do range, ausente sem validators → default `1.7`); a tabela de
 min/max por perfil (14 casos); `PdfStandards::default()`; `Eq`/`Hash`/clone;
 ortogonalidade com `pages`/`tagged`/`pretty`/SVG/PNG/HTML. Este é um dos L0s
 do gate ADR-0127 de P1469 (campo público novo, flag antes inerte torna-se
-funcional); aguarda confirmação humana explícita posterior ao commit causal
-somente-L0 antes de qualquer teste RED ou código produtivo.
+funcional).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` (retificação das mensagens de conflito com dois
+validators) foi recebida em 2026-09-21. Agente A implementou o carrier sem
+ver os testes, incorporando a retificação via merge; Agente B escreveu 13
+testes a partir do baseline original sem ver a implementação — dois deles
+(`NoOverlappingRange`/`VersionOutOfRange`) foram corrigidos pelo papel C na
+integração para usar o campo `validators` (retificação chegou depois do
+commit de B; ele próprio já tinha deixado essas mensagens deliberadamente
+não fixadas, ADR-0108). O teste independente passou de RED (erro de
+compilação — `PdfStandards`/`PdfStandard` inexistentes) a GREEN (40/40 no
+módulo, incluindo os 27 pré-existentes) após a integração, sem regressão.

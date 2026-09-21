@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 7bad6a86
+//! @prompt-hash f8a89570
 //! @layer L3
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 //!
 //! `PdfBuilder` — orquestrador L3 que constrói o ficheiro PDF
 //! agregando objects, xref, trailer. Três caminhos: Helvetica
@@ -112,7 +112,7 @@ mod p1360_ab_tests {
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
-use typst_core::entities::document_format_options::PageRanges;
+use typst_core::entities::document_format_options::{PageRanges, PdfStandards};
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -759,6 +759,12 @@ pub(super) struct PdfBuilder {
     /// `PageIndexConverter` dentro de `build_helvetica`/`build_cidfont`/
     /// `build_multifont`.
     pages: Option<PageRanges>,
+    /// **P1469** (escopo reduzido — contrato de linguagem) — conjunto de
+    /// standards PDF resolvido; `PdfStandards::default()` (versão `1.7`,
+    /// sem validators) preserva o header anterior a P1469, byte-idêntico.
+    /// Consultado só em `serialize()` para o header `%PDF-{version}` — não
+    /// altera xref, tipos de objeto nem o resto da estrutura do PDF.
+    standard: PdfStandards,
 }
 
 impl PdfBuilder {
@@ -774,6 +780,7 @@ impl PdfBuilder {
             pdf_tags: super::PdfTags::default(),
             oracle: false,
             pages: None,
+            standard: PdfStandards::default(),
         }
     }
 
@@ -781,6 +788,15 @@ impl PdfBuilder {
     /// omissão) preserva o comportamento anterior (todas as páginas).
     pub(super) fn with_pages(mut self, pages: Option<PageRanges>) -> Self {
         self.pages = pages;
+        self
+    }
+
+    /// **P1469** (escopo reduzido — contrato de linguagem) — fixa o
+    /// conjunto de standards PDF resolvido. Só afeta o header
+    /// `%PDF-{version}` em `serialize()`; o resto do corpo do PDF é
+    /// idêntico independentemente do valor.
+    pub(super) fn with_standard(mut self, standard: PdfStandards) -> Self {
+        self.standard = standard;
         self
     }
 
@@ -3298,8 +3314,16 @@ impl PdfBuilder {
     }
 
     fn serialize(self) -> Vec<u8> {
-        // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
-        let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
+        // Header — **P1469** (escopo reduzido — contrato de linguagem):
+        // `%PDF-{version}` dinâmico a partir de `self.standard.version`
+        // (`PdfVersion::as_str()` produz exatamente "1.4".."2.0", mesmos
+        // nomes do cast documental/CLI). Default sem `standard` nenhum
+        // (`PdfStandards::default()`, versão `1.7`) preserva o literal
+        // anterior, byte-idêntico. + comentário binário (4 bytes > 127) —
+        // resto da estrutura do PDF não muda com a versão declarada.
+        let mut out: Vec<u8> =
+            format!("%PDF-{}\n", self.standard.version.as_str()).into_bytes();
+        out.extend_from_slice(b"%\xe2\xe3\xcf\xd3\n");
         let mut offsets: HashMap<usize, usize> = Default::default();
 
         for (id, content) in &self.objects {

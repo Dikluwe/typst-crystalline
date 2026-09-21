@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 21563a44
+//! @prompt-hash 79886a9b
 //! @layer L4
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 //!
 //! CLI mínima do compilador cristalino — composição thin.
 //!
@@ -45,12 +45,16 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, Instant};
 
+use typst_core::compiler::eval::pdf_standards_conflict_diagnostic;
 use typst_core::contracts::world::World;
+use typst_core::entities::document_format_options::{
+    PdfAccessibility, PdfArchival, PdfStandard, PdfStandards,
+};
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
-    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
@@ -585,6 +589,7 @@ fn run_compile_observed(
         oracle_pdf,
         cert_path,
         pages,
+        pdf_standard,
     } = intent;
 
     // **P1468** — gate CLI-only do braço PDF: `--pages` + `--pdf-tagged=true`
@@ -606,6 +611,85 @@ fn run_compile_observed(
         );
         return (ExitCode::from(1), vec![input], false);
     }
+
+    // **P1469** (escopo reduzido — contrato de linguagem) — gate CLI-only
+    // do braço PDF: `--pdf-standard` com um dos quatro perfis acessíveis
+    // (`a-1a`/`a-2a`/`a-3a`/`ua-1`) combinado com `tagged` resolvido
+    // `false` só pela CLI (explícito, legado `--no-pdf-tags`, ou colapsado
+    // por `--pages` sem decisão explícita) é erro antes de compilar
+    // (`wiring.md` P1469, análogo ao gate `pages`+`tagged` de P1468).
+    // Distinta da checagem documental completa de `infra/pipeline.md`
+    // P1469, que só dispara depois de CLI+documento combinados.
+    let standard_override = if matches!(output_format, OutputFormat::Pdf) {
+        let tagged_resolved_cli_only: Option<bool> = match pdf_tagged {
+            Some(explicit) => Some(explicit),
+            None if no_pdf_tags => Some(false),
+            None if pages.is_some() => Some(false),
+            None => None,
+        };
+
+        if tagged_resolved_cli_only == Some(false) {
+            const ACCESSIBLE: [(PdfStandard, fn() -> &'static str); 4] = [
+                (PdfStandard::A1a, || PdfArchival::A1a.label()),
+                (PdfStandard::A2a, || PdfArchival::A2a.label()),
+                (PdfStandard::A3a, || PdfArchival::A3a.label()),
+                (PdfStandard::Ua1, || PdfAccessibility::Ua1.label()),
+            ];
+            let accessible_name = ACCESSIBLE.iter().find_map(|(standard, label)| {
+                pdf_standard.contains(standard).then(label)
+            });
+            if let Some(name) = accessible_name {
+                // Hint só quando a causa raiz do `false` foi o colapso por
+                // `--pages` (sem decisão explícita de `--pdf-tagged`/
+                // `--no-pdf-tags`) — mesma regra medida em `shell/cli.md`
+                // P1469.
+                let with_hint = !no_pdf_tags && pages.is_some();
+                report_in_order(
+                    || report_status(ExitCode::from(1), false),
+                    || {
+                        if with_hint {
+                            eprintln!(
+                                "error: cannot disable PDF tags when exporting a {name} document\n = hint: using --pages implies --pdf-tagged=false"
+                            );
+                        } else {
+                            eprintln!(
+                                "error: cannot disable PDF tags when exporting a {name} document"
+                            );
+                        }
+                    },
+                );
+                return (ExitCode::from(1), vec![input], false);
+            }
+        }
+
+        // Gate não disparou — validar conflitos entre os nomes da própria
+        // lista `--pdf-standard` (mesma função de `compiler/eval/rules.rs`
+        // P1469, reaproveitada para o caso CLI). Lista vazia produz `None`
+        // (delega ao documento/default).
+        if pdf_standard.is_empty() {
+            None
+        } else {
+            match PdfStandards::new(pdf_standard.iter().copied()) {
+                Ok(resolved) => Some(resolved),
+                Err(conflict) => {
+                    let diag = pdf_standards_conflict_diagnostic(conflict);
+                    report_in_order(
+                        || report_status(ExitCode::from(1), false),
+                        || {
+                            let mut message = format!("error: {}", diag.message);
+                            for hint in &diag.hints {
+                                message.push_str(&format!("\n = hint: {hint}"));
+                            }
+                            eprintln!("{message}");
+                        },
+                    );
+                    return (ExitCode::from(1), vec![input], false);
+                }
+            }
+        }
+    } else {
+        None
+    };
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -692,7 +776,7 @@ fn run_compile_observed(
         OutputFormat::Pdf => {
             if oracle_pdf {
                 let (r, w) =
-                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
+                    typst_infra::pipeline::compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
                         &world,
                         &source,
                         full_error,
@@ -702,11 +786,12 @@ fn run_compile_observed(
                         features,
                         pretty_override,
                         pages.clone(),
+                        standard_override,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
                 let (r, w, t) =
-                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
                         &world,
                         &source,
                         full_error,
@@ -716,11 +801,12 @@ fn run_compile_observed(
                         features,
                         pretty_override,
                         pages.clone(),
+                        standard_override,
                     );
                 (r, w, t)
             } else {
                 let (r, w) =
-                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+                    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
                         &world,
                         &source,
                         full_error,
@@ -730,6 +816,7 @@ fn run_compile_observed(
                         features,
                         pretty_override,
                         pages.clone(),
+                        standard_override,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
             }

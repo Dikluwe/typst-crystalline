@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash 39a45a5e
+//! @prompt-hash ff2b308d
 //! @layer L1
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 
 use std::num::NonZeroUsize;
 
 use crate::entities::content::Content;
 use crate::entities::document_format_options::{
-    DocumentFormatOptions, PageRange, PageRanges, PdfTagged,
+    pdf_standard_from_name, DocumentFormatOptions, PageRange, PageRanges, PdfStandards,
+    PdfTagged,
 };
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -21,6 +22,7 @@ const HTML_PRETTY_KEY: &str = "format.html.pretty";
 const PDF_TAGGED_KEY: &str = "format.pdf.tagged";
 const PDF_PRETTY_KEY: &str = "format.pdf.pretty";
 const PDF_PAGES_KEY: &str = "format.pdf.pages";
+const PDF_STANDARD_KEY: &str = "format.pdf.standard";
 const NESTED_FORMAT_RULE_ERROR: &str =
     "format set rules are not allowed inside of containers";
 
@@ -79,6 +81,14 @@ fn explicit_pdf_pages_values(styles: &Styles) -> impl Iterator<Item = &Value> {
         .custom
         .iter()
         .filter_map(|(key, value)| (key.as_str() == PDF_PAGES_KEY).then_some(value))
+}
+
+fn explicit_pdf_standard_values(styles: &Styles) -> impl Iterator<Item = &Value> {
+    styles
+        .delta()
+        .custom
+        .iter()
+        .filter_map(|(key, value)| (key.as_str() == PDF_STANDARD_KEY).then_some(value))
 }
 
 fn validate_svg_pretty(value: &Value) -> SourceResult<bool> {
@@ -226,6 +236,53 @@ fn validate_pdf_pages(value: &Value) -> SourceResult<Option<PageRanges>> {
     }
 }
 
+/// **P1469** (escopo reduzido — contrato de linguagem) — reconstrói
+/// `PdfStandards` a partir do `Value::Array` já validado em
+/// `compiler/eval/rules.rs` (braço `format.pdf`, named `standard`). O array
+/// é sempre a única forma inserida (string única já normalizada para array
+/// de um elemento, `Value::None` nunca aceito) — qualquer desvio aqui é
+/// estado interno impossível, falha fechada com diagnóstico atribuível,
+/// nunca retorna a `None` nem ao default (ver `compiler/layout/format_options.md`
+/// P1469).
+fn validate_pdf_standard(value: &Value) -> SourceResult<PdfStandards> {
+    let Value::Array(items) = value else {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!(
+                "expected array, found {} in internal {PDF_STANDARD_KEY}",
+                typst_type_name(value)
+            ),
+        )]);
+    };
+
+    let mut names = Vec::with_capacity(items.len());
+    for item in items {
+        let Value::Str(name) = item else {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "expected string, found {} in internal {PDF_STANDARD_KEY}",
+                    typst_type_name(item)
+                ),
+            )]);
+        };
+        let Some(standard) = pdf_standard_from_name(name.as_str()) else {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("unrecognized PDF standard name in internal {PDF_STANDARD_KEY}"),
+            )]);
+        };
+        names.push(standard);
+    }
+
+    PdfStandards::new(names).map_err(|_| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("conflicting PDF standards in internal {PDF_STANDARD_KEY}"),
+        )]
+    })
+}
+
 fn collect_root_options(
     content: &Content,
     options: &mut DocumentFormatOptions,
@@ -260,6 +317,10 @@ fn collect_root_options(
             }
             for value in explicit_pdf_pages_values(styles) {
                 options.pdf.pages = validate_pdf_pages(value)?;
+                *root_occurrences += 1;
+            }
+            for value in explicit_pdf_standard_values(styles) {
+                options.pdf.standard = Some(validate_pdf_standard(value)?);
                 *root_occurrences += 1;
             }
             collect_root_options(body, options, root_occurrences)?;
@@ -300,6 +361,10 @@ pub fn collect_document_format_options(
             }
             for value in explicit_pdf_pages_values(styles) {
                 validate_pdf_pages(value)?;
+                all_occurrences += 1;
+            }
+            for value in explicit_pdf_standard_values(styles) {
+                validate_pdf_standard(value)?;
                 all_occurrences += 1;
             }
         }
@@ -819,6 +884,234 @@ mod tests {
         assert!(
             errors[0].message.contains("boolean"),
             "mensagem deve nomear o tipo interno encontrado: {errors:?}"
+        );
+    }
+
+    // ── P1469 (RED — Agente B) — extração root de `format.pdf.standard`
+    // (contrato de linguagem, escopo reduzido — ver
+    // `entities/document_format_options.md` P1469 e
+    // `compiler/layout/format_options.md` P1469). `PdfStandard`/
+    // `PdfStandards` e `DocumentFormatOptions::pdf.standard` ainda não
+    // existem neste baseline (`65e68ad45dcbfd8db00aeda78d0d2fbaaadefb27`);
+    // este módulo falha por erro de compilação até o carrier P1469 (mesmo
+    // gate ADR-0127) ser materializado por outro agente em paralelo.
+    use crate::entities::document_format_options::{PdfStandard, PdfStandards};
+
+    const PDF_STANDARD_KEY: &str = "format.pdf.standard";
+
+    /// Mapeamento nome bruto → `PdfStandard`, só para montar valores
+    /// esperados nos testes (a reconstrução real é responsabilidade do
+    /// owner, não deste módulo de testes).
+    fn standard(name: &str) -> PdfStandard {
+        match name {
+            "1.4" => PdfStandard::V1_4,
+            "1.5" => PdfStandard::V1_5,
+            "1.6" => PdfStandard::V1_6,
+            "1.7" => PdfStandard::V1_7,
+            "2.0" => PdfStandard::V2_0,
+            "a-1b" => PdfStandard::A1b,
+            "a-1a" => PdfStandard::A1a,
+            "a-2b" => PdfStandard::A2b,
+            "a-2u" => PdfStandard::A2u,
+            "a-2a" => PdfStandard::A2a,
+            "a-3b" => PdfStandard::A3b,
+            "a-3u" => PdfStandard::A3u,
+            "a-3a" => PdfStandard::A3a,
+            "a-4" => PdfStandard::A4,
+            "a-4f" => PdfStandard::A4f,
+            "a-4e" => PdfStandard::A4e,
+            "ua-1" => PdfStandard::Ua1,
+            other => panic!("nome desconhecido no teste: {other}"),
+        }
+    }
+
+    fn standards_value(names: &[&str]) -> Value {
+        Value::Array(names.iter().map(|n| Value::Str((*n).into())).collect())
+    }
+
+    fn standards(names: &[&str]) -> PdfStandards {
+        PdfStandards::new(names.iter().map(|n| standard(n)))
+            .expect("combinação de teste deve ser válida")
+    }
+
+    fn pdf_standard(body: Content, value: Value) -> Content {
+        Content::Styled(
+            Box::new(body),
+            Styles::new().push_custom(PDF_STANDARD_KEY, value),
+        )
+    }
+
+    #[test]
+    fn p1469_absence_keeps_default_none_standard() {
+        let content = Content::Styled(
+            Box::new(Content::text("body")),
+            Styles::new().push_custom("text.example", Value::Bool(true)),
+        );
+
+        let options = collect_document_format_options(&content).unwrap();
+
+        assert_eq!(options.pdf.standard, None);
+    }
+
+    #[test]
+    fn p1469_standard_array_single_name_root_extraction() {
+        let content = pdf_standard(Content::Empty, standards_value(&["a-2b"]));
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["a-2b"])));
+    }
+
+    #[test]
+    fn p1469_standard_array_multiple_names_root_extraction() {
+        // versão + archival
+        let version_and_archival =
+            pdf_standard(Content::Empty, standards_value(&["1.4", "a-1b"]));
+        let options = collect_document_format_options(&version_and_archival).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["1.4", "a-1b"])));
+
+        // versão + accessibility
+        let version_and_accessibility =
+            pdf_standard(Content::Empty, standards_value(&["1.7", "ua-1"]));
+        let options =
+            collect_document_format_options(&version_and_accessibility).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["1.7", "ua-1"])));
+
+        // archival + accessibility compatíveis (interseção de range
+        // 1.4..=1.7 não vazia entre `a-2b` e `ua-1`)
+        let archival_and_accessibility =
+            pdf_standard(Content::Empty, standards_value(&["a-2b", "ua-1"]));
+        let options =
+            collect_document_format_options(&archival_and_accessibility).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["a-2b", "ua-1"])));
+    }
+
+    #[test]
+    fn p1469_standard_empty_array_is_some_default_distinct_from_none() {
+        let content = pdf_standard(Content::Empty, Value::Array(vec![]));
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.standard, Some(PdfStandards::default()));
+        assert_ne!(options.pdf.standard, None);
+    }
+
+    #[test]
+    fn p1469_standard_empty_rule_after_previous_decision_preserves_it() {
+        let content = pdf_standard(
+            Content::Styled(
+                Box::new(Content::text("after")),
+                Styles::new().push_custom("other.key", Value::Bool(true)),
+            ),
+            standards_value(&["a-2b"]),
+        );
+        let options = collect_document_format_options(&content).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["a-2b"])));
+    }
+
+    #[test]
+    fn p1469_standard_root_sequence_and_styled_use_lexical_last_write_wins_and_repeats() {
+        let content = pdf_standard(
+            Content::sequence(vec![
+                Content::text("before"),
+                pdf_standard(Content::text("after"), standards_value(&["a-4"])),
+            ]),
+            standards_value(&["a-2b"]),
+        );
+        assert_eq!(
+            collect_document_format_options(&content).unwrap().pdf.standard,
+            Some(standards(&["a-4"]))
+        );
+
+        // Inversão lexical: a última decisão vence, seja qual for.
+        let reversed = Content::sequence(vec![
+            pdf_standard(Content::Empty, standards_value(&["a-4"])),
+            pdf_standard(Content::Empty, standards_value(&["a-2b"])),
+        ]);
+        assert_eq!(
+            collect_document_format_options(&reversed).unwrap().pdf.standard,
+            Some(standards(&["a-2b"]))
+        );
+
+        // Repetição da mesma decisão: continua estável.
+        let repeated = Content::sequence(vec![
+            pdf_standard(Content::Empty, standards_value(&["a-2b"])),
+            pdf_standard(Content::Empty, standards_value(&["a-2b"])),
+        ]);
+        assert_eq!(
+            collect_document_format_options(&repeated).unwrap().pdf.standard,
+            Some(standards(&["a-2b"]))
+        );
+    }
+
+    #[test]
+    fn p1469_pdf_standard_rule_in_distinct_containers_fails_closed() {
+        for nested in [
+            Content::Par {
+                body: Box::new(pdf_standard(Content::Empty, standards_value(&["a-2b"]))),
+            },
+            Content::SmallCaps {
+                body: Box::new(pdf_standard(Content::Empty, standards_value(&["1.4"]))),
+            },
+        ] {
+            let errors = collect_document_format_options(&nested).unwrap_err();
+            assert_eq!(errors[0].message, NESTED_FORMAT_RULE_ERROR);
+        }
+    }
+
+    #[test]
+    fn p1469_standard_composition_with_svg_png_html_tagged_pretty_pages() {
+        let content = Content::sequence(vec![
+            svg_pretty(Content::Empty, Value::Bool(true)),
+            html_pretty(Content::Empty, Value::Bool(true)),
+            Content::Styled(
+                Box::new(Content::Empty),
+                Styles::new().push_custom(PNG_PPI_KEY, Value::Float(300.0)),
+            ),
+            pdf_tagged(Content::Empty, Value::Bool(false)),
+            pdf_pretty(Content::Empty, Value::Bool(true)),
+            pdf_pages(Content::Empty, dict_value(&[("from", 2), ("to", 4)])),
+            pdf_standard(Content::Empty, standards_value(&["a-2b"])),
+        ]);
+
+        let options = collect_document_format_options(&content).unwrap();
+        assert!(options.svg.pretty);
+        assert!(options.html.pretty);
+        assert_eq!(options.png.ppi, 300.0);
+        assert_eq!(options.pdf.tagged, PdfTagged::Explicit(false));
+        assert!(options.pdf.pretty);
+        assert_eq!(
+            options.pdf.pages,
+            Some(PageRanges::new(vec![PageRange {
+                start: Some(page(2)),
+                end: Some(page(4))
+            }]))
+        );
+        assert_eq!(options.pdf.standard, Some(standards(&["a-2b"])));
+    }
+
+    #[test]
+    fn p1469_standard_field_is_independent_of_tagged_pretty_and_pages() {
+        let only_standard = pdf_standard(Content::Empty, standards_value(&["ua-1"]));
+        let options = collect_document_format_options(&only_standard).unwrap();
+        assert_eq!(options.pdf.standard, Some(standards(&["ua-1"])));
+        assert_eq!(options.pdf.tagged, PdfTagged::Auto);
+        assert!(!options.pdf.pretty);
+        assert_eq!(options.pdf.pages, None);
+    }
+
+    #[test]
+    fn p1469_standard_internal_type_impossible_fails_closed() {
+        // `format.pdf.standard` já foi validado em `compiler/eval/rules.rs`
+        // (só `Value::Array` de `Value::Str` chega à StyleChain); um
+        // elemento `Value::Int` interno é estado impossível e deve falhar
+        // fechado, nunca cair de volta a `None`. Não fixamos aqui a forma
+        // exata da mensagem de topo (isso é `compiler/eval/rules.md`); só
+        // que a falha é fechada, atribuível e cita a chave canônica.
+        let content = pdf_standard(Content::Empty, Value::Array(vec![Value::Int(1)]));
+
+        let errors = collect_document_format_options(&content).unwrap_err();
+
+        assert!(errors[0].message.contains(PDF_STANDARD_KEY), "{errors:?}");
+        assert!(
+            errors[0].message.contains("integer") || errors[0].message.contains("string"),
+            "mensagem deve nomear o tipo interno inesperado: {errors:?}"
         );
     }
 }

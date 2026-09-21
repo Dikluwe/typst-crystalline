@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/compiler/eval.md
 //! @prompt-hash cf044b0c
 //! @layer L1
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -99,6 +99,18 @@ pub fn repr_stroke_value(stroke: &crate::entities::geometry::Stroke) -> String {
 /// formatter consumidor; esta fachada apenas expõe o `repr` total de L1.
 pub fn repr_value_for_serialization(value: &crate::entities::value::Value) -> String {
     repr::repr_value(value)
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — expõe a mesma
+/// formatação de diagnóstico que o braço `format.pdf` de `rules.rs` usa
+/// para o conflito documental `standard`, reaproveitada pelo gate CLI-only
+/// de `04_wiring/src/main.rs` (`wiring.md` P1469: "mesmo texto que
+/// `compiler/eval/rules.rs` P1469 usa para o caso documental — é a mesma
+/// função de validação, reaproveitada").
+pub fn pdf_standards_conflict_diagnostic(
+    conflict: crate::entities::document_format_options::PdfStandardsConflict,
+) -> SourceDiagnostic {
+    rules::pdf_standards_conflict_diagnostic(Span::detached(), conflict)
 }
 pub(crate) mod rules;
 pub(crate) mod selector_matching;

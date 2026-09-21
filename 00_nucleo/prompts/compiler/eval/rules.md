@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: 13781d95
+Hash do Código: a4ab9d7e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -578,7 +578,7 @@ ainda inexistentes noutros ficheiros) a GREEN (35/35 no módulo, incluindo os
 15 pré-existentes de P1467) após a integração, sem regredir
 `format.svg`/`format.png`/`format.html`.
 
-## P1469 — named `standard` em `format.pdf(...)` (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+## P1469 — named `standard` em `format.pdf(...)` (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21): este owner materializa parsing e
@@ -667,6 +667,12 @@ de `entities/document_format_options.md` P1469), os quatro negativos de
 schema medidos acima (`none`, inteiro, boolean, string não reconhecida,
 elemento de array inválido — cinco ao todo), independência face a
 `tagged`/`pretty`/`pages`, e não regressão dos irmãos. Este é um dos L0s do
-gate ADR-0127 de P1469 (flag antes inerte torna-se funcional); aguarda
-confirmação humana explícita posterior ao commit causal somente-L0 antes de
-qualquer teste RED ou código produtivo.
+gate ADR-0127 de P1469 (flag antes inerte torna-se funcional).
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou o
+named `standard` sem ver os testes; Agente B escreveu 17 testes a partir do
+mesmo baseline sem ver a implementação. O teste independente passou de RED
+(compilava mas falhava em runtime) a GREEN (40/40 no módulo, incluindo os
+23 pré-existentes) após a integração, sem regredir
+`format.svg`/`format.png`/`format.html`.

@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: ff8ca5a2
+Hash do Código: 66babf53
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1282,7 +1282,7 @@ partir do mesmo baseline sem ver a implementação. O teste independente
 passou de RED (erro de compilação — campo/tipo inexistentes) a GREEN (8/8)
 após a integração, sem regredir a suíte de `typst-shell` (77/77 no total).
 
-## P1469 — flag `compile --pdf-standard` pública (ESCOPO REDUZIDO — contrato de linguagem) (PROPOSTA; gate ADR-0127)
+## P1469 — flag `compile --pdf-standard` pública (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
 
 Ver `entities/document_format_options.md` P1469 para a nota de escopo
 reduzido (decisão do dono, 2026-09-21) e a retificação da seção P1286 acima.
@@ -1363,6 +1363,12 @@ aplicável), compile/watch/alias `w`. A validação de conflitos entre nomes e
 o gate CLI-only ficam para os testes de `infra/pipeline.md`/`wiring.md`
 respetivamente (este owner só prova parsing sintático). Este é um dos L0s
 do gate ADR-0127 de P1469 (flag pública nova, comportamento por defeito
-muda de "aceita e descarta" para "aceita e aplica"); aguarda confirmação
-humana explícita posterior ao commit causal somente-L0 antes de qualquer
-teste RED ou código produtivo.
+muda de "aceita e descarta" para "aceita e aplica").
+
+A confirmação humana explícita posterior aos commits causais somente-L0
+`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou
+`PdfStandardArg`/`--pdf-standard` sem ver os testes; Agente B escreveu 6
+testes a partir do mesmo baseline sem ver a implementação. O teste
+independente passou de RED (erro de compilação — campo/tipo inexistentes)
+a GREEN (6/6) após a integração, sem regredir a suíte de `typst-shell`
+(83/83 no total, incluindo os 6 novos).

@@ -1,14 +1,20 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash d616b331
+//! @prompt-hash 8b5ba4e2
 //! @layer L3
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 
 use ttf_parser::Face;
 /// **P1468** — reexportado para as assinaturas `_and_pages` das entry
 /// points PDF abaixo (mesmo padrão de `StreamMode`/`PdfTags`/
 /// `PdfSerializationMode`, definidos localmente neste módulo).
 pub use typst_core::entities::document_format_options::PageRanges;
+/// **P1469** (escopo reduzido — contrato de linguagem) — reexportado para
+/// as assinaturas `_and_standard` das entry points PDF abaixo (mesmo
+/// padrão de `pages`/P1468). Diferente de `pages`, não é `Option`: há
+/// sempre um valor efetivo, resolvido antes de chegar a este owner
+/// (`infra/pipeline.md` P1469).
+pub use typst_core::entities::document_format_options::PdfStandards;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -302,6 +308,8 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization(
 /// `None` = todas). Mesmo padrão de `StreamMode`(P956)/`PdfTags`(P1140.6)/
 /// `PdfSerializationMode`(P1360): novo último parâmetro, variante anterior
 /// delega `None` (comportamento byte-idêntico preservado).
+/// **P1469** — delega `PdfStandards::default()` para `standard`; usar
+/// `..._and_standard` para `--pdf-standard`/`#set format.pdf(standard: ...)`.
 pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
     document_id: Option<[u8; 16]>,
@@ -310,12 +318,37 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages(
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
 ) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+        doc,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        pages,
+        PdfStandards::default(),
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
+/// com o conjunto de standards PDF resolvido (`standard`, sempre um valor
+/// efetivo — `infra/pipeline.md` P1469 já resolveu a precedência CLI >
+/// documento > default antes de chamar este owner).
+pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+    doc: &PagedDocument,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+    standard: PdfStandards,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
         .with_pages(pages)
+        .with_standard(standard)
         .build(doc, None)
         .0
 }
@@ -384,6 +417,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization(
 }
 
 /// **P1468** — variante explícita com seleção de páginas.
+/// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
     font_data: &[u8],
@@ -393,12 +427,37 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
 ) -> Vec<u8> {
+    export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        pages,
+        PdfStandards::default(),
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
+/// com o conjunto de standards PDF resolvido.
+pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+    standard: PdfStandards,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
         .with_pages(pages)
+        .with_standard(standard)
         .build(doc, Some(font_data))
         .0
 }
@@ -467,6 +526,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
 }
 
 /// **P1468** — variante explícita instrumentada com seleção de páginas.
+/// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
     font_data: &[u8],
@@ -476,12 +536,37 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
 ) -> (Vec<u8>, f64) {
+    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        pages,
+        PdfStandards::default(),
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
+/// instrumentada com o conjunto de standards PDF resolvido.
+pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+    standard: PdfStandards,
+) -> (Vec<u8>, f64) {
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
-        .with_pages(pages);
+        .with_pages(pages)
+        .with_standard(standard);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -558,6 +643,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
 }
 
 /// **P1468** — variante explícita com seleção de páginas.
+/// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
@@ -567,6 +653,30 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
 ) -> Vec<u8> {
+    export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        pages,
+        PdfStandards::default(),
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
+/// com o conjunto de standards PDF resolvido.
+pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+    standard: PdfStandards,
+) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new()
             .with_document_id(document_id)
@@ -574,6 +684,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
+            .with_standard(standard)
             .build(doc, None)
             .0;
     }
@@ -589,6 +700,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
+            .with_standard(standard)
             .build(doc, None)
             .0;
     }
@@ -598,6 +710,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
         .with_pdf_tags(pdf_tags)
         .with_serialization(serialization)
         .with_pages(pages)
+        .with_standard(standard)
         .build_multifont(doc, fonts, &faces)
         .0
 }
@@ -666,6 +779,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
 }
 
 /// **P1468** — variante explícita instrumentada com seleção de páginas.
+/// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
@@ -675,6 +789,30 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
 ) -> (Vec<u8>, f64) {
+    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        serialization,
+        pages,
+        PdfStandards::default(),
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
+/// instrumentada com o conjunto de standards PDF resolvido.
+pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    serialization: PdfSerializationMode,
+    pages: Option<PageRanges>,
+    standard: PdfStandards,
+) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
@@ -682,6 +820,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
+            .with_standard(standard)
             .build(doc, None);
         return (pdf, 0.0);
     }
@@ -697,6 +836,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
+            .with_standard(standard)
             .build(doc, None);
         return (pdf, 0.0);
     }
@@ -704,7 +844,8 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
         .with_serialization(serialization)
-        .with_pages(pages);
+        .with_pages(pages)
+        .with_standard(standard);
     let builder = builder.with_pdf_tags(pdf_tags);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)

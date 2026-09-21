@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash b4999a4d
+//! @prompt-hash a9abf6df
 //! @layer L1
-//! @updated 2026-09-20
+//! @updated 2026-09-21
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -17,6 +17,10 @@ use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::{Arg, ArrayItem, DictItem, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::document_format_options::{
+    pdf_standard_from_name, PdfStandard, PdfStandards, PdfStandardsConflict,
+    PdfValidator, PdfVersion, PDF_STANDARD_NAMES,
+};
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
 use crate::entities::lang::Lang;
@@ -198,6 +202,150 @@ fn validate_pdf_page_range_element(value: &Value, span: Span) -> SourceResult<()
                 pdf_pages_found_name(other)
             ),
         )]),
+    }
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — lista de opções
+/// formatada `"1.4", "1.5", ..., "ua-1"[, or array]`, medida em
+/// `entities/document_format_options.md`/`compiler/eval/rules.md` P1469.
+/// `include_array` acrescenta a opção `array` (só no topo de
+/// `format.pdf(standard: ...)`, nunca dentro de um elemento).
+fn pdf_standard_expected_list(include_array: bool) -> String {
+    let mut items: Vec<String> = PDF_STANDARD_NAMES
+        .iter()
+        .map(|(name, _)| format!("\"{name}\""))
+        .collect();
+    if include_array {
+        items.push("array".to_string());
+    }
+    match items.as_slice() {
+        [] => String::new(),
+        [only] => only.clone(),
+        [rest @ .., last] => format!("{}, or {last}", rest.join(", ")),
+    }
+}
+
+/// Junta rótulos de validators com "and" (dois itens, único caso alcançável
+/// neste recorte — no máximo um archival e uma accessibility), espelhando
+/// `typst-pdf/src/util.rs:145-160` (`ValidatorsExt::to_and_list`).
+fn pdf_standard_and_list(labels: &[&str]) -> String {
+    match labels {
+        [] => String::new(),
+        [only] => (*only).to_string(),
+        [a, b] => format!("{a} and {b}"),
+        [rest @ .., last] => format!("{}, and {last}", rest.join(", ")),
+    }
+}
+
+/// "PDF 1.4"-style, usado só em texto de diagnóstico — distinto de
+/// `PdfVersion::as_str()` (`"1.4"`, usado no header e no cast).
+fn pdf_version_display(version: PdfVersion) -> String {
+    format!("PDF {}", version.as_str())
+}
+
+/// Hint de compatibilidade de versão de um validator, espelhando
+/// `typst-pdf/src/format.rs:684-701` (`version_hint`).
+fn pdf_standard_version_hint(label: &str, min: PdfVersion, max: PdfVersion) -> String {
+    if min == max {
+        format!("{label} requires version {}", pdf_version_display(min))
+    } else {
+        format!(
+            "{label} requires a version between {} and {}",
+            pdf_version_display(min),
+            pdf_version_display(max)
+        )
+    }
+}
+
+/// Nome de exibição de um `PdfValidator` (archival ou accessibility),
+/// delegando ao `label()` do respetivo tipo L1.
+fn pdf_validator_label(validator: PdfValidator) -> &'static str {
+    match validator {
+        PdfValidator::Archival(a) => a.label(),
+        PdfValidator::Accessibility(ua) => ua.label(),
+    }
+}
+
+/// Range min/max de um `PdfValidator`, delegando ao respetivo tipo L1.
+fn pdf_validator_range(validator: PdfValidator) -> (PdfVersion, PdfVersion) {
+    match validator {
+        PdfValidator::Archival(a) => (a.min_version(), a.max_version()),
+        PdfValidator::Accessibility(ua) => (ua.min_version(), ua.max_version()),
+    }
+}
+
+/// **P1469** (retificado — ver `entities/document_format_options.md` P1469,
+/// commit `e14002d55`: `NoOverlappingRange`/`VersionOutOfRange` passaram a
+/// carregar `validators: Vec<PdfValidator>` na ordem de citação medida) —
+/// formata o texto final de diagnóstico a partir do resultado estruturado
+/// de `PdfStandards::new`. Mensagens espelham `krilla::configure::mod.rs:
+/// 68-96` e `typst-pdf/src/format.rs:582-701` medidos no baseline do passo,
+/// incluindo os dois casos com mais de um validator no mesmo erro
+/// ("PDF/A-4 and PDF/UA-1 are mutually incompatible..."; "PDF 1.7 is not
+/// compatible with PDF/A-1b and PDF/UA-1"). `pub(crate)` (não
+/// módulo-privado): reaproveitado por `compiler/eval/mod.rs`
+/// (`pdf_standards_conflict_diagnostic`), que expõe a mesma formatação ao
+/// gate CLI-only de `04_wiring/src/main.rs` (`wiring.md` P1469: "mesmo
+/// texto ... é a mesma função de validação, reaproveitada").
+pub(crate) fn pdf_standards_conflict_diagnostic(
+    span: Span,
+    conflict: PdfStandardsConflict,
+) -> SourceDiagnostic {
+    fn with_validator_hints(
+        mut diag: SourceDiagnostic,
+        validators: &[PdfValidator],
+    ) -> SourceDiagnostic {
+        for validator in validators {
+            let (min, max) = pdf_validator_range(*validator);
+            diag = diag.with_hint(pdf_standard_version_hint(
+                pdf_validator_label(*validator),
+                min,
+                max,
+            ));
+        }
+        diag
+    }
+
+    match conflict {
+        PdfStandardsConflict::ConflictingVersions(prev, new) => SourceDiagnostic::error(
+            span,
+            format!(
+                "PDF cannot conform to {} and {} at the same time",
+                pdf_version_display(prev),
+                pdf_version_display(new)
+            ),
+        ),
+        PdfStandardsConflict::MultipleArchival => {
+            SourceDiagnostic::error(span, "choose at most one PDF/A standard")
+        }
+        PdfStandardsConflict::MultipleAccessibility => {
+            SourceDiagnostic::error(span, "choose at most one PDF/UA standard")
+        }
+        PdfStandardsConflict::NoOverlappingRange { validators } => {
+            let labels: Vec<&str> =
+                validators.iter().map(|v| pdf_validator_label(*v)).collect();
+            let diag = SourceDiagnostic::error(
+                span,
+                format!(
+                    "{} are mutually incompatible because they do not have any overlapping PDF versions",
+                    pdf_standard_and_list(&labels)
+                ),
+            );
+            with_validator_hints(diag, &validators)
+        }
+        PdfStandardsConflict::VersionOutOfRange { version, validators } => {
+            let labels: Vec<&str> =
+                validators.iter().map(|v| pdf_validator_label(*v)).collect();
+            let diag = SourceDiagnostic::error(
+                span,
+                format!(
+                    "{} is not compatible with {}",
+                    pdf_version_display(version),
+                    pdf_standard_and_list(&labels)
+                ),
+            );
+            with_validator_hints(diag, &validators)
+        }
     }
 }
 
@@ -1666,6 +1814,7 @@ pub(super) fn eval_set_rule(
             let mut seen_tagged = false;
             let mut seen_pretty = false;
             let mut seen_pages = false;
+            let mut seen_standard = false;
             for arg in set.args().items() {
                 let Arg::Named(named) = arg else {
                     return Err(vec![SourceDiagnostic::error(
@@ -1674,7 +1823,11 @@ pub(super) fn eval_set_rule(
                     )]);
                 };
                 let key = named.name().as_str();
-                if key != "tagged" && key != "pretty" && key != "pages" {
+                if key != "tagged"
+                    && key != "pretty"
+                    && key != "pages"
+                    && key != "standard"
+                {
                     return Err(vec![SourceDiagnostic::error(
                         named.name().to_untyped().span(),
                         format!("unexpected argument: {key}"),
@@ -1730,7 +1883,7 @@ pub(super) fn eval_set_rule(
                     *engine.styles = engine
                         .styles
                         .push_custom("format.pdf.pretty", Value::Bool(pretty));
-                } else {
+                } else if key == "pages" {
                     // **P1468** — `pages`: `Value::Int`/`Dict`/`Array`/`None`,
                     // validado por completo aqui (mesmo momento do `set` que
                     // `tagged`/`pretty`); o `Value` já validado é inserido tal
@@ -1767,6 +1920,96 @@ pub(super) fn eval_set_rule(
                         }
                     }
                     *engine.styles = engine.styles.push_custom("format.pdf.pages", value);
+                } else {
+                    // **P1469** (escopo reduzido — contrato de linguagem) —
+                    // `standard`: `Value::Str`/`Array<Str>`, validado por
+                    // completo aqui (parsing dos 17 nomes + conflitos via
+                    // `PdfStandards::new`, só para validar — o valor
+                    // armazenado é o `Value::Array` normalizado, nunca o
+                    // tipo L1). Não aceita `Value::None` (diferente de
+                    // `pages`): a única forma de "documento não decide" é a
+                    // ausência do named.
+                    if seen_standard {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            "duplicate argument: standard",
+                        )]);
+                    }
+                    seen_standard = true;
+
+                    let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                    let span = named.expr().span();
+
+                    let names: Vec<PdfStandard> = match &value {
+                        Value::Str(s) => {
+                            let Some(standard) = pdf_standard_from_name(s.as_str())
+                            else {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    format!(
+                                        "expected {}",
+                                        pdf_standard_expected_list(true)
+                                    ),
+                                )]);
+                            };
+                            vec![standard]
+                        }
+                        Value::Array(items) => {
+                            let mut collected = Vec::with_capacity(items.len());
+                            for item in items {
+                                match item {
+                                    Value::Str(s) => {
+                                        let Some(standard) =
+                                            pdf_standard_from_name(s.as_str())
+                                        else {
+                                            return Err(vec![SourceDiagnostic::error(
+                                                span,
+                                                format!(
+                                                    "expected {}",
+                                                    pdf_standard_expected_list(false)
+                                                ),
+                                            )]);
+                                        };
+                                        collected.push(standard);
+                                    }
+                                    other => {
+                                        return Err(vec![SourceDiagnostic::error(
+                                            span,
+                                            format!(
+                                                "expected {}, found {}",
+                                                pdf_standard_expected_list(false),
+                                                pdf_pages_found_name(other)
+                                            ),
+                                        )]);
+                                    }
+                                }
+                            }
+                            collected
+                        }
+                        other => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!(
+                                    "expected {}, found {}",
+                                    pdf_standard_expected_list(true),
+                                    pdf_pages_found_name(other)
+                                ),
+                            )]);
+                        }
+                    };
+
+                    if let Err(conflict) = PdfStandards::new(names.iter().copied()) {
+                        return Err(vec![pdf_standards_conflict_diagnostic(
+                            span, conflict,
+                        )]);
+                    }
+
+                    let normalized = match &value {
+                        Value::Str(_) => Value::Array(vec![value.clone()]),
+                        _ => value.clone(),
+                    };
+                    *engine.styles =
+                        engine.styles.push_custom("format.pdf.standard", normalized);
                 }
             }
             return Ok(Value::None);
@@ -3939,6 +4182,300 @@ mod tests {
 
     #[test]
     fn p1468_svg_png_html_set_rules_are_not_regressed_by_pages() {
+        let svg = custom_values("#set format.svg(pretty: true)\nHello");
+        assert_eq!(custom_value(&svg, "format.svg.pretty"), Some(&Value::Bool(true)));
+
+        let png = custom_values("#set format.png(ppi: 300)\nHello");
+        assert_eq!(custom_value(&png, "format.png.ppi"), Some(&Value::Float(300.0)));
+
+        let html_errors = eval_err("#set format.html(pretty: true)\nHello");
+        assert!(
+            html_errors
+                .iter()
+                .any(|e| e.message.contains("the `html` feature is not enabled")),
+            "{html_errors:?}"
+        );
+    }
+
+    // ── P1469 (RED — Agente B) — named `standard` no braço `format.pdf`
+    // (contrato de linguagem, escopo reduzido — ver
+    // `entities/document_format_options.md` P1469 e
+    // `compiler/eval/rules.md` P1469). `PdfStandard`/`PdfStandards`/
+    // `PdfStandardsConflict` (entities) ainda não existem neste baseline
+    // (`65e68ad45dcbfd8db00aeda78d0d2fbaaadefb27`), nem o named `standard`
+    // em `eval_set_rule`; este módulo falha por erro de compilação até o
+    // carrier P1469 (mesmo gate ADR-0127) ser materializado por outro
+    // agente em paralelo.
+
+    const STANDARD_SEVENTEEN_NAMES: [&str; 17] = [
+        "1.4", "1.5", "1.6", "1.7", "2.0", "a-1b", "a-1a", "a-2b", "a-2u", "a-2a",
+        "a-3b", "a-3u", "a-3a", "a-4", "a-4f", "a-4e", "ua-1",
+    ];
+
+    // Lista das 17 opções tal como aparece no erro de schema de topo
+    // (com `array` como opção adicional): medida via `typst eval` em
+    // 2026-09-21, mesmo padrão Oxford-comma já usado em
+    // `stdlib/html.rs`/`stdlib/pdf.rs` para `cast!` de enums de string.
+    const STANDARD_SEVENTEEN_NAMES_LIST: &str = "\"1.4\", \"1.5\", \"1.6\", \"1.7\", \"2.0\", \"a-1b\", \"a-1a\", \"a-2b\", \"a-2u\", \"a-2a\", \"a-3b\", \"a-3u\", \"a-3a\", \"a-4\", \"a-4f\", \"a-4e\", \"ua-1\"";
+
+    // Mesma lista, mas como forma de ELEMENTO de array: sem a opção
+    // `array` (um elemento não pode ser array aninhado), logo o último
+    // nome (`ua-1`) é que recebe o prefixo "or".
+    const STANDARD_SEVENTEEN_NAMES_OR_LIST: &str = "\"1.4\", \"1.5\", \"1.6\", \"1.7\", \"2.0\", \"a-1b\", \"a-1a\", \"a-2b\", \"a-2u\", \"a-2a\", \"a-3b\", \"a-3u\", \"a-3a\", \"a-4\", \"a-4f\", \"a-4e\", or \"ua-1\"";
+
+    #[test]
+    fn p1469_standard_each_of_seventeen_names_inserts_value_array_of_one_string() {
+        for name in STANDARD_SEVENTEEN_NAMES {
+            let src = format!("#set format.pdf(standard: \"{name}\")\nHello");
+            let values = custom_values(&src);
+            assert_eq!(
+                custom_value(&values, "format.pdf.standard"),
+                Some(&Value::Array(vec![Value::Str(name.into())])),
+                "nome {name:?}: named string único deve ser envolvido num array de \
+                 um elemento (mesma forma de `repr(format.pdf.standard) == (\"1.7\",)`)"
+            );
+        }
+    }
+
+    #[test]
+    fn p1469_standard_array_with_multiple_compatible_names_inserts_value_array() {
+        // `a-1b` (range 1.4..=1.4) + versão explícita "1.4": compatível.
+        let values =
+            custom_values("#set format.pdf(standard: (\"a-1b\", \"1.4\"))\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.standard"),
+            Some(&Value::Array(vec![
+                Value::Str("a-1b".into()),
+                Value::Str("1.4".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1469_standard_empty_array_inserts_value_array_empty() {
+        // Array vazio é uma seleção válida (sem validators; efetivo 1.7).
+        let values = custom_values("#set format.pdf(standard: ())\nHello");
+        assert_eq!(
+            custom_value(&values, "format.pdf.standard"),
+            Some(&Value::Array(vec![]))
+        );
+    }
+
+    #[test]
+    fn p1469_standard_absent_inserts_no_standard_key() {
+        // `standard` NÃO aceita `none` como forma explícita de "ausente"
+        // (diferente de `pages`) — a única forma é a ausência do named.
+        let values = custom_values("#set format.pdf()\nHello");
+        assert_eq!(custom_value(&values, "format.pdf.standard"), None);
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), None);
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), None);
+        assert_eq!(custom_value(&values, "format.pdf.pages"), None);
+    }
+
+    #[test]
+    fn p1469_standard_conflict_two_versions_uses_exact_message() {
+        let errors = eval_err("#set format.pdf(standard: (\"1.4\", \"1.7\"))\nHello");
+        assert!(
+            errors.iter().any(|e| e.message
+                == "PDF cannot conform to PDF 1.4 and PDF 1.7 at the same time"),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_conflict_two_archival_uses_exact_message() {
+        let errors = eval_err("#set format.pdf(standard: (\"a-1b\", \"a-2b\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message == "choose at most one PDF/A standard"),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_conflict_two_accessibility_uses_exact_message() {
+        // `ua-1` é o único nome de acessibilidade; repeti-lo no array é a
+        // única forma de produzir este conflito.
+        let errors = eval_err("#set format.pdf(standard: (\"ua-1\", \"ua-1\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message == "choose at most one PDF/UA standard"),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_conflict_no_overlapping_range_between_validators_fails() {
+        // `ua-1` (range 1.4..=1.7) e `a-4` (range 2.0..=2.0) não têm
+        // interseção. O texto exato desta mensagem NÃO foi medido em
+        // nenhum L0 de P1469 (só a estrutura `NoOverlappingRange` foi
+        // medida em `entities/document_format_options.md`); por
+        // disciplina ADR-0108 (não inventar texto não medido), este teste
+        // só prova que a combinação falha, sem fixar a mensagem exata.
+        let errors = eval_err("#set format.pdf(standard: (\"ua-1\", \"a-4\"))\nHello");
+        assert!(!errors.is_empty(), "{errors:?}");
+    }
+
+    #[test]
+    fn p1469_standard_conflict_version_out_of_range_uses_exact_message_and_hint() {
+        // `ua-1` (range 1.4..=1.7, min != max) -> hint usa "between".
+        let errors = eval_err("#set format.pdf(standard: (\"ua-1\", \"2.0\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message == "PDF 2.0 is not compatible with PDF/UA-1"),
+            "{errors:?}"
+        );
+        let hints: Vec<_> = errors.iter().flat_map(|e| e.hints.iter()).collect();
+        assert!(
+            hints.iter().any(|h| h.as_str()
+                == "PDF/UA-1 requires a version between PDF 1.4 and PDF 1.7"),
+            "{hints:?}"
+        );
+
+        // `a-1b` (range 1.4..=1.4, min == max) -> hint SEM "between".
+        let errors = eval_err("#set format.pdf(standard: (\"a-1b\", \"1.7\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message == "PDF 1.7 is not compatible with PDF/A-1b"),
+            "{errors:?}"
+        );
+        let hints: Vec<_> = errors.iter().flat_map(|e| e.hints.iter()).collect();
+        assert!(
+            hints
+                .iter()
+                .any(|h| h.as_str() == "PDF/A-1b requires version PDF 1.4"),
+            "{hints:?}"
+        );
+        assert!(
+            !hints.iter().any(|h| h.contains("between")),
+            "min==max não deve usar \"between\": {hints:?}"
+        );
+
+        // `a-4` (range 2.0..=2.0, min == max) -> mesma forma sem "between".
+        let errors = eval_err("#set format.pdf(standard: (\"a-4\", \"1.7\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message == "PDF 1.7 is not compatible with PDF/A-4"),
+            "{errors:?}"
+        );
+        let hints: Vec<_> = errors.iter().flat_map(|e| e.hints.iter()).collect();
+        assert!(
+            hints.iter().any(|h| h.as_str() == "PDF/A-4 requires version PDF 2.0"),
+            "{hints:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_none_is_rejected_with_found_none_suffix() {
+        let errors = eval_err("#set format.pdf(standard: none)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message
+                == format!(
+                    "expected {STANDARD_SEVENTEEN_NAMES_LIST}, or array, found none"
+                )),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_integer_is_rejected_with_found_integer_suffix() {
+        let errors = eval_err("#set format.pdf(standard: 17)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message
+                == format!(
+                    "expected {STANDARD_SEVENTEEN_NAMES_LIST}, or array, found integer"
+                )),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_boolean_is_rejected_with_found_boolean_suffix() {
+        let errors = eval_err("#set format.pdf(standard: true)\nHello");
+        assert!(
+            errors.iter().any(|e| e.message
+                == format!(
+                    "expected {STANDARD_SEVENTEEN_NAMES_LIST}, or array, found boolean"
+                )),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_unrecognized_string_is_rejected_without_found_suffix() {
+        // Nuance medida: um `Value::Str` reconhecido como string mas que
+        // não corresponde a nenhum dos 17 nomes NÃO ganha ", found
+        // string" — mesmo padrão de qualquer `cast!` Typst para enum de
+        // string literais (contraste com o caso `none`/inteiro/boolean
+        // acima, que NÃO são string).
+        let errors = eval_err("#set format.pdf(standard: \"3.0\")\nHello");
+        assert!(
+            errors.iter().any(|e| e.message
+                == format!("expected {STANDARD_SEVENTEEN_NAMES_LIST}, or array")),
+            "{errors:?}"
+        );
+        assert!(!errors.iter().any(|e| e.message.contains("found string")), "{errors:?}");
+    }
+
+    #[test]
+    fn p1469_standard_array_element_invalid_uses_list_without_array_or_found() {
+        let errors = eval_err("#set format.pdf(standard: (\"1.7\", \"xyz\"))\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message
+                    == format!("expected {STANDARD_SEVENTEEN_NAMES_OR_LIST}")),
+            "{errors:?}"
+        );
+        assert!(
+            !errors.iter().any(|e| e.message.contains("array")),
+            "mensagem de elemento não deve mencionar a opção `array`: {errors:?}"
+        );
+        assert!(
+            !errors.iter().any(|e| e.message.contains("found")),
+            "mensagem de elemento não deve usar sufixo `found`: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_standard_is_independent_of_tagged_pretty_and_pages() {
+        let values = custom_values(
+            "#set format.pdf(standard: \"a-2b\", tagged: false, pretty: true, pages: 1)\nHello",
+        );
+        assert_eq!(
+            custom_value(&values, "format.pdf.standard"),
+            Some(&Value::Array(vec![Value::Str("a-2b".into())]))
+        );
+        assert_eq!(custom_value(&values, "format.pdf.tagged"), Some(&Value::Bool(false)));
+        assert_eq!(custom_value(&values, "format.pdf.pretty"), Some(&Value::Bool(true)));
+        assert_eq!(custom_value(&values, "format.pdf.pages"), Some(&Value::Int(1)));
+
+        let only_standard = custom_values("#set format.pdf(standard: \"1.7\")\nHello");
+        assert_eq!(custom_value(&only_standard, "format.pdf.tagged"), None);
+        assert_eq!(custom_value(&only_standard, "format.pdf.pretty"), None);
+        assert_eq!(custom_value(&only_standard, "format.pdf.pages"), None);
+    }
+
+    #[test]
+    fn p1469_standard_duplicate_named_is_rejected() {
+        // Mesma política de named duplicado que `tagged`/`pretty`/`pages`.
+        let errors =
+            eval_err("#set format.pdf(standard: \"1.4\", standard: \"1.7\")\nHello");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("duplicate argument: standard")),
+            "{errors:?}"
+        );
+    }
+
+    #[test]
+    fn p1469_svg_png_html_set_rules_are_not_regressed_by_standard() {
         let svg = custom_values("#set format.svg(pretty: true)\nHello");
         assert_eq!(custom_value(&svg, "format.svg.pretty"), Some(&Value::Bool(true)));
 
