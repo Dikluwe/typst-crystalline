@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 70cc897c
+//! @prompt-hash b160f84a
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -14808,10 +14808,13 @@ mod tests {
     fn p735_type_emoji_e_pdf_sao_module() {
         // Medido vanilla (P731/P735): type(emoji)/type(pdf) → module.
         // Cristalino pré-P735: erro "unknown variable".
+        // P1471 retificou: type(pdf) → function (medição nova refuta a
+        // conclusão antiga; type(emoji) continua module, inalterado).
         let m = p729_eval("#let a = type(emoji)\n#let b = type(pdf)").unwrap();
         let module = Some(&Value::Type(crate::entities::value::Type::Module));
+        let function = Some(&Value::Type(crate::entities::value::Type::Function));
         assert_eq!(m.scope().get("a"), module);
-        assert_eq!(m.scope().get("b"), module);
+        assert_eq!(m.scope().get("b"), function);
     }
 
     #[test]
@@ -19774,6 +19777,10 @@ mod tests {
 
         #[test]
         fn p1305_named_modules() {
+            // P1471 retificou `pdf`: `Value::Func`, não `Value::Module` —
+            // `repr(pdf)` passa de `<module pdf>` a `pdf` (medição nova
+            // substitui a conclusão antiga; os outros quatro globais
+            // continuam module, inalterados).
             for (profile, features) in p1300_profiles() {
                 assert_eq!(
                     observe(
@@ -19785,7 +19792,7 @@ mod tests {
                         Value::Str(r###"<module map>"###.into()),
                         Value::Str(r###"<module calc>"###.into()),
                         Value::Str(r###"<module sym>"###.into()),
-                        Value::Str(r###"<module pdf>"###.into())
+                        Value::Str(r###"pdf"###.into())
                     ]),
                     "{profile}/named-modules"
                 );

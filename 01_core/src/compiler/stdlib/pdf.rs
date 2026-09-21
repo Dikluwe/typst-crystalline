@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/pdf.md
-//! @prompt-hash c2a2dde0
+//! @prompt-hash 56745813
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -31,8 +31,11 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-/// Constrói o módulo `pdf` como `Value::Module` com `attach` e `artifact`
-/// (paridade do conteúdo medido no namespace vanilla).
+/// Constrói o valor `pdf` como `Value::Func` com namespace fechado
+/// (`attach`/`artifact`/trio a11y-extras) — paridade com o vanilla
+/// ratificado, onde `type(pdf) == function` (ver `compiler/stdlib/pdf.md`
+/// P1471). Chamar `pdf(...)` diretamente é sempre erro; só os membros do
+/// namespace são chamáveis.
 pub fn make_pdf_module(features: Features) -> Value {
     let mut scope = crate::entities::scope::Scope::new();
     scope.define("attach", Value::Func(Func::native("pdf.attach", native_pdf_attach)));
@@ -54,7 +57,23 @@ pub fn make_pdf_module(features: Features) -> Value {
             Value::Func(Func::native("pdf.data-cell", native_pdf_data_cell)),
         );
     }
-    Value::Module(crate::entities::module::Module::new("pdf", scope))
+    Value::Func(Func::native_with_namespace(
+        "pdf",
+        native_pdf_root,
+        std::sync::Arc::new(scope),
+    ))
+}
+
+/// `pdf(...)` não pode ser construído manualmente — mesmo diagnóstico
+/// medido no vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+/// para `pdf()`/`html()` (`compiler/stdlib/pdf.md` P1471).
+fn native_pdf_root(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(Span::detached(), "cannot be constructed manually")])
 }
 
 pub(crate) fn native_pdf_table_summary(
@@ -500,5 +519,228 @@ mod tests_p826 {
         )
         .unwrap_err();
         assert!(e[0].message.contains("foo"), "msg: {}", e[0].message);
+    }
+}
+
+/// P1471 — RED isolado (Agente B): `pdf` retificado de `Value::Module` para
+/// `Value::Func` (`compiler/stdlib/pdf.md` P1471). Testes escritos a partir
+/// do L0 apenas — nenhuma implementação foi consultada. Distinção
+/// deliberada dentro deste módulo:
+///
+/// - `p1471_pdf_root_is_func_with_stable_namespace_across_profiles` — RED
+///   nesta baseline: `make_pdf_module` ainda devolve `Value::Module`.
+/// - `p1471_pdf_type_and_repr_are_function_across_profiles` — RED: hoje
+///   `type(pdf) == module` e `repr(pdf) == "<module pdf>"`.
+/// - `p1471_pdf_call_fails_cannot_be_constructed_manually_across_profiles`
+///   — RED: hoje `pdf()` não produz esse diagnóstico (módulo não é
+///   invocável do mesmo modo).
+/// - `p1471_pdf_field_access_members_present_across_profiles` — não é RED
+///   por si: a presença/ausência de `attach`/`artifact`/trio a11y já é
+///   verdadeira na baseline (regressão vigiada, não comportamento novo);
+///   mantido porque o passo pede a cobertura explícita do observável.
+#[cfg(test)]
+mod p1471_tests {
+    use super::*;
+    use crate::compiler::eval::eval_expression_with_features;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn world() -> TestWorld {
+        TestWorld {
+            source: Source::detached(""),
+            library: Library::new(),
+            book: FontBook::new(),
+        }
+    }
+
+    /// Os quatro perfis do catálogo (default, a11y-extras, html, html+a11y),
+    /// mesma composição usada pelos passos anteriores (P1338 etc. em
+    /// `eval/bindings/field_access.rs`).
+    fn profiles() -> Vec<Features> {
+        (0..4u8)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    /// Item 1 + item 6 (metade `pdf`) — `pdf` é `Value::Func` nomeada "pdf"
+    /// em todos os perfis, com o namespace interno preservado: `attach`,
+    /// `artifact` sempre presentes; `table-summary`, `header-cell`,
+    /// `data-cell` presentes apenas com `A11yExtras`.
+    #[test]
+    fn p1471_pdf_root_is_func_with_stable_namespace_across_profiles() {
+        for features in profiles() {
+            let value = make_pdf_module(features);
+            let Value::Func(func) = value else {
+                panic!(
+                    "P1471: pdf deve ser Value::Func (type(pdf) == function) em {features:?}, obtido {value:?}"
+                );
+            };
+            assert_eq!(func.name(), Some("pdf"), "nome nativo de pdf em {features:?}");
+            let namespace = func.namespace().expect("pdf deve ter namespace anexado");
+            assert!(namespace.get("attach").is_some(), "pdf.attach em {features:?}");
+            assert!(namespace.get("artifact").is_some(), "pdf.artifact em {features:?}");
+            let has_a11y = features.contains(Feature::A11yExtras);
+            assert_eq!(
+                namespace.get("table-summary").is_some(),
+                has_a11y,
+                "pdf.table-summary em {features:?}"
+            );
+            assert_eq!(
+                namespace.get("header-cell").is_some(),
+                has_a11y,
+                "pdf.header-cell em {features:?}"
+            );
+            assert_eq!(
+                namespace.get("data-cell").is_some(),
+                has_a11y,
+                "pdf.data-cell em {features:?}"
+            );
+            assert_eq!(
+                namespace.len(),
+                if has_a11y { 5 } else { 2 },
+                "contagem de membros de pdf em {features:?}"
+            );
+        }
+    }
+
+    /// Item 1 + item 2 — `type(pdf) == function` e `repr(pdf) == "pdf"` nos
+    /// quatro perfis (a raiz `pdf` nunca é gated pela feature `html`; só o
+    /// trio a11y interno o é).
+    #[test]
+    fn p1471_pdf_type_and_repr_are_function_across_profiles() {
+        for features in profiles() {
+            let (result, warnings) = eval_expression_with_features(
+                &world(),
+                "type(pdf) == function",
+                features,
+            );
+            assert!(warnings.is_empty(), "type(pdf) em {features:?}: {warnings:?}");
+            assert_eq!(
+                result.unwrap(),
+                Value::Bool(true),
+                "type(pdf) deve ser function em {features:?}"
+            );
+
+            let (result, warnings) =
+                eval_expression_with_features(&world(), "repr(pdf)", features);
+            assert!(warnings.is_empty(), "repr(pdf) em {features:?}: {warnings:?}");
+            assert_eq!(
+                result.unwrap(),
+                Value::Str("pdf".into()),
+                "repr(pdf) deve ser \"pdf\" em {features:?}"
+            );
+        }
+    }
+
+    /// Item 3 — `pdf()` falha sempre com exatamente
+    /// `"cannot be constructed manually"` (mesmo diagnóstico de
+    /// `format.pdf()`), nos quatro perfis.
+    #[test]
+    fn p1471_pdf_call_fails_cannot_be_constructed_manually_across_profiles() {
+        for features in profiles() {
+            let (result, warnings) =
+                eval_expression_with_features(&world(), "pdf()", features);
+            assert!(warnings.is_empty(), "pdf() em {features:?}: {warnings:?}");
+            let errors = result.unwrap_err();
+            assert_eq!(errors.len(), 1, "pdf() em {features:?}: {errors:?}");
+            assert_eq!(
+                errors[0].message, "cannot be constructed manually",
+                "pdf() em {features:?}"
+            );
+        }
+    }
+
+    /// Item 4 — `pdf.attach`/`pdf.artifact` continuam sempre presentes e
+    /// chamáveis (tipo função) nos quatro perfis; o trio a11y continua
+    /// presente só com `A11yExtras` e falha (qualquer erro; a mensagem
+    /// exata do caso *bare* pós-retificação não é fixada por
+    /// `compiler/eval/bindings/field_access.md` P1471 — só
+    /// `format.pdf.*` é fixado, ver P1464) sem a feature.
+    #[test]
+    fn p1471_pdf_field_access_members_present_across_profiles() {
+        for features in profiles() {
+            let (result, warnings) = eval_expression_with_features(
+                &world(),
+                "(type(pdf.attach) == function, type(pdf.artifact) == function)",
+                features,
+            );
+            assert!(
+                warnings.is_empty(),
+                "pdf.attach/artifact em {features:?}: {warnings:?}"
+            );
+            assert_eq!(
+                result.unwrap(),
+                Value::Array(vec![Value::Bool(true), Value::Bool(true)]),
+                "pdf.attach/pdf.artifact devem ser function em {features:?}"
+            );
+
+            let has_a11y = features.contains(Feature::A11yExtras);
+            for member in ["table-summary", "header-cell", "data-cell"] {
+                let expr = format!("type(pdf.{member}) == function");
+                let (result, warnings) =
+                    eval_expression_with_features(&world(), &expr, features);
+                assert!(
+                    warnings.is_empty(),
+                    "pdf.{member} em {features:?}: {warnings:?}"
+                );
+                if has_a11y {
+                    assert_eq!(
+                        result.unwrap(),
+                        Value::Bool(true),
+                        "pdf.{member} deve ser function com a11y-extras em {features:?}"
+                    );
+                } else {
+                    assert!(
+                        result.is_err(),
+                        "pdf.{member} sem a11y-extras deve falhar em {features:?}"
+                    );
+                }
+            }
+        }
     }
 }

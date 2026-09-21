@@ -60,8 +60,12 @@ fn p1424_file_id() -> FileId {
 }
 
 fn frame_binding() -> Value {
-    make_html_module()
-        .scope()
+    let Value::Func(module) = make_html_module() else {
+        panic!("html must be a function")
+    };
+    module
+        .namespace()
+        .expect("html namespace")
         .get("frame")
         .cloned()
         .expect("html.frame deve existir no módulo HTML")

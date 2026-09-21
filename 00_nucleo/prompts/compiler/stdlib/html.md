@@ -1,5 +1,5 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 7bdad02e
+Hash do Código: e102b032
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
@@ -882,7 +882,7 @@ materializado por P1424 e sua presença é obrigatória no módulo corrente. A
 retificação remove somente o negativo obsoleto; contagens e partições próprias
 dos constructors tipados continuam exatas.
 
-## P1471 — retificação: `html` é `Value::Func`, não `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1471 — retificação: `html` é `Value::Func`, não `Value::Module` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -946,3 +946,29 @@ Quebra deliberada de contrato público (`type(html)` muda de `module` para
 causal (este), hashes ressealados, V5/V15/V26, commit documental e
 **confirmação humana explícita posterior**, antes de qualquer código. A
 confirmação de P1467-P1470 não cobre esta mudança.
+
+A confirmação humana explícita foi recebida em 2026-09-21, posterior ao
+commit causal somente-L0 `2ae054ab5`. Agente A (`e118c2053`) implementou
+`make_html_module` sem ver os testes; durante a implementação descobriu e
+corrigiu um consumer de produção fora do escopo dos 5 L0s auditados —
+`P1293HtmlNative::from_func` em `compiler/eval/call_dispatch.rs`, que
+despachava natives HTML (`button`/`iframe`/`col`/`wbr`) via
+`make_html_module().scope().get(name)`. Agente B (`b546f709b`) escreveu 5
+testes RED (`p1471_html_type_and_repr_are_function_with_feature_enabled`,
+`p1471_html_call_fails_cannot_be_constructed_manually_with_feature_enabled`,
+`p1471_html_members_present_with_feature_enabled`,
+`p1471_html_namespace_length_stable_across_a11y`,
+`p1471_html_feature_off_blocks_bare_and_field_access`) sem ver a
+implementação — deliberadamente pelo observável de língua
+(`eval_expression_with_features`), não por reconstrução Rust-level, porque
+a assinatura de `make_html_module` (`-> Module` → `-> Value`) era
+precisamente o que o contrato mudava. Integração (papel C) corrigiu 11
+call-sites de teste internos a este ficheiro e 2 nos submódulos
+`html/p1423_tests.rs`/`html/p1424_tests.rs` que ainda assumiam `Module`
+(quebravam a compilação de `cargo test`, não de `cargo build`), e um
+import `Module` que ficou órfão depois da correção. Suíte: 36/36 em
+`compiler::stdlib::html` (5 novos + 29 irmãos em `html.rs`, mais os
+submódulos P1423/P1424). Zero regressão em typst-core (6059/6059),
+typst-shell (83/83), typst-infra (995/995). Clippy comparado por
+contagem `(ficheiro, mensagem)` contra o baseline `2ae054ab5`: zero
+avisos novos.

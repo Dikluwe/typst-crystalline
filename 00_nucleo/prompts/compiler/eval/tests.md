@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 26e7f812
+Hash do Código: 427bb68e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -323,3 +323,28 @@ Após aprovação ADR-0127, testar que a forma bare preserva
 `Content::MathUndershell`, body, annotation e presença causal; testar também
 `fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
 Esses oráculos são congelados antes do candidato produtivo.
+
+## P1471 — dois oráculos `type(pdf)`/`repr(pdf)` retificados (MATERIALIZADO; achado de integração)
+
+`compiler/stdlib/pdf.md` P1471 mede (2026-09-21) que o vanilla ratificado
+expõe `pdf` como `function`, não `module` — retificação confirmada pelo
+dono e materializada nos 5 L0s consumidores auditados
+(`compiler/stdlib/pdf.md`/`html.md`/`format.md`, `compiler/eval.md`,
+`compiler/eval/bindings/field_access.md`). Este ficheiro
+(`01_core/src/compiler/eval/tests.rs`) não fazia parte dessa auditoria,
+mas continha dois oráculos históricos que assumiam a forma anterior e
+regrediram assim que o código foi corrigido:
+
+- `p735_type_emoji_e_pdf_sao_module` — media `type(pdf) == module` junto
+  de `type(emoji) == module` (P731/P735). Corrigido para `type(pdf) ==
+  function`; `type(emoji)` continua `module`, inalterado — `pdf` é o
+  único dos dois retificado por P1471.
+- `p1305_oracles::p1305_named_modules` — media `repr(pdf) == "<module
+  pdf>"` junto de outros quatro globais (`std`/`color.map`/`calc`/`sym`,
+  todos module, inalterados). Corrigido para `repr(pdf) == "pdf"`.
+
+Achado durante a integração (papel C) do commit causal `2ae054ab5`, não
+antecipado pelo passo original — os dois testes vivem neste ficheiro, com
+owner próprio, distinto de `compiler/eval.md` apesar do nome parecido.
+Nenhum outro oráculo deste ficheiro foi tocado; `p1303_*` (gate a11y de
+`format.pdf.*`) pertence a `field_access.md`, não aqui.

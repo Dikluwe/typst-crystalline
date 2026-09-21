@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/format.md
-//! @prompt-hash c07308cd
+//! @prompt-hash 8a61f311
 //! @layer L1
 //! @updated 2026-09-20
 
@@ -41,14 +41,18 @@ fn projected_html_function(html_scope: &Scope, name: &str) -> Value {
 }
 
 pub(crate) fn make_format_module(pdf: &Value, html: &Value) -> Module {
-    let Value::Module(pdf) = pdf else {
-        panic!("format.pdf composition requires the effective pdf module");
+    let Value::Func(pdf) = pdf else {
+        panic!("format.pdf composition requires the effective pdf function");
     };
-    assert_eq!(pdf.name(), "pdf", "format.pdf composition requires module `pdf`");
-    let Value::Module(html) = html else {
-        panic!("format.html composition requires the effective html module");
+    assert_eq!(pdf.name(), Some("pdf"), "format.pdf composition requires function `pdf`");
+    let Value::Func(html) = html else {
+        panic!("format.html composition requires the effective html function");
     };
-    assert_eq!(html.name(), "html", "format.html composition requires module `html`");
+    assert_eq!(
+        html.name(),
+        Some("html"),
+        "format.html composition requires function `html`"
+    );
 
     let mut svg_namespace = Scope::new();
     svg_namespace.define("pretty", Value::Bool(false));
@@ -56,7 +60,7 @@ pub(crate) fn make_format_module(pdf: &Value, html: &Value) -> Module {
     let mut png_namespace = Scope::new();
     png_namespace.define("ppi", Value::Float(144.0));
 
-    let pdf_scope = pdf.scope();
+    let pdf_scope = pdf.namespace().expect("pdf function must carry a namespace");
     let gated_members = ["table-summary", "header-cell", "data-cell"];
     let gated_count = gated_members
         .iter()
@@ -81,7 +85,7 @@ pub(crate) fn make_format_module(pdf: &Value, html: &Value) -> Module {
         }
     }
 
-    let html_scope = html.scope();
+    let html_scope = html.namespace().expect("html function must carry a namespace");
     let mut html_namespace = Scope::new();
     html_namespace.define("pretty", Value::Bool(false));
     for (name, _) in html_scope.iter() {
@@ -134,7 +138,7 @@ mod tests {
 
     fn make_default_format_module() -> Module {
         let pdf = make_pdf_module(Features::empty());
-        let html = Value::Module(make_html_module());
+        let html = make_html_module();
         make_format_module(&pdf, &html)
     }
 
@@ -177,14 +181,151 @@ mod tests {
         assert_eq!(html.name(), Some("html"));
         let html_namespace = html.namespace().expect("format.html namespace");
         let global_html = make_html_module();
-        assert_eq!(html_namespace.len(), global_html.scope().len() + 1);
+        let Value::Func(global_html) = &global_html else {
+            panic!("html must be a function");
+        };
+        let global_html_namespace = global_html.namespace().expect("html namespace");
+        assert_eq!(html_namespace.len(), global_html_namespace.len() + 1);
         assert_eq!(html_namespace.get("pretty"), Some(&Value::Bool(false)));
-        for (name, _) in global_html.scope().iter() {
+        for (name, _) in global_html_namespace.iter() {
             assert_eq!(
                 html_namespace.get(name),
-                global_html.scope().get(name),
+                global_html_namespace.get(name),
                 "format.html.{name}"
             );
+        }
+    }
+}
+
+/// P1471 — RED isolado (Agente B): item 5 do passo (identidade preservada
+/// entre `format.pdf`/`format.html` e as raízes globais `pdf`/`html`),
+/// escrito a partir de `compiler/stdlib/pdf.md`/`html.md`/`format.md`
+/// P1471. Nenhuma implementação foi consultada.
+///
+/// Deliberadamente testado só pelo observável de língua
+/// (`eval_expression_with_features` + `==` sobre `Value::Func`), **não**
+/// por reconstrução Rust-level via `make_pdf_module`/`make_html_module`:
+/// o L0 declara que a assinatura de `make_html_module` muda de `-> Module`
+/// para `-> Value` (espelhando `make_pdf_module`) — qualquer teste que
+/// dependa dessa forma interna quebraria a compilação (não a asserção)
+/// assim que o Agente A materializar a mudança, e deixaria de servir como
+/// oráculo GREEN. Pela mesma razão de ADR-0107 (paridade é com a língua,
+/// não com a mecânica), a via de língua é também a mais correta aqui.
+///
+/// Nota de medição (ADR-0108): a igualdade `format.pdf.attach == pdf.attach`
+/// já é verdadeira nesta baseline — `Func::eq` compara nativas por nome
+/// (`01_core/src/entities/func.rs:384-396`), e `projected_pdf_function`
+/// já clona o mesmo binding nativo independentemente do kind da raiz
+/// `pdf`. Este teste não é RED pela igualdade em si; é mantido porque o
+/// passo pede a cobertura explícita do item 5, e serve de não-regressão
+/// (deve continuar GREEN antes e depois, como o item 7 em
+/// `field_access.rs`).
+#[cfg(test)]
+mod p1471_tests {
+    use crate::compiler::eval::eval_expression_with_features;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::value::Value;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn world() -> TestWorld {
+        TestWorld {
+            source: Source::detached(""),
+            library: Library::new(),
+            book: FontBook::new(),
+        }
+    }
+
+    fn profiles() -> Vec<Features> {
+        (0..4u8)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    fn assert_identity(world: &TestWorld, expr: &str, features: Features) {
+        let (result, warnings) = eval_expression_with_features(world, expr, features);
+        assert!(warnings.is_empty(), "{expr} em {features:?}: {warnings:?}");
+        assert_eq!(result.unwrap(), Value::Bool(true), "{expr} em {features:?}");
+    }
+
+    /// `format.pdf.attach`/`format.pdf.artifact` são a mesma função (não
+    /// clone com nome igual) que `pdf.attach`/`pdf.artifact`, nos quatro
+    /// perfis; com `A11yExtras`, o mesmo vale para o trio gated.
+    #[test]
+    fn p1471_format_pdf_members_share_identity_with_global_pdf() {
+        let world = world();
+        for features in profiles() {
+            assert_identity(&world, "format.pdf.attach == pdf.attach", features);
+            assert_identity(&world, "format.pdf.artifact == pdf.artifact", features);
+            if features.contains(Feature::A11yExtras) {
+                for member in ["table-summary", "header-cell", "data-cell"] {
+                    let expr = format!("format.pdf.{member} == pdf.{member}");
+                    assert_identity(&world, &expr, features);
+                }
+            }
+        }
+    }
+
+    /// `format.html.elem`/`format.html.frame` e uma amostra de tag tipada
+    /// (`div`) são a mesma função que `html.elem`/`html.frame`/`html.div`,
+    /// nos perfis em que `Feature::Html` está ativa (sem a feature, nem o
+    /// identificador `html` nem o campo `format.html` são acessíveis).
+    #[test]
+    fn p1471_format_html_members_share_identity_with_global_html() {
+        let world = world();
+        for features in profiles() {
+            if !features.contains(Feature::Html) {
+                continue;
+            }
+            assert_identity(&world, "format.html.elem == html.elem", features);
+            assert_identity(&world, "format.html.frame == html.frame", features);
+            assert_identity(&world, "format.html.div == html.div", features);
         }
     }
 }

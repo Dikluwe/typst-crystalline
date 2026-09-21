@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/format` — raiz pública de formatos
-Hash do Código: 52688f39
+Hash do Código: 8f7d5b82
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -376,7 +376,7 @@ owner. Por decisão do dono (2026-09-21, ver
 contrato de linguagem — não implementa nem alega conformidade PDF/A/PDF/UA
 estrutural real. Confirmação humana recebida em 2026-09-21.
 
-## P1471 — retificação: a entrada de `make_format_module` deixa de exigir `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1471 — retificação: a entrada de `make_format_module` deixa de exigir `Value::Module` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -423,3 +423,15 @@ Consequência mecânica direta da quebra de contrato decidida em
 mesma exigência de confirmação humana explícita posterior ao commit
 documental. Não é uma decisão nova independente; não pode ser
 materializada antes ou sem a confirmação dos dois owners upstream.
+
+Confirmação humana recebida em 2026-09-21, posterior ao commit causal
+`2ae054ab5`. Agente A (`e118c2053`) trocou os dois guardas e ajustou o
+helper de teste `make_default_format_module`. Agente B (`b546f709b`)
+escreveu 2 testes RED de identidade
+(`p1471_format_pdf_members_share_identity_with_global_pdf`,
+`p1471_format_html_members_share_identity_with_global_html`), via `==`
+de língua sobre `Value::Func`, não reconstrução Rust-level. Integração
+(papel C) corrigiu o teste pré-existente
+`p1465_format_module_exposes_svg_png_pdf_and_html`, que ainda chamava
+`global_html.scope()` diretamente. Suíte: 4/4 (2 novos + 2 irmãos). Zero
+regressão nas suítes dependentes (typst-core 6059/6059).

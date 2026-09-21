@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 7cb82510
+//! @prompt-hash 4c88fed1
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -455,19 +455,17 @@ fn is_user_defined_closure(mut func: &Func) -> bool {
     }
 }
 
+/// **P1471** — reconhece tanto o namespace da raiz global `pdf` (só
+/// `attach`/`artifact`[/trio a11y]) quanto a projeção `format.pdf` (que
+/// acrescenta `pages`/`standard`/`tagged`/`pretty` por cima dos mesmos dois
+/// bindings clonados). Antes de P1471, só `format.pdf` chegava aqui — a
+/// raiz `pdf` era reconhecida pelo ramo `Value::Module` agora removido
+/// (ver `field_access.md` P1471). Os quatro defaults extras são exclusivos
+/// da projeção e não distinguem re-identificação válida; `attach`/`artifact`
+/// como `Value::Func` já são suficientemente específicos combinados com o
+/// nome nativo `"pdf"` verificado pelo chamador.
 fn is_format_pdf_namespace(namespace: &crate::entities::scope::Scope) -> bool {
-    matches!(namespace.get("pages"), Some(Value::None))
-        && matches!(
-            namespace.get("standard"),
-            Some(Value::Array(standards))
-                if matches!(
-                    standards.as_slice(),
-                    [Value::Str(standard)] if standard.as_str() == "1.7"
-                )
-        )
-        && matches!(namespace.get("tagged"), Some(Value::Auto))
-        && matches!(namespace.get("pretty"), Some(Value::Bool(false)))
-        && matches!(namespace.get("attach"), Some(Value::Func(_)))
+    matches!(namespace.get("attach"), Some(Value::Func(_)))
         && matches!(namespace.get("artifact"), Some(Value::Func(_)))
 }
 
@@ -491,7 +489,6 @@ fn is_format_pdf_function(mut func: &Func) -> bool {
 
 fn is_a11y_pdf_target(target: &Value) -> bool {
     match target {
-        Value::Module(module) => module.name() == "pdf",
         Value::Func(func) => is_format_pdf_function(func),
         _ => false,
     }
@@ -2566,5 +2563,188 @@ mod p1326_tests {
                 assert_eq!(actual.unwrap(), expected, "{expr}");
             }
         }
+    }
+}
+
+/// P1471 — RED isolado (Agente B), a partir de
+/// `compiler/eval/bindings/field_access.md` P1471: com `pdf` retificado
+/// para `Value::Func`, o alvo 1 de `is_a11y_pdf_target`
+/// (`Value::Module(module) => module.name() == "pdf"`) fica morto —
+/// `pdf` nunca mais é `Value::Module`. O predicate deve ser simplificado
+/// para o único caso remanescente (`Value::Func(func) =>
+/// is_format_pdf_function(func)`). Nenhuma implementação foi consultada.
+///
+/// Item 7 do passo — este owner "não ganha nem perde diagnóstico,
+/// mensagem, hint ou span" para `format.pdf.table-summary`/`header-cell`/
+/// `data-cell` sem `a11y-extras`: o comportamento observável medido em
+/// P1464 é **idêntico antes e depois** da simplificação. Por isso
+/// `p1471_format_pdf_a11y_gate_message_and_hints_stable_across_a11y` não é
+/// RED por si — é teste de não-regressão que deve continuar GREEN antes e
+/// depois, provando que a limpeza do branch morto não quebra o gate.
+///
+/// Nota de medição (ADR-0108): o comportamento do alvo *bare* `pdf.<gated>`
+/// sem `a11y-extras` (hoje servido pelo alvo 1, que reconhece qualquer
+/// `Value::Module` chamado "pdf") não é fixado por este L0 para depois da
+/// retificação — `is_format_pdf_namespace` exige `pages`/`standard`/
+/// `tagged`/`pretty` no namespace, que o `pdf` bruto não tem (só
+/// `format.pdf` os tem). Por isso nenhum teste aqui fixa a mensagem exata
+/// do caso bare pós-retificação; só se afirma que continua a ser erro
+/// (cobertura equivalente já está em `compiler/stdlib/pdf.rs`
+/// `p1471_pdf_field_access_members_present_across_profiles`).
+#[cfg(test)]
+mod p1471_tests {
+    use super::{eval_value_field_access, Span, Value};
+    use crate::compiler::eval::eval_expression_with_features;
+    use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::source_result::Severity;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn world_for(text: &str) -> TestWorld {
+        TestWorld {
+            source: Source::detached(text),
+            library: Library::new(),
+            book: FontBook::new(),
+        }
+    }
+
+    fn profiles() -> Vec<Features> {
+        (0..4u8)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    /// Item 7 — não-regressão: `format.pdf.table-summary`/`header-cell`/
+    /// `data-cell` sem `a11y-extras` continuam a produzir exatamente a
+    /// mensagem e os dois hints medidos em P1464, com o field ancorado; com
+    /// `a11y-extras`, o lookup ordinário devolve a função. Deve valer nos
+    /// quatro perfis (a gate independe de `Feature::Html`) e continuar
+    /// GREEN antes e depois de P1471 — a simplificação de
+    /// `is_a11y_pdf_target` remove só o branch morto de `Value::Module`.
+    #[test]
+    fn p1471_format_pdf_a11y_gate_message_and_hints_stable_across_profiles() {
+        for features in profiles() {
+            let has_a11y = features.contains(Feature::A11yExtras);
+            for field in ["table-summary", "header-cell", "data-cell"] {
+                let expr = format!("format.pdf.{field}");
+                let world = world_for(&expr);
+                let (result, warnings) =
+                    eval_expression_with_features(&world, &expr, features);
+                assert!(warnings.is_empty(), "{expr} em {features:?}: {warnings:?}");
+                if has_a11y {
+                    let Value::Func(func) = result.unwrap() else {
+                        panic!("format.pdf.{field} deve ser função com a11y-extras");
+                    };
+                    let expected_name = format!("pdf.{field}");
+                    assert_eq!(func.name(), Some(expected_name.as_str()));
+                } else {
+                    let errors = result.unwrap_err();
+                    assert_eq!(errors.len(), 1, "{expr} em {features:?}: {errors:?}");
+                    let d = &errors[0];
+                    assert_eq!(
+                        d.message,
+                        format!(
+                            "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
+                        ),
+                        "{expr} em {features:?}"
+                    );
+                    assert_eq!(d.severity, Severity::Error);
+                    assert_eq!(
+                        d.hints,
+                        vec![
+                            "try enabling the `a11y-extras` feature".to_string(),
+                            "see https://typst.app/help/compiler-features for more details"
+                                .to_string(),
+                        ],
+                        "{expr} em {features:?}"
+                    );
+                    // Nota de medição: `eval_expression_with_features` faz o
+                    // parsing num `Source` interno próprio (não o
+                    // `world.source` construído aqui só para satisfazer o
+                    // trait `World`), e spans de ficheiros Typst são
+                    // *numbered spans* (`entities/span.rs`) — só decodíveis
+                    // pela árvore que os atribuiu. Por isso este teste
+                    // verifica apenas que o span está ancorado (não
+                    // detached), sem tentar decodificar o byte range a
+                    // partir de um `Source` diferente do que foi parseado.
+                    assert_ne!(
+                        d.span,
+                        Span::detached(),
+                        "{expr} em {features:?}: span deve estar ancorado no field"
+                    );
+                }
+            }
+        }
+    }
+
+    /// Não-regressão auxiliar — `eval_value_field_access` pura continua a
+    /// tratar um `Value::Module` avulso (não a raiz `pdf`/`format`) como
+    /// hoje: sem o intercept especial, cai no diagnóstico genérico de
+    /// campo ausente. Confirma que a simplificação do predicate não
+    /// amplia o alcance do gate para módulos homónimos arbitrários.
+    #[test]
+    fn p1471_arbitrary_module_named_pdf_is_not_special_cased_by_pure_lookup() {
+        use crate::entities::scope::Scope;
+        let module = crate::entities::module::Module::new("pdf", Scope::new());
+        let err = eval_value_field_access(
+            Value::Module(module),
+            "table-summary",
+            Span::detached(),
+        )
+        .unwrap_err();
+        assert_eq!(err.len(), 1);
+        assert_ne!(
+            err[0].message,
+            "cannot access field `table-summary` because the `a11y-extras` feature is not enabled",
+            "eval_value_field_access pura não deve aplicar o gate a11y: {}",
+            err[0].message
+        );
     }
 }

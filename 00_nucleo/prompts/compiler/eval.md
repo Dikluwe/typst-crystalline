@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 5831e7da
+Hash do Código: a953cd2f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -860,7 +860,7 @@ HTML, quatro perfis e ausência de regressão no módulo global. A confirmação
 humana posterior ao commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`
 foi recebida em 2026-09-20; implementação e teste RED→GREEN foram concluídos.
 
-## P1471 — retificação: `pdf`/`html` deixam de ser "módulo global" (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1471 — retificação: `pdf`/`html` deixam de ser "módulo global" (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -902,3 +902,17 @@ caracterização vigente da forma da raiz.
 Mesmo gate de `compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 —
 consequência, não decisão independente. Requer confirmação humana explícita
 posterior ao commit documental dos três owners juntos.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal
+`2ae054ab5`. Agente A (`e118c2053`) ajustou a linha de registo de `html`
+para `let html = make_html_module();`. Agente B (`b546f709b`) escreveu 1
+teste RED (`p1471_scope_registers_pdf_and_html_as_func_across_profiles`).
+Suíte: 8/8 neste ficheiro (1 novo + 7 irmãos). Zero regressão em
+typst-core (6059/6059).
+
+Nota de ownership: dois oráculos históricos que assumiam `type(pdf) ==
+module`/`repr(pdf) == "<module pdf>"` também precisaram de correção
+durante a integração, mas vivem em `01_core/src/compiler/eval/tests.rs`
+— ficheiro com owner **próprio** `compiler/eval/tests.md` (não este L0,
+apesar do nome parecido; achado só na integração, fora da auditoria
+original dos 5 L0s de P1471). Ver a nota lá.

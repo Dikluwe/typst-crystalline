@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash f37ca572
+//! @prompt-hash 7d452ced
 //! @layer L1
 
 use std::sync::Arc;
@@ -17,7 +17,6 @@ use crate::entities::func::Func;
 #[cfg(test)]
 use crate::entities::html::{Feature, Features};
 use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem, HtmlFrameElem};
-use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -31,14 +30,31 @@ mod p1423_tests;
 #[path = "html/p1424_tests.rs"]
 mod p1424_tests;
 
-pub fn make_html_module() -> Module {
+/// Constrói o valor `html` como `Value::Func` com namespace fechado
+/// (`elem`, `frame`, as tags tipadas) — paridade com o vanilla ratificado,
+/// onde `type(html) == function` (ver `compiler/stdlib/html.md` P1471).
+/// Chamar `html(...)` diretamente é sempre erro; só os membros do
+/// namespace são chamáveis.
+pub fn make_html_module() -> Value {
     let mut scope = Scope::new();
     scope.define("elem", Value::Func(Func::native("elem", native_html_elem)));
     scope.define("frame", Value::Func(Func::native("frame", native_html_frame)));
     for (name, native) in TYPED_TAGS {
         scope.define(*name, Value::Func(Func::native(name, *native)));
     }
-    Module::new("html", scope)
+    Value::Func(Func::native_with_namespace("html", native_html_root, Arc::new(scope)))
+}
+
+/// `html(...)` não pode ser construído manualmente — mesmo diagnóstico
+/// medido no vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+/// para `pdf()`/`html()` (`compiler/stdlib/html.md` P1471).
+fn native_html_root(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(Span::detached(), "cannot be constructed manually")])
 }
 
 fn native_html_frame(
@@ -2108,29 +2124,51 @@ mod tests {
     #[test]
     fn p1168_html_module_expoe_exatamente_o_primeiro_lote_tipado() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in P1168_TAGS {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
-        assert!(module.scope().get("frame").is_some(), "html.frame pertence ao P1424");
+        assert!(
+            module.namespace().unwrap().get("frame").is_some(),
+            "html.frame pertence ao P1424"
+        );
     }
 
     #[test]
     fn p1169_1_html_module_expoe_ol_e_li() {
         let module = make_html_module();
-        assert!(module.scope().get("ol").is_some(), "binding ausente: html.ol");
-        assert!(module.scope().get("li").is_some(), "binding ausente: html.li");
+        let Value::Func(module) = &module else { panic!("html must be a function") };
+        assert!(
+            module.namespace().unwrap().get("ol").is_some(),
+            "binding ausente: html.ol"
+        );
+        assert!(
+            module.namespace().unwrap().get("li").is_some(),
+            "binding ausente: html.li"
+        );
     }
 
     #[test]
     fn p1170_1_html_module_expoe_a() {
         let module = make_html_module();
-        assert!(module.scope().get("a").is_some(), "binding ausente: html.a");
+        let Value::Func(module) = &module else { panic!("html must be a function") };
+        assert!(
+            module.namespace().unwrap().get("a").is_some(),
+            "binding ausente: html.a"
+        );
     }
 
     #[test]
     fn p1171_1_html_module_expoe_br_sem_body() {
         let module = make_html_module();
-        assert!(module.scope().get("br").is_some(), "binding ausente: html.br");
+        let Value::Func(module) = &module else { panic!("html must be a function") };
+        assert!(
+            module.namespace().unwrap().get("br").is_some(),
+            "binding ausente: html.br"
+        );
 
         let br = elem(
             native_typed_html_void(
@@ -2156,11 +2194,15 @@ mod tests {
     #[test]
     fn p1173_1_html_module_expoe_lote_global_only_2() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in [
             "abbr", "address", "article", "aside", "b", "bdi", "bdo", "cite", "code",
             "dfn", "i", "kbd",
         ] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let abbr = elem(
@@ -2194,6 +2236,7 @@ mod tests {
     #[test]
     fn p1174_1_html_module_expoe_lote_global_only_3() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in [
             "dd",
             "dl",
@@ -2208,7 +2251,10 @@ mod tests {
             "mark",
             "menu",
         ] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let mark = elem(
@@ -2242,11 +2288,15 @@ mod tests {
     #[test]
     fn p1175_1_html_module_expoe_lote_global_only_4() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in [
             "nav", "picture", "pre", "s", "samp", "search", "section", "small", "sub",
             "sup", "u", "var",
         ] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let picture = elem(
@@ -2276,8 +2326,12 @@ mod tests {
     #[test]
     fn p1176_1_html_module_expoe_lote_residual_normal() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in ["datalist", "noscript", "summary"] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let summary = elem(
@@ -2307,8 +2361,12 @@ mod tests {
     #[test]
     fn p1177_1_html_module_expoe_familia_ruby() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in ["ruby", "rp", "rt"] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let ruby = elem(
@@ -2338,8 +2396,12 @@ mod tests {
     #[test]
     fn p1178_1_html_module_expoe_familia_documento() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in ["html", "head", "body", "title"] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         let title = elem(
@@ -2633,8 +2695,12 @@ mod tests {
     #[test]
     fn p1293_c_expoe_sete_bindings_com_body_normal_e_void() {
         let module = make_html_module();
+        let Value::Func(module) = &module else { panic!("html must be a function") };
         for tag in ["button", "col", "iframe", "select", "template", "video", "wbr"] {
-            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+            assert!(
+                module.namespace().unwrap().get(tag).is_some(),
+                "binding ausente: html.{tag}"
+            );
         }
 
         for (tag, specs) in [
@@ -2941,6 +3007,227 @@ mod tests {
         ] {
             let error = cast_attr(kind, &value, Span::detached()).unwrap_err();
             assert_eq!(error[0].message, expected);
+        }
+    }
+}
+
+/// P1471 — RED isolado (Agente B): `html` retificado de `Value::Module`
+/// para `Value::Func` (`compiler/stdlib/html.md` P1471). Testes escritos a
+/// partir do L0 apenas — nenhuma implementação foi consultada.
+///
+/// Deliberadamente **não** chama `make_html_module()` diretamente: o L0
+/// declara que a sua assinatura muda de `-> Module` para `-> Value`
+/// ("espelhando `make_pdf_module`"), o que tornaria qualquer teste
+/// Rust-level dependente dessa assinatura frágil a um erro de compilação
+/// assim que o Agente A materializar a mudança (quebrando GREEN em vez de
+/// o confirmar). Os testes abaixo passam exclusivamente pelo observável de
+/// língua (`eval_expression_with_features`), robusto à forma interna do
+/// constructor.
+///
+/// - `p1471_html_type_and_repr_are_function_with_feature_enabled` — RED:
+///   hoje `type(html) == module` e `repr(html) == "<module html>"`.
+/// - `p1471_html_call_fails_cannot_be_constructed_manually_with_feature_enabled`
+///   — RED: hoje `html()` não produz esse diagnóstico.
+/// - `p1471_html_members_present_with_feature_enabled` /
+///   `p1471_html_namespace_length_stable_across_a11y` — não são RED por si
+///   (a presença dos membros e a independência de `A11yExtras` já são
+///   verdadeiras na baseline); mantidos como cobertura explícita do
+///   observável pedido pelo passo (item 4 e item 6, metade `html`).
+/// - `p1471_html_feature_off_blocks_bare_and_field_access` — não-regressão
+///   do gate de identificador já existente (`Expr::Ident`), inalterado por
+///   este passo.
+#[cfg(test)]
+mod p1471_tests {
+    use crate::compiler::eval::eval_expression_with_features;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::value::Value;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn world() -> TestWorld {
+        TestWorld {
+            source: Source::detached(""),
+            library: Library::new(),
+            book: FontBook::new(),
+        }
+    }
+
+    /// Só os dois perfis em que `Feature::Html` está ativa — sem ela, o
+    /// identificador `html` já é bloqueado antes de qualquer lookup (gate
+    /// pré-existente em `eval_expr_inner`, inalterado por P1471).
+    fn html_enabled_profiles() -> Vec<Features> {
+        let mut html_only = Features::empty();
+        html_only.enable(Feature::Html);
+        let mut html_and_a11y = Features::empty();
+        html_and_a11y.enable(Feature::Html);
+        html_and_a11y.enable(Feature::A11yExtras);
+        vec![html_only, html_and_a11y]
+    }
+
+    fn html_disabled_profiles() -> Vec<Features> {
+        let default = Features::empty();
+        let mut a11y_only = Features::empty();
+        a11y_only.enable(Feature::A11yExtras);
+        vec![default, a11y_only]
+    }
+
+    /// Item 1 + item 2 — `type(html) == function` e `repr(html) == "html"`
+    /// quando `Feature::Html` está ativa (com ou sem `A11yExtras`).
+    #[test]
+    fn p1471_html_type_and_repr_are_function_with_feature_enabled() {
+        for features in html_enabled_profiles() {
+            let (result, warnings) = eval_expression_with_features(
+                &world(),
+                "type(html) == function",
+                features,
+            );
+            assert!(warnings.is_empty(), "type(html) em {features:?}: {warnings:?}");
+            assert_eq!(
+                result.unwrap(),
+                Value::Bool(true),
+                "type(html) deve ser function em {features:?}"
+            );
+
+            let (result, warnings) =
+                eval_expression_with_features(&world(), "repr(html)", features);
+            assert!(warnings.is_empty(), "repr(html) em {features:?}: {warnings:?}");
+            assert_eq!(
+                result.unwrap(),
+                Value::Str("html".into()),
+                "repr(html) deve ser \"html\" em {features:?}"
+            );
+        }
+    }
+
+    /// Item 3 — `html()` falha sempre com exatamente
+    /// `"cannot be constructed manually"`.
+    #[test]
+    fn p1471_html_call_fails_cannot_be_constructed_manually_with_feature_enabled() {
+        for features in html_enabled_profiles() {
+            let (result, warnings) =
+                eval_expression_with_features(&world(), "html()", features);
+            assert!(warnings.is_empty(), "html() em {features:?}: {warnings:?}");
+            let errors = result.unwrap_err();
+            assert_eq!(errors.len(), 1, "html() em {features:?}: {errors:?}");
+            assert_eq!(
+                errors[0].message, "cannot be constructed manually",
+                "html() em {features:?}"
+            );
+        }
+    }
+
+    /// Item 4 — `html.elem`, `html.frame` e amostra de tags tipadas
+    /// continuam presentes e chamáveis (tipo função) quando a feature está
+    /// ativa, independentemente de `A11yExtras`.
+    #[test]
+    fn p1471_html_members_present_with_feature_enabled() {
+        for features in html_enabled_profiles() {
+            let expr = "(type(html.elem) == function, type(html.frame) == function, \
+                type(html.div) == function, type(html.a) == function, \
+                type(html.br) == function)";
+            let (result, warnings) =
+                eval_expression_with_features(&world(), expr, features);
+            assert!(warnings.is_empty(), "membros de html em {features:?}: {warnings:?}");
+            assert_eq!(
+                result.unwrap(),
+                Value::Array(vec![
+                    Value::Bool(true),
+                    Value::Bool(true),
+                    Value::Bool(true),
+                    Value::Bool(true),
+                    Value::Bool(true),
+                ]),
+                "html.elem/frame/div/a/br devem ser function em {features:?}"
+            );
+        }
+    }
+
+    /// Item 6 (metade `html`) — o tamanho do namespace de `html` não muda
+    /// com `A11yExtras` (feature ortogonal ao módulo html).
+    #[test]
+    fn p1471_html_namespace_length_stable_across_a11y() {
+        let profiles = html_enabled_profiles();
+        let mut lengths = Vec::new();
+        for features in &profiles {
+            let (result, warnings) =
+                eval_expression_with_features(&world(), "html", *features);
+            assert!(warnings.is_empty(), "html em {features:?}: {warnings:?}");
+            let Value::Func(func) = result.unwrap() else {
+                panic!("P1471: html deve ser Value::Func em {features:?}");
+            };
+            let namespace = func.namespace().expect("html deve ter namespace anexado");
+            lengths.push(namespace.len());
+        }
+        assert_eq!(
+            lengths[0], lengths[1],
+            "contagem de membros de html não deve depender de a11y-extras: {lengths:?}"
+        );
+    }
+
+    /// Não-regressão — sem `Feature::Html`, `html` (identificador bare) e
+    /// `html.elem` (que avalia o mesmo identificador como target) continuam
+    /// bloqueados pelo gate pré-existente, com a mesma mensagem e hints.
+    #[test]
+    fn p1471_html_feature_off_blocks_bare_and_field_access() {
+        for features in html_disabled_profiles() {
+            for expr in ["html", "html.elem"] {
+                let (result, warnings) =
+                    eval_expression_with_features(&world(), expr, features);
+                assert!(warnings.is_empty(), "{expr} em {features:?}: {warnings:?}");
+                let errors = result.unwrap_err();
+                assert_eq!(errors.len(), 1, "{expr} em {features:?}: {errors:?}");
+                assert_eq!(
+                    errors[0].message,
+                    "cannot access variable `html` because the `html` feature is not enabled",
+                    "{expr} em {features:?}"
+                );
+                assert_eq!(
+                    errors[0].hints,
+                    vec![
+                        "try enabling the `html` feature".to_string(),
+                        "see https://typst.app/help/compiler-features for more details"
+                            .to_string(),
+                    ],
+                    "{expr} em {features:?}"
+                );
+            }
         }
     }
 }

@@ -282,11 +282,13 @@ fn p1423_ab_superficie_e_particao_sao_exatamente_43_sem_frame() {
     assert_eq!(dispatched.difference(&legacy).copied().collect::<BTreeSet<_>>(), p1423);
 
     let module = make_html_module();
-    assert_eq!(module.scope().len(), 114, "elem + frame + 112 constructors tipados");
+    let Value::Func(module) = &module else { panic!("html must be a function") };
+    let module = module.namespace().unwrap();
+    assert_eq!(module.len(), 114, "elem + frame + 112 constructors tipados");
     for name in P1423_BINDINGS {
-        assert!(module.scope().get(name).is_some(), "binding ausente: html.{name}");
+        assert!(module.get(name).is_some(), "binding ausente: html.{name}");
     }
-    assert!(module.scope().get("frame").is_some(), "html.frame pertence ao P1424");
+    assert!(module.get("frame").is_some(), "html.frame pertence ao P1424");
 }
 
 #[test]

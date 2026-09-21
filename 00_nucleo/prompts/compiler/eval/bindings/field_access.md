@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 9cec12b0
+Hash do Código: 0b58fda5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1346,7 +1346,7 @@ bloqueia. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
 gate foi materializado e coberto pelo RED→GREEN funcional.
 
-## P1471 — retificação: o primeiro alvo de `is_a11y_pdf_target` fica morto (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1471 — retificação: o primeiro alvo de `is_a11y_pdf_target` fica morto (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -1401,9 +1401,47 @@ contratada") não usa `Value::Module` para `html`/`pdf` diretamente — já
 reconhece `format` pela superfície de `svg`/`png`/`pdf`/`html` como
 funções — e não precisa de retificação própria.
 
+### Correção descoberta na integração — `is_format_pdf_namespace` exigia os defaults exclusivos da projeção
+
+A afirmação acima ("`is_format_pdf_function`/`is_format_pdf_namespace` **não
+mudam**") estava **errada** — refutada pela suíte RED→GREEN durante a
+integração (papel C, 2026-09-21). `is_format_pdf_namespace` exigia
+`pages`/`standard`/`tagged`/`pretty` além de `attach`/`artifact`; esses
+quatro primeiros são defaults exclusivos da **projeção** `format.pdf`
+(`compiler/stdlib/format.md`), nunca existiram no namespace da **raiz**
+`pdf` (só `attach`/`artifact`[/trio a11y]). Com o ramo `Value::Module`
+removido, `pdf.table-summary`/`header-cell`/`data-cell` acedidos na raiz
+(sem passar por `format.pdf.*`) deixavam de bater com nenhum dos dois
+ramos e caíam no erro genérico de field-access-em-função
+(`"function `pdf` does not contain field `data-cell`"`), regredindo os
+oráculos já materializados em P1303 (`cannot access field ... because the
+`a11y-extras` feature is not enabled`, com os dois hints).
+
+`is_format_pdf_namespace` foi corrigida para exigir somente `attach`/
+`artifact` como `Value::Func` — suficiente, combinado com o nome nativo
+`"pdf"` já verificado pelo chamador, para identificar as duas formas
+(raiz e projeção) sem depender dos defaults exclusivos da projeção. Os
+cinco testes P1303 (negativos/positivos/sentinelas) voltaram a GREEN sem
+mudança de mensagem, hint ou span.
+
 ### Gate ADR-0127
 
 Consequência mecânica da quebra de contrato decidida em
 `compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 — mesmo gate,
 mesma confirmação humana explícita posterior exigida antes de tocar este
 código.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal
+`2ae054ab5`. Agente A (`e118c2053`) simplificou `is_a11y_pdf_target`.
+Agente B (`b546f709b`) escreveu 2 testes RED
+(`p1471_format_pdf_a11y_gate_message_and_hints_stable_across_profiles`,
+`p1471_arbitrary_module_named_pdf_is_not_special_cased_by_pure_lookup`)
+sem ver a implementação. Integração (papel C) descobriu, via a suíte
+completa, que a simplificação sozinha regredia 3 oráculos P1303 já
+materializados (`pdf.data-cell`/`header-cell`/`table-summary` acedidos na
+**raiz** sem `a11y-extras` deixavam de produzir o diagnóstico gated) —
+corrigido relaxando `is_format_pdf_namespace` (ver "Correção descoberta na
+integração" acima); os 2 testes novos de B não cobriam esse caso porque o
+próprio L0, nesta secção, também não o antecipava antes da integração.
+Suíte: 35/35 neste ficheiro (2 novos + 33 irmãos, incluindo os 5 P1303
+reconfirmados GREEN). Zero regressão em typst-core (6059/6059).

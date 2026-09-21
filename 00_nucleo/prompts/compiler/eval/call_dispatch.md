@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 87ff695e
+Hash do Código: 3208fffd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -880,3 +880,20 @@ inner, gap:)` à nativa qualificada com contexto, Scopes e Engine atuais. O
 receiver é avaliado uma vez e anteposto aos argumentos; toda validação e toda
 composição permanecem no owner de outline. Outros Contents não são
 interceptados e o fallback geral permanece inalterado.
+
+# P1471 — `P1293HtmlNative::from_func` deixa de assumir `html` como `Module` (MATERIALIZADO; achado de integração)
+
+`compiler/stdlib/html.md` P1471 retifica `html` para `Value::Func` (medido
+contra o vanilla ratificado `586e1bd43fae`, confirmado pelo dono
+2026-09-21). Este ficheiro não fazia parte dos 5 L0s auditados nessa
+retificação, mas `P1293HtmlNative::from_func` (despacho das natives HTML
+`button`/`iframe`/`col`/`wbr`/etc. via `call_dispatch`) chamava
+`make_html_module().scope().get(name)` em código de produção — achado
+pelo Agente A durante a implementação isolada de P1471 (worktree, sem ver
+os L0s de teste), corrigido no mesmo commit (`e118c2053`) para
+`.namespace()` sobre o `Value::Func`, mesma lógica de lookup, mesmo
+resultado. O teste correspondente
+(`p1293_c_identidades_html_e_ancoras_sao_estritas`, neste ficheiro)
+também assumia `.scope()` e foi corrigido na integração (papel C) pela
+mesma razão. Nenhum comportamento observável de `P1293HtmlNative`
+mudou — só a forma de obter o namespace de onde ler.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 833d78e6
+//! @prompt-hash 3c7850e6
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -312,7 +312,10 @@ impl P1293HtmlNative {
             _ => return None,
         };
         let module = crate::compiler::stdlib::make_html_module();
-        let Value::Func(reference) = module.scope().get(name)? else {
+        let Value::Func(root) = &module else {
+            return None;
+        };
+        let Value::Func(reference) = root.namespace()?.get(name)? else {
             return None;
         };
         let (Some(actual), Some(expected)) =
@@ -2282,6 +2285,7 @@ mod tests {
     #[test]
     fn p1293_c_identidades_html_e_ancoras_sao_estritas() {
         let module = crate::compiler::stdlib::make_html_module();
+        let Value::Func(module) = &module else { panic!() };
         for (name, expected_void) in [
             ("button", false),
             ("col", true),
@@ -2291,7 +2295,9 @@ mod tests {
             ("video", false),
             ("wbr", true),
         ] {
-            let Value::Func(func) = module.scope().get(name).unwrap() else { panic!() };
+            let Value::Func(func) = module.namespace().unwrap().get(name).unwrap() else {
+                panic!()
+            };
             assert!(
                 matches!(
                     P1293HtmlNative::from_func(func),

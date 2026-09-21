@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash cf044b0c
+//! @prompt-hash 4565321c
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -7782,7 +7782,7 @@ fn make_stdlib_with_features(
         native_yaml_encode,
     };
     let pdf = make_pdf_module(features);
-    let html = Value::Module(make_html_module());
+    let html = make_html_module();
     let mut scope = Scope::new();
     scope.define("format", Value::Module(make_format_module(&pdf, &html)));
     scope.define("html", html);
@@ -8523,3 +8523,60 @@ pub(crate) use crate::compiler::eval::tests::eval_for_test;
 // Re-export para o módulo de tests (que usa `use super::*;`).
 #[cfg(test)]
 pub(crate) use crate::compiler::eval::operators::{eval_binary_op, eval_unary_op};
+
+/// P1471 — RED isolado (Agente B), a partir de `compiler/eval.md` P1471:
+/// este owner só regista `pdf`/`html` no scope canónico via
+/// `make_stdlib_with_features` (uma única composição,
+/// `make_pdf_module`/`make_html_module()` chamadas exatamente uma vez
+/// cada); a única mudança observável aqui é o kind do valor registado, de
+/// `module` para `function`. Nenhuma implementação foi consultada.
+#[cfg(test)]
+mod p1471_tests {
+    use super::*;
+    use crate::entities::compiler_features::{Feature, Features};
+
+    fn profiles() -> Vec<Features> {
+        (0..4u8)
+            .map(|mask| {
+                let mut features = Features::empty();
+                if mask & 1 != 0 {
+                    features.enable(Feature::Html);
+                }
+                if mask & 2 != 0 {
+                    features.enable(Feature::A11yExtras);
+                }
+                features
+            })
+            .collect()
+    }
+
+    /// Item 1 (nível de composição) — o scope canónico construído por
+    /// `make_stdlib_with_features` regista `pdf` (sempre) e `html` (nos
+    /// perfis com `Feature::Html`) como `Value::Func`, não `Value::Module`.
+    /// RED nesta baseline: ambos ainda são `Value::Module`.
+    #[test]
+    fn p1471_scope_registers_pdf_and_html_as_func_across_profiles() {
+        for features in profiles() {
+            let stdlib = make_stdlib_with_features(&SysInputs::default(), features);
+
+            let pdf = stdlib.get("pdf").expect("pdf deve estar registado no scope");
+            let Value::Func(pdf_func) = pdf else {
+                panic!(
+                    "P1471: scope.pdf deve ser Value::Func em {features:?}, obtido {pdf:?}"
+                );
+            };
+            assert_eq!(pdf_func.name(), Some("pdf"), "nome nativo de scope.pdf");
+
+            if features.contains(Feature::Html) {
+                let html =
+                    stdlib.get("html").expect("html deve estar registado no scope");
+                let Value::Func(html_func) = html else {
+                    panic!(
+                        "P1471: scope.html deve ser Value::Func em {features:?}, obtido {html:?}"
+                    );
+                };
+                assert_eq!(html_func.name(), Some("html"), "nome nativo de scope.html");
+            }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 # Prompt L0 — `pdf` — módulo de funcionalidade específica de PDF
-Hash do Código: 83fa3676
+Hash do Código: d4cf3233
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -135,7 +135,7 @@ As três funções só são instaladas quando `A11yExtras` está ativa, conforme
 Núcleo pinado. O trio não produz stub, marcador descartável nem alteração
 visual; os carriers sobrevivem até o PDF tagueado.
 
-## P1471 — retificação: `pdf` é `Value::Func`, não `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1471 — retificação: `pdf` é `Value::Func`, não `Value::Module` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -201,3 +201,23 @@ Quebra deliberada de contrato público (`type(pdf)` muda de `module` para
 causal (este), hashes ressealados, V5/V15/V26, commit documental e
 **confirmação humana explícita posterior**, antes de qualquer código. A
 confirmação de P1467-P1470 não cobre esta mudança.
+
+A confirmação humana explícita foi recebida em 2026-09-21, posterior ao
+commit causal somente-L0 `2ae054ab5`. Agente A (`e118c2053`) implementou
+`make_pdf_module` sem ver os testes; Agente B (`b546f709b`) escreveu 4
+testes RED (`p1471_pdf_type_and_repr_are_function_across_profiles`,
+`p1471_pdf_call_fails_cannot_be_constructed_manually_across_profiles`,
+`p1471_pdf_root_is_func_with_stable_namespace_across_profiles`,
+`p1471_pdf_field_access_members_present_across_profiles`) sem ver a
+implementação. Integração (papel C) corrigiu 4 oráculos históricos que
+assumiam `type(pdf) == module` (`eval/tests.rs`, ver `compiler/eval.md`
+P1471) e um consumer de produção fora do escopo dos 5 L0s auditados —
+`P1293HtmlNative::from_func` em `call_dispatch.rs`, que também lia
+`.scope()` sobre `make_html_module()` — achado pelo Agente A e corrigido
+por ele mesmo. `01_core/src/compiler/stdlib/pdf.rs`: 10/10 testes
+(4 novos + 6 irmãos). Zero regressão em typst-core (6059/6059),
+typst-shell (83/83), typst-infra (995/995, com um flake pré-existente e
+não relacionado — `p821_target_fora_de_contexto_erro_no_pipeline` —
+reconfirmado GREEN em reexecução isolada e em suíte completa). Clippy
+comparado por contagem `(ficheiro, mensagem)` contra o baseline `2ae054ab5`
+em worktree isolada: zero avisos novos.
