@@ -159,3 +159,82 @@ somente-L0 a seguir; **confirmação humana explícita obrigatória antes de
 qualquer código** (§5). A confirmação de P1467-P1471 não cobre esta
 mudança de contrato público.
 
+## 8. Execução segregada e integração (2026-09-21)
+
+Confirmação humana explícita recebida em 2026-09-21, na mesma sessão,
+posterior ao commit causal somente-L0 `445cf0c81`. Os três papéis
+partiram desse baseline em worktrees isoladas.
+
+- **Agente A (implementação):** commit `cbc3edf06` ("feat(math): expose
+  bold/cal/display/italic/sans/scr/sscript/upright/text under math.*
+  (P1472, agente A)"). Inseriu o segundo loop de estilos e o
+  `dict.insert` de `text` em `make_math_module()`, ambos antes do
+  espelho `sym → math`, sem ver os testes. Resolveu sozinho o caminho de
+  import de `native_text` (reexport público `crate::compiler::stdlib::
+  native_text`, já usado em todo o crate — ex. `eval/mod.rs:6445` — em
+  vez do módulo privado `text::constructor`), decisão de implementação
+  compatível com o contrato.
+- **Agente B (testes):** commit `bc6126331` ("test(math): freeze nine
+  qualified math.* routes red contract (P1472, agente B)"). 8 testes
+  novos num módulo inline `p1472_tests` (mesmo padrão de
+  `p1291_tests`/`p1283_tests` já existentes no ficheiro, sem L0 próprio),
+  sem ver a implementação. RED confirmado: 5 falhas genuínas (todas por
+  `"module math does not contain <nome>"`, nunca por mensagem errada) e
+  3 guardas de não-regressão desenhadas para já passar no baseline
+  (quatro estilos P1291, globais bare, espelho `sym`).
+- **Achado do Agente B (não é correção de código, é correção de L0):**
+  ao medir `native_text` diretamente (em vez de confiar nas strings
+  vanilla do L0) para escrever o teste de comportamento de `math.text`,
+  descobriu que a secção `structural/math.md` P1472 rotulava como
+  "idêntico" ao vanilla três diagnósticos do `native_text` cristalino
+  que na realidade divergem (mensagens em português, e `text(none)` erra
+  em vez de produzir sequência vazia) — inferência não verificada da
+  redação original, nunca medida contra o binário cristalino. Corrigido
+  na integração (papel C) com uma nota explícita em `structural/math.md`
+  ("Correção descoberta na integração"), sem apagar a tabela original.
+  Não é regressão nem bug de P1472: `math.text` continua a reutilizar
+  `native_text` bit-a-bit, qualquer que seja o seu comportamento — o
+  contrato central (identidade de função) não muda; a divergência
+  pré-existente pertence a `compiler/stdlib/text/constructor.md`, fora
+  do escopo deste passo.
+
+### 8.1 RED → GREEN
+
+| Ficheiro | RED (baseline `445cf0c81`) | GREEN (após integração) |
+|---|---|---|
+| `compiler/stdlib/structural/math.rs` | 5 falhas genuínas (`MISSING_MEMBER`) + 3 não-regressão já GREEN | 8/8 novos, suíte completa 6067/6067 |
+| `compiler/stdlib/math_style.rs` | sem novos testes (código inalterado) | 6067/6067 (suíte completa, sem regressão) |
+
+### 8.2 Gates finais medidos (2026-09-21)
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo test -p typst-core --lib                                -> 6067/6067
+cargo test -p typst-shell --lib                                -> 83/83
+cargo test -p typst-infra --lib                                -> 995/995 (sem flake desta vez)
+cargo fmt --all -- --check                                     -> sucesso
+cargo clippy -p typst-core --all-targets --message-format=json
+    comparado por contagem (ficheiro, mensagem) contra o
+    baseline `445cf0c81` em worktree isolada                    -> zero avisos novos
+crystalline-lint --checks v5,v15,v26 .                          -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Não foi corrido `cargo test --workspace` completo nem a suíte de export
+PNG em massa de `typst-wiring` (mesma razão de P1464/P1467-P1471); o raio
+deste diff é inteiramente L1 (`01_core/src/compiler/stdlib/{structural/
+math,math_style}.rs`), sem consumer L2-L4.
+
+Sonda bilateral final (binário recompilado,
+`./target/debug/typst eval "type(math.<nome>)"` para as nove rotas):
+todas `function`, idêntico ao vanilla ratificado `586e1bd43fae`.
+
+O veredito final é: `math.bold`, `math.cal`, `math.display`,
+`math.italic`, `math.sans`, `math.scr`, `math.sscript`, `math.upright` e
+`math.text` existem e são `function`, reutilizando exatamente as nativas
+donas já materializadas (`math_style.rs` para os oito estilos,
+`native_text` para `text`) — sem nova implementação, sem novo
+`MathStyleKind`, sem despacho dinâmico. Os globais bare correspondentes e
+o espelho `sym → math` permanecem intactos; a remoção dos extras globais
+continua reservada a P1474.
+

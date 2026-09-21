@@ -183,7 +183,7 @@ exceção nas identidades autorizadas; `body:` de `mono`/`script` conserva span 
 hint próprios. A alteração não reordena named, não aceita extras e não muda
 kind, body ou composição.
 
-## P1472 — projeção qualificada de 8 das 14 funções sob `math.*` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1472 — projeção qualificada de 8 das 14 funções sob `math.*` (MATERIALIZADO)
 
 Medido (2026-09-21, vanilla ratificado `586e1bd43fae`) que `bold`, `cal`,
 `display`, `italic`, `sans`, `scr`, `sscript` e `upright` — já globais
@@ -203,3 +203,11 @@ idêntico já garante a igualdade linguística sem exigir wrapper).
 projeção qualificada neste passo — não medidos como ausentes por
 `typst-passo-1472.md` §1 (só as nove rotas listadas lá); ficam fora do
 recorte, não removidos nem negados.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal
+`445cf0c81`. Nenhum código deste ficheiro mudou — só o header
+`@prompt-hash`, ressealado pelo Agente A (`cbc3edf06`) junto da
+implementação em `structural/math.rs` (ver lá, owner do consumer). As 14
+funções e seus campos `kind`/`bold`/`italic`/`cramped` permanecem
+intactos, confirmado por `cargo test -p typst-core --lib` sem regressão
+(6067/6067).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash f3c9de71
+//! @prompt-hash 1f8e8e93
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -3049,6 +3049,38 @@ pub fn make_math_module() -> Value {
             Value::Func(crate::entities::func::Func::native(name, native)),
         );
     }
+    // P1472 — oito rotas qualificadas restantes de estilo math (`bold`, `cal`,
+    // `display`, `italic`, `sans`, `scr`, `sscript`, `upright`): reutilizam
+    // exatamente as mesmas nativas de `math_style.rs` já expostas como globais
+    // bare (`eval/mod.rs:8226-8238`), com o mesmo nome bare — `Func::PartialEq`
+    // compara nativas por nome (`entities/func.rs:384-397`), logo o nome
+    // idêntico já garante `math.bold == bold` etc. sem partilha de `Arc`.
+    for (name, native) in [
+        ("bold", crate::compiler::stdlib::math_style::native_bold as _),
+        ("cal", crate::compiler::stdlib::math_style::native_cal as _),
+        ("display", crate::compiler::stdlib::math_style::native_display as _),
+        ("italic", crate::compiler::stdlib::math_style::native_math_italic as _),
+        ("sans", crate::compiler::stdlib::math_style::native_sans as _),
+        ("scr", crate::compiler::stdlib::math_style::native_scr as _),
+        ("sscript", crate::compiler::stdlib::math_style::native_sscript as _),
+        ("upright", crate::compiler::stdlib::math_style::native_upright as _),
+    ] {
+        dict.insert(
+            name.into(),
+            Value::Func(crate::entities::func::Func::native(name, native)),
+        );
+    }
+    // P1472 — `math.text`: `math.text == text` (medido) — a mesma função de
+    // estilo de texto documental (`native_text`), não um carrier matemático
+    // novo. Reutiliza `native_text` com o nome bare `"text"` para satisfazer
+    // a mesma igualdade por nome usada acima.
+    dict.insert(
+        "text".into(),
+        Value::Func(crate::entities::func::Func::native(
+            "text",
+            crate::compiler::stdlib::native_text,
+        )),
+    );
     dict.insert(
         "scripts".into(),
         Value::Func(crate::entities::func::Func::native("scripts", native_math_scripts)),
@@ -3776,3 +3808,322 @@ mod p1283_tests {
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 
 // ── Passo 397: `document(...)` e `asset(...)` ────────────────────────────────
+
+/// P1472 (Agente B) — contrato RED das nove rotas qualificadas `math.*`
+/// ainda ausentes: `bold`, `cal`, `display`, `italic`, `sans`, `scr`,
+/// `sscript`, `upright`, `text`. Fonte: `00_nucleo/materialization/
+/// typst-passo-1472.md` + `00_nucleo/prompts/compiler/stdlib/structural/
+/// math.md` §P1472 + `00_nucleo/prompts/compiler/stdlib/math_style.md`
+/// §P1472. Escrito sem ver a implementação (isolamento Agente A/B) — usa
+/// exclusivamente observáveis de língua (`Value`/`Func` `==`) e as nativas
+/// públicas já existentes como oráculo Rust, nunca reconstrução do código
+/// de `make_math_module()`.
+#[cfg(test)]
+mod p1472_tests {
+    use super::*;
+    use crate::compiler::stdlib::math_style;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::func::Func;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            test_file_id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1472).unwrap())
+    }
+
+    type NativeFn =
+        fn(&mut EvalContext, &Args, &dyn World, FileId) -> SourceResult<Value>;
+
+    fn call_native(native: NativeFn, args: Args) -> SourceResult<Value> {
+        native(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    /// Procura `math.<name>` sem entrar em pânico — falhas viram
+    /// `Err(razão)` para os testes agregarem várias rotas ausentes numa
+    /// única asserção (em vez de parar na primeira, como faria um
+    /// `.unwrap()`/`panic!`).
+    fn math_lookup(name: &str) -> Result<Func, String> {
+        let Value::Module(module) = make_math_module() else {
+            return Err("make_math_module() não produziu Value::Module".into());
+        };
+        match module.scope().get(name) {
+            Some(Value::Func(f)) => Ok(f.clone()),
+            Some(other) => {
+                Err(format!("math.{name} -> {} (esperava function)", other.type_name()))
+            }
+            // Mensagem verbatim do sintoma que motivou o Passo 1472.
+            None => Err(format!("module math does not contain {name}")),
+        }
+    }
+
+    fn math_call(name: &str, args: Args) -> Result<SourceResult<Value>, String> {
+        let func = math_lookup(name)?;
+        let native = func
+            .native_fn_addr()
+            .ok_or_else(|| format!("math.{name} não é native callable"))?;
+        Ok(native(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id()))
+    }
+
+    fn cv(text: &str) -> Value {
+        Value::Content(Content::text(text))
+    }
+
+    /// Compara dois `SourceResult<Value>` pelo observável de língua: `Ok`
+    /// por igualdade de `Value`/`Content`, `Err` pela igualdade das
+    /// mensagens de diagnóstico (`SourceDiagnostic` não deriva
+    /// `PartialEq` — padrão já usado por P1427/P1451: a mensagem é o
+    /// observável estável).
+    fn same_result(
+        oracle: &SourceResult<Value>,
+        actual: &SourceResult<Value>,
+    ) -> Result<(), String> {
+        match (oracle, actual) {
+            (Ok(a), Ok(b)) if a == b => Ok(()),
+            (Ok(a), Ok(b)) => Err(format!("Ok diverge: oracle={a:?} actual={b:?}")),
+            (Err(a), Err(b)) => {
+                let am: Vec<_> = a.iter().map(|d| d.message.clone()).collect();
+                let bm: Vec<_> = b.iter().map(|d| d.message.clone()).collect();
+                if am == bm {
+                    Ok(())
+                } else {
+                    Err(format!("diagnostics diverge: oracle={am:?} actual={bm:?}"))
+                }
+            }
+            (oracle, actual) => {
+                Err(format!("forma Ok/Err diverge: oracle={oracle:?} actual={actual:?}"))
+            }
+        }
+    }
+
+    const NOVE_ROTAS: [&str; 9] =
+        ["bold", "cal", "display", "italic", "sans", "scr", "sscript", "upright", "text"];
+
+    /// Observável 1 (passo §1) — presença e tipo `function` das nove
+    /// rotas. RED esperado: as nove ausentes (`module math does not
+    /// contain <nome>`).
+    #[test]
+    fn p1472_nove_rotas_presentes_e_function() {
+        let mut failures = Vec::new();
+        for name in NOVE_ROTAS {
+            if let Err(reason) = math_lookup(name) {
+                failures.push(reason);
+            }
+        }
+        assert!(failures.is_empty(), "rotas ausentes/erradas: {failures:#?}");
+    }
+
+    /// Observável 2 — identidade `math.<x> == <x>` para os oito estilos,
+    /// `==` de língua sobre `Value::Func` (`Func::PartialEq` compara
+    /// nativas por nome, `entities/func.rs:384-397`). O oráculo `<x>` é
+    /// reconstruído com `Func::native(<nome bare>, <native pública>)` —
+    /// o mesmo par nome+fn-ptr que `eval/mod.rs:8226-8238` usa para
+    /// registar o global; não há acesso de teste ao root scope real
+    /// (`make_stdlib` é privado a `compiler::eval`, não alcançável a
+    /// partir de `structural::math` sem tocar produção), mas a igualdade
+    /// por nome garante que a reconstrução é observacionalmente idêntica.
+    #[test]
+    fn p1472_identidade_funcional_com_globais_de_estilo() {
+        let cases: [(&str, NativeFn); 8] = [
+            ("bold", math_style::native_bold as NativeFn),
+            ("cal", math_style::native_cal as NativeFn),
+            ("display", math_style::native_display as NativeFn),
+            ("italic", math_style::native_math_italic as NativeFn),
+            ("sans", math_style::native_sans as NativeFn),
+            ("scr", math_style::native_scr as NativeFn),
+            ("sscript", math_style::native_sscript as NativeFn),
+            ("upright", math_style::native_upright as NativeFn),
+        ];
+        let mut failures = Vec::new();
+        for (name, native) in cases {
+            let oracle = Value::Func(Func::native(name, native));
+            match math_lookup(name) {
+                Ok(actual) => {
+                    if Value::Func(actual) != oracle {
+                        failures.push(format!("math.{name} != {name} (oracle)"));
+                    }
+                }
+                Err(reason) => failures.push(reason),
+            }
+        }
+        assert!(failures.is_empty(), "{failures:#?}");
+    }
+
+    /// Observável 2 (`math.text`) — `math.text == text`; `text` reutiliza
+    /// `native_text` bare (decisão registada em `structural/math.md`
+    /// §P1472 — não é `Content::MathText`).
+    #[test]
+    fn p1472_identidade_funcional_math_text_com_global_text() {
+        let oracle =
+            Value::Func(Func::native("text", crate::compiler::stdlib::native_text));
+        match math_lookup("text") {
+            Ok(actual) => {
+                assert_eq!(Value::Func(actual), oracle, "math.text != text (oracle)")
+            }
+            Err(reason) => panic!("{reason}"),
+        }
+    }
+
+    /// Observável 3 — `math.text` reproduz bit a bit o comportamento do
+    /// `native_text` **deste baseline** (oráculo Rust real, não a
+    /// paráfrase vanilla-flavored citada em `structural/math.md` §P1472:
+    /// medido diretamente em 2026-09-21 contra
+    /// `01_core/src/compiler/stdlib/text/constructor.rs::native_text`,
+    /// as mensagens atuais são "text() requer body como argumento" e
+    /// "text() espera content ou string como body, recebeu <tipo>" — não
+    /// "missing argument: body"/"expected content, found integer"; e
+    /// `text(none)` erra (`Some(Value::None)` cai no braço `Some(other)`
+    /// de `constructor.rs`), não produz sequência vazia. `native_text`
+    /// não muda neste passo (§7.2/7.4 do passo) — o contrato real é
+    /// reuso bit-a-bit da mesma native, não uma wording específica;
+    /// comparar contra o oráculo Rust é robusto a essa divergência de
+    /// paráfrase e não gera RED por motivo errado.
+    #[test]
+    fn p1472_math_text_espelha_comportamento_do_text_oracle() {
+        let scenarios: [(&str, Args); 5] = [
+            ("sem argumentos", Args::positional(vec![])),
+            ("integer", Args::positional(vec![Value::Int(1)])),
+            ("none", Args::positional(vec![Value::None])),
+            ("string", Args::positional(vec![Value::Str("abc".into())])),
+            ("content", Args::positional(vec![cv("abc")])),
+        ];
+        let mut failures = Vec::new();
+        for (label, args) in scenarios {
+            let oracle = call_native(crate::compiler::stdlib::native_text, args.clone());
+            match math_call("text", args) {
+                Ok(actual) => {
+                    if let Err(msg) = same_result(&oracle, &actual) {
+                        failures.push(format!("{label}: {msg}"));
+                    }
+                }
+                Err(reason) => failures.push(format!("{label}: {reason}")),
+            }
+        }
+        assert!(failures.is_empty(), "{failures:#?}");
+    }
+
+    /// Observável 4 — amostra de 3 estilos (`bold`, `display`, `sscript`
+    /// — cobre os dois defaults `cramped` distintos, `Some(false)` e
+    /// `Some(true)`) produz exatamente o mesmo `Content::MathStyled` que
+    /// a chamada ao global correspondente.
+    #[test]
+    fn p1472_estilos_qualificados_produzem_mesmo_content_que_global() {
+        let samples: [(&str, NativeFn); 3] = [
+            ("bold", math_style::native_bold as NativeFn),
+            ("display", math_style::native_display as NativeFn),
+            ("sscript", math_style::native_sscript as NativeFn),
+        ];
+        let mut failures = Vec::new();
+        for (name, native) in samples {
+            let args = Args::positional(vec![cv("a")]);
+            let oracle = call_native(native, args.clone());
+            match math_call(name, args) {
+                Ok(actual) => {
+                    if let Err(msg) = same_result(&oracle, &actual) {
+                        failures.push(format!("{name}: {msg}"));
+                    }
+                }
+                Err(reason) => failures.push(format!("{name}: {reason}")),
+            }
+        }
+        assert!(failures.is_empty(), "{failures:#?}");
+    }
+
+    /// Observável 5a — não-regressão: os quatro estilos já qualificados
+    /// em P1291 (`bb`/`frak`/`inline`/`serif`) continuam presentes e
+    /// `function`. Deve passar já neste baseline (não faz parte do RED
+    /// de P1472).
+    #[test]
+    fn p1472_nao_regressao_quatro_estilos_p1291_continuam_function() {
+        for name in ["bb", "frak", "inline", "serif"] {
+            if let Err(reason) = math_lookup(name) {
+                panic!("regressão P1291: {reason}");
+            }
+        }
+    }
+
+    /// Observável 5b — não-regressão dos globais bare fora de `math.*`
+    /// (a remoção é P1474, fora de escopo aqui). `eval/mod.rs` (onde os
+    /// oito globais estão registados, linhas 8226-8238) não é tocado por
+    /// P1472 — só `structural/math.rs` muda — e o seu root scope é
+    /// privado a `compiler::eval`, inalcançável a partir daqui sem tocar
+    /// produção. Como proxy fiel e suficiente dentro da fronteira do
+    /// diff, fixa-se que a native pública por trás de cada global
+    /// continua a existir com o mesmo nome bare que também sustenta
+    /// `math.<x> == <x>` (observável 2) — condição necessária para os
+    /// dois bindings (global e `math.*`) continuarem a resolver para a
+    /// mesma identidade de língua depois de P1472.
+    #[test]
+    fn p1472_nao_regressao_globais_bare_de_estilo_continuam_nativos() {
+        let cases: [(&str, NativeFn); 8] = [
+            ("bold", math_style::native_bold as NativeFn),
+            ("cal", math_style::native_cal as NativeFn),
+            ("display", math_style::native_display as NativeFn),
+            ("italic", math_style::native_math_italic as NativeFn),
+            ("sans", math_style::native_sans as NativeFn),
+            ("scr", math_style::native_scr as NativeFn),
+            ("sscript", math_style::native_sscript as NativeFn),
+            ("upright", math_style::native_upright as NativeFn),
+        ];
+        for (name, native) in cases {
+            let f = Func::native(name, native);
+            assert_eq!(f.name(), Some(name), "native de {name} devolve nome errado");
+            assert!(f.native_fn_addr().is_some(), "native de {name} não é function ptr");
+        }
+    }
+
+    /// Observável 6 — espelho `sym → math` preservado: um símbolo fora
+    /// das nove novas rotas continua acessível como `math.<símbolo>`
+    /// depois da mudança (prova que os novos bindings não quebraram o
+    /// espelho nem foram sobrescritos por ele).
+    #[test]
+    fn p1472_espelho_sym_math_preservado_para_simbolo_nao_novo() {
+        assert!(
+            !NOVE_ROTAS.contains(&"alpha"),
+            "escolher símbolo de amostra fora das nove rotas novas"
+        );
+        let Value::Module(math) = make_math_module() else { panic!("math module") };
+        let Value::Module(sym) = crate::compiler::stdlib::sym::build_sym_module() else {
+            panic!("sym module")
+        };
+        let expected = sym.scope().get("alpha").cloned().expect("sym.alpha deve existir");
+        let actual = math.scope().get("alpha").cloned();
+        assert_eq!(actual, Some(expected), "math.alpha deve espelhar sym.alpha");
+    }
+}

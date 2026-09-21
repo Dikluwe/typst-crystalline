@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 719245f2
+Hash do Código: ed3c9889
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -744,7 +744,7 @@ Ordem de diagnóstico, mensagem, span e hint permanecem idênticos; named vazio
 continua sem erro e nenhum argumento passa a ser aceito. Esta é correção
 mecânica de análise estática, não mudança de assinatura matemática.
 
-## P1472 — nove rotas qualificadas `math.*` ausentes (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1472 — nove rotas qualificadas `math.*` ausentes (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -770,21 +770,21 @@ definido) — mas nenhum dos oito estilos.
 
 ### `math.text` — medição dedicada (não é `Content::MathText`)
 
-Sonda bilateral (`/usr/local/bin/typst eval`) confirma que `math.text` **é
-literalmente a mesma função** que o global `text` (elemento de estilo de
-texto documental, `01_core/src/compiler/stdlib/text/constructor.rs::
-native_text`, owner `compiler/stdlib/text/constructor.md`), não um
-carrier matemático novo:
+Sonda no vanilla ratificado (`/usr/local/bin/typst eval`) confirma que
+`math.text` **é literalmente a mesma função** que o global `text`
+(elemento de estilo de texto documental,
+`01_core/src/compiler/stdlib/text/constructor.rs::native_text`, owner
+`compiler/stdlib/text/constructor.md`), não um carrier matemático novo:
 
 ```text
 math.text == text                              → true
 type(math.text)                                 → function
 repr(math.text)                                  → "text"
 math.text("abc")                                 → mesmo repr/fields que text("abc")
-math.text()                                       → "missing argument: body" (idêntico a text())
-math.text(1)                                      → "expected content, found integer" (idêntico)
-math.text(none)                                   → sequence vazio (idêntico)
-math.text(font: "Arial")[hi].fields()             → (child: [hi], styles: styles(..)) (idêntico)
+math.text()                                       → "missing argument: body"
+math.text(1)                                      → "expected content, found integer"
+math.text(none)                                   → sequence vazio
+math.text(font: "Arial")[hi].fields()             → (child: [hi], styles: styles(..))
 ```
 
 Não é `Content::MathText` (o carrier interno de texto/símbolo em modo
@@ -793,6 +793,27 @@ com este passo) nem `native_inline`/`MathStyleKind::Inline` (que controla
 tamanho matemático, não constrói texto). `entities/text.md`/
 `compiler/stdlib/text/constructor.md` não mudam — `native_text` é
 reutilizada tal como está, sem novo field, cast ou diagnóstico.
+
+**Correção descoberta na integração (papel C, 2026-09-21):** a tabela
+acima mede o **vanilla**; a decisão original rotulou as quatro últimas
+linhas como "idêntico"/"idêntico a text()" no cristalino **sem medir o
+`native_text` cristalino** — inferência não verificada, refutada pelo
+Agente B durante a escrita dos testes RED. O `native_text` cristalino
+atual (`text/constructor.rs`) diverge do vanilla nesses três pontos
+específicos: corpo ausente → `"text() requer body como argumento"`
+(não `"missing argument: body"`); tipo errado → `"text() espera content
+ou string como body, recebeu <tipo>"` (não `"expected content, found
+<tipo>"`); `text(none)` **erra** (`none` não casa `Content`/`Str` no
+match do body) em vez de produzir sequência vazia. Isto é uma divergência
+de paridade **pré-existente e fora do escopo de P1472** — pertence a
+`compiler/stdlib/text/constructor.md`, não a este owner. **O contrato
+central desta secção não muda**: `math.text` continua a reutilizar
+`native_text` bit-a-bit, **qualquer que seja o seu comportamento atual**
+— identidade de função (`math.text == text`) é o observável que P1472
+fixa, não paridade vanilla de `native_text` em si. O Agente B testou
+corretamente contra o oráculo Rust real (`native_text` invocada ao vivo),
+não contra as strings vanilla acima — essa é a forma certa de evitar RED
+por motivo errado, e o padrão a seguir caso `native_text` mude no futuro.
 
 ### Decisão
 
@@ -839,3 +860,24 @@ As nove adições ampliam a superfície pública do módulo `math`. Requer L0
 causal (este e `math_style.md` P1472), hashes ressealados, V5/V15/V26,
 commit documental e **confirmação humana explícita posterior**, antes de
 qualquer código.
+
+Confirmação humana explícita recebida em 2026-09-21, posterior ao commit
+causal somente-L0 `445cf0c81`. Agente A (`cbc3edf06`) inseriu os nove
+bindings em `make_math_module()` (segundo loop análogo ao P1291 para os
+oito estilos, mais um `dict.insert` para `text`) sem ver os testes —
+usou `crate::compiler::stdlib::native_text` (reexport público já
+existente) em vez do caminho privado `text::constructor::native_text`,
+decisão de implementação compatível com o contrato (identidade por nome,
+não por caminho de import). Agente B (`bc6126331`) escreveu 8 testes RED
+sem ver a implementação, num novo módulo inline `p1472_tests` (mesmo
+padrão de `p1291_tests`/`p1283_tests` já usado neste ficheiro, sem L0
+próprio). Durante a escrita dos testes, o Agente B mediu diretamente o
+`native_text` cristalino (em vez de confiar nas strings vanilla desta
+secção) e descobriu a imprecisão corrigida acima ("Correção descoberta
+na integração") — os 5 testes RED genuínos falharam todos por
+`MISSING_MEMBER` (`"module math does not contain <nome>"`), nunca por
+mensagem errada, confirmando que o achado não contaminou o RED. Suíte:
+8/8. Zero regressão em typst-core (6067/6067), typst-shell (83/83),
+typst-infra (995/995). Clippy comparado por contagem `(ficheiro,
+mensagem)` contra o baseline `445cf0c81` em worktree isolada: zero
+avisos novos.
