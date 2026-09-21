@@ -182,3 +182,24 @@ na ordem vigente e devolver o mesmo diagnóstico. `cramped` continua a única
 exceção nas identidades autorizadas; `body:` de `mono`/`script` conserva span e
 hint próprios. A alteração não reordena named, não aceita extras e não muda
 kind, body ou composição.
+
+## P1472 — projeção qualificada de 8 das 14 funções sob `math.*` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Medido (2026-09-21, vanilla ratificado `586e1bd43fae`) que `bold`, `cal`,
+`display`, `italic`, `sans`, `scr`, `sscript` e `upright` — já globais
+bare, registados em `make_root_scope` (`eval/mod.rs:8226-8238`) como
+`Func::native(<nome bare>, native_<nome>)` — são também membros
+qualificados de `math` no vanilla (`math.bold`, `math.cal`, etc., todos
+`function`, ausentes no cristalino). Ver `structural/math.md` P1472 para
+o contrato completo (owner do consumer `make_math_module`, que insere
+estes oito bindings). Este L0 só regista a projeção: as 14 funções e seus
+`kind`/`bold`/`italic`/`cramped` (tabela acima) não mudam nem um campo —
+`math.bold` e `bold` devolvem exatamente o mesmo `Content::MathStyled`
+para os mesmos argumentos, porque são a mesma função (`Func::PartialEq`
+compara nativas por nome, `entities/func.rs:384-397` — o nome bare
+idêntico já garante a igualdade linguística sem exigir wrapper).
+
+`bb`, `frak`, `inline`, `mono`, `script` e `serif` **não** ganham
+projeção qualificada neste passo — não medidos como ausentes por
+`typst-passo-1472.md` §1 (só as nove rotas listadas lá); ficam fora do
+recorte, não removidos nem negados.

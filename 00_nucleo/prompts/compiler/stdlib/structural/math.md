@@ -743,3 +743,99 @@ Nos validators que devolvem erro incondicional na primeira chave named, usar
 Ordem de diagnóstico, mensagem, span e hint permanecem idênticos; named vazio
 continua sem erro e nenhum argumento passa a ser aceito. Esta é correção
 mecânica de análise estática, não mudança de assinatura matemática.
+
+## P1472 — nove rotas qualificadas `math.*` ausentes (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral repetida em 2026-09-21 contra o vanilla ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d` e o cristalino corrente
+(`target/debug/typst`, build de working tree): `math.bold`, `math.cal`,
+`math.display`, `math.italic`, `math.sans`, `math.scr`, `math.sscript`,
+`math.upright` e `math.text` acedem todos a
+`module math does not contain <nome>` no cristalino; todos `function` no
+vanilla. Confirma sem deriva a medição original de `typst-passo-1472.md`
+§2 (2026-09-20T17:40:24-03:00).
+
+`01_core/src/compiler/eval/mod.rs:8226-8238` já regista as oito nativas
+de estilo como globais bare (`Func::native("bold", native_bold)`,
+`Func::native("cal", native_cal)`, ..., `Func::native("italic",
+native_math_italic)`, `Func::native("upright", native_upright)`) — as
+mesmas nativas de `compiler/stdlib/math_style.md` (P1291/P1466), sem
+nenhuma mudança de comportamento necessária. `make_math_module()`
+(`compiler/stdlib/structural/math.rs:2795`) já regista `equation`,
+`sqrt`, `root`, `frac`, `accent`, `cancel`, `underline` e outros membros
+próprios antes do espelho `sym → math` (que nunca sobrescreve binding já
+definido) — mas nenhum dos oito estilos.
+
+### `math.text` — medição dedicada (não é `Content::MathText`)
+
+Sonda bilateral (`/usr/local/bin/typst eval`) confirma que `math.text` **é
+literalmente a mesma função** que o global `text` (elemento de estilo de
+texto documental, `01_core/src/compiler/stdlib/text/constructor.rs::
+native_text`, owner `compiler/stdlib/text/constructor.md`), não um
+carrier matemático novo:
+
+```text
+math.text == text                              → true
+type(math.text)                                 → function
+repr(math.text)                                  → "text"
+math.text("abc")                                 → mesmo repr/fields que text("abc")
+math.text()                                       → "missing argument: body" (idêntico a text())
+math.text(1)                                      → "expected content, found integer" (idêntico)
+math.text(none)                                   → sequence vazio (idêntico)
+math.text(font: "Arial")[hi].fields()             → (child: [hi], styles: styles(..)) (idêntico)
+```
+
+Não é `Content::MathText` (o carrier interno de texto/símbolo em modo
+math, usado por `apply_math_style` e o parser — inalterado, sem relação
+com este passo) nem `native_inline`/`MathStyleKind::Inline` (que controla
+tamanho matemático, não constrói texto). `entities/text.md`/
+`compiler/stdlib/text/constructor.md` não mudam — `native_text` é
+reutilizada tal como está, sem novo field, cast ou diagnóstico.
+
+### Decisão
+
+`make_math_module()` passa a inserir, **antes** do espelho `sym → math`
+(mesma posição/princípio dos membros já registados: nunca sobrescrito
+pela cópia):
+
+```text
+bold, cal, display, italic, sans, scr, sscript, upright, text
+```
+
+Os oito estilos reutilizam exatamente as nativas já existentes em
+`compiler/stdlib/math_style.rs`, com o mesmo nome bare já usado pelos
+globais (`Func::native("bold", native_bold)`, etc. — ver
+`compiler/stdlib/math_style.md` P1472 para a nota de projeção). `text`
+reutiliza `native_text` com o nome bare `"text"` (não `"math.text"`) —
+`Func::PartialEq` compara nativas por nome (`entities/func.rs:384-397`),
+logo o nome idêntico já garante `math.text == text`/`math.bold == bold`/
+etc. sem exigir partilha literal do mesmo `Arc`; a forma exata da
+construção (reconstrução com nome idêntico vs. passar o `Value` já
+construído por referência, no padrão `make_format_module(pdf: &Value,
+html: &Value)` de P1471) é decisão de implementação, não de contrato —
+ambas satisfazem o observável medido.
+
+Nenhum `MathStyleKind` novo, nenhum wrapper, nenhum despacho por string e
+nenhuma segunda implementação de `text`. `display`/`sscript` conservam os
+seus defaults `cramped` diferentes das restantes (ver tabela em
+`math_style.md`) — não tratá-los como funções body-only equivalentes às
+demais.
+
+### Não-objetivos (P1472 não remove nada)
+
+Os globais bare `bold`/`cal`/.../`upright` (função `CRYSTALLINE_ONLY` no
+catálogo, por existirem também fora do módulo `math` no cristalino e não
+no vanilla) **não são removidos** neste passo — essa é decisão de
+compatibilidade reservada a P1474 (`typst-passo-1474.md`, ainda não
+executado). P1472 só acrescenta os nove membros qualificados; um RED
+ausente relativo aos extras globais não pode ser confundido com quebra
+deste passo.
+
+### Gate ADR-0127
+
+As nove adições ampliam a superfície pública do módulo `math`. Requer L0
+causal (este e `math_style.md` P1472), hashes ressealados, V5/V15/V26,
+commit documental e **confirmação humana explícita posterior**, antes de
+qualquer código.
