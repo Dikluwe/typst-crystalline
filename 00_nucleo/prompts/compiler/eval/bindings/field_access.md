@@ -1345,3 +1345,65 @@ html+a11y, mensagem integral, hints, span e controles homônimos. `Unknown`
 bloqueia. A confirmação humana posterior ao commit causal
 `e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; o
 gate foi materializado e coberto pelo RED→GREEN funcional.
+
+## P1471 — retificação: o primeiro alvo de `is_a11y_pdf_target` fica morto (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/stdlib/pdf.md` P1471 mede (2026-09-21) que o vanilla ratificado
+expõe `pdf` como `function`, não `module`. O predicate atual
+`is_a11y_pdf_target` (`01_core/src/compiler/eval/bindings/field_access.rs:490-496`)
+aceita **dois** alvos, exatamente como a seção P1464 acima já documenta
+em §"Decisão e fronteira" item 1-2:
+
+```rust
+fn is_a11y_pdf_target(target: &Value) -> bool {
+    match target {
+        Value::Module(module) => module.name() == "pdf",       // alvo 1
+        Value::Func(func) => is_format_pdf_function(func),      // alvo 2
+    }
+}
+```
+
+O alvo 1 (`Value::Module` nomeado `pdf`) reconhecia a raiz global `pdf`
+**antes** de P1471 nos owners upstream. O alvo 2 (`Value::Func` nativa
+`pdf` cujo namespace contém os bindings/defaults contratados, ver
+`is_format_pdf_namespace` nas mesmas linhas) já reconhecia `format.pdf`. A
+seção P1464 acima descreve isto como intencional — dois alvos legítimos
+para o mesmo gate, um para cada forma existente na época.
+
+### Decisão
+
+Com `pdf` retificado para `Value::Func` (mesma forma de `format.pdf`,
+mesmo `is_format_pdf_namespace`), o alvo 1 (`Value::Module(module) =>
+module.name() == "pdf"`) deixa de ser alcançável — `pdf` nunca mais é
+`Value::Module`. `is_a11y_pdf_target` deve ser simplificado para o único
+caso remanescente:
+
+```rust
+fn is_a11y_pdf_target(target: &Value) -> bool {
+    match target {
+        Value::Func(func) => is_format_pdf_function(func),
+        _ => false,
+    }
+}
+```
+
+`is_format_pdf_function`/`is_format_pdf_namespace` **não mudam** — já
+testam exatamente a forma que a raiz `pdf` passa a ter. Este owner não
+ganha nem perde diagnóstico, mensagem, hint ou span: o comportamento
+observável de `format.pdf.table-summary`/`header-cell`/`data-cell` sem
+`a11y-extras` é idêntico antes/depois; muda somente qual branch do `match`
+Rust deixa de ser alcançável (limpeza de código morto, não mudança de
+contrato de linguagem). A retificação equivalente para `html` (P1465
+acima, "reconhecer o módulo `format` efetivo pela ... superfície estrutural
+contratada") não usa `Value::Module` para `html`/`pdf` diretamente — já
+reconhece `format` pela superfície de `svg`/`png`/`pdf`/`html` como
+funções — e não precisa de retificação própria.
+
+### Gate ADR-0127
+
+Consequência mecânica da quebra de contrato decidida em
+`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 — mesmo gate,
+mesma confirmação humana explícita posterior exigida antes de tocar este
+código.

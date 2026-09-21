@@ -134,3 +134,70 @@ Diagnósticos medidos e normativos:
 As três funções só são instaladas quando `A11yExtras` está ativa, conforme o
 Núcleo pinado. O trio não produz stub, marcador descartável nem alteração
 visual; os carriers sobrevivem até o PDF tagueado.
+
+## P1471 — retificação: `pdf` é `Value::Func`, não `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral repetida em 2026-09-21 contra o vanilla ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d` (`/usr/local/bin/typst`) e o
+cristalino corrente (`target/debug/typst`, build de working tree):
+
+```text
+typst eval --features html '(type(pdf), repr(pdf))'
+vanilla:    ["function","pdf"]
+cristalino: ["module","<module pdf>"]
+
+typst eval --features html 'pdf()'
+vanilla: error: cannot be constructed manually
+```
+
+Este passo repete e confirma a medição original de `typst-passo-1471.md`
+§2 (sondada em 2026-09-20T17:40:24-03:00; sem deriva). O root §1
+("Constrói o módulo `pdf` como `Value::Module`...") e a linha 34
+(comentário `/// Constrói o módulo pdf como Value::Module...`) descrevem a
+forma **anterior**, refutada por esta medição — não são apagados, mas
+deixam de ser a conclusão vigente para o valor raiz `pdf` (os membros do
+namespace, `attach`/`artifact`/trio a11y, continuam corretamente descritos
+como `function` em todo este L0 e não mudam).
+
+### Viabilidade medida (não é decisão, é grounding)
+
+`01_core/src/entities/func.rs:122,165-180` já expõe
+`NativeFunc.namespace: Option<Arc<Scope>>` e o construtor público
+`Func::native_with_namespace(name, call, namespace: Arc<Scope>)` —
+mecanismo de "P493 — namespace anexado para sub-funções via field access
+(`table.header`)", já em uso produtivo. `compiler/stdlib/format.rs`
+já constrói `format.pdf`/`format.html`/`format.svg`/`format.png` exatamente
+assim (`Value::Func(Func::native_with_namespace(...))`, ver
+`compiler/stdlib/format.md` P1464/P1465). Isto não é decisão desta secção —
+é a evidência que torna a decisão abaixo implementável sem novo tipo,
+trait ou campo em `entities/func.rs`.
+
+### Decisão
+
+`make_pdf_module(features)` passa a devolver
+`Value::Func(Func::native_with_namespace("pdf", native_pdf_root, Arc::new(scope)))`
+em vez de `Value::Module(Module::new("pdf", scope))`. `native_pdf_root`
+produz exatamente o diagnóstico medido `cannot be constructed manually`
+(mesma função de erro já usada por `format.rs::native_format` — reutilizar,
+não duplicar). O `scope` interno (attach/artifact/trio a11y gated) não
+muda: mesmos nomes, mesmas funções, mesmo gate `A11yExtras`. `type(pdf)`
+passa de `module` para `function`; `repr(pdf)` passa de `<module pdf>`
+para `pdf`; `pdf.attach`/`pdf.artifact`/`pdf.table-summary`/
+`pdf.header-cell`/`pdf.data-cell` continuam idênticos e continuam
+acessíveis por field access (mecanismo já existente, não módulo).
+
+`format.pdf.attach == pdf.attach` (e equivalentes) devem continuar `true`
+— `format.rs::make_format_module` deixa de exigir `Value::Module` na
+entrada e passa a ler `Value::Func` com `.namespace()` em vez de
+`.scope()` (ver `compiler/stdlib/format.md` P1471 para o contrato exato
+desse lado).
+
+### Gate ADR-0127
+
+Quebra deliberada de contrato público (`type(pdf)` muda de `module` para
+`function`), exigida para paridade com o vanilla ratificado. Requer L0
+causal (este), hashes ressealados, V5/V15/V26, commit documental e
+**confirmação humana explícita posterior**, antes de qualquer código. A
+confirmação de P1467-P1470 não cobre esta mudança.

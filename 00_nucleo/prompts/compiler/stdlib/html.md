@@ -881,3 +881,68 @@ existem, sem afirmar que o módulo atual termina nesse lote. `html.frame` foi
 materializado por P1424 e sua presença é obrigatória no módulo corrente. A
 retificação remove somente o negativo obsoleto; contagens e partições próprias
 dos constructors tipados continuam exatas.
+
+## P1471 — retificação: `html` é `Value::Func`, não `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral repetida em 2026-09-21 contra o vanilla ratificado
+`586e1bd43fae6c9a973218163d3165c53ab8d16d` (`/usr/local/bin/typst`) e o
+cristalino corrente (`target/debug/typst`, build de working tree):
+
+```text
+typst eval --features html '(type(html), repr(html))'
+vanilla:    ["function","html"]
+cristalino: ["module","<module html>"]
+
+typst eval --features html 'html()'
+vanilla: error: cannot be constructed manually
+```
+
+Repete e confirma a medição original de `typst-passo-1471.md` §2 (sondada
+em 2026-09-20T17:40:24-03:00; sem deriva). Todas as menções anteriores
+neste L0 a "`type(html) == module`" (linha 13 do primeiro corte, §"Critérios
+de língua") e "`Value::Module`" como forma do **valor raiz** `html`
+descrevem a forma **anterior**, refutada por esta medição — não são
+apagadas, mas deixam de ser a conclusão vigente para a raiz. Todos os
+demais critérios de língua desta seção (feature off/on, `html.elem`,
+tags tipadas, diagnósticos, atributos, void/raw, `html.frame`) permanecem
+exatos e inalterados: nenhum membro do namespace muda de assinatura,
+tipo, cast ou diagnóstico.
+
+### Viabilidade medida (não é decisão, é grounding)
+
+Mesma base de P1471 em `compiler/stdlib/pdf.md`: `entities/func.rs`
+já expõe `Func::native_with_namespace` (mecanismo "P493", produtivo desde
+antes deste passo) e `compiler/stdlib/format.rs` já constrói
+`format.html` exatamente assim. Nenhum novo tipo, trait ou campo é
+necessário em `entities/func.rs` ou `entities/module.rs`.
+
+### Decisão
+
+`make_html_module()` passa a devolver
+`Value::Func(Func::native_with_namespace("html", native_html_root, Arc::new(scope)))`
+em vez de `Value::Module(Module::new("html", scope))` (assinatura muda de
+`-> Module` para `-> Value`, espelhando `make_pdf_module`).
+`native_html_root` produz `cannot be constructed manually` (reutilizar
+`format.rs::native_format`, não duplicar). O `scope` interno — `elem`,
+`frame` e as 112 tags tipadas, sob o mesmo `Feature::Html` — não muda:
+mesmos nomes, mesmas funções, mesmos casts, mesma ordem de atributos.
+`type(html)` passa de `module` para `function`; `repr(html)` passa de
+`<module html>` para `html`; todo acesso `html.<membro>` continua
+funcionando por field access (mecanismo de `NativeFunc.namespace` já
+existente, não mais lookup de módulo).
+
+`format.html.elem == html.elem`, `format.html.frame == html.frame` e os
+112 pares `format.html.<tag> == html.<tag>` devem continuar `true` —
+`format.rs::make_format_module` deixa de exigir `Value::Module` na
+entrada e passa a ler `Value::Func` com `.namespace()` (ver
+`compiler/stdlib/format.md` P1471).
+
+### Gate ADR-0127
+
+Quebra deliberada de contrato público (`type(html)` muda de `module` para
+`function`), exigida para paridade com o vanilla ratificado. Requer L0
+causal (este), hashes ressealados, V5/V15/V26, commit documental e
+**confirmação humana explícita posterior**, antes de qualquer código. A
+confirmação de P1467-P1470 não cobre esta mudança.

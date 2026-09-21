@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 1445b30e
+Hash do Código: 5831e7da
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -859,3 +859,46 @@ Aceitação exige igualdade dos 114 pares, uma única chamada produtiva à facto
 HTML, quatro perfis e ausência de regressão no módulo global. A confirmação
 humana posterior ao commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`
 foi recebida em 2026-09-20; implementação e teste RED→GREEN foram concluídos.
+
+## P1471 — retificação: `pdf`/`html` deixam de ser "módulo global" (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 medem
+(2026-09-21, repetição sem deriva da sonda de 2026-09-20) que o vanilla
+ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d` expõe `pdf`/`html`
+como `function`, não `module`. As linhas 7785/8371 deste owner
+(`01_core/src/compiler/eval/mod.rs`) hoje fazem
+`let html = Value::Module(make_html_module());` e
+`let pdf = make_pdf_module(features);` (já `Value`, mas internamente
+`Value::Module`); `scope.define("html", html)` e
+`scope.define("pdf", pdf)` registam essa forma diretamente.
+
+A linguagem "módulo global `pdf`"/"módulo global `html`"/"módulo HTML
+efetivo"/"módulo PDF efetivo" usada nas seções P1464/P1465 acima (§796-798,
+842-844, e ao longo de ambas) descreve a forma **anterior** da raiz — a
+composição única (uma só chamada a `make_pdf_module`/`make_html_module`,
+entregue por referência a `make_format_module` e ao próprio scope) **não
+muda** e continua exatamente como decidido em P1464/P1465. Só a forma do
+valor devolvido por `make_pdf_module`/`make_html_module` muda, de
+`Value::Module` para `Value::Func` — decidida nos dois owners 1:1
+(`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md`), não neste.
+
+### Decisão
+
+Este owner não muda comportamento próprio: continua a chamar
+`make_pdf_module`/`make_html_module()` exatamente uma vez cada, continua a
+entregar o mesmo valor por referência a `make_format_module` e a
+`scope.define`. A única mudança observável aqui é o tipo do valor
+registrado (`type(pdf)`/`type(html)` de `module` para `function`),
+consequência automática da retificação dos dois owners upstream — este L0
+só regista a mudança de vocabulário ("módulo" → "função com namespace")
+nas frases futuras que citarem `pdf`/`html`; as seções P1464/P1465 acima
+não são reescritas (histórico preservado), só deixam de ser a
+caracterização vigente da forma da raiz.
+
+### Gate ADR-0127
+
+Mesmo gate de `compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 —
+consequência, não decisão independente. Requer confirmação humana explícita
+posterior ao commit documental dos três owners juntos.

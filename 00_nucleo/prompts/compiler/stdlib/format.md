@@ -375,3 +375,51 @@ owner. Por decisão do dono (2026-09-21, ver
 `entities/document_format_options.md` P1469), o escopo foi reduzido ao
 contrato de linguagem — não implementa nem alega conformidade PDF/A/PDF/UA
 estrutural real. Confirmação humana recebida em 2026-09-21.
+
+## P1471 — retificação: a entrada de `make_format_module` deixa de exigir `Value::Module` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/stdlib/pdf.md` P1471 e `compiler/stdlib/html.md` P1471 medem
+(2026-09-21, vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`)
+que os valores globais `pdf`/`html` são `function`, não `module` — o
+cristalino ainda os expõe como `module` (mesma sonda repetida hoje,
+`type(pdf)`/`type(html)` → `module`, sem deriva desde 2026-09-20). Este
+owner (`make_format_module`, `01_core/src/compiler/stdlib/format.rs:43-50`)
+hoje exige explicitamente `Value::Module` na entrada:
+
+```rust
+let Value::Module(pdf) = pdf else { panic!(...) };
+let Value::Module(html) = html else { panic!(...) };
+```
+
+e projeta os membros via `pdf.scope()`/`html.scope()`. Este contrato de
+entrada refletia a forma (então correta) da raiz `pdf`/`html`; com a
+retificação de P1471 nos dois owners upstream, a entrada passa a ser
+`Value::Func` com namespace, não `Value::Module`.
+
+### Decisão
+
+`make_format_module(pdf: &Value, html: &Value)` passa a validar
+`let Value::Func(pdf) = pdf else { panic!(...) }` (e o equivalente para
+`html`), lendo o namespace via `pdf.namespace()` (o método já existente em
+`Func`, usado pelo próprio field access — `entities/func.rs`) em vez de
+`pdf.scope()`. `projected_pdf_function`/`projected_html_function` e toda a
+composição de `format.pdf`/`format.html` (defaults, gate `a11y-extras`,
+`Func::native_with_namespace` para os próprios `format.pdf`/`format.html`)
+**não mudam** — já eram `Value::Func` com namespace antes deste passo
+(P1464/P1465 acima). Este owner só troca a forma de leitura da entrada;
+não introduz novo membro, default ou gate.
+
+`format = módulo format que contém a função format.pdf/format.html
+projetada` (linguagem de `compiler/eval.md` P1464/P1465) permanece exata —
+`format` continua `Value::Module`; só as raízes `pdf`/`html` que ele
+consome como entrada mudam de forma.
+
+### Gate ADR-0127
+
+Consequência mecânica direta da quebra de contrato decidida em
+`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 — mesmo gate,
+mesma exigência de confirmação humana explícita posterior ao commit
+documental. Não é uma decisão nova independente; não pode ser
+materializada antes ou sem a confirmação dos dois owners upstream.
