@@ -1297,3 +1297,96 @@ implementação (RED por erro de compilação — entry point inexistente). O
 teste independente passou de RED a GREEN (79/79 no módulo `pipeline::tests`,
 incluindo os 11 novos e os pré-existentes de SVG/PNG/HTML) após a
 integração, sem regressão.
+
+## P1468 — resolução de `format.pdf.pages` e interação com `tagged` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado, a resolução acontece em dois pontos distintos:
+
+1. **CLI-only, antes de compilar** (`typst-cli/src/compile.rs:162-165`): se
+   `--pdf-tagged` é explicitamente `true` **e** `--pages` está presente,
+   `bail!("cannot enable PDF tags when exporting a page range")` — sem sequer
+   compilar o documento. Medido: exit 1, sem tentar layout.
+2. **Depois de compilar e resolver com o documento**
+   (`typst-pdf/src/lib.rs:95-118`, `PdfOptions::resolve`): combina override
+   (CLI) com `doc: &PdfFormatOptions` primeiro; só então, se `pages` (já
+   resolvido) está presente:
+   - `tagged` resolvido `== Custom(true)` → erro
+     `"cannot enable tagged PDF and export a page range"` (só alcançável
+     quando é o **documento** que pede `tagged: true`, porque o caso CLI já
+     foi barrado no ponto 1);
+   - `tagged` resolvido `.is_auto()` → warning
+     `"exporting a page range disables PDF tagging"` com hints
+     `"the resulting PDF will be inaccessible"` e
+     `"set \`pdf(tagged: false)\` to silence this warning"`, e o tagged
+     efetivo final é `false`;
+   - `tagged` resolvido `== Custom(false)` → nenhum diagnóstico, tagged
+     efetivo `false`.
+
+Medido também: quando **nenhuma** flag CLI de tagging está presente mas
+`--pages` está, o vanilla emite o warning CLI `"using \`--pages\` implies
+\`--pdf-tagged=false\`"` com hints próprios (diferente do warning
+documental — `compile.rs:168-177`); quando `--pdf-tagged=false` é explícito
+junto de `--pages`, nenhum warning é emitido. Isto é uma terceira via de
+diagnóstico (CLI, ausência de decisão), distinta das duas acima.
+
+### Contrato
+
+Ampliar `resolve_pdf_tags` (P1467) para receber também `pages_override:
+Option<PageRanges>` e devolver, além de `PdfTags`, o `PageRanges` efetivo e
+os diagnósticos aplicáveis:
+
+```rust
+fn resolve_pdf_pages_and_tags(
+    pages_override: Option<PageRanges>,
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> SourceResult<(Option<PageRanges>, PdfTags, Vec<SourceDiagnostic>)>
+```
+
+Precedência de `pages`: `pages_override` (CLI) vence `options.pdf.pages`
+(documento) vence `None` (todas as páginas) — mesmo Núcleo
+`format-option-precedence` já pinado, sem colapso antecipado.
+
+Com `pages` resolvido `Some(_)`:
+
+- se `options.pdf.tagged == PdfTagged::Explicit(true)` **e** não há
+  `tagged_override` que já tenha vencido com `Some(false)` — isto é, o
+  tagged efetivo (pela mesma regra de `resolve_pdf_tags`) resolveria
+  `Enabled` só por causa do documento — devolver `Err` com a mensagem
+  documental exata acima. A checagem CLI-only (`tagged_override ==
+  Some(true)` + `pages_override.is_some()`) **não** pertence a este owner —
+  já foi barrada em `wiring.md` antes de a pipeline ser chamada;
+- caso contrário, se o tagged efetivo resolveria `Enabled` só porque
+  `options.pdf.tagged == PdfTagged::Auto` (nem CLI nem documento pediram
+  explicitamente) → produzir o warning documental exato (2 hints) e forçar
+  `PdfTags::Disabled`;
+- se o tagged efetivo já resolveria `Disabled` (CLI ou documento
+  explícitos) → `PdfTags::Disabled`, sem diagnóstico novo.
+
+Com `pages` resolvido `None`: comportamento idêntico a P1467
+(`resolve_pdf_tags` inalterado nesse ramo).
+
+O warning/erro CLI de "ausência de decisão + `--pages` presente" (terceira
+via medida acima) pertence a `wiring.md`, não a este owner — a pipeline só
+produz o diagnóstico **documental**. As três entry points
+`_tagged_and_pretty_override` (P1467) ganham `pages_override: Option<PageRanges>`
+como novo último parâmetro, renomeadas para `_tagged_and_pretty_and_pages_override`;
+as 3 entry points `_tagged_and_pretty_override` de P1467 continuam a existir
+e delegam `None` para `pages_override`, preservando comportamento exato (10 +
+3 entry points de compatibilidade, todas byte-idênticas ao que já produzem
+hoje). O `PageRanges` efetivo é passado à camada de export
+(`infra/export/mod.md`/`infra/export/builder.md`) para reindexar páginas,
+links, destinos e outline.
+
+### Aceitação e gate
+
+Testes de pipeline cobrem: `pages` ausente (comportamento P1467 idêntico),
+`pages` presente com `tagged` documental `Explicit(true)` (erro), `Auto`
+(warning + Disabled), `Explicit(false)` (Disabled sem warning), precedência
+CLI/documento de `pages`, e que as três novas entry points delegam
+corretamente das antigas. Este é um dos L0s do gate ADR-0127 de P1468
+(mudança de comportamento por defeito, novos diagnósticos); aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.

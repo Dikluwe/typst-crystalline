@@ -487,3 +487,85 @@ implementação (4/15 já passavam por coincidência mecânica — deteção
 genérica de duplicado e regra vazia; os 11 restantes exigiam o braço). O
 teste independente passou de RED (11/15 falhas) a GREEN (15/15) após a
 integração, sem regredir `format.svg`/`format.png`/`format.html`.
+
+## P1468 — named `pages` em `format.pdf(...)` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `0b322a926dd2f86b49aabfeb0d2f287ce06aaace`, o braço `format.pdf`
+(P1467) só aceita `tagged`/`pretty`. No vanilla ratificado, `pages` aceita
+`i64` (via `cast! { PageRange, nr: i64 => Self::at(parse_page_number(nr)?) }`,
+`typst-library/src/layout/page.rs:813-821`), `Dict` com `from`/`to`
+(`:822-836`), ou `Array` de qualquer mistura desses dois
+(`typst-library/src/layout/page.rs:764-772`, `cast! { PageRanges, array: Array
+=> ... }`), ou `none` (default). Medido via `typst eval` em 2026-09-20:
+
+```text
+{ set format.pdf(pages: 1) }                          -> aceito
+{ set format.pdf(pages: (from: 1, to: 3)) }            -> aceito
+{ set format.pdf(pages: (from: 2)) }                   -> aceito (aberto no fim)
+{ set format.pdf(pages: (to: 2)) }                     -> aceito (aberto no início)
+{ set format.pdf(pages: (1, (from: 3, to: 5))) }       -> aceito (array misto)
+{ set format.pdf(pages: ()) }                          -> aceito (array vazio = nenhuma seleção extra)
+{ set format.pdf(pages: (:)) }                          -> page range must not be empty
+{ set format.pdf(pages: (from: 1, extra: 2)) }          -> unexpected key "extra", valid keys are "from" and "to"
+{ set format.pdf(pages: (from: 5, to: 2)) }             -> start of page range cannot be larger than end
+{ set format.pdf(pages: 0) }                            -> page numbers start at one
+{ set format.pdf(pages: -1) }                           -> page numbers start at one
+{ set format.pdf(pages: 1.5) }                          -> expected integer, dictionary, array, or none, found float
+{ set format.pdf(pages: "1") }                          -> expected integer, dictionary, array, or none, found string
+{ set format.pdf(pages: auto) }                          -> expected integer, dictionary, array, or none, found auto
+{ set format.pdf(pages: (1, "x")) }                      -> expected integer or dictionary, found string
+```
+
+Note a mensagem de tipo de topo (`"expected integer, dictionary, array, or
+none, found <tipo>"`) difere da mensagem de elemento de array
+(`"expected integer or dictionary, found <tipo>"`, sem `array`/`none` porque
+um elemento de array não pode ser ele próprio array/none). `pages` não é
+feature-gated e coexiste nos quatro perfis.
+
+### Contrato
+
+Estender o braço `format.pdf` (P1467) para aceitar também o named `pages`,
+independente de `tagged`/`pretty` (três campos, cada um com seu próprio
+`seen_*`). Validar o valor recebido contra o domínio `PageRanges` de
+`entities/document_format_options.md`, com o MESMO cast em três níveis:
+
+- inteiro (`Value::Int`) → `PageRange` de página única, `0` ou negativo falha
+  com `"page numbers start at one"`; outro tipo (float/string/bool) falha com
+  a mensagem de topo;
+- `Value::Dict` com `from`/`to` → `PageRange` de intervalo; dict vazia falha
+  com `"page range must not be empty"`; chave extra falha com
+  `"unexpected key \"{key}\", valid keys are \"from\" and \"to\""`; `from >
+  to` falha com `"start of page range cannot be larger than end"`;
+- `Value::Array` → cada elemento é um inteiro OU dict (mesmo cast acima,
+  recursivo um nível); elemento de outro tipo falha com a mensagem de
+  elemento (sem `array`/`none`); array vazio é `PageRanges` vazia (equivalente
+  a nenhuma seleção adicional, mas **presente** — distinto de `none`, que
+  continua a chave ausente);
+- `Value::None` → regra explicitamente "todas as páginas"; insere
+  `Value::None` na chave (distinto de omitir o named, que não insere nada).
+
+Este owner faz a validação COMPLETA no momento do `set` (todos os diagnósticos
+acima, incluindo `from > to`, chave extra e `0`/negativo) — os erros medidos
+ocorrem ao avaliar a expressão, não só na exportação. Depois de validado,
+insere `Value::Int`/`Value::Dict`/`Value::Array`/`Value::None` tal como
+recebido (o `Value` nativo já suporta essas variantes; não é necessário um
+tipo customizado no `Styles`) sob a chave canônica `format.pdf.pages`. A
+construção do `PageRanges` tipado a partir desse `Value` já validado é feita
+por `compiler/layout/format_options.md`; uma falha nessa segunda passagem
+seria estado interno impossível (o valor já passou pela validação aqui) e
+falha fechada, nunca um novo diagnóstico de schema.
+
+Preservar integralmente `tagged`, `pretty`, `format.svg`, `format.png`,
+`format.html` e a política de named desconhecido/duplicado. Este owner não
+decide interação `pages`+`tagged` (isso é `infra/pipeline.md`), não sabe que
+existe CLI e não exporta PDF.
+
+### Aceitação e gate
+
+Cobrir: inteiro único, dict aberto/fechado nos dois lados, array vazio/misto,
+`none` explícito, os oito negativos de schema medidos acima, independência
+face a `tagged`/`pretty`, e não regressão dos irmãos. Este é um dos L0s do
+gate ADR-0127 de P1468; aguarda confirmação humana explícita posterior ao
+commit causal somente-L0 antes de qualquer teste RED ou código produtivo.

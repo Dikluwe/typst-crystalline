@@ -802,3 +802,47 @@ mesmo baseline sem ver a implementação. O teste independente passou de RED
 default) a GREEN (10/10) após a integração; a suíte de regressão dos irmãos
 (`p1462_format_svg`, `p1463_format_png`, `p1464_format_pdf`,
 `p1465_format_html`) permaneceu 22/22.
+
+## P1468 — `--pages` no braço PDF e gate CLI-only (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla, a checagem "`--pdf-tagged` explícito `true` + `--pages`
+presente" acontece **antes** de compilar o documento
+(`typst-cli/src/compile.rs:162-165`, `bail!("cannot enable PDF tags when
+exporting a page range")`), puramente entre duas flags CLI já parseadas —
+não envolve `PagedDocument` nem pipeline. Medido: exit 1, sem tentar layout.
+Esta é uma verificação DISTINTA da documental (`infra/pipeline.md` P1468,
+que só dispara quando é o documento a pedir `tagged: true`).
+
+### Contrato
+
+No braço `OutputFormat::Pdf` de `run_compile_observed`, antes de qualquer
+chamada à pipeline: destruturar `pages: Option<PageRanges>` de
+`CompileIntent` (já parseado por L2) e, se `pages.is_some()` **e**
+`pdf_tagged == Some(true)` (o valor cru vindo de `CompileArgs`, antes do
+fold com o legado `no_pdf_tags`), abortar com exit 1 e a mensagem exata
+`"cannot enable PDF tags when exporting a page range"` — mesmo canal já
+usado pelos outros erros de compilação deste braço, sem chamar
+`SystemWorld`/pipeline.
+
+Caso contrário, passar `pages` (tal como veio, sem fold/colapso) às três
+entry points novas de `infra/pipeline.md` P1468
+(`..._tagged_and_pretty_and_pages_override`) em vez das três
+`..._tagged_and_pretty_override` de P1467, mantendo intocados
+`pdf_tagged_override`/`pretty_override` (fold e precedência exatamente como
+P1467). PNG, SVG e HTML permanecem neutros — `pages` não é destruturado
+nesses braços. L4 não decide a interação documental `pages`+`tagged` (isso
+é `infra/pipeline.md`); só decide a checagem CLI-only acima, que não
+depende do documento.
+
+### Aceitação e gate
+
+Cobrir: `--pages` ausente (comportamento P1467 idêntico); `--pages` presente
+com `--pdf-tagged=true` explícito (erro CLI-only, exit 1, sem I/O de
+compilação); `--pages` presente sem `--pdf-tagged` (delega à pipeline, que
+decide warning/erro documental); `--pages` presente com
+`--pdf-tagged=false` explícito (delega, sem erro); compile e watch;
+neutralidade de PNG/SVG/HTML. Este é um dos L0s do gate ADR-0127 de P1468;
+aguarda confirmação humana explícita posterior ao commit causal somente-L0
+antes de qualquer teste RED ou código produtivo.

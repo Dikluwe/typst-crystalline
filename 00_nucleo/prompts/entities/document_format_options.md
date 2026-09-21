@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/document_format_options`
 Hash do Código: 4733bd82
 
-**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466
-PROPOSTA; AGUARDA GATE ADR-0127.
+**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466 E
+CARRIER P1468 PROPOSTOS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/entities/document_format_options.rs`
@@ -241,3 +241,101 @@ carrier sem ver os testes; Agente B escreveu 6 testes de entidade a partir do
 mesmo baseline sem ver a implementação. O teste independente passou de RED
 (falha de compilação — `E0609`/`E0433` por `pdf`/`PdfTagged` inexistentes) a
 GREEN (6/6) após a integração.
+
+## P1468 — carrier `PageRanges`/`PageRange` e campo `PdfFormatOptions::pages` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `0b322a926dd2f86b49aabfeb0d2f287ce06aaace`, `PdfFormatOptions` tem
+`tagged`/`pretty`; não existe tipo de range de páginas em `01_core/`. O
+vanilla ratificado (`lab/typst-original/crates/typst-library/src/layout/page.rs:760-869`)
+modela o domínio como:
+
+```rust
+pub struct PageRanges(EcoVec<PageRange>);
+pub struct PageRange { pub start: Option<NonZeroUsize>, pub end: Option<NonZeroUsize> }
+```
+
+`PageRanges::includes_page` é um simples `.any()` sobre os ranges — a lista
+**não é normalizada, deduplicada nem ordenada**; a "deduplicação" observável
+vem de iterar as páginas físicas do documento em ordem crescente e testar
+`includes_page` para cada uma (`typst-pdf/src/convert.rs:883-898`,
+`PageIndexConverter::new`). Confirmado experimentalmente: `--pages 3,1,2-3`
+num documento de 6 páginas produz exatamente as páginas físicas `{1,2,3}`, na
+ordem física, não na ordem dos tokens.
+
+O cast do valor documental (`typst-library/src/layout/page.rs:806-847`,
+`cast! { PageRange, ... }`) aceita `i64` (via `parse_page_number`: `0` →
+`"page numbers start at one"`; outro valor que falhe `NonZeroUsize` →
+`"not a valid page number"`) ou `Dict` com chaves `from`/`to` (pelo menos uma
+presente — `"page range must not be empty"` se ambas ausentes; `"start of
+page range cannot be larger than end"` se `from > to`; `dict.finish(&["from",
+"to"])` rejeita chave extra com `"unexpected key \"extra\", valid keys are
+\"from\" and \"to\""`). `PageRanges` em si aceita `PageRange` único ou
+`Array` de `PageRange`/inteiro misto. Medido via `typst eval`/`typst compile`
+com `/usr/local/bin/typst` em 2026-09-20T21:1x (mensagens exatas na secção 2
+do passo).
+
+### Contrato
+
+Acrescentar ao owner os tipos públicos:
+
+```rust
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PageRange {
+    pub start: Option<NonZeroUsize>,
+    pub end: Option<NonZeroUsize>,
+}
+
+impl PageRange {
+    pub fn includes(&self, page: NonZeroUsize) -> bool {
+        match (self.start, self.end) {
+            (Some(s), Some(e)) => (s..=e).contains(&page),
+            (Some(s), None) => page >= s,
+            (None, Some(e)) => page <= e,
+            (None, None) => true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct PageRanges(Vec<PageRange>);
+
+impl PageRanges {
+    pub fn new(ranges: Vec<PageRange>) -> Self { Self(ranges) }
+    pub fn includes_page(&self, page: NonZeroUsize) -> bool {
+        self.0.iter().any(|r| r.includes(page))
+    }
+}
+```
+
+E `PdfFormatOptions` ganha `pub pages: Option<PageRanges>`, default `None`
+(todas as páginas). `PageRanges`/`PageRange` não normalizam, deduplicam nem
+ordenam a lista interna — a semântica de "conjunto físico único e ordenado"
+emerge exclusivamente de `includes_page` ser consultado por quem itera as
+páginas físicas em ordem (owner de `infra/export/builder.md`). Este owner não
+sabe que existe CLI (`--pages`), Dict/Array do eval (isso é
+`compiler/eval/rules.md`) nem exporter.
+
+`PageRange`/`PageRanges` derivam `Eq` (só contêm `NonZeroUsize`). Todos os
+campos de `PdfFormatOptions` são `Eq`-capazes (`PdfTagged: Eq`, `bool: Eq`,
+`Option<PageRanges>: Eq`), logo `PdfFormatOptions` passa a derivar `Eq`
+também, não só `PartialEq`. `DocumentFormatOptions` continua apenas
+`PartialEq` (nunca `Eq`), inalterado, por causa do `f64` de PNG.
+
+### Scope-out e fronteira
+
+Este owner não decide precedência CLI/documento, não decide a interação
+`pages`+`tagged` (isso é `infra/pipeline.md`), não sabe que o exportador usa
+o valor para reindexar páginas/links/outline (isso é
+`infra/export/builder.md`). `pdf.standard` continua reservado a P1469.
+
+### Aceitação e gate
+
+Testes provam: `PageRange::includes` para os quatro casos (fechado, aberto no
+início, aberto no fim, universal); `PageRanges::includes_page` com múltiplos
+ranges sobrepostos/disjuntos; `PageRanges::default()`/`PdfFormatOptions::default().pages
+== None`; `Eq`/clone/independência de instâncias; ortogonalidade com
+`tagged`/`pretty`/SVG/PNG/HTML. Este é um dos L0s do gate ADR-0127 de P1468
+(campo público novo); aguarda confirmação humana explícita posterior ao
+commit causal somente-L0 antes de qualquer teste RED ou código produtivo.

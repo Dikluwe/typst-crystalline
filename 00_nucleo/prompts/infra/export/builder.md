@@ -847,3 +847,147 @@ um nó folha `/Lbl` na ordem estrutural da página. O node não recebe alt,
 summary ou atributos de tabela. Com tags desabilitadas não cria nó nem MCID;
 seus items visuais continuam presentes. Esta fatia não afirma estrutura
 completa de listas ou do outline, reservada a passos próprios.
+
+## P1468 — seleção de páginas: `PageIndexConverter`, links, destinos, outline (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+No baseline `0b322a926dd2f86b49aabfeb0d2f287ce06aaace`, `build_helvetica`
+(`:836-965`), `build_cidfont` (`:969+`) e `build_multifont` (`:1345+`)
+assumem sempre `n = doc.pages.len()`, `first_page = 3`, `/Kids`/`/Count`
+cobrindo todas as páginas, e `for (i, page) in doc.pages.iter().enumerate()`
+sem filtro. `emit_link_annotations` (`:2113-2183`) itera `doc.pages` inteiro
+e resolve cada `LinkTarget::Destination(label)` via `/A /GoTo /D {name}`
+(destino **nomeado**, não `/Dest` posicional — diferença mecânica face ao
+vanilla, permitida por ADR-0107). `emit_named_destinations` (`:2190-2259`)
+constrói o dicionário `/Names /Dests` a partir de
+`doc.extracted_label_pages`/`extracted_label_positions`, com um fallback
+"página inválida → última página do documento" já existente
+(`:2219-2227`) para um caso não relacionado (label cujo número de página
+nunca existiu). `emit_outlines` (`:2348-2452`) constrói uma árvore
+pai/filho/prev/next a partir de `doc.extracted_headings: Vec<(Label,
+Option<String>, Content, usize)>`, com o mesmo fallback de página nas
+linhas `:2380-2384`.
+
+No vanilla ratificado (medido contra `/usr/local/bin/typst`,
+`586e1bd43fae6c9a973218163d3165c53ab8d16d`, em 2026-09-20T21:1x-21:2x, e
+confirmado por leitura de `typst-pdf/src/convert.rs:877-908`,
+`typst-pdf/src/link.rs`, `typst-pdf/src/outline.rs`):
+
+1. **Page tree**: `PageIndexConverter` mapeia índice físico antigo → novo
+   índice sequencial (só para páginas incluídas); páginas excluídas não
+   entram no mapa. `/Count`/`/Kids` refletem só as páginas mantidas.
+2. **Links** (`typst-pdf/src/link.rs:191-209`, `pos_to_xyz`): se a página de
+   destino de um link foi excluída, a *annotation inteira é omitida*
+   (`return Ok(())`) — não há erro, não há redirecionamento para outra
+   página. Confirmado experimentalmente: um link cujo alvo (elemento comum,
+   não heading) cai numa página excluída produz zero `/Annots` na página de
+   origem.
+3. **Named destinations** (`typst-pdf/src/convert.rs:858-872`): só existe
+   destino nomeado para um heading com label se a página desse heading
+   **está incluída**; caso contrário a entrada não é criada e qualquer link
+   que dependa dela cai no comportamento 2 (omitido).
+4. **Bookmark tree nativa (`/Outlines`)**: fica **sempre vazia** quando
+   `pdf.pages` está definido (`Some`), **independentemente de quais páginas
+   foram selecionadas** — confirmado exportando `--pages 1-4` num documento
+   de 4 páginas (nenhuma removida): `/Outlines` continua ausente do
+   catálogo. Efeito de `typst-pdf/src/outline.rs:25-31` (`visible =
+   pages.v.is_none_or(|ranges| !ranges.includes_page(...))` — o `!` faz
+   headings em páginas **incluídas** contarem como `visible=false` e
+   headings em páginas **excluídas** contarem como `visible=true`;
+   conjugado com `include = bookmarked && visible` e a poda de
+   `OutlineNode::build_tree` em `typst-library/src/model/outline.rs:338-395`
+   (um nó não incluído na árvore nunca tem seus filhos promovidos, e um nó
+   cujo `pos_to_xyz` falha em `convert_node` é descartado de qualquer
+   forma), o resultado observável é: nenhum heading sobrevive à árvore
+   quando há qualquer seleção de páginas ativa. Isto é reproduzido fielmente
+   (ADR-0107: paridade com o observável medido, não com a leitura "correta"
+   pretendida do código) — não é uma correção de bug proposta por este L0.
+5. **PageLabel**: o vanilla preserva o número físico original via
+   `/PageLabel` quando páginas são omitidas
+   (`typst-pdf/src/convert.rs:130-141`). **Scope-out explícito**: o
+   cristalino hoje não emite `/PageLabel` para nenhum caso (confirmado:
+   ausente do builder atual); adicionar essa estrutura é trabalho novo e
+   ortogonal à seleção de páginas em si. P1468 não implementa `/PageLabel`;
+   a numeração visível dentro do conteúdo da página (produzida pelo layout)
+   já reflete o número físico original independentemente da seleção, porque
+   a seleção só afeta o exportador, nunca o layout.
+
+### Contrato
+
+Introduzir, neste ficheiro ou num submódulo próprio do exportador
+(`03_infra/src/export/page_selection.rs`, decisão de organização livre,
+mecânica), o helper puro:
+
+```rust
+pub(crate) struct PageIndexConverter {
+    // índice físico antigo (0-indexed) -> novo índice (0-indexed), só para
+    // páginas incluídas.
+}
+
+impl PageIndexConverter {
+    pub fn new(total_pages: usize, ranges: Option<&PageRanges>) -> Self;
+    pub fn exported_count(&self) -> usize;
+    /// `None` se a página (0-indexed) foi excluída da seleção.
+    pub fn new_index(&self, old_index: usize) -> Option<usize>;
+}
+```
+
+Sem `ranges` (`None`), `new_index` é a identidade e `exported_count ==
+total_pages` (comportamento atual, byte-idêntico). Com `ranges` presente,
+usar `PageRanges::includes_page` (1-indexed, `old_index + 1`) para decidir
+inclusão, na mesma ordem física 1..=N — a "deduplicação"/"ordenação" da
+seleção emerge exclusivamente desta iteração, nunca de normalizar a lista de
+`PageRange` guardada (ver `entities/document_format_options.md` P1468).
+
+Nas três variantes `build_*`: construir um `PageIndexConverter` a partir de
+`doc.pages.len()` e do `pages: Option<PageRanges>` recebido (novo parâmetro,
+ver `infra/export/mod.md` P1468); usar `pic.exported_count()` no lugar de
+`doc.pages.len()` para `n`/`/Count`; iterar só os índices com `new_index`
+`Some`, usando o **novo** índice para `page_id = first_page + new_i`
+(mantendo a ordem física relativa). Todos os cálculos de offset de objeto
+que hoje dependem de `n` (streams, fontes, imagens, gradients) usam a nova
+contagem filtrada.
+
+Em `emit_link_annotations`: iterar só páginas incluídas (via `pic`); para
+cada `LinkTarget::Destination(label)`, resolver `doc.extracted_label_pages
+.get(label)` (número físico) através de `pic.new_index(page - 1)` — se
+`None` (página excluída), **omitir a annotation** (não emitir o objeto nem
+referenciá-la em `/Annots`), replicando o comportamento 2 medido acima. O
+mecanismo de destino nomeado (`/A /GoTo /D {name}`) não muda; só a decisão
+de "emitir ou não a annotation" muda.
+
+Em `emit_named_destinations`: para cada label, resolver a página via
+`pic.new_index(page - 1)`; se `None`, **não** adicionar a entrada ao
+dicionário `/Dests` (comportamento 3). Substituir `FIRST_PAGE_ID + page_idx`
+por `FIRST_PAGE_ID + new_index` no `page_ref` emitido. O fallback existente
+"página inválida → última página" (`:2219-2227`, para número de página que
+nunca existiu no documento) continua a existir **apenas** para esse caso
+distinto — não se aplica a página validamente excluída pela seleção.
+
+Em `emit_outlines`: se `pages.is_some()` (qualquer seleção ativa, mesmo
+cobrindo todas as páginas), `return` antes de construir qualquer nó — a
+árvore de outline nativa fica vazia, replicando o comportamento 4 medido.
+Sem `pages`, comportamento idêntico ao atual.
+
+### Fronteiras
+
+Este owner não decide a interação `pages`+`tagged` (já resolvida em
+`infra/pipeline.md` antes de o `PdfTags` chegar aqui); não implementa
+`/PageLabel` (scope-out explícito); não normaliza a lista de `PageRange`
+recebida.
+
+### Aceitação e gate
+
+Testes cobrem: `pages: None` (regressão byte-idêntica nas três variantes de
+build e nos três `emit_*`); seleção de página única, range fechado, limites
+abertos; página física removida cujo destino é referenciado por um link
+comum (annotation omitida) e por um heading com label (named destination
+ausente); outline nativa vazia com seleção parcial e com seleção que cobre
+todo o documento; `/Count`/`/Kids` refletindo só as páginas exportadas;
+neutralidade de PNG/SVG/HTML. Inspecionar estrutura parseada (contagem de
+`/Type /Page`, presença/ausência de `/Annots`/`/Outlines`/entradas de
+`/Dests`), nunca igualdade total de bytes. Este é um dos L0s do gate
+ADR-0127 de P1468 (mudança de comportamento por defeito do exportador);
+aguarda confirmação humana explícita posterior ao commit causal somente-L0
+antes de qualquer teste RED ou código produtivo.

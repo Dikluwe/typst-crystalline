@@ -1,8 +1,8 @@
 # Prompt L0 — `compiler/layout/format_options`
 Hash do Código: ddfad15d
 
-**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466
-PROPOSTA; AGUARDA GATE ADR-0127.
+**Estado:** P1462, P1463, P1465 E P1467 MATERIALIZADOS; RETIFICAÇÃO P1466 E
+EXTRAÇÃO P1468 PROPOSTAS; AGUARDAM GATE ADR-0127.
 
 **Camada:** L1
 **Alvo planejado:** `01_core/src/compiler/layout/format_options.rs`
@@ -250,3 +250,52 @@ por erro de compilação (`options.pdf`/`PdfTagged` inexistentes). O teste
 independente passou de RED (9/9 falhas de compilação) a GREEN (9/9) após a
 integração, sem regredir SVG/PNG/HTML (16/16 no ficheiro, incluindo os
 irmãos).
+
+## P1468 — extração root de `format.pdf.pages` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/eval/rules.md` P1468 já valida completamente `Value::Int`/`Dict`/
+`Array`/`None` na chave `format.pdf.pages` antes de inserir no `Styles`; este
+owner converte esse `Value` já validado para `Option<PageRanges>` (domínio de
+`entities/document_format_options.md`).
+
+### Contrato
+
+Ampliar as duas travessias (root e exaustiva) para a chave canônica
+`format.pdf.pages`. Na travessia root, para cada ocorrência (ordem lexical):
+
+- `Value::None` → `options.pdf.pages = None` (reafirma "todas as páginas",
+  distinto de nunca ter havido a chave);
+- `Value::Int(n)` → `Some(PageRanges::new(vec![PageRange::at(n)]))` (falha
+  fechada se `n <= 0`, mas isso já foi rejeitado em `rules.rs`; aqui é
+  invariante, não novo diagnóstico);
+- `Value::Dict` com `from`/`to` → `Some(PageRanges::new(vec![PageRange{start,
+  end}]))`;
+- `Value::Array` → `Some(PageRanges::new(<cada elemento convertido>))`,
+  incluindo array vazio → `Some(PageRanges::new(vec![]))` (distinto de
+  `None`: uma seleção vazia explícita, não "todas as páginas");
+- qualquer outra variante interna é estado impossível e falha fechada com
+  diagnóstico atribuível, nunca retorna a `None`.
+
+Regra vazia (ausência do named `pages` na regra) não insere a chave e não
+apaga decisão anterior — igual aos irmãos. A travessia exaustiva conta
+ocorrências de `format.pdf.pages` junto das demais chaves `format.*`;
+qualquer ocorrência fora dos envelopes root continua a causar `format set
+rules are not allowed inside of containers`. `pages` é ortogonal a
+`tagged`/`pretty`/SVG/PNG/HTML.
+
+Este owner continua puro: não decide a interação `pages`+`tagged` (isso é
+`infra/pipeline.md`), não sabe que existe CLI ou exporter, não normaliza,
+deduplica nem ordena a lista de ranges (ver nota de `PageRanges` em
+`entities/document_format_options.md`: a semântica de conjunto físico único
+emerge de quem consulta `includes_page`, não daqui).
+
+### Aceitação e gate
+
+Cobrir: `none` explícito, inteiro único, dict aberto/fechado, array
+vazio/misto, regra vazia depois de decisão anterior, repetição/inversão
+lexical, composição com SVG/PNG/HTML/tagged/pretty, container, e tipo
+interno impossível. Este é um dos L0s do gate ADR-0127 de P1468; aguarda
+confirmação humana explícita posterior ao commit causal somente-L0 antes de
+qualquer teste RED ou código produtivo.

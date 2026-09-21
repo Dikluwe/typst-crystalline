@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — fachada pública dos exporters
-Hash do Código: adf060ba
+Hash do Código: e9075de4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -170,3 +170,21 @@ A fachada HTML também reexporta
 `export_html_with_serialization_and_pretty`. SVG conserva `SvgOptions.pretty`
 já público. PNG permanece sem opção. Nenhuma combinação de nomes autoriza
 tratar `StreamMode::Compact` como serialização compacta de ficheiro.
+
+## P1468 — fachada de seleção de páginas (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Seguindo o mesmo padrão de P956/P1140.6/P1360 (cada eixo acrescentado como
+novo último parâmetro às três entry points PDF), adicionar `pages:
+Option<PageRanges>` (reexportado de
+`typst_core::entities::document_format_options::PageRanges`) como novo
+último parâmetro nas variantes explícitas de `export_pdf`/
+`export_pdf_with_font`/`export_pdf_multifont` (sufixo `_and_pages`); as
+variantes anteriores (incluindo as já existentes `_and_tags`/
+`_and_serialization`) delegam com `None` (nenhuma seleção, todas as
+páginas), preservando comportamento exato. `pages` é ortogonal a
+`StreamMode`, `PdfTags` e `PdfSerializationMode`: `None` nunca implica
+`PdfTags::Disabled` aqui — essa implicação é decidida em
+`infra/pipeline.md` antes de chegar a este owner, que só recebe o `PdfTags`
+já resolvido e o `PageRanges` já resolvido, como dois parâmetros
+independentes. O `mod.rs` não interpreta a interação entre eles; isso é
+`infra/export/builder.md`.

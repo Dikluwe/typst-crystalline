@@ -352,3 +352,13 @@ os defaults `auto`/`false` no namespace de `format.pdf` já foram materializados
 em P1464 e permanecem exatamente como medido. Este owner não ganha novo
 contrato em P1467; a entrada acima existe apenas para manter o roadmap
 verificável a partir deste prompt.
+
+## P1468 — `pages` de ponta a ponta (PROPOSTA; não altera este consumer)
+
+Pela mesma razão de P1467: `format.pdf.pages == none` já é um dos quatro
+defaults nominais materializados em P1464 no namespace da função nativa.
+P1468 materializa a validação, extração, carrier, CLI `--pages` e resolução
+de precedência/interação com `tagged` (ver `compiler/eval/rules.md`,
+`compiler/layout/format_options.md`, `entities/document_format_options.md`,
+`shell/cli.md`, `infra/pipeline.md`, `infra/export/mod.md`,
+`infra/export/builder.md`, `wiring.md`), nenhum dos quais toca este owner.

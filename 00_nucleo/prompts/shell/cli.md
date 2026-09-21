@@ -1185,3 +1185,84 @@ inválido, compile/watch/legado e ausência nos comandos alheios. Não provar
 dimensões ou precedência em L2. A nova flag e o campo público exigem
 confirmação humana posterior ao commit causal P1463 antes de código, teste RED
 ou header.
+
+## P1468 — flag `compile --pages` (PROPOSTA; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado, `--pages` usa `value_delimiter = ','` e cada token é
+parseado individualmente via `FromStr` (não um `value_parser` do clap, "para
+gerar melhores erros" — `typst-cli/src/args.rs:771-813`):
+
+```text
+split('-').map(trim) ->
+  [] | [""]        => "page range must not be empty"
+  [n]               => parse_page_number(n)
+  ["", ""]          => "page range must have start or end"
+  [start, ""]       => aberto no fim
+  ["", end]         => aberto no início
+  [start, end]      => start<=end, senão "page range must end at a page after the start"
+  [_,_,_,..]        => "page range must have a single hyphen"
+
+parse_page_number:
+  "0"     => "page numbers start at one"
+  outro inválido (negativo, float, texto) => "not a valid page number"
+```
+
+Medido via `typst compile --pages ...` em 2026-09-20: `""` →
+`page range must not be empty`; `"1--3"` → `page range must have a single
+hyphen`; `"-"` → `page range must have start or end`; `"abc"` →
+`not a valid page number`; `"0"` → `page numbers start at one`; `"1, 2"` (com
+espaço) é aceite (cada token é `trim`ado); `"3-1"` →
+`page range must end at a page after the start` — **mensagem diferente** da
+versão documental `"start of page range cannot be larger than end"`
+(`compiler/eval/rules.md` P1468); são dois pontos de validação distintos, não
+o mesmo texto reaproveitado. Erro de parsing sai por exit 2 (`clap`), igual
+aos outros valores inválidos de L2.
+
+### Contrato
+
+`CompileArgs` ganha:
+
+```rust
+#[arg(long = "pages", value_delimiter = ',')]
+pages: Option<Vec<PageRangeArg>>,
+```
+
+`PageRangeArg` é um newtype local de L2 (`PageRangeArg(PageRange)`, reexportando
+`entities::document_format_options::PageRange` de L1) só para hospedar
+`impl FromStr` com as mensagens acima — reproduz exatamente o algoritmo
+`split('-').map(trim)` do vanilla, incluindo `parse_page_number`. `CompileIntent`
+ganha `pub pages: Option<PageRanges>` (join dos `PageRangeArg` convertidos,
+vazio quando `Some(vec![])` é literal—`--pages` sem nenhum token nunca ocorre
+porque `value_delimiter` exige pelo menos um). `compile`, `watch` e o alias
+`w` reutilizam o mesmo `CompileArgs`.
+
+L2 não decide interação com `tagged`, não sabe que `--pages` implica
+`--pdf-tagged=false` por omissão, e não formata PDF. Isso pertence a `wiring.md`
+(fold puro entre `pages`/`pdf_tagged`/`no_pdf_tags`, todos já em L4) e
+`infra/pipeline.md` (resolução final com o documento). `--pages` é aceite
+sintaticamente para qualquer `output_format`, mas L2 não lê o formato — a
+neutralidade fora de PDF é decisão de L3/L4.
+
+### Scope-out medido (não decidido por este L0)
+
+No vanilla, `config.pages` (a MESMA seleção de `--pages`) também filtra quais
+páginas escrever no export multi-ficheiro de PNG/SVG
+(`typst-cli/src/compile.rs:547-560`, `export_image_pages`). O cristalino hoje
+só exporta a primeira página para PNG/SVG (sem suporte a template `{p}`/`{0p}`/
+`{t}` nem multi-ficheiro — ver `compiler/layout/format_options.md`: "o
+caminho continua exportando somente a primeira página"). P1468 **não**
+estende `--pages` a PNG/SVG porque a capacidade estrutural de multi-ficheiro
+não existe ainda; isso é pré-requisito de um passo próprio, não uma escolha
+arbitrária deste recorte. `--pages` neste passo afeta exclusivamente o
+export PDF.
+
+### Aceitação e gate
+
+Cobrir: ausência, token único, range fechado/aberto nos dois lados, múltiplos
+tokens com espaço, os sete negativos de schema medidos acima (vazio, hífen
+duplo, só-hífen, texto, zero, e os dois lados de range invertido pelo texto
+CLI específico), e compile/watch/alias. Este é um dos L0s do gate ADR-0127
+de P1468 (flag pública nova); aguarda confirmação humana explícita posterior
+ao commit causal somente-L0 antes de qualquer teste RED ou código produtivo.
