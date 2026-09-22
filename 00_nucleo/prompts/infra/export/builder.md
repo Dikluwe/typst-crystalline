@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 6c8fb711
+Hash do Código: 4aa1d53d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1780,3 +1780,119 @@ Fluxo contínuo — correção interna de paridade num caminho opt-in já
 contratado (P1476), sem novo campo/flag/default/fase de pipeline. Não
 exige nova paragem humana; o gate é RED→GREEN + revalidação da matriz
 completa de 16 combinações (11 sem anexo + 5 com anexo).
+
+### Execução (2026-09-22)
+
+Verificação independente (papel único, sem execução segregada A/B —
+correção pequena, de owner único, medição já completa no passo) de
+todas as medições do passo antes de tocar código: SHA-256 da fixture
+(`93b3d9d5...`) confirmado; `isCompliant=false/failedRules=1` (A4f) e
+`isCompliant=true/failedRules=0` (A4e) reconfirmados byte-a-byte contra
+o mesmo binário release; falha única ISO 19005-4:2020 6.9 teste 5
+reconfirmada.
+
+**Achado de integração — bug real pré-existente, não introduzido por
+P1478**: o teste do caso 6 (§5 item 6, `/Dests`+`/EmbeddedFiles`
+coexistindo) revelou que `pdf_indirect_ref_after` (helper usado por
+`emit_attachments` para localizar um `/Names` já existente no
+catálogo) falha quando a chave procurada é a **última** antes do fecho
+`>>` do dicionário — `split_whitespace()` funde `"R"` com o
+delimitador colado (`"R>>"`), fazendo a comparação exata `== "R"`
+falhar e o merge cair no ramo "criar `/Names` novo" em vez de
+reutilizar o existente. Sintoma: com um destino nomeado pré-existente
+e nenhum outro campo depois de `/Names` no catálogo, `emit_attachments`
+não encontrava o `/Names` já criado por `emit_named_destinations`.
+Corrigido tornando a comparação tolerante a um delimitador colado sem
+espaço (`"R"` seguido de fim-de-token ou de qualquer caractere não
+alfanumérico) — helper interno, sem mudança de assinatura nem de
+comportamento fora deste caso-limite.
+
+### RED → GREEN
+
+6 testes novos (`p1478_pdfa4f_empty_embedded_files_tests`,
+`03_infra/src/export/builder.rs`): RED confirmado antes da correção —
+2 falhas genuínas (casos 1 e 6, os que exigem o predicado novo), 4
+guardas já GREEN no baseline (casos 2-5, comportamento de regressão já
+correto). Após a correção do predicado: 5/6 GREEN, caso 6 continuou
+falhando por causa do bug em `pdf_indirect_ref_after` (achado acima,
+não previsto pelo próprio passo). Após a correção do helper: **6/6
+GREEN**.
+
+### Gates finais medidos
+
+```text
+cargo build --workspace                    -> sucesso
+cargo test -p typst-core --lib               -> 6129/6129
+cargo test -p typst-shell --lib               -> 83/83
+cargo test -p typst-infra --lib               -> 1032/1032 (1026 + 6
+                                                  novos)
+cargo test -p typst-wiring                    -> 1 falha pré-existente
+                                                  não relacionada
+                                                  (P1471, igual à
+                                                  confirmada em
+                                                  P1475-P1477)
+cargo fmt (builder.rs, único tocado)           -> limpo
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem contra baseline
+    `67a8768c8` em worktree isolada           -> zero avisos novos
+crystalline-lint . (run completo, default)     -> 0 achados V5/V15/V26
+                                                  (confirmado
+                                                  manualmente na saída
+                                                  completa — o achado
+                                                  [PARSE] herdado de
+                                                  P1477 em tests.rs
+                                                  impede o comando
+                                                  --checks filtrado de
+                                                  terminar, ver nota
+                                                  abaixo)
+git diff --check                               -> sucesso
+```
+
+### Medição de conformidade veraPDF — matriz completa (16/16)
+
+Binário `target/release/typst` recompilado, SHA-256
+`183e0f3181511bf98fca7cc27026a0cb12154d95a925f224f67116608fc6cd4a`,
+veraPDF 1.30.2, mesma fixture do passo (SHA-256 `93b3d9d5...`, sem
+anexo) + variante com um anexo `relationship: "supplement"`.
+
+| Perfil | Anexo | `isCompliant` | `failedRules` |
+|---|---|---|---|
+| A1a | não | true | 0 |
+| A1b | não | true | 0 |
+| A2a | não | true | 0 |
+| A2b | não | true | 0 |
+| A2u | não | true | 0 |
+| A3a | não | true | 0 |
+| A3b | não | true | 0 |
+| A3u | não | true | 0 |
+| A4 | não | true | 0 |
+| **A4f** | **não** | **true** | **0** |
+| A4e | não | true | 0 |
+| A3a | sim | true | 0 |
+| A3b | sim | true | 0 |
+| A3u | sim | true | 0 |
+| A4f | sim | true | 0 |
+| A4e | sim | true | 0 |
+
+**16/16 conforme.** `qpdf --check` limpo nos três ficheiros focais
+(A4f/A4e sem anexo, A4f com anexo). Inspeção QDF confirma byte-a-byte
+a estrutura exigida: objeto do catálogo com `/Names {id} 0 R`, esse
+objeto com `/Dests {id2} 0 R /EmbeddedFiles {id3} 0 R` coexistindo, e
+o objeto `{id3}` sendo exatamente `<< /Names [] >>`.
+
+### Estado de selagem — GREEN, NÃO SELADO
+
+Per instrução explícita do próprio passo (§7): o achado `[PARSE]` do
+`crystalline-lint` em `tests.rs:11146` (herdado de P1477, tamanho
+acumulado do ficheiro, não agravado por P1478 — P1478 não toca
+`tests.rs`) impede o comando `crystalline-lint . -> 0 erros` de
+terminar literalmente limpo, e bloqueia também o comando filtrado
+`--checks v5,v15,v26` (a ferramenta aborta a análise inteira ao
+encontrar `[PARSE]` em qualquer ficheiro, não só no ficheiro afetado).
+V5/V15/V26 = 0 confirmados manualmente na saída completa do run
+default (nenhuma linha `[V5]`/`[V15]`/`[V26]` presente, além do drift
+já resselado). O código está funcionalmente **GREEN** (16/16 veraPDF,
+regressão completa, clippy limpo) mas o passo permanece explicitamente
+**NÃO SELADO** até a sanitização dedicada do agregador de testes
+(`tests.rs`, fora do escopo deste passo) resolver o achado [PARSE] —
+não convertido em exceção silenciosa, per instrução do dono.

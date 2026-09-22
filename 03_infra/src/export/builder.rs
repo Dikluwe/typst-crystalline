@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 91176d0a
+//! @prompt-hash e669061d
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -2509,7 +2509,18 @@ impl PdfBuilder {
     /// o catálogo ganha `/AF` com uma referência por Filespec processada.
     /// Fora desse gate, comportamento preservado byte-a-byte (P1286).
     fn emit_attachments(&mut self, doc: &PagedDocument) {
-        if doc.attachments.is_empty() {
+        // **P1478** — A4f exige `/EmbeddedFiles` mesmo sem nenhum anexo
+        // (ISO 19005-4:2020 6.9 teste 5; fonte pinada krilla
+        // `configure/validate.rs:269-273,859-871`: só `Archival::A4F` tem
+        // `requires_embedded_files_when_empty() == true` — A1/A2/A3/A4/A4E
+        // são `false`). Gate distinto de `archival_supports_embedded_files`
+        // (esse inclui A3*/A4e, criaria árvores vazias onde o vanilla não
+        // as emite). Com `attachments` vazio e o gate ativo, o resto da
+        // função já produz `<< /Names [] >>` e mantém `/AF` ausente
+        // (`filespec_ids` continua vazio) sem nenhuma outra mudança.
+        let requires_empty_embedded_files =
+            matches!(self.standard.archival, Some(PdfArchival::A4f));
+        if doc.attachments.is_empty() && !requires_empty_embedded_files {
             return;
         }
 
@@ -3775,10 +3786,26 @@ fn pdf_name(value: &str) -> String {
 fn pdf_indirect_ref_after(content: &[u8], key: &str) -> Option<usize> {
     let text = String::from_utf8_lossy(content);
     let tail = text.split_once(key)?.1.trim_start();
-    let id = tail.split_whitespace().next()?.parse::<usize>().ok()?;
     let mut parts = tail.split_whitespace();
-    let _ = parts.next();
-    (parts.next() == Some("0") && parts.next() == Some("R")).then_some(id)
+    let id = parts.next()?.parse::<usize>().ok()?;
+    if parts.next() != Some("0") {
+        return None;
+    }
+    let r_token = parts.next()?;
+    // **P1478** — achado de integração: `split_whitespace` funde "R" com um
+    // delimitador PDF colado sem espaço (ex.: "R>>") quando a referência é
+    // a última chave antes do fecho do dicionário — caso real medido no
+    // catálogo quando `/Names` é inserido como último campo. Aceitar "R"
+    // seguido só de fim-de-token ou de um caractere não alfanumérico.
+    let mut chars = r_token.chars();
+    if chars.next() != Some('R') {
+        return None;
+    }
+    match chars.next() {
+        None => Some(id),
+        Some(c) if !c.is_alphanumeric() => Some(id),
+        _ => None,
+    }
 }
 
 /// Escapa o nome de um destino PDF. Se contiver caracteres fora do conjunto
@@ -3849,5 +3876,244 @@ mod boundary_tests {
         assert!(is_pdf_literal_control(0x7f));
         assert!(!is_pdf_literal_control(0x80));
         assert_eq!(escape_pdf_literal("\u{1f} \u{7f}"), "(\\037 \\177)");
+    }
+}
+
+/// **P1478** — A4f sem anexo requer `/EmbeddedFiles` vazio (retificação de
+/// P1477). Ver `typst-passo-1478.md` e `infra/export/builder.md` §P1478.
+///
+/// Localizado aqui (dentro de `builder.rs`, não em `export/tests.rs`) por
+/// causa do achado `[PARSE]` do `crystalline-lint` em `tests.rs:11146`
+/// (P1477, tamanho acumulado do ficheiro) — este módulo evita agravar
+/// esse problema, per instrução explícita do passo §5.
+#[cfg(test)]
+mod p1478_pdfa4f_empty_embedded_files_tests {
+    use super::*;
+    use regex::Regex;
+    use std::sync::Arc;
+    use typst_core::compiler::layout::layout;
+    use typst_core::entities::content::Content;
+    use typst_core::entities::document_format_options::PdfStandard;
+    use typst_core::entities::elements::pdf_attach::PdfAttachElem;
+
+    fn plain_doc() -> PagedDocument {
+        layout(&Content::text("P1478 núcleo A4f sem anexo"))
+    }
+
+    fn attachment_elem() -> PdfAttachElem {
+        PdfAttachElem {
+            path: "data.txt".into(),
+            data: Arc::new(b"dados de teste".to_vec()),
+            relationship: Some(AttachedFileRelationship::Supplement),
+            mime_type: Some("text/plain".into()),
+            description: Some("dados de teste".into()),
+        }
+    }
+
+    fn doc_with_attachment() -> PagedDocument {
+        layout(&Content::sequence(vec![
+            Content::text("P1478 núcleo A4f sem anexo"),
+            Content::pdf_attach(attachment_elem()),
+        ]))
+    }
+
+    fn doc_with_label_no_attachment() -> PagedDocument {
+        layout(&Content::label(
+            "sec1",
+            Content::text("P1478 núcleo A4f sem anexo, com destino nomeado"),
+        ))
+    }
+
+    fn standards_for(names: &[PdfStandard]) -> PdfStandards {
+        PdfStandards::new(names.iter().copied()).expect("standards válidos para P1478")
+    }
+
+    fn export_doc_with_standard(doc: &PagedDocument, standard: PdfStandards) -> Vec<u8> {
+        super::super::export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+            doc,
+            None,
+            StreamMode::Verbose,
+            super::super::PdfTags::Enabled,
+            PdfSerializationMode::Compact,
+            None,
+            standard,
+        )
+    }
+
+    fn object_body(pdf: &[u8], id: usize) -> String {
+        let text = String::from_utf8_lossy(pdf).into_owned();
+        let pattern = format!(r"(?ms)^{id} 0 obj\n(.*?)\nendobj");
+        Regex::new(&pattern)
+            .ok()
+            .and_then(|re| re.captures(&text))
+            .map(|c| c[1].to_string())
+            .unwrap_or_default()
+    }
+
+    fn catalog_body(pdf: &[u8]) -> String {
+        object_body(pdf, 1)
+    }
+
+    /// Segue `/Names {id} 0 R` no catálogo até ao dicionário `/Names`, e
+    /// dentro dele `/EmbeddedFiles {id2} 0 R` até à name tree. `None` se
+    /// qualquer um dos dois níveis estiver ausente.
+    fn embedded_files_body(pdf: &[u8]) -> Option<String> {
+        let catalog = catalog_body(pdf);
+        let names_id: usize = Regex::new(r"/Names\s+(\d+)\s+0\s+R")
+            .unwrap()
+            .captures(&catalog)?
+            .get(1)?
+            .as_str()
+            .parse()
+            .ok()?;
+        let names_dict = object_body(pdf, names_id);
+        let ef_id: usize = Regex::new(r"/EmbeddedFiles\s+(\d+)\s+0\s+R")
+            .unwrap()
+            .captures(&names_dict)?
+            .get(1)?
+            .as_str()
+            .parse()
+            .ok()?;
+        Some(object_body(pdf, ef_id))
+    }
+
+    // ── Caso 1/2 — A4f sem anexo: /EmbeddedFiles vazio, sem /AF/Filespec ──
+
+    #[test]
+    fn p1478_a4f_sem_anexo_produz_embedded_files_vazio() {
+        let pdf =
+            export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
+        let ef = embedded_files_body(&pdf).unwrap_or_else(|| {
+            panic!(
+                "A4f sem anexo: catálogo sem /Names -> /EmbeddedFiles resolúvel (P1478 RED esperado); pdf={}",
+                String::from_utf8_lossy(&pdf)
+            )
+        });
+        assert_eq!(
+            ef.trim(),
+            "<< /Names [] >>",
+            "A4f sem anexo: /EmbeddedFiles deve resolver para uma name tree com /Names vazio; corpo={ef}"
+        );
+    }
+
+    #[test]
+    fn p1478_a4f_sem_anexo_nao_produz_af_nem_filespec() {
+        let pdf =
+            export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
+        let catalog = catalog_body(&pdf);
+        assert!(
+            !catalog.contains("/AF ["),
+            "A4f sem anexo: catálogo não deve ter /AF (nenhuma Filespec para referenciar); catalog={catalog}"
+        );
+        let raw = String::from_utf8_lossy(&pdf);
+        assert!(
+            !raw.contains("/Type /Filespec"),
+            "A4f sem anexo: não deve existir objeto Filespec"
+        );
+        assert!(
+            !raw.contains("/Type /EmbeddedFile"),
+            "A4f sem anexo: não deve existir objeto EmbeddedFile"
+        );
+    }
+
+    // ── Caso 3 — A4e sem anexo: /EmbeddedFiles ausente ──────────────────
+
+    #[test]
+    fn p1478_a4e_sem_anexo_nao_produz_embedded_files() {
+        let pdf =
+            export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4e]));
+        assert!(
+            embedded_files_body(&pdf).is_none(),
+            "A4e sem anexo não deve ganhar /EmbeddedFiles (regressão) — só A4f exige árvore vazia"
+        );
+    }
+
+    // ── Caso 4 — tabela negativa: nenhum outro perfil ganha árvore vazia ─
+
+    #[test]
+    fn p1478_outros_perfis_sem_anexo_nao_produzem_embedded_files_vazio() {
+        let cases: &[Option<PdfStandard>] = &[
+            None,
+            Some(PdfStandard::A1a),
+            Some(PdfStandard::A1b),
+            Some(PdfStandard::A2a),
+            Some(PdfStandard::A2b),
+            Some(PdfStandard::A2u),
+            Some(PdfStandard::A3a),
+            Some(PdfStandard::A3b),
+            Some(PdfStandard::A3u),
+            Some(PdfStandard::A4),
+        ];
+        for case in cases.iter().copied() {
+            let standard = match case {
+                None => PdfStandards::default(),
+                Some(raw) => standards_for(&[raw]),
+            };
+            let pdf = export_doc_with_standard(&plain_doc(), standard);
+            assert!(
+                embedded_files_body(&pdf).is_none(),
+                "{case:?} sem anexo não deve ganhar /EmbeddedFiles (regressão de escopo — só A4f)"
+            );
+        }
+    }
+
+    // ── Caso 5 — A4f com anexo: comportamento P1476 preservado ─────────
+
+    #[test]
+    fn p1478_a4f_com_anexo_preserva_comportamento_p1476() {
+        let pdf = export_doc_with_standard(
+            &doc_with_attachment(),
+            standards_for(&[PdfStandard::A4f]),
+        );
+        let ef = embedded_files_body(&pdf).expect(
+            "A4f com anexo: /EmbeddedFiles deve continuar resolúvel (regressão P1476)",
+        );
+        assert!(
+            ef.contains("data.txt"),
+            "A4f com anexo: name tree deve conter a entrada do anexo; corpo={ef}"
+        );
+        let catalog = catalog_body(&pdf);
+        assert!(
+            catalog.contains("/AF ["),
+            "A4f com anexo: catálogo deve continuar a ter /AF (regressão P1476); catalog={catalog}"
+        );
+        let raw = String::from_utf8_lossy(&pdf);
+        assert!(
+            raw.contains("/AFRelationship /Supplement"),
+            "A4f com anexo: Filespec deve continuar a ter /AFRelationship (regressão P1476)"
+        );
+    }
+
+    // ── Caso 6 — A4f sem anexo, com destino nomeado: /Dests e
+    // /EmbeddedFiles coexistem sob a mesma /Names do catálogo ───────────
+
+    #[test]
+    fn p1478_a4f_sem_anexo_com_destino_nomeado_preserva_dests() {
+        let pdf = export_doc_with_standard(
+            &doc_with_label_no_attachment(),
+            standards_for(&[PdfStandard::A4f]),
+        );
+        let catalog = catalog_body(&pdf);
+        let names_id: usize = Regex::new(r"/Names\s+(\d+)\s+0\s+R")
+            .unwrap()
+            .captures(&catalog)
+            .unwrap_or_else(|| panic!("catálogo sem /Names; catalog={catalog}"))
+            .get(1)
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap();
+        let names_dict = object_body(&pdf, names_id);
+        assert!(
+            names_dict.contains("/Dests"),
+            "/Names deve preservar /Dests (destino nomeado pré-existente); corpo={names_dict}"
+        );
+        assert!(
+            names_dict.contains("/EmbeddedFiles"),
+            "/Names deve ganhar /EmbeddedFiles no mesmo dicionário, sem substituir /Dests; corpo={names_dict}"
+        );
+        let ef = embedded_files_body(&pdf)
+            .expect("/EmbeddedFiles deve continuar resolúvel com /Dests presente");
+        assert_eq!(ef.trim(), "<< /Names [] >>");
     }
 }

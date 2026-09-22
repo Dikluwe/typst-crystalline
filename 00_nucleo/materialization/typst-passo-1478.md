@@ -1,8 +1,8 @@
 # Passo 1478 — PDF/A-4f sem anexos: `/EmbeddedFiles` vazio e revalidação integral de PDF/A
 
-**Estado:** ESCRITO — AGUARDA EXECUÇÃO (fluxo contínuo ADR-0127; não exige
-nova confirmação humana porque é correção interna de paridade num caminho
-opt-in já contratado, sem novo campo, flag, default ou fase de pipeline)
+**Estado:** GREEN — NÃO SELADO (código funcional completo, 16/16 veraPDF,
+regressão zero; bloqueado por achado `[PARSE]` herdado de P1477 em
+`tests.rs:11146`, não agravado por este passo — ver §10)
 
 **Data da auditoria:** 2026-09-22T13:59:10-03:00
 
@@ -321,4 +321,67 @@ P1478 fecha somente quando, no mesmo estado commitável:
 6. O relatório final contém commit, tree, hora, `git diff HEAD --stat` se a
    árvore não estiver commitada, hashes dos dois binários e contagens
    completas do veraPDF.
+
+## 10. Resultado (2026-09-22) — GREEN, NÃO SELADO
+
+Ver `00_nucleo/prompts/infra/export/builder.md` §P1478 "Execução" para
+o relato completo (achado de integração, RED→GREEN, gates, matriz
+veraPDF). Resumo dos seis itens do critério de fechamento (§9):
+
+1. **Satisfeito.** A4f sem anexo: `isCompliant=true, failedRules=0`.
+2. **Satisfeito.** Matriz completa 16/16 conforme (11 sem anexo + 5 com
+   anexo), incluindo A4e sem anexo continuar `/EmbeddedFiles` ausente
+   (regressão negativa confirmada).
+3. **Satisfeito.** 6 testes novos (`p1478_pdfa4f_empty_embedded_files_
+   tests`, dentro de `builder.rs` per §5), RED→GREEN registado; P1475
+   (11/11), P1476 (9/9), P1477 (11/11) e `p307b` (9/9) sem regressão.
+4. **Satisfeito.** `infra/export/builder.md` §P1478 contém a
+   retificação de §0, o contrato, e o hash foi resselado
+   (`crystalline-lint --fix-hashes .`, aplicado com sucesso apesar do
+   achado [PARSE] — ver item 5).
+5. **Não satisfeito literalmente, per exceção explícita do próprio
+   passo.** `crystalline-lint .` (default) e `--checks v5,v15,v26`
+   continuam bloqueados pelo achado `[PARSE]` em `tests.rs:11146`
+   (herdado de P1477, tamanho acumulado do ficheiro — P1478 não toca
+   `tests.rs`, não agrava o achado). V5/V15/V26 = 0 confirmados
+   **manualmente** na saída completa do run default (nenhuma linha
+   `[V5]`/`[V15]`/`[V26]` além do drift já resselado) — não é uma
+   confirmação automatizada pela própria ferramenta.
+6. **Satisfeito** — proveniência abaixo.
+
+### Proveniência da medição final
+
+- Commit no momento do fecho: `23d827664` (commit L0-only anterior a
+  este passo); árvore não commitada neste ponto —
+  `git status --short`: `M typst-passo-1478.md`, `M builder.md`,
+  `M builder.rs` (3 ficheiros, únicos tocados por este passo).
+- Hora: `2026-09-22T14:45:40-03:00`.
+- Binário cristalino release recompilado: SHA-256
+  `183e0f3181511bf98fca7cc27026a0cb12154d95a925f224f67116608fc6cd4a`.
+- Binário vanilla ratificado: SHA-256
+  `eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`
+  (inalterado, mesmo de sempre nesta sessão).
+- Fixture sem anexo: SHA-256
+  `93b3d9d54a454cf7d3f86ca780f3d30244759125ea4cb90e95ae300142f547d1`
+  (idêntica à do passo, confirmada por `sha256sum` antes da medição).
+- veraPDF: 16/16 combinações `isCompliant=true, failedRules=0`
+  (tabela completa em `builder.md` §P1478).
+
+### Achado de integração registado (não previsto pelo passo)
+
+`pdf_indirect_ref_after` (helper de `emit_attachments`) tinha um bug
+pré-existente, exposto pelo caso 6 do §5 (`/Dests`+`/EmbeddedFiles`
+coexistindo): a comparação de token `"R"` falhava quando colada sem
+espaço a um delimitador PDF (`"R>>"`, caso em que a chave procurada é
+a última antes do fecho do dicionário). Corrigido — ver `builder.md`
+§P1478 para o detalhe completo.
+
+### Não selado — o que falta
+
+A sanitização dedicada do agregador de testes (`03_infra/src/export/
+tests.rs`, achado `[PARSE]` do `crystalline-lint`, origem em P1477,
+tamanho acumulado do ficheiro) é um passo próprio, fora do escopo
+deste. Até essa sanitização, `crystalline-lint .` continuará a
+reportar exit 1 nesta árvore — não é uma regressão de P1478 nem motivo
+para reverter o código funcional GREEN deste passo.
 
