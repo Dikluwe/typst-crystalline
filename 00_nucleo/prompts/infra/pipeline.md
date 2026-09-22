@@ -1497,3 +1497,64 @@ testes a partir do mesmo baseline sem ver a implementação. O teste
 independente passou de RED (erro de compilação) a GREEN (97/97 no módulo
 `pipeline::tests`, incluindo os 8 novos e os 89 pré-existentes) após a
 integração, sem regressão.
+
+## P1480 — PDF/UA-1 exige `document(title:)`: novo erro de compilação
+
+Ver `typst-passo-1480.md` §0 para o achado de integração completo (owner
+original era só `infra/export/builder.md`; este owner foi trazido para
+dentro do escopo pela mesma medição). Gate ADR-0127 disparado — critério
+(2) novo comportamento por defeito de uma flag já existente
+(`--pdf-standard ua-1`) e (4) quebra de compatibilidade para quem hoje
+depende do sucesso silencioso; humano confirmou inclusão no escopo em
+chat, 2026-09-22, registrado em `typst-passo-1480.md` §0 antes desta
+edição de L0.
+
+### Medição anterior à decisão
+
+`/usr/local/bin/typst compile --pdf-standard ua-1 <fixture sem
+document(title:)>`: exit 1, `error: PDF/UA-1 error: missing document
+title` + hint `set the title with \`set document(title: [...])\``.
+Cristalino (mesmo commit `90aad760b`, `target/release/typst`): exit 0,
+PDF emitido sem título, não-conforme, sem qualquer diagnóstico —
+divergência confirmada por medição direta bilateral, não inferida.
+
+Fonte vanilla: `krilla::configure::validate::ValidationError::
+NoDocumentTitle`, convertida em `SourceDiagnostic` por
+`typst-pdf/src/convert.rs:748-752` (mensagem) e `:535` (`prefix =
+"{validators} error:"`, onde `{validators}` é a lista dos validadores
+falhados — só `"PDF/UA-1"` no caso isolado desta fixture; combinações
+com archival ficam fora do escopo desta medição, não testadas).
+
+### Contrato
+
+1. Checagem nova em `compile_to_pdf_bytes_impl`, logo após
+   `resolve_pdf_pages_tags_and_standards` devolver `Ok` (mesmo ponto em
+   que `pdf_standards`/`doc` já estão resolvidos), mesmo padrão do erro
+   de anexo duplicado já existente na função (`attachment_paths`,
+   alguns parágrafos abaixo): `if matches!(pdf_standards.accessibility,
+   Some(PdfAccessibility::Ua1)) && doc.document_info.title.is_none() {
+   return Err(...) }`.
+2. Mensagem e hint byte-idênticos ao vanilla medido acima:
+   `"PDF/UA-1 error: missing document title"` +
+   `.with_hint("set the title with \`set document(title: [...])\`")`.
+   Não generalizar para uma lista de validadores combinados (`prefix`
+   dinâmico do vanilla) — fora do escopo desta medição; fixo em
+   `"PDF/UA-1"` até uma medição futura confirmar o comportamento
+   combinado.
+3. Não muda a assinatura pública de `export_pdf*`
+   (`03_infra/src/export/mod.rs`) — continuam infalíveis, `-> Vec<u8>`.
+   A família `compile_to_pdf_bytes_*` já é `Result<Vec<u8>,
+   Vec<SourceDiagnostic>>` desde P1468/P1469; este é mais um ramo de
+   erro na mesma família, não uma mudança de contrato dela.
+4. Título vazio (`document(title: [])`) não é medido aqui — só o eixo
+   `None` vs `Some`. Não inventar comportamento para esse caso.
+
+### Aceitação e gate
+
+RED: `ua-1` sem título compila com exit 0 hoje (estado atual,
+confirmado). GREEN: mesma combinação retorna `Err` com a mensagem
+exata acima; `ua-1` com título continua a compilar normalmente (controlo
+de não-regressão); nenhum outro perfil (archival isolado, ausência de
+standard) ganha esta checagem — só `accessibility == Some(Ua1)`. Fluxo
+contínuo após este L0 (a paragem ADR-0127 já foi satisfeita pela
+confirmação humana registrada em `typst-passo-1480.md` §0).

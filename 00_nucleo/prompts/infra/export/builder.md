@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: b62cd2da
+Hash do Código: 238c2e11
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1902,3 +1902,122 @@ regressão completa, clippy limpo) mas o passo permanece explicitamente
 **NÃO SELADO** até a sanitização dedicada do agregador de testes
 (`tests.rs`, fora do escopo deste passo) resolver o achado [PARSE] —
 não convertido em exceção silenciosa, per instrução do dono.
+
+**Nota retroativa (P1479):** achado [PARSE] resolvido (causa raiz era
+o identificador `raw`, não tamanho de ficheiro — ver
+`infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests.md`
+§P1479). Este passo está `MATERIALIZADO` desde então.
+
+## P1480 — PDF/UA-1: identificação XMP e preferência de título (fatia parcial)
+
+Ver `typst-passo-1480.md` para a medição completa e o achado de escopo
+(§0) que estendeu este passo para incluir também `infra/pipeline.md`
+(validação "título obrigatório sob ua-1"). Este owner (`builder.md`)
+cobre só os dois observáveis aditivos em `builder.rs`; a validação de
+título fica documentada em `infra/pipeline.md` §P1480.
+
+**Scope-out histórico retificado:** o L0 anterior (§P1469/§P1475)
+tratava PDF/UA estrutural como scope-out não-funcionalidade. A partir
+daqui, PDF/UA-1 é funcionalidade **parcial**: identificação e
+apresentação (este passo) estão dentro do escopo; língua estrutural,
+`Content` marcado como `Artifact`/real e outline com idioma continuam
+scope-out explícito, fechados por **P1481** (dependência nomeada —
+`ua-1` não deve ser declarado conforme antes de P1481 aterrar).
+
+### Medição anterior à decisão
+
+Fixture com título (SHA-256
+`93b3d9d54a454cf7d3f86ca780f3d30244759125ea4cb90e95ae300142f547d1`,
+igual à de P1475-1478), `veraPDF 1.30.2 -f ua1`: vanilla ratificado
+100% conforme (106/0); cristalino (pós-P1479, commit `90aad760b`)
+100 regras aprovadas, 6 falhadas, 12 checks falhados — confirmado
+independentemente nesta sessão. Duas das seis pertencem a esta fatia:
+
+- ISO 14289-1 §5 teste 1 — identificação PDF/UA no XMP ausente.
+- ISO 14289-1 §7.1 teste 10 — catálogo sem `ViewerPreferences
+  /DisplayDocTitle true`.
+
+As outras quatro (§7.1 teste 3 `Content`/`Artifact`; §7.2 testes 33/34
+idioma de metadados/conteúdo; §7.2 teste 2 idioma no outline)
+pertencem a P1481, não tocadas aqui.
+
+**Estrutura XMP `pdfuaid` medida no vanilla** (`qpdf --qdf
+--object-streams=disable`, ambos os binários pinados no cabeçalho do
+passo): namespace `xmlns:pdfuaid="http://www.aiim.org/pdfua/ns/id/"`
+acrescentado ao fim da lista de `xmlns:` do `rdf:Description` (depois
+de `xmlns:pdf`, e depois de `xmlns:pdfaid` quando A2/A3/A4 também
+ativos — medido com `--pdf-standard a-2u --pdf-standard ua-1`, ver
+abaixo); corpo `<pdfuaid:part>1</pdfuaid:part>`, único campo (ISO
+14289-1 não tem `rev`/`conformance` como `pdfaid`), posicionado
+imediatamente antes de `<xmpTPg:NPages>` — mesma posição relativa
+tanto isolado quanto combinado com `pdfaid`. Fonte cruzada: krilla
+vendorizado (`~/.cargo/git/checkouts/krilla-*/crates/krilla/refs/
+snapshots/validate_pdf_ua1_full_example.txt:290`), mesma posição
+`dc:language`→`pdfuaid:part`→`xmpTPg:NPages` (esse snapshot omite
+`xmp:CreatorTool`/`xmp:ModifyDate`/`xmp:CreateDate`, ausentes na
+config de teste do krilla, presentes na medição real do binário
+vanilla — não afeta a posição do `pdfuaid:part`, que é sempre
+imediatamente antes de `xmpTPg:NPages`).
+
+**Estrutura `/ViewerPreferences` medida no vanilla:** `<< /Direction
+/L2R /DisplayDocTitle true >>` no catálogo — mas `/Direction` é
+emitido pelo vanilla independentemente de PDF/UA (não gated por
+`accessibility`, feature não-relacionada, fora do escopo desta
+fatia — não medido/confirmado aqui se e quando cristalino deve
+adicioná-lo; nenhum teste desta fatia depende dele). Só
+`/DisplayDocTitle true` é o observável exigido pela regra §7.1/10 e
+confirmado no snapshot krilla isolado (`/ViewerPreferences <<
+/DisplayDocTitle true >>`, sem `/Direction`, `refs/snapshots/
+validate_pdf_ua1_full_example.txt:305-307`) — confirma que
+`/Direction` é aditivo/opcional, não parte do contrato desta regra.
+
+**Achado de integração (não regressão, gap pré-existente
+independente):** o XMP combinado `a-2u+ua-1` do vanilla também traz
+`xmpMM:History` (`stEvt:action saved/converted`) e
+`pdfaExtension:schemas`/`pdfaSchema:*`/`pdfaProperty:*` (tabela de
+propriedades PDF/A completa) — confirmado que isto **já** está
+ausente do cristalino em A2u **puro** (sem ua-1), medição direta
+`--pdf-standard a-2u` sozinho também carece de `xmlns:stEvt`/
+`xmpMM:History`/`pdfaExtension:schemas`. Gap pré-existente de
+P1475-1477 (aceito então porque não bloqueava veraPDF PDF/A — são
+propriedades XMP recomendadas, não regras ISO 19005 obrigatórias),
+não causado nem agravado por P1480, fora do escopo desta fatia. Não
+perseguir aqui.
+
+### Contrato
+
+1. `emit_xmp_metadata`: gerar `pdfuaid_elem`/`pdfuaid_xmlns` com o
+   mesmo padrão isolado-do-`Option` de `pdfaid_body` (evita V16),
+   função nova `pdfuaid_body(a: PdfAccessibility) -> String` (match
+   exaustivo de 1 variante, `Ua1 => "<pdfuaid:part>1</pdfuaid:part>"`).
+   `self.standard.accessibility.map(pdfuaid_body).unwrap_or_default()`.
+   Concatenar `{pdfaid_xmlns}{pdfuaid_xmlns}` no `xmlns:pdf=...`
+   existente e `{pdfaid_elem}{pdfuaid_elem}` antes de
+   `<xmpTPg:NPages>` — preserva `pdfaid` coexistindo quando A1-A4 e
+   ua-1 são selecionados juntos (medido acima), nenhum eixo substitui
+   o outro.
+2. Novo método `emit_pdfua_viewer_preferences(&mut self)`, mesmo
+   padrão isolado de `emit_pdfa_output_intent` (early-return se
+   `!matches!(self.standard.accessibility, Some(PdfAccessibility::
+   Ua1))`); insere `" /ViewerPreferences << /DisplayDocTitle true >>"`
+   no objeto 1 (catálogo) via `insert_pdf_dict_entry`, mesmo padrão de
+   `emit_tag_structure` (builder.rs:3556-3561). Chamado nos três
+   pontos de `build()` (builder.rs:1091-1096/1501-1506/2036-2041),
+   logo após `self.emit_tag_structure(doc)`.
+3. Não tratar `/Direction` — fora do escopo (ver medição acima).
+4. Não declarar `ua-1` conforme: os quatro observáveis de P1481
+   continuam RED esperado nesta fixture depois desta fatia.
+
+### Aceitação e gate
+
+RED: perfil `ua-1` sem os dois observáveis (estado atual, confirmado
+por medição). GREEN: os dois aparecem só quando `accessibility ==
+Some(Ua1)`; `pdfaid` continua presente e byte-idêntico quando
+combinado; perfis sem `ua-1` (incluindo A4f/A4e/nenhum standard)
+continuam sem `pdfuaid`/`ViewerPreferences` (controlo de não-regressão
+— nenhum PDF não-UA ganha `/ViewerPreferences` novo). veraPDF `-f ua1`
+na fixture deixa de reportar `5/1` e `7.1/10`; as outras quatro regras
+continuam RED esperado (P1481). Fluxo contínuo após este L0 (correção
+de paridade interna, ADR-0127 já satisfeito pela confirmação humana
+registrada em `typst-passo-1480.md` §0 — o achado que EXCEDIA o
+contrato original foi o de `pipeline.md`, não este).
