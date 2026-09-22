@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash f8a89570
+//! @prompt-hash 91d14c7d
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -112,7 +112,9 @@ mod p1360_ab_tests {
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
-use typst_core::entities::document_format_options::{PageRanges, PdfStandards};
+use typst_core::entities::document_format_options::{
+    PageRanges, PdfArchival, PdfStandards,
+};
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -742,6 +744,12 @@ pub(super) struct PdfBuilder {
     /// **P617** — `DocumentID` externo de 16 bytes. Quando `Some`, sobrepõe
     /// o valor aleatório/fixo por defeito. `InstanceID` nunca é fixado.
     document_id: Option<[u8; 16]>,
+    /// **P1475** — par `(InstanceID, DocumentID)` em base64, calculado por
+    /// `emit_xmp_metadata` e reutilizado por `serialize()` para o trailer
+    /// `/ID [ (instance) (document) ]` — universal, com ou sem `standard`.
+    /// `None` só no caminho teórico em que `emit_xmp_metadata` não foi
+    /// chamada antes de `serialize()` (não acontece hoje).
+    xmp_ids: Option<(String, String)>,
     /// **P956** — modo de emissão dos content streams de texto (ADR-0126),
     /// propagado aos `PageContext` e aos recursos de página (`/ColorSpace`
     /// + ICC sempre embutido em verbose).
@@ -775,6 +783,7 @@ impl PdfBuilder {
             info_id: None,
             xmp_id: None,
             document_id: None,
+            xmp_ids: None,
             stream_mode: StreamMode::default(),
             serialization: PdfSerializationMode::default(),
             pdf_tags: super::PdfTags::default(),
@@ -1055,6 +1064,7 @@ impl PdfBuilder {
         self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
@@ -1435,6 +1445,7 @@ impl PdfBuilder {
         self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
@@ -1936,6 +1947,7 @@ impl PdfBuilder {
         self.emit_attachments(doc);
         self.emit_outlines(doc);
         self.emit_info(doc);
+        self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
@@ -2666,6 +2678,12 @@ impl PdfBuilder {
     /// build antes de `serialize`. O dicionário é sempre emitido, mesmo quando
     /// `document_info` não tem campos de utilizador (P601).
     fn emit_info(&mut self, doc: &PagedDocument) {
+        // **P1475** — ISO 19005-4 6.1.3: `/Info` não pode estar presente em
+        // PDF/A-4. Retorna cedo sem alocar nada; `self.info_id` continua
+        // `None` e `serialize()` já omite `/Info` do trailer nesse caso.
+        if self.standard.archival == Some(PdfArchival::A4) {
+            return;
+        }
         let mut parts = Vec::new();
         if let Some(title) = &doc.document_info.title {
             parts.push(format!("/Title {}", utf16be_hex_string(title.as_str())));
@@ -2695,6 +2713,54 @@ impl PdfBuilder {
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
         self.add(next_id, format!("<< {} >>", parts.join(" ")));
         self.info_id = Some(next_id);
+    }
+
+    /// **P1475** — emite `/OutputIntent` (perfil ICC sRGB, `/S /GTS_PDFA1`
+    /// fixo independentemente do nível) e regista `/OutputIntents` no
+    /// catálogo, gated ao mesmo conjunto de archivals de `pdfaid`
+    /// (A2a/A2b/A2u/A3a/A3b/A3u/A4). Chamado nas três variantes `build_*`
+    /// logo após `emit_info(doc)` e antes de `emit_xmp_metadata(doc)`,
+    /// mesma posição relativa nas três, para preservar alocação de IDs
+    /// idêntica entre caminhos. Aloca o seu próprio objeto ICC (não reusa o
+    /// já alocado por P777 para JPEGs RGB, mesmo quando ambos existem no
+    /// documento — decisão mecânica, ADR-0107, sem efeito observável para
+    /// veraPDF).
+    fn emit_pdfa_output_intent(&mut self) {
+        let needs_output_intent = matches!(
+            self.standard.archival,
+            Some(
+                PdfArchival::A2a
+                    | PdfArchival::A2b
+                    | PdfArchival::A2u
+                    | PdfArchival::A3a
+                    | PdfArchival::A3b
+                    | PdfArchival::A3u
+                    | PdfArchival::A4
+            )
+        );
+        if !needs_output_intent {
+            return;
+        }
+
+        // `build_icc_profile_stream`/`srgb_icc_profile_bytes` já estão em
+        // escopo via `use super::{...}` (builder.rs:130-141), mesmo padrão
+        // de uso já existente em builder.rs:1043/1423/1924 (P777).
+        let profile_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        self.add_bytes(profile_id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+
+        let intent_id = profile_id + 1;
+        self.add(
+            intent_id,
+            format!(
+                "<< /Type /OutputIntent /S /GTS_PDFA1 /OutputConditionIdentifier (Custom) \
+                 /OutputCondition (sRGB) /RegistryName () /Info (sRGB v4.2) \
+                 /DestOutputProfile {profile_id} 0 R >>"
+            ),
+        );
+
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            insert_pdf_dict_entry(content, &format!(" /OutputIntents [{intent_id} 0 R]"));
+        }
     }
 
     /// **P611** — emite o stream `/Type /Metadata /Subtype /XML` com um pacote
@@ -2753,6 +2819,44 @@ impl PdfBuilder {
         // externamente. InstanceID continua aleatório (ou fixo em testes).
         let (instance_id, document_id) = xmp_instance_and_document_id(self.document_id);
 
+        // **P1475** — persiste o par para `serialize()` reusar no trailer
+        // `/ID [ (instance) (document) ]`, universal (todo export).
+        self.xmp_ids = Some((instance_id.clone(), document_id.clone()));
+
+        // **P1475** — `pdfaid` identifica a conformidade PDF/A; A2/A3 usam
+        // `part`+`conformance` (letra via `pdfaid_letter`), A4 usa
+        // `part`+`rev` (sem `conformance`, ISO 19005-4 eliminou o eixo
+        // a/b/u). Vazio (e sem `xmlns:pdfaid`) fora desse conjunto.
+        let pdfaid_elem = match self.standard.archival {
+            Some(a @ (PdfArchival::A2a | PdfArchival::A2b | PdfArchival::A2u)) => {
+                format!(
+                "<pdfaid:part>2</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
+                pdfaid_letter(a)
+            )
+            }
+            Some(a @ (PdfArchival::A3a | PdfArchival::A3b | PdfArchival::A3u)) => {
+                format!(
+                "<pdfaid:part>3</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
+                pdfaid_letter(a)
+            )
+            }
+            Some(PdfArchival::A4) => {
+                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>".to_string()
+            }
+            // Scope-out explícito (typst-passo-1475.md §2.5): A1a/A1b (ICC
+            // v2 + /CIDSet não implementados), A4f/A4e (não medidos) — sem
+            // `standard`/archival nenhum também cai aqui.
+            None
+            | Some(
+                PdfArchival::A1a | PdfArchival::A1b | PdfArchival::A4f | PdfArchival::A4e,
+            ) => String::new(),
+        };
+        let pdfaid_xmlns = if pdfaid_elem.is_empty() {
+            String::new()
+        } else {
+            " xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\"".to_string()
+        };
+
         // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
         // linha entre elementos, para manter a mesma forma do pacote XMP.
         let xml = format!(
@@ -2763,7 +2867,7 @@ impl PdfBuilder {
              xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" \
              xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\" \
              xmlns:xmpTPg=\"http://ns.adobe.com/xap/1.0/t/pg/\" \
-             xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\
+             xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"{pdfaid_xmlns}>\
              {title}\
              {keywords}\
              {creator}\
@@ -2776,7 +2880,8 @@ impl PdfBuilder {
              <xmpMM:InstanceID>{instance_id}</xmpMM:InstanceID>\
              <xmpMM:DocumentID>{document_id}</xmpMM:DocumentID>\
              <xmpMM:RenditionClass>proof</xmpMM:RenditionClass>\
-             <pdf:PDFVersion>1.7</pdf:PDFVersion></rdf:Description></rdf:RDF></x:xmpmeta>\
+             {pdfaid_elem}\
+             <pdf:PDFVersion>{pdf_version}</pdf:PDFVersion></rdf:Description></rdf:RDF></x:xmpmeta>\
              <?xpacket end=\"r\"?>",
             title = title_elem,
             keywords = keywords_elem,
@@ -2785,6 +2890,9 @@ impl PdfBuilder {
             n_pages = n_pages,
             instance_id = instance_id,
             document_id = document_id,
+            pdfaid_xmlns = pdfaid_xmlns,
+            pdfaid_elem = pdfaid_elem,
+            pdf_version = self.standard.version.as_str(),
         );
 
         let next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
@@ -3347,17 +3455,48 @@ impl PdfBuilder {
         // Trailer
         let info_ref =
             self.info_id.map(|id| format!(" /Info {id} 0 R")).unwrap_or_default();
+        // **P1475** — `/ID` universal (todo export, com ou sem `standard`),
+        // a partir do par instance/document já calculado por
+        // `emit_xmp_metadata`. `None` só no caminho teórico em que essa
+        // função não foi chamada antes de `serialize()` (defensivo, mesmo
+        // padrão de `info_ref`).
+        let id_entry = self
+            .xmp_ids
+            .as_ref()
+            .map(|(inst, doc)| format!(" /ID [ ({inst}) ({doc}) ]"))
+            .unwrap_or_default();
         out.extend_from_slice(
             format!(
-                "trailer\n<< /Size {} /Root 1 0 R{} >>\nstartxref\n{}\n%%EOF\n",
+                "trailer\n<< /Size {} /Root 1 0 R{}{} >>\nstartxref\n{}\n%%EOF\n",
                 max_id + 1,
                 info_ref,
+                id_entry,
                 xref_start
             )
             .as_bytes(),
         );
 
         out
+    }
+}
+
+/// **P1475** — letra de conformidade `pdfaid:conformance` (ISO 19005-2/-3),
+/// derivada do sufixo do nome do archival. Único ponto de derivação —
+/// evita repetir o `match` nos três braços A2/A3 de `emit_xmp_metadata`.
+/// Não chamado para `A4` (que não tem `conformance`, ver `pdfaid_elem`).
+fn pdfaid_letter(a: PdfArchival) -> &'static str {
+    match a {
+        PdfArchival::A2a | PdfArchival::A3a => "A",
+        PdfArchival::A2b | PdfArchival::A3b => "B",
+        PdfArchival::A2u | PdfArchival::A3u => "U",
+        PdfArchival::A1a
+        | PdfArchival::A1b
+        | PdfArchival::A4
+        | PdfArchival::A4f
+        | PdfArchival::A4e => {
+            debug_assert!(false, "pdfaid_letter called for non-A2/A3 archival");
+            ""
+        }
     }
 }
 

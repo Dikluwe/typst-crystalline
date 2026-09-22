@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: c7de2e18
+Hash do Código: 539a27bd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1196,3 +1196,106 @@ Achado 1. Este é um dos L0s do gate ADR-0127 de P1475 — a mudança do
 trailer `/ID` universal (item 1) altera o comportamento por defeito de
 **todo** export PDF, não só do caminho opt-in `standard:`; a confirmação
 de P1467-P1469 não cobre esta mudança.
+
+### Execução segregada e integração (2026-09-22)
+
+Confirmação humana explícita recebida em 2026-09-22, na mesma sessão,
+posterior ao commit causal somente-L0 `7a20ec72d`. Agente A
+(implementação, commit `eeeee4538`) e Agente B (testes RED, commit
+`e090fc29f`) partiram do mesmo baseline em worktrees isoladas, ambos
+reproduzindo e corrigindo por conta própria o bug de infra já conhecido
+(worktree a arrancar no baseline vanilla em vez de `Tekt`). Nenhum dos
+dois viu o trabalho do outro. Os dois patches aplicaram-se sem conflito
+de merge (papel C, mesma sessão) mesmo tocando o mesmo ficheiro
+`builder.rs` extensivamente.
+
+**Achado de integração 1 (correção de RED, não de implementação):** o
+teste `p1475_trailer_id_is_present_universal_and_matches_xmp_ids`
+(Agente B) assumia `X == Y` no `/ID` do trailer "no caso comum", citando
+literalmente o texto do passo (§5). Agente A, de forma independente,
+já tinha medido e reportado que isso é falso para o cristalino: `xmp_
+instance_and_document_id` (pré-existente, P615/P617, fora do escopo
+deste passo) gera `InstanceID`/`DocumentID` **sempre distintos** — duas
+constantes fixas diferentes em modo de teste, duas chamadas
+independentes a `random_xmp_id_bytes()` em produção. O vanilla mede
+X==Y (Achado 4.1) porque o krilla usa o mesmo valor para as duas
+posições na primeira gravação — o cristalino nunca replicou esse detalhe
+mecânico, e P1475 não pediu para o fazer. A asserção `X==Y` foi corrigida
+(removida, substituída por comentário explicando o achado); as duas
+asserções que realmente provam o contrato do item 1 (`/ID[0] ==
+xmpMM:InstanceID`, `/ID[1] == xmpMM:DocumentID`, mesmo PDF) continuam e
+passam. O texto do §5 acima **não foi silenciosamente apagado** — esta
+nota é o registo da correção, ADR-0108.
+
+**Achado de integração 2 (V16, qualidade, não contrato):** o `match`
+original do Agente A para `pdfaid_elem` (§3.3) usava `_ => String::new()`
+para o caso "fora do conjunto A2/A3/A4". `crystalline-lint` sinalizou V16
+("wildcard descarta informação com default neutro em enum de domínio").
+Corrigido para `match` exaustivo sobre `Option<PdfArchival>`, listando
+`None` e os quatro scope-outs (`A1a`/`A1b`/`A4f`/`A4e`) explicitamente —
+mesmo padrão já usado por `pdfaid_letter` (Agente A, `debug_assert!` nos
+braços que nunca deveriam disparar). Sem mudança de comportamento, só de
+forma do código.
+
+**Regressão de fixtures binários (esperada, §2.1 já sinalizava):** os 9
+snapshots dourados de `p307b_snapshot_tests` (`03_infra/fixtures/p307b/
+reference/*.pdf`) regrediram exatamente +62 bytes cada — o tamanho exato
+do novo `/ID [ (X) (Y) ]` universal. Confirmado byte-a-byte (`cmp -l`,
+inspeção do trailer) que **nada mais** mudou em nenhum dos 9 ficheiros.
+Regenerados via `UPDATE_P307B_SNAPSHOTS=1` (mecanismo já existente desde
+P307b, "permitir regenerar referências quando o output PDF muda
+intencionalmente").
+
+**Achado não corrigido, fora de escopo, registado:** `cargo test -p
+typst-wiring` tem uma falha pré-existente e não relacionada
+(`p1464_svg_png_global_pdf_html_and_homonymous_closure_controls`, oracle
+desatualizado do P1471 — espera `pdf` como `"module"`, já é `"function"`
+desde a migração `Value::Module -> Value::Func` materializada em
+`52d3d337c`, muito antes do baseline deste passo). Confirmado
+independentemente por Agente A (worktree isolada em `7a20ec72d`, sem
+qualquer alteração de P1475) e por papel C (leitura direta do teste). Não
+tocado — fora do owner deste L0.
+
+### Gates finais medidos (2026-09-22)
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo test -p typst-core --lib                                -> 6129/6129
+cargo test -p typst-shell --lib                                -> 83/83
+cargo test -p typst-infra --lib                                -> 1006/1006 (RED->GREEN
+                                                                   dos 11 novos + 9 fixtures
+                                                                   regenerados, duas rondas
+                                                                   completas)
+cargo test -p typst-wiring                                     -> 1 falha pré-existente
+                                                                   não relacionada (acima),
+                                                                   confirmada no baseline
+cargo fmt (builder.rs/tests.rs, únicos ficheiros tocados)      -> limpo (drift pré-existente
+                                                                   em figure_caption.rs/
+                                                                   footnote_entry.rs, não
+                                                                   deste passo, não tocado)
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem (ficheiro, mensagem) contra o
+    baseline `7a20ec72d` em worktree isolada                  -> zero avisos novos
+crystalline-lint .                                              -> 0 erros/fatais (V16 real
+                                                                   corrigido; um V16
+                                                                   pré-existente e não
+                                                                   relacionado permanece,
+                                                                   fora do diff)
+crystalline-lint --checks v15,v26 .                             -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Medição de conformidade veraPDF 1.30.2 (binário cristalino recompilado
+neste commit, documento de teste com heading/negrito/itálico/figura com
+caption): **os sete archivals do escopo (A2a/A2b/A2u/A3a/A3b/A3u/A4) são
+100% conformes** — `isCompliant="true"`, `failedRules="0"` em todos,
+excedendo a meta original do passo (que só exigia zero falhas nas regras
+nucleares medidas em `typst-p1469-revisita-verapdf-2026-09-21.md` Achado
+1, não conformidade total).
+
+Veredito final: os cinco itens do contrato (§3) fecham integralmente,
+sem escopo reduzido adicional além do já declarado em §2.5. Dois achados
+de integração corrigidos (asserção de teste incorreta sobre X==Y; V16 de
+qualidade) confirmam outra vez o valor da execução segregada A/B/C —
+nenhum dos dois exigiu reabrir o L0 nem o gate ADR-0127, ambos são
+correções de fluxo contínuo dentro do que o contrato já previa.

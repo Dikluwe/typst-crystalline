@@ -1,6 +1,7 @@
 # Passo 1475 — Núcleo PDF/A-2/3/4: trailer `/ID`, XMP `pdfaid`, `/OutputIntent`, supressão de `/Info` em A4
 
-**Estado:** ESCRITO — AGUARDA MEDIÇÕES FINAIS DE GATE E CONFIRMAÇÃO ADR-0127
+**Estado:** MATERIALIZADO (confirmação humana 2026-09-22, posterior ao
+commit causal somente-L0 `7a20ec72d`; execução segregada A/B/C — ver §7)
 
 **Data da auditoria:** 2026-09-22T00:31:50-03:00
 
@@ -391,3 +392,100 @@ fmt, `crystalline-lint .` (0 erros), `crystalline-lint --checks v5,v15,v26
 - `/Lang`/tagging automático observado incidentalmente em `a-4` (§2.5) —
   não implementado, não é requisito das 3 regras nucleares nem das 2 de
   A4 medidas no Achado 1.
+
+## 7. Execução segregada e integração (2026-09-22)
+
+Confirmação humana explícita recebida em 2026-09-22, na mesma sessão,
+posterior ao commit causal somente-L0 `7a20ec72d`. Ver
+`00_nucleo/prompts/infra/export/builder.md` §P1475 "Execução segregada e
+integração" para o relato completo (achados de integração, gates finais
+medidos) — esta secção resume só o essencial do lado do passo.
+
+- **Agente A** (implementação, commit `eeeee4538`): os cinco itens do
+  contrato §3, sem ver os testes. Reproduziu e corrigiu por conta própria
+  o bug de infra conhecido (worktree no baseline errado). Mediu e
+  reportou proativamente (não corrigiu, fora do seu mandato) que
+  `xmp_instance_and_document_id` pré-existente gera `InstanceID`/
+  `DocumentID` sempre distintos — achado que evitou uma falsa regressão
+  na integração.
+- **Agente B** (testes, commit `e090fc29f`): 11 testes novos em
+  `03_infra/src/export/tests.rs`, via a API pública do builder (nunca
+  construção direta de tipos internos ainda inexistentes). 6 RED
+  genuínos + 5 guardas de não-regressão, confirmados contra o mesmo
+  baseline `7a20ec72d` antes da integração.
+- **Papel C** (integração, o próprio dono desta execução): aplicou os
+  dois patches sem conflito de merge (ambos tocando `builder.rs`
+  extensivamente); corrigiu a asserção de teste `X==Y` incorreta
+  (achado de integração, não bug de implementação — Agente A já tinha
+  sinalizado a causa); corrigiu um V16 real (`_ =>` genérico em
+  `pdfaid_elem`, virou `match` exaustivo); regenerou os 9 fixtures
+  dourados de `p307b_snapshot_tests` (+62 bytes cada, confirmado
+  byte-a-byte que nada mais mudou) via `UPDATE_P307B_SNAPSHOTS=1`.
+
+### RED → GREEN
+
+11 testes novos (`p1475_pdfa_conformance_core_tests`,
+`03_infra/src/export/tests.rs`): 6 RED genuínos (falha de asserção,
+nunca erro de compilação) + 5 guardas de não-regressão já GREEN no
+baseline. Após integração e a correção da asserção `X==Y`: **11/11
+GREEN**. Suíte completa `typst-infra --lib`: **1006/1006** (995
+pré-existentes + 11 novos, incluindo os 9 fixtures regenerados). Suíte
+`typst-core --lib`: **6129/6129** (não afetada, confirmação de
+não-regressão). Suíte `typst-shell --lib`: **83/83**.
+
+### Gates finais medidos
+
+```text
+cargo build --workspace                    -> sucesso
+cargo test -p typst-core --lib               -> 6129/6129
+cargo test -p typst-shell --lib               -> 83/83
+cargo test -p typst-infra --lib               -> 1006/1006
+cargo test -p typst-wiring                    -> 1 falha pré-existente não
+                                                  relacionada (P1471, oracle
+                                                  desatualizado de `pdf`
+                                                  module/function), confirmada
+                                                  no baseline por Agente A
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem contra baseline
+    `7a20ec72d` em worktree isolada           -> zero avisos novos
+crystalline-lint .                             -> 0 erros/fatais
+crystalline-lint --checks v5,v15,v26 .         -> drift esperado em builder.rs
+                                                  (L0 mudou, código ainda não
+                                                  resselado); 0 violações
+                                                  V15/V26
+git diff --check                               -> sucesso
+```
+
+### Medição de conformidade veraPDF (final)
+
+Binário cristalino recompilado neste commit (`target/debug/typst`),
+veraPDF 1.30.2, documento de teste com heading/negrito/itálico/figura
+com caption, `#set page(width: 12cm, height: 8cm)`. Todos os sete
+archivals do escopo:
+
+| Perfil | `isCompliant` | `failedRules` | `passedRules` |
+|---|---|---|---|
+| A2b | true | 0 | 144 |
+| A2u | true | 0 | 146 |
+| A2a | true | 0 | 153 |
+| A3b | true | 0 | 146 |
+| A3u | true | 0 | 148 |
+| A3a | true | 0 | 155 |
+| A4  | true | 0 | 109 |
+
+**Conformidade total** (não só as regras nucleares/medidas do Achado 1 —
+zero falhas em qualquer regra do perfil nativo veraPDF para os sete).
+Resultado excede a meta original do passo.
+
+### Veredito final
+
+Os cinco itens do contrato (§3) fecham integralmente. `a-1a`/`a-1b`/
+`a-4f`/`a-4e`/`ua-1` permanecem scope-out explícito (§2.5/§6), sem
+nenhuma alegação de conformidade — confirmado negativamente pelos testes
+(`p1475_pdfaid_absent_for_scope_out_profiles_confirmed_negatively`,
+`p1475_output_intent_absent_for_none_a1_a4f_a4e_ua1_alone_regression_guard`).
+Dois achados de integração (asserção de teste `X==Y` incorreta; V16 de
+qualidade) foram corrigidos em fluxo contínuo, sem reabrir o gate
+ADR-0127 — nenhum dos dois altera contrato público, comportamento por
+defeito adicional, ou fase de pipeline além do já decidido e confirmado
+em §4.
