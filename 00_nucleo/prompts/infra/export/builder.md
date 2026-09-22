@@ -610,6 +610,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-31 | P941 — glifos bitmap (CBDT/CBLC) desenhados como imagens XObject, não embutidos como fonte; desenho em §P941 | `builder.md`, `builder.rs`, `stream.rs`, `bitmap_glyphs.rs` |
 | 2026-08-26 | P1196 — owner da coleta raster individualizado; builder retém integração e emissão de recursos | `builder.md`, `builder.rs` |
 | 2026-09-22 | P1475 — trailer `/ID` universal, `pdf:PDFVersion` dinâmico, XMP `pdfaid` + `/OutputIntent` + supressão de `/Info` gated a A2/A3/A4 | `builder.md`, `builder.rs` |
+| 2026-09-22 | P1476 — `/AFRelationship`+`/AF` gated a A3/A4f/A4e, extensão de `/Info`/`/OutputIntent`/`pdfaid` a A4f/A4e | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 
@@ -1299,3 +1300,79 @@ de integração corrigidos (asserção de teste incorreta sobre X==Y; V16 de
 qualidade) confirmam outra vez o valor da execução segregada A/B/C —
 nenhum dos dois exigiu reabrir o L0 nem o gate ADR-0127, ambos são
 correções de fluxo contínuo dentro do que o contrato já previa.
+
+## P1476 — Anexos PDF/A: `/AFRelationship`, `/AF`, extensão de `/Info`/`/OutputIntent`/`pdfaid` a A4f/A4e
+
+Ver `typst-passo-1476.md` para a medição completa. Continuação direta de
+dois scope-outs já registados: `typst-passo-1475.md` §2.5 (A4f/A4e não
+medidos) e o docstring de `emit_attachments` abaixo (P1286: "a relação
+associada ao ficheiro permanece no domínio para futuros perfis PDF/A...
+não escreve `/AFRelationship` nem `/AF`"). Owner único; nenhuma mudança
+em `01_core/src/entities/elements/pdf_attach.rs` (o campo
+`relationship: Option<AttachedFileRelationship>` já existe, já chega a
+`PagedDocument.attachments` — só não era consumido na emissão).
+
+### Medição anterior à decisão
+
+Vanilla A4f/A4e + anexo: 100% conforme veraPDF (`isCompliant=true`,
+`failedRules=0`). Único byte observável entre A4f e A4e: XMP
+`<pdfaid:conformance>F</pdfaid:conformance>` vs `...E...` — achado que
+corrige P1475 §2.2 (A4 "puro" não tem `conformance`, mas A4f/A4e têm as
+**três** chaves `part`+`rev`+`conformance`, não só `part`+`rev`). Filespec
+vanilla ganha `/AFRelationship {nome}` (mapeamento 1:1 confirmado com o
+enum já existente `AttachedFileRelationship::{Source,Data,Alternative,
+Supplement}`; `None` do domínio → `/Unspecified`); catálogo ganha
+`/AF [{filespec_id} 0 R, ...]`. Confirmado que `A3a/A3b/A3u` + anexo têm
+exatamente o mesmo padrão (`/AFRelationship`+`/AF`, `/OutputIntent` já
+coberto desde P1475, `/Info` nunca suprimido — só a família A4 suprime).
+Sem `standard` nenhum: nem `/AFRelationship` nem `/AF` — gated, não
+universal. Medição negativa com o build cristalino atual (pré-P1476)
+sob `a-4f` + anexo + figura RGB confirma exatamente três causas de
+falha: `/Info` presente (6.1.3), `/AFRelationship` ausente (6.9),
+`/OutputIntent` ausente (6.2.4.3), `pdfaid` ausente (6.7.3) — nenhuma
+falha relativa a `/AF` (replicado por completude/paridade, custo
+marginal zero, não comprovadamente exigido por esta suíte de regras).
+
+### Contrato
+
+1. **`/AFRelationship` na Filespec + `/AF` no catálogo** — gated a
+   `archival_supports_embedded_files` (helper novo:
+   `A3a|A3b|A3u|A4f|A4e`, únicas famílias que suportam anexos conformes
+   nos respetivos ISO 19005). `emit_attachments` (`builder.rs:2420`)
+   mapeia `attachment.relationship` via `af_relationship_name` (helper
+   puro, `None -> "Unspecified"`, variantes 1:1) e inclui o campo
+   condicionalmente na Filespec; acumula os `filespec_id` processados e,
+   se o gate estiver ativo e houver pelo menos um, edita o catálogo com
+   `/AF [...]` via `insert_pdf_dict_entry`.
+2. **`/Info` suprimido** — `emit_info` (`builder.rs:2680`) estende a
+   comparação de P1475 (`Some(PdfArchival::A4)`) para
+   `matches!(_, Some(PdfArchival::A4 | PdfArchival::A4f | PdfArchival::A4e))`.
+3. **`/OutputIntent`** — `emit_pdfa_output_intent` (`builder.rs:2728`)
+   acrescenta `A4f | A4e` aos braços já existentes do `matches!`.
+4. **XMP `pdfaid`** — `pdfaid_elem` (`builder.rs:2830`) ganha dois
+   braços novos: A4f → `part=4 rev=2020 conformance=F`; A4e →
+   `part=4 rev=2020 conformance=E`; ambos removidos do braço de
+   scope-out (que passa a ser só `None | Some(A1a | A1b)`). `match`
+   continua exaustivo.
+
+### Scope-out explícito
+
+`/Params` (`/Size`/`/ModDate`) no `EmbeddedFile` — vanilla emite,
+veraPDF não exigiu na medição (§ acima); formato de data do vanilla
+(`D:...±HH'mm'`) diverge do já usado por `/Info` (`D:...` sem offset) —
+precisaria de medição própria, não implementado. `/UF` sempre UTF-16BE
+hex (mesmo para nomes ASCII, onde o vanilla usa string literal) —
+divergência de forma (ADR-0107), não de conformidade, não tocada. A1a/
+A1b continuam scope-out de P1475 (ICC v2 + `/CIDSet`). PDF/UA-1 não
+tocado.
+
+### Aceitação e gate
+
+Testes cobrem os quatro itens, positivo e negativo (ausência fora do
+gate, incluindo A2\*/A4-sem-f/e onde aplicável), mais regressão dos 11
+testes de P1475. Medição final veraPDF em A3b/A3u/A3a/A4f/A4e + anexo
+(com conteúdo RGB para exercitar OutputIntent): zero falhas esperado.
+Nenhum item deste contrato é universal (todos gated a `standard:`
+explícito) — mais próximo de fluxo contínuo que o item 1 de P1475, mas
+segue o mesmo protocolo de parar para confirmação humana explícita
+(P1286 já tinha declarado que reabrir isto exigia decisão própria).
