@@ -1,5 +1,9 @@
 # Prompt L0 — `entities/elements/footnote_entry` — `FootnoteEntryElem`
-Hash do Código: 00000000
+Hash do Código: 46ef1952
+
+**Estado**: MATERIALIZADO (confirmação humana 2026-09-21, posterior ao commit
+causal somente-L0 `3ac60a578`; execução segregada A/B/C — ver
+`typst-passo-1473.md` §8).
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/footnote_entry.rs`
 **Origem**: **P1473** (`typst-passo-1473.md`), família das oito rotas públicas não
@@ -64,3 +68,14 @@ Não implementa `.realize()` (link/superscript via `Counter::of(FootnoteElem)`,
 `note.location()`), não implementa `ShowSet` (leading/tamanho automáticos), não
 altera `compiler/layout/footnote.rs`. Reabertura de qualquer um destes exige
 medição própria e gate ADR-0127 (mudança de fase do pipeline).
+
+## Materialização
+
+Agente A (`01a82593d`) criou este ficheiro e a entidade
+`FootnoteEntryElem` (struct, `Hash` manual via `Debug` — `Length` carrega
+`f64`, mesma causa de `ListItemElem` —, `Element`, `Content::
+FootnoteEntry`/constructor) sem ver os testes. O ficheiro não tinha nenhum
+teste próprio até a integração (papel C, 2026-09-21) — `crystalline-lint`
+V2 exige verificação simultânea por módulo do núcleo; acrescentados 5
+testes locais (mesma cobertura de `figure_caption.rs`, adaptada aos cinco
+campos). Suíte: GREEN.

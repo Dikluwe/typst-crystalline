@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 53447521
+//! @prompt-hash eb4ba24a
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -187,6 +187,12 @@ pub enum Value {
     /// `type`, …). `Type` é `Copy` (sem payload). `type(x)` devolve esta
     /// variante; os nomes de tipo são registados no scope global como ela.
     Type(Type),
+
+    /// **P1473** — instância de `color.spot(name, fallback)` (escopo
+    /// reduzido, sem `.tint()`). `type()` desta variante é `Type::
+    /// SpotColorant` (nome público `"spot"`); não é uma variante de `Color`
+    /// (tipo irmão, paralelo — ver `entities/color.md` §P1473).
+    SpotColorant(crate::entities::color::SpotColorant),
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -245,6 +251,9 @@ pub enum Type {
     Direction,
     Path,
     Type,
+    /// **P1473** — `color.spot(...)` (escopo reduzido, sem `.tint()`). Nome
+    /// público `"spot"`, distinto do genérico `"type"`.
+    SpotColorant,
 }
 
 impl Type {
@@ -289,6 +298,8 @@ impl Type {
             Self::Direction => "direction",
             Self::Path => "path",
             Self::Type => "type",
+            // **P1473** — nome público medido: `type(color.spot(...))` → `"spot"`.
+            Self::SpotColorant => "spot",
         }
     }
 
@@ -312,6 +323,8 @@ impl Type {
                 | Self::Version
                 | Self::Label
                 | Self::Path
+                // **P1473** — `color.spot(name, fallback)` constructor.
+                | Self::SpotColorant
         )
     }
 }
@@ -372,6 +385,8 @@ impl Value {
             Self::Dir(_) => "direction",
             Self::Path(_) => "path",
             Self::Type(_) => "type",
+            // **P1473** — medido: `type(color.spot(...))` → `"spot"`.
+            Self::SpotColorant(_) => "spot",
         }
     }
 
@@ -426,6 +441,7 @@ impl Value {
             Self::Dir(_) => Type::Direction,
             Self::Path(_) => Type::Path,
             Self::Type(_) => Type::Type,
+            Self::SpotColorant(_) => Type::SpotColorant,
         }
     }
 

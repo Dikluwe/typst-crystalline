@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: 148e4889
+Hash do Código: 00c1fb9e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -453,7 +453,7 @@ A remoção revoga sintaxe pública antes aceite e, portanto, é quebra de
 compatibilidade. O dono confirmou explicitamente a materialização em
 2026-09-18, após o commit de proposta `e5505f17c`.
 
-## P1473 — `polygon.regular` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `polygon.regular` (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -532,3 +532,17 @@ citado em `native_polygon` acima nesta secção).
 
 Uma rota qualificada nova. Requer L0 causal (este), hashes ressealados,
 V5/V15/V26, commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `native_polygon_regular` sem ver os
+testes; Agente B (`0258eab89`) escreveu 8 testes RED, incluindo um
+oráculo independente (`regular_polygon_points`) que reproduz a fórmula do
+L0 num teste Rust puro. **Correção descoberta na integração (papel C,
+2026-09-21):** `f64::cos`/`f64::sin` são métodos proibidos em L1
+(`clippy.toml`, não-determinismo de ponto flutuante) — tanto o código de
+produção quanto o oráculo de teste do Agente B usavam-nos diretamente.
+Corrigido para `libm::cos`/`libm::sin` (mesma família já usada em
+`entities/color.rs` para `cbrtf`/`fmaf`/`powf`); `crystalline.toml`
+(`l1_allowed_external.libm`) ampliado para incluir `cos`/`sin` — extensão
+mecânica da whitelist já existente, não decisão arquitetural nova.
+Suíte: GREEN, zero regressão.

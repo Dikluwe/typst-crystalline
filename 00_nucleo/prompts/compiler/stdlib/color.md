@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 356f1537
+Hash do Código: d8c2ce91
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -462,7 +462,7 @@ spot permanece fora do fragmento e `Unknown`/bloqueado pelo gate P1284.
 
 Nenhuma API Rust pública, default ou fase muda; fluxo contínuo ADR-0127.
 
-## P1473 — `color.spot`/`.tint` (ESCOPO REDUZIDO — sem novo variant em `Color`) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `color.spot`/`.tint` (ESCOPO REDUZIDO — sem novo variant em `Color`) (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -556,3 +556,16 @@ Novo tipo público (`Type::SpotColorant`) + nova entidade. Requer L0 causal
 ressealados, V5/V15/V26, commit documental e **confirmação humana
 explícita posterior**, com o escopo reduzido acima citado explicitamente
 no pedido de confirmação.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`
+(escopo reduzido — sem `.tint()` — já confirmado antes, na fase L0). Agente
+A (`01a82593d`) implementou `Type::SpotColorant`, `Value::SpotColorant`
+(decisão própria: `Value` dedicado paralelo a `Value::Stroke`/`Value::
+Gradient`, não `Value::Dict`), `color_type_field("spot")` e o dispatch de
+`color.spot(...)` como construtor via o mesmo `match` de `call_dispatch.rs`
+já usado por outros `Value::Type` chamáveis — sem ver os testes. Agente B
+(`0258eab89`) escreveu 9 testes RED via `eval_expression` (nunca
+construção Rust direta de `Type::SpotColorant`, ainda inexistente no
+baseline). Suíte: GREEN, zero regressão. Import órfão
+(`use crate::entities::value::Type`) no módulo de teste do Agente B
+removido na integração (clippy).

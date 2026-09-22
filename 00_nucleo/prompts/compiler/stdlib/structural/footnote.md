@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/footnote` — `footnote` (construção)
-Hash do Código: 5a4c737b
+Hash do Código: c58c4bf9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/footnote.rs`
@@ -63,7 +63,7 @@ número, o marcador e a posição na página é o layout — este nó só constr
 #footnote(zz: 1)[x]            → Err citando o scope-out graded (ADR-0054)
 ```
 
-## P1473 — `footnote.entry` (ESCOPO REDUZIDO — construção sem realização) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `footnote.entry` (ESCOPO REDUZIDO — construção sem realização) (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -122,3 +122,19 @@ resolvido aqui. Reabertura futura exige medir a integração `note.location()`
 Nova rota qualificada + nova entidade pública. Requer L0 causal (este e o
 novo `entities/elements/footnote_entry.md`), hashes ressealados, V5/V15/
 V26, commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `native_footnote_entry` sem ver os
+testes — mirando a convenção Portuguesa já estabelecida no `footnote()`
+irmão (`footnote() exige body como argumento posicional`, etc.) em vez de
+paridade vanilla, decisão razoável por analogia mas não verificada.
+Agente B (`0258eab89`) escreveu 6 testes RED esperando mensagens vanilla
+(`missing argument: note`, `expected content, found integer`).
+**Correção descoberta na integração (papel C, 2026-09-21):** medição
+direta confirmou que o vanilla usa as mensagens padrão para
+`footnote.entry` especificamente (`footnote()` tem uma divergência
+histórica própria, não herdável por rotas novas) — `native_footnote_entry`
+corrigido para as mensagens medidas (`note`/`separator`/`clearance`
+wrong-type, incluindo o hint `a length needs a unit - did you mean {i}pt?`
+já existente em `eval/rules.rs::expected_length_error`, reutilizado em vez
+de duplicado). Suíte: GREEN, zero regressão.

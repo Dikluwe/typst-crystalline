@@ -77,7 +77,9 @@ pub use crate::compiler::stdlib::assert::{
 pub(crate) use crate::compiler::stdlib::calc::calc_abs;
 pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
-pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
+pub use crate::compiler::stdlib::figure_image::{
+    native_figure, native_figure_caption, native_image,
+};
 pub(crate) use crate::compiler::stdlib::format::make_format_module;
 pub(crate) use crate::compiler::stdlib::foundations::float::dispatch_float_method_spanned;
 pub use crate::compiler::stdlib::foundations::{
@@ -125,14 +127,15 @@ pub(crate) use crate::compiler::stdlib::structural::{
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum,
-    native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
-    native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
-    native_lof, native_lot, native_op, native_outline, native_outline_entry,
-    native_outline_entry_body, native_outline_entry_indented, native_outline_entry_inner,
-    native_outline_entry_page, native_outline_entry_prefix, native_par, native_par_line,
-    native_parbreak, native_quote, native_raw, native_strong, native_table,
-    native_table_cell, native_table_footer, native_table_header, native_table_hline,
-    native_table_vline, native_terms, native_title, native_underover,
+    native_enum_item, native_footnote, native_footnote_entry, native_grid_cell,
+    native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline,
+    native_heading, native_link, native_list, native_list_item, native_lof, native_lot,
+    native_op, native_outline, native_outline_entry, native_outline_entry_body,
+    native_outline_entry_indented, native_outline_entry_inner, native_outline_entry_page,
+    native_outline_entry_prefix, native_par, native_par_line, native_parbreak,
+    native_quote, native_raw, native_strong, native_table, native_table_cell,
+    native_table_footer, native_table_header, native_table_hline, native_table_vline,
+    native_terms, native_terms_item, native_title, native_underover,
 };
 pub use crate::compiler::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_replace,
@@ -158,7 +161,7 @@ pub use crate::compiler::stdlib::plugin::{native_plugin, native_plugin_transitio
 pub use crate::compiler::stdlib::shapes::{
     native_circle, native_curve, native_curve_close, native_curve_cubic,
     native_curve_line, native_curve_move, native_curve_quad, native_ellipse, native_line,
-    native_polygon, native_rect, native_square,
+    native_polygon, native_polygon_regular, native_rect, native_square,
 };
 pub use crate::compiler::stdlib::transforms::{
     native_move, native_rotate, native_scale, native_skew,
@@ -189,6 +192,9 @@ pub use crate::compiler::stdlib::pdf::make_pdf_module;
 // P476 — operadores de cor. **P736** — `color_type_field` (era
 // `make_color_module`; `color` é `Value::Type`, não `Value::Dict`).
 pub use crate::compiler::stdlib::color::{color_type_field, predefined_color_bindings};
+// P1473 — `color.spot(name, fallback)`, despachado via `Value::Type(Type::
+// SpotColorant)` em `eval/call_dispatch.rs` (mesmo mecanismo de `int`/`str`).
+pub(crate) use crate::compiler::stdlib::color::native_spot_colorant_construct;
 // P694 — módulo sys.
 pub use crate::compiler::stdlib::sys::make_sys_module;
 // P311b.3 + P765b — 14 funções math style.

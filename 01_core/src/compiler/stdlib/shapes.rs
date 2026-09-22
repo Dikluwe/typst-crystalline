@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash 9e8096f9
+//! @prompt-hash 8a488ef2
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -724,6 +724,168 @@ pub fn native_polygon(
     }))))
 }
 
+// ── P1473 — `polygon.regular(fill?, stroke?, size?, vertices?)` ─────────────
+
+/// `polygon.regular(fill?, stroke?, size?, vertices?)` — constructor
+/// qualificado que gera um polígono regular circunscrito num círculo de
+/// diâmetro `size` (default `1em`), com `vertices` lados (default `3`, `u64`).
+///
+/// Algoritmo byte-a-byte da fonte pinada
+/// (`lab/typst-original/crates/typst-library/src/visualize/polygon.rs:53-88`):
+/// mesma fórmula de ângulo (offset `PI*(1/2 − 1/vertices)` + rotação
+/// `(i/vertices)·2π`, equivalente a `Angle::from_ratio` = `ratio·TAU`), mesma
+/// normalização de bbox por `horizontal_offset`/`vertical_offset` (fold com
+/// acumulador inicial `(radius, radius)`, **não** o primeiro ponto). O loop
+/// `0..=vertices` (N+1, inclusive) fecha a forma repetindo o primeiro vértice
+/// no fim — mesmo comportamento do vanilla (medido: `vertices: 3` devolve 4
+/// pares). Reutiliza `PathItem::MoveTo`/`LineTo`/`ClosePath`, `parse_paint`,
+/// `parse_shape_stroke`, `path_bbox` e o fallback determinístico P732 já
+/// usados por `native_polygon` (mesmo `Content::Shape(ShapeKind::Path(...))`),
+/// sem criar `PolygonRegularElem` nem variante nova de `Content`.
+///
+/// **Decisão de implementação (P1473, Agente A):** `size` default `1em` não é
+/// resolvível em tempo de eval — esta função, como `native_polygon`/
+/// `native_curve`, não tem acesso a `engine.styles` (assinatura nativa de 4
+/// argumentos, sem `Engine`). Resolve o default contra o font-size root do
+/// crate (`entities::style_chain::StyleChain::default_chain()`: `size:
+/// Some(11.0)`), mesmo valor usado como default em todo o cristalino quando
+/// não há `engine` disponível. `size:` explícito aceita `Length`/`Float`/
+/// `Int`; só a componente `.abs` de `Length` é usada (paridade com
+/// `vertex_component`/`native_rect` — `em` explícito não resolve em tempo de
+/// eval, mesma limitação pré-existente).
+pub fn native_polygon_regular(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    // Fonte pinada: `regular` não tem posicionais — qualquer positional é erro.
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "unexpected argument".to_string(),
+        )]);
+    }
+    for key in args.named.keys() {
+        if !matches!(key.as_str(), "fill" | "stroke" | "size" | "vertices") {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("unexpected argument: {key}"),
+            )]);
+        }
+    }
+
+    // Default root font-size do crate quando `engine.styles` não está
+    // disponível (ver nota de decisão acima) — `entities/style_chain.rs`
+    // `StyleChain::default_chain()`.
+    const DEFAULT_ROOT_SIZE_PT: f64 = 11.0;
+
+    let size_pt = match args.named.get("size") {
+        None => DEFAULT_ROOT_SIZE_PT,
+        Some(Value::Length(l)) => l.abs.to_pt(),
+        Some(Value::Float(f)) => *f,
+        Some(Value::Int(i)) => *i as f64,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected length, found {}", other.type_name()),
+            )]);
+        }
+    };
+
+    let vertices: u64 = match args.named.get("vertices") {
+        None => 3,
+        Some(Value::Int(n)) if *n < 0 => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "number must be at least zero".to_string(),
+            )]);
+        }
+        Some(Value::Int(n)) => *n as u64,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected integer, found {}", other.type_name()),
+            )]);
+        }
+    };
+
+    let radius = size_pt / 2.0;
+    let angle = |i: f64| -> f64 {
+        let offset = std::f64::consts::PI * (0.5 - 1.0 / vertices as f64);
+        let rotation = (i / vertices as f64) * std::f64::consts::TAU;
+        offset + rotation
+    };
+
+    let (horizontal_offset, vertical_offset) = (0..=vertices)
+        .map(|v| {
+            let a = angle(v as f64);
+            ((radius * libm::cos(a)) + radius, (radius * libm::sin(a)) + radius)
+        })
+        .fold((radius, radius), |(min_x, min_y), (v_x, v_y)| {
+            (min_x.min(v_x), min_y.min(v_y))
+        });
+
+    let points: Vec<(f64, f64)> = (0..=vertices)
+        .map(|v| {
+            let a = angle(v as f64);
+            let x = (radius * libm::cos(a)) + radius - horizontal_offset;
+            let y = (radius * libm::sin(a)) + radius - vertical_offset;
+            (x, y)
+        })
+        .collect();
+
+    let mut path_items: Vec<PathItem> = Vec::with_capacity(points.len() + 1);
+    for (i, (x, y)) in points.iter().enumerate() {
+        if i == 0 {
+            path_items.push(PathItem::MoveTo(Point { x: Pt(*x), y: Pt(*y) }));
+        } else {
+            path_items.push(PathItem::LineTo(Point { x: Pt(*x), y: Pt(*y) }));
+        }
+    }
+    path_items.push(PathItem::ClosePath);
+
+    let fill = args
+        .named
+        .get("fill")
+        .map(|value| parse_paint(value, args.span))
+        .transpose()?
+        .flatten();
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "polygon.regular"))
+        .transpose()?;
+
+    // P732 — mesmo fallback determinístico de `native_polygon`: sem fill nem
+    // stroke → stroke preta de 1pt; com fill sem stroke → sem stroke.
+    let stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+            ..Stroke::default()
+        })
+    } else {
+        parsed_stroke
+    };
+
+    let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
+    let width =
+        if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
+    let height =
+        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+
+    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+        kind: ShapeKind::Path(path_items),
+        width,
+        height,
+        fill,
+        stroke,
+        fill_rule: FillRule::NonZero,
+    }))))
+}
+
 // ── Passo 293-294 — `curve(...)` constructor stdlib ─────────────────────
 //
 // **P293 H6 (descoberta empírica A.0.0)**: activação posterior de
@@ -1309,5 +1471,206 @@ mod tests {
         let args = Args::positional(vec![Value::Array(vec![Value::Int(10)])]);
         let res = native_curve(&mut c, &args, &NullWorld::default(), tfid());
         assert!(res.is_err());
+    }
+}
+
+/// P1473 (Agente B) — contrato RED de `polygon.regular`. Fonte:
+/// `00_nucleo/materialization/typst-passo-1473.md` +
+/// `00_nucleo/prompts/compiler/stdlib/shapes.md` §P1473. Escrito sem ver a
+/// implementação (isolamento Agente A/B) — usa `eval_expression` (avaliação
+/// de expressões Typst) como oráculo de observáveis de língua; a fórmula
+/// geométrica é reproduzida aqui em `f64` puro (transcrita byte-a-byte do
+/// L0, que por sua vez transcreve `visualize/polygon.rs:53-88` da fonte
+/// pinada), não importada da implementação ainda inexistente.
+#[cfg(test)]
+mod p1473_tests {
+    use super::*;
+    use crate::compiler::eval::eval_expression;
+    use crate::entities::source_result::SourceResult;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1473).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+
+    fn eval(src: &str) -> SourceResult<Value> {
+        eval_expression(&NullWorld::default(), src).0
+    }
+
+    fn expect_ok(src: &str) -> Value {
+        match eval(src) {
+            Ok(v) => v,
+            Err(errors) => panic!("{src}: esperava Ok, obteve Err({errors:?})"),
+        }
+    }
+
+    fn expect_err_message(src: &str) -> String {
+        match eval(src) {
+            Err(errors) => {
+                assert_eq!(
+                    errors.len(),
+                    1,
+                    "{src}: esperava exactamente 1 diagnóstico, obteve {errors:?}"
+                );
+                errors[0].message.clone()
+            }
+            Ok(v) => panic!("{src}: esperava Err, obteve Ok({v:?})"),
+        }
+    }
+
+    /// Extrai os pontos (`MoveTo`/`LineTo`, em pt) de um `Content::Shape`
+    /// com `ShapeKind::Path` — ignora `ClosePath`/`CubicTo` (não usados por
+    /// `polygon.regular`). Devolve `None` se o valor não é a forma esperada.
+    fn extract_path_points(value: &Value) -> Option<Vec<(f64, f64)>> {
+        let Value::Content(Content::Shape(elem)) = value else {
+            return None;
+        };
+        let ShapeKind::Path(items) = &elem.kind else {
+            return None;
+        };
+        Some(
+            items
+                .iter()
+                .filter_map(|item| match item {
+                    PathItem::MoveTo(p) | PathItem::LineTo(p) => {
+                        Some((p.x.val(), p.y.val()))
+                    }
+                    _ => None,
+                })
+                .collect(),
+        )
+    }
+
+    /// Fórmula pinada (transcrita do L0, que transcreve
+    /// `visualize/polygon.rs:53-88` byte-a-byte): `vertices+1` pontos
+    /// (`0..=vertices` inclusive fecha a forma repetindo o primeiro no
+    /// fim), normalizados pelo mínimo `x`/`y` observado (incluindo o
+    /// candidato-semente `radius` do fold do vanilla).
+    fn regular_polygon_points(size_pt: f64, vertices: u64) -> Vec<(f64, f64)> {
+        let radius = size_pt / 2.0;
+        let angle = |v: u64| -> f64 {
+            let offset = std::f64::consts::PI * (0.5 - 1.0 / vertices as f64);
+            let rotation = 2.0 * std::f64::consts::PI * (v as f64 / vertices as f64);
+            offset + rotation
+        };
+        let raw: Vec<(f64, f64)> = (0..=vertices)
+            .map(|v| {
+                let a = angle(v);
+                (radius * libm::cos(a) + radius, radius * libm::sin(a) + radius)
+            })
+            .collect();
+        let (h_off, v_off) = raw
+            .iter()
+            .fold((radius, radius), |(mnx, mny), &(x, y)| (mnx.min(x), mny.min(y)));
+        raw.iter().map(|&(x, y)| (x - h_off, y - v_off)).collect()
+    }
+
+    fn assert_points_close(actual: &[(f64, f64)], expected: &[(f64, f64)]) {
+        assert_eq!(actual.len(), expected.len(), "contagem de pontos diverge");
+        for (i, (a, e)) in actual.iter().zip(expected.iter()).enumerate() {
+            assert!(
+                (a.0 - e.0).abs() < 1e-6 && (a.1 - e.1).abs() < 1e-6,
+                "vértice {i}: actual={a:?} expected={e:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1473_polygon_regular_type_is_function() {
+        assert_eq!(expect_ok("type(polygon.regular) == function"), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1473_polygon_regular_defaults_close_the_shape_with_vertices_plus_one_points() {
+        // size default 1em (simbólico — sem dimensão de referência em
+        // tempo de eval, não comparável a pt aqui); vertices default 3 —
+        // o loop 0..=vertices fecha a forma repetindo o primeiro vértice
+        // (medido no L0: 4 pares, o último igual ao primeiro).
+        let value = expect_ok("polygon.regular()");
+        let points = extract_path_points(&value)
+            .unwrap_or_else(|| panic!("esperava Content::Shape(Path), obteve {value:?}"));
+        assert_eq!(points.len(), 4, "vertices(3)+1 pontos");
+        assert_points_close(&[points[0]], &[points[3]]);
+    }
+
+    #[test]
+    fn p1473_polygon_regular_explicit_args_match_pinned_formula() {
+        let value = expect_ok("polygon.regular(size: 100pt, vertices: 5)");
+        let points = extract_path_points(&value)
+            .unwrap_or_else(|| panic!("esperava Content::Shape(Path), obteve {value:?}"));
+        let expected = regular_polygon_points(100.0, 5);
+        assert_points_close(&points, &expected);
+        assert_points_close(&[points[0]], &[points[5]]);
+    }
+
+    #[test]
+    fn p1473_polygon_regular_unknown_named() {
+        assert_eq!(
+            expect_err_message("polygon.regular(foo: 1)"),
+            "unexpected argument: foo"
+        );
+    }
+
+    #[test]
+    fn p1473_polygon_regular_unexpected_positional() {
+        assert_eq!(expect_err_message("polygon.regular(1)"), "unexpected argument");
+    }
+
+    #[test]
+    fn p1473_polygon_regular_negative_vertices() {
+        assert_eq!(
+            expect_err_message("polygon.regular(vertices: -1)"),
+            "number must be at least zero"
+        );
+    }
+
+    #[test]
+    fn p1473_polygon_regular_float_vertices() {
+        assert_eq!(
+            expect_err_message("polygon.regular(vertices: 2.5)"),
+            "expected integer, found float"
+        );
+    }
+
+    #[test]
+    fn p1473_polygon_parent_keeps_function_kind_and_direct_call() {
+        assert_eq!(expect_ok("type(polygon) == function"), Value::Bool(true));
+        eval("polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))")
+            .unwrap_or_else(|e| panic!("chamada directa de polygon() regrediu: {e:?}"));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash 401fad90
+//! @prompt-hash 2a7f69cd
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -22,7 +22,7 @@ use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 
 use super::err;
 
@@ -78,6 +78,12 @@ pub fn color_type_field(field: &str) -> Option<Value> {
             Value::Func(Func::native("transparentize", native_color_transparentize))
         }
         "opacify" => Value::Func(Func::native("opacify", native_color_opacify)),
+        // **P1473** — `color.spot` é o tipo-valor `SpotColorant`, paralelo a
+        // como `color` é `Value::Type(Type::Color)`. `color.spot(name,
+        // fallback)` despacha como construtor via `Value::Type(t) => match
+        // t {...}` em `eval/call_dispatch.rs` (mesmo mecanismo de `int`/
+        // `str`/`stroke`/etc. — sem novo caminho de dispatch).
+        "spot" => Value::Type(Type::SpotColorant),
         _ => return predefined_color(field).map(Value::Color),
     };
     Some(function)
@@ -732,6 +738,76 @@ pub(crate) fn native_color_opacify(
     }
 }
 
+// ── P1473 — `color.spot(name, fallback)` (escopo reduzido, sem `.tint()`) ───
+
+/// `color.spot(name, fallback)` — constructor de `Value::SpotColorant`.
+/// Despachado por `Value::Type(Type::SpotColorant) => ...` em
+/// `eval/call_dispatch.rs` (mesmo mecanismo de `int(...)`/`str(...)`/
+/// `stroke(...)`, sem novo caminho de dispatch). Ambos os argumentos são
+/// posicionais (paridade vanilla: `#[func(constructor)] fn construct(name:
+/// Option<Str>, fallback: ProcessColor)`, sem `#[named]`).
+///
+/// `name` (`Str` ou `none`, opcional — default `none`, genuinamente
+/// opcional na língua): tipo errado → `` expected "all", string, or none,
+/// found <tipo> ``. `fallback` (`Color` de processo, obrigatório): ausente
+/// → `missing argument: fallback`; `spot`-de-`spot` → `expected color,
+/// found spot colorant` (não há spot-de-spot); outro tipo errado →
+/// `expected color, found <tipo>`.
+pub(crate) fn native_spot_colorant_construct(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if let Some(key) = args.named.keys().next() {
+        return err_typed(format!("unexpected argument: {key}"));
+    }
+    if args.items.len() > 2 {
+        return err_typed("unexpected argument");
+    }
+
+    // `name` é genuinamente opcional (positional trailing-omittable); um
+    // único positional que já é `Color` é o `fallback` sozinho (`name`
+    // omitido), não um `name` malformado.
+    let (name_arg, fallback_arg): (Option<&Value>, Option<&Value>) =
+        match args.items.len() {
+            0 => (None, None),
+            1 => match &args.items[0] {
+                v @ Value::Color(_) => (None, Some(v)),
+                other => (Some(other), None),
+            },
+            _ => (Some(&args.items[0]), Some(&args.items[1])),
+        };
+
+    let name: Option<EcoString> = match name_arg {
+        None => None,
+        Some(Value::None) => None,
+        Some(Value::Str(s)) => Some(s.clone()),
+        Some(other) => {
+            return err_typed(format!(
+                "expected \"all\", string, or none, found {}",
+                vanilla_type_name(other)
+            ));
+        }
+    };
+
+    let fallback = match fallback_arg {
+        None => return err_typed("missing argument: fallback"),
+        Some(Value::Color(c)) => *c,
+        Some(Value::SpotColorant(_)) => {
+            return err_typed("expected color, found spot colorant");
+        }
+        Some(other) => {
+            return err_typed(format!(
+                "expected color, found {}",
+                vanilla_type_name(other)
+            ));
+        }
+    };
+
+    Ok(Value::SpotColorant(crate::entities::color::SpotColorant { name, fallback }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -796,5 +872,196 @@ mod tests {
         assert_eq!(bytes_of("cyan"), Some((0x00, 0xB3, 0xB3)));
         assert_eq!(bytes_of("magenta"), Some((0xE5, 0x00, 0xE5)));
         assert!(has("none"));
+    }
+}
+
+/// P1473 (Agente B) — contrato RED de `color.spot` (escopo reduzido: sem
+/// `.tint()`, sem variante em `Color`). Fonte:
+/// `00_nucleo/materialization/typst-passo-1473.md` +
+/// `00_nucleo/prompts/compiler/stdlib/color.md` §P1473 +
+/// `00_nucleo/prompts/entities/color.md` §P1473 +
+/// `00_nucleo/prompts/entities/value.md` §P1473. Escrito sem ver a
+/// implementação (isolamento Agente A/B).
+///
+/// `Type::SpotColorant`/`Value::SpotColorant` (ou equivalente) ainda não
+/// existem neste baseline. Para que o RED seja "member missing"/runtime
+/// (não "compilação partida" — o que impediria confirmar o RED de
+/// qualquer outro teste no mesmo crate), **todos** os observáveis abaixo
+/// passam exclusivamente por `eval_expression` (avaliação de expressões
+/// Typst) e por mecanismos genéricos já existentes sobre `Value`
+/// (`Type::name()`, `repr()`, `==`/`!=`) — nunca por construção Rust
+/// directa de `SpotColorant`/`Type::SpotColorant`. Isto é deliberado, não
+/// uma limitação contornada: `type(color.spot(...))` já devolve
+/// `Value::Type(t)` através do `native_type` genérico existente
+/// (`Ok(Value::Type(v.type_of()))`, `foundations/ty.rs:28`), e `t.name()`
+/// funciona para **qualquer** variante de `Type` sem eu precisar de a
+/// nomear — nem sequer depois de o Agente A a acrescentar.
+#[cfg(test)]
+mod p1473_tests {
+    use super::*;
+    use crate::compiler::eval::eval_expression;
+    use crate::entities::source_result::SourceResult;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1473).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+
+    fn eval(src: &str) -> SourceResult<Value> {
+        eval_expression(&NullWorld::default(), src).0
+    }
+
+    fn expect_ok(src: &str) -> Value {
+        match eval(src) {
+            Ok(v) => v,
+            Err(errors) => panic!("{src}: esperava Ok, obteve Err({errors:?})"),
+        }
+    }
+
+    fn expect_ok_str(src: &str) -> String {
+        match expect_ok(src) {
+            Value::Str(s) => s.to_string(),
+            other => panic!("{src}: esperava Value::Str, obteve {other:?}"),
+        }
+    }
+
+    fn expect_err_message(src: &str) -> String {
+        match eval(src) {
+            Err(errors) => {
+                assert_eq!(
+                    errors.len(),
+                    1,
+                    "{src}: esperava exactamente 1 diagnóstico, obteve {errors:?}"
+                );
+                errors[0].message.clone()
+            }
+            Ok(v) => panic!("{src}: esperava Err, obteve Ok({v:?})"),
+        }
+    }
+
+    const FALLBACK: &str = "cmyk(0%, 0%, 0%, 0%)";
+
+    #[test]
+    fn p1473_color_spot_bare_is_a_type_value() {
+        // Medido no L0: type(color.spot) → "type" no vanilla — `color.spot`
+        // não chamado é um valor-tipo, tal como `color`/`int`/`str`.
+        assert_eq!(expect_ok("type(color.spot) == type"), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1473_color_spot_constructed_instance_has_spot_type_name() {
+        // Medido no L0: type(color.spot("X", cmyk(..))) → "spot" — sem
+        // tint ainda não é Color. `t.name()` é genérico: não preciso de
+        // nomear `Type::SpotColorant` para o chamar.
+        match eval(&format!(r#"type(color.spot("X", {FALLBACK}))"#)) {
+            Ok(Value::Type(t)) => assert_eq!(t.name(), "spot"),
+            other => panic!("esperava Ok(Value::Type(_)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p1473_color_spot_repr_with_name() {
+        let fallback_repr = expect_ok_str(&format!("repr({FALLBACK})"));
+        let expected = format!(r#"color.spot("X", {fallback_repr})"#);
+        assert_eq!(
+            expect_ok_str(&format!(r#"repr(color.spot("X", {FALLBACK}))"#)),
+            expected
+        );
+    }
+
+    #[test]
+    fn p1473_color_spot_accepts_none_name_and_repr_preserves_it() {
+        let fallback_repr = expect_ok_str(&format!("repr({FALLBACK})"));
+        let expected = format!("color.spot(none, {fallback_repr})");
+        assert_eq!(
+            expect_ok_str(&format!("repr(color.spot(none, {FALLBACK}))")),
+            expected
+        );
+    }
+
+    #[test]
+    fn p1473_color_spot_equality_by_value() {
+        assert_eq!(
+            expect_ok(&format!(
+                r#"color.spot("X", {FALLBACK}) == color.spot("X", {FALLBACK})"#
+            )),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok(&format!(
+                r#"color.spot("X", {FALLBACK}) != color.spot("Y", {FALLBACK})"#
+            )),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn p1473_color_spot_rejects_spot_of_spot_fallback() {
+        assert_eq!(
+            expect_err_message(&format!(
+                r#"color.spot("X", color.spot("Y", {FALLBACK}))"#
+            )),
+            "expected color, found spot colorant"
+        );
+    }
+
+    #[test]
+    fn p1473_color_spot_name_wrong_type() {
+        assert_eq!(
+            expect_err_message(&format!("color.spot(5, {FALLBACK})")),
+            "expected \"all\", string, or none, found integer"
+        );
+    }
+
+    #[test]
+    fn p1473_color_spot_missing_fallback() {
+        assert_eq!(
+            expect_err_message(r#"color.spot("X")"#),
+            "missing argument: fallback"
+        );
+    }
+
+    #[test]
+    fn p1473_color_parent_keeps_type_kind_and_direct_call() {
+        // Não-regressão: `color` continua `type()==type` e os fields
+        // pré-existentes (`color.rgb`, etc.) continuam a funcionar.
+        assert_eq!(expect_ok("type(color) == type"), Value::Bool(true));
+        eval("color.rgb(255, 0, 0)")
+            .unwrap_or_else(|e| panic!("color.rgb(..) directo regrediu: {e:?}"));
     }
 }

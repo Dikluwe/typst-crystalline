@@ -235,7 +235,12 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::PdfAttach(_)
         | Content::PdfArtifact(_)
         | Content::HtmlElem(_)
-        | Content::HtmlFrame(_) => false,
+        | Content::HtmlFrame(_)
+        // P1473 — `figure.caption`/`footnote.entry`, escopo reduzido:
+        // construção sem síntese/realização, não participam da
+        // introspecção nesta fatia (nenhuma delas emite payload).
+        | Content::FigureCaption(_)
+        | Content::FootnoteEntry(_) => false,
     }
 }
 

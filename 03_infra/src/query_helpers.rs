@@ -280,6 +280,9 @@ fn has_any_text(content: &Content) -> bool {
         Content::Link(link) => has_any_text(&link.body),
         Content::Quote(quote) => has_any_text(&quote.body),
         Content::Footnote(footnote) => has_any_text(&footnote.body),
+        // P1473 — figure.caption/footnote.entry, escopo reduzido.
+        Content::FigureCaption(caption) => has_any_text(&caption.body),
+        Content::FootnoteEntry(entry) => has_any_text(&entry.note),
         // Contentores comuns que podem embrulhar texto.
         Content::Styled(body, _) => has_any_text(body),
         Content::Strong(strong) => has_any_text(&strong.body),
@@ -364,6 +367,9 @@ where
         Content::EnumItem(item) => count_variant(&item.body, predicate),
         Content::Quote(quote) => count_variant(&quote.body, predicate),
         Content::Footnote(footnote) => count_variant(&footnote.body, predicate),
+        // P1473 — figure.caption/footnote.entry, escopo reduzido.
+        Content::FigureCaption(caption) => count_variant(&caption.body, predicate),
+        Content::FootnoteEntry(entry) => count_variant(&entry.note, predicate),
         Content::Styled(body, _) => count_variant(body, predicate),
         Content::Strong(strong) => count_variant(&strong.body, predicate),
         Content::Emph(emph) => count_variant(&emph.body, predicate),

@@ -1,5 +1,9 @@
 # Prompt L0 — `entities/elements/figure_caption` — `FigureCaptionElem`
-Hash do Código: 00000000
+Hash do Código: 3ad4663a
+
+**Estado**: MATERIALIZADO (confirmação humana 2026-09-21, posterior ao commit
+causal somente-L0 `3ac60a578`; execução segregada A/B/C — ver
+`typst-passo-1473.md` §8).
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/figure_caption.rs`
 **Origem**: **P1473** (`typst-passo-1473.md`), família das oito rotas públicas não
@@ -62,3 +66,14 @@ idioma/região, nem o erro "not known at this point" do vanilla para campos
 ainda não sintetizados (aqui, ausência de sintetizado é simplesmente
 ausência de campo — divergência mecânica aceitável, ADR-0107). Reabertura
 de qualquer um destes exige medição própria e gate ADR-0127.
+
+## Materialização
+
+Agente A (`01a82593d`) criou este ficheiro e a entidade `FigureCaptionElem`
+(struct, `Element`, `Content::FigureCaption`/constructor) sem ver os
+testes. O ficheiro não tinha nenhum teste próprio até a integração (papel
+C, 2026-09-21) — `crystalline-lint` V2 exige verificação simultânea por
+módulo do núcleo; acrescentados 5 testes locais (`plain_text`/`is_empty`,
+preservação de `position`/`separator`, `map_text`, `map_content`,
+`eq`/`Hash`), cobrindo o mesmo padrão já usado por `list_item.rs`. Suíte:
+GREEN.

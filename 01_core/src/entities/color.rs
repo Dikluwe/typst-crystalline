@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 49ec8a28
+//! @prompt-hash 4a50a1a6
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -1019,6 +1019,31 @@ pub enum ColorComponent {
     /// Hue em graus (`Angle` do vanilla; `rem_euclid 360` — paridade
     /// `hue_angle`, `color.rs:2167`).
     Angle(f32),
+}
+
+/// **P1473** — `color.spot(name, fallback)` (escopo reduzido, sem
+/// `.tint()`). Não é uma variante de `Color`; tipo irmão paralelo, com
+/// `Type::SpotColorant` próprio (`entities/value.md` §P1473). Construtor,
+/// `repr` e cast do `fallback` (rejeita `spot`-de-`spot` com "expected
+/// color, found spot colorant") vivem no owner produtivo
+/// `compiler/stdlib/color.rs`; esta entidade não revalida.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SpotColorant {
+    /// `None` = sem nome (vanilla aceita `color.spot(none, ..)`).
+    pub name: Option<ecow::EcoString>,
+    /// Sempre um `Color` de processo — nunca `Spot` (não há variante `Spot`
+    /// em `Color` nesta fatia; validado pelo caller antes de chegar aqui).
+    pub fallback: Color,
+}
+
+// `Hash` manual via `Debug` — `Color` não implementa `Hash` (`#[derive(Copy,
+// Clone)]` acima, sem `Hash`; os campos `f32` não são `Hash` no Rust std).
+// Mesmo padrão já em `entities/elements/list_item.rs` (`ListItemElem`/
+// `EnumItemElem`).
+impl std::hash::Hash for SpotColorant {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        format!("{self:?}").hash(state);
+    }
 }
 
 #[cfg(test)]

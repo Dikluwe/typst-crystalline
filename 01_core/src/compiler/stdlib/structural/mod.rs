@@ -95,9 +95,12 @@ mod p1451_tests;
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
 pub use document::{native_asset, native_document};
-pub use footnote::native_footnote;
+pub use footnote::{native_footnote, native_footnote_entry};
 pub use heading::native_heading;
-pub use lists::{native_enum, native_list, native_terms};
+pub use lists::{
+    native_enum, native_enum_item, native_list, native_list_item, native_terms,
+    native_terms_item,
+};
 pub use markup::{native_emph, native_link, native_raw, native_strong};
 pub(crate) use math::{
     apply_math_cases_option, apply_math_matrix_option, equation_alt, equation_content,

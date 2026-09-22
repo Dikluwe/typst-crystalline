@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: a953cd2f
+Hash do Código: 0cb0a264
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -917,7 +917,7 @@ durante a integração, mas vivem em `01_core/src/compiler/eval/tests.rs`
 apesar do nome parecido; achado só na integração, fora da auditoria
 original dos 5 L0s de P1471). Ver a nota lá.
 
-## P1473 — seis registos ganham namespace (`list`/`enum`/`terms`/`polygon`/`figure`/`footnote`) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — seis registos ganham namespace (`list`/`enum`/`terms`/`polygon`/`figure`/`footnote`) (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -954,3 +954,18 @@ da chamada). Nenhum outro binding deste registo muda.
 Consequência mecânica das decisões em `structural/lists.md`/`shapes.md`/
 `figure_image.md`/`structural/footnote.md`
 P1473 — mesmo gate, mesma confirmação humana explícita posterior.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) aplicou os seis retrofits `Func::native_with_
+namespace` em `eval/mod.rs` sem ver os testes. Suíte: GREEN, zero
+regressão. Nota de ownership: os matches exaustivos sobre `Content`/
+`Value`/`Type` que o Agente A teve de resolver por causa dos dois novos
+`Content` variants e do novo `Type` variant vivem em vários outros
+ficheiros deste crate (`eval/repr.rs`, `eval/operators/
+error_formatting.rs`, `introspect.rs`, `introspect/from_tags.rs`,
+`introspect/locatable.rs`, `compiler/layout/mod.rs`, `compiler/math/
+layout/spacing.rs`, `compiler/stdlib/{mod,state,transforms}.rs`,
+`03_infra/src/query_helpers.rs`) — nenhum tem owner 1:1 próprio conhecido
+neste passo; tratados como consequência mecânica da exaustividade do
+compilador, não decisão de contrato nova (mesmo princípio já usado em
+P1471/P1472 para achados fora do escopo original auditado).

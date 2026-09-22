@@ -113,7 +113,10 @@ use crate::entities::elements::columns::ColumnsElem;
 use crate::entities::elements::curve::CurveElem;
 use crate::entities::elements::equation::EquationElem;
 use crate::entities::elements::figure::FigureElem;
+// P1473 — `figure.caption`/`footnote.entry`, escopo reduzido (owners 1:1).
+use crate::entities::elements::figure_caption::FigureCaptionElem;
 use crate::entities::elements::footnote::FootnoteElem;
+use crate::entities::elements::footnote_entry::FootnoteEntryElem;
 use crate::entities::elements::grid::GridElem;
 use crate::entities::elements::grid_cell::GridCellElem;
 use crate::entities::elements::grid_hline::GridHLineElem;
@@ -487,6 +490,13 @@ pub enum Content {
     /// (locatável M1; contentor — recurse body + caption; kind/numbering
     /// `Option<String>` — `kind` None↔Auto, default "image" resolvido em uso).
     Figure(Arc<FigureElem>),
+
+    /// **P1473** — `figure.caption(body, position?, separator?)` qualificado,
+    /// escopo reduzido (construção sem síntese). Owner:
+    /// `entities::elements::figure_caption::FigureCaptionElem`. Não
+    /// participa da síntese (`kind`/`supplement`/`numbering`/`counter`) nem
+    /// do layout de figuras nesta fatia.
+    FigureCaption(Arc<FigureCaptionElem>),
 
     // Lote F-2 S5 (P335): SetFigureNumbering removido — assado em FigureElem.numbering.
     /// Imagem carregada do disco (Passo 71, DEBT-24).
@@ -1021,6 +1031,13 @@ pub enum Content {
     /// (não-locatável P295 Fase 1; contentor — recurse body).
     Footnote(Arc<FootnoteElem>),
 
+    /// **P1473** — `footnote.entry(note, separator?, clearance?, gap?,
+    /// indent?)` qualificado, escopo reduzido (construção sem realização).
+    /// Owner: `entities::elements::footnote_entry::FootnoteEntryElem`. Não
+    /// implementa `.realize()`/`ShowSet`; `compiler/layout/footnote.rs` não
+    /// consulta este constructor nesta fatia.
+    FootnoteEntry(Arc<FootnoteEntryElem>),
+
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
     /// Header repetível de Table — vanilla `TableHeader`.
     /// **Terceiro e último sub-passo Model Fase 2**.
@@ -1319,6 +1336,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Outline(o) => write!(f, "outline({:?})", o),
         Content::OutlineEntry(e) => write!(f, "entry({:?})", e),
         Content::Figure(fig) => write!(f, "figure({:?})", fig),
+        Content::FigureCaption(fc) => write!(f, "figure.caption({:?})", fc),
         Content::Image(i) => write!(f, "image({:?})", i),
         Content::Shape(_) => write!(f, "shape"),
         Content::Curve(_) => write!(f, "curve"),
@@ -1360,6 +1378,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Bibliography(b) => write!(f, "bibliography({:?})", b),
         Content::Cite(c) => write!(f, "cite({:?})", c),
         Content::Footnote(foot) => write!(f, "footnote({:?})", foot),
+        Content::FootnoteEntry(fe) => write!(f, "footnote.entry({:?})", fe),
         Content::TableHeader(_) => write!(f, "table.header"),
         Content::TableFooter(_) => write!(f, "table.footer"),
         Content::TableHLine(_) => write!(f, "table.hline"),
@@ -1456,6 +1475,7 @@ impl Content {
             Self::Outline(_) => "outline",
             Self::OutlineEntry(_) => "entry",
             Self::Figure(_) => "figure",
+            Self::FigureCaption(_) => "figure.caption",
             Self::Image(_) => "image",
             Self::Shape(_) => "shape",
             Self::Curve(_) => "curve",
@@ -1494,6 +1514,7 @@ impl Content {
             Self::Bibliography(_) => "bibliography",
             Self::Cite(_) => "cite",
             Self::Footnote(_) => "footnote",
+            Self::FootnoteEntry(_) => "footnote.entry",
             Self::Metadata(_) => "metadata",
             Self::State(_) => "state",
             Self::StateUpdate(_) => "state.update",
@@ -2364,6 +2385,24 @@ impl Content {
         Self::Footnote(Arc::new(FootnoteElem { body, numbering }))
     }
 
+    /// **P1473** — `Content::FootnoteEntry` (`footnote.entry(...)` qualificado,
+    /// escopo reduzido — construção sem realização).
+    pub fn footnote_entry(
+        note: Content,
+        separator: Option<Content>,
+        clearance: Option<crate::entities::layout_types::Length>,
+        gap: Option<crate::entities::layout_types::Length>,
+        indent: Option<crate::entities::layout_types::Length>,
+    ) -> Self {
+        Self::FootnoteEntry(Arc::new(FootnoteEntryElem {
+            note,
+            separator,
+            clearance,
+            gap,
+            indent,
+        }))
+    }
+
     /// **Lote 11 P326** — `Content::Shape` (geometria).
     pub fn shape(
         kind: ShapeKind,
@@ -2615,6 +2654,16 @@ impl Content {
             }
             None => fig,
         }
+    }
+
+    /// **P1473** — `Content::FigureCaption` (`figure.caption(...)` qualificado,
+    /// escopo reduzido — construção sem síntese).
+    pub fn figure_caption(
+        body: Content,
+        position: Option<crate::entities::elements::figure_caption::CaptionPosition>,
+        separator: Option<Content>,
+    ) -> Self {
+        Self::FigureCaption(Arc::new(FigureCaptionElem { position, separator, body }))
     }
 
     pub fn counter_display(
@@ -3283,6 +3332,7 @@ impl Content {
             | Self::Outline(_)
             | Self::OutlineEntry(_)
             | Self::Figure(_)
+            | Self::FigureCaption(_)
             | Self::Image(_)
             | Self::Shape(_)
             | Self::Curve(_)
@@ -3320,6 +3370,7 @@ impl Content {
             | Self::Bibliography(_)
             | Self::Cite(_)
             | Self::Footnote(_)
+            | Self::FootnoteEntry(_)
             | Self::TableHeader(_)
             | Self::TableFooter(_)
             | Self::GridHLine(_)
@@ -3436,6 +3487,8 @@ impl Content {
             Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure(e) => e.is_empty(),
+            // P1473 — figure.caption vazia se body for.
+            Self::FigureCaption(e) => e.is_empty(),
             Self::Grid(e) => e.is_empty(),
             // P224.B — GridHeader/GridFooter vazio se body for (paridade P157C).
             // Modelo D (Lote 5 P320): grid/table header/footer delegam ao elemento.
@@ -3467,6 +3520,8 @@ impl Content {
             Self::Cite(e) => e.is_empty(),
             // P295 — Footnote nunca vazio (marker `[N]` é sempre observable).
             Self::Footnote(e) => e.is_empty(),
+            // P1473 — footnote.entry vazia se note for.
+            Self::FootnoteEntry(e) => e.is_empty(),
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -3625,6 +3680,7 @@ impl Content {
             Self::Outline(e) => e.plain_text(),
             Self::OutlineEntry(e) => e.plain_text(),
             Self::Figure(e) => e.plain_text(),
+            Self::FigureCaption(e) => e.plain_text(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
             Self::Curve(e) => e.plain_text(),
@@ -3663,6 +3719,7 @@ impl Content {
             // semântica de plain_text para search/screen readers).
             // Marker `[N]` real é resolvido em layout-time.
             Self::Footnote(e) => e.plain_text(),
+            Self::FootnoteEntry(e) => e.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align(e) => e.plain_text(),
             Self::Place(e) => e.plain_text(),
@@ -3783,6 +3840,8 @@ impl PartialEq for Content {
             (Self::OutlineEntry(a), Self::OutlineEntry(b)) => a == b,
             // Modelo D (Lote 13 P328): Figure delega ao `Arc<…Elem>`.
             (Self::Figure(a), Self::Figure(b)) => a == b,
+            // P1473 — FigureCaption delega ao `Arc<…Elem>`.
+            (Self::FigureCaption(a), Self::FigureCaption(b)) => a == b,
             // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
             (Self::Image(a), Self::Image(b)) => a == b,
             // Modelo D (Lote 11 P326): Shape delega ao `Arc<…Elem>`.
@@ -3822,6 +3881,8 @@ impl PartialEq for Content {
             // P295 — Footnote PartialEq: body == body.
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
+            // P1473 — FootnoteEntry delega ao `Arc<…Elem>`.
+            (Self::FootnoteEntry(a), Self::FootnoteEntry(b)) => a == b,
             (Self::PageRun(a), Self::PageRun(b)) => a == b,
             (
                 Self::SetPage {
@@ -4098,6 +4159,8 @@ impl Content {
             Content::Label(e)    => e.map_content(transform)?,
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_content(transform)?,
+            // P1473 — FigureCaption delega ao elemento.
+            Content::FigureCaption(e) => e.map_content(transform)?,
             // Content::Equation tem body: Box<Content> → container.
             // Modelo D (Lote 10 P325): Equation container delega ao elemento.
             Content::Equation(e) => e.map_content(transform)?,
@@ -4257,6 +4320,8 @@ impl Content {
             Content::Cite(e) => e.map_content(transform)?,
             // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
             Content::Footnote(e) => e.map_content(transform)?,
+            // P1473 — FootnoteEntry delega ao elemento.
+            Content::FootnoteEntry(e) => e.map_content(transform)?,
             Content::Align(e) => e.map_content(transform)?,
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_content(transform)?,
@@ -4384,6 +4449,8 @@ impl Content {
             Content::Label(e)    => e.map_text(transform),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_text(transform),
+            // P1473 — FigureCaption delega ao elemento.
+            Content::FigureCaption(e) => e.map_text(transform),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento
             // (contentores de prosa — map_text recurse, precedente Heading).
             Content::ListItem(e) => e.map_text(transform),
@@ -4538,6 +4605,8 @@ impl Content {
             Content::Cite(e) => e.map_text(transform),
             // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
             Content::Footnote(e) => e.map_text(transform),
+            // P1473 — FootnoteEntry delega ao elemento.
+            Content::FootnoteEntry(e) => e.map_text(transform),
             Content::Align(e) => e.map_text(transform),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_text(transform),

@@ -960,6 +960,13 @@ fn materialize_time(
             None,
         ),
 
+        // P1473 — figure.caption (escopo reduzido): recurse body+separator.
+        Content::FigureCaption(e) => Content::figure_caption(
+            materialize_time(&e.body, intr, location),
+            e.position,
+            e.separator.as_ref().map(|c| materialize_time(c, intr, location)),
+        ),
+
         // Modelo D (Lote 3 P318): Terms/TermItem delegam reconstrução ao construtor.
         Content::Terms(e) => Content::terms(
             e.items.iter().map(|c| materialize_time(c, intr, location)).collect(),
@@ -980,6 +987,15 @@ fn materialize_time(
 
         // P295 — Footnote recurse em body (paridade Quote).
         Content::Footnote(e) => Content::footnote(materialize_time(&e.body, intr, location)),
+
+        // P1473 — footnote.entry (escopo reduzido): recurse note+separator.
+        Content::FootnoteEntry(e) => Content::footnote_entry(
+            materialize_time(&e.note, intr, location),
+            e.separator.as_ref().map(|c| materialize_time(c, intr, location)),
+            e.clearance,
+            e.gap,
+            e.indent,
+        ),
 
         // Modelo D (Lote 4 P319): decorações — recurse no body via construtor.
         Content::Underline(e) => Content::underline(
@@ -1685,6 +1701,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::CounterUpdate(_)
         | Content::Outline(_)
         | Content::Figure(_)
+        | Content::FigureCaption(_)
         | Content::Image(_)
         | Content::Shape(_)
         | Content::Curve(_)
@@ -1720,6 +1737,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::Bibliography(_)
         | Content::Cite(_)
         | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
         | Content::TableHeader(_)
         | Content::TableFooter(_)
         | Content::GridHLine(_)
@@ -2135,6 +2153,15 @@ pub(crate) fn walk(
             }
         }
 
+        // P1473 — figure.caption (escopo reduzido): não-locatável nesta
+        // fatia (ver `introspect/locatable.rs`); walk puro em body+separator.
+        Content::FigureCaption(e) => {
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            if let Some(sep) = &e.separator {
+                walk(sep, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+        }
+
         Content::Label(e) => {
             let label = Label(e.name.to_string());
             if e.auto {
@@ -2402,6 +2429,15 @@ pub(crate) fn walk(
         // aplicada em Fase 1; body recurse preserva counters/labels
         // dentro para passes futuros).
         Content::Footnote(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+
+        // P1473 — footnote.entry (escopo reduzido): não-locatável nesta
+        // fatia (ver `introspect/locatable.rs`); walk puro em note+separator.
+        Content::FootnoteEntry(e) => {
+            walk(&e.note, locator, tags, intr, auto_label_counter, lang, chain, None);
+            if let Some(sep) = &e.separator {
+                walk(sep, locator, tags, intr, auto_label_counter, lang, chain, None);
+            }
+        }
 
         Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 4565321c
+//! @prompt-hash f92fcc38
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -567,6 +567,12 @@ impl ObservationEq for crate::entities::content::Content {
                 }
                 _ => ObservationRelation::Different,
             },
+            Self::FigureCaption(a0) => match other {
+                Self::FigureCaption(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
             Self::Image(a0) => match other {
                 Self::Image(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
@@ -863,6 +869,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::Footnote(a0) => match other {
                 Self::Footnote(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::FootnoteEntry(a0) => match other {
+                Self::FootnoteEntry(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
                 }
                 _ => ObservationRelation::Different,
@@ -1369,7 +1381,23 @@ impl ObservationEq for crate::entities::value::Value {
                 }
                 _ => ObservationRelation::Different,
             },
+            // P1473 — instância de `color.spot(name, fallback)`.
+            Self::SpotColorant(a0) => match other {
+                Self::SpotColorant(b0) => {
+                    ObservationRelation::Same.and(a0.observation_relation(b0))
+                }
+                _ => ObservationRelation::Different,
+            },
         }
+    }
+}
+// P1473 — `color.spot(name, fallback)`, escopo reduzido (sem `.tint()`).
+impl ObservationEq for crate::entities::color::SpotColorant {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { name: _, fallback: _ } = self;
+        ObservationRelation::Same
+            .and(self.name.observation_relation(&other.name))
+            .and(self.fallback.observation_relation(&other.fallback))
     }
 }
 impl ObservationEq for crate::entities::path::VirtualRoot {
@@ -1642,6 +1670,24 @@ impl ObservationEq for crate::entities::elements::footnote::FootnoteElem {
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.numbering.observation_relation(&other.numbering))
+    }
+}
+// P1473 — `footnote.entry(...)`, escopo reduzido (construção sem realização).
+impl ObservationEq for crate::entities::elements::footnote_entry::FootnoteEntryElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self {
+            note: _,
+            separator: _,
+            clearance: _,
+            gap: _,
+            indent: _,
+        } = self;
+        ObservationRelation::Same
+            .and(self.note.observation_relation(&other.note))
+            .and(self.separator.observation_relation(&other.separator))
+            .and(self.clearance.observation_relation(&other.clearance))
+            .and(self.gap.observation_relation(&other.gap))
+            .and(self.indent.observation_relation(&other.indent))
     }
 }
 impl ObservationEq for crate::entities::elements::shape::ShapeElem {
@@ -4610,6 +4656,16 @@ impl ObservationEq for crate::entities::elements::figure::FigureElem {
             .and(self.kind.observation_relation(&other.kind))
     }
 }
+// P1473 — `figure.caption(...)`, escopo reduzido (construção sem síntese).
+impl ObservationEq for crate::entities::elements::figure_caption::FigureCaptionElem {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { position: _, separator: _, body: _ } = self;
+        ObservationRelation::Same
+            .and(self.position.observation_relation(&other.position))
+            .and(self.separator.observation_relation(&other.separator))
+            .and(self.body.observation_relation(&other.body))
+    }
+}
 impl ObservationEq for crate::entities::elements::curve::CurveElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self { segments: _ } = self;
@@ -5062,6 +5118,11 @@ impl ObservationEq for crate::entities::value::Type {
             },
             Self::Type => match other {
                 Self::Type => ObservationRelation::Same,
+                _ => ObservationRelation::Different,
+            },
+            // P1473 — `color.spot(...)`.
+            Self::SpotColorant => match other {
+                Self::SpotColorant => ObservationRelation::Same,
                 _ => ObservationRelation::Different,
             },
         }
@@ -5546,7 +5607,9 @@ observation_scalar!(
     crate::entities::file_id::FileId,
     std::num::NonZeroUsize,
     crate::entities::label::Label,
-    crate::entities::world_types::Datetime
+    crate::entities::world_types::Datetime,
+    // P1473 — enum fechado de dois variantes, `PartialEq` derivado.
+    crate::entities::elements::figure_caption::CaptionPosition
 );
 impl ObservationEq for f64 {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
@@ -7666,10 +7729,14 @@ fn make_stdlib_with_features(
         native_ellipse,
         native_emph,
         native_enum,
+        // P1473 — `enum.item`/`list.item`/`terms.item` qualificados.
+        native_enum_item,
         native_eval,
         native_figure,
+        native_figure_caption,
         native_flush,
         native_footnote,
+        native_footnote_entry,
         native_frak,
         native_grid,
         native_grid_cell,
@@ -7692,6 +7759,7 @@ fn make_stdlib_with_features(
         native_link,
         // P470 — list/enum com marcadores configuráveis.
         native_list,
+        native_list_item,
         native_locate,
         // P472 — lof/lot.
         native_lof,
@@ -7729,6 +7797,7 @@ fn make_stdlib_with_features(
         native_plugin,
         native_plugin_transition,
         native_polygon,
+        native_polygon_regular,
         native_query,
         native_quote,
         native_range,
@@ -7769,6 +7838,7 @@ fn make_stdlib_with_features(
         native_table_vline,
         native_target,
         native_terms,
+        native_terms_item,
         native_title,
         native_toml,
         native_toml_encode,
@@ -7942,7 +8012,22 @@ fn make_stdlib_with_features(
         .define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
     scope.define("lorem", Value::Func(Func::native("lorem", native_lorem)));
     scope.define("regex", Value::Type(Type::Regex));
-    scope.define("figure", Value::Func(Func::native("figure", native_figure)));
+    // P1473 — `figure` ganha namespace com `caption`.
+    {
+        let mut figure_namespace = Scope::new();
+        figure_namespace.define(
+            "caption",
+            Value::Func(Func::native("figure.caption", native_figure_caption)),
+        );
+        scope.define(
+            "figure",
+            Value::Func(Func::native_with_namespace(
+                "figure",
+                native_figure,
+                Arc::new(figure_namespace),
+            )),
+        );
+    }
     scope.define("image", Value::Func(Func::native("image", native_image)));
     // P396 — constructor `tiling(...)` (pattern fill).
     scope.define("tiling", Value::Type(Type::Tiling));
@@ -8008,7 +8093,22 @@ fn make_stdlib_with_features(
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));
     scope.define("circle", Value::Func(Func::native("circle", native_circle)));
     scope.define("line", Value::Func(Func::native("line", native_line)));
-    scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
+    // P1473 — `polygon` ganha namespace com `regular`.
+    {
+        let mut polygon_namespace = Scope::new();
+        polygon_namespace.define(
+            "regular",
+            Value::Func(Func::native("polygon.regular", native_polygon_regular)),
+        );
+        scope.define(
+            "polygon",
+            Value::Func(Func::native_with_namespace(
+                "polygon",
+                native_polygon,
+                Arc::new(polygon_namespace),
+            )),
+        );
+    }
     // P293 (frente `P-curve-geometry`): activação posterior de
     // `PathItem::CubicTo` via stdlib novo. Reaplicação ADR-0099 para
     // `PathItem` (paralelo P285-P292 para `Style`). Hash `export.rs`
@@ -8205,7 +8305,20 @@ fn make_stdlib_with_features(
     scope.define("lower", Value::Func(Func::native("lower", native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));
     // Passo 154B (ADR-0060 Fase 1): terms + divider.
-    scope.define("terms", Value::Func(Func::native("terms", native_terms)));
+    // P1473 — `terms` ganha namespace com `item`.
+    {
+        let mut terms_namespace = Scope::new();
+        terms_namespace
+            .define("item", Value::Func(Func::native("terms.item", native_terms_item)));
+        scope.define(
+            "terms",
+            Value::Func(Func::native_with_namespace(
+                "terms",
+                native_terms,
+                Arc::new(terms_namespace),
+            )),
+        );
+    }
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
     scope.define("quote", Value::Func(Func::native("quote", native_quote)));
@@ -8213,7 +8326,22 @@ fn make_stdlib_with_features(
     scope.define("document", Value::Func(Func::native("document", native_document)));
     scope.define("asset", Value::Func(Func::native("asset", native_asset)));
     // Passo 295 — footnote Fase 1 (marker only).
-    scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
+    // P1473 — `footnote` ganha namespace com `entry`.
+    {
+        let mut footnote_namespace = Scope::new();
+        footnote_namespace.define(
+            "entry",
+            Value::Func(Func::native("footnote.entry", native_footnote_entry)),
+        );
+        scope.define(
+            "footnote",
+            Value::Func(Func::native_with_namespace(
+                "footnote",
+                native_footnote,
+                Arc::new(footnote_namespace),
+            )),
+        );
+    }
     // Passo 296 — math accent + cancel (HIV + (a) minimal).
     scope.define("accent", Value::Func(Func::native("accent", native_accent)));
     scope.define("cancel", Value::Func(Func::native("cancel", native_cancel)));
@@ -8359,8 +8487,33 @@ fn make_stdlib_with_features(
     scope.define("label", Value::Type(Type::Label));
     scope.define("ref", Value::Func(Func::native("ref", native_ref)));
     // P470 — list/enum com marcadores configuráveis.
-    scope.define("list", Value::Func(Func::native("list", native_list)));
-    scope.define("enum", Value::Func(Func::native("enum", native_enum)));
+    // P1473 — `list`/`enum` ganham namespace com `item`.
+    {
+        let mut list_namespace = Scope::new();
+        list_namespace
+            .define("item", Value::Func(Func::native("list.item", native_list_item)));
+        scope.define(
+            "list",
+            Value::Func(Func::native_with_namespace(
+                "list",
+                native_list,
+                Arc::new(list_namespace),
+            )),
+        );
+    }
+    {
+        let mut enum_namespace = Scope::new();
+        enum_namespace
+            .define("item", Value::Func(Func::native("enum.item", native_enum_item)));
+        scope.define(
+            "enum",
+            Value::Func(Func::native_with_namespace(
+                "enum",
+                native_enum,
+                Arc::new(enum_namespace),
+            )),
+        );
+    }
     // P471 — módulo sym de símbolos Unicode. **P731** — `Value::Module`
     // (era `Value::Dict`; paridade vanilla `type(sym)` → `module`).
     scope.define("sym", build_sym_module());

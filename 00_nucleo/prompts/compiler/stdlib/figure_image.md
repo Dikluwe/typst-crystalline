@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 5ed74abb
+Hash do Código: cd56d3e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/figure_image.rs`
@@ -100,7 +100,7 @@ scope-outs SVG/PDF não mudam.
 
 Cast e contrato público mudam; implementar somente após o gate.
 
-## P1473 — `figure.caption` (ESCOPO REDUZIDO — construção sem síntese) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `figure.caption` (ESCOPO REDUZIDO — construção sem síntese) (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -121,7 +121,13 @@ Sondas confirmam: `figure.caption()` → `missing argument: body`;
 `figure.caption(1)` → `expected content, found integer`;
 `figure.caption(body: [x])` → ``the argument `body` is positional``;
 `figure.caption([x], position: left)` → `` expected `top` or `bottom`,
-found left``; `.fields()` omite `position`/`separator` quando não
+found left`` (`left` aqui é o identificador global de alinhamento, **não**
+uma string — confirma `position` como `Value::Align`, não `Str`);
+`figure.caption([x], position: "top")` → `expected alignment, found
+string` (achado de integração, 2026-09-21: a string `"top"`, mesmo
+"correta" em conteúdo, é rejeitada — só o identificador bare `top` é
+aceite; a redação original da "Decisão" abaixo dizia `Str`, corrigida por
+esta medição). `.fields()` omite `position`/`separator` quando não
 definidos explicitamente (`(body: [x])`), inclui-os na ordem
 `position, separator, body` quando definidos; acessar `.position`/
 `.separator` numa caption **não sintetizada** (fora de um `figure(...)`
@@ -133,9 +139,12 @@ da síntese, não na construção.
 
 Registrar somente a **construção**: `figure.caption(body, position:,
 separator:)`. `body` é `Content` posicional obrigatório (mesmas
-coerções/diagnósticos medidos acima). `position` é `Str` nomeado opcional
-restrito a `"top"`/`"bottom"` (mesma mensagem de cast medida), `None` =
-não definido (settable, sem default materializado aqui). `separator` é
+coerções/diagnósticos medidos acima). `position` é um valor de
+**alinhamento** (`Value::Align`, o mesmo tipo de `top`/`bottom`/`left`
+bare já existente no cristalino — `type(top) == "alignment"`), restrito à
+componente vertical `top`/`bottom` sem componente horizontal — **não**
+`Str`. `None` = não definido (settable, sem default materializado aqui).
+`separator` é
 `Content` nomeado opcional, `None` = não definido (o default `Auto`
 dependente de idioma **não é resolvido** nesta fatia — ver Não-objetivos).
 Constrói `Content::FigureCaption(FigureCaptionElem { position, separator,
@@ -171,3 +180,19 @@ Nova rota qualificada + nova entidade pública + extensão do cast de
 `caption:` em `native_figure`. Requer L0 causal (este e o novo
 `entities/elements/figure_caption.md`), hashes ressealados, V5/V15/V26,
 commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `native_figure_caption` e estendeu
+`native_figure` sem ver os testes; a redação original deste L0 dizia
+`position: Str` — Agente A implementou fielmente essa (incorreta)
+especificação. Agente B (`0258eab89`) escreveu 8 testes RED a partir do
+mesmo L0, logo também usando `position: "top"` (string). **Correção
+descoberta na integração (papel C, 2026-09-21):** medição direta contra o
+vanilla (`figure.caption(x, position: "top")`) revelou `expected
+alignment, found string` — `position` nunca foi `Str`; é `Value::Align`
+restrito à componente vertical `top`/`bottom` (ver "Sondas confirmam"
+acima, corrigido). Implementação e os 2 testes afetados corrigidos para
+usar o identificador bare `top`/`bottom` (`Value::Align`), não a string;
+o teste de tipo errado tornou-se ele próprio um novo caso RED→GREEN
+(`position: "top"` agora corretamente rejeitado). Suíte: GREEN, zero
+regressão em typst-core (6129/6129 final).

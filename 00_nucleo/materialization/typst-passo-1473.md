@@ -227,3 +227,127 @@ citando as 8 rotas e os três escopos reduzidos (`figure.caption`,
 `footnote.entry`, `color.spot` sem `.tint`) explicitamente. A confirmação
 de P1467-P1472 não cobre esta mudança de contrato público.
 
+## 8. Execução segregada e integração (2026-09-21/22)
+
+Confirmação humana explícita recebida em 2026-09-21, na mesma sessão,
+posterior ao commit causal somente-L0 `3ac60a578`. Os três papéis
+partiram desse baseline em worktrees isoladas. Ambos os agentes sofreram
+uma interrupção por limite de taxa da sessão a meio do trabalho e foram
+retomados via `SendMessage` sem perda de progresso (cada um verificou o
+próprio worktree antes de continuar).
+
+- **Agente A (implementação):** commit `01a82593d`
+  ("feat(model): expose list.item/enum.item/terms.item/polygon.regular/
+  figure.caption/footnote.entry/color.spot (P1473, agente A)"). Implementou
+  as 8 rotas + a extensão de `terms()` + os 6 retrofits de namespace, sem
+  ver os testes. Resolveu por conta própria (documentado no seu relatório,
+  dentro do contrato): o mecanismo `Value::SpotColorant` (paralelo a
+  `Value::Stroke`/`Value::Gradient`), o dispatch de `color.spot(...)` como
+  construtor via o `match` já existente de `call_dispatch.rs`, a
+  arity/casts de `color.spot(name, fallback)` para 1-2 argumentos
+  (subcaso não medido explicitamente no L0), e o default `size: 1em` de
+  `polygon.regular` sem acesso a `Engine` (resolvido contra `11.0pt`,
+  mesma limitação pré-existente de `vertex_component`). Seguindo a
+  orientação do prompt, deixou o compilador guiar a resolução dos matches
+  exaustivos sobre `Content`/`Value`/`Type` nos dois novos `Content`
+  variants e no novo `Type` variant — tocando 12 ficheiros fora dos 10 L0s
+  originalmente auditados (ver nota em `compiler/eval.md` §P1473).
+- **Agente B (testes):** commit `0258eab89` ("test(model): freeze eight
+  remaining public routes red contract (P1473, agente B)"). 51 testes
+  novos em 5 ficheiros, todos via `eval_expression` (nunca construção
+  Rust direta de tipos ainda inexistentes — decisão metodológica
+  deliberada para que um erro de compilação num teste não travasse a
+  confirmação do RED de todos os outros). 45 RED genuínos (100% falha de
+  asserção em runtime, zero erro de compilação), 6 guardas de
+  não-regressão desenhadas para já passar no baseline. Escreveu também um
+  oráculo independente (`regular_polygon_points`) que reproduz a fórmula
+  geométrica do L0 num teste Rust puro, para `polygon.regular`.
+- **Agente C (integração, o próprio dono desta execução):** extraiu os
+  dois patches, aplicou sem conflito de merge (apesar de ambos tocarem
+  `entities/content.rs`/`eval/mod.rs` extensivamente — as inserções não se
+  sobrepuseram), e fez as correções mecânicas e achados de integração:
+  1. **Regressão real descoberta pela suíte** (não antecipada por nenhum
+     dos dois L0s): `figure.caption`'s `position:` — a redação original
+     media `figure.caption([x], position: left)` (identificador bare) mas
+     concluiu incorretamente `Str` como o tipo aceite; Agente A implementou
+     fielmente essa conclusão errada, Agente B testou-a fielmente também.
+     Medição direta na integração revelou `position` como `Value::Align`
+     (não `Str`) — `figure.caption(x, position: "top")` é rejeitado no
+     vanilla com `expected alignment, found string`. Corrigida a
+     implementação (`Value::Align` com `VAlign::Top`/`Bottom`, sem
+     componente horizontal) e os 2 testes afetados;
+  2. `footnote.entry`'s mensagens de erro — Agente A mirou a convenção
+     Portuguesa pré-existente do `footnote()` irmão em vez de medir
+     paridade vanilla para a rota nova; medição direta confirmou que
+     `footnote.entry` usa as mensagens padrão (`missing argument: note`,
+     `expected content, found integer`, `expected length, found integer`
+     com o hint já existente `a length needs a unit`). Corrigidas as 6
+     mensagens (`note`, `separator`, `clearance`/`gap`/`indent`, named
+     desconhecido), reutilizando `vanilla_type_name` e o helper já
+     existente `eval::rules::expected_length_error` em vez de duplicar;
+  3. `f64::cos`/`f64::sin` — disallowed methods em L1 (`clippy.toml`,
+     não-determinismo). Usados tanto pela produção (`native_polygon_
+     regular`) quanto pelo oráculo de teste do Agente B. Corrigidos para
+     `libm::cos`/`libm::sin`; `crystalline.toml`
+     (`l1_allowed_external.libm`) ampliado para incluir `cos`/`sin` (mesma
+     whitelist já usada para `cbrtf`/`fmaf`/`powf`, extensão mecânica);
+  4. Import órfão (`Type`) no módulo de teste de `color.rs` (achado de
+     clippy, Agente B);
+  5. V2 (`crystalline-lint`) — os dois novos ficheiros de entidade
+     (`figure_caption.rs`/`footnote_entry.rs`) não tinham nenhum teste
+     próprio (Agente A não escreveu testes por regra; Agente B testou via
+     `eval_expression` na camada stdlib, não diretamente na entidade).
+     Acrescentados 5 testes locais a cada um (mesmo padrão de
+     `list_item.rs`: `plain_text`/`is_empty`, preservação de campos,
+     `map_text`, `map_content`, `eq`/`Hash`).
+
+### 8.1 RED → GREEN por ficheiro
+
+| Ficheiro | Novos testes (RED no baseline `3ac60a578`) | GREEN (após integração) |
+|---|---|---|
+| `compiler/stdlib/structural/lists.rs` | 20 novos — 18 falhas genuínas, 2 não-regressão | GREEN |
+| `compiler/stdlib/shapes.rs` | 8 novos — 7 falhas genuínas, 1 não-regressão | GREEN (+ correção cos/sin) |
+| `compiler/stdlib/figure_image.rs` | 8 novos — 7 falhas genuínas, 1 não-regressão | GREEN (+ correção `position`, +1 teste novo) |
+| `compiler/stdlib/structural/footnote.rs` | 6 novos — 5 falhas genuínas, 1 não-regressão | GREEN (+ correção de 6 mensagens) |
+| `compiler/stdlib/color.rs` | 9 novos — 8 falhas genuínas, 1 não-regressão | GREEN (+ import órfão removido) |
+| `entities/elements/figure_caption.rs` | 0 (achado de integração) | 5 novos (V2), GREEN |
+| `entities/elements/footnote_entry.rs` | 0 (achado de integração) | 5 novos (V2), GREEN |
+
+Total Agente B: **51/51 testes GREEN** (45 RED genuínos + 6 não-regressão).
+Total papel C: **+10 testes** (V2, entidades novas). Suíte final
+`typst-core`: **6129/6129**.
+
+### 8.2 Gates finais medidos (2026-09-21/22)
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo test -p typst-core --lib                                -> 6129/6129
+cargo test -p typst-shell --lib                                -> 83/83
+cargo test -p typst-infra --lib                                -> 995/995 (duas execuções completas)
+cargo fmt --all -- --check                                     -> sucesso (após 1 `cargo fmt --all`)
+cargo clippy -p typst-core --all-targets --message-format=json
+    comparado por contagem (ficheiro, mensagem) contra o
+    baseline `3ac60a578` em worktree isolada, duas rondas
+    (achados reais corrigidos entre as rondas)              -> zero avisos novos na ronda final
+crystalline-lint .                                              -> 0 erros (achados V14/V2 reais
+                                                                   corrigidos antes desta medição)
+crystalline-lint --checks v5,v15,v26 .                          -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Sonda bilateral final (binário recompilado): as 8 rotas confirmadas
+`function`/`type` conforme especificado; `terms(terms.item(...), ...)`
+(forma posicional) funciona sem erro.
+
+O veredito final é: as 8 rotas do inventário original (§1) existem e têm
+o kind certo. `list.item`/`enum.item`/`terms.item`/`polygon.regular`
+fecham integralmente (sem escopo reduzido). `figure.caption`/
+`footnote.entry`/`color.spot` fecham com o escopo reduzido decidido e
+confirmado na fase L0 — não alegam síntese, realização de layout, `.tint()`
+nem conformidade PDF `/Separation` real. Dois achados de integração (a
+regressão de `position` em `figure.caption` e as mensagens erradas de
+`footnote.entry`) confirmam o valor da execução segregada A/B/C: nenhum
+dos dois teria sido pego sem a suíte real a correr contra medição
+independente — ambos os agentes seguiram fielmente os L0s que receberam,
+e os L0s é que estavam incompletos/errados nesses dois pontos.
+

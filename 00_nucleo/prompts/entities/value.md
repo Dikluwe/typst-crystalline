@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: c78ac600
+Hash do Código: e96e6cc6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -553,7 +553,7 @@ renderizam o mesmo cluster. `Type::Symbol`, `type_name` e casts não mudam.
 Não materializar nem ressellar antes da aprovação do contrato público em
 `entities/symbol.md` conforme ADR-0127.
 
-## P1473 — `Type` ganha a variante `SpotColorant` (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `Type` ganha a variante `SpotColorant` (MATERIALIZADO)
 
 Ver `compiler/stdlib/color.md`/`entities/color.md`, ambos §P1473, para a
 medição e o contrato completo (escopo reduzido — só a identidade `color.spot`
@@ -573,3 +573,11 @@ nesta fatia (ver escopo reduzido nos dois owners citados).
 Novo tipo público na enumeração fechada `Type`. Requer L0 causal (este,
 `compiler/stdlib/color.md` e `entities/color.md`), hashes ressealados,
 V5/V15/V26, commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) acrescentou `Type::SpotColorant` e `Value::
+SpotColorant` (paralelo a `Value::Stroke`/`Value::Gradient`, decisão
+própria dentro do contrato) sem ver os testes; resolveu os matches
+exaustivos apontados pelo compilador em `eval/repr.rs`,
+`eval/operators/error_formatting.rs` e outros consumers de `Type`/`Value`.
+Suíte: GREEN, zero regressão.

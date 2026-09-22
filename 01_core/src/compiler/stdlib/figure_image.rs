@@ -1,19 +1,24 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/figure_image.md
-//! @prompt-hash 627d9f26
+//! @prompt-hash 43c09816
 //! @layer L1
 //! @updated 2026-04-23
 //!
 //! Funções nativas de composição visual (figure, image).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+use crate::compiler::eval::repr::repr_value;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::figure_caption::CaptionPosition;
 use crate::entities::file_id::FileId;
 use crate::entities::image_format::{detect_image_format, ImageFormat};
+use crate::entities::layout_types::VAlign;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 use ecow::EcoString;
 
@@ -74,7 +79,12 @@ pub fn native_figure(
 
     // Argumento nomeado: caption (opcional)
     // Value::None → ausência de legenda (comportamento intencional).
+    // **P1473** — `Content::FigureCaption` (produzido por `figure.caption(...)`)
+    // extrai só o `.body`; `position`/`separator` explícitos não têm efeito
+    // nesta fatia (permanecem preservados no valor original, não consultados
+    // aqui — ver `compiler/stdlib/figure_image.md` §P1473).
     let caption = args.named.get("caption").and_then(|v| match v {
+        Value::Content(Content::FigureCaption(fc)) => Some(fc.body.clone()),
         Value::Content(c) => Some(c.clone()),
         Value::Str(s) => Some(Content::text(s.as_str())),
         Value::None => None,
@@ -101,6 +111,96 @@ pub fn native_figure(
     // a figura **simples** (numbering=None). Consumidor lê o gate da chain. Fonte
     // única. (`_figure_numbering` colapsa da assinatura no mesmo lote — abaixo.)
     Ok(Value::Content(Content::figure(body, caption, kind, None)))
+}
+
+// ── P1473 — `figure.caption(body, position?, separator?)` ───────────────────
+
+/// `figure.caption(body, position?, separator?)` — constructor qualificado,
+/// escopo reduzido (construção sem síntese). `body` é `Content` posicional
+/// obrigatório; `position` é um valor de alinhamento (`Value::Align`,
+/// restrito à componente vertical `top`/`bottom` — **não** `Str`; medido
+/// na integração, `figure.caption(x, position: "top")` é rejeitado no
+/// vanilla com `expected alignment, found string`); `separator` é
+/// `Content` nomeado opcional. Nenhum dos dois nomeados tem efeito de
+/// layout nesta fatia — ficam preservados na entidade, sem síntese
+/// (`kind`/`supplement`/`numbering`/`counter`) nem `.realize()`. Ver
+/// `compiler/stdlib/figure_image.md` §P1473.
+pub fn native_figure_caption(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !matches!(key.as_str(), "position" | "separator") {
+            let diagnostic = if key.as_str() == "body" {
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "the argument `body` is positional",
+                )
+                .with_hint("try removing `body:`")
+            } else {
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("unexpected argument: {key}"),
+                )
+            };
+            return Err(vec![diagnostic]);
+        }
+    }
+    if args.items.len() > 1 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "unexpected argument".to_string(),
+        )]);
+    }
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected content, found {}", vanilla_type_name(other)),
+            )]);
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "missing argument: body".to_string(),
+            )]);
+        }
+    };
+    let position = match args.named.get("position") {
+        None => None,
+        Some(Value::Align(a)) if a.h.is_none() && a.v == Some(VAlign::Top) => {
+            Some(CaptionPosition::Top)
+        }
+        Some(Value::Align(a)) if a.h.is_none() && a.v == Some(VAlign::Bottom) => {
+            Some(CaptionPosition::Bottom)
+        }
+        Some(other @ Value::Align(_)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected `top` or `bottom`, found {}", repr_value(other)),
+            )]);
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected alignment, found {}", vanilla_type_name(other)),
+            )]);
+        }
+    };
+    let separator = match args.named.get("separator") {
+        None => None,
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected content, found {}", vanilla_type_name(other)),
+            )]);
+        }
+    };
+    Ok(Value::Content(Content::figure_caption(body, position, separator)))
 }
 
 // ── `image()` — carregamento de imagens do disco (Passo 71, DEBT-24) ─────────
@@ -242,4 +342,203 @@ pub fn native_image(
     }
 
     Ok(Value::Content(Content::image(path, PtrEqArc(data), width, height, fit)))
+}
+
+/// P1473 (Agente B) — contrato RED de `figure.caption` (escopo reduzido:
+/// construção sem síntese). Fonte:
+/// `00_nucleo/materialization/typst-passo-1473.md` +
+/// `00_nucleo/prompts/compiler/stdlib/figure_image.md` §P1473 +
+/// `00_nucleo/prompts/entities/elements/figure_caption.md`. Escrito sem ver
+/// a implementação (isolamento Agente A/B).
+///
+/// `Content::FigureCaption`/`FigureCaptionElem` ainda não existem neste
+/// baseline — para não depender de um tipo Rust inexistente (o que
+/// quebraria a compilação de todo o crate, impedindo confirmar o RED de
+/// qualquer outro teste), os observáveis internos (`body`/`position`/
+/// `separator`) são verificados por três vias genéricas já existentes e
+/// exaustivamente casadas sobre `Content` (logo obrigatoriamente
+/// actualizadas quando a variante nova for acrescentada):
+/// `Content::elem_name()`, `Content::plain_text()` (delega a `body` por
+/// especificação do L0 da entidade) e `format!("{:?}", content)` (Debug
+/// derivado da entidade — `position: None`/`Some(..)` como substring).
+/// `Content::Figure`/`FigureElem` já existem hoje — usados directamente
+/// (sem risco de compilação) para confirmar que `native_figure` extrai o
+/// `.body` do `Content::FigureCaption` recebido em `caption:`.
+#[cfg(test)]
+mod p1473_tests {
+    use super::*;
+    use crate::compiler::eval::eval_expression;
+    use crate::entities::source_result::SourceResult;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1473).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+
+    fn eval(src: &str) -> SourceResult<Value> {
+        eval_expression(&NullWorld::default(), src).0
+    }
+
+    fn expect_ok(src: &str) -> Value {
+        match eval(src) {
+            Ok(v) => v,
+            Err(errors) => panic!("{src}: esperava Ok, obteve Err({errors:?})"),
+        }
+    }
+
+    fn expect_err_message(src: &str) -> String {
+        match eval(src) {
+            Err(errors) => {
+                assert_eq!(
+                    errors.len(),
+                    1,
+                    "{src}: esperava exactamente 1 diagnóstico, obteve {errors:?}"
+                );
+                errors[0].message.clone()
+            }
+            Ok(v) => panic!("{src}: esperava Err, obteve Ok({v:?})"),
+        }
+    }
+
+    fn content_plain_text(src: &str) -> String {
+        match expect_ok(src) {
+            Value::Content(c) => c.plain_text(),
+            other => panic!("{src}: esperava Value::Content, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p1473_figure_caption_type_is_function() {
+        assert_eq!(expect_ok("type(figure.caption) == function"), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1473_figure_caption_constructs_body_only() {
+        let value = expect_ok("figure.caption([hello])");
+        let Value::Content(content) = &value else {
+            panic!("esperava Value::Content, obteve {value:?}");
+        };
+        assert_eq!(content.elem_name(), "figure.caption");
+        assert_eq!(content.plain_text(), content_plain_text("[hello]"));
+        let debug = format!("{content:?}");
+        assert!(
+            debug.contains("position: None"),
+            "position deve ficar None quando não fornecido: {debug}"
+        );
+        assert!(
+            debug.contains("separator: None"),
+            "separator deve ficar None quando não fornecido: {debug}"
+        );
+    }
+
+    #[test]
+    fn p1473_figure_caption_constructs_with_position_and_separator() {
+        let value = expect_ok("figure.caption([hello], position: top, separator: [--])");
+        let Value::Content(content) = &value else {
+            panic!("esperava Value::Content, obteve {value:?}");
+        };
+        let debug = format!("{content:?}");
+        assert!(
+            debug.contains("position: Some("),
+            "position deve ficar Some quando fornecido: {debug}"
+        );
+        assert!(
+            debug.contains("separator: Some("),
+            "separator deve ficar Some quando fornecido: {debug}"
+        );
+    }
+
+    #[test]
+    fn p1473_native_figure_accepts_figure_caption_and_extracts_body() {
+        let expected_body = match eval("[x]") {
+            Ok(Value::Content(c)) => c,
+            other => panic!("[x]: esperava Ok(Value::Content), obteve {other:?}"),
+        };
+        let value = expect_ok("figure(rect(), caption: figure.caption([x]))");
+        match value {
+            // `Content::Figure`/`FigureElem` já existem hoje — nenhum risco
+            // de compilação em referenciá-los directamente.
+            Value::Content(Content::Figure(fe)) => {
+                assert_eq!(
+                    fe.caption,
+                    Some(expected_body),
+                    "native_figure deve extrair o `.body` do FigureCaption, \
+                     não preservar o wrapper inteiro"
+                );
+            }
+            other => panic!("esperava Content::Figure, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p1473_figure_caption_missing_body() {
+        assert_eq!(expect_err_message("figure.caption()"), "missing argument: body");
+    }
+
+    #[test]
+    fn p1473_figure_caption_wrong_type() {
+        assert_eq!(
+            expect_err_message("figure.caption(1)"),
+            "expected content, found integer"
+        );
+    }
+
+    #[test]
+    fn p1473_figure_caption_invalid_position() {
+        assert_eq!(
+            expect_err_message("figure.caption([x], position: left)"),
+            "expected `top` or `bottom`, found left"
+        );
+    }
+
+    #[test]
+    fn p1473_figure_caption_position_wrong_type() {
+        assert_eq!(
+            expect_err_message(r#"figure.caption([x], position: "top")"#),
+            "expected alignment, found string"
+        );
+    }
+
+    #[test]
+    fn p1473_figure_parent_keeps_function_kind_and_direct_call() {
+        assert_eq!(expect_ok("type(figure) == function"), Value::Bool(true));
+        // Chamada directa (sem caption qualificada) não deve regredir.
+        eval(r#"figure(rect(), caption: [plain caption])"#)
+            .unwrap_or_else(|e| panic!("chamada directa de figure() regrediu: {e:?}"));
+    }
 }

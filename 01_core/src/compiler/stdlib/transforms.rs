@@ -135,7 +135,8 @@ pub fn native_scale(
             | Value::Label(_)
             | Value::Dir(_)
             | Value::Path(_)
-            | Value::Type(_) => 1.0,
+            | Value::Type(_)
+            | Value::SpotColorant(_) => 1.0,
         }
     }
     let mut posicionais = args

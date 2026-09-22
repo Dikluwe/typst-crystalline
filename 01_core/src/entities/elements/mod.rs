@@ -128,6 +128,10 @@ pub mod boxed;
 pub mod label;
 // Lote 15 P330 — o último lote.
 pub mod block;
+// P1473 — `figure.caption`/`footnote.entry` qualificados, escopo reduzido
+// (construção sem síntese/realização). Owners próprios 1:1 (ADR-0129).
+pub mod figure_caption;
+pub mod footnote_entry;
 
 // Lote F-1 P334 — a fronteira de extensão E1 (object-safe `DynElement`).
 // L0 próprio: `entities/f_fronteira_e1.md` (não `_comum.md`).

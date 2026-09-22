@@ -89,6 +89,9 @@ pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
         Value::Dir(_) => "direction",
         Value::Path(_) => "path",
         Value::Type(_) => "type",
+        // **P1473** — `color.spot(...)`: mensagens de cast medidas usam
+        // "spot colorant" (ex.: "expected color, found spot colorant").
+        Value::SpotColorant(_) => "spot colorant",
     }
 }
 

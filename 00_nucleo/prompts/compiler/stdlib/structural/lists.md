@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/lists` — nativas de lista
-Hash do Código: 7dd1583f
+Hash do Código: b3c1776e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/lists.rs`
@@ -50,7 +50,7 @@ numeração.
 #list()                      → lista vazia
 ```
 
-## P1473 — `list.item`/`enum.item`/`terms.item` qualificados; `terms()` ganha forma posicional (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `list.item`/`enum.item`/`terms.item` qualificados; `terms()` ganha forma posicional (MATERIALIZADO)
 
 ### Medição anterior à decisão
 
@@ -129,3 +129,11 @@ qualificada existir mas inútil (nada consegue montar uma lista de termos com el
 Três novas rotas qualificadas mais uma mudança de contrato aditiva em `terms()`
 (segunda forma de chamada). Requer L0 causal (este), hashes ressealados, V5/V15/V26,
 commit documental e **confirmação humana explícita posterior**.
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `native_list_item`/`native_enum_item`/
+`native_terms_item` e estendeu `native_terms` para a forma posicional sem
+ver os testes. Agente B (`0258eab89`) escreveu 20 testes RED sem ver a
+implementação, via `eval_expression` (nunca construção Rust direta dos
+tipos ainda inexistentes). Suíte: GREEN, zero regressão em typst-core
+(6129/6129 final, após correções de integração noutras famílias).

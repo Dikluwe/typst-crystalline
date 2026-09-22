@@ -86,7 +86,7 @@ types = ["Error"]  # derive em tipos de erro de domínio L1
 types = ["memoize", "track", "Track", "Tracked", "TrackedMut", "Validate", "analyze"]  # ADR-0001 / ADR-0074 / P699 (memoize em PluginFunc::call)
 
 [l1_allowed_external.libm]
-types = ["cbrtf", "fmaf", "powf"]  # P1253 — paridade numérica com palette 0.7.6 no_std
+types = ["cbrtf", "fmaf", "powf", "cos", "sin"]  # P1253 — paridade numérica com palette 0.7.6 no_std; cos/sin acrescentados em P1473 (geometria determinística de polygon.regular, mesma razão de disallowed-methods em clippy.toml: f64::cos/sin são não-determinísticos)
 
 [l1_allowed_external.unicode_ident]
 types = ["is_xid_continue", "is_xid_start"]  # ADR-0010

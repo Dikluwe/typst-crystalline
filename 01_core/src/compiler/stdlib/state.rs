@@ -253,7 +253,10 @@ pub fn value_to_content(value: &Value) -> Content {
         | Value::Counter(_)
         | Value::Label(_)
         | Value::Dir(_)
-        | Value::Path(_) => Content::Empty,
+        | Value::Path(_)
+        // P1473 — `color.spot(...)`, sem display de contexto próprio nesta
+        // fatia (mesmo scope-out já vigente para `Value::Color`).
+        | Value::SpotColorant(_) => Content::Empty,
     }
 }
 

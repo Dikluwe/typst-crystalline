@@ -303,7 +303,8 @@ pub fn apply_state_displays(
                         | Value::Label(_)
                         | Value::Dir(_)
                         | Value::Path(_)
-                        | Value::Type(_) => Content::Empty,
+                        | Value::Type(_)
+                        | Value::SpotColorant(_) => Content::Empty,
                     },
                 };
                 intr.state_displays.insert((key.clone(), *loc), pre_rendered);

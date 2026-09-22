@@ -2034,6 +2034,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P378) → layout/figure.rs.
             Content::Figure(e) => figure::layout(self, e),
 
+            // P1473 — figure.caption(...), escopo reduzido: sem síntese nem
+            // layout consumidor nesta fatia (owner: `compiler/stdlib/
+            // figure_image.md` §P1473). Zero-size fora do pipeline de
+            // `figure()`, paridade com Metadata/State (dado sem render
+            // próprio até integração futura).
+            Content::FigureCaption(_) => {}
+
             // Passo 61/P457 — TOC: delegado a outline.rs.
             Content::Outline(e) => outline::layout_outline(self, e),
 
@@ -2088,6 +2095,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P295.2 (overflow multi-página) permanece scope-out.
             // Atomizado (ADR-0109, P381) → layout/footnote.rs.
             Content::Footnote(e) => footnote::layout(self, e),
+
+            // P1473 — footnote.entry(...), escopo reduzido: sem realização
+            // nem layout consumidor nesta fatia (owner: `compiler/stdlib/
+            // structural/footnote.md` §P1473). `compiler/layout/footnote.rs`
+            // não muda — continua a gerar a lista de notas como hoje, sem
+            // consultar este constructor. Zero-size fora desse pipeline.
+            Content::FootnoteEntry(_) => {}
 
             // Atomizado (ADR-0109, P381) → layout/cite.rs.
             Content::Cite(e) => cite::layout(self, e),

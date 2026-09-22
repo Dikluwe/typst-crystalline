@@ -97,6 +97,16 @@ pub fn repr_value(v: &Value) -> String {
         Value::Angle(a) => repr_angle(*a),
         Value::Color(c) => repr_color(c),
         Value::Stroke(s) => repr_stroke(s),
+        // **P1473** — `color.spot(name, fallback)`: `name.repr()` segue a
+        // convenção já usada acima para `Value::Str` (`none` quando ausente,
+        // string entre aspas quando presente).
+        Value::SpotColorant(sc) => {
+            let name = match &sc.name {
+                Some(n) => format!("\"{}\"", n.as_str().escape_debug()),
+                None => "none".to_string(),
+            };
+            format!("color.spot({name}, {})", repr_color(&sc.fallback))
+        }
         Value::Fraction(f) => format_float_with_unit(*f, "fr"),
         Value::Align(a) => repr_align(a),
         Value::Location(_) => "location(..)".to_string(),
@@ -1145,6 +1155,10 @@ pub fn repr_content(c: &Content) -> String {
             format!("entry{}", pretty_array_like(&fields, false))
         }
         Content::Figure(f) => format!("figure[{}]", repr_content(&f.body)),
+        // P1473 — mesmo estilo simples de `Figure` (sem síntese nesta fatia).
+        Content::FigureCaption(fc) => {
+            format!("figure.caption[{}]", repr_content(&fc.body))
+        }
         Content::Image(i) => format!("image(\"{}\")", i.path),
         Content::Shape(_) => "shape".to_string(),
         Content::Curve(_) => "curve".to_string(),
@@ -1290,6 +1304,10 @@ pub fn repr_content(c: &Content) -> String {
         }
         Content::Cite(c) => format!("cite(<{}>)", c.key.as_str()),
         Content::Footnote(f) => format!("footnote[{}]", repr_content(&f.body)),
+        // P1473 — mesmo estilo simples de `Footnote` (sem realização nesta fatia).
+        Content::FootnoteEntry(fe) => {
+            format!("footnote.entry[{}]", repr_content(&fe.note))
+        }
         Content::TableHeader(_) => "table.header".to_string(),
         Content::TableFooter(_) => "table.footer".to_string(),
         Content::TableHLine(_) => "table.hline".to_string(),

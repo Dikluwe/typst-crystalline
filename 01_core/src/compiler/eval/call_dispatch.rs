@@ -35,6 +35,8 @@ use crate::compiler::stdlib::{
     native_path,
     native_regex,
     native_selector,
+    // P1473 — `color.spot(name, fallback)` chamável via `Value::Type`.
+    native_spot_colorant_construct,
     native_state,
     native_str,
     native_stroke,
@@ -2088,6 +2090,10 @@ pub(super) fn eval_func_call(
                 Type::Version => native_version(ctx, &args, world, current_file),
                 // P1140.2 — `label` é tipo chamável e produz Value::Label.
                 Type::Label => native_label(ctx, &args, world, current_file),
+                // P1473 — `color.spot(name, fallback)` constructor.
+                Type::SpotColorant => {
+                    native_spot_colorant_construct(ctx, &args, world, current_file)
+                }
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),

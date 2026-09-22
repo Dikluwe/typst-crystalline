@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: f34c4c11
+Hash do Código: db1c0006
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -497,7 +497,7 @@ espaços de hue, conserva o caminho curto angular medido; N>2 nesses espaços é
 rejeitado pelo owner stdlib. A construção do resultado usa o mesmo
 `from_vec4_in_space` vigente. Não expor `mix_iter` nem novo tipo público.
 
-## P1473 — `SpotColorant` (ESCOPO REDUZIDO — sem `.tint()`, sem variante em `Color`) (PROPOSTA; AGUARDA GATE ADR-0127)
+## P1473 — `SpotColorant` (ESCOPO REDUZIDO — sem `.tint()`, sem variante em `Color`) (MATERIALIZADO)
 
 Ver `compiler/stdlib/color.md` §P1473 para a medição bilateral completa e a
 justificação do corte de escopo (blast radius do `enum Color` fechado +
@@ -550,3 +550,11 @@ de instância, sem integração em nenhum consumer exaustivo de `Color`
 (gradientes, `to-hex`, emissão PDF). Reabertura exige gate ADR-0127 próprio,
 com decisão explícita de como `Color::Spot` se comportaria em cada consumer
 e medição da emissão `/Separation` real.
+
+## Materialização
+
+Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
+Agente A (`01a82593d`) implementou `SpotColorant` conforme especificado —
+`Hash` manual via `Debug` desde o início (o achado "`Color` não implementa
+`Hash`" já tinha sido corrigido na fase L0, antes do commit causal). Suíte:
+GREEN, zero regressão.
