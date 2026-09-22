@@ -452,3 +452,83 @@ vanilla ratificado; as sondas representativas e a fonte tipada não a refutam.
 A remoção revoga sintaxe pública antes aceite e, portanto, é quebra de
 compatibilidade. O dono confirmou explicitamente a materialização em
 2026-09-18, após o commit de proposta `e5505f17c`.
+
+## P1473 — `polygon.regular` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral (2026-09-21, vanilla ratificado `586e1bd43fae`):
+`type(polygon.regular)` → `function` no vanilla, `function polygon does not
+contain regular` no cristalino (`polygon` já é `Value::Func` bare, sem
+namespace).
+
+Fonte pinada integral
+(`lab/typst-original/crates/typst-library/src/visualize/polygon.rs:53-88`,
+`#[scope] impl PolygonElem { fn regular(...) }`), transcrita aqui porque é o
+algoritmo geométrico exato, não paráfrase:
+
+```rust
+pub fn regular(
+    span: Span,
+    #[named] fill: Option<Option<Paint>>,
+    #[named] stroke: Option<Smart<Option<Stroke>>>,
+    #[named] #[default(Em::one().into())] size: Length,
+    #[named] #[default(3)] vertices: u64,
+) -> Content {
+    let radius = size / 2.0;
+    let angle = |i: f64| {
+        let offset = Angle::rad(PI * (1.0 / 2.0 - 1.0 / vertices as f64));
+        let rotation = Angle::from_ratio(Ratio::new(i / vertices as f64));
+        offset + rotation
+    };
+    let (horizontal_offset, vertical_offset) = (0..=vertices)
+        .map(|v| ((radius*angle(v as f64).cos())+radius, (radius*angle(v as f64).sin())+radius))
+        .fold((radius, radius), |(min_x,min_y),(v_x,v_y)| (min_x.min(v_x), min_y.min(v_y)));
+    let vertices = (0..=vertices)
+        .map(|v| {
+            let x = (radius*angle(v as f64).cos())+radius-horizontal_offset;
+            let y = (radius*angle(v as f64).sin())+radius-vertical_offset;
+            Axes::new(x, y).map(Rel::from)
+        })
+        .collect();
+    let mut elem = PolygonElem::new(vertices);
+    if let Some(fill) = fill { elem.fill.set(fill); }
+    if let Some(stroke) = stroke { elem.stroke.set(stroke); }
+    elem.pack().spanned(span)
+}
+```
+
+Sondas bilaterais confirmam: `size` default `1em` (círculo circunscrito,
+diâmetro); `vertices` default `3`, tipo `u64` (`Int`, negativo →
+`number must be at least zero`, float → `expected integer, found float`);
+`vertices: 0`/`1`/`2` não erram — produzem formas degeneradas (1 ponto, 2
+pontos idênticos, etc., medido diretamente); `fill`/`stroke` ausentes
+preservam o default do `polygon` base (stroke preta 1pt se nem fill nem
+stroke forem dados — mesmo fallback P732 já implementado em
+`native_polygon`); nomeado desconhecido → `unexpected argument: <nome>`;
+qualquer positional → `unexpected argument`. O loop `0..=vertices` (**N+1**
+iterações, inclusive) fecha a forma automaticamente repetindo o primeiro
+vértice no fim — confirmado por sonda (`polygon.regular(vertices: 3)`
+devolve 4 pares, o último igual ao primeiro).
+
+### Decisão
+
+`polygon` passa de `Func::native("polygon", native_polygon)` para
+`Func::native_with_namespace("polygon", native_polygon, Arc::new(scope))`
+com namespace `{ "regular": Value::Func(Func::native("polygon.regular",
+native_polygon_regular)) }` (registo em `compiler/eval.md`, ver nota lá —
+mesmo mecanismo P493, sem novo tipo). `native_polygon_regular` implementa o
+algoritmo acima byte-a-byte (mesma fórmula de ângulo, mesmo offset/rotação,
+mesma normalização de bbox por `horizontal_offset`/`vertical_offset`) e
+constrói o **mesmo** `Content::Shape(ShapeElem { kind: ShapeKind::Path(...),
+fill, stroke, width, height })` que `native_polygon` já constrói — reutiliza
+`PathItem::MoveTo`/`LineTo`/`ClosePath`, `parse_paint`, `parse_shape_stroke`
+e `path_bbox` já existentes em `shapes.rs`, sem duplicar nenhum deles e sem
+criar `PolygonRegularElem` ou variante nova de `Content`. Fallback de
+fill/stroke reutiliza exatamente a lógica P732 já implementada (bloco
+citado em `native_polygon` acima nesta secção).
+
+### Gate ADR-0127
+
+Uma rota qualificada nova. Requer L0 causal (este), hashes ressealados,
+V5/V15/V26, commit documental e **confirmação humana explícita posterior**.

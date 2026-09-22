@@ -552,3 +552,24 @@ renderizam o mesmo cluster. `Type::Symbol`, `type_name` e casts não mudam.
 
 Não materializar nem ressellar antes da aprovação do contrato público em
 `entities/symbol.md` conforme ADR-0127.
+
+## P1473 — `Type` ganha a variante `SpotColorant` (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `compiler/stdlib/color.md`/`entities/color.md`, ambos §P1473, para a
+medição e o contrato completo (escopo reduzido — só a identidade `color.spot`
+como tipo/constructor, sem `.tint()`). `Value::Type` ganha uma décima quinta
+variante, `SpotColorant`, ao lado das já existentes (`None`/`Auto`/`Bool`/
+`Int`/.../`Symbol`) — `Value::Type(Type::SpotColorant)` é o valor devolvido
+por `color.spot` antes de qualquer chamada; `Value::Content`/outras variantes
+existentes **não mudam**. `type_name(Type::SpotColorant)` → `"type"` (mesma
+convenção de qualquer valor-tipo, ex. `type(color)`); o nome público do
+próprio tipo (usado por `repr`/mensagens de cast) é `"spot"` (medido:
+`type(color.spot("X", ...))` → `"spot"`, distinto do genérico `"type"`).
+Nenhuma variante de `Value` além de `Type` muda; `Color` não ganha variante
+nesta fatia (ver escopo reduzido nos dois owners citados).
+
+### Gate ADR-0127
+
+Novo tipo público na enumeração fechada `Type`. Requer L0 causal (este,
+`compiler/stdlib/color.md` e `entities/color.md`), hashes ressealados,
+V5/V15/V26, commit documental e **confirmação humana explícita posterior**.

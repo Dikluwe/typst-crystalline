@@ -62,3 +62,63 @@ número, o marcador e a posição na página é o layout — este nó só constr
 #footnote(1)                   → Err "footnote() espera content ou string, recebeu integer"
 #footnote(zz: 1)[x]            → Err citando o scope-out graded (ADR-0054)
 ```
+
+## P1473 — `footnote.entry` (ESCOPO REDUZIDO — construção sem realização) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral (2026-09-21, vanilla ratificado `586e1bd43fae`):
+`type(footnote.entry)` → `function` no vanilla, `function footnote does not
+contain entry` no cristalino (`footnote` já é `Value::Func` bare).
+
+Fonte pinada
+(`lab/typst-original/crates/typst-library/src/model/footnote.rs:223-296`):
+
+```rust
+pub struct FootnoteEntry {
+    #[required] pub note: Packed<FootnoteElem>,
+    #[default(LineElem::new()....pack())] pub separator: Content,
+    #[default(Em::new(1.0).into())] pub clearance: Length,
+    #[default(Em::new(0.5).into())] pub gap: Length,
+    #[default(Em::new(1.0).into())] pub indent: Length,
+}
+```
+
+`note` exige um `FootnoteElem` com `Location` real (`self.note.location()`,
+usado por `.realize()` para consultar `Counter::of(FootnoteElem::ELEM)` e
+construir o link/superscript de volta à chamada) — **inerentemente ligado
+ao pipeline de posicionamento de página**, não construível com sentido
+fora dele. `.realize()`/`ShowSet` (leading 0.5em, tamanho 0.85em) vivem
+inteiramente na fase de layout (`compiler/layout/footnote.rs`, owner
+próprio) — **não podem mover-se para cá** (regra já vigente acima nesta
+secção, "A nativa não sabe numerar nem posicionar").
+
+### Decisão — escopo reduzido
+
+Registrar somente a **construção**: `footnote.entry(note, separator:,
+clearance:, gap:, indent:)`. `note` é `Content` posicional obrigatório
+(mesma coerção `Str → Content::text` de `footnote`); os quatro nomeados
+são opcionais, tipados `Content`(`separator`)/`Length`(demais), aceites e
+**preservados sem efeito de layout** — mesmo padrão já vigente em
+`entities/elements/list_item.md` para `marker_align`/`indent`/`tight`
+("campo aceite e preservado sem efeito visual", P504/P505). Constrói
+`Content::FootnoteEntry(FootnoteEntryElem { note, separator, clearance,
+gap, indent })`, nova entidade em
+`entities/elements/footnote_entry.rs` (owner 1:1 próprio,
+`entities/elements/footnote_entry.md`, a criar).
+
+**Não implementa nesta fatia:** `.realize()` (link/superscript/número via
+`Counter`), `ShowSet` (leading/tamanho automáticos), qualquer efeito
+visual dos quatro nomeados, nem a substituição do renderer atual de
+`compiler/layout/footnote.rs` por este constructor — o layout continua a
+gerar a lista de notas de rodapé exatamente como hoje, sem consultar
+`footnote.entry`. `#show footnote.entry: ...` pode não interceptar nada
+até essa integração existir; isso é medido e registado no RED, não
+resolvido aqui. Reabertura futura exige medir a integração `note.location()`
+↔ pipeline de posicionamento antes de qualquer layout real.
+
+### Gate ADR-0127
+
+Nova rota qualificada + nova entidade pública. Requer L0 causal (este e o
+novo `entities/elements/footnote_entry.md`), hashes ressealados, V5/V15/
+V26, commit documental e **confirmação humana explícita posterior**.

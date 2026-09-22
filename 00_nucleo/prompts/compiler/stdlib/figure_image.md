@@ -99,3 +99,75 @@ físico nem informação capaz de furar a sandbox. Width/height/fit/page e os
 scope-outs SVG/PDF não mudam.
 
 Cast e contrato público mudam; implementar somente após o gate.
+
+## P1473 — `figure.caption` (ESCOPO REDUZIDO — construção sem síntese) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral (2026-09-21, vanilla ratificado `586e1bd43fae`):
+`type(figure.caption)` → `function` no vanilla, `function figure does not
+contain caption` no cristalino (`figure` já é `Value::Func` bare).
+
+Fonte pinada
+(`lab/typst-original/crates/typst-library/src/model/figure.rs:511-591`):
+`FigureCaption { position: OuterVAlignment (default Bottom, settable),
+separator: Smart<Content> (default Auto — depende de idioma/região,
+settable), #[required] body: Content, kind/supplement/numbering/counter/
+figure_location: #[synthesized] }`. Os cinco últimos só existem depois de
+`figure(...)` sintetizar a legenda dentro de si (`.realize()` monta o
+texto final combinando `supplement`+numeração via `Counter::display_at`).
+
+Sondas confirmam: `figure.caption()` → `missing argument: body`;
+`figure.caption(1)` → `expected content, found integer`;
+`figure.caption(body: [x])` → ``the argument `body` is positional``;
+`figure.caption([x], position: left)` → `` expected `top` or `bottom`,
+found left``; `.fields()` omite `position`/`separator` quando não
+definidos explicitamente (`(body: [x])`), inclui-os na ordem
+`position, separator, body` quando definidos; acessar `.position`/
+`.separator` numa caption **não sintetizada** (fora de um `figure(...)`
+real) é erro `field "position"/"separator" in caption is not known at
+this point` — confirma que estes dois campos só resolvem valor **depois**
+da síntese, não na construção.
+
+### Decisão — escopo reduzido
+
+Registrar somente a **construção**: `figure.caption(body, position:,
+separator:)`. `body` é `Content` posicional obrigatório (mesmas
+coerções/diagnósticos medidos acima). `position` é `Str` nomeado opcional
+restrito a `"top"`/`"bottom"` (mesma mensagem de cast medida), `None` =
+não definido (settable, sem default materializado aqui). `separator` é
+`Content` nomeado opcional, `None` = não definido (o default `Auto`
+dependente de idioma **não é resolvido** nesta fatia — ver Não-objetivos).
+Constrói `Content::FigureCaption(FigureCaptionElem { position, separator,
+body })`, nova entidade em `entities/elements/figure_caption.rs` (owner
+próprio, `entities/elements/figure_caption.md`, a criar) — sem os cinco
+campos sintetizados do vanilla (não fazem sentido fora da síntese que
+esta fatia não implementa).
+
+`native_figure` passa a aceitar, além de `Content`/`Str`/`None` já
+aceites para `caption:`, também `Value::Content(Content::FigureCaption(_))`
+— extrai o `.body` desse valor e usa-o exatamente como usaria um
+`Content` bare (mesmo caminho de código, `FigureElem.caption:
+Option<Content>` continua bare `Content`, sem novo campo). `position`/
+`separator` da caption explícita **não têm efeito** nesta fatia — ficam
+preservados dentro do valor `Content::FigureCaption` original (que já não
+é mais consultado depois da extração do `body`), não descartados
+silenciosamente (o valor original continua acessível a quem o construiu,
+só não é lido pelo `native_figure` atual).
+
+**Não implementa nesta fatia:** síntese (`kind`/`supplement`/`numbering`/
+`counter`/`figure_location`), `.realize()` (texto final com
+supplement+numeração via `Counter`), resolução do `separator` default por
+idioma/região, nem qualquer efeito visual de `position`/`separator`
+explícitos. `figure.caption.position`/`.separator` não reproduzem o erro
+"not known at this point" do vanilla nesta fatia (ausência de sintetizado
+é modelada como campo simplesmente ausente da entidade, não como estado
+"ainda não sintetizado") — divergência mecânica aceitável (ADR-0107), não
+paridade de linguagem alegada.
+
+### Gate ADR-0127
+
+Nova rota qualificada + nova entidade pública + extensão do cast de
+`caption:` em `native_figure`. Requer L0 causal (este e o novo
+`entities/elements/figure_caption.md`), hashes ressealados, V5/V15/V26,
+commit documental e **confirmação humana explícita posterior**.

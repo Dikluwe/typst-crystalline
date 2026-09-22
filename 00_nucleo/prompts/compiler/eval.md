@@ -916,3 +916,41 @@ durante a integração, mas vivem em `01_core/src/compiler/eval/tests.rs`
 — ficheiro com owner **próprio** `compiler/eval/tests.md` (não este L0,
 apesar do nome parecido; achado só na integração, fora da auditoria
 original dos 5 L0s de P1471). Ver a nota lá.
+
+## P1473 — seis registos ganham namespace (`list`/`enum`/`terms`/`polygon`/`figure`/`footnote`) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/stdlib/structural/lists.md`, `compiler/stdlib/shapes.md`,
+`compiler/stdlib/figure_image.md` e `compiler/stdlib/structural/
+footnote.md`, todos §P1473, decidem `list.item`/`enum.item`/
+`terms.item`/`polygon.regular`/`figure.caption`/`footnote.entry`. Ao
+contrário de `pdf`/`html` em P1471 (que eram `Value::Module`), estes seis
+já são `Value::Func` bare hoje neste owner:
+
+```text
+scope.define("list", Value::Func(Func::native("list", native_list)));
+scope.define("enum", Value::Func(Func::native("enum", native_enum)));
+scope.define("terms", Value::Func(Func::native("terms", native_terms)));
+scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
+scope.define("figure", Value::Func(Func::native("figure", native_figure)));
+scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
+```
+
+Não há mudança de **kind** (`type(list)` continua `function`) — só a
+adição de um namespace anexado, mecanismo P493 já produtivo (`entities/
+func.rs::Func::native_with_namespace`).
+
+### Decisão
+
+As seis linhas passam a `Func::native_with_namespace(<nome>,
+native_<nome>, Arc::new(<scope>))`, cada `<scope>` construído pelo owner
+de cada consumer (`structural/lists.md`/`shapes.md`/`figure_image.md`/
+`structural/footnote.md` — não este L0, que só regista a mudança de forma
+da chamada). Nenhum outro binding deste registo muda.
+
+### Gate ADR-0127
+
+Consequência mecânica das decisões em `structural/lists.md`/`shapes.md`/
+`figure_image.md`/`structural/footnote.md`
+P1473 — mesmo gate, mesma confirmação humana explícita posterior.

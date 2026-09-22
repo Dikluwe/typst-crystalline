@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 80ac4c5f
+Hash do Código: f34c4c11
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -496,3 +496,57 @@ componentes e divide pelo peso total uma vez. Para exatamente duas cores em
 espaços de hue, conserva o caminho curto angular medido; N>2 nesses espaços é
 rejeitado pelo owner stdlib. A construção do resultado usa o mesmo
 `from_vec4_in_space` vigente. Não expor `mix_iter` nem novo tipo público.
+
+## P1473 — `SpotColorant` (ESCOPO REDUZIDO — sem `.tint()`, sem variante em `Color`) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+Ver `compiler/stdlib/color.md` §P1473 para a medição bilateral completa e a
+justificação do corte de escopo (blast radius do `enum Color` fechado +
+ausência de emissão PDF `/Separation`). Esta secção só especifica a nova
+entidade.
+
+### Struct
+
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub struct SpotColorant {
+    pub name:     Option<EcoString>,  // None = sem nome (vanilla aceita)
+    pub fallback: Color,              // sempre um Color de processo — nunca Spot
+}
+```
+
+**Não** é uma variante de `Color`; é um valor de tipo próprio (`Type::
+SpotColorant`, ver `entities/value.md` P1473), paralelo a como `Color` já
+não é `Stroke`/`Gradient` — tipos irmãos, não um enum comum. Construtor:
+`SpotColorant::new(name: Option<EcoString>, fallback: Color) -> Self` —
+`fallback` deve já ter sido validado como não-spot pelo caller (owner
+`compiler/stdlib/color.md`, que faz o cast e produz o diagnóstico `expected
+color, found spot colorant` antes de chegar aqui); esta entidade não
+revalida.
+
+### `Repr`
+
+`color.spot({name.repr()}, {fallback.repr()})` — `name.repr()` de
+`Option<EcoString>` já segue a convenção existente do crate para opcionais
+repr'áveis (`none` quando ausente, string entre aspas quando presente); não
+inventar formatação nova.
+
+### `PartialEq`/`Hash`
+
+`PartialEq` deriva direto (`EcoString` e `Color` já implementam — `Color`
+via `impl PartialEq for Color` manual, `entities/color.rs:128`, bitwise
+`f32`). **`Color` não implementa `Hash`** (medido: `#[derive(Copy, Clone)]`
+em `entities/color.rs:31`, sem `Hash` derivado nem manual — os campos `f32`
+não são `Hash` no Rust std). Se `SpotColorant`/`Content::TermItem`-like
+precisar de `Hash` (contrato `Element` do crate normalmente exige, ver
+`ListItemElem`), usar o mesmo padrão já estabelecido em
+`entities/elements/list_item.rs` — `Hash` manual via `format!("{self:?}")`
+(`Hash`-via-`Debug`), não um novo mecanismo.
+
+### Não-objetivos
+
+Sem `.tint(ratio)`, sem `SpotColor` (o par `colorant+tint` que produziria
+`type() == "color"`), sem `.lighten()`/`.darken()`/`.negate()`/`.fallback()`
+de instância, sem integração em nenhum consumer exaustivo de `Color`
+(gradientes, `to-hex`, emissão PDF). Reabertura exige gate ADR-0127 próprio,
+com decisão explícita de como `Color::Spot` se comportaria em cada consumer
+e medição da emissão `/Separation` real.

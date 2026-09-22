@@ -461,3 +461,98 @@ alegação de paridade vanilla. `space:auto` continua Oklab para process colors;
 spot permanece fora do fragmento e `Unknown`/bloqueado pelo gate P1284.
 
 Nenhuma API Rust pública, default ou fase muda; fluxo contínuo ADR-0127.
+
+## P1473 — `color.spot`/`.tint` (ESCOPO REDUZIDO — sem novo variant em `Color`) (PROPOSTA; AGUARDA GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Sonda bilateral (2026-09-21, vanilla ratificado `586e1bd43fae`):
+`type(color.spot)` → `"type"` no vanilla (mesma família de `str`/`int`/
+`color`), `error: type color does not contain field \`spot\`` no
+cristalino (`color_type_field`, `stdlib/color.rs:50-84`, não tem ramo
+`"spot"`).
+
+Fonte pinada
+(`lab/typst-original/crates/typst-library/src/visualize/color.rs:2260-2420`):
+
+```text
+struct SpotColor    { colorant: Arc<SpotColorant>, tint: Ratio }
+struct SpotColorant { name: Option<SpotColorantName>, fallback: ProcessColor }
+#[ty(scope, name = "spot")]
+impl SpotColorant {
+    #[func(constructor)] fn construct(name: Option<Str>, fallback: ProcessColor) -> Self;
+    fn tint(self, tint: Ratio) -> SpotColor;   // método de instância
+}
+impl SpotColor { fn lighten/darken/negate(&self, ...) -> SpotColor; fn fallback(&self) -> ProcessColor; }
+impl Repr for SpotColorant { "color.spot({name}, {fallback})" }
+impl Repr for SpotColor    { "{colorant.repr()}.tint({tint.repr()})" }
+```
+
+Sondas confirmam: `type(color.spot("X", cmyk(..)))` → `"spot"` (a
+colorant **sem** tint ainda não é `Color`); `type(...).tint(50%))` →
+`"color"` (**com** tint, passa a ser um `Color` de verdade — vanilla
+estende o próprio enum `Color` com uma variante `Spot`); igualdade
+`color.spot("X",..) == color.spot("X",..)` é `true` (por valor:
+nome+fallback); `.constructor`/`.kind()`/`.to-hex()` não existem em
+`SpotColorant`/`SpotColor` (métodos genéricos de `Color` **não** se
+aplicam — é um sub-tipo à parte, não um `Color` disfarçado, até ao
+`.tint()`).
+
+### Por que escopo reduzido
+
+`entities::color::Color` (`entities/color.rs:32-...`) é um `enum` fechado
+com 7+ variantes (`Srgb`/`Luma`/`LinearRgb`/`Oklab`/`Oklch`/`Hsl`/...),
+casado exaustivamente por dezenas de consumers em todo o crate
+(operadores `.lighten()`/`.mix()`/etc., serialização `to-hex`, emissão de
+cor no exportador PDF, gradientes, `ColorSpace`). Adicionar uma variante
+`Color::Spot(...)` correta exige decidir, para **cada** um desses
+consumers, como uma cor spot se comporta — em particular a emissão PDF
+real (`/Separation` colorspace, função de transferência de tint,
+colorspace alternativo) citada na evidência do passo (§3), que não tem
+equivalente algum no exportador cristalino hoje (hand-rolled, sem
+`krilla`). Decidir isso às pressas, só para fechar uma rota de
+inventário, seria exatamente o "aproximar por sRGB/dict/module/string"
+que o passo (§3) proíbe explicitamente.
+
+### Decisão — o que fecha nesta fatia
+
+1. `Type` ganha a variante `SpotColorant` (ver `entities/value.md`
+   P1473). `color_type_field("spot")` devolve
+   `Value::Type(Type::SpotColorant)`.
+2. Nova entidade `entities::color::SpotColorant { name: Option<EcoString>,
+   fallback: Color }` (ver `entities/color.md` P1473) com constructor,
+   `repr`, `PartialEq`/`Hash` por valor (nome+fallback) — **sem** método
+   `.tint()` nem qualquer variante nova em `Color` nesta fatia.
+3. `type(color.spot(...))` → `"spot"`; `repr` → `color.spot("<nome>",
+   <fallback>)`, ou `color.spot(none, <fallback>)` sem nome (medido:
+   `color.spot(none, cmyk(..))` é aceite e repr preserva `none` — `name`
+   é genuinamente opcional na língua, não só na API Rust).
+4. Diagnósticos (medidos): `name` de tipo errado → `` expected "all",
+   string, or none, found <tipo> `` (o literal `"all"` é só um valor de
+   string especial na produção real — PDF colorant de registo —, sem
+   efeito observável nesta fatia; não modelar tipo à parte); `fallback`
+   ausente → `missing argument: fallback`; `fallback` do tipo `spot` (em
+   vez de processo) → `expected color, found spot colorant` (não há
+   spot-de-spot).
+
+### Explicitamente fora desta fatia (reabre com medição própria)
+
+`color.spot(...).tint(ratio)` **não é implementado nesta fatia** — não há
+método `.tint`, nem variante `Color::Spot`, nem `type(resultado) ==
+"color"`. `color.spot.tint` (a rota citada em §1 do passo) **não fecha**
+por esta decisão; fica registado aqui como scope-out explícito, não como
+esquecimento, com a razão medida acima (blast radius do enum `Color`
+fechado + ausência de emissão PDF Separation). `.lighten()`/`.darken()`/
+`.negate()`/`.fallback()` de `SpotColor` também ficam fora (dependem de
+`.tint()` existir primeiro). Reabertura exige: (a) decisão explícita de
+como `Color::Spot` se comporta em cada consumer exaustivo do enum, e (b)
+medição da emissão PDF `/Separation` real — ambos gate ADR-0127 próprio,
+não incluído nesta confirmação.
+
+### Gate ADR-0127
+
+Novo tipo público (`Type::SpotColorant`) + nova entidade. Requer L0 causal
+(este, `entities/color.md` e `entities/value.md`, todos §P1473), hashes
+ressealados, V5/V15/V26, commit documental e **confirmação humana
+explícita posterior**, com o escopo reduzido acima citado explicitamente
+no pedido de confirmação.
