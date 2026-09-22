@@ -1,6 +1,11 @@
 # Passo 1477 — Núcleo PDF/A-1a/1b: segundo perfil ICC (v2) por versão, `/CIDSet`
 
-**Estado:** ESCRITO — AGUARDA CONFIRMAÇÃO ADR-0127
+**Estado:** CONFIRMADO (confirmação humana explícita recebida 2026-09-22,
+na mesma sessão, posterior ao commit causal somente-L0 `b5a4836f8`,
+citando os dois itens do contrato §1/§3 e resolvendo explicitamente o
+ponto em aberto de §3.3 via `AskUserQuestion`: `/CIDSet` **universal**,
+não gated a A1a/A1b — opção "Recomendado" escolhida) — EM EXECUÇÃO
+SEGREGADA A/B/C
 
 **Data da auditoria:** 2026-09-22T11:54:06-03:00
 
