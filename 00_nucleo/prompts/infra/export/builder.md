@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 539a27bd
+Hash do Código: efc16e3d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1376,3 +1376,105 @@ Nenhum item deste contrato é universal (todos gated a `standard:`
 explícito) — mais próximo de fluxo contínuo que o item 1 de P1475, mas
 segue o mesmo protocolo de parar para confirmação humana explícita
 (P1286 já tinha declarado que reabrir isto exigia decisão própria).
+
+### Execução segregada e integração (2026-09-22)
+
+Confirmação humana explícita recebida em 2026-09-22, na mesma sessão,
+posterior ao commit causal somente-L0 `088f38c29`. Registo tardio: a
+confirmação foi dada em chat antes do dispatch dos Agentes A/B, mas o
+campo `Estado` do passo só foi atualizado depois — Agente A, na sua
+primeira tentativa, **recusou-se corretamente** a implementar sem prova
+commitada da confirmação (o próprio `typst-passo-1476.md` ainda dizia
+"AGUARDA CONFIRMAÇÃO"), citando ADR-0127 e o aviso de que mensagens de
+agente não são consentimento do utilizador. Corrigido com um commit
+dedicado (`d269568b0`) que atualiza só o campo `Estado`; Agente A
+verificou esse commit por conta própria (autor, diff, mensagem) antes de
+prosseguir — não confiou só na mensagem de retoma. Lição registada:
+futuros passos devem atualizar o campo `Estado` do ficheiro do passo
+**no mesmo momento** em que a confirmação é recebida, antes do dispatch,
+não só na integração final.
+
+- **Agente A** (commit `b3bad038b`): implementou os quatro itens sem ver
+  os testes. Único import novo necessário:
+  `typst_core::entities::elements::pdf_attach::AttachedFileRelationship`
+  (não estava antes em escopo em `builder.rs`, só alcançado
+  indiretamente via `PagedDocument::attachments`).
+- **Agente B** (commit `bbbfeab26`): 9 testes novos (`p1476_pdfa_
+  attachments_af_tests`), construindo `Content::pdf_attach(PdfAttachElem
+  {...})` diretamente (API pública já existente desde P1286) em vez de
+  compilar `#pdf.attach(...)` via fonte Typst. 5 RED genuínos + 4 guardas
+  de não-regressão, confirmados contra o baseline `088f38c29`. Identificou
+  e reportou corretamente (sem tocar, fora do seu mandato) uma
+  inconsistência real entre P1476 e 3 testes já existentes de P1475 (ver
+  abaixo).
+- **Papel C** (integração): aplicou os dois patches sem conflito
+  (patch do Agente A extraído só do commit `b3bad038b`, sem o commit de
+  confirmação `d269568b0` que já estava em `Tekt`). Achados de
+  integração, todos fluxo contínuo:
+  1. **Bug real descoberto pelo RED de Agente B**: `af_relationship_name`
+     produzia `/AFRelationship Unspecified` (sem barra) em vez de
+     `/AFRelationship /Unspecified` — PDF Name object sem o `/`
+     obrigatório. Corrigido no `format!` (`" /AFRelationship /{}"`).
+  2. **3 testes de P1475 precisavam de atualização intencional** (achado
+     do Agente B, não corrigido por ele por estar fora do seu mandato —
+     ficheiros `p1475_*`): `p1475_pdfaid_absent_for_scope_out_profiles_
+     confirmed_negatively`, `p1475_output_intent_absent_for_none_a1_a4f_
+     a4e_ua1_alone_regression_guard` (renomeado para `..._a1_ua1_...`,
+     já não cobre A4f/A4e) e `p1475_info_present_for_all_other_cases_
+     regression_guard` listavam A4f/A4e como "deve ficar ausente" — que é
+     exatamente o comportamento que P1476 muda de propósito. Corrigido
+     removendo A4f/A4e dessas três listas (já cobertos positivamente
+     pelos testes novos de P1476), com comentário citando a mudança de
+     escopo intencional.
+  3. **V16** (`crystalline-lint`): `af_relationship_name` matched sobre
+     `Option<&AttachedFileRelationship>` com um braço `None => ...`
+     misturado aos quatro braços `Some(variante) => ...` — o linter trata
+     `None` como não-nominal (não enumera nenhuma variante do domínio),
+     mesmo exaustivo sobre `Option`. Corrigido separando em duas funções:
+     `af_relationship_name` (resolve só `Some`/`None`, tipos da std) chama
+     `af_relationship_variant_name` (exaustivo só sobre as 4 variantes
+     reais de `AttachedFileRelationship`, sem `Option` envolvido) — mesma
+     forma que `pdfaid_letter` já usa com sucesso.
+
+### Gates finais medidos (2026-09-22)
+
+```text
+cargo build --workspace                                     -> sucesso
+cargo test -p typst-core --lib                                -> 6129/6129
+cargo test -p typst-shell --lib                                -> 83/83
+cargo test -p typst-infra --lib                                -> 1015/1015 (1006 P1475
+                                                                   + 9 novos P1476, 3
+                                                                   testes P1475 ajustados
+                                                                   intencionalmente)
+cargo test -p typst-wiring                                     -> 1 falha pré-existente
+                                                                   não relacionada (P1471,
+                                                                   oracle pdf module/
+                                                                   function), confirmada
+                                                                   igual à de P1475
+cargo fmt (builder.rs/tests.rs, únicos tocados)                -> limpo
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem contra baseline `d269568b0`
+    em worktree isolada                                        -> zero avisos novos
+crystalline-lint .                                              -> 0 erros/fatais (V16 real
+                                                                   corrigido; drift V5
+                                                                   esperado; um V16
+                                                                   pré-existente não
+                                                                   relacionado permanece)
+crystalline-lint --checks v15,v26 .                             -> 0 violações
+git diff --check                                                -> sucesso
+```
+
+Medição de conformidade veraPDF 1.30.2 (binário cristalino recompilado,
+documento com heading/negrito/itálico/figura RGB/anexo com
+`relationship: "supplement"`): **os cinco archivals do escopo
+(A3b/A3u/A3a/A4f/A4e) são 100% conformes** — `isCompliant=true`,
+`failedRules=0` em todos.
+
+Veredito final: os quatro itens do contrato (§3) fecham integralmente
+para a família `A3a/A3b/A3u/A4f/A4e`. Nenhum escopo reduzido adicional
+além do já declarado (A1a/A1b/A4f-A4e-sem-anexo-não-medido-mas-agora-
+coberto/PDF-UA-1 continuam fora). O episódio da confirmação tardiamente
+registada (achado 0) é o segundo caso nesta sessão (depois de P1471-
+P1473) em que a execução segregada A/B/C pegou um problema real antes de
+chegar a produção — desta vez um problema de **processo** (gate sem
+prova commitada), não de código.

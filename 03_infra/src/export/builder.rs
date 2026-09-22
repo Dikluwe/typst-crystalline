@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 91d14c7d
+//! @prompt-hash 0086fe03
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -115,6 +115,7 @@ use ttf_parser::Face;
 use typst_core::entities::document_format_options::{
     PageRanges, PdfArchival, PdfStandards,
 };
+use typst_core::entities::elements::pdf_attach::AttachedFileRelationship;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
@@ -2414,9 +2415,11 @@ impl PdfBuilder {
 
     /// P1286 — materializa os carriers `pdf.attach` como EmbeddedFiles.
     ///
-    /// A relação associada ao ficheiro permanece no domínio para futuros
-    /// perfis PDF/A, mas o export normal espelha o vanilla e não escreve
-    /// `/AFRelationship` nem `/AF`.
+    /// **P1476** — quando `archival_supports_embedded_files` está ativo
+    /// (`A3a/A3b/A3u/A4f/A4e`), cada Filespec ganha `/AFRelationship`
+    /// (mapeado de `attachment.relationship` via `af_relationship_name`) e
+    /// o catálogo ganha `/AF` com uma referência por Filespec processada.
+    /// Fora desse gate, comportamento preservado byte-a-byte (P1286).
     fn emit_attachments(&mut self, doc: &PagedDocument) {
         if doc.attachments.is_empty() {
             return;
@@ -2426,6 +2429,8 @@ impl PdfBuilder {
         attachments.sort_by(|a, b| a.path.cmp(&b.path));
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
         let mut names = String::from("<< /Names [");
+        let af_gate = archival_supports_embedded_files(self.standard.archival);
+        let mut filespec_ids: Vec<usize> = Vec::new();
 
         for attachment in attachments {
             let embedded_id = next_id;
@@ -2452,10 +2457,20 @@ impl PdfBuilder {
                 .as_deref()
                 .map(|value| format!(" /Desc {}", escape_pdf_literal(value)))
                 .unwrap_or_default();
+            // **P1476** — gated a `archival_supports_embedded_files`;
+            // mapeamento via `af_relationship_name` (medição §2.3).
+            let af_relationship = if af_gate {
+                format!(
+                    " /AFRelationship /{}",
+                    af_relationship_name(attachment.relationship.as_ref())
+                )
+            } else {
+                String::new()
+            };
             self.add(
                 filespec_id,
                 format!(
-                    "<< /Type /Filespec /F {} /UF {} /EF << /F {embedded_id} 0 R >>{description} >>",
+                    "<< /Type /Filespec /F {} /UF {} /EF << /F {embedded_id} 0 R >>{description}{af_relationship} >>",
                     escape_pdf_literal(filename),
                     utf16be_hex_string(filename),
                 ),
@@ -2464,6 +2479,7 @@ impl PdfBuilder {
                 "{} {filespec_id} 0 R ",
                 escape_pdf_literal(filename)
             ));
+            filespec_ids.push(filespec_id);
         }
 
         names.push_str("] >>");
@@ -2489,6 +2505,22 @@ impl PdfBuilder {
             self.add(names_id, format!("<< /EmbeddedFiles {embedded_names_id} 0 R >>"));
             if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
                 insert_pdf_dict_entry(catalog, &format!(" /Names {names_id} 0 R"));
+            }
+        }
+
+        // **P1476** — `/AF` no catálogo: array com uma referência por
+        // Filespec processada, mesmo gate de `/AFRelationship`. Replicado
+        // por completude estrutural/paridade com o vanilla (não
+        // comprovadamente exigido pela suíte veraPDF medida — §2.7), custo
+        // marginal zero (mesmo `filespec_id` já calculado acima).
+        if af_gate && !filespec_ids.is_empty() {
+            let af_refs = filespec_ids
+                .iter()
+                .map(|id| format!("{id} 0 R"))
+                .collect::<Vec<_>>()
+                .join(" ");
+            if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+                insert_pdf_dict_entry(catalog, &format!(" /AF [{af_refs}]"));
             }
         }
     }
@@ -2678,10 +2710,15 @@ impl PdfBuilder {
     /// build antes de `serialize`. O dicionário é sempre emitido, mesmo quando
     /// `document_info` não tem campos de utilizador (P601).
     fn emit_info(&mut self, doc: &PagedDocument) {
-        // **P1475** — ISO 19005-4 6.1.3: `/Info` não pode estar presente em
-        // PDF/A-4. Retorna cedo sem alocar nada; `self.info_id` continua
-        // `None` e `serialize()` já omite `/Info` do trailer nesse caso.
-        if self.standard.archival == Some(PdfArchival::A4) {
+        // **P1475/P1476** — ISO 19005-4 6.1.3: `/Info` não pode estar
+        // presente em PDF/A-4 — inclui A4f/A4e, mesma regra (medido
+        // typst-passo-1476.md §2.6). Retorna cedo sem alocar nada;
+        // `self.info_id` continua `None` e `serialize()` já omite `/Info`
+        // do trailer nesse caso.
+        if matches!(
+            self.standard.archival,
+            Some(PdfArchival::A4 | PdfArchival::A4f | PdfArchival::A4e)
+        ) {
             return;
         }
         let mut parts = Vec::new();
@@ -2715,10 +2752,12 @@ impl PdfBuilder {
         self.info_id = Some(next_id);
     }
 
-    /// **P1475** — emite `/OutputIntent` (perfil ICC sRGB, `/S /GTS_PDFA1`
-    /// fixo independentemente do nível) e regista `/OutputIntents` no
-    /// catálogo, gated ao mesmo conjunto de archivals de `pdfaid`
-    /// (A2a/A2b/A2u/A3a/A3b/A3u/A4). Chamado nas três variantes `build_*`
+    /// **P1475/P1476** — emite `/OutputIntent` (perfil ICC sRGB, `/S
+    /// /GTS_PDFA1` fixo independentemente do nível) e regista
+    /// `/OutputIntents` no catálogo, gated ao conjunto de archivals
+    /// (A2a/A2b/A2u/A3a/A3b/A3u/A4/A4f/A4e — A4f/A4e acrescentados em
+    /// P1476, mesmo perfil ICC/forma, medição §2.6). Chamado nas três
+    /// variantes `build_*`
     /// logo após `emit_info(doc)` e antes de `emit_xmp_metadata(doc)`,
     /// mesma posição relativa nas três, para preservar alocação de IDs
     /// idêntica entre caminhos. Aloca o seu próprio objeto ICC (não reusa o
@@ -2736,6 +2775,8 @@ impl PdfBuilder {
                     | PdfArchival::A3b
                     | PdfArchival::A3u
                     | PdfArchival::A4
+                    | PdfArchival::A4f
+                    | PdfArchival::A4e
             )
         );
         if !needs_output_intent {
@@ -2823,10 +2864,14 @@ impl PdfBuilder {
         // `/ID [ (instance) (document) ]`, universal (todo export).
         self.xmp_ids = Some((instance_id.clone(), document_id.clone()));
 
-        // **P1475** — `pdfaid` identifica a conformidade PDF/A; A2/A3 usam
-        // `part`+`conformance` (letra via `pdfaid_letter`), A4 usa
-        // `part`+`rev` (sem `conformance`, ISO 19005-4 eliminou o eixo
-        // a/b/u). Vazio (e sem `xmlns:pdfaid`) fora desse conjunto.
+        // **P1475/P1476** — `pdfaid` identifica a conformidade PDF/A; A2/A3
+        // usam `part`+`conformance` (letra via `pdfaid_letter`), A4 "puro"
+        // usa `part`+`rev` (sem `conformance`, ISO 19005-4 eliminou o eixo
+        // a/b/u para o nível sem qualificador). A4f/A4e usam as **três**
+        // chaves `part`+`rev`+`conformance` (achado que corrige a
+        // expectativa de P1475 — `conformance` só desaparece quando não há
+        // sufixo `f`/`e`; medição typst-passo-1476.md §2.2). Vazio (e sem
+        // `xmlns:pdfaid`) fora desse conjunto.
         let pdfaid_elem = match self.standard.archival {
             Some(a @ (PdfArchival::A2a | PdfArchival::A2b | PdfArchival::A2u)) => {
                 format!(
@@ -2840,16 +2885,19 @@ impl PdfBuilder {
                 pdfaid_letter(a)
             )
             }
+            Some(PdfArchival::A4f) => {
+                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev><pdfaid:conformance>F</pdfaid:conformance>".to_string()
+            }
+            Some(PdfArchival::A4e) => {
+                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev><pdfaid:conformance>E</pdfaid:conformance>".to_string()
+            }
             Some(PdfArchival::A4) => {
                 "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>".to_string()
             }
             // Scope-out explícito (typst-passo-1475.md §2.5): A1a/A1b (ICC
-            // v2 + /CIDSet não implementados), A4f/A4e (não medidos) — sem
-            // `standard`/archival nenhum também cai aqui.
-            None
-            | Some(
-                PdfArchival::A1a | PdfArchival::A1b | PdfArchival::A4f | PdfArchival::A4e,
-            ) => String::new(),
+            // v2 + /CIDSet não implementados) — sem `standard`/archival
+            // nenhum também cai aqui.
+            None | Some(PdfArchival::A1a | PdfArchival::A1b) => String::new(),
         };
         let pdfaid_xmlns = if pdfaid_elem.is_empty() {
             String::new()
@@ -3497,6 +3545,53 @@ fn pdfaid_letter(a: PdfArchival) -> &'static str {
             debug_assert!(false, "pdfaid_letter called for non-A2/A3 archival");
             ""
         }
+    }
+}
+
+/// **P1476** — famílias PDF/A que suportam anexos embutidos conformes.
+/// ISO 19005-3 introduziu embedded files em PDF/A-3 (A3a/A3b/A3u); A4f/A4e
+/// são o equivalente em PDF/A-4. A2*/A4 (sem `f`/`e`) e A1* não suportam
+/// embedded files conformes no ISO 19005 correspondente (não medido para
+/// eles — typst-passo-1476.md §3.1). Reusado por `emit_attachments` para
+/// gate de `/AFRelationship`/`/AF`.
+fn archival_supports_embedded_files(archival: Option<PdfArchival>) -> bool {
+    matches!(
+        archival,
+        Some(
+            PdfArchival::A3a
+                | PdfArchival::A3b
+                | PdfArchival::A3u
+                | PdfArchival::A4f
+                | PdfArchival::A4e
+        )
+    )
+}
+
+/// **P1476** — mapeia `AttachedFileRelationship` do domínio para o nome
+/// `/AFRelationship` da Filespec PDF. Mapeamento 1:1 confirmado por
+/// medição contra o vanilla ratificado (typst-passo-1476.md §2.3): os
+/// quatro nomes de variante do enum do domínio são idênticos aos quatro
+/// valores PDF nomeados; `None` do domínio (sem `relationship:` explícito
+/// em `#pdf.attach`) não tem variante própria e mapeia para o quinto
+/// valor PDF `/Unspecified`.
+fn af_relationship_name(relationship: Option<&AttachedFileRelationship>) -> &'static str {
+    match relationship {
+        Some(r) => af_relationship_variant_name(r),
+        None => "Unspecified",
+    }
+}
+
+/// Parte exaustiva sobre as quatro variantes do domínio, isolada da
+/// resolução de `None` acima — evita que o `match` de `af_relationship_name`
+/// combine a ausência (`Option::None`, não é variante do domínio) com a
+/// cobertura nominal de `AttachedFileRelationship` (V16 exige exaustividade
+/// só sobre as variantes reais do enum de domínio).
+fn af_relationship_variant_name(relationship: &AttachedFileRelationship) -> &'static str {
+    match relationship {
+        AttachedFileRelationship::Source => "Source",
+        AttachedFileRelationship::Data => "Data",
+        AttachedFileRelationship::Alternative => "Alternative",
+        AttachedFileRelationship::Supplement => "Supplement",
     }
 }
 

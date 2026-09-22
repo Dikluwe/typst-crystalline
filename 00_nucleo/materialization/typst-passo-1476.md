@@ -1,9 +1,8 @@
 # Passo 1476 — Núcleo PDF/A-4f/4e: `/AFRelationship`, `/AF`, extensão de `/Info`/`/OutputIntent`/`pdfaid` a anexos
 
-**Estado:** CONFIRMADO (confirmação humana explícita recebida 2026-09-22,
-na mesma sessão, posterior ao commit causal somente-L0 `088f38c29`,
-citando os cinco itens do contrato §1/§3 e a família `A3a/A3b/A3u/A4f/
-A4e`) — EM EXECUÇÃO SEGREGADA A/B/C
+**Estado:** MATERIALIZADO (confirmação humana explícita recebida
+2026-09-22, na mesma sessão, posterior ao commit causal somente-L0
+`088f38c29`; execução segregada A/B/C — ver §7)
 
 **Data da auditoria:** 2026-09-22T08:38:17-03:00
 
@@ -324,3 +323,113 @@ erros), `crystalline-lint --checks v5,v15,v26 .` (0 violações),
   ficheiro é anexado duas vezes com relações diferentes — não medido,
   comportamento existente de "anexar duas vezes" já rejeitado noutro
   ponto (`emit_attachments`, erro pré-existente não relacionado).
+
+## 7. Execução segregada e integração (2026-09-22)
+
+Ver `00_nucleo/prompts/infra/export/builder.md` §P1476 "Execução
+segregada e integração" para o relato completo (achados de integração,
+gates finais medidos). Esta secção resume só o essencial do lado do
+passo.
+
+### 7.1 Achado de processo — confirmação sem prova commitada
+
+Confirmação humana dada em chat antes do dispatch dos Agentes A/B, mas
+o campo `Estado` deste ficheiro (linha 3) só dizia "AGUARDA CONFIRMAÇÃO"
+até depois. **Agente A recusou-se corretamente a implementar** na
+primeira tentativa, citando ADR-0127 e que mensagens de agente não
+substituem prova commitada. Corrigido com o commit `d269568b0`
+(atualização só do campo `Estado`); Agente A verificou esse commit por
+conta própria antes de prosseguir. Lição para passos futuros: atualizar
+`Estado` **no momento da confirmação**, antes do dispatch, não só na
+integração final.
+
+### 7.2 Agentes
+
+- **Agente A** (implementação, commit `b3bad038b`): os quatro itens do
+  contrato §3, sem ver os testes. Precisou de um import novo
+  (`AttachedFileRelationship`), consequência direta e inevitável do
+  item 1.
+- **Agente B** (testes, commit `bbbfeab26`): 9 testes novos (`p1476_
+  pdfa_attachments_af_tests`), construindo `Content::pdf_attach(...)`
+  diretamente (API já existente de P1286). 5 RED genuínos + 4 guardas de
+  não-regressão. Identificou e reportou (sem corrigir, fora do mandato)
+  uma inconsistência real entre P1476 e 3 testes já existentes de P1475.
+
+### 7.3 Achados de integração (papel C, fluxo contínuo)
+
+1. **Bug real** (achado pelo RED do Agente B): `/AFRelationship` saía
+   sem a barra `/` do PDF Name (`Unspecified` em vez de `/Unspecified`).
+   Corrigido.
+2. **3 testes de P1475 precisavam de atualização intencional** (achado
+   do Agente B): listavam A4f/A4e como "deve ficar ausente" para
+   `pdfaid`/`/OutputIntent`/`/Info` — exatamente o que P1476 muda de
+   propósito. Corrigidas as 3 listas (uma renomeada:
+   `p1475_output_intent_absent_for_none_a1_a4f_a4e_ua1_alone_
+   regression_guard` → `..._a1_ua1_...`), com comentário citando a
+   mudança de escopo intencional, não regressão.
+3. **V16** (`crystalline-lint`): `af_relationship_name` misturava
+   `None => ...` com os quatro braços nominais do domínio. Corrigido
+   separando em duas funções (`af_relationship_name` só resolve
+   `Option`; `af_relationship_variant_name` exaustivo só sobre as 4
+   variantes reais) — mesma forma de `pdfaid_letter`.
+
+### 7.4 RED → GREEN
+
+9 testes novos: 5 RED genuínos + 4 guardas de não-regressão no baseline
+`088f38c29`. Após integração: **9/9 GREEN**. Os 11 testes de P1475
+continuam GREEN, com 3 deles ajustados intencionalmente (§7.3.2) — não
+uma regressão, uma correção prevista pelo próprio contrato de P1476.
+Suíte completa `typst-infra --lib`: **1015/1015** (1006 + 9 novos).
+`typst-core --lib`: **6129/6129**. `typst-shell --lib`: **83/83**.
+
+### 7.5 Gates finais medidos
+
+```text
+cargo build --workspace                    -> sucesso
+cargo test -p typst-core --lib               -> 6129/6129
+cargo test -p typst-shell --lib               -> 83/83
+cargo test -p typst-infra --lib               -> 1015/1015
+cargo test -p typst-wiring                    -> 1 falha pré-existente não
+                                                  relacionada (P1471, igual
+                                                  à confirmada em P1475)
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem contra baseline
+    `d269568b0` em worktree isolada           -> zero avisos novos
+crystalline-lint .                             -> 0 erros/fatais
+crystalline-lint --checks v5,v15,v26 .         -> drift esperado em
+                                                  builder.rs (L0 mudou,
+                                                  código ainda não
+                                                  resselado); 0 violações
+                                                  V15/V26
+git diff --check                               -> sucesso
+```
+
+### 7.6 Medição de conformidade veraPDF (final)
+
+Binário cristalino recompilado neste commit, veraPDF 1.30.2, documento
+de teste com heading/negrito/itálico/figura RGB/anexo (`relationship:
+"supplement"`), `#set page(width: 12cm, height: 8cm)`.
+
+| Perfil | `isCompliant` | `failedRules` | `passedRules` |
+|---|---|---|---|
+| A3b | true | 0 | 146 |
+| A3u | true | 0 | 148 |
+| A3a | true | 0 | 155 |
+| A4f | true | 0 | 109 |
+| A4e | true | 0 | 109 |
+
+**Conformidade total** nos cinco archivals do escopo.
+
+### 7.7 Veredito final
+
+Os quatro itens do contrato (§3) fecham integralmente para
+`A3a/A3b/A3u/A4f/A4e`. Scope-out explícito de A1a/A1b (ICC v2 +
+`/CIDSet`) e PDF/UA-1 continua de pé, confirmado negativamente pelos
+testes (`p1476_af_relationship_absent_outside_gate_regression_guard`,
+`p1476_af_array_absent_outside_gate_regression_guard`,
+`p1476_a4_alone_with_attachment_stays_outside_embedded_files_gate_
+regression_guard`). O achado de processo (§7.1) é o mais valioso desta
+integração: confirma que a execução segregada A/B/C protege não só
+contra erros de código, mas contra gates de confirmação humana mal
+registados — Agente A recusou-se a agir sem prova, exatamente como
+deveria.
