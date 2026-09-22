@@ -611,6 +611,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-08-26 | P1196 — owner da coleta raster individualizado; builder retém integração e emissão de recursos | `builder.md`, `builder.rs` |
 | 2026-09-22 | P1475 — trailer `/ID` universal, `pdf:PDFVersion` dinâmico, XMP `pdfaid` + `/OutputIntent` + supressão de `/Info` gated a A2/A3/A4 | `builder.md`, `builder.rs` |
 | 2026-09-22 | P1476 — `/AFRelationship`+`/AF` gated a A3/A4f/A4e, extensão de `/Info`/`/OutputIntent`/`pdfaid` a A4f/A4e | `builder.md`, `builder.rs` |
+| 2026-09-22 | P1477 — seleção de perfil ICC sRGB por versão (v2/v4), `/CIDSet` universal em CIDFonts embutidas | `builder.md`, `builder.rs`, `images.md`, `images.rs` |
 
 ## Critérios de verificação
 
@@ -1478,3 +1479,71 @@ registada (achado 0) é o segundo caso nesta sessão (depois de P1471-
 P1473) em que a execução segregada A/B/C pegou um problema real antes de
 chegar a produção — desta vez um problema de **processo** (gate sem
 prova commitada), não de código.
+
+## P1477 — Núcleo PDF/A-1a/1b: seleção de perfil ICC por versão, `/CIDSet`
+
+Ver `typst-passo-1477.md` para a medição completa. Continuação do
+scope-out de P1475 §2.5/§4.4/§4.5 (A1a/A1b exigem segundo perfil ICC +
+`/CIDSet`, "mais trabalho... toca o código de emissão de fontes").
+
+### Medição anterior à decisão
+
+**Perfil ICC**: os três pontos que hoje consomem
+`srgb_icc_profile_bytes()` (hardcoded v4) — `builder.rs:1053/1434/1936`
+(`/c0`+JPEG partilhado, P956/P777) e `emit_pdfa_output_intent`
+(`builder.rs:~2790`, P1475/P1476) — precisam de trocar para
+`srgb_icc_profile_for_version(self.standard.version)` (novo helper,
+`infra/export/images.md` P1477), consistentes entre si dentro do mesmo
+PDF. Regra por versão, não por archival (ver `images.md` P1477) —
+concentrada em A1 nesta fatia do produto porque só A1a/A1b forçam
+`PdfVersion::V1_4`.
+
+**`/CIDSet`**: medido em vanilla A1b (dois documentos, texto curto e
+variado) — bitset denso desde o bit 0, sem gaps, tamanho =
+`ceil(N/8)` bytes onde `N` = CIDs presentes. Confirmado contra
+`03_infra/src/export/subset.rs:38-80` (`subsetter::GlyphRemapper`
+atribui `new_gid` sequenciais desde 0): quando o subset é bem sucedido,
+`glyph_mapping.values()` já é exatamente `0..N`; quando falha
+(`glyph_mapping.is_empty()`, fallback P797/P940), os CIDs são os
+`old_gid` originais, potencialmente esparsos — o conjunto já está
+disponível via `all_glyph_ids`/`face_glyph_ids` (calculado antes da
+chamada a `subset_font_with_mapping`). O contrato constrói sempre o
+bitset a partir do conjunto real (nunca assume contiguidade por atalho).
+Medição negativa com o build cristalino atual (pré-P1477) sob A1b + RGB
+confirma exatamente dois gaps: 6.2.3.2 (perfil ICC) e 6.3.5 (`/CIDSet`
+ausente) — nenhuma outra regra falha.
+
+### Contrato
+
+1. **Perfil ICC por versão**: trocar as quatro chamadas a
+   `srgb_icc_profile_bytes()` (três partilhadas + `/OutputIntent`) por
+   `srgb_icc_profile_for_version(self.standard.version)`. Sem
+   `standard`, `version` é `V1_7` (default) — regressão zero.
+2. **`/CIDSet`**: novo helper puro `build_cidset_stream(cids:
+   &HashSet<u16>) -> Vec<u8>` (bit por CID, `bit=1` se presente,
+   comprimido FlateDecode, mesmo padrão de `build_icc_profile_stream`).
+   Em `build_cidfont`/`build_multifont`, depois de cada
+   `/FontDescriptor` já existente: construir o conjunto de CIDs
+   (`glyph_mapping.values()` se não vazio, senão o conjunto pré-subset),
+   alocar `cidset_id` dinamicamente (mesmo padrão `max+1` de
+   P1475/P1476, sem tocar a tabela fixa "Alocação de Object IDs"),
+   `add_bytes`, e editar o `/FontDescriptor` via `insert_pdf_dict_entry`
+   com ` /CIDSet {id} 0 R`. **Universal** para toda CIDFont com
+   `/FontFile*` embutido (não gated a `standard`) — decisão por
+   simplicidade, ponto sinalizado para confirmação humana (P1477 §3.3);
+   omitido quando `bitmap_only`/`per_font_bitmap_only[fi]` (P941, sem
+   `/FontFile*`, regra 6.3.5 não se aplica a fonte não embutida).
+
+### Scope-out explícito
+
+PDF/A-4f/4e sem anexo, PDF/UA-1 — não tocados. `/CIDSet` no caminho
+`build_helvetica` — não é CIDFont. Perfil ICC grayscale — não
+implementado (ver `images.md` P1477).
+
+### Aceitação e gate
+
+`/CIDSet` universal muda bytes de **todo** export CIDFont/multifont, não
+só `standard: a-1*` — gate ADR-0127 explícito, mesmo protocolo dos
+passos anteriores. Seleção de perfil ICC é gated à versão efetiva
+(`V1_4/V1_5/V1_6`), hoje só alcançável via `a-1a`/`a-1b`. Medição final
+esperada: veraPDF PASS para `a-1a`/`a-1b` (zero falhas).
