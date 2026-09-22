@@ -1,6 +1,9 @@
 # Passo 1476 — Núcleo PDF/A-4f/4e: `/AFRelationship`, `/AF`, extensão de `/Info`/`/OutputIntent`/`pdfaid` a anexos
 
-**Estado:** ESCRITO — AGUARDA CONFIRMAÇÃO ADR-0127
+**Estado:** CONFIRMADO (confirmação humana explícita recebida 2026-09-22,
+na mesma sessão, posterior ao commit causal somente-L0 `088f38c29`,
+citando os cinco itens do contrato §1/§3 e a família `A3a/A3b/A3u/A4f/
+A4e`) — EM EXECUÇÃO SEGREGADA A/B/C
 
 **Data da auditoria:** 2026-09-22T08:38:17-03:00
 
