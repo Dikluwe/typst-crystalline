@@ -612,6 +612,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-09-22 | P1475 — trailer `/ID` universal, `pdf:PDFVersion` dinâmico, XMP `pdfaid` + `/OutputIntent` + supressão de `/Info` gated a A2/A3/A4 | `builder.md`, `builder.rs` |
 | 2026-09-22 | P1476 — `/AFRelationship`+`/AF` gated a A3/A4f/A4e, extensão de `/Info`/`/OutputIntent`/`pdfaid` a A4f/A4e | `builder.md`, `builder.rs` |
 | 2026-09-22 | P1477 — seleção de perfil ICC sRGB por versão (v2/v4), `/CIDSet` universal em CIDFonts embutidas | `builder.md`, `builder.rs`, `images.md`, `images.rs` |
+| 2026-09-22 | P1478 — A4f sem anexo requer `/EmbeddedFiles` vazio (retificação de P1477); fluxo contínuo | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 
@@ -1708,3 +1709,74 @@ heading/negrito/itálico/figura RGB, `#set page(width: 12cm, height:
 **Conformidade total.** Fecha a família PDF/A-1 a PDF/A-4 (incluindo
 f/e) nesta sessão — P1475 (A2/A3/A4), P1476 (anexos A3/A4f/A4e), P1477
 (A1a/A1b). PDF/UA-1 continua fora, eixo estrutural à parte.
+
+## P1478 — A4f sem anexo requer `/EmbeddedFiles` vazio (retificação de P1477)
+
+Ver `typst-passo-1478.md` para a medição completa. **Retificação
+histórica obrigatória** (não apaga o registo anterior): a afirmação de
+conformidade de P1476 continua válida para A4f/A4e **com anexo**; a
+afirmação de "conformidade total" no fecho de P1477 (§ acima) não
+cobria A4f **sem** anexo — auditoria posterior encontrou aí uma lacuna
+residual, só em A4f (não em A4e).
+
+### Medição anterior à decisão
+
+Fixture sem anexos (SHA-256
+`93b3d9d54a454cf7d3f86ca780f3d30244759125ea4cb90e95ae300142f547d1`),
+veraPDF 1.30.2: vanilla ratificado 100% conforme em A4f e A4e sem
+anexo; cristalino (pós-P1477) falha **só** A4f
+(`isCompliant=false, failedRules=1`), com A4e sem anexo já 100%
+conforme (`isCompliant=true, failedRules=0`) — confirmado
+independentemente nesta sessão, mesma fixture, mesmos números. Única
+falha: ISO 19005-4:2020 6.9 teste 5, "A PDF/A-4f conforming file shall
+contain an EmbeddedFiles key in the name dictionary of the document
+catalog dictionary". `qpdf --qdf` no vanilla A4f sem anexo mostra
+`/Names << /EmbeddedFiles << /Names [] >> >>` — name tree presente e
+vazia; A4e vanilla sem anexo não tem `/EmbeddedFiles` nenhum. Fonte
+pinada (krilla `configure/validate.rs:269-273,859-871`): só
+`Archival::A4F` tem `requires_embedded_files_when_empty() == true`;
+A1/A2/A3/A4/A4E são `false`. Causa cristalina: `emit_attachments`
+(`builder.rs:2511-2514`) retorna cedo sempre que `doc.attachments.
+is_empty()`, sem distinguir A4f — o resto da função (construção de
+`/Names`, merge com `/Dests` existente, alocação de objeto) já sabe
+fazer tudo o resto corretamente.
+
+### Contrato
+
+1. Novo predicado, distinto de `archival_supports_embedded_files`
+   (P1476 — esse inclui A3\*/A4e, produziria árvores vazias onde o
+   vanilla não as emite): `matches!(self.standard.archival,
+   Some(PdfArchival::A4f))`, significando "exige `/EmbeddedFiles`
+   mesmo vazio", não "suporta anexos".
+2. Em `emit_attachments`, o early-return só dispara quando
+   `doc.attachments.is_empty()` **E** o novo predicado é falso; caso
+   contrário, executa o caminho existente (que já produz `<< /Names
+   [] >>` naturalmente quando não há attachments, sem `/AF` já que
+   `filespec_ids` fica vazio).
+3. Sem redesenho: reusar o merge já existente com `/Names /Dests`
+   quando presente; nunca substituir esse dicionário.
+
+### Invariantes
+
+A4f sem anexo: `/EmbeddedFiles` presente, `/Names []`, zero
+Filespec/EmbeddedFile/`/AF`. A4f com anexo: comportamento P1476
+preservado integralmente. A4e sem anexo: `/EmbeddedFiles` ausente.
+A1/A2/A3/A4 sem anexos: nenhuma árvore vazia nova. `/Names /Dests`
+pré-existente: preservado, `/EmbeddedFiles` acrescentado ao mesmo
+dicionário.
+
+### RED — localização especial
+
+Por causa do achado [PARSE] do `crystalline-lint` em `tests.rs:11146`
+(P1477, tamanho acumulado do ficheiro), os testes de P1478 **não** vão
+para `03_infra/src/export/tests.rs`. Ficam num
+`#[cfg(test)] mod p1478_pdfa4f_empty_embedded_files_tests` dentro do
+próprio `builder.rs`, mesmo owner L0, até uma sanitização dedicada do
+agregador de testes (fora do escopo deste passo).
+
+### Gate ADR-0127
+
+Fluxo contínuo — correção interna de paridade num caminho opt-in já
+contratado (P1476), sem novo campo/flag/default/fase de pipeline. Não
+exige nova paragem humana; o gate é RED→GREEN + revalidação da matriz
+completa de 16 combinações (11 sem anexo + 5 com anexo).
