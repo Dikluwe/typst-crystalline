@@ -1,11 +1,8 @@
 # Passo 1477 — Núcleo PDF/A-1a/1b: segundo perfil ICC (v2) por versão, `/CIDSet`
 
-**Estado:** CONFIRMADO (confirmação humana explícita recebida 2026-09-22,
-na mesma sessão, posterior ao commit causal somente-L0 `b5a4836f8`,
-citando os dois itens do contrato §1/§3 e resolvendo explicitamente o
-ponto em aberto de §3.3 via `AskUserQuestion`: `/CIDSet` **universal**,
-não gated a A1a/A1b — opção "Recomendado" escolhida) — EM EXECUÇÃO
-SEGREGADA A/B/C
+**Estado:** MATERIALIZADO (confirmação humana explícita recebida
+2026-09-22, na mesma sessão, posterior ao commit causal somente-L0
+`b5a4836f8`; execução segregada A/B/C — ver §7)
 
 **Data da auditoria:** 2026-09-22T11:54:06-03:00
 
@@ -289,3 +286,93 @@ por contagem), fmt, `crystalline-lint .` (0 erros),
 - Qualquer mudança em `PdfVersion`/`PdfArchival`/`PdfStandards`
   (`entities/document_format_options.rs`) — nenhum campo novo, nenhuma
   mudança de contrato público, só consumo.
+
+## 7. Execução segregada e integração (2026-09-22)
+
+Ver `00_nucleo/prompts/infra/export/builder.md` §P1477 "Execução
+segregada e integração" para o relato completo. Resumo do lado do
+passo.
+
+### 7.1 Confirmação registada antes do dispatch
+
+Lição de P1476 aplicada: a confirmação (incluindo a resolução do ponto
+em aberto §3.3 via `AskUserQuestion` — `/CIDSet` universal) foi
+registada num commit dedicado (`8b6f41db0`) **antes** de despachar os
+Agentes A/B, não só na integração final.
+
+### 7.2 Agentes — achado convergente independente
+
+- **Agente A** (commit `fcabcb2c7`): implementou os dois itens do
+  contrato. Sinalizou (sem corrigir) que `emit_pdfa_output_intent`/
+  `pdfaid_elem` não incluíam A1a/A1b.
+- **Agente B** (commit `0d3542314`): 11 testes (7 RED + 4 guardas).
+  Identificou **o mesmo gap**, de forma totalmente independente (sem
+  ver o relatório do Agente A), e escreveu o teste literal do §5 já
+  esperando a extensão do gate. Corrigiu também um bug próprio
+  (fronteira de caractere multi-byte numa mensagem de pânico).
+
+A convergência independente dos dois agentes no mesmo achado é o sinal
+mais forte desta sessão de que a inconsistência entre o §3 "Contrato"
+(que não listava explicitamente "adicionar A1a/A1b ao `matches!`") e o
+§5 "Critérios de fechamento" (que já pressupunha isso) era real, não
+uma leitura equivocada de um dos dois.
+
+### 7.3 Achados de integração (papel C, fluxo contínuo)
+
+1. Gate de A1a/A1b estendido em `emit_pdfa_output_intent`/`pdfaid_elem`
+   (confirmado diretamente contra o vanilla: `part=1/conformance=B`
+   para A1b, mesma forma de A2/A3).
+2. Dois testes usavam `Cantarell-VF.otf` (CFF2, subsetter falha —
+   §P772u) onde precisavam de uma fonte que subseta com sucesso;
+   trocados para `NotoSans-Regular.ttf`.
+3. V16 (`pdfaid_elem`) corrigido com o mesmo padrão de `af_relationship_
+   name`/`af_relationship_variant_name` (P1476): `pdfaid_body`
+   exaustivo só sobre `PdfArchival`.
+4. Clippy (`regex em loop`, 3×) corrigido nos testes novos.
+5. Fixture dourada `09-cidfont.pdf` regenerada (+119 bytes, só
+   `/CIDSet`).
+6. Dois testes de P1475 ajustados intencionalmente (A1a/A1b saem das
+   listas "deve ficar ausente").
+
+### 7.4 RED → GREEN e gates finais
+
+11 testes novos: 7 RED genuínos + 4 guardas. Após integração: 11/11
+GREEN. Suíte completa: `typst-core` 6129/6129, `typst-shell` 83/83,
+`typst-infra` 1026/1026. `typst-wiring`: 1 falha pré-existente não
+relacionada (igual à de P1475/P1476). Clippy: zero avisos novos na
+medição final (1 achado real corrigido antes dela). `crystalline-lint
+.`: 2 achados V16 reais corrigidos; **achado residual não resolvido**
+— `[PARSE]` em `tests.rs:11146`, dentro do teste `p1477_cidset_
+present_in_font_descriptor_and_stream_is_dense_bitset`, bissecionado
+por truncamento controlado (ver `infra/export/builder.md` §P1477 para
+o relato completo da investigação) — `rustc` (via `cargo build`/`cargo
+test`) aceita o ficheiro sem erro; o erro só aparece quando `tests.rs`
+cresce além de ~11127 linhas, aparentemente um limite do parser
+próprio do `crystalline-lint`, não confirmado como bug (fora do
+alcance desta sessão auditar o binário). Gate do passo (`0 erros`) não
+satisfeito literalmente — sinalizado ao dono para decisão, não
+decidido unilateralmente. `crystalline-lint --checks v5,v15,v26 .`:
+drift esperado nos dois L0s, 0 violações V15/V26. `git diff --check`:
+sucesso.
+
+### 7.5 Medição de conformidade veraPDF (final)
+
+Binário cristalino recompilado, veraPDF 1.30.2, documento com
+heading/negrito/itálico/figura RGB, `#set page(width: 12cm, height:
+8cm)`.
+
+| Perfil | `isCompliant` | `failedRules` | `passedRules` |
+|---|---|---|---|
+| A1a | true | 0 | 135 |
+| A1b | true | 0 | 129 |
+
+**Conformidade total.**
+
+### 7.6 Veredito final
+
+Os dois itens do contrato (§3) fecham integralmente. Com P1477, a
+família PDF/A completa medida nesta sessão (P1469→P1475→P1476→P1477)
+está fechada: A1a/A1b/A2a/A2b/A2u/A3a/A3b/A3u/A4/A4f/A4e todos 100%
+conformes veraPDF, com e sem anexos. PDF/A-4f/4e sem anexo e PDF/UA-1
+permanecem como eixos não tocados (UA-1 explicitamente fora de escopo
+desde P1469 — "eixo estrutural à parte, maior").

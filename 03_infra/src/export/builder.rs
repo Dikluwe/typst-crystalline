@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 0086fe03
+//! @prompt-hash 91176d0a
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -141,7 +141,7 @@ use super::{
     multispace_sample_stops, multispace_sample_stops_linear_cmyk,
     multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
     pattern_resources_for_page, resolve_relative, scan_all_gradients, scan_all_images,
-    srgb_icc_profile_bytes,
+    srgb_icc_profile_for_version,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
     to_unicode_cmap, widths_array, xobject_resources_for_page, GradientObject,
     GradientObjectKind, ImageFormat, ImageXObject, PageContext, PdfSerializationMode,
@@ -618,6 +618,26 @@ fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
     stream
 }
 
+/// **P1477** — constrói o stream `/CIDSet` — um bit por CID presente no
+/// subset, `bit=1` se presente, resto do último byte a zero. Aceita
+/// qualquer conjunto de CIDs (não assume contiguidade), comprimido com
+/// FlateDecode (mesmo padrão de `build_icc_profile_stream`/P883).
+fn build_cidset_stream(cids: &HashSet<u16>) -> Vec<u8> {
+    let max_cid = cids.iter().copied().max().unwrap_or(0);
+    let n_bytes = (max_cid as usize / 8) + 1;
+    let mut bits = vec![0u8; n_bytes];
+    for &cid in cids {
+        bits[cid as usize / 8] |= 0x80 >> (cid as usize % 8);
+    }
+    let compressed = compress_zlib(&bits).unwrap_or(bits);
+    let len = compressed.len();
+    let mut obj =
+        format!("<< /Length {len} /Filter /FlateDecode >>\nstream\n").into_bytes();
+    obj.extend_from_slice(&compressed);
+    obj.extend_from_slice(b"\nendstream");
+    obj
+}
+
 /// **P884** — constrói o content stream de uma página, comprimindo com
 /// FlateDecode quando rentável.
 ///
@@ -1049,8 +1069,14 @@ impl PdfBuilder {
         );
 
         // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        // **P1477** — perfil selecionado pela versão efetiva do PDF.
         if let Some(id) = icc_profile_id {
-            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+            self.add_bytes(
+                id,
+                build_icc_profile_stream(srgb_icc_profile_for_version(
+                    self.standard.version,
+                )),
+            );
         }
 
         self.emit_image_xobjects(img_xobjects);
@@ -1430,8 +1456,14 @@ impl PdfBuilder {
         self.add_bytes(to_unicode_id, cmap_obj);
 
         // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        // **P1477** — perfil selecionado pela versão efetiva do PDF.
         if let Some(id) = icc_profile_id {
-            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+            self.add_bytes(
+                id,
+                build_icc_profile_stream(srgb_icc_profile_for_version(
+                    self.standard.version,
+                )),
+            );
         }
 
         self.emit_image_xobjects(img_xobjects);
@@ -1440,6 +1472,29 @@ impl PdfBuilder {
         let page_dimensions: Vec<(f64, f64)> =
             doc.pages.iter().map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
+        // **P1477** — `/CIDSet` no `/FontDescriptor`, universal para toda
+        // CIDFont com `/FontFile*` embutido (não gated a `standard`).
+        // Alocado dinamicamente (mesmo padrão de P1475/P1476) DEPOIS de
+        // todos os objectos de ID fixo desta fonte (stream/ToUnicode/ICC/
+        // imagens/gradientes) já terem sido adicionados: `font_stream_id`
+        // é o ID fixo seguinte a `font_descriptor_id`, logo alocar
+        // dinamicamente logo após `self.add(font_descriptor_id, ...)`
+        // colidiria com ele.
+        if !bitmap_only {
+            let cids: HashSet<u16> = if !glyph_mapping.is_empty() {
+                glyph_mapping.values().copied().collect()
+            } else {
+                all_glyph_ids.iter().copied().collect()
+            };
+            let cidset_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+            self.add_bytes(cidset_id, build_cidset_stream(&cids));
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == font_descriptor_id)
+            {
+                insert_pdf_dict_entry(content, &format!(" /CIDSet {cidset_id} 0 R"));
+            }
+        }
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
@@ -1932,8 +1987,14 @@ impl PdfBuilder {
         }
 
         // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        // **P1477** — perfil selecionado pela versão efetiva do PDF.
         if let Some(id) = icc_profile_id {
-            self.add_bytes(id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+            self.add_bytes(
+                id,
+                build_icc_profile_stream(srgb_icc_profile_for_version(
+                    self.standard.version,
+                )),
+            );
         }
 
         self.emit_image_xobjects(img_xobjects);
@@ -1942,6 +2003,33 @@ impl PdfBuilder {
         let page_dimensions: Vec<(f64, f64)> =
             doc.pages.iter().map(|p| (p.width, p.height)).collect();
         self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
+        // **P1477** — `/CIDSet` no `/FontDescriptor` de cada fonte embutida
+        // (mesmo raciocínio de `build_cidfont`, ver comentário lá). Segunda
+        // passagem por `fonts` DEPOIS de todos os objectos de ID fixo (fontes/
+        // ICC/imagens/gradientes) já terem sido adicionados, para a alocação
+        // dinâmica (`self.objects.max()+1`) não colidir com `stream_id`
+        // (o ID fixo seguinte a `descriptor_id` dentro do loop acima).
+        for (fi, _) in fonts.iter().enumerate() {
+            if per_font_bitmap_only[fi] {
+                continue;
+            }
+            let descriptor_id = fonts_start + 5 * fi + 2;
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            let cids: HashSet<u16> = if !glyph_mapping.is_empty() {
+                glyph_mapping.values().copied().collect()
+            } else {
+                let n_glyphs = faces[fi].number_of_glyphs();
+                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect()
+            };
+            let cidset_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+            self.add_bytes(cidset_id, build_cidset_stream(&cids));
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == descriptor_id)
+            {
+                insert_pdf_dict_entry(content, &format!(" /CIDSet {cidset_id} 0 R"));
+            }
+        }
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
@@ -2765,10 +2853,19 @@ impl PdfBuilder {
     /// documento — decisão mecânica, ADR-0107, sem efeito observável para
     /// veraPDF).
     fn emit_pdfa_output_intent(&mut self) {
+        // **P1477** — achado de integração: A1a/A1b faltavam neste gate.
+        // P1475 excluiu-os deliberadamente (o único perfil ICC disponível
+        // então, v4, falha a regra 6.2.3.2 em PDF 1.4); P1477 traz o
+        // perfil v2 (`srgb_icc_profile_for_version`, usado abaixo) que
+        // remove esse bloqueio — typst-passo-1477.md §5 já previa "a-1a/
+        // a-1b... embutem v2... E no /OutputIntent", só não tinha sido
+        // adicionado a este `matches!` na primeira redação do contrato.
         let needs_output_intent = matches!(
             self.standard.archival,
             Some(
-                PdfArchival::A2a
+                PdfArchival::A1a
+                    | PdfArchival::A1b
+                    | PdfArchival::A2a
                     | PdfArchival::A2b
                     | PdfArchival::A2u
                     | PdfArchival::A3a
@@ -2783,11 +2880,17 @@ impl PdfBuilder {
             return;
         }
 
-        // `build_icc_profile_stream`/`srgb_icc_profile_bytes` já estão em
-        // escopo via `use super::{...}` (builder.rs:130-141), mesmo padrão
-        // de uso já existente em builder.rs:1043/1423/1924 (P777).
+        // `build_icc_profile_stream`/`srgb_icc_profile_for_version` já estão
+        // em escopo via `use super::{...}` (builder.rs:130-141), mesmo
+        // padrão de uso já existente em builder.rs:1043/1423/1924 (P777).
+        // **P1477** — perfil selecionado pela versão efetiva do PDF (v2
+        // para V1_4/V1_5/V1_6, v4 para V1_7/V2_0), consistente com os
+        // outros três pontos de consumo.
         let profile_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
-        self.add_bytes(profile_id, build_icc_profile_stream(srgb_icc_profile_bytes()));
+        self.add_bytes(
+            profile_id,
+            build_icc_profile_stream(srgb_icc_profile_for_version(self.standard.version)),
+        );
 
         let intent_id = profile_id + 1;
         self.add(
@@ -2872,33 +2975,11 @@ impl PdfBuilder {
         // expectativa de P1475 — `conformance` só desaparece quando não há
         // sufixo `f`/`e`; medição typst-passo-1476.md §2.2). Vazio (e sem
         // `xmlns:pdfaid`) fora desse conjunto.
-        let pdfaid_elem = match self.standard.archival {
-            Some(a @ (PdfArchival::A2a | PdfArchival::A2b | PdfArchival::A2u)) => {
-                format!(
-                "<pdfaid:part>2</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
-                pdfaid_letter(a)
-            )
-            }
-            Some(a @ (PdfArchival::A3a | PdfArchival::A3b | PdfArchival::A3u)) => {
-                format!(
-                "<pdfaid:part>3</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
-                pdfaid_letter(a)
-            )
-            }
-            Some(PdfArchival::A4f) => {
-                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev><pdfaid:conformance>F</pdfaid:conformance>".to_string()
-            }
-            Some(PdfArchival::A4e) => {
-                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev><pdfaid:conformance>E</pdfaid:conformance>".to_string()
-            }
-            Some(PdfArchival::A4) => {
-                "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>".to_string()
-            }
-            // Scope-out explícito (typst-passo-1475.md §2.5): A1a/A1b (ICC
-            // v2 + /CIDSet não implementados) — sem `standard`/archival
-            // nenhum também cai aqui.
-            None | Some(PdfArchival::A1a | PdfArchival::A1b) => String::new(),
-        };
+        // Isolado num helper exaustivo só sobre `PdfArchival` (sem
+        // `Option`) — evita combinar `Option::None` com a cobertura
+        // nominal do domínio no mesmo `match` (V16, mesmo padrão de
+        // `af_relationship_name`/`af_relationship_variant_name`, P1476).
+        let pdfaid_elem = self.standard.archival.map(pdfaid_body).unwrap_or_default();
         let pdfaid_xmlns = if pdfaid_elem.is_empty() {
             String::new()
         } else {
@@ -3528,21 +3609,56 @@ impl PdfBuilder {
     }
 }
 
-/// **P1475** — letra de conformidade `pdfaid:conformance` (ISO 19005-2/-3),
+/// **P1475/P1476/P1477** — corpo do elemento `pdfaid` para um `PdfArchival`
+/// concreto. A1/A2/A3 usam `part`+`conformance` (letra via `pdfaid_letter`);
+/// A4f/A4e usam as três chaves `part`+`rev`+`conformance` (achado de
+/// P1476 §2.2 — `conformance` só desaparece quando não há sufixo `f`/`e`);
+/// A4 "puro" usa só `part`+`rev`. `match` exaustivo sobre as 11 variantes
+/// de `PdfArchival` (sem `Option` — a resolução de `None` fica no chamador,
+/// `emit_xmp_metadata`, via `Option::map`, V16).
+fn pdfaid_body(a: PdfArchival) -> String {
+    match a {
+        PdfArchival::A1a | PdfArchival::A1b => format!(
+            "<pdfaid:part>1</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
+            pdfaid_letter(a)
+        ),
+        PdfArchival::A2a | PdfArchival::A2b | PdfArchival::A2u => format!(
+            "<pdfaid:part>2</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
+            pdfaid_letter(a)
+        ),
+        PdfArchival::A3a | PdfArchival::A3b | PdfArchival::A3u => format!(
+            "<pdfaid:part>3</pdfaid:part><pdfaid:conformance>{}</pdfaid:conformance>",
+            pdfaid_letter(a)
+        ),
+        PdfArchival::A4f => "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>\
+             <pdfaid:conformance>F</pdfaid:conformance>"
+            .to_string(),
+        PdfArchival::A4e => "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>\
+             <pdfaid:conformance>E</pdfaid:conformance>"
+            .to_string(),
+        PdfArchival::A4 => {
+            "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>".to_string()
+        }
+    }
+}
+
+/// **P1475** — letra de conformidade `pdfaid:conformance` (ISO 19005-1/-2/-3),
 /// derivada do sufixo do nome do archival. Único ponto de derivação —
-/// evita repetir o `match` nos três braços A2/A3 de `emit_xmp_metadata`.
-/// Não chamado para `A4` (que não tem `conformance`, ver `pdfaid_elem`).
+/// evita repetir o `match` nos braços A1/A2/A3 de `pdfaid_body`.
+/// Não chamado para `A4`/`A4f`/`A4e` sozinhas fora do `conformance` (ver
+/// `pdfaid_body`).
 fn pdfaid_letter(a: PdfArchival) -> &'static str {
     match a {
-        PdfArchival::A2a | PdfArchival::A3a => "A",
-        PdfArchival::A2b | PdfArchival::A3b => "B",
+        // **P1477** — achado de integração: A1a/A1b confirmados no vanilla
+        // (`--pdf-standard a-1b`) com a mesma forma part+conformance de
+        // A2/A3 (`<pdfaid:part>1</pdfaid:part><pdfaid:conformance>B
+        // </pdfaid:conformance>`) — movidos do braço de scope-out para os
+        // braços nominais.
+        PdfArchival::A1a | PdfArchival::A2a | PdfArchival::A3a => "A",
+        PdfArchival::A1b | PdfArchival::A2b | PdfArchival::A3b => "B",
         PdfArchival::A2u | PdfArchival::A3u => "U",
-        PdfArchival::A1a
-        | PdfArchival::A1b
-        | PdfArchival::A4
-        | PdfArchival::A4f
-        | PdfArchival::A4e => {
-            debug_assert!(false, "pdfaid_letter called for non-A2/A3 archival");
+        PdfArchival::A4 | PdfArchival::A4f | PdfArchival::A4e => {
+            debug_assert!(false, "pdfaid_letter called for non-A1/A2/A3 archival");
             ""
         }
     }

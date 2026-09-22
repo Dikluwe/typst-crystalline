@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/images` — Imagens PDF
-Hash do Código: 13c64656
+Hash do Código: 484bb634
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/images.rs`
@@ -146,3 +146,16 @@ existir e a ser usado onde a versão não é conhecida/relevante, se
 algum consumidor ainda a chamar diretamente). Nenhum consumidor deste
 ficheiro é editado aqui — só `infra/export/builder.md` consome o novo
 helper (ver lá).
+
+### Materialização (2026-09-22)
+
+Agente A (commit integrado em `infra/export/builder.md`) vendorizou
+`SRGB_V2_ICC_PROFILE` a partir do ficheiro fonte
+(`~/.cargo/git/checkouts/krilla-dfa083154a81f6b2/7772dbe/crates/krilla/
+icc/sRGB-v2-magic.icc`), verificando o sha256 bit-a-bit antes de gravar
+(`af4efe28f6d311799865f325ba39184a2e978b113ca74124d60af7de22b105f4`).
+`srgb_v2_icc_profile_bytes()`/`srgb_icc_profile_for_version()`
+implementados exatamente como especificado, `match` exaustivo sem
+wildcard. Suíte `typst-infra --lib`: 1026/1026 GREEN. Ver
+`infra/export/builder.md` §P1477 para o relato completo da integração
+(inclui dois achados corrigidos por papel C).

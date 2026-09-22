@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: efc16e3d
+Hash do Código: 6c8fb711
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1547,3 +1547,164 @@ só `standard: a-1*` — gate ADR-0127 explícito, mesmo protocolo dos
 passos anteriores. Seleção de perfil ICC é gated à versão efetiva
 (`V1_4/V1_5/V1_6`), hoje só alcançável via `a-1a`/`a-1b`. Medição final
 esperada: veraPDF PASS para `a-1a`/`a-1b` (zero falhas).
+
+### Execução segregada e integração (2026-09-22)
+
+Confirmação humana explícita recebida em 2026-09-22, na mesma sessão,
+posterior ao commit causal somente-L0 `b5a4836f8`, resolvendo também o
+ponto em aberto (`/CIDSet` universal vs. gated) via `AskUserQuestion` —
+registada de imediato num commit dedicado (`8b6f41db0`), antes do
+dispatch dos agentes (lição aplicada de P1476, onde o mesmo registo só
+aconteceu depois de Agente A se recusar corretamente a prosseguir).
+
+- **Agente A** (commit `fcabcb2c7`): os dois itens do contrato, sem ver
+  os testes. Desvio documentado do texto literal: moveu a alocação
+  dinâmica de `cidset_id` para depois de todos os objetos de ID fixo já
+  adicionados nessa invocação (não logo após o `/FontDescriptor`, como
+  o texto do passo sugeria) — colidiria com `font_stream_id`/`stream_id`
+  fixos ainda por adicionar. Sinalizou proativamente (sem corrigir,
+  fora do seu mandato) que o gate de `emit_pdfa_output_intent`/
+  `pdfaid_elem` não incluía A1a/A1b, apesar do §5 do passo já prever
+  isso.
+- **Agente B** (commit `0d3542314`): 11 testes novos (`p1477_pdfa_icc_
+  version_and_cidset_tests`), via API pública do builder. 7 RED
+  genuínos + 4 guardas. Identificou **independentemente** o mesmo gap
+  do gate A1a/A1b (sem ver o relatório do Agente A), escreveu o teste
+  literal do §5 do passo já esperando essa extensão, e documentou a
+  contradição com a guarda de P1475 sem a tocar (fora do mandato).
+  Corrigiu um bug próprio de `&text[...]` cortando a meio de caractere
+  multi-byte nas mensagens de pânico (achado durante a escrita, não
+  achado de integração).
+- **Papel C** (integração): aplicou os dois patches sem conflito.
+  Achados de integração, todos fluxo contínuo:
+  1. **Gate de A1a/A1b** (confirmado por ambos os agentes
+     independentemente): `emit_pdfa_output_intent` e `pdfaid_elem`
+     estendidos a incluir `PdfArchival::A1a | PdfArchival::A1b` — já
+     previsto pelo §5 do próprio passo, só não escrito explicitamente
+     no contrato §3. `pdfaid_letter` corrigido para retornar `"A"`/`"B"`
+     para A1a/A1b (movidos do braço `debug_assert!` para os braços
+     nominais) — confirmado diretamente contra o vanilla
+     (`--pdf-standard a-1b` → `part=1/conformance=B`, mesma forma de
+     A2/A3).
+  2. **Teste com fonte errada**: os dois testes que exigiam bitset
+     denso (`p1477_cidset_present_in_font_descriptor_and_stream_is_
+     dense_bitset`/`..._multifont_path`) usavam `Cantarell-VF.otf`
+     (CFF2/HVAR) — mesma fonte já documentada em §P772u como caso em
+     que `subsetter::subset` falha com `Unimplemented`, forçando o
+     caminho de fallback (CIDs esparsos, não contíguos) em vez do
+     caminho de subset bem sucedido que os testes pretendiam exercitar.
+     Substituída por `NotoSans-Regular.ttf` (mesma fonte já usada com
+     sucesso pelo fixture `p307b/sources/09-cidfont.typ`).
+  3. **V16** (`crystalline-lint`), 2 ocorrências: `pdfaid_elem` (novo
+     braço `None => String::new()` isolado, mesmo padrão de
+     `af_relationship_name` em P1476) — extraído para `pdfaid_body`
+     (exaustivo só sobre `PdfArchival`, sem `Option`), chamado via
+     `self.standard.archival.map(pdfaid_body).unwrap_or_default()`.
+  4. **Clippy** (`compiling a regex in a loop`, 3 ocorrências): duas
+     `Regex::new` dentro de loops nos testes novos de P1477 movidas
+     para antes do loop, mesmo padrão já usado pelos testes de P1475.
+  5. Fixture dourada `p307b/reference/09-cidfont.pdf` regenerada
+     (+119 bytes — `/CIDSet` novo + renumeração de `/FontFile2`,
+     confirmado byte-a-byte que nada mais mudou além disso e da segunda
+     entrada de `/ID`, já não-determinística nesta fixture desde
+     P1475/pipeline `compile_to_pdf_bytes`, não relacionado a P1477).
+  6. **2 testes de P1475 ajustados intencionalmente**
+     (`p1475_pdfaid_absent_for_scope_out_profiles_confirmed_
+     negatively`/`p1475_output_intent_absent_for_none_a1_ua1_alone_
+     regression_guard`) — A1a/A1b saíram das listas "deve ficar
+     ausente", mesmo padrão já visto em P1476 para A4f/A4e.
+
+### RED → GREEN
+
+11 testes novos: 7 RED genuínos + 4 guardas de não-regressão no
+baseline `8b6f41db0`. Após integração e as seis correções acima:
+**11/11 GREEN**. Os 11 testes de P1475 (2 ajustados) e os 9 de P1476
+continuam GREEN. Suíte completa `typst-infra --lib`: **1026/1026**
+(1015 + 11 novos). `typst-core --lib`: **6129/6129**. `typst-shell
+--lib`: **83/83**. `typst-wiring`: 1 falha pré-existente não relacionada
+(mesma de P1475/P1476, oracle desatualizado do P1471).
+
+### Gates finais medidos (2026-09-22)
+
+```text
+cargo build --workspace                    -> sucesso
+cargo test -p typst-core --lib               -> 6129/6129
+cargo test -p typst-shell --lib               -> 83/83
+cargo test -p typst-infra --lib               -> 1026/1026
+cargo clippy -p typst-infra --all-targets --message-format=json
+    comparado por contagem contra baseline
+    `8b6f41db0` em worktree isolada           -> 1 achado real corrigido
+                                                  (regex em loop), zero
+                                                  avisos novos na medição
+                                                  final
+crystalline-lint .                             -> 2 achados V16 reais
+                                                  corrigidos; achado
+                                                  residual [PARSE] em
+                                                  tests.rs — ver nota
+                                                  abaixo, não bloqueado
+crystalline-lint --checks v5,v15,v26 .         -> drift esperado nos
+                                                  dois L0s (código ainda
+                                                  não resselado); 0
+                                                  violações V15/V26
+git diff --check                               -> sucesso
+```
+
+### Achado residual — `crystalline-lint .` reporta `[PARSE]` em `tests.rs`, não bloqueado
+
+**Não corrigido, decisão do dono pendente.** A corrida final de
+`crystalline-lint .` (default, todos os checks) reporta
+`error: Erro de sintaxe: Syntax error detected in AST [PARSE] -->
+./03_infra/src/export/tests.rs:11146` — dentro do teste
+`p1477_cidset_present_in_font_descriptor_and_stream_is_dense_bitset`
+(Agente B). Investigação (papel C, bissecção por truncamento controlado
+do ficheiro, sempre restaurado imediatamente após cada tentativa,
+nunca via `git checkout --`):
+
+1. `cargo build --workspace`/`cargo test -p typst-infra --lib` (rustc,
+   parser autoritativo) aceitam o ficheiro sem qualquer erro, em
+   múltiplas recompilações — o Rust é sintaticamente válido.
+2. `git stash` (HEAD `8b6f41db0`, `tests.rs` sem as adições de P1477,
+   10733 linhas): `crystalline-lint .` → 0 erros de parse,
+   determinístico em duas tentativas.
+3. Bissecção por truncamento (módulo `mod { ... }` fechado
+   manualmente a cada corte, ficheiro restaurado do backup entre
+   tentativas): o erro desaparece removendo só o módulo `p1477_pdfa_
+   icc_version_and_cidset_tests` inteiro (10748 linhas, sem erro);
+   reaparece assim que o primeiro teste de `/CIDSet`
+   (`..._is_dense_bitset`, 21 linhas, terminando na linha 11148) é
+   incluído — o ficheiro cresce de 11127 para ~11149 linhas nesse
+   ponto. Inspeção manual do texto da função não revela nada
+   sintaticamente incomum (sem chavetas/aspas desbalanceadas em
+   comentários ou strings).
+4. Conclusão provisória: limite de tamanho/profundidade do parser
+   próprio de `crystalline-lint` (não é `rustc`/`syn` padrão),
+   acionado pelo crescimento cumulativo de `tests.rs` ao longo de
+   P1475→P1476→P1477 (10733→11221 linhas nesta sessão), não um
+   defeito real do código. **Não confirmado como bug do
+   `crystalline-lint`** (fora do alcance desta sessão auditar o
+   binário do linter) — registado como medição, não como decisão.
+   O que refutaria esta conclusão: alguém identificar um problema
+   sintático real nessa função específica que a bissecção não
+   revelou.
+
+Gate `crystalline-lint . -> 0 erros` do próprio passo **não foi
+satisfeito literalmente** por este achado — decisão de prosseguir
+(sem bloquear o commit final por um achado de nível [PARSE], distinto
+das violações substantivas V1-V26, todas em 0) tomada pelo papel C com
+o racional acima; sinalizado explicitamente ao dono para decisão
+final, não decidido silenciosamente.
+
+### Medição de conformidade veraPDF (final)
+
+Binário cristalino recompilado, veraPDF 1.30.2, documento com
+heading/negrito/itálico/figura RGB, `#set page(width: 12cm, height:
+8cm)`.
+
+| Perfil | `isCompliant` | `failedRules` | `passedRules` |
+|---|---|---|---|
+| A1a | true | 0 | 135 |
+| A1b | true | 0 | 129 |
+
+**Conformidade total.** Fecha a família PDF/A-1 a PDF/A-4 (incluindo
+f/e) nesta sessão — P1475 (A2/A3/A4), P1476 (anexos A3/A4f/A4e), P1477
+(A1a/A1b). PDF/UA-1 continua fora, eixo estrutural à parte.
