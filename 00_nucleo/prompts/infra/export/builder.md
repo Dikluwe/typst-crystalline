@@ -609,6 +609,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-31 | P940 — streams de fonte acima de 256 KB (fallback integral quando subset falha, ex.: CBDT/emoji) emitidos sem FlateDecode; elimina ~300 ms de `render_ms` de compressão | `builder.md`, `builder.rs`, `subset.rs` |
 | 2026-07-31 | P941 — glifos bitmap (CBDT/CBLC) desenhados como imagens XObject, não embutidos como fonte; desenho em §P941 | `builder.md`, `builder.rs`, `stream.rs`, `bitmap_glyphs.rs` |
 | 2026-08-26 | P1196 — owner da coleta raster individualizado; builder retém integração e emissão de recursos | `builder.md`, `builder.rs` |
+| 2026-09-22 | P1475 — trailer `/ID` universal, `pdf:PDFVersion` dinâmico, XMP `pdfaid` + `/OutputIntent` + supressão de `/Info` gated a A2/A3/A4 | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 
@@ -1095,3 +1096,103 @@ ver os testes. Agente B escreveu 10 testes de integração de binário
 sem ver a implementação. O teste independente passou de RED a GREEN (10/10)
 após a integração, sem regressão na suíte de PDF (44/44 nos irmãos
 p1462/p1463/p1464/p1465/p1467/p1468).
+
+## P1475 — Núcleo PDF/A-2/3/4: trailer `/ID`, XMP `pdfaid`, `/OutputIntent`, supressão de `/Info` em A4
+
+Ver `typst-passo-1475.md` para a medição completa (diagnóstico prévio
+`typst-p1469-revisita-verapdf-2026-09-21.md` Achado 4, mais medições
+confirmatórias próprias desta sessão via veraPDF 1.30.2 e inspeção `qpdf
+--qdf` de PDFs vanilla reais). Único owner dos quatro itens; nenhuma
+mudança em `entities/document_format_options.rs` nem em
+`infra/export/images.rs` — só consumo do que já existe.
+
+### Medição anterior à decisão
+
+`emit_xmp_metadata` (`builder.rs:2703-2810`) já calcula
+`(instance_id, document_id)` via `xmp_instance_and_document_id` (`:409-428`,
+base64 de 16 bytes) mas não persiste esses valores; `serialize` (`:3316-
+3358`) constrói o trailer só com `/Size`/`/Root`/`/Info` opcional, sem
+`/ID`. Medido no vanilla (documento sem `standard` nenhum): o trailer tem
+sempre `/ID [ (X) (Y) ]` com `X == Y == xmpMM:InstanceID/DocumentID` desse
+mesmo PDF — comportamento universal, não gated a PDF/A. `emit_info`
+(`:2664-2698`) sempre aloca `/Info`; medido no vanilla `a-4`: trailer sem
+`/Info` (ISO 19005-4 6.1.3). `emit_xmp_metadata` nunca emite o namespace/
+elementos `pdfaid`; medido: A2/A3 usam `pdfaid:part`+`pdfaid:conformance`
+(letra do sufixo do nome), A4 usa `pdfaid:part`+`pdfaid:rev` (`"2020"`,
+**sem** `conformance` — achado novo desta sessão, não estava no Achado 4.2
+original). Nenhum `/OutputIntent`/`/OutputIntents` é emitido hoje; medido
+em `a2b`/`a4` vanilla: objeto idêntico em forma
+(`/Type /OutputIntent /S /GTS_PDFA1 /OutputConditionIdentifier (Custom)
+/OutputCondition (sRGB) /RegistryName () /Info (sRGB v4.2) /DestOutputProfile
+{ref}`) — `/S` fixo em `GTS_PDFA1` independentemente do nível A1-A4.
+`build_icc_profile_stream(srgb_icc_profile_bytes())` (já importados,
+`builder.rs:130-141`, uso existente em `:1043/1423/1924` para P777) produz
+exatamente a forma do objeto `/DestOutputProfile` medido
+(`<< /N 3 /Range [0 1 0 1 0 1] /Filter /FlateDecode >>`).
+
+### Contrato
+
+1. **Trailer `/ID` (universal)**: `PdfBuilder` ganha campo
+   `xmp_ids: Option<(String, String)>`; `emit_xmp_metadata` grava
+   `self.xmp_ids = Some((instance_id.clone(), document_id.clone()))` ao
+   computar os dois valores. `serialize()` insere
+   `format!(" /ID [ ({inst}) ({doc}) ]")` no trailer quando `Some`, nada
+   quando `None` (defensivo — não acontece nos três `build_*` atuais, que
+   sempre chamam `emit_xmp_metadata` antes de `serialize`). Aplica-se a
+   **todo** export, com ou sem `standard`.
+2. **`pdf:PDFVersion` dinâmico (fluxo contínuo)**: literal `"1.7"`
+   (`:2779`) substituído por `self.standard.version.as_str()`.
+3. **XMP `pdfaid` (gated)**: quando `self.standard.archival` ∈
+   `{A2a,A2b,A2u,A3a,A3b,A3u}`, emitir `<pdfaid:part>{2|3}</pdfaid:part>
+   <pdfaid:conformance>{A|B|U}</pdfaid:conformance>` (letra via helper
+   `pdfaid_letter(PdfArchival) -> &'static str`); quando `A4`, emitir
+   `<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>` (sem
+   `conformance`); caso contrário, nada. O namespace `xmlns:pdfaid` só é
+   declarado quando o elemento não é vazio (único namespace condicional do
+   bloco XMP — os demais são incondicionais).
+4. **`/OutputIntent` (gated ao mesmo conjunto + A4)**: novo método privado
+   `emit_pdfa_output_intent(&mut self)`, chamado nas três variantes
+   `build_*` logo após `emit_info(doc)` e antes de `emit_xmp_metadata(doc)`
+   (mesma posição relativa nas três, preserva alocação de IDs idêntica
+   entre caminhos). Aloca objeto ICC próprio (não reusa o de P777, mesmo
+   quando ambos existem no documento — decisão mecânica, ADR-0107, sem
+   efeito observável para veraPDF) via
+   `build_icc_profile_stream(srgb_icc_profile_bytes())`, e o objeto
+   `/OutputIntent` referenciando-o; edita o catálogo (objeto 1) com
+   `/OutputIntents [{id} 0 R]` via `insert_pdf_dict_entry` (helper já
+   existente, `:3464`, usado por `emit_tag_structure`). `/S` é sempre
+   `/GTS_PDFA1`, nunca varia por nível.
+5. **Supressão de `/Info` (só `A4`)**: `emit_info` retorna cedo (sem
+   alocar nada, `self.info_id` continua `None`) quando
+   `self.standard.archival == Some(PdfArchival::A4)`. Não se aplica a
+   `A4f`/`A4e` (fora do `match`). `serialize()` já omite `/Info` do
+   trailer quando `info_id` é `None` — nenhuma mudança adicional
+   necessária aí.
+
+### Scope-out explícito
+
+`a-1a`/`a-1b`: sempre PDF 1.4 (`min_version == max_version == V1_4`,
+`document_format_options.rs:174-182`); o perfil ICC v4.2 reusado por este
+passo falha a regra 6.2.3.2 em PDF 1.4 (medido, Achado 4.4) — A1 exige um
+segundo perfil ICC v2 (736 bytes) mais `/CIDSet` por fonte subsetada
+(Achado 4.5, toca `fonts.rs`) — passo próprio. `a-4f`/`a-4e`: não medidos
+(exigem ficheiro anexado). `ua-1`: eixo estrutural à parte (`/Lang`,
+tagging, `/MarkInfo /DisplayDocTitle`), maior, já classificado em P1469
+como "candidato a passo(s) separado(s)". Combinação `a-2*`/`a-3*` +
+versão explícita `"1.4"` (fora do default `"1.7"`) pode reproduzir a
+mesma falha de A1 — não medida, registada como limitação aceite, não
+bloqueia este passo.
+
+### Aceitação e gate
+
+Testes cobrem: `/ID` presente e determinístico em qualquer export;
+regressão zero de `pdf:PDFVersion` sem `standard`; `pdfaid` correto para
+os sete archivals do escopo e ausente para os demais (incluindo os
+scope-out, negativamente); `/OutputIntent`/`/OutputIntents` presente só
+nesse mesmo conjunto, com `/S /GTS_PDFA1` fixo; `/Info` ausente só em
+`A4`. Medição final com veraPDF (binário já instalado) nos seis perfis
+A2/A3: zero falhas nas 3 regras nucleares; A4: zero falhas nas 5 regras do
+Achado 1. Este é um dos L0s do gate ADR-0127 de P1475 — a mudança do
+trailer `/ID` universal (item 1) altera o comportamento por defeito de
+**todo** export PDF, não só do caminho opt-in `standard:`; a confirmação
+de P1467-P1469 não cobre esta mudança.
