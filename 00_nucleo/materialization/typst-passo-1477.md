@@ -376,3 +376,16 @@ está fechada: A1a/A1b/A2a/A2b/A2u/A3a/A3b/A3u/A4/A4f/A4e todos 100%
 conformes veraPDF, com e sem anexos. PDF/A-4f/4e sem anexo e PDF/UA-1
 permanecem como eixos não tocados (UA-1 explicitamente fora de escopo
 desde P1469 — "eixo estrutural à parte, maior").
+
+### 7.7 Nota retroativa (2026-09-22, P1479)
+
+O achado `[PARSE]` do `crystalline-lint` que impedia este passo de
+fechar literalmente com `0 erros` (§gates finais medidos acima) foi
+resolvido por `typst-passo-1479.md` — causa-raiz isolada a um
+identificador local (`raw`) na função `p1477_cidset_present_in_font_
+descriptor_and_stream_is_dense_bitset`/`p1477_cidset_present_for_
+multifont_path` (não era tamanho acumulado de `tests.rs`, hipótese
+original refutada). Nenhuma medição, decisão ou contrato deste passo
+foi reaberto ou alterado — só a localização física dos testes mudou
+(de `tests.rs` para `tests/p1477_pdfa_icc_version_and_cidset_tests.rs`)
+e o identificador local foi renomeado.

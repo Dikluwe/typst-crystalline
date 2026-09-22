@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 4aa1d53d
+Hash do Código: b62cd2da
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1765,14 +1765,20 @@ A1/A2/A3/A4 sem anexos: nenhuma árvore vazia nova. `/Names /Dests`
 pré-existente: preservado, `/EmbeddedFiles` acrescentado ao mesmo
 dicionário.
 
-### RED — localização especial
+### RED — localização especial (histórico, resolvido em P1479)
 
-Por causa do achado [PARSE] do `crystalline-lint` em `tests.rs:11146`
-(P1477, tamanho acumulado do ficheiro), os testes de P1478 **não** vão
-para `03_infra/src/export/tests.rs`. Ficam num
+Por causa do achado [PARSE] do `crystalline-lint` em `tests.rs:11146`,
+os testes de P1478 ficaram temporariamente num
 `#[cfg(test)] mod p1478_pdfa4f_empty_embedded_files_tests` dentro do
-próprio `builder.rs`, mesmo owner L0, até uma sanitização dedicada do
-agregador de testes (fora do escopo deste passo).
+próprio `builder.rs`, mesmo owner L0, até a sanitização dedicada do
+agregador de testes. **P1479 resolveu a causa-raiz** (não era tamanho
+de ficheiro — um identificador local `raw` numa função de
+`p1477_pdfa_icc_version_and_cidset_tests`, ver `infra/export/tests/
+p1477_pdfa_icc_version_and_cidset_tests.md` §P1479) e moveu este
+módulo para `03_infra/src/export/tests/p1478_pdfa4f_empty_embedded_
+files_tests.rs`, ao lado dos irmãos `p1475`/`p1476`/`p1477` — já não
+vive em `builder.rs`. Esta subsecção fica como registo histórico da
+decisão original, não como estado atual.
 
 ### Gate ADR-0127
 

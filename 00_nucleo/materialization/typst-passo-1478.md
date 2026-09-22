@@ -1,8 +1,8 @@
 # Passo 1478 — PDF/A-4f sem anexos: `/EmbeddedFiles` vazio e revalidação integral de PDF/A
 
-**Estado:** GREEN — NÃO SELADO (código funcional completo, 16/16 veraPDF,
-regressão zero; bloqueado por achado `[PARSE]` herdado de P1477 em
-`tests.rs:11146`, não agravado por este passo — ver §10)
+**Estado:** MATERIALIZADO (código funcional completo, 16/16 veraPDF,
+regressão zero; achado `[PARSE]` herdado de P1477 resolvido
+retroativamente por `typst-passo-1479.md` — ver §10 e a nota final)
 
 **Data da auditoria:** 2026-09-22T13:59:10-03:00
 
@@ -376,12 +376,19 @@ espaço a um delimitador PDF (`"R>>"`, caso em que a chave procurada é
 a última antes do fecho do dicionário). Corrigido — ver `builder.md`
 §P1478 para o detalhe completo.
 
-### Não selado — o que falta
+### Não selado — o que falta (resolvido em P1479)
 
 A sanitização dedicada do agregador de testes (`03_infra/src/export/
-tests.rs`, achado `[PARSE]` do `crystalline-lint`, origem em P1477,
-tamanho acumulado do ficheiro) é um passo próprio, fora do escopo
-deste. Até essa sanitização, `crystalline-lint .` continuará a
-reportar exit 1 nesta árvore — não é uma regressão de P1478 nem motivo
-para reverter o código funcional GREEN deste passo.
+tests.rs`, achado `[PARSE]` do `crystalline-lint`) era um passo
+próprio, fora do escopo deste — **feita em `typst-passo-1479.md`**.
+Causa-raiz real: um identificador local (`raw`) numa função de
+`p1477_pdfa_icc_version_and_cidset_tests.rs`, não o tamanho acumulado
+do ficheiro (hipótese original aqui registada, refutada por P1479).
+Os 6 testes deste passo mudaram de `builder.rs` para `03_infra/src/
+export/tests/p1478_pdfa4f_empty_embedded_files_tests.rs` (localização
+arquitetural correta, per P1479) — conteúdo bit-exact, três imports
+explícitos acrescentados (mecânico, ver `infra/export/tests/
+p1478_pdfa4f_empty_embedded_files_tests.md`). Nenhuma medição, decisão
+ou contrato deste passo foi reaberto. Estado final: `MATERIALIZADO`
+(selado), não mais `GREEN, NÃO SELADO`.
 
