@@ -167,6 +167,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
         }
         FrameItem::Image {
             data,
+            alt,
             width,
             height,
             intrinsic_width,
@@ -175,6 +176,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             ..
         } => FrameItem::Image {
             pos: Point { x: new_x, y: new_y },
+            alt,
             data,
             width,
             height,

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 29f85a05
+Hash do Código: 6d98a9e6
 
 ## P1339 — causa existente das conversões de Angle
 
@@ -765,3 +765,39 @@ O atributo de `FrameItem::Text` usa uma versão semver válida em `since`; a
 mensagem e o status deprecated permanecem iguais. Esta correção é metadado
 Rust para satisfazer análise estática e não remove a variante, não altera
 fallback, layout, serialização ou API pública da linguagem.
+
+## P1481 — carriers públicos de idioma e semântica PDF/UA (IMPLEMENTADO; confirmado em 2026-09-23)
+
+### Medição anterior à decisão
+
+Na fixture P1480 após P1480, veraPDF 1.30.2 `-f ua1` mede 102 regras
+aprovadas e quatro falhadas; o vanilla pinado passa 106/0. O QDF vanilla
+tem catálogo `/Lang (en)`, nós H1/P/Strong e spans com MCID; o
+`PagedDocument` cristalino não transporta idioma documental, embora
+`TextStyle.lang` transporte idioma local. Na fixture
+`p1481-no-text-fr.typ` (SHA-256
+`8e1b27cf49c91d2edbe132aa69f893bb554bca7141121fe87a544ed219455b38`),
+o vanilla emite `/Lang (fr)` sem nenhum item de texto: inferir a língua
+pelos glifos é refutado. `ImageElem` e `FrameItem::Image` perdem `alt`;
+`StyleDelta.bold_from_strong/italic_from_emph` preserva a origem até
+`TextStyle`, que hoje a descarta.
+
+### Contrato público confirmado em 2026-09-23
+
+- `PagedDocument` ganha `pub document_language: Option<Lang>`.
+  `Some` é o primeiro idioma documental efetivo antes da emissão; `None`
+  preserva ausência de regra e L3 aplica somente o default `en` medido no
+  vanilla para PDF/UA. A escolha não depende de texto pintado nem de
+  `dc:language` fixo. `PagedDocument::new` inicializa `None`.
+- `TextStyle` ganha `pub semantic_strong: bool` e
+  `pub semantic_emph: bool`, default `false`, derivados exclusivamente
+  da proveniência `from_strong/from_emph` da chain. Não são sinônimos de
+  `bold/italic` de render; mudar peso ou inclinação manualmente não cria
+  Strong/Em.
+- `FrameItem::Image` ganha `alt: Option<EcoString>`, com `None`
+  distinto de `Some("")`; o valor atravessa layout/shaping sem afetar
+  geometria ou bytes da imagem.
+
+São campos públicos de L1 e alteram constructors/patterns existentes:
+Gate ADR-0127 satisfeito pela confirmação humana em 2026-09-23. Sem novo modo,
+trait, fase eval/layout ou dispatch dinâmico.

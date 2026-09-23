@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: cd56d3e5
+Hash do Código: cb68fc29
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/figure_image.rs`
@@ -196,3 +196,18 @@ usar o identificador bare `top`/`bottom` (`Value::Align`), não a string;
 o teste de tipo errado tornou-se ele próprio um novo caso RED→GREEN
 (`position: "top"` agora corretamente rejeitado). Suíte: GREEN, zero
 regressão em typst-core (6129/6129 final).
+
+## P1481 — argumento `image(alt:)` (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição bilateral: fixture `p1481-corpus.typ`, SHA-256
+`90475d9f6bd2b6964495861203c480af064b7273c14dc0feb492f79444dbd7d4`,
+vanilla ratificado compila PDF/UA-1 (veraPDF 106/0, 623/0 checks);
+cristalino erra `argumento nomeado inesperado em image(): 'alt'`.
+A fonte vanilla `visualize/image/mod.rs:165-181` define `alt` opcional.
+
+Contrato confirmado: `native_image` aceita `alt: str` ou ausência,
+valida tipo e transporta `Option<EcoString>` à entidade dona. O valor
+não vira texto pintado nem altera tamanho, fit, MIME ou I/O. `alt`
+ausente continua representável para que a pipeline PDF/UA emita o erro
+específico; outros targets preservam comportamento anterior. Mudança do
+campo público da entidade depende do gate ADR-0127.

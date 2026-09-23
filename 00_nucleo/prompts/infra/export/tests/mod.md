@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/tests/mod` — Testes agregadores E2E
-Hash do Código: ac9a7364
+Hash do Código: cccf8fa7
 
 **Camada**: L3 (apoio — testes)
 **Ficheiro alvo**: `03_infra/src/export/tests/mod.rs`
@@ -83,6 +83,22 @@ reativar algum limite de ferramenta, a decisão é nova, não implícita.
   no fim do ficheiro — resolvidos para os ficheiros irmãos em
   `tests/`.
 
+## P1480 — registo do módulo de identificação PDF/UA
+
+O agregador declara `p1480_pdfua_identification_tests`, owner test-only
+individualizado por `infra/export/tests/p1480_pdfua_identification_tests.md`.
+O módulo novo cobre exclusivamente `pdfuaid` e
+`/ViewerPreferences /DisplayDocTitle true`; a validação de título ausente
+permanece nos testes internos de `03_infra/src/pipeline.rs`, owner
+`infra/pipeline.md`. Esta declaração não altera a API nem o comportamento
+produtivo do exporter.
+
+## P1481 — registro do módulo de estrutura PDF/UA-1
+
+O agregador declara `p1481_pdfua_structure_tests`, com owner
+`infra/export/tests/p1481_pdfua_structure_tests.md`. O módulo verifica
+idioma no catálogo/XMP, nó+MCID de texto real e controle não-UA.
+
 ## Interface
 
 Nenhuma — é módulo `#[cfg(test)]` com `#[test]` functions e
@@ -92,8 +108,8 @@ código de produção.
 ## Critérios de verificação
 
 `cargo test -p typst-infra --lib export::tests` deve passar o mesmo
-total de testes de antes da decomposição (230 aqui + os dos quatro
-submódulos por-passo). Falhas indicam regressão em algum cluster L3.
+total de testes de antes da decomposição (230 aqui + os módulos por-passo,
+incluindo os 5 testes de P1480). Falhas indicam regressão em algum cluster L3.
 `crystalline-lint .` deve reportar zero erros, incluindo zero achados
 `[PARSE]` (critério de sucesso primário de P1479).
 

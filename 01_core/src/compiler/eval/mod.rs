@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash f92fcc38
+//! @prompt-hash f6cdcde8
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -3789,9 +3789,17 @@ impl ObservationEq for crate::entities::scope::Capturer {
 }
 impl ObservationEq for crate::entities::elements::image::ImageElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { path: _, data: _, width: _, height: _, fit: _ } = self;
+        let Self {
+            path: _,
+            alt: _,
+            data: _,
+            width: _,
+            height: _,
+            fit: _,
+        } = self;
         ObservationRelation::Same
             .and(self.path.observation_relation(&other.path))
+            .and(self.alt.observation_relation(&other.alt))
             .and(self.data.observation_relation(&other.data))
             .and(self.width.observation_relation(&other.width))
             .and(self.height.observation_relation(&other.height))

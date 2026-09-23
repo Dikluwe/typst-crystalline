@@ -317,6 +317,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     FrameItem::Image {
                         pos,
                         data,
+                        alt,
                         width,
                         height,
                         intrinsic_width,
@@ -325,6 +326,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         ..
                     } => FrameItem::Image {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        alt,
                         data,
                         width,
                         height,

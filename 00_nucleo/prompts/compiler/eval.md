@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 0cb0a264
+Hash do Código: 3bad5018
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -969,3 +969,16 @@ layout/spacing.rs`, `compiler/stdlib/{mod,state,transforms}.rs`,
 neste passo; tratados como consequência mecânica da exaustividade do
 compilador, não decisão de contrato nova (mesmo princípio já usado em
 P1471/P1472 para achados fora do escopo original auditado).
+
+## P1481 — imagem: alt participa da igualdade observacional
+
+Medição: `eval/mod.rs:3790-3801` desestrutura `ImageElem`
+exaustivamente e compara path, data, width, height e fit. Antes de P1481
+não havia `alt`; após sua introdução em `entities/elements/image.md`,
+duas imagens com descrições diferentes não são a mesma observação da
+linguagem, mesmo que os bytes e a geometria coincidam.
+
+Contrato: a implementação `ObservationEq for ImageElem` inclui `alt`
+na comparação, distinguindo `None`, `Some("")` e texto não vazio.
+A ampliação do pattern é consequência mecânica do campo confirmado
+em 2026-09-23 (ADR-0127), sem nova variante de `Content` ou fase.

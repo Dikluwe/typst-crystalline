@@ -1,5 +1,5 @@
 # Prompt L0 — compiler/layout/image — `Content::Image` como bloco com ancoramento vertical
-Hash do Código: 6bad1d60
+Hash do Código: 0b28f0d8
 
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/image.rs`  
@@ -181,3 +181,13 @@ Manter os testes unitários existentes de `calculate_dimensions`. Adicionar test
 - `cargo test --workspace` verde.
 - `crystalline-lint .` zero violações (excepto V7 esperado).
 - Header `@prompt` / `@prompt-hash` actualizado em `image.rs`.
+
+## P1481 — transporte de alt até o frame (IMPLEMENTADO; confirmado em 2026-09-23)
+
+O vanilla preserva `ImageElem.alt` para o nó Figure; o cristalino
+`layout/image.rs` construía `FrameItem::Image` sem esse campo.
+Com os campos L1 confirmados de `entities/elements/image.md` e
+`entities/layout_types.md`, copiar `alt` sem síntese, sem afetar
+dimensões, paginação, rasterização ou render dos outros targets.
+`None` continua distinguível de `Some("")`. Gate ADR-0127
+satisfeito para os campos públicos; este owner não adiciona assinatura pública.

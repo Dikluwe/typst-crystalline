@@ -105,6 +105,7 @@ mod tests {
     fn mock_image() -> ImageElem {
         ImageElem {
             path: "pat.png".into(),
+            alt: None,
             data: PtrEqArc(Arc::new(vec![1, 2, 3])),
             width: None,
             height: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash e77c0741
+//! @prompt-hash 6d1778ee
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -331,6 +331,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Mantido sincronizado com `self.chain` por cada push/pop (Passo 100,
     /// ADR-0039).
     pub(super) style: TextStyle,
+    /// Primeiro idioma efetivo, inclusive sem glifos emitidos.
+    document_language: Option<crate::entities::lang::Lang>,
     /// Cadeia de estilos activa — source-of-truth do estilo (Passo 100,
     /// ADR-0039). `Content::Styled` faz push; o save/restore de Strong/
     /// Emph/Heading/Text também passa por esta cadeia. `self.style` é a
@@ -1066,6 +1068,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // recompõe `style` da chain (11). A inconsistência 12-vs-11 ficava só no
             // espaço-líder de docs non-embrulhados. Derivar da chain unifica em 11.
             style: TextStyle::from(&StyleChain::default_chain()),
+            document_language: None,
             chain: StyleChain::default_chain(),
             page_config: cfg.clone(),
             pages: Vec::new(),
@@ -2180,6 +2183,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let prev_style = self.style.clone();
                 self.chain = self.chain.push_styles(styles);
                 self.style = TextStyle::from(&self.chain);
+                if self.document_language.is_none() {
+                    self.document_language = self.style.lang;
+                }
                 let pdf_label = styles.delta().custom.iter().rev().any(|(key, value)| {
                     key.as_str() == "pdf.marker.tag"
                         && matches!(value, Value::Str(tag) if tag.as_str() == "label")
@@ -2690,6 +2696,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
 
         let mut doc = PagedDocument::new(self.pages);
+        doc.document_language = self.document_language;
         doc.attachments = self.attachments;
         // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
         // P190C (M6 categoria Page tracking): label_pages movido para

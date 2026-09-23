@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: b9d89e5b
+Hash do Código: 5b38a200
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3306,3 +3306,17 @@ mecânica comum já exista.
 Adicionar `Content::MathUndershell(Arc<MathUndershellElem>)`. Nome, debug,
 igualdade, hash, plain-text, filhos e reconstruções preservam identidade e
 presença; nunca inferir a variante de U+23E1.
+
+## P1481 — compatibilidade do constructor de imagem (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição: o constructor público `Content::image(path, data, width,
+height, fit)` em `content.rs:2142-2157` constrói `ImageElem`
+diretamente. A materialização P1481 acrescenta `ImageElem.alt` para
+`image(alt:)`; não há motivo para quebrar essa assinatura pública.
+
+Contrato: manter `Content::image` com os cinco argumentos existentes e
+inicializar `alt: None`. O constructor da stdlib pode formar
+`Content::Image(Arc<ImageElem>)` com `Some(alt)` sem modificar esta
+API. Igualdade e demais operações observam o campo segundo o owner
+`entities/elements/image.md`. O campo público foi confirmado em 2026-09-23
+sob ADR-0127.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash f7f6a8e0
+//! @prompt-hash 27dc5c47
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -172,6 +172,9 @@ pub enum MathSize {
 pub struct TextStyle {
     pub bold: bool,
     pub italic: bool,
+    /// Proveniência semântica P1481, distinta da fonte desenhada.
+    pub semantic_strong: bool,
+    pub semantic_emph: bool,
     pub size: Pt,
     /// Cor de preenchimento — ADR-0038/0039 forward-compat.
     pub fill: Option<Color>,
@@ -464,6 +467,7 @@ pub enum FrameItem {
     Image {
         pos: Point,
         data: Arc<Vec<u8>>,
+        alt: Option<ecow::EcoString>,
         width: Pt,
         height: Pt,
         intrinsic_width: u32,
@@ -936,6 +940,8 @@ impl Frame {
 #[derive(Debug, Clone)]
 pub struct PagedDocument {
     pub pages: Vec<Page>,
+    /// Primeiro idioma efetivo; ausência usa fallback PDF/UA en.
+    pub document_language: Option<crate::entities::lang::Lang>,
     pub attachments: Vec<Arc<PdfAttachElem>>,
     /// Opções de formato resolvidas a partir do conteúdo documental.
     pub format_options: DocumentFormatOptions,
@@ -988,6 +994,7 @@ impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
         Self {
             pages,
+            document_language: None,
             attachments: Vec::new(),
             format_options: DocumentFormatOptions::default(),
             extracted_label_pages: HashMap::new(),

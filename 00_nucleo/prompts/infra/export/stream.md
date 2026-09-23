@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 5904e507
+Hash do Código: a69d11e2
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -551,3 +551,37 @@ Cor, largura, coordenadas e modo verbose/compact permanecem inalterados.
 
 SVG e outros exporters ficam fora do observável deste L0. Mudanças neles são
 permitidas apenas como reparos mecânicos para aceitar/ignorar o novo campo.
+
+## P1481 — marcado integral do conteúdo UA-1 (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição da fixture P1480 após P1480: veraPDF `-f ua1` falha §7.1
+teste 3 em quatro itens de texto; o QDF vanilla envolve cada run em
+`/Span << /MCID n >> BDC ... EMC`, com `/Lang` local quando necessário.
+O stream cristalino atribui MCIDs só a Formula/Lbl/TH/TD e desenha texto
+comum fora de qualquer marcação.
+
+Contrato confirmado: quando standards incluem UA-1 e tags estão habilitadas,
+a pré-passagem e o desenho usam a mesma ordem de itens para marcar todo
+texto real, imagens descritas e conteúdo semântico com MCIDs associados
+ao ParentTree. `SemanticKind::Artifact` continua sem MCID e mantém seus
+operadores `/Artifact`; conteúdo real nunca é convertido em artifact
+para satisfazer o validador. Preserva o idioma local no estilo dos itens; o builder emite `/Lang`
+nos nós acessíveis. Heading/paragraph/Strong/Em/Link vêm dos
+carriers morfológicos confirmados em L1. Com tags desabilitadas ou
+sem UA-1, preservar o caminho de stream vigente. Verbose/Compact
+partilham a mesma relação estrutural.
+Campos públicos confirmados no owner `entities/layout_types.md` em 2026-09-23; não mudar API deste owner.
+
+O agrupamento visual P979 não atravessa folhas com MCID em UA-1:
+cada folha mantém abertura e fechamento BDC/EMC próprios. Em PDF
+comum, P979 continua intacto. Formas geométricas genéricas, linhas
+e preenchimento da página sem conteúdo semântico próprio são
+`/Artifact << /Type /Layout >>`; isto espelha o controle vanilla
+com `rect` e não converte texto real, imagem ou link em artifact.
+O `SemanticKind::Artifact` explícito continua a prevalecer.
+
+Runs textuais usam BDC `/Span` enquanto o papel Hn/P/Strong/Em/Link
+vive na árvore. `ParbreakBoundary` e `ExplicitLinebreakBoundary`
+não pintam texto vazio nem consomem MCID em UA-1; a primeira permanece
+disponível à recomposição de blocos no builder. Fora de UA-1,
+preservar o percurso anterior desses envelopes.

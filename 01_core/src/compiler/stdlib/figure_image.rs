@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/figure_image.md
-//! @prompt-hash 43c09816
+//! @prompt-hash 69b30001
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -217,9 +217,9 @@ pub fn native_image(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> SourceResult<Value> {
-    // Validar named args: "width", "height", "fit" e "page" (P835) são aceites.
+    // P1481: aceita também alt como descrição semântica.
     for key in args.named.keys() {
-        if !matches!(key.as_str(), "width" | "height" | "fit" | "page") {
+        if !matches!(key.as_str(), "width" | "height" | "fit" | "page" | "alt") {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em image(): '{}'", key),
@@ -341,7 +341,21 @@ pub fn native_image(
         )]);
     }
 
-    Ok(Value::Content(Content::image(path, PtrEqArc(data), width, height, fit)))
+    let alt = match args.named.get("alt") {
+        Some(Value::Str(value)) => Some(value.clone()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected string, found {}", vanilla_type_name(other)),
+            )])
+        }
+        None => None,
+    };
+    let mut content = Content::image(path, PtrEqArc(data), width, height, fit);
+    if let Content::Image(image) = &mut content {
+        std::sync::Arc::make_mut(image).alt = alt;
+    }
+    Ok(Value::Content(content))
 }
 
 /// P1473 (Agente B) — contrato RED de `figure.caption` (escopo reduzido:

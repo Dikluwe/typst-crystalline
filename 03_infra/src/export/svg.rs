@@ -2975,6 +2975,7 @@ mod tests {
         clip_rect: Option<typst_core::entities::layout_types::Rect>,
     ) -> FrameItem {
         FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(7.0), y: Pt(11.0) },
             data: std::sync::Arc::new(data.to_vec()),
             width: Pt(6.0),
@@ -3169,6 +3170,7 @@ mod tests {
             .write_to(&mut encoded, RasterFormat::Jpeg)
             .unwrap();
         let item = FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(20.0), y: Pt(20.0) },
             data: std::sync::Arc::new(encoded.into_inner()),
             width: Pt(2.0),

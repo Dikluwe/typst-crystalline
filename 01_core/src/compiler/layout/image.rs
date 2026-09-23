@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout-image.md
-//! @prompt-hash 676a7873
+//! @prompt-hash b51def59
 //! @layer L1
 //! @updated 2026-07-15
 
@@ -254,6 +254,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.regions.current.current_items.push(FrameItem::Image {
         pos,
+        alt: e.alt.clone(),
         data: Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
         width: Pt(dims.width_pt),
         height: Pt(dims.height_pt),

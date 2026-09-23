@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 238c2e11
+Hash do Código: c1b13dd4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -1971,18 +1971,35 @@ confirmado no snapshot krilla isolado (`/ViewerPreferences <<
 validate_pdf_ua1_full_example.txt:305-307`) — confirma que
 `/Direction` é aditivo/opcional, não parte do contrato desta regra.
 
-**Achado de integração (não regressão, gap pré-existente
-independente):** o XMP combinado `a-2u+ua-1` do vanilla também traz
+**Achado de integração retificado durante a execução de P1480
+(2026-09-23):** o XMP combinado `a-2u+ua-1` do vanilla também traz
 `xmpMM:History` (`stEvt:action saved/converted`) e
 `pdfaExtension:schemas`/`pdfaSchema:*`/`pdfaProperty:*` (tabela de
 propriedades PDF/A completa) — confirmado que isto **já** está
 ausente do cristalino em A2u **puro** (sem ua-1), medição direta
 `--pdf-standard a-2u` sozinho também carece de `xmlns:stEvt`/
 `xmpMM:History`/`pdfaExtension:schemas`. Gap pré-existente de
-P1475-1477 (aceito então porque não bloqueava veraPDF PDF/A — são
-propriedades XMP recomendadas, não regras ISO 19005 obrigatórias),
-não causado nem agravado por P1480, fora do escopo desta fatia. Não
-perseguir aqui.
+P1475-1477 e não bloqueia veraPDF PDF/A. Porém a conclusão anterior de
+que P1480 não o agravaria foi **refutada** pela medição combinada
+pós-GREEN: cristalino A2u+UA-1 passou de 146/0 para 144/2 regras PDF/A-2u
+porque o novo `pdfuaid:part` virou propriedade XMP não predefinida e sem
+schema de extensão; vanilla combinado ficou 146/0. Fixture SHA-256
+`93b3d9d54a454cf7d3f86ca780f3d30244759125ea4cb90e95ae300142f547d1`,
+HEAD `e18fd39c4e32e417192f83a6a67dfcc26227af18`, working tree não
+commitada com os ficheiros P1480 listados por `git diff HEAD --stat`;
+cristalino release SHA-256
+`5f47a48baf37736b2b00c2abf3ea4b2e5ebfb8d7660014b3011d8e41203fef19`,
+vanilla SHA-256
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`.
+
+A correção mínima desta regressão entra no escopo: quando **ambos** os
+eixos archival e UA-1 estão ativos, declarar em `pdfaExtension:schemas`
+o schema `PDF/UA Identification schema`, namespace
+`http://www.aiim.org/pdfua/ns/id/`, prefixo `pdfuaid`, e a propriedade
+`part` (`category=internal`, descrição `Part Number of ISO 14289
+(PDF/UA)`, `valueType=Integer`). `xmpMM:History` e as declarações das
+propriedades já predefinidas `xmpMM`/`pdf` continuam fora do escopo:
+veraPDF prova que não são necessárias para fechar as duas regressões.
 
 ### Contrato
 
@@ -1992,11 +2009,22 @@ perseguir aqui.
    exaustivo de 1 variante, `Ua1 => "<pdfuaid:part>1</pdfuaid:part>"`).
    `self.standard.accessibility.map(pdfuaid_body).unwrap_or_default()`.
    Concatenar `{pdfaid_xmlns}{pdfuaid_xmlns}` no `xmlns:pdf=...`
-   existente e `{pdfaid_elem}{pdfuaid_elem}` antes de
-   `<xmpTPg:NPages>` — preserva `pdfaid` coexistindo quando A1-A4 e
-   ua-1 são selecionados juntos (medido acima), nenhum eixo substitui
-   o outro.
-2. Novo método `emit_pdfua_viewer_preferences(&mut self)`, mesmo
+   existente. `{pdfuaid_elem}` ganha posição própria, antes de
+   `<xmpTPg:NPages>` (medida acima, isolada e combinada);
+   `{pdfaid_elem}` **mantém** a posição já provada por P1475-1478
+   (antes de `<pdf:PDFVersion>`, depois de `RenditionClass`) — não
+   remexida, para não arriscar o já medido/testado. ADR-0107: ordem de
+   elementos RDF/XML é mecânica, não semântica; veraPDF não valida
+   adjacência, só presença — as duas posições coexistem sem conflito,
+   nenhum eixo substitui o outro.
+2. Quando `pdfaid_elem` e `pdfuaid_elem` forem ambos não vazios,
+   acrescentar os namespaces `pdfaExtension`, `pdfaSchema` e
+   `pdfaProperty` ao `rdf:Description` e emitir a declaração mínima do
+   schema PDF/UA medida acima antes de `pdfuaid:part`. Fora da
+   interseção PDF/A+PDF/UA, não emitir essa extensão. O objetivo é
+   preservar a conformidade PDF/A já aprovada; não copiar a tabela
+   completa do vanilla nem `xmpMM:History`.
+3. Novo método `emit_pdfua_viewer_preferences(&mut self)`, mesmo
    padrão isolado de `emit_pdfa_output_intent` (early-return se
    `!matches!(self.standard.accessibility, Some(PdfAccessibility::
    Ua1))`); insere `" /ViewerPreferences << /DisplayDocTitle true >>"`
@@ -2004,8 +2032,8 @@ perseguir aqui.
    `emit_tag_structure` (builder.rs:3556-3561). Chamado nos três
    pontos de `build()` (builder.rs:1091-1096/1501-1506/2036-2041),
    logo após `self.emit_tag_structure(doc)`.
-3. Não tratar `/Direction` — fora do escopo (ver medição acima).
-4. Não declarar `ua-1` conforme: os quatro observáveis de P1481
+4. Não tratar `/Direction` — fora do escopo (ver medição acima).
+5. Não declarar `ua-1` conforme: os quatro observáveis de P1481
    continuam RED esperado nesta fixture depois desta fatia.
 
 ### Aceitação e gate
@@ -2017,7 +2045,70 @@ combinado; perfis sem `ua-1` (incluindo A4f/A4e/nenhum standard)
 continuam sem `pdfuaid`/`ViewerPreferences` (controlo de não-regressão
 — nenhum PDF não-UA ganha `/ViewerPreferences` novo). veraPDF `-f ua1`
 na fixture deixa de reportar `5/1` e `7.1/10`; as outras quatro regras
-continuam RED esperado (P1481). Fluxo contínuo após este L0 (correção
+continuam RED esperado (P1481). Na combinação A2u+UA-1, veraPDF `-f 2u`
+volta de 144/2 para 146/0, sem esconder a declaração `pdfuaid`; UA-1
+isolado e PDF/A isolado não ganham `pdfaExtension` por esta fatia.
+Fluxo contínuo após este L0 (correção
 de paridade interna, ADR-0127 já satisfeito pela confirmação humana
 registrada em `typst-passo-1480.md` §0 — o achado que EXCEDIA o
 contrato original foi o de `pipeline.md`, não este).
+
+## P1481 — idioma e árvore semântica PDF/UA-1 (IMPLEMENTADO; confirmado em 2026-09-23)
+
+### Medição anterior à decisão
+
+Após P1480, a fixture pinada mede 102/4 regras e 172/10 checks no
+veraPDF 1.30.2 `-f ua1`; vanilla mede 106/0. Restam §7.2 testes
+2/33/34 (idioma de outline/metadados/texto) e §7.1 teste 3
+(conteúdo sem marcação). No QDF vanilla há catálogo `/Lang (en)`,
+H1/P/Strong na árvore, spans com MCIDs e `/Lang` local; o
+`/Outlines` herda o idioma do catálogo. O corpus adicional
+`p1481-corpus.typ` mede H1, H2, P, Strong, Em, Link, Figure com
+`/Alt`, Artifact e overrides `/Lang (fr)`; vanilla passa
+106/0 regras, 623/0 checks. O cristalino não compila o corpus por
+`image(alt:)`.
+
+### Contrato confirmado em 2026-09-23
+
+Sob UA-1, emitir `/Lang` no catálogo a partir de
+`PagedDocument.document_language`, com default `en` somente
+quando o carrier estiver ausente, conforme o vanilla medido. XMP
+`dc:language` usa o mesmo valor, nunca `en` fixo para documento
+francês. O idioma do outline e do título XMP deve ser determinável
+por herança do catálogo; idiomas locais de texto não sobrescrevem
+a língua documental.
+
+A pré-passagem e o stream partilham ordem e MCIDs. A árvore contém
+papéis H1/H2, P, Strong, Em, Link, Figure e spans de texto conforme a
+morfologia dos carriers; imagens com descrição recebem `/Alt` sem
+transformar bytes da imagem. Textos sem carrier semântico mais específico
+continuam conteúdo real marcado. Artifact mantém exclusão da árvore.
+ParentTree e `StructParents` ligam cada MCID à página/estrutura válida.
+Heading não é inferido de tamanho/bold, Strong/Em não são inferidos de
+aparência, e texto real não recebe Artifact por conveniência.
+
+Os PDFs comuns mantêm o gate de `PdfTags`; A2u+UA1 continua conforme
+PDF/A. Conformidade declarada só após fixture e corpus bilateral
+aprovados. Este owner depende dos campos públicos L1 e do diagnóstico
+de alt ausente, confirmados pelo dono em 2026-09-23 sob ADR-0127.
+
+### Relações adicionais medidas no corpus
+
+`Strong` e `Em` são tipos não padrão do PDF 1.7 e terminam no
+`/RoleMap` em `/Span`. Cada annotation de `Link` expõe `/Contents`,
+`/StructParent` e um `/OBJR` no nó `/Link`; o ParentTree mapeia tanto
+MCIDs de página quanto chaves de annotations, e páginas com links usam
+`/Tabs /S`. A descrição do link vem do destino (URL ou label), sem
+substituir o texto visível. Estes vínculos são exclusivos de UA-1;
+PDF comum tagged/untagged conserva sua representação anterior.
+
+Quando o primeiro trecho local fixa o catálogo em `fr`, texto posterior
+sem regra local conserva o idioma padrão `en` no seu nó acessível. O
+catálogo não converte retroativamente os trechos seguintes em francês.
+
+Cada heading físico é uma única unidade H1–H6 e cada parágrafo é uma
+única unidade P, ainda que o layout os divida em vários runs de texto.
+`ParbreakBoundary` delimita o P; os runs são filhos Span ligados por
+MCID, Strong/Em/Link mantêm seus papéis dentro do P. A boundary não
+vira nó nem conteúdo vazio acessível. A cardinalidade H1/H2/P no corpus
+de duas páginas coincide com o vanilla, sem impor igualdade de MCIDs.

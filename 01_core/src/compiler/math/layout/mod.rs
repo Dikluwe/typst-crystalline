@@ -468,6 +468,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
         FrameItem::Image {
             pos,
             data,
+            alt,
             width,
             height,
             intrinsic_width,
@@ -480,6 +481,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 y: Pt(pos.y.val() + dy.val()),
             },
             data,
+            alt,
             width,
             height,
             intrinsic_width,

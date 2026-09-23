@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text.md
-//! @prompt-hash 5eeef010
+//! @prompt-hash cec1c6fe
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -158,6 +158,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let mut effective = TextStyle {
         bold: ns_bold || layouter.style.bold,
         italic: ns_italic || ns_style_italic || layouter.style.italic,
+        semantic_strong: layouter.style.semantic_strong,
+        semantic_emph: layouter.style.semantic_emph,
         size: layouter.style.size,
         fill: layouter.style.fill.or(ns_fill),
         heading_level: layouter.style.heading_level,

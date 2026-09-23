@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 0195ab89
+//! @prompt-hash 0dd666aa
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -756,9 +756,12 @@ fn delta_custom<'a>(delta: &'a StyleDelta, key: &str) -> Option<&'a Value> {
 /// emite um `FrameItem::Text`.
 impl From<&StyleChain> for TextStyle {
     fn from(chain: &StyleChain) -> Self {
+        let semantic = chain.collapse();
         TextStyle {
             bold: chain.bold(),
             italic: chain.italic(),
+            semantic_strong: semantic.bold_from_strong == Some(true),
+            semantic_emph: semantic.italic_from_emph == Some(true),
             size: Pt(chain.size()),
             fill: chain.fill(),
             heading_level: chain.heading_level(),

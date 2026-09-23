@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 40b09b68
+//! @prompt-hash 171cf391
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -2148,6 +2148,7 @@ impl Content {
     ) -> Self {
         Self::Image(Arc::new(ImageElem {
             path: path.into(),
+            alt: None,
             data,
             width,
             height,

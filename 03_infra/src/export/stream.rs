@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 29fd0db1
+//! @prompt-hash 3be0dc7a
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -101,6 +101,8 @@ pub(crate) struct PageContext<'a> {
     /// **P1140.6** — tagging e MCIDs pela identidade de cada envelope.
     pub tags: PdfTags,
     pub semantic_mcids: HashMap<usize, usize>,
+    /// P1481: marca folhas reais somente no perfil PDF/UA-1.
+    pub ua1: bool,
     /// **P980/P983** — caminho do oráculo de paridade de operador
     /// (`--oracle-pdf`; `prompts/infra/export/oracle.md`). Quando activo,
     /// itens `style.math` não participam no agrupamento de runs de P979
@@ -126,6 +128,7 @@ impl<'a> PageContext<'a> {
             mode,
             tags: PdfTags::Disabled,
             semantic_mcids: HashMap::new(),
+            ua1: false,
             oracle: false,
         }
     }
@@ -136,17 +139,23 @@ impl<'a> PageContext<'a> {
         self
     }
 
-    pub(crate) fn with_pdf_tags(mut self, tags: PdfTags, page: &Page) -> Self {
+    pub(crate) fn with_pdf_tags(mut self, tags: PdfTags, page: &Page, ua1: bool) -> Self {
         self.tags = tags;
+        self.ua1 = ua1;
         if tags == PdfTags::Enabled {
             fn collect(
                 item: &FrameItem,
                 next: &mut usize,
                 out: &mut HashMap<usize, usize>,
                 inside_artifact: bool,
+                ua1: bool,
             ) {
                 match item {
                     FrameItem::Semantic { kind, items, .. } => {
+                        if ua1 && matches!(kind,
+                            typst_core::entities::layout_types::SemanticKind::ParbreakBoundary
+                            | typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
+                        ) { return; }
                         let is_artifact = matches!(
                             kind,
                             typst_core::entities::layout_types::SemanticKind::Artifact(_)
@@ -161,22 +170,40 @@ impl<'a> PageContext<'a> {
                         if !inside_artifact && owns_mcid {
                             out.insert(item as *const FrameItem as usize, *next);
                             *next += 1;
+                            if ua1 {
+                                return;
+                            }
                         }
                         for child in items {
-                            collect(child, next, out, inside_artifact || is_artifact);
+                            collect(
+                                child,
+                                next,
+                                out,
+                                inside_artifact || is_artifact,
+                                ua1,
+                            );
                         }
                     }
                     FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                         for child in items {
-                            collect(child, next, out, inside_artifact);
+                            collect(child, next, out, inside_artifact, ua1);
                         }
+                    }
+                    FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                        if ua1 && !inside_artifact =>
+                    {
+                        out.insert(item as *const FrameItem as usize, *next);
+                        *next += 1;
                     }
                     _ => {}
                 }
             }
             let mut next = 0;
             for item in &page.items {
-                collect(item, &mut next, &mut self.semantic_mcids, false);
+                collect(item, &mut next, &mut self.semantic_mcids, false, ua1);
             }
         }
         self
@@ -207,6 +234,7 @@ impl<'a> PageContext<'a> {
             mode,
             tags: PdfTags::Disabled,
             semantic_mcids: HashMap::new(),
+            ua1: false,
             oracle: false,
         }
     }
@@ -242,6 +270,7 @@ impl<'a> PageContext<'a> {
             mode,
             tags: PdfTags::Disabled,
             semantic_mcids: HashMap::new(),
+            ua1: false,
             oracle: false,
         }
     }
@@ -964,12 +993,18 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     let page_height = page.height;
 
     if let typst_core::entities::page_canvas::PageFill::Paint(paint) = &page.fill {
+        if ctx.ua1 {
+            ops.push_str("/Artifact << /Type /Layout >> BDC\n");
+        }
         let (r, g, b, _) = paint.to_color().to_rgba_f32();
         ops.push_str(&format!(
             "{r:.5} {g:.5} {b:.5} rg\n0 0 {:.5} {:.5} re f\n",
             page.canvas_width(),
             page.canvas_height(),
         ));
+        if ctx.ua1 {
+            ops.push_str("EMC\n");
+        }
     }
     if !page.bleed.is_zero() {
         ops.push_str(&format!(
@@ -982,7 +1017,8 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     // `TextShaped` consecutivos com o mesmo envelope e a mesma baseline
     // fundem-se num só `BT…ET` (paridade vanilla: um bloco por linha de
     // estilo uniforme — `stream.md` §P979).
-    let verbose = matches!(ctx.mode, StreamMode::Verbose);
+    // Cada folha UA1 conserva o próprio MCID; o agrupamento P979 não o atravessa.
+    let verbose = matches!(ctx.mode, StreamMode::Verbose) && !ctx.ua1;
     emit_page_items(&mut ops, &page.background, page_height, ctx, verbose);
     emit_page_items(&mut ops, &page.items, page_height, ctx, verbose);
     emit_page_items(&mut ops, &page.foreground, page_height, ctx, verbose);
@@ -1253,6 +1289,21 @@ fn semantic_opening(
         | SemanticKind::ParbreakBoundary => None,
     }
 }
+/// P1481: o role do stream corresponde ao leaf no StructTreeRoot.
+fn ua1_leaf_opening(item: &FrameItem, ctx: &PageContext) -> Option<String> {
+    if !ctx.ua1 {
+        return None;
+    }
+    let mcid = ctx.semantic_mcids.get(&(item as *const FrameItem as usize))?;
+    let role = match item {
+        FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::Glyph { .. } => "Span",
+        FrameItem::Image { .. } => "Figure",
+        _ => return None,
+    };
+    Some(format!("/{role} << /MCID {mcid} >> BDC\n"))
+}
 
 /// **P788** — emissão top-level (com flip Y-down→PDF: `page_height - pos.y`)
 /// de UM `FrameItem`, extraída de `build_page_stream` para que filhos de
@@ -1270,6 +1321,15 @@ fn draw_item_top(
     ctx: &PageContext,
 ) -> String {
     use typst_core::entities::geometry::ShapeKind;
+    let ua1_opening = ua1_leaf_opening(item, ctx);
+    let ua1_decoration =
+        ctx.ua1 && matches!(item, FrameItem::Shape { .. } | FrameItem::Line { .. });
+    if let Some(opening) = &ua1_opening {
+        ops.push_str(opening);
+    }
+    if ua1_decoration {
+        ops.push_str("/Artifact << /Type /Layout >> BDC\n");
+    }
     match item {
         // P483 — path primário: glifos com shaping real.
         // **P956** — dispatch por modo: Compact = formato Passo 20
@@ -1370,6 +1430,7 @@ fn draw_item_top(
             intrinsic_height,
             clip_rect,
             orientation,
+            ..
         } => {
             let ptr = Arc::as_ptr(data) as usize;
             if let Some(&idx) = ctx.ptr_to_idx.get(&ptr) {
@@ -1606,6 +1667,10 @@ fn draw_item_top(
             }
         }
         FrameItem::Semantic { kind, items, .. } => {
+            if ctx.ua1 && matches!(kind,
+                typst_core::entities::layout_types::SemanticKind::ParbreakBoundary
+                | typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
+            ) { return ops; }
             let opening = semantic_opening(item, *kind, ctx);
             if let Some(ref opening) = opening {
                 ops.push_str(&opening);
@@ -1617,6 +1682,9 @@ fn draw_item_top(
                 ops.push_str("EMC\n");
             }
         }
+    }
+    if ua1_opening.is_some() || ua1_decoration {
+        ops.push_str("EMC\n");
     }
     ops
 }
@@ -1813,6 +1881,15 @@ pub(super) fn draw_item_local(
 ) {
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    let ua1_opening = ua1_leaf_opening(item, ctx);
+    let ua1_decoration =
+        ctx.ua1 && matches!(item, FrameItem::Shape { .. } | FrameItem::Line { .. });
+    if let Some(opening) = &ua1_opening {
+        ops.push_str(opening);
+    }
+    if ua1_decoration {
+        ops.push_str("/Artifact << /Type /Layout >> BDC\n");
+    }
     match item {
         FrameItem::Shape {
             pos,
@@ -2091,6 +2168,10 @@ pub(super) fn draw_item_local(
             }
         }
         FrameItem::Semantic { kind, items, .. } => {
+            if ctx.ua1 && matches!(kind,
+                typst_core::entities::layout_types::SemanticKind::ParbreakBoundary
+                | typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
+            ) { return; }
             let opening = semantic_opening(item, *kind, ctx);
             if let Some(ref opening) = opening {
                 ops.push_str(&opening);
@@ -2102,6 +2183,9 @@ pub(super) fn draw_item_local(
                 ops.push_str("EMC\n");
             }
         }
+    }
+    if ua1_opening.is_some() || ua1_decoration {
+        ops.push_str("EMC\n");
     }
 }
 

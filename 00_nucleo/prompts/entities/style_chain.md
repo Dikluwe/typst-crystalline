@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 03ed7777
+Hash do Código: 05b5c3d6
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -237,3 +237,17 @@ Todos os demais campos continuam resolvidos da cadeia. O bit não entra em
 `StyleChain` não expõe identidade de alocação ou método condicionado por
 `p1339_observation`. Estrutura persistente, defaults, `Arc`, clonagem O(1),
 resolução e APIs produtivas permanecem independentes de telemetria.
+
+## P1481 — origem morfológica no TextStyle (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição: `StyleDelta.bold_from_strong` e `italic_from_emph` já distinguem
+`*strong*`/`_emph_` de `#set text(bold/italic: true)`; o
+`From<&StyleChain> for TextStyle` atual copia somente bold/italic. O
+vanilla QDF do corpus P1481 contém nós `/S /Strong` e `/S /Em`.
+
+Contrato confirmado: resolver os dois bits de proveniência na conversão
+única para `TextStyle.semantic_strong/semantic_emph` usando a regra
+top-wins da chain e valor falso por default. A resolução não altera
+bold/italic de render. Não criar semântica a partir do peso ou aparência.
+Os campos públicos são definidos pelo owner `entities/layout_types.md`
+e foram confirmados em 2026-09-23 sob ADR-0127.

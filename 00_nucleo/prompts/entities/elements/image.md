@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/image` — `ImageElem`
-Hash do Código: a86dc4d0
+Hash do Código: 86a604a1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/image.rs`
 **Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
@@ -45,3 +45,19 @@ Construtor ergonómico: `Content::image(path, data, width, height, fit)`.
 
 `#[derive(PartialEq)]` compara `path + data + width + height` (paridade
 `content.rs:1896`; `data` via `PtrEqArc` ptr_eq).
+
+## P1481 — descrição alternativa de imagem (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição: `lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:
+165-181` define `alt: Option<EcoString>`. O corpus P1481 com
+`image("tiny.jpg", alt: "A small test image")` compila no vanilla
+pinado e passa 106/0 regras PDF/UA-1; o cristalino rejeita `alt` como
+argumento inesperado. Sem `alt`, o vanilla produz erro `PDF/UA-1 error:
+missing alt text`. `ImageElem` cristalino não guarda o valor.
+
+Contrato público confirmado: acrescentar `pub alt: Option<EcoString>` a
+`ImageElem` e preservar `None` versus `Some("")` da linguagem. O
+constructor `Content::image` existente mantém assinatura e cria `None`;
+o constructor da stdlib pode construir a entidade com `Some` sem nova
+assinatura pública. Igualdade/hash incluem a descrição, que é conteúdo
+semântico. Gate ADR-0127 satisfeito em 2026-09-23.

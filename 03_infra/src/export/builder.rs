@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 4a60b12c
+//! @prompt-hash cc42eaad
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -113,7 +113,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
 use typst_core::entities::document_format_options::{
-    PageRanges, PdfArchival, PdfStandards,
+    PageRanges, PdfAccessibility, PdfArchival, PdfStandards,
 };
 use typst_core::entities::elements::pdf_attach::AttachedFileRelationship;
 use typst_core::entities::font_book::FontVariant;
@@ -779,6 +779,8 @@ pub(super) struct PdfBuilder {
     serialization: PdfSerializationMode,
     /// **P1140.6** — estrutura lógica PDF, ortogonal a `stream_mode`.
     pdf_tags: super::PdfTags,
+    /// P1481: annotation id e StructParent key por página física.
+    ua1_link_annots: Vec<Vec<(usize, usize)>>,
     /// **P980** — modo oráculo de paridade de operador (diagnóstico;
     /// flag `--oracle-pdf`). Aplica as transformações de
     /// `export/oracle.rs` aos content streams. `false` no caminho normal.
@@ -808,6 +810,7 @@ impl PdfBuilder {
             stream_mode: StreamMode::default(),
             serialization: PdfSerializationMode::default(),
             pdf_tags: super::PdfTags::default(),
+            ua1_link_annots: Vec::new(),
             oracle: false,
             pages: None,
             standard: PdfStandards::default(),
@@ -1041,7 +1044,11 @@ impl PdfBuilder {
                 &pat_refs,
                 self.stream_mode,
             )
-            .with_pdf_tags(self.pdf_tags, page)
+            .with_pdf_tags(
+                self.pdf_tags,
+                page,
+                matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+            )
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1094,6 +1101,7 @@ impl PdfBuilder {
         self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
+        self.emit_pdfua_viewer_preferences();
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1350,7 +1358,11 @@ impl PdfBuilder {
                 if bitmap_only { Some(&bitmap_refs) } else { None },
                 self.stream_mode,
             )
-            .with_pdf_tags(self.pdf_tags, page)
+            .with_pdf_tags(
+                self.pdf_tags,
+                page,
+                matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+            )
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1504,6 +1516,7 @@ impl PdfBuilder {
         self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
+        self.emit_pdfua_viewer_preferences();
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1874,7 +1887,11 @@ impl PdfBuilder {
                 &per_font_bitmap,
                 self.stream_mode,
             )
-            .with_pdf_tags(self.pdf_tags, page)
+            .with_pdf_tags(
+                self.pdf_tags,
+                page,
+                matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+            )
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -2039,6 +2056,7 @@ impl PdfBuilder {
         self.emit_pdfa_output_intent();
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
+        self.emit_pdfua_viewer_preferences();
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -2327,6 +2345,9 @@ impl PdfBuilder {
         let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
 
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let ua1 = matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1));
+        let mut link_key = doc.pages.len();
+        self.ua1_link_annots = vec![Vec::new(); doc.pages.len()];
 
         // Coletar links por página (coordenadas globais de página).
         let mut per_page: Vec<Vec<(LinkTarget, Point, Size)>> =
@@ -2359,6 +2380,14 @@ impl PdfBuilder {
 
                 let annot_id = next_id;
                 next_id += 1;
+                let struct_parent = if ua1 {
+                    let key = link_key;
+                    link_key += 1;
+                    self.ua1_link_annots[page_idx].push((annot_id, key));
+                    Some(key)
+                } else {
+                    None
+                };
 
                 let x0 = pos.x.val();
                 let y0 = page_h - pos.y.val() - size.height.val();
@@ -2376,13 +2405,25 @@ impl PdfBuilder {
                     }
                 };
 
+                let ua1_entries = struct_parent
+                    .map(|key| {
+                        let description = match target {
+                            LinkTarget::Url(url) => url.as_str(),
+                            LinkTarget::Destination(label) => label.0.as_str(),
+                        };
+                        format!(
+                            " /Contents {} /StructParent {key} /F 4",
+                            escape_pdf_literal(description)
+                        )
+                    })
+                    .unwrap_or_default();
                 self.add(
                     annot_id,
                     format!(
                         "<< /Type /Annot /Subtype /Link \
                        /Rect [{x0:.2} {y0:.2} {x1:.2} {y1:.2}] \
                        /Border [0 0 0] \
-                       /A {action} >>"
+                       /A {action}{ua1_entries} >>"
                     ),
                 );
                 page_annotation_ids[new_idx].push(annot_id);
@@ -2405,6 +2446,9 @@ impl PdfBuilder {
                 if let Some(idx) = s.rfind(">>") {
                     let mut new = s[..idx].to_string();
                     new.push_str(&format!(" /Annots [{refs}]"));
+                    if ua1 {
+                        new.push_str(" /Tabs /S");
+                    }
                     new.push_str(&s[idx..]);
                     *content = new.into_bytes();
                 }
@@ -2922,6 +2966,11 @@ impl PdfBuilder {
     /// XMP mínimo, referenciado a partir de `/Metadata` no catálogo. Sempre
     /// emitido, mesmo quando `document_info` está vazio.
     fn emit_xmp_metadata(&mut self, doc: &PagedDocument) {
+        let language = doc
+            .document_language
+            .unwrap_or(typst_core::entities::lang::Lang::ENGLISH)
+            .as_str()
+            .to_owned();
         let now = current_pdf_timestamp();
         let xmp_date = format!(
             "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
@@ -2997,6 +3046,36 @@ impl PdfBuilder {
             " xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\"".to_string()
         };
 
+        // **P1480** — `pdfuaid` identifica a conformidade PDF/UA-1 (ISO
+        // 14289-1), eixo independente de `pdfaid`; ambos coexistem quando
+        // archival e accessibility são selecionados juntos (medido em
+        // typst-passo-1480.md §1, `--pdf-standard a-2u --pdf-standard
+        // ua-1`). Só `part` (sem `rev`/`conformance` — ISO 14289-1 não tem
+        // esse eixo). Mesmo padrão isolado-do-`Option` de `pdfaid_body`
+        // (evita V16).
+        let pdfuaid_elem =
+            self.standard.accessibility.map(pdfuaid_body).unwrap_or_default();
+        let pdfuaid_xmlns = if pdfuaid_elem.is_empty() {
+            String::new()
+        } else {
+            " xmlns:pdfuaid=\"http://www.aiim.org/pdfua/ns/id/\"".to_string()
+        };
+
+        // **P1480** — numa interseção PDF/A+PDF/UA, `pdfuaid:part` é uma
+        // propriedade XMP não predefinida e precisa do schema de extensão.
+        let pdfua_extension = !pdfaid_elem.is_empty() && !pdfuaid_elem.is_empty();
+        let pdfua_extension_xmlns = if pdfua_extension {
+            concat!(
+                " xmlns:pdfaExtension=\"http://www.aiim.org/pdfa/ns/extension/\"",
+                " xmlns:pdfaSchema=\"http://www.aiim.org/pdfa/ns/schema#\"",
+                " xmlns:pdfaProperty=\"http://www.aiim.org/pdfa/ns/property#\""
+            )
+        } else {
+            ""
+        };
+        let pdfua_extension_elem =
+            if pdfua_extension { pdfua_extension_schema() } else { "" };
+
         // Estrutura exacta do vanilla (krilla + xmp-writer), sem quebras de
         // linha entre elementos, para manter a mesma forma do pacote XMP.
         let xml = format!(
@@ -3007,14 +3086,16 @@ impl PdfBuilder {
              xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" \
              xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\" \
              xmlns:xmpTPg=\"http://ns.adobe.com/xap/1.0/t/pg/\" \
-             xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"{pdfaid_xmlns}>\
+             xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"{pdfaid_xmlns}{pdfuaid_xmlns}{pdfua_extension_xmlns}>\
              {title}\
              {keywords}\
              {creator}\
              <xmp:CreatorTool>typst-crystalline</xmp:CreatorTool>\
-             <dc:language><rdf:Bag><rdf:li>en</rdf:li></rdf:Bag></dc:language>\
+             <dc:language><rdf:Bag><rdf:li>{language}</rdf:li></rdf:Bag></dc:language>\
              <xmp:ModifyDate>{date}</xmp:ModifyDate>\
              <xmp:CreateDate>{date}</xmp:CreateDate>\
+             {pdfua_extension_elem}\
+             {pdfuaid_elem}\
              <xmpTPg:NPages>{n_pages}</xmpTPg:NPages>\
              <dc:format>application/pdf</dc:format>\
              <xmpMM:InstanceID>{instance_id}</xmpMM:InstanceID>\
@@ -3027,11 +3108,16 @@ impl PdfBuilder {
             keywords = keywords_elem,
             creator = creator_elem,
             date = xmp_date,
+            language = language,
             n_pages = n_pages,
             instance_id = instance_id,
             document_id = document_id,
             pdfaid_xmlns = pdfaid_xmlns,
+            pdfuaid_xmlns = pdfuaid_xmlns,
+            pdfua_extension_xmlns = pdfua_extension_xmlns,
             pdfaid_elem = pdfaid_elem,
+            pdfuaid_elem = pdfuaid_elem,
+            pdfua_extension_elem = pdfua_extension_elem,
             pdf_version = self.standard.version.as_str(),
         );
 
@@ -3053,6 +3139,11 @@ impl PdfBuilder {
                 new.push_str(&format!(" /Metadata {next_id} 0 R"));
                 new.push_str(&s[idx..]);
                 *content = new.into_bytes();
+            }
+        }
+        if matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)) {
+            if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+                insert_pdf_dict_entry(catalog, &format!(" /Lang ({language})"));
             }
         }
     }
@@ -3092,6 +3183,7 @@ impl PdfBuilder {
             page_index: Option<usize>,
             mcid: Option<usize>,
             alt: Option<String>,
+            lang: Option<String>,
             summary: Option<String>,
             attrs: TagAttrs,
             children: Vec<TagNode>,
@@ -3113,6 +3205,7 @@ impl PdfBuilder {
                 page_index: None,
                 mcid: None,
                 alt: None,
+                lang: None,
                 summary: None,
                 attrs: TagAttrs::None,
                 children: items
@@ -3131,6 +3224,7 @@ impl PdfBuilder {
                         page_index: Some(page_index),
                         mcid: Some(mcid),
                         alt: alt.as_ref().map(ToString::to_string),
+                        lang: None,
                         summary: None,
                         attrs: TagAttrs::None,
                         children: vec![],
@@ -3146,6 +3240,7 @@ impl PdfBuilder {
                         page_index: Some(page_index),
                         mcid: Some(mcid),
                         alt: None,
+                        lang: None,
                         summary: None,
                         attrs: TagAttrs::None,
                         children: vec![],
@@ -3183,6 +3278,7 @@ impl PdfBuilder {
                         page_index: Some(page_index),
                         mcid: Some(mcid),
                         alt: None,
+                        lang: None,
                         summary: None,
                         attrs: TagAttrs::Header {
                             table_id,
@@ -3212,6 +3308,7 @@ impl PdfBuilder {
                         page_index: Some(page_index),
                         mcid: Some(mcid),
                         alt: None,
+                        lang: None,
                         summary: None,
                         attrs: TagAttrs::Data { table_id, row, column, rowspan, colspan },
                         children: vec![],
@@ -3223,15 +3320,86 @@ impl PdfBuilder {
             }
         }
 
+        fn ua1_leaf_node(
+            item: &FrameItem,
+            page_index: usize,
+            next: &mut usize,
+        ) -> Option<TagNode> {
+            let (role, alt, lang) = match item {
+                FrameItem::Text { style, .. }
+                | FrameItem::TextShaped { style, .. }
+                | FrameItem::Glyph { style, .. } => {
+                    let role = match style.heading_level {
+                        Some(1) => "H1",
+                        Some(2) => "H2",
+                        Some(3) => "H3",
+                        Some(4) => "H4",
+                        Some(5) => "H5",
+                        Some(_) => "H6",
+                        None if style.semantic_strong => "Strong",
+                        None if style.semantic_emph => "Em",
+                        None => "P",
+                    };
+                    // O texto padrão continua en se o catálogo herdou fr
+                    // do primeiro trecho local.
+                    (
+                        role,
+                        None,
+                        Some(
+                            style
+                                .lang
+                                .unwrap_or(typst_core::entities::lang::Lang::ENGLISH)
+                                .as_str()
+                                .to_owned(),
+                        ),
+                    )
+                }
+                FrameItem::Image { alt, .. } => {
+                    ("Figure", alt.as_ref().map(ToString::to_string), None)
+                }
+                _ => return None,
+            };
+            let mcid = *next;
+            *next += 1;
+            Some(TagNode {
+                role,
+                object_id: 0,
+                table_id: None,
+                page_index: Some(page_index),
+                mcid: Some(mcid),
+                alt,
+                lang,
+                summary: None,
+                attrs: TagAttrs::None,
+                children: vec![],
+            })
+        }
+
         fn collect_top(
             item: &FrameItem,
             page_index: usize,
             next: &mut usize,
             out: &mut Vec<TagNode>,
             inside_artifact: bool,
+            ua1: bool,
         ) {
             match item {
                 FrameItem::Semantic { kind, items, .. } => {
+                    if ua1 && !inside_artifact {
+                        match kind {
+                            typst_core::entities::layout_types::SemanticKind::ParbreakBoundary => {
+                                out.push(TagNode {
+                                    role: "Boundary", object_id: 0, table_id: None,
+                                    page_index: Some(page_index), mcid: None, alt: None,
+                                    lang: None, summary: None, attrs: TagAttrs::None,
+                                    children: vec![],
+                                });
+                                return;
+                            }
+                            typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary => return,
+                            _ => {}
+                        }
+                    }
                     let artifact = matches!(
                         kind,
                         typst_core::entities::layout_types::SemanticKind::Artifact(_)
@@ -3249,12 +3417,38 @@ impl PdfBuilder {
                             next,
                             out,
                             inside_artifact || artifact,
+                            ua1,
                         );
+                    }
+                }
+                FrameItem::Link { items, .. } if ua1 && !inside_artifact => {
+                    let mut children = Vec::new();
+                    for child in items {
+                        collect_top(child, page_index, next, &mut children, false, ua1);
+                    }
+                    if !children.is_empty() {
+                        out.push(TagNode {
+                            role: "Link",
+                            object_id: 0,
+                            table_id: None,
+                            page_index: Some(page_index),
+                            mcid: None,
+                            alt: None,
+                            lang: None,
+                            summary: None,
+                            attrs: TagAttrs::None,
+                            children,
+                        });
                     }
                 }
                 FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                     for child in items {
-                        collect_top(child, page_index, next, out, inside_artifact);
+                        collect_top(child, page_index, next, out, inside_artifact, ua1);
+                    }
+                }
+                _ if ua1 && !inside_artifact => {
+                    if let Some(node) = ua1_leaf_node(item, page_index, next) {
+                        out.push(node);
                     }
                 }
                 _ => {}
@@ -3293,7 +3487,14 @@ impl PdfBuilder {
             let mut next = 0;
             for item in &page.items {
                 let mut found = Vec::new();
-                collect_top(item, page_index, &mut next, &mut found, false);
+                collect_top(
+                    item,
+                    page_index,
+                    &mut next,
+                    &mut found,
+                    false,
+                    matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+                );
                 for node in found {
                     if node.role == "Table" {
                         if let Some(existing) = tags.iter_mut().find(|candidate| {
@@ -3309,6 +3510,75 @@ impl PdfBuilder {
                     }
                 }
             }
+        }
+
+        // P1481: runs de layout não são headings/parágrafos distintos.
+        // ParbreakBoundary delimita a unidade morfológica da linguagem.
+        fn group_ua1_blocks(nodes: Vec<TagNode>) -> Vec<TagNode> {
+            fn as_span(node: &mut TagNode) {
+                if matches!(node.role, "P" | "H1" | "H2" | "H3" | "H4" | "H5" | "H6") {
+                    node.role = "Span";
+                }
+                for child in &mut node.children {
+                    as_span(child);
+                }
+            }
+            fn flush(
+                out: &mut Vec<TagNode>,
+                role: &mut Option<&'static str>,
+                page: &mut Option<usize>,
+                children: &mut Vec<TagNode>,
+            ) {
+                if let Some(role) = role.take() {
+                    out.push(TagNode {
+                        role,
+                        object_id: 0,
+                        table_id: None,
+                        page_index: None,
+                        mcid: None,
+                        alt: None,
+                        lang: None,
+                        summary: None,
+                        attrs: TagAttrs::None,
+                        children: std::mem::take(children),
+                    });
+                }
+                *page = None;
+            }
+            let mut out = Vec::new();
+            let mut role = None;
+            let mut page = None;
+            let mut children = Vec::new();
+            for mut node in nodes {
+                if node.role == "Boundary" {
+                    flush(&mut out, &mut role, &mut page, &mut children);
+                    continue;
+                }
+                let desired =
+                    if matches!(node.role, "H1" | "H2" | "H3" | "H4" | "H5" | "H6") {
+                        Some(node.role)
+                    } else if matches!(node.role, "P" | "Strong" | "Em" | "Link") {
+                        Some("P")
+                    } else {
+                        None
+                    };
+                if desired.is_none() || desired != role || node.page_index != page {
+                    flush(&mut out, &mut role, &mut page, &mut children);
+                }
+                if let Some(block_role) = desired {
+                    role = Some(block_role);
+                    page = node.page_index;
+                    as_span(&mut node);
+                    children.push(node);
+                } else {
+                    out.push(node);
+                }
+            }
+            flush(&mut out, &mut role, &mut page, &mut children);
+            out
+        }
+        if matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)) {
+            tags = group_ua1_blocks(tags);
         }
 
         let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
@@ -3327,6 +3597,32 @@ impl PdfBuilder {
             }
         }
         assign_ids(&mut tags, &mut next_id);
+
+        // A ordem dos nós Link acompanha a ordem de collect_links por página.
+        // O objeto da anotação entra como OBJR e a sua chave no ParentTree.
+        fn collect_link_refs(
+            nodes: &[TagNode],
+            annots: &[Vec<(usize, usize)>],
+            counts: &mut [usize],
+            out: &mut Vec<(usize, usize, usize, usize)>,
+        ) {
+            for node in nodes {
+                if node.role == "Link" {
+                    if let Some(page) = node.page_index {
+                        if let Some(&(annot, key)) =
+                            annots.get(page).and_then(|items| items.get(counts[page]))
+                        {
+                            out.push((node.object_id, annot, key, page));
+                            counts[page] += 1;
+                        }
+                    }
+                }
+                collect_link_refs(&node.children, annots, counts, out);
+            }
+        }
+        let mut link_refs = Vec::new();
+        let mut link_counts = vec![0; doc.pages.len()];
+        collect_link_refs(&tags, &self.ua1_link_annots, &mut link_counts, &mut link_refs);
 
         #[derive(Clone)]
         struct HeaderInfo {
@@ -3409,13 +3705,25 @@ impl PdfBuilder {
             node: &TagNode,
             parent_id: usize,
             headers: &[HeaderInfo],
+            link_refs: &[(usize, usize, usize, usize)],
         ) {
-            let children = node
+            let mut children = node
                 .children
                 .iter()
                 .map(|child| format!("{} 0 R", child.object_id))
                 .collect::<Vec<_>>()
                 .join(" ");
+            if let Some(&(_, annot, _, page)) =
+                link_refs.iter().find(|(node_id, _, _, _)| *node_id == node.object_id)
+            {
+                if !children.is_empty() {
+                    children.push(' ');
+                }
+                children.push_str(&format!(
+                    "<< /Type /OBJR /Obj {annot} 0 R /Pg {} 0 R >>",
+                    3 + page
+                ));
+            }
             let mut value =
                 format!("<< /Type /StructElem /S /{} /P {parent_id} 0 R", node.role);
             if !children.is_empty() {
@@ -3425,6 +3733,9 @@ impl PdfBuilder {
             }
             if let Some(alt) = &node.alt {
                 value.push_str(&format!(" /Alt {}", utf16be_hex_string(alt)));
+            }
+            if let Some(lang) = &node.lang {
+                value.push_str(&format!(" /Lang ({lang})"));
             }
             match node.attrs {
                 TagAttrs::None => {
@@ -3489,7 +3800,7 @@ impl PdfBuilder {
             value.push_str(" >>");
             builder.add(node.object_id, value);
             for child in &node.children {
-                emit_node(builder, child, node.object_id, headers);
+                emit_node(builder, child, node.object_id, headers, link_refs);
             }
         }
 
@@ -3503,11 +3814,14 @@ impl PdfBuilder {
             .map(|header| format!("({}) {} 0 R", header.id, header.object_id))
             .collect::<Vec<_>>()
             .join(" ");
+        let ua1 = matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1));
+        let role_map = if ua1 { " /RoleMap << /Strong /Span /Em /Span >>" } else { "" };
+        let parent_tree_next_key =
+            doc.pages.len() + self.ua1_link_annots.iter().map(Vec::len).sum::<usize>();
         self.add(
             root_id,
             format!(
-                "<< /Type /StructTreeRoot /K {document_id} 0 R /ParentTree {parent_tree_id} 0 R /ParentTreeNextKey {} /IDTree << /Names [{id_names}] >> >>",
-                doc.pages.len(),
+                "<< /Type /StructTreeRoot /K {document_id} 0 R /ParentTree {parent_tree_id} 0 R /ParentTreeNextKey {parent_tree_next_key} /IDTree << /Names [{id_names}] >>{role_map} >>",
             ),
         );
         self.add(
@@ -3518,7 +3832,7 @@ impl PdfBuilder {
         );
 
         for node in &tags {
-            emit_node(self, node, document_id, &headers);
+            emit_node(self, node, document_id, &headers, &link_refs);
         }
 
         fn collect_parent_refs(nodes: &[TagNode], out: &mut Vec<(usize, usize, usize)>) {
@@ -3551,12 +3865,34 @@ impl PdfBuilder {
                 insert_pdf_dict_entry(content, &format!(" /StructParents {page_index}"));
             }
         }
+        for &(node_id, _, key, _) in &link_refs {
+            nums.push(format!("{key} {node_id} 0 R"));
+        }
         self.add(parent_tree_id, format!("<< /Nums [{}] >>", nums.join(" ")));
 
         if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
             insert_pdf_dict_entry(
                 content,
                 &format!(" /StructTreeRoot {root_id} 0 R /MarkInfo << /Marked true /Suspects false >>"),
+            );
+        }
+    }
+
+    /// **P1480** — `/ViewerPreferences /DisplayDocTitle true` no catálogo,
+    /// exigido por ISO 14289-1 §7.1 teste 10 (medido em
+    /// typst-passo-1480.md §1). Independente de `emit_tag_structure`
+    /// (viewer preference, não estrutura de tags) — mesmo padrão isolado
+    /// de `emit_pdfa_output_intent` (early-return por `standard`, sem
+    /// `doc`). `/Direction` do vanilla não é gated por PDF/UA (medido,
+    /// fora do escopo) — não emitido aqui.
+    fn emit_pdfua_viewer_preferences(&mut self) {
+        if !matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)) {
+            return;
+        }
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            insert_pdf_dict_entry(
+                content,
+                " /ViewerPreferences << /DisplayDocTitle true >>",
             );
         }
     }
@@ -3651,6 +3987,36 @@ fn pdfaid_body(a: PdfArchival) -> String {
             "<pdfaid:part>4</pdfaid:part><pdfaid:rev>2020</pdfaid:rev>".to_string()
         }
     }
+}
+
+/// **P1480** — corpo XMP `pdfuaid` (ISO 14289-1, identificação PDF/UA).
+/// Só `part` — ao contrário de `pdfaid_body`, não há eixo
+/// `conformance`/`rev` em PDF/UA (medido em typst-passo-1480.md §1,
+/// vanilla e krilla vendorizado concordam). Match exaustivo sobre
+/// `PdfAccessibility` (não `Option`), mesmo padrão de `pdfaid_body`
+/// (evita V16).
+fn pdfuaid_body(a: PdfAccessibility) -> String {
+    match a {
+        PdfAccessibility::Ua1 => "<pdfuaid:part>1</pdfuaid:part>".to_string(),
+    }
+}
+
+/// **P1480** — declaração mínima de extensão XMP exigida quando o schema
+/// PDF/UA aparece dentro de um documento que também declara conformidade PDF/A.
+fn pdfua_extension_schema() -> &'static str {
+    concat!(
+        "<pdfaExtension:schemas><rdf:Bag><rdf:li rdf:parseType=\"Resource\">",
+        "<pdfaSchema:schema>PDF/UA Identification schema</pdfaSchema:schema>",
+        "<pdfaSchema:namespaceURI>http://www.aiim.org/pdfua/ns/id/</pdfaSchema:namespaceURI>",
+        "<pdfaSchema:prefix>pdfuaid</pdfaSchema:prefix>",
+        "<pdfaSchema:property><rdf:Seq><rdf:li rdf:parseType=\"Resource\">",
+        "<pdfaProperty:category>internal</pdfaProperty:category>",
+        "<pdfaProperty:description>Part Number of ISO 14289 (PDF/UA)</pdfaProperty:description>",
+        "<pdfaProperty:name>part</pdfaProperty:name>",
+        "<pdfaProperty:valueType>Integer</pdfaProperty:valueType>",
+        "</rdf:li></rdf:Seq></pdfaSchema:property>",
+        "</rdf:li></rdf:Bag></pdfaExtension:schemas>"
+    )
 }
 
 /// **P1475** — letra de conformidade `pdfaid:conformance` (ISO 19005-1/-2/-3),

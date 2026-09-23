@@ -71,6 +71,7 @@ pub fn native_tiling(
             };
             TilingBody::Image(crate::entities::elements::image::ImageElem {
                 path: path.to_string(),
+                alt: None,
                 data: PtrEqArc(data),
                 width: None,
                 height: None,

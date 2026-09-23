@@ -118,6 +118,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
         FrameItem::Image {
             pos,
             data,
+            alt,
             width,
             height,
             intrinsic_width,
@@ -126,6 +127,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             ..
         } => FrameItem::Image {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            alt,
             data,
             width,
             height,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash bf718224
+//! @prompt-hash 46665882
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -854,6 +854,7 @@ fn pipeline_jpeg_gera_pdf_com_xobject() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
             width: Pt(100.0),
@@ -895,6 +896,7 @@ fn pipeline_png_invalido_ignorado_graciosamente() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&png_bytes),
             width: Pt(100.0),
@@ -932,6 +934,7 @@ fn doc_com_imagem(data: Vec<u8>) -> typst_core::entities::layout_types::PagedDoc
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::new(data),
             width: Pt(100.0),
@@ -1033,6 +1036,7 @@ fn p833_validate_imagem_dentro_de_group() {
     let mut data = vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
     data.extend_from_slice(b"lixo");
     let inner = FrameItem::Image {
+        alt: None,
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         data: Arc::new(data),
         width: Pt(10.0),
@@ -1172,6 +1176,7 @@ fn pipeline_jpeg_usa_jpeg_color_space() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&data),
             width: Pt(100.0),
@@ -1207,6 +1212,7 @@ fn jpeg_deduplicado_por_arc_ptr() {
         foreground: vec![],
         items: vec![
             FrameItem::Image {
+                alt: None,
                 pos: Point { x: Pt(72.0), y: Pt(72.0) },
                 data: Arc::clone(&jpeg_bytes),
                 width: Pt(100.0),
@@ -1217,6 +1223,7 @@ fn jpeg_deduplicado_por_arc_ptr() {
                 orientation: 1,
             },
             FrameItem::Image {
+                alt: None,
                 pos: Point { x: Pt(72.0), y: Pt(200.0) },
                 data: Arc::clone(&jpeg_bytes),
                 width: Pt(50.0),
@@ -7705,6 +7712,7 @@ fn p279_mk_doc_image_em_group(
     };
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let inner_image = FrameItem::Image {
+        alt: None,
         pos: image_pos,
         data: Arc::clone(&jpeg_bytes),
         width: Pt(100.0),
@@ -7773,6 +7781,7 @@ fn p279_image_em_group_preserva_xobject_dedup() {
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let mk_image_in_group = |gx: f64, gy: f64| -> FrameItem {
         let inner = FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             data: Arc::clone(&jpeg_bytes),
             width: Pt(50.0),
@@ -7826,6 +7835,7 @@ fn p279_image_em_nested_groups() {
     };
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let inner_image = FrameItem::Image {
+        alt: None,
         pos: Point { x: Pt(5.0), y: Pt(5.0) },
         data: Arc::clone(&jpeg_bytes),
         width: Pt(50.0),
@@ -7889,6 +7899,7 @@ fn p279_image_top_level_preserved() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
             width: Pt(100.0),
@@ -9950,7 +9961,6 @@ mod p1140_6_tagged_pdf {
     }
 }
 
-
 // **P1479** — módulos por-passo extraídos para ficheiros próprios
 // (ver cabeçalho do ficheiro). `#[cfg(test)]` explícito aqui, embora já
 // herdado de `export/mod.rs:994` (`#[cfg(test)] mod tests;`) — clareza
@@ -9963,3 +9973,7 @@ mod p1476_pdfa_attachments_af_tests;
 mod p1477_pdfa_icc_version_and_cidset_tests;
 #[cfg(test)]
 mod p1478_pdfa4f_empty_embedded_files_tests;
+#[cfg(test)]
+mod p1480_pdfua_identification_tests;
+#[cfg(test)]
+mod p1481_pdfua_structure_tests;

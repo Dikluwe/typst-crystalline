@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: c6614dc8
+Hash do Código: e7bfdeb1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1558,3 +1558,25 @@ de não-regressão); nenhum outro perfil (archival isolado, ausência de
 standard) ganha esta checagem — só `accessibility == Some(Ua1)`. Fluxo
 contínuo após este L0 (a paragem ADR-0127 já foi satisfeita pela
 confirmação humana registrada em `typst-passo-1480.md` §0).
+
+## P1481 — validação de alt ausente sob PDF/UA-1 (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição bilateral do corpus `p1481-corpus.typ` (SHA-256
+`90475d9f6bd2b6964495861203c480af064b7273c14dc0feb492f79444dbd7d4`):
+com `image(alt: "A small test image")` o vanilla compila e passa
+veraPDF UA-1 106/0. Sem `alt` (fixture SHA-256
+`7d3b364ffe1e979d127cf303a2f13b55ad969d7d844aea831c549d6f058ae504`),
+o vanilla recusa compilar: `PDF/UA-1 error: missing alt text`,
+hint `make sure your images and equations have alt text`
+(`typst-pdf/src/convert.rs:720-725`). O cristalino hoje rejeita
+`alt` na avaliação e aceita uma imagem sem descrição até export.
+
+Contrato confirmado: depois de resolver standards e documento, rejeitar
+imagem real com `alt == None` sob UA-1 com essa mensagem e hint;
+`Some("")` permanece valor fornecido, sujeito às regras externas
+do perfil. Respeitar `pdf.artifact`: decoração sob seu envelope não
+precisa de alt. Sem UA-1, não criar esse erro. O erro usa span de
+origem se houver carrier; span detached segue a limitação existente
+de `native_image` até um passo próprio. Isto muda o comportamento
+de uma flag já existente e depende de `ImageElem.alt` público:
+Gate ADR-0127 satisfeito em 2026-09-23.

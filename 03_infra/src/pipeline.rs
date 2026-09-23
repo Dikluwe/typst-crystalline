@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 5e72b0ae
+//! @prompt-hash 9a0675ca
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -1523,6 +1523,64 @@ fn resolve_pdf_pages_tags_and_standards(
     Ok((pages, tags, standards, diagnostics))
 }
 
+/// **P1480** — PDF/UA-1 exige `document(title:)` (krilla `ValidationError::
+/// NoDocumentTitle`, medido em typst-passo-1480.md §0: vanilla recusa
+/// compilar sob `--pdf-standard ua-1` sem título; cristalino compilava
+/// silenciosamente antes desta checagem). Mensagem/hint byte-idênticos ao
+/// vanilla (`typst-pdf/src/convert.rs:748-752`); `prefix` fixo em
+/// `"PDF/UA-1"` — combinação com archival não medida, ver `infra/
+/// pipeline.md` §P1480. Função pura, testável isoladamente do mesmo modo
+/// que `resolve_pdf_pages_tags_and_standards` (P1469).
+fn require_ua1_document_title(
+    doc: &PagedDocument,
+    standards: &PdfStandards,
+) -> Option<SourceDiagnostic> {
+    if matches!(standards.accessibility, Some(PdfAccessibility::Ua1))
+        && doc.document_info.title.is_none()
+    {
+        Some(
+            SourceDiagnostic::error(
+                Span::detached(),
+                "PDF/UA-1 error: missing document title",
+            )
+            .with_hint("set the title with `set document(title: [...])`"),
+        )
+    } else {
+        None
+    }
+}
+
+/// P1481: imagens reais precisam de texto alternativo sob PDF/UA-1.
+fn require_ua1_image_alt(
+    doc: &PagedDocument,
+    standards: &PdfStandards,
+) -> Option<SourceDiagnostic> {
+    if !matches!(standards.accessibility, Some(PdfAccessibility::Ua1)) {
+        return None;
+    }
+    fn missing(items: &[FrameItem]) -> bool {
+        items.iter().any(|item| match item {
+            FrameItem::Image { alt, .. } => alt.is_none(),
+            FrameItem::Semantic {
+                kind: typst_core::entities::layout_types::SemanticKind::Artifact(_),
+                ..
+            } => false,
+            FrameItem::Semantic { items, .. }
+            | FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. } => missing(items),
+            _ => false,
+        })
+    }
+    if doc.pages.iter().any(|page| missing(&page.items)) {
+        Some(
+            SourceDiagnostic::error(Span::detached(), "PDF/UA-1 error: missing alt text")
+                .with_hint("make sure your images and equations have alt text"),
+        )
+    } else {
+        None
+    }
+}
+
 /// **P1467** — resolve a precedência `--pretty` (override explícito) >
 /// `#set format.pdf(pretty: ...)` (documento) > `false`.
 fn resolve_pdf_pretty(
@@ -1586,6 +1644,16 @@ fn compile_to_pdf_bytes_impl(
             }
         };
     warnings.extend(pages_diagnostics);
+
+    // **P1480** — `pdf_standards`/`doc` já resolvidos; checagem de título
+    // obrigatório sob PDF/UA-1 (ver `require_ua1_document_title`).
+    if let Some(diag) = require_ua1_document_title(&doc, &pdf_standards) {
+        return (Err(vec![diag]), warnings);
+    }
+    if let Some(diag) = require_ua1_image_alt(&doc, &pdf_standards) {
+        return (Err(vec![diag]), warnings);
+    }
+
     let serialization = resolve_pdf_pretty(pretty_override, &doc.format_options);
 
     // P1286 — nomes duplicados só são erro no target PDF, onde ambos
@@ -4814,6 +4882,111 @@ mod tests {
             old_result.expect("compilação antiga deve suceder"),
             new_result.expect("compilação nova deve suceder"),
             "P1469: entry point antiga (P1468) deve continuar byte-idêntica quando standard=None"
+        );
+    }
+
+    fn p1480_compile_with_standard(
+        source: &str,
+        standard: Option<PdfStandards>,
+    ) -> Result<Vec<u8>, Vec<SourceDiagnostic>> {
+        let world = mock_world(source);
+        let (result, _warnings) =
+            compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+                &world,
+                &world.source,
+                false,
+                None,
+                StreamMode::Verbose,
+                None,
+                typst_core::entities::compiler_features::Features::default(),
+                None,
+                None,
+                standard,
+            );
+        result
+    }
+
+    #[test]
+    fn p1480_ua1_sem_titulo_retorna_diagnostico_exato() {
+        let errors =
+            p1480_compile_with_standard("Hello", Some(standards(&[PdfStandard::Ua1])))
+                .expect_err("ua-1 sem document(title:) deve falhar");
+
+        assert_eq!(errors.len(), 1, "esperado um único diagnóstico: {errors:?}");
+        assert_eq!(errors[0].message, "PDF/UA-1 error: missing document title");
+        assert_eq!(
+            errors[0].hints,
+            vec!["set the title with `set document(title: [...])`"]
+        );
+    }
+
+    #[test]
+    fn p1481_ua1_imagem_real_exige_alt_artifact_nao() {
+        use typst_core::entities::elements::pdf_artifact::ArtifactKind;
+        use typst_core::entities::layout_types::{SemanticKind, SemanticPlacement};
+        let image = FrameItem::Image {
+            pos: Point::ZERO,
+            data: Arc::new(vec![0xff, 0xd8, 0xff]),
+            alt: None,
+            width: Pt(10.0),
+            height: Pt(10.0),
+            intrinsic_width: 1,
+            intrinsic_height: 1,
+            clip_rect: None,
+            orientation: 1,
+        };
+        let ua1 = standards(&[PdfStandard::Ua1]);
+        let mut doc = PagedDocument::new(vec![page_with(vec![image.clone()])]);
+        let diag = require_ua1_image_alt(&doc, &ua1).expect("imagem real sem alt");
+        assert_eq!(diag.message, "PDF/UA-1 error: missing alt text");
+        assert_eq!(diag.hints, vec!["make sure your images and equations have alt text"]);
+        assert!(require_ua1_image_alt(&doc, &PdfStandards::default()).is_none());
+        if let FrameItem::Image { alt, .. } = &mut doc.pages[0].items[0] {
+            *alt = Some("".into());
+        }
+        assert!(require_ua1_image_alt(&doc, &ua1).is_none());
+        doc.pages[0].items = vec![FrameItem::Semantic {
+            kind: SemanticKind::Artifact(ArtifactKind::Other),
+            placement: SemanticPlacement::Inline,
+            alt: None,
+            items: vec![image],
+        }];
+        assert!(require_ua1_image_alt(&doc, &ua1).is_none());
+    }
+
+    #[test]
+    fn p1480_ua1_com_titulo_compila_e_emite_identificacao() {
+        let pdf = p1480_compile_with_standard(
+            "#set document(title: \"PDF/UA parity audit\")\nHello",
+            Some(standards(&[PdfStandard::Ua1])),
+        )
+        .expect("ua-1 com título deve continuar a compilar");
+        let rendered = String::from_utf8_lossy(&pdf);
+        assert!(
+            rendered.contains("<pdfuaid:part>1</pdfuaid:part>"),
+            "pipeline ua-1 deve chegar ao builder com o standard resolvido"
+        );
+        assert!(
+            rendered.contains("/ViewerPreferences << /DisplayDocTitle true >>"),
+            "pipeline ua-1 deve emitir a preferência de título"
+        );
+    }
+
+    #[test]
+    fn p1480_sem_ua1_nao_exige_titulo() {
+        let default_pdf = p1480_compile_with_standard("Hello", None)
+            .expect("sem standard, título deve continuar opcional");
+        assert!(
+            !String::from_utf8_lossy(&default_pdf).contains("pdfuaid"),
+            "sem standard não deve emitir identificação PDF/UA"
+        );
+
+        let pdfa_pdf =
+            p1480_compile_with_standard("Hello", Some(standards(&[PdfStandard::A2u])))
+                .expect("perfil archival isolado não deve exigir título");
+        assert!(
+            !String::from_utf8_lossy(&pdfa_pdf).contains("pdfuaid"),
+            "a-2u isolado não deve emitir identificação PDF/UA"
         );
     }
 }

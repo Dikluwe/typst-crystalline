@@ -1,5 +1,5 @@
 # Prompt L0 — `text`
-Hash do Código: f44af17e
+Hash do Código: c4327da6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -30,3 +30,14 @@ O campo continua ortogonal a `math`: texto inline matemático preserva
 `math=true` e `math_text_item=true`; prosa e rotas de glifo mantêm o default
 `false`. Família, tamanho, variações, direção e idioma não mudam por esta
 cópia.
+
+## P1481 — preservação da origem de Strong/Em no texto (IMPLEMENTADO; confirmado em 2026-09-23)
+
+`text.rs:158` cria um `TextStyle` efetivo a partir do estilo do layouter
+e de opções textuais. `StyleDelta` já distingue `from_strong` e
+`from_emph`; o QDF vanilla do corpus P1481 contém Strong e Em.
+Com os campos públicos confirmados em `entities/layout_types.md`,
+o merge preserva `semantic_strong/semantic_emph` somente quando a
+origem morfológica correspondente está ativa. Bold/italic genéricos
+continuam visuais e não se tornam Strong/Em. O fragmento resultante
+pode ser moldado por L3 sem reavaliar a aparência.

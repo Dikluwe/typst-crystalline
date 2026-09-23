@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 51c74e18
+Hash do Código: 79da2520
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -679,3 +679,21 @@ dispatcher de render.
 
 A nova entry point L1 é superfície pública entre camadas. A mudança foi aprovada
 e materializada em 2026-09-19. Nenhuma fase ou geometria do layout muda neste owner.
+
+## P1481 — idioma documental no resultado paginado (IMPLEMENTADO; confirmado em 2026-09-23)
+
+Medição: o vanilla escreve `/Lang (fr)` para o documento que define
+`#set text(lang: "fr")` e pinta somente `rect` (fixture
+`p1481-no-text-fr.typ`, SHA-256
+`8e1b27cf49c91d2edbe132aa69f893bb554bca7141121fe87a544ed219455b38`).
+O frame cristalino não conserva a regra textual depois do layout. O
+vanilla sem regra escreve `/Lang (en)`; na fixture de idioma local
+inicial `p1481-local-first.typ`, escreve `/Lang (fr)` e marca o texto
+seguinte em inglês como override local.
+
+Contrato confirmado: capturar o primeiro idioma efetivo da sequência
+documental e transportá-lo em `PagedDocument.document_language`.
+Capturar regra top-level mesmo se não houver glifos; conservar overrides
+locais em `TextStyle.lang`. O campo público exige aprovação
+ADR-0127. A captura ocorre no layout existente: nenhuma decisão de
+idioma é movida entre eval e layout, nenhuma fonte externa é consultada.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/image.md
-//! @prompt-hash 306aa221
+//! @prompt-hash 2ad78c4c
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -20,6 +20,7 @@ use crate::entities::value::Value;
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImageElem {
     pub path: String,
+    pub alt: Option<EcoString>,
     pub data: PtrEqArc<Vec<u8>>,
     pub width: Option<Box<Value>>,
     pub height: Option<Box<Value>>,
@@ -63,6 +64,7 @@ mod tests {
     fn ex() -> ImageElem {
         ImageElem {
             path: "a.png".into(),
+            alt: None,
             data: PtrEqArc(Arc::new(vec![1, 2, 3])),
             width: None,
             height: None,
