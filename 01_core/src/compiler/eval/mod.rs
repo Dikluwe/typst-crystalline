@@ -1545,6 +1545,12 @@ impl ObservationEq for crate::entities::color::Color {
                     .and(a3.observation_relation(b3)),
                 _ => ObservationRelation::Different,
             },
+            Self::Spot(a) => match other {
+                Self::Spot(b) => ObservationRelation::Same
+                    .and(a.colorant.observation_relation(&b.colorant))
+                    .and(a.tint.observation_relation(&b.tint)),
+                _ => ObservationRelation::Different,
+            },
         }
     }
 }
@@ -5357,6 +5363,10 @@ impl ObservationEq for crate::entities::layout_types::Ratio {
 impl ObservationEq for crate::entities::color::ColorSpace {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         match self {
+            Self::Spot(a) => match other {
+                Self::Spot(b) => a.observation_relation(b),
+                _ => ObservationRelation::Different,
+            },
             Self::Oklab => match other {
                 Self::Oklab => ObservationRelation::Same,
                 _ => ObservationRelation::Different,

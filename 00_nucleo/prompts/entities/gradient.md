@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: 428d13da
+Hash do Código: 25601554
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -1026,3 +1026,32 @@ todos os struct literals históricos inicializam `true`; `sharp` produz
 `false`; `repeat` preserva. `PartialEq` inclui o campo por derivação. As
 referências PDF afetadas foram regeneradas porque constructors Typst agora
 também convertem os stops para o mixing space ratificado.
+## P1482 — identidade spot na amostragem (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+Vanilla `visualize/color.rs:1147-1245,2471-2521` resolve o espaço
+automático ao colorant quando todos os stops o compartilham; caso
+contrário usa Oklab. Sondas: `gradient.linear(s.tint(50%),
+s.tint(25%)).space() == s`; `.sample(50%)` devolve `s.tint(37.5%)`.
+Com um stop `red`, `.space()` é `oklab`; `space: s` explícito
+com stop process erra conversão para spot. O cristalino
+`entities/gradient.rs:204-273,369-385,478-500` só transporta
+`ColorSpace` de processo e normaliza stops previamente.
+
+### Decisão proprietária
+
+Os três tipos Linear/Radial/Conic aceitam o novo
+`ColorSpace::Spot(SpotColorant)` do owner `entities/color.md`.
+`sample` interpola apenas o tint quando todos os stops pertencem ao
+colorant escolhido e preserva a identidade de `Color::Spot`; espaço
+automático escolhe spot só se todos os colorants completos coincidem,
+senão Oklab. Extremos preservam a cor original. Falha de conversão
+explícita é erro de linguagem no constructor, nunca fallback silencioso.
+`sample_precise` conserva a precisão do percentual; a existência de
+`Color::Spot` não promete ainda render PDF/SVG/PNG de gradiente:
+P1483 fecha render, conforme `infra/export/stream.md`. As oito
+interpelações de processo e seus controles não mudam.
+
+`GradientStop` perde `Copy` porque contém `Color`, sem alterar o seu
+constructor, offset ou semântica; clones necessários são mecânica Rust.

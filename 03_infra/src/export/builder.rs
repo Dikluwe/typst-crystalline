@@ -2158,7 +2158,7 @@ impl PdfBuilder {
                         // P270.1 pipeline + P274 adaptive N (N=16 baseline
                         // preservado para low-contrast; N=32/64 para
                         // moderate/high contrast — banding suppression).
-                        let n = adaptive_n_for_stops(&linear.stops, linear.space);
+                        let n = adaptive_n_for_stops(&linear.stops, linear.space.clone());
                         let stops = multispace_sample_stops(linear, n);
                         let shading_dict = format!(
                             "<< /ShadingType 2 /ColorSpace /DeviceRGB \
@@ -2225,7 +2225,7 @@ impl PdfBuilder {
                         self.add(shading_id, shading_dict);
                     } else {
                         // P270.1 pipeline + P274 adaptive N (paridade Linear).
-                        let n = adaptive_n_for_stops(&radial.stops, radial.space);
+                        let n = adaptive_n_for_stops(&radial.stops, radial.space.clone());
                         let stops = multispace_sample_stops_radial(radial, n);
                         let shading_dict = format!(
                             "<< /ShadingType 3 /ColorSpace /DeviceRGB \

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/color` — construtores de cor
-Hash do Código: 33d3e62c
+Hash do Código: c0380bdb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/color.rs`
@@ -215,3 +215,22 @@ oklch(50%, 0, 0deg)             -> Oklch; lightness Ratio, chroma, hue Angle
 hsl(0deg, 1.0, 50%)             -> erro de tipo (Float não é Component)
 oklab(50, 0, 0)                 -> erro de tipo (Int não é RatioComponent)
 ```
+## P1482 — constructors processuais recebem cor spot (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+Vanilla `visualize/color.rs:1326-1396` projeta spot no fallback
+tingido ao converter explicitamente para espaço de processo. Sonda
+`rgb(color.spot("A", red).tint(50%))` representa
+`rgb("#ffa09a")`, enquanto o spot original conserva tipo/repr
+próprios. No cristalino `foundations/color.rs:26-58,61-75` aceita
+`Value::Color` no constructor `rgb` mas assume `Color: Copy`.
+
+### Decisão proprietária
+
+`rgb`, `luma`, `cmyk`, `oklab` e demais constructors de processo
+que já aceitam Color tratam Spot pela projeção explícita
+`Color::to_process`; o resultado é cor processual, sem identidade
+spot. Não antecipar essa projeção no Value, no style ou em cast de
+fill/stroke. Preservar diagnósticos e fórmulas existentes dos inputs
+processuais.

@@ -87,7 +87,7 @@ impl Element for TableElem {
             header: self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
             footer: self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
             stroke: self.stroke.clone(),
-            fill: self.fill,
+            fill: self.fill.clone(),
             caption: self
                 .caption
                 .as_ref()
@@ -112,7 +112,7 @@ impl Element for TableElem {
             header: self.header.as_ref().map(|h| h.map_text(transform)),
             footer: self.footer.as_ref().map(|f| f.map_text(transform)),
             stroke: self.stroke.clone(),
-            fill: self.fill,
+            fill: self.fill.clone(),
             caption: self.caption.as_ref().map(|c| c.map_text(transform)),
             summary: self.summary.clone(),
             inset: self.inset,

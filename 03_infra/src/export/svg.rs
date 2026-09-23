@@ -266,7 +266,7 @@ impl PaintDefs {
         height: f64,
     ) -> PaintReference {
         if let Paint::Solid(color) = paint {
-            return PaintReference { value: color_to_css(*color), fallback: None };
+            return PaintReference { value: color_to_css(color.clone()), fallback: None };
         }
         if !paint_is_svg_native(paint) {
             return PaintReference {
@@ -440,11 +440,11 @@ fn write_paint_def(
             );
             xml.write_attribute("width", &fmt_num(size.width.0 + spacing_width));
             xml.write_attribute("height", &fmt_num(size.height.0 + spacing_height));
-            if let TilingBody::Color(color) = tiling.body {
+            if let TilingBody::Color(color) = &tiling.body {
                 xml.start_element("rect");
                 xml.write_attribute("width", &fmt_num(size.width.0));
                 xml.write_attribute("height", &fmt_num(size.height.0));
-                xml.write_attribute("fill", &color_to_css(color));
+                xml.write_attribute("fill", &color_to_css(color.clone()));
                 xml.end_element();
             }
             xml.end_element();
@@ -493,7 +493,7 @@ fn write_conic_paint_def(
             conic
                 .stops
                 .get(index)
-                .map(|stop| stop.color)
+                .map(|stop| stop.color.clone())
                 .unwrap_or(Color::rgb(0, 0, 0))
         } else {
             conic.sample(t)
@@ -1038,7 +1038,7 @@ fn render_item(
             }
         }
         FrameItem::Line { start, end, thickness, color, .. } => {
-            render_line(xml, start, end, *thickness, *color);
+            render_line(xml, start, end, *thickness, color.clone());
         }
         FrameItem::Glyph { pos, glyph_id, size, style, base_char, .. } => {
             if let Some(fonts) = fonts {
@@ -1206,7 +1206,7 @@ fn render_direct_glyph(
     );
     xml.write_attribute(
         "fill",
-        &style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string()),
+        &style.fill.clone().map(color_to_css).unwrap_or_else(|| "#000000".to_string()),
     );
     xml.end_element();
 }
@@ -1248,7 +1248,7 @@ fn render_text_shaped(
         &format!("matrix(1 0 0 -1 {} {})", fmt_num(pos.x.0), fmt_num(pos.y.0)),
     );
 
-    let fill = style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string());
+    let fill = style.fill.clone().map(color_to_css).unwrap_or_else(|| "#000000".to_string());
     let mut x = 0.0;
     let mut y = 0.0;
     for glyph in glyphs {
@@ -1783,7 +1783,7 @@ fn render_html_text(
     xml.write_attribute("font-size", &format!("{}pt", fmt_num(style.size.0)));
     xml.write_attribute(
         "fill",
-        &style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string()),
+        &style.fill.clone().map(color_to_css).unwrap_or_else(|| "#000000".to_string()),
     );
     xml.write_text(text.as_str());
     xml.end_element();
@@ -2247,18 +2247,18 @@ mod tests {
             ("radial", ColorSpace::LinearRgb, 29, "#2273d8"),
         ] {
             let gradient = if kind == "linear" {
-                Gradient::linear_with_space(stops(), Angle::deg(0.0), space)
+                Gradient::linear_with_space(stops(), Angle::deg(0.0), space.clone())
             } else {
                 Gradient::radial_with_space(
                     stops(),
                     Axes::new(Ratio(0.5), Ratio(0.5)),
                     Ratio(0.5),
-                    space,
+                    space.clone(),
                 )
             };
             let sampled = svg_adaptive_stops(&gradient);
             assert_eq!(sampled.len(), expected_count, "{kind}/{space:?}");
-            let penultimate = sampled[sampled.len() - 2];
+            let penultimate = &sampled[sampled.len() - 2];
             assert_eq!(penultimate.offset, Some(Ratio(0.984375)), "{kind}/{space:?}");
             assert_eq!(sampled.last().unwrap().offset, Some(Ratio(1.0)));
             assert_eq!(sampled.last().unwrap().color, Color::rgb(0, 116, 217));
@@ -2373,7 +2373,7 @@ mod tests {
             ]
         };
         for space in [ColorSpace::Oklch, ColorSpace::Hsl, ColorSpace::Hsv] {
-            let gradient = Gradient::linear_with_space(stops(), Angle::deg(25.0), space);
+            let gradient = Gradient::linear_with_space(stops(), Angle::deg(25.0), space.clone());
             assert!(
                 adaptive_offsets_use_ratio_repr(&gradient),
                 "Linear/{space:?} deve serializar todos os offsets via Ratio::repr"
@@ -2448,7 +2448,7 @@ mod tests {
                 (
                     "linear",
                     "linearGradient",
-                    Gradient::linear_with_space(stops(), Angle::deg(25.0), space),
+                    Gradient::linear_with_space(stops(), Angle::deg(25.0), space.clone()),
                 ),
                 (
                     "radial",
@@ -2457,7 +2457,7 @@ mod tests {
                         stops(),
                         Axes::new(Ratio(0.4), Ratio(0.6)),
                         Ratio(0.7),
-                        space,
+                        space.clone(),
                     ),
                 ),
             ];
@@ -2574,7 +2574,7 @@ mod tests {
         for linear in [true, false] {
             let space = ColorSpace::Luma;
             let gradient = if linear {
-                Gradient::linear_with_space(stops(), Angle::deg(25.0), space)
+                Gradient::linear_with_space(stops(), Angle::deg(25.0), space.clone())
             } else {
                 let mut gradient = Gradient::radial(
                     stops(),
@@ -2582,7 +2582,7 @@ mod tests {
                     Ratio(0.7),
                 );
                 if let Gradient::Radial(value) = &mut gradient {
-                    Arc::make_mut(value).space = space;
+                    Arc::make_mut(value).space = space.clone();
                 }
                 gradient
             };

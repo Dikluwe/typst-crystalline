@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: 528afce0
+Hash do Código: 2264f8ed
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
@@ -368,3 +368,28 @@ analogia com encode. Testar ambas as representações e controles estáticos/
 ligados. É inferência de suficiência refutada por outra mutação do carrier
 neste owner. Ownership segue 1:1; aprovação anterior de gradient não aprova
 o novo campo público Args. Nenhum Rust é autorizado por esta redação.
+## P1482 — `space:` spot e auto (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+Vanilla `visualize/color.rs:2471-2521` resolve a identidade de
+colorant de todos os stops antes da mistura. Sondas P1482:
+`gradient.linear(s.tint(50%), s.tint(25%)).space()` devolve `s`;
+`gradient.linear(s.tint(50%), red).space()` devolve `oklab`;
+`space: s` com `red` erra `cannot convert process color to spot
+colorant space` com hints. O cristalino
+`compiler/stdlib/gradients.rs:205-219,565-568,629-670,872-875,987-990`
+fixa auto em Oklab e só aceita nomes de oito espaços.
+
+### Decisão proprietária
+
+Nos três constructors, `space: auto`/ausente resolve spot se todos os
+stops são tintas do mesmo colorant completo, Oklab caso contrário.
+`space: <SpotColorant>` explícito é aceito; valida cada stop pelo
+`ColorSpaceError` do owner `entities/color.md` antes de normalizar,
+com erro no stop causal e hint do argumento `space`. O accessor
+`gradient.space()` devolve `Value::SpotColorant` para espaço spot,
+função-construtora para espaço de processo. Preservar o carrier
+`Color::Spot` nos stops e em `sample`; não convertê-lo para RGB
+na construção. P1483 fecha o render spot dos gradientes; os oito
+espaços de processo continuam com comportamento vigente.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 3be0dc7a
+//! @prompt-hash 75d71ca5
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -664,7 +664,7 @@ pub(super) fn emit_glyph_pdf(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
-    if let Some(c) = style.fill {
+    if let Some(c) = &style.fill {
         let (r, g, b, _) = c.to_rgba_f32();
         ops.push_str(&format!(
             "{:.3} {:.3} {:.3} rg

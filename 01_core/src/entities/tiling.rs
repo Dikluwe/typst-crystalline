@@ -59,7 +59,7 @@ impl Tiling {
     ///   renderizado).
     pub fn to_color(&self) -> Color {
         match &self.body {
-            TilingBody::Color(c) => *c,
+            TilingBody::Color(c) => c.clone(),
             TilingBody::Gradient(g) => g.first_stop_color(),
             TilingBody::Image(_) => Color::rgb(0, 0, 0),
             TilingBody::Content(_) => Color::rgb(0, 0, 0),

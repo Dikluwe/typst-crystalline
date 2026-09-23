@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 3208fffd
+Hash do Código: 7b92c4c1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -897,3 +897,23 @@ resultado. O teste correspondente
 também assumia `.scope()` e foi corrigido na integração (papel C) pela
 mesma razão. Nenhum comportamento observável de `P1293HtmlNative`
 mudou — só a forma de obter o namespace de onde ler.
+## P1482 — dispatch de `SpotColorant.tint` (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/eval/call_dispatch.rs:1447-1461,2094-2096` intercepta
+métodos de `Value::Color` e o constructor de
+`Type::SpotColorant`, mas não `Value::SpotColorant.tint`.
+No vanilla, `s.tint(50%)` e `color.spot.tint(s, 50%)` convergem;
+`s.tint` isolado falha, e `color.spot.tint(red, 50%)` erra
+`expected spot colorant, found color` (sondas P1482).
+
+### Decisão proprietária
+
+Interceptar somente a chamada ligada `Value::SpotColorant` com nome
+`tint`, encaminhando receiver e Args com seus spans ao mesmo parser
+do owner `compiler/stdlib/color.md`. A função estática resolvida no
+campo de `Type::SpotColorant` usa o mesmo parser. Field access isolado
+do valor spot continua inválido; nenhuma reavaliação de argumentos,
+coerção para Color, mudança de ordem ou fase do pipeline. As demais
+rotas de `Value::Color` e constructors ficam inalteradas.

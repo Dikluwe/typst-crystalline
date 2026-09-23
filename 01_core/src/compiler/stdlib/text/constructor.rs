@@ -46,7 +46,7 @@ pub fn native_text(
     if let Some(v) = args.named.get("fill") {
         fill = match v {
             Value::None => None,
-            Value::Color(c) => Some(*c),
+            Value::Color(c) => Some(c.clone()),
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -59,7 +59,7 @@ pub fn native_text(
     // Se o primeiro posicional for Color e fill ainda não definido, usá-lo como fill.
     if fill.is_none() {
         if let Some(Value::Color(c)) = args.items.first() {
-            fill = Some(*c);
+            fill = Some(c.clone());
             body_idx = 1;
         }
     }

@@ -52,7 +52,7 @@ impl Element for OverlineElem {
     {
         Ok(Content::Overline(Arc::new(OverlineElem {
             body: self.body.map_content(transform)?,
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         })))
@@ -64,7 +64,7 @@ impl Element for OverlineElem {
     {
         Content::Overline(Arc::new(OverlineElem {
             body: self.body.map_text(transform),
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         }))

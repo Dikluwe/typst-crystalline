@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/color.md
-//! @prompt-hash f37d7581
+//! @prompt-hash 6b57c538
 //! @layer L1
 //! @updated 2026-09-12
 //!
@@ -36,7 +36,7 @@ pub fn native_rgb(
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
         [Value::Color(color)] => {
-            let (r, g, b, a) = rgb_constructor_bytes(*color);
+            let (r, g, b, a) = rgb_constructor_bytes(color.clone());
             Ok(Value::Color(Color::rgba(r, g, b, a)))
         }
         [r, g, b] => Ok(Value::Color(Color::rgb(as_u8(r)?, as_u8(g)?, as_u8(b)?))),
@@ -169,7 +169,7 @@ pub fn native_luma(
             "missing argument: lightness component",
         )
         .with_hint("try writing `white` or `luma(100%)`")]),
-        [Value::Color(color)] => Ok(Value::Color((*color).to_space(ColorSpace::Luma))),
+        [Value::Color(color)] => Ok(Value::Color(color.clone().to_space(ColorSpace::Luma).map_err(|_| vec![SourceDiagnostic::error(args.span, "cannot convert color to luma")])?)),
         [lightness] => Ok(Value::Color(Color::Luma {
             l: luma_component(lightness, positional_span(args, 0))?,
             a: 1.0,

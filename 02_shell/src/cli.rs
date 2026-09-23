@@ -1248,7 +1248,7 @@ fn paint_to_semantic(paint: &typst_core::entities::paint::Paint) -> SemanticValu
     use std::sync::Arc;
     use typst_core::entities::paint::Paint;
     match paint {
-        Paint::Solid(color) => value_to_semantic(&Value::Color(*color)),
+        Paint::Solid(color) => value_to_semantic(&Value::Color(color.clone())),
         Paint::Gradient(gradient) => {
             value_to_semantic(&Value::Gradient(gradient.clone()))
         }

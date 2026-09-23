@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 3c7850e6
+//! @prompt-hash e9820b7f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1447,6 +1447,12 @@ pub(super) fn eval_func_call(
                 // **P742** — Métodos de instância de `Value::Color` (9, padrão
                 // P506). Só intercepta os métodos conhecidos; os restantes caem
                 // no caminho genérico (erro de field access pré-P742).
+                Value::SpotColorant(ref colorant) if method == "tint" => {
+                    let args = eval_args(call.args(), scopes, ctx, engine)?;
+                    return crate::compiler::stdlib::color::dispatch_spot_colorant_tint(
+                        colorant, args, ctx, engine.world, engine.current_file,
+                    );
+                }
                 Value::Color(ref color) => {
                     if crate::compiler::stdlib::color::is_color_instance_method(method) {
                         return super::bindings::eval_color_method(

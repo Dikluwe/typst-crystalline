@@ -999,11 +999,11 @@ fn materialize_time(
 
         // Modelo D (Lote 4 P319): decorações — recurse no body via construtor.
         Content::Underline(e) => Content::underline(
-            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
+            materialize_time(&e.body, intr, location), e.stroke.clone(), e.offset, e.extent),
         Content::Strike(e) => Content::strike(
-            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
+            materialize_time(&e.body, intr, location), e.stroke.clone(), e.offset, e.extent),
         Content::Overline(e) => Content::overline(
-            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
+            materialize_time(&e.body, intr, location), e.stroke.clone(), e.offset, e.extent),
 
         // ── Terminais — clonar directamente ──────────────────────────────
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay

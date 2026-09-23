@@ -68,7 +68,7 @@ impl Paint {
     /// - `Tiling` → fallback definido por `Tiling::to_color()`.
     pub fn to_color(&self) -> Color {
         match self {
-            Paint::Solid(c) => *c,
+            Paint::Solid(c) => c.clone(),
             Paint::Gradient(g) => g.first_stop_color(),
             Paint::Tiling(t) => t.to_color(),
         }
@@ -100,26 +100,26 @@ mod tests {
     #[test]
     fn paint_solid_construcao() {
         let c = Color::rgb(255, 0, 0);
-        let p = Paint::solid(c);
+        let p = Paint::solid(c.clone());
         assert_eq!(p, Paint::Solid(c));
     }
 
     #[test]
     fn paint_to_color_solid() {
         let c = Color::rgb(0, 128, 255);
-        assert_eq!(Paint::Solid(c).to_color(), c);
+        assert_eq!(Paint::Solid(c.clone()).to_color(), c);
     }
 
     #[test]
     fn paint_to_color_solid_via_solid_helper() {
         let c = Color::rgb(64, 64, 64);
-        assert_eq!(Paint::solid(c).to_color(), c);
+        assert_eq!(Paint::solid(c.clone()).to_color(), c);
     }
 
     #[test]
     fn paint_from_color() {
         let c = Color::rgb(64, 64, 64);
-        let p: Paint = c.into();
+        let p: Paint = c.clone().into();
         assert_eq!(p, Paint::Solid(c));
     }
 

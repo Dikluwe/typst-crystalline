@@ -192,7 +192,7 @@ impl StyleDelta {
             styles.push(Style::Size(Pt(self.size.unwrap_or(0.0))));
         }
         if self.fill != other.fill {
-            if let Some(c) = self.fill {
+            if let Some(c) = self.fill.clone() {
                 styles.push(Style::Fill(c));
             }
         }
@@ -233,7 +233,7 @@ impl StyleDelta {
             styles.push(Style::Superscript(self.superscript.unwrap_or(false)));
         }
         if self.highlight != other.highlight {
-            styles.push(Style::highlight(self.highlight.unwrap_or(None)));
+            styles.push(Style::highlight(self.highlight.clone().unwrap_or(None)));
         }
         if self.highlight_radius != other.highlight_radius {
             if let Some(r) = self.highlight_radius {
@@ -372,7 +372,7 @@ impl StyleChain {
                 out.size = d.size;
             }
             if out.fill.is_none() {
-                out.fill = d.fill;
+                out.fill = d.fill.clone();
             }
             if out.heading_level.is_none() {
                 out.heading_level = d.heading_level;
@@ -422,7 +422,7 @@ impl StyleChain {
     pub fn fill(&self) -> Option<crate::entities::layout_types::Color> {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
-            if let Some(v) = n.delta.fill {
+            if let Some(v) = n.delta.fill.clone() {
                 return Some(v);
             }
             node = n.parent.as_deref();
@@ -662,7 +662,7 @@ impl StyleChain {
     pub fn highlight(&self) -> Option<crate::entities::layout_types::Color> {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
-            if let Some(v) = n.delta.highlight {
+            if let Some(v) = n.delta.highlight.clone() {
                 return v;
             }
             node = n.parent.as_deref();
@@ -1117,7 +1117,7 @@ mod tests {
         let base = StyleChain::default_chain();
         assert_eq!(base.fill(), None, "sem Fill, None");
         let red = Color::rgb(255, 0, 0);
-        let child = base.push_styles(&Styles::from_iter([Style::Fill(red)]));
+        let child = base.push_styles(&Styles::from_iter([Style::Fill(red.clone())]));
         assert_eq!(child.fill(), Some(red));
     }
 

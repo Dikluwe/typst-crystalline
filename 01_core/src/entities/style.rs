@@ -160,7 +160,7 @@ impl Style {
                 delta.italic_from_emph = Some(*from_emph);
             }
             Style::Size(pt) => delta.size = Some(pt.val()),
-            Style::Fill(c) => delta.fill = Some(*c),
+            Style::Fill(c) => delta.fill = Some(c.clone()),
             Style::HeadingLevel(l) => delta.heading_level = Some(*l),
             Style::Lang(l) => delta.lang = Some(*l),
             Style::Weight(w) => delta.weight = Some(*w),
@@ -170,7 +170,7 @@ impl Style {
             Style::Font(f) => delta.font = Some(f.clone()),
             Style::Subscript(v) => delta.subscript = Some(*v),
             Style::Superscript(v) => delta.superscript = Some(*v),
-            Style::Highlight(c) => delta.highlight = Some(*c),
+            Style::Highlight(c) => delta.highlight = Some(c.clone()),
             Style::HighlightRadius(l) => delta.highlight_radius = Some(*l),
             Style::HighlightExtent(l) => delta.highlight_extent = Some(*l),
             Style::SubscriptSize(l) => delta.subscript_size = Some(*l),
@@ -401,7 +401,7 @@ mod tests {
             Style::bold(true),
             Style::italic(true),
             Style::Size(Pt(18.0)),
-            Style::Fill(red),
+            Style::Fill(red.clone()),
             Style::HeadingLevel(3),
             Style::Lang(Lang::ENGLISH),
             Style::Weight(700),
@@ -410,7 +410,7 @@ mod tests {
             Style::Font(font.clone()),
             Style::subscript(true),         // P448
             Style::superscript(false),      // P448
-            Style::highlight(Some(yellow)), // P449
+            Style::highlight(Some(yellow.clone())), // P449
         ]);
 
         // (a) backing único: a fachada dobrou os 13 campos no delta.

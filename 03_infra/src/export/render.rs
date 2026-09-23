@@ -205,7 +205,7 @@ fn render_item(
             }
         }
         FrameItem::Line { start, end, thickness, color, cap } => {
-            render_line(canvas, state, start, end, *thickness, *color, *cap);
+            render_line(canvas, state, start, end, *thickness, color.clone(), *cap);
         }
         FrameItem::Glyph { .. } => {}
         FrameItem::Image { pos, data, width, height, orientation, .. } => {
@@ -269,7 +269,7 @@ fn render_text_shaped(
     let upem = units_per_em.max(1) as f64;
     let size = style.size.0;
     let scale = size / upem;
-    let fill = style.fill.unwrap_or(Color::rgb(0, 0, 0));
+    let fill = style.fill.clone().unwrap_or(Color::rgb(0, 0, 0));
     let sk_color = color_to_sk(fill);
 
     let mut x = 0.0f64;

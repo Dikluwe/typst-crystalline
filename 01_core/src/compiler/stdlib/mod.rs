@@ -5830,7 +5830,7 @@ mod tests {
     #[test]
     fn parse_color_nomes_conhecidos() {
         let color = Color::rgb(1, 2, 3);
-        assert_eq!(parse_color(&Value::Color(color)), Some(color));
+        assert_eq!(parse_color(&Value::Color(color.clone())), Some(color));
         assert_eq!(parse_color(&Value::Str("red".into())), None);
         assert_eq!(parse_color(&Value::Int(42)), None);
     }

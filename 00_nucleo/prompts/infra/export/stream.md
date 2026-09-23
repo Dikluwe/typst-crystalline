@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: a69d11e2
+Hash do Código: f0485e2c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -585,3 +585,24 @@ vive na árvore. `ParbreakBoundary` e `ExplicitLinebreakBoundary`
 não pintam texto vazio nem consomem MCID em UA-1; a primeira permanece
 disponível à recomposição de blocos no builder. Fora de UA-1,
 preservar o percurso anterior desses envelopes.
+## P1482/P1483 — fronteira de cor spot no PDF (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+`03_infra/src/export/stream.rs:473-478,597-624,927-954` emite
+paint de `Color` via `to_rgba_f32` como processo; não possui recurso
+`/Separation`. Vanilla `typst-pdf/src/paint.rs:120,155-173`
+distingue `Color::Spot` e converte para separação. O valor de
+linguagem P1482 é observável antes do PDF, mas a emissão spot nativa
+não decorre automaticamente da nova variante.
+
+### Decisão e divisão explícita
+
+P1482 apenas garante que o stream continue total e renderizável com
+projeção de fallback tingido, sem mutar o `Color::Spot` do documento;
+isso **não** equivale a separação e permanece RED para fidelidade spot
+em PDF. P1483 é o passo que completa este L0: emissão de
+`/Separation`, colorant, tint transfer e fallback alternativo em
+fill/stroke/gradientes conforme medição bilateral própria. Não
+declarar conformidade PDF nem contar `color.spot.tint` como fechado
+antes de P1483. PDF de processo existente permanece invariável.

@@ -1406,7 +1406,7 @@ fn p449_highlight_default_emite_shape_amarelo_antes_do_texto() {
     use crate::entities::layout_types::Color;
 
     let yellow = Color::rgba(255, 242, 54, 255);
-    let doc = layout(&Content::highlight(Content::text("x"), Some(yellow)));
+    let doc = layout(&Content::highlight(Content::text("x"), Some(yellow.clone())));
     let items: Vec<_> = doc.pages[0].items.iter().collect();
     let mut found = false;
     for window in items.windows(2) {
@@ -17685,7 +17685,7 @@ mod p284_decoration_tests {
         for page in &doc.pages {
             for item in &page.items {
                 if let FrameItem::Line { color, .. } = item {
-                    return *color;
+                    return color.clone();
                 }
             }
         }
@@ -17696,7 +17696,7 @@ mod p284_decoration_tests {
     fn p285_underline_stroke_explicito_passa_para_line_color() {
         use crate::entities::layout_types::Color;
         let red = Color::rgb(255, 0, 0);
-        let doc = layout(&Content::underline(Content::text("x"), Some(red), None, None));
+        let doc = layout(&Content::underline(Content::text("x"), Some(red.clone()), None, None));
         assert_eq!(
             first_line_color(&doc),
             Some(red),
@@ -17727,7 +17727,7 @@ mod p284_decoration_tests {
         // color: Some(blue). Paridade vanilla "decoração herda cor do
         // texto" (P285 §A.3 opção β).
         let styled =
-            Content::Styled(Box::new(inner), Styles::from_iter([Style::Fill(blue)]));
+            Content::Styled(Box::new(inner), Styles::from_iter([Style::Fill(blue.clone())]));
         let doc = layout(&styled);
         assert_eq!(
             first_line_color(&doc),
@@ -17744,7 +17744,7 @@ mod p284_decoration_tests {
         use crate::entities::style::{Style, Styles};
         let red = Color::rgb(255, 0, 0);
         let green = Color::rgb(0, 255, 0);
-        let inner = Content::underline(Content::text("y"), Some(green), None, None);
+        let inner = Content::underline(Content::text("y"), Some(green.clone()), None, None);
         let styled = Content::Styled(
             Box::new(inner),
             Styles::from_iter([Style::Fill(red)]), // ← fill red herdado
@@ -17768,7 +17768,7 @@ mod p284_decoration_tests {
         for page in &doc.pages {
             for item in &page.items {
                 if let FrameItem::Line { start, end, thickness, color, .. } = item {
-                    out.push((*start, *end, *thickness, *color));
+                    out.push((*start, *end, *thickness, color.clone()));
                 }
             }
         }
@@ -17835,13 +17835,13 @@ mod p284_decoration_tests {
         let texto: String =
             (0..40).map(|i| format!("w{i}")).collect::<Vec<_>>().join(" ");
         let doc =
-            layout(&Content::underline(Content::text(&texto), Some(red), None, None));
+            layout(&Content::underline(Content::text(&texto), Some(red.clone()), None, None));
         let lines = collect_lines(&doc);
         assert!(lines.len() >= 2);
         for (_, _, _, c) in &lines {
             assert_eq!(
                 *c,
-                Some(red),
+                Some(red.clone()),
                 "cada Line deve preservar a cor de stroke (uniformidade per-decoração)"
             );
         }

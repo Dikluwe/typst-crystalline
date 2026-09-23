@@ -217,7 +217,7 @@ pub fn native_table(
     // P228 — extract fill (Opção α: apenas Value::Color).
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
-        Some(Value::Color(c)) => Some(*c),
+        Some(Value::Color(c)) => Some(c.clone()),
         Some(Value::None) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -454,7 +454,7 @@ pub fn native_table_cell(
                 Some(crate::compiler::stdlib::layout::extract_stroke(value, "table_cell", "stroke")?)
             },
             "fill" => match value {
-                Value::Color(c) => fill = Some(*c),
+                Value::Color(c) => fill = Some(c.clone()),
                 Value::None => fill = None,
                 other => return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -776,7 +776,7 @@ pub fn native_grid_cell(
                 Some(crate::compiler::stdlib::layout::extract_stroke(value, "grid_cell", "stroke")?)
             },
             "fill" => match value {
-                Value::Color(c) => fill = Some(*c),
+                Value::Color(c) => fill = Some(c.clone()),
                 Value::None => fill = None,
                 other => return Err(vec![SourceDiagnostic::error(
                     Span::detached(),

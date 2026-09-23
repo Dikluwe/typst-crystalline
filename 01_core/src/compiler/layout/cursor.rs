@@ -236,7 +236,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// um rectângulo de highlight. P471 adiciona `radius` (RoundedRect) e
     /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
-        if let Some(fill) = self.style.highlight {
+        if let Some(fill) = self.style.highlight.clone() {
             let (ascender, line_height) =
                 self.metrics.vertical_metrics(self.style.size, &self.style);
             let size_pt = self.style.size.val();

@@ -6628,7 +6628,7 @@ mod tests {
                 header: None,
                 footer: None,
                 stroke: None,
-                fill: Some(fill_orig),
+                fill: Some(fill_orig.clone()),
             },
         ));
         let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
@@ -6774,7 +6774,7 @@ mod tests {
                 colspan: None,
                 rowspan: None,
                 stroke: Some(stroke_orig.clone()),
-                fill: Some(fill_orig),
+                fill: Some(fill_orig.clone()),
                 align: None,
                 inset: None,
                 breakable: None,
@@ -7156,7 +7156,7 @@ mod tests {
                 outset: Sides::uniform(Length::pt(0.0)),
                 radius: Corners::uniform(Length::ZERO),
                 clip: false,
-                fill: fill_orig,
+                fill: fill_orig.clone(),
                 stroke: stroke_orig.clone(),
                 spacing: None,
                 above: None,

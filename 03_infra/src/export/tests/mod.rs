@@ -5298,10 +5298,10 @@ fn p274_perceptual_distance_oklab_zero_for_identical_colors() {
     // ΔE Oklab(c, c) = 0.0 para qualquer space.
     use typst_core::entities::layout_types::{Color, ColorSpace};
     let red = Color::rgb(255, 0, 0);
-    let d = perceptual_distance_in_space(red, red, ColorSpace::Oklab);
+    let d = perceptual_distance_in_space(red.clone(), red.clone(), ColorSpace::Oklab);
     assert!(d.abs() < 1e-5, "distance(c, c) ≈ 0; got {}", d);
     // Same property em outro space.
-    let d2 = perceptual_distance_in_space(red, red, ColorSpace::Srgb);
+    let d2 = perceptual_distance_in_space(red.clone(), red.clone(), ColorSpace::Srgb);
     assert!(d2.abs() < 1e-5, "distance independent of space param; got {}", d2);
 }
 
@@ -5311,7 +5311,7 @@ fn p274_perceptual_distance_symmetric() {
     use typst_core::entities::layout_types::{Color, ColorSpace};
     let a = Color::rgb(255, 0, 0);
     let b = Color::rgb(0, 0, 255);
-    let d_ab = perceptual_distance_in_space(a, b, ColorSpace::Oklab);
+    let d_ab = perceptual_distance_in_space(a.clone(), b.clone(), ColorSpace::Oklab);
     let d_ba = perceptual_distance_in_space(b, a, ColorSpace::Oklab);
     assert!((d_ab - d_ba).abs() < 1e-5, "symmetric: {} vs {}", d_ab, d_ba);
 }
@@ -5333,9 +5333,9 @@ fn p274_perceptual_distance_param_space_ignored_currently() {
     use typst_core::entities::layout_types::{Color, ColorSpace};
     let a = Color::rgb(100, 150, 200);
     let b = Color::rgb(200, 50, 100);
-    let d_oklab = perceptual_distance_in_space(a, b, ColorSpace::Oklab);
-    let d_srgb = perceptual_distance_in_space(a, b, ColorSpace::Srgb);
-    let d_cmyk = perceptual_distance_in_space(a, b, ColorSpace::Cmyk);
+    let d_oklab = perceptual_distance_in_space(a.clone(), b.clone(), ColorSpace::Oklab);
+    let d_srgb = perceptual_distance_in_space(a.clone(), b.clone(), ColorSpace::Srgb);
+    let d_cmyk = perceptual_distance_in_space(a.clone(), b.clone(), ColorSpace::Cmyk);
     assert_eq!(d_oklab, d_srgb);
     assert_eq!(d_oklab, d_cmyk);
 }

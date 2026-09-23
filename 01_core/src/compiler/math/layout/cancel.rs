@@ -97,7 +97,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let center_y = (body_box.descent - body_box.ascent) / 2.0;
             let (thickness, color) = match &elem.stroke {
                 Some(stroke) => (stroke.thickness, Some(stroke.paint.to_color())),
-                None => (0.05 * style.size.val(), style.fill),
+                None => (0.05 * style.size.val(), style.fill.clone()),
             };
             FrameItem::Line {
                 start: Point { x: Pt(center_x - half_x), y: Pt(center_y + half_y) },

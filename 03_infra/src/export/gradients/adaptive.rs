@@ -69,7 +69,13 @@ pub(crate) fn adaptive_n_for_stops(
     }
     let max_delta_e = stops
         .windows(2)
-        .map(|pair| perceptual_distance_in_space(pair[0].color, pair[1].color, space))
+        .map(|pair| {
+            perceptual_distance_in_space(
+                pair[0].color.clone(),
+                pair[1].color.clone(),
+                space.clone(),
+            )
+        })
         .fold(0.0_f32, f32::max);
     if max_delta_e < 0.05 {
         16
@@ -102,7 +108,7 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
                 .iter()
                 .zip(value.effective_offsets())
                 .map(|(stop, offset)| {
-                    GradientStop::new(stop.color, Ratio(f64::from(offset)))
+                    GradientStop::new(stop.color.clone(), Ratio(f64::from(offset)))
                 })
                 .collect();
         }
@@ -120,9 +126,9 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
     for index in 0..stops.len().saturating_sub(1) {
         let t0 = offsets[index];
         let t1 = offsets[index + 1];
-        let c0 = stops[index].color;
-        let c1 = stops[index + 1].color;
-        out.push(GradientStop::new(c0, Ratio(t0)));
+        let c0 = stops[index].color.clone();
+        let c1 = stops[index + 1].color.clone();
+        out.push(GradientStop::new(c0.clone(), Ratio(t0)));
         if anti_alias && t1 > t0 {
             let dt = t1 - t0;
             let mut previous = c0;
@@ -135,9 +141,9 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
                 let midpoint = t0 + dt * (position as f64 - 0.5) / subdivisions as f64;
                 let exact = sample(midpoint);
                 let approximate = if clamped_srgb_error {
-                    mix_clamped_srgb_half(previous, next)
+                    mix_clamped_srgb_half(previous.clone(), next.clone())
                 } else {
-                    previous.mix(next, 0.5, Some(ColorSpace::Srgb))
+                    previous.clone().mix(next.clone(), 0.5, Some(ColorSpace::Srgb))
                 };
                 let error = if clamped_srgb_error {
                     premultiplied_srgb_error(exact, approximate)
@@ -150,7 +156,7 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
                 } else if position >= subdivisions {
                     break;
                 } else {
-                    out.push(GradientStop::new(next, Ratio(f64::from(next_t))));
+                    out.push(GradientStop::new(next.clone(), Ratio(f64::from(next_t))));
                     previous = next;
                     let shift = position.trailing_zeros();
                     subdivisions >>= shift;
@@ -164,7 +170,7 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
         }
     }
     let last = stops.len() - 1;
-    out.push(GradientStop::new(stops[last].color, Ratio(offsets[last])));
+    out.push(GradientStop::new(stops[last].color.clone(), Ratio(offsets[last])));
     out
 }
 
@@ -206,8 +212,8 @@ fn effective_offsets_f64(stops: &[GradientStop]) -> Vec<f64> {
 
 fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
     let (stops, space) = match gradient {
-        Gradient::Linear(value) => (&*value.stops, value.space),
-        Gradient::Radial(value) => (&*value.stops, value.space),
+        Gradient::Linear(value) => (&*value.stops, value.space.clone()),
+        Gradient::Radial(value) => (&*value.stops, value.space.clone()),
         Gradient::Conic(value) => return value.sample(t as f32),
     };
     if !matches!(
@@ -228,7 +234,7 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
         return Color::rgb(0, 0, 0);
     }
     if stops.len() == 1 {
-        return stops[0].color;
+        return stops[0].color.clone();
     }
     let t = t.clamp(0.0, 1.0);
     let offsets = effective_offsets_f64(stops);
@@ -237,23 +243,29 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
         while right + 1 < offsets.len() && offsets[right + 1] == 0.0 {
             right += 1;
         }
-        return stops[right].color;
+        return stops[right].color.clone();
     }
     if right >= stops.len() {
-        return stops[stops.len() - 1].color;
+        return stops[stops.len() - 1].color.clone();
     }
     let left = right - 1;
     let local = (t - offsets[left]) / (offsets[right] - offsets[left]);
-    let components = |color: Color| match (space, color.to_space(space)) {
-        (ColorSpace::Oklab, Color::Oklab { l, a, b, alpha }) => [l, a, b, alpha],
-        (ColorSpace::LinearRgb, Color::LinearRgb { r, g, b, a }) => [r, g, b, a],
-        (ColorSpace::Oklch, Color::Oklch { l, c, h, alpha }) => [l, c, h, alpha],
-        (ColorSpace::Hsl, Color::Hsl { h, s, l, a }) => [h, s, l, a],
-        (ColorSpace::Hsv, Color::Hsv { h, s, v, a }) => [h, s, v, a],
-        _ => unreachable!("precise SVG sampler space mismatch"),
+    let components = |color: Color| {
+        let converted = color
+            .clone()
+            .to_space(space.clone())
+            .unwrap_or_else(|_| color.to_process());
+        match (space.clone(), converted) {
+            (ColorSpace::Oklab, Color::Oklab { l, a, b, alpha }) => [l, a, b, alpha],
+            (ColorSpace::LinearRgb, Color::LinearRgb { r, g, b, a }) => [r, g, b, a],
+            (ColorSpace::Oklch, Color::Oklch { l, c, h, alpha }) => [l, c, h, alpha],
+            (ColorSpace::Hsl, Color::Hsl { h, s, l, a }) => [h, s, l, a],
+            (ColorSpace::Hsv, Color::Hsv { h, s, v, a }) => [h, s, v, a],
+            _ => unreachable!("precise SVG sampler space mismatch"),
+        }
     };
-    let mut c0 = components(stops[left].color);
-    let mut c1 = components(stops[right].color);
+    let mut c0 = components(stops[left].color.clone());
+    let mut c1 = components(stops[right].color.clone());
     let w0 = (1.0 - local) as f32;
     let w1 = local as f32;
     let total = w0 + w1;
@@ -365,8 +377,8 @@ mod p1257_tests {
                 let (r, g, b, a) = color.to_srgb();
                 (r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0, a as f32 / 255.0)
             };
-            let post_lo = quantized(lo.color);
-            let post_hi = quantized(hi.color);
+            let post_lo = quantized(lo.color.clone());
+            let post_hi = quantized(hi.color.clone());
             let error = |x: (f32, f32, f32, f32),
                          y0: (f32, f32, f32, f32),
                          y1: (f32, f32, f32, f32)| {
@@ -453,15 +465,15 @@ mod p1257_tests {
             let gradient = Gradient::linear_with_space(
                 vec![
                     GradientStop::new(first, Ratio(0.0)),
-                    GradientStop::new(second, Ratio(0.37)),
+                    GradientStop::new(second.clone(), Ratio(0.37)),
                     GradientStop::new(second, Ratio(1.0)),
                 ],
                 Angle::deg(0.0),
-                space,
+                space.clone(),
             );
             assert_eq!(
                 sample_gradient_precise_for_svg(&gradient, t),
-                p1278_expected_polar_sample(space, t),
+                p1278_expected_polar_sample(space.clone(), t),
                 "precisao divergente em {space:?}"
             );
         }
@@ -502,18 +514,18 @@ mod p1257_tests {
             (
                 "base",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(green.clone(), Ratio(0.37)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
                 43,
             ),
             (
                 "coincident",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.0)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(green.clone(), Ratio(0.0)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
                 19,
             ),
@@ -521,17 +533,17 @@ mod p1257_tests {
                 "alpha-first",
                 vec![
                     GradientStop::new(alpha_red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(green.clone(), Ratio(0.37)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
                 39,
             ),
             (
                 "alpha-mid",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
                     GradientStop::new(alpha_green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
                 37,
             ),
@@ -549,47 +561,47 @@ mod p1257_tests {
             (
                 "base",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(green.clone(), Ratio(0.37)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
             ),
             (
                 "two",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
             ),
             (
                 "coincident",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.0)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(green.clone(), Ratio(0.0)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
             ),
             (
                 "alpha-first",
                 vec![
                     GradientStop::new(alpha_red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(green.clone(), Ratio(0.37)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
             ),
             (
                 "alpha-mid",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
                     GradientStop::new(alpha_green, Ratio(0.37)),
-                    GradientStop::new(blue, Ratio(1.0)),
+                    GradientStop::new(blue.clone(), Ratio(1.0)),
                 ],
             ),
             (
                 "alpha-last",
                 vec![
-                    GradientStop::new(red, Ratio(0.0)),
-                    GradientStop::new(green, Ratio(0.37)),
+                    GradientStop::new(red.clone(), Ratio(0.0)),
+                    GradientStop::new(green.clone(), Ratio(0.37)),
                     GradientStop::new(alpha_blue, Ratio(1.0)),
                 ],
             ),
@@ -609,7 +621,8 @@ mod p1257_tests {
             ColorSpace::Oklab,
         );
         let exact = sample_gradient_precise_for_svg(&gradient, 0.685);
-        let approximate = mix_clamped_srgb_half(stops[1].color, stops[2].color);
+        let approximate =
+            mix_clamped_srgb_half(stops[1].color.clone(), stops[2].color.clone());
         let (er, eg, eb, ea) = exact.to_rgba_f32();
         let (ar, ag, ab, aa) = approximate.to_rgba_f32();
         let expected = {
@@ -618,7 +631,7 @@ mod p1257_tests {
             let db = eb.clamp(0.0, 1.0) * ea - ab.clamp(0.0, 1.0) * aa;
             (dr * dr + dg * dg + db * db).sqrt()
         };
-        let measured = premultiplied_srgb_error(exact, approximate);
+        let measured = premultiplied_srgb_error(exact.clone(), approximate.clone());
         let raw = p1262_raw_premultiplied_srgb_error(exact, approximate);
         assert_eq!(measured.to_bits(), expected.to_bits());
         assert_ne!(raw.to_bits(), expected.to_bits(), "witness must cross gamut");
@@ -657,7 +670,7 @@ mod p1257_tests {
                         _ => unreachable!("Oklab gradient must sample to Oklab"),
                     };
                     let (raw_r, raw_g, raw_b, raw_a) = exact.to_rgba_f32();
-                    let (pre_r, pre_g, pre_b) = clamped_premultiplied_srgb(exact);
+                    let (pre_r, pre_g, pre_b) = clamped_premultiplied_srgb(exact.clone());
                     let (u8_r, u8_g, u8_b, u8_a) = exact.to_srgb();
                     eprintln!(
                         "P1262_STAGE\t{kind}\t{name}\t{worst_t:.17}\t{l:.9}\t{a:.9}\t{b:.9}\t{alpha:.9}\t{raw_r:.9}\t{raw_g:.9}\t{raw_b:.9}\t{raw_a:.9}\t{pre_r:.9}\t{pre_g:.9}\t{pre_b:.9}\t{u8_r}\t{u8_g}\t{u8_b}\t{u8_a}"
@@ -712,9 +725,16 @@ mod p1257_tests {
                     }
                     let midpoint = t0 + (t1 - t0) * 0.5;
                     let exact = sample_gradient_precise_for_svg(&gradient, midpoint);
-                    let approximate = mix_clamped_srgb_half(pair[0].color, pair[1].color);
-                    let raw = p1262_raw_premultiplied_srgb_error(exact, approximate);
-                    let clamped = premultiplied_srgb_error(exact, approximate);
+                    let approximate = mix_clamped_srgb_half(
+                        pair[0].color.clone(),
+                        pair[1].color.clone(),
+                    );
+                    let raw = p1262_raw_premultiplied_srgb_error(
+                        exact.clone(),
+                        approximate.clone(),
+                    );
+                    let clamped =
+                        premultiplied_srgb_error(exact.clone(), approximate.clone());
                     if raw > 0.001 && clamped <= 0.001 {
                         decisive += 1;
                         if std::env::var_os("P1262_DUMP").is_some() {
@@ -724,9 +744,10 @@ mod p1257_tests {
                             };
                             let (er, eg, eb, ea) = exact.to_rgba_f32();
                             let (ar, ag, ab, aa) = approximate.to_rgba_f32();
-                            let (ep_r, ep_g, ep_b) = clamped_premultiplied_srgb(exact);
+                            let (ep_r, ep_g, ep_b) =
+                                clamped_premultiplied_srgb(exact.clone());
                             let (ap_r, ap_g, ap_b) =
-                                clamped_premultiplied_srgb(approximate);
+                                clamped_premultiplied_srgb(approximate.clone());
                             eprintln!(
                                 "P1262_DECISION\t{kind}\t{name}\t{midpoint:.17}\t{l:.9}\t{a:.9}\t{b:.9}\t{alpha:.9}\t{er:.9}\t{eg:.9}\t{eb:.9}\t{ea:.9}\t{ar:.9}\t{ag:.9}\t{ab:.9}\t{aa:.9}\t{ep_r:.9}\t{ep_g:.9}\t{ep_b:.9}\t{ap_r:.9}\t{ap_g:.9}\t{ap_b:.9}\t{raw:.9}\t{clamped:.9}"
                             );
@@ -754,7 +775,7 @@ mod p1257_tests {
                         Gradient::linear_with_space(
                             stops.clone(),
                             Angle::deg(0.0),
-                            space,
+                            space.clone(),
                         ),
                     ),
                     (
@@ -763,7 +784,7 @@ mod p1257_tests {
                             stops.clone(),
                             Axes::new(Ratio(0.5), Ratio(0.5)),
                             Ratio(0.5),
-                            space,
+                            space.clone(),
                         ),
                     ),
                 ] {

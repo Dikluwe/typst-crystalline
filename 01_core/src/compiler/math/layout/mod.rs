@@ -1209,10 +1209,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // Ver `_comum.md` §P990-C.
             Content::Strike(e) => self.layout_node(&e.body, style),
             Content::Overline(e) => {
-                self.layout_overline(&e.body, e.stroke, e.offset, e.extent, style)
+                self.layout_overline(&e.body, e.stroke.clone(), e.offset, e.extent, style)
             }
             Content::Underline(e) => {
-                self.layout_underline(&e.body, e.stroke, e.offset, e.extent, style)
+                self.layout_underline(&e.body, e.stroke.clone(), e.offset, e.extent, style)
             }
 
             // **P994** — o catch-all divide-se em dois (medição da Fase B,
@@ -1333,7 +1333,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Style::bold(style.bold),
             Style::italic(style.italic),
         ];
-        if let Some(c) = style.fill {
+        if let Some(c) = style.fill.clone() {
             styles.push(Style::Fill(c));
         }
         if let Some(h) = style.heading_level {
@@ -1583,7 +1583,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let descent = body_box.descent;
 
         let line_y = -(body_box.ascent + gap + thickness / 2.0);
-        let color = stroke.or(style.fill);
+        let color = stroke.or(style.fill.clone());
 
         let mut items = body_box.items;
         items.push(FrameItem::Line {
@@ -1624,7 +1624,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let descent = body_box.descent + extra_height;
 
         let line_y = body_box.descent + gap + thickness / 2.0;
-        let color = stroke.or(style.fill);
+        let color = stroke.or(style.fill.clone());
 
         let mut items = body_box.items;
         items.push(FrameItem::Line {
@@ -2518,13 +2518,13 @@ fn apply_math_default(body: &Content) -> Content {
             e.explicit,
         ),
         Content::Strike(e) => {
-            Content::strike(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+            Content::strike(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
         }
         Content::Overline(e) => {
-            Content::overline(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+            Content::overline(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
         }
         Content::Underline(e) => {
-            Content::underline(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+            Content::underline(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
         }
         // **P966** — conteúdo de função de utilizador dentro de math chega
         // como containers de markup (`Sequence`/`Styled`) com folhas mistas

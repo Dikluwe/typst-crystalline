@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash 2a7f69cd
+//! @prompt-hash f9266994
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -11,10 +11,11 @@
 //! Oklab) + despacho de métodos de instância (`red.lighten(20%)`).
 
 use ecow::EcoString;
+use std::sync::Arc;
 
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::layout_types::{Color, ColorSpace};
@@ -22,6 +23,7 @@ use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::color::{ColorSpaceError, SpotColor, SpotColorant};
 use crate::entities::value::{Type, Value};
 
 use super::err;
@@ -219,7 +221,7 @@ const PREDEFINED_COLORS: &[(&str, Color)] = &[
 fn predefined_color(name: &str) -> Option<Color> {
     PREDEFINED_COLORS
         .iter()
-        .find_map(|(candidate, color)| (*candidate == name).then_some(*color))
+        .find_map(|(candidate, color)| (*candidate == name).then_some(color.clone()))
 }
 
 /// Cores nomeadas globais para injeção no scope de eval.
@@ -231,7 +233,7 @@ fn predefined_color(name: &str) -> Option<Color> {
 pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
     PREDEFINED_COLORS
         .iter()
-        .map(|(name, color)| ((*name).into(), Value::Color(*color)))
+        .map(|(name, color)| ((*name).into(), Value::Color(color.clone())))
         .chain([
             // Extras cristalinos preservados somente no global.
             ("cyan".into(), Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
@@ -243,7 +245,7 @@ pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
 
 fn extract_color_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<Color> {
     match val {
-        Value::Color(c) => Ok(*c),
+        Value::Color(c) => Ok(c.clone()),
         other => err_typed(format!(
             "{}: argumento '{}' deve ser Color, recebeu {}",
             fn_name,
@@ -278,6 +280,7 @@ fn extract_color_space_arg(
 ) -> SourceResult<crate::entities::color::ColorSpace> {
     use crate::entities::color::ColorSpace;
     match val {
+        Value::SpotColorant(colorant) => Ok(ColorSpace::Spot(colorant.clone())),
         Value::Func(f) => match f.name() {
             Some("rgb") => Ok(ColorSpace::Srgb),
             Some("luma") => Ok(ColorSpace::Luma),
@@ -297,6 +300,22 @@ fn extract_color_space_arg(
             vanilla_type_name(other)
         )),
     }
+}
+
+fn color_space_diagnostic(error: ColorSpaceError) -> Vec<SourceDiagnostic> {
+    let message = match error {
+        ColorSpaceError::ProcessToSpot { .. } => {
+            "cannot convert process color to spot colorant space"
+        }
+        ColorSpaceError::SpotToOther { .. } => {
+            "cannot convert spot color to different spot colorant"
+        }
+    };
+    vec![SourceDiagnostic::error(Span::detached(), message)]
+}
+
+fn check_space(color: &Color, space: &ColorSpace) -> SourceResult<()> {
+    color.clone().to_space(space.clone()).map(|_| ()).map_err(color_space_diagnostic)
 }
 
 /// `color.lighten(col, amount)` — aumenta luminância por `amount` **no
@@ -368,7 +387,11 @@ pub(crate) fn native_color_mix(
         let weight = extract_ratio_arg(weight_value, "color.mix", "weight")?;
         return match args.items.as_slice() {
             [Value::Color(first), Value::Color(second)] => {
-                Ok(Value::Color(first.mix(*second, weight, space)))
+                if let Some(target) = &space {
+                    check_space(first, target)?;
+                    check_space(second, target)?;
+                }
+                Ok(Value::Color(first.clone().mix(second.clone(), weight, space)))
             }
             _ => err("color.mix(weight:) requer exatamente duas cores sem pesos"),
         };
@@ -376,7 +399,7 @@ pub(crate) fn native_color_mix(
 
     fn entry(value: &Value) -> SourceResult<(Color, f32)> {
         match value {
-            Value::Color(color) => Ok((*color, 1.0)),
+            Value::Color(color) => Ok((color.clone(), 1.0)),
             Value::Array(values) if values.len() == 2 => {
                 let Value::Color(color) = &values[0] else {
                     return err_typed("expected a color or color-weight pair");
@@ -392,7 +415,7 @@ pub(crate) fn native_color_mix(
                         ))
                     }
                 };
-                Ok((*color, weight))
+                Ok((color.clone(), weight))
             }
             _ => err_typed("expected a color or color-weight pair"),
         }
@@ -400,6 +423,11 @@ pub(crate) fn native_color_mix(
 
     let colors: Vec<(Color, f32)> =
         args.items.iter().map(entry).collect::<SourceResult<_>>()?;
+    if let Some(target) = &space {
+        for (color, _) in &colors {
+            check_space(color, target)?;
+        }
+    }
     if matches!(
         space,
         Some(ColorSpace::Hsl) | Some(ColorSpace::Hsv) | Some(ColorSpace::Oklch)
@@ -443,6 +471,12 @@ pub(crate) fn native_color_negate(
     match args.items.as_slice() {
         [col] => {
             let c = extract_color_arg(col, "color.negate", "col")?;
+            if let Some(target) = &space {
+                check_space(&c, target)?;
+                if matches!(&c, Color::Spot(_)) && !matches!(target, ColorSpace::Spot(_)) {
+                    return err_typed("cannot convert process color to spot colorant space");
+                }
+            }
             Ok(Value::Color(c.negate(space)))
         }
         _ => err(format!(
@@ -467,6 +501,10 @@ pub(crate) fn native_color_saturate(
         [col, amount] => {
             let c = extract_color_arg(col, "color.saturate", "col")?;
             let a = extract_ratio_arg(amount, "color.saturate", "amount")?;
+            if matches!(&c, Color::Spot(_)) {
+                return Err(vec![SourceDiagnostic::error(Span::detached(), "cannot saturate spot color")
+                    .with_hint("try using the fallback color instead")]);
+            }
             match c.saturate(a) {
                 Some(sat) => Ok(Value::Color(sat)),
                 // Verbatim vanilla (medido P742) + hint.
@@ -499,6 +537,10 @@ pub(crate) fn native_color_desaturate(
         [col, amount] => {
             let c = extract_color_arg(col, "color.desaturate", "col")?;
             let a = extract_ratio_arg(amount, "color.desaturate", "amount")?;
+            if matches!(&c, Color::Spot(_)) {
+                return Err(vec![SourceDiagnostic::error(Span::detached(), "cannot desaturate spot color")
+                    .with_hint("try using the fallback color instead")]);
+            }
             match c.desaturate(a) {
                 Some(desat) => Ok(Value::Color(desat)),
                 // Verbatim vanilla (medido P742) + hint.
@@ -524,6 +566,9 @@ pub(crate) fn native_color_rotate(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    if matches!(args.named.get("space"), Some(Value::SpotColorant(_))) {
+        return err_typed("expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, or `color.hsv`, found spot colorant");
+    }
     let space = match args.named.get("space") {
         Some(v) => Some(extract_color_space_arg(v, "color.rotate", "space")?),
         None => None,
@@ -539,6 +584,9 @@ pub(crate) fn native_color_rotate(
     match args.items.as_slice() {
         [col, angle] => {
             let c = extract_color_arg(col, "color.rotate", "col")?;
+            if matches!(&c, Color::Spot(_)) {
+                return err_typed("cannot convert process color to spot colorant space");
+            }
             let deg = match angle {
                 Value::Angle(a) => a.to_deg() as f32,
                 other => {
@@ -596,6 +644,10 @@ pub(crate) fn native_color_components(
     match args.items.as_slice() {
         [col] => {
             let c = extract_color_arg(col, "color.components", "col")?;
+            if let Color::Spot(spot) = &c {
+                // ColorComponent usa f32 para processo; tint spot conserva Ratio f64.
+                return Ok(Value::Array(vec![Value::Ratio(spot.tint)]));
+            }
             let items = c
                 .components(alpha)
                 .into_iter()
@@ -639,17 +691,18 @@ pub(crate) fn native_color_space(
                 native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
                 native_oklab, native_oklch, native_rgb,
             };
-            let func = match c.space() {
-                ColorSpace::Srgb => Func::native("rgb", native_rgb),
-                ColorSpace::Luma => Func::native("luma", native_luma),
-                ColorSpace::LinearRgb => Func::native("linear-rgb", native_linear_rgb),
-                ColorSpace::Oklab => Func::native("oklab", native_oklab),
-                ColorSpace::Oklch => Func::native("oklch", native_oklch),
-                ColorSpace::Cmyk => Func::native("cmyk", native_cmyk),
-                ColorSpace::Hsl => Func::native("hsl", native_hsl),
-                ColorSpace::Hsv => Func::native("hsv", native_hsv),
+            let value = match c.space() {
+                ColorSpace::Srgb => Value::Func(Func::native("rgb", native_rgb)),
+                ColorSpace::Luma => Value::Func(Func::native("luma", native_luma)),
+                ColorSpace::LinearRgb => Value::Func(Func::native("linear-rgb", native_linear_rgb)),
+                ColorSpace::Oklab => Value::Func(Func::native("oklab", native_oklab)),
+                ColorSpace::Oklch => Value::Func(Func::native("oklch", native_oklch)),
+                ColorSpace::Cmyk => Value::Func(Func::native("cmyk", native_cmyk)),
+                ColorSpace::Hsl => Value::Func(Func::native("hsl", native_hsl)),
+                ColorSpace::Hsv => Value::Func(Func::native("hsv", native_hsv)),
+                ColorSpace::Spot(colorant) => Value::SpotColorant(colorant),
             };
-            Ok(Value::Func(func))
+            Ok(value)
         }
         _ => err(format!(
             "color.space() requer 1 argumento (col), recebeu {}",
@@ -694,6 +747,9 @@ pub(crate) fn native_color_transparentize(
         [col, factor] => {
             let c = extract_color_arg(col, "color.transparentize", "col")?;
             let f = extract_ratio_arg(factor, "color.transparentize", "factor")?;
+            if matches!(&c, Color::Spot(_)) {
+                return err_typed("spot colors do not have an alpha component");
+            }
             match c.transparentize(f) {
                 Some(t) => Ok(Value::Color(t)),
                 None => Err(vec![SourceDiagnostic::error(
@@ -723,6 +779,9 @@ pub(crate) fn native_color_opacify(
         [col, factor] => {
             let c = extract_color_arg(col, "color.opacify", "col")?;
             let f = extract_ratio_arg(factor, "color.opacify", "factor")?;
+            if matches!(&c, Color::Spot(_)) {
+                return err_typed("spot colors do not have an alpha component");
+            }
             match c.opacify(f) {
                 Some(o) => Ok(Value::Color(o)),
                 None => Err(vec![SourceDiagnostic::error(
@@ -793,7 +852,10 @@ pub(crate) fn native_spot_colorant_construct(
 
     let fallback = match fallback_arg {
         None => return err_typed("missing argument: fallback"),
-        Some(Value::Color(c)) => *c,
+        Some(Value::Color(Color::Spot(_))) => {
+            return err_typed("spot color found where process color is required");
+        }
+        Some(Value::Color(c)) => c.clone(),
         Some(Value::SpotColorant(_)) => {
             return err_typed("expected color, found spot colorant");
         }
@@ -806,6 +868,72 @@ pub(crate) fn native_spot_colorant_construct(
     };
 
     Ok(Value::SpotColorant(crate::entities::color::SpotColorant { name, fallback }))
+}
+
+/// Constrói uma cor spot sem perder a identidade do colorante.
+pub(crate) fn native_spot_tint(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if let Some(key) = args.named.keys().next() {
+        let message = if key == "value" {
+            "the argument `value` is positional".to_string()
+        } else {
+            format!("unexpected argument: {key}")
+        };
+        return Err(vec![SourceDiagnostic::error(args.span, message)]);
+    }
+    let colorant = match args.items.first() {
+        Some(Value::SpotColorant(colorant)) => colorant,
+        Some(other) => return err_typed(format!("expected spot colorant, found {}", vanilla_type_name(other))),
+        None => return err_typed("missing argument: self"),
+    };
+    let tint = match args.items.get(1) {
+        Some(Value::Ratio(value)) => *value,
+        Some(other) => return err_typed(format!("expected ratio, found {}", vanilla_type_name(other))),
+        None => return err_typed("missing argument: value"),
+    };
+    if args.items.len() > 2 {
+        return err_typed("unexpected argument");
+    }
+    if tint.get() < 0.0 {
+        return err_typed("spot color tint must be positive");
+    }
+    if tint.get() > 1.0 {
+        return err_typed("spot color tint must not exceed 100%");
+    }
+    Ok(Value::Color(Color::Spot(SpotColor {
+        colorant: Arc::new(colorant.clone()),
+        tint,
+    })))
+}
+
+/// Injeta o receptor de uma chamada `spot.tint(value)` sem alterar a ABI
+/// da nativa estática `color.spot.tint(spot, value)`.
+pub(crate) fn dispatch_spot_colorant_tint(
+    colorant: &SpotColorant,
+    args: Args,
+    ctx: &mut EvalContext,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+) -> SourceResult<Value> {
+    let synth = if args.occurrences.is_some() {
+        let mut occurrences = args.occurrence_sequence();
+        occurrences.insert(0, ArgOccurrence {
+            name: None,
+            value: Value::SpotColorant(colorant.clone()),
+            span: Span::detached(),
+            value_span: Span::detached(),
+        });
+        Args::from_occurrences(args.span, occurrences)
+    } else {
+        let mut items = args.items;
+        items.insert(0, Value::SpotColorant(colorant.clone()));
+        Args::from_parts(items, args.named, args.span)
+    };
+    native_spot_tint(ctx, &synth, world, current_file)
 }
 
 #[cfg(test)]
@@ -1063,5 +1191,73 @@ mod p1473_tests {
         assert_eq!(expect_ok("type(color) == type"), Value::Bool(true));
         eval("color.rgb(255, 0, 0)")
             .unwrap_or_else(|e| panic!("color.rgb(..) directo regrediu: {e:?}"));
+    }
+    #[test]
+    fn p1482_tint_is_a_color_with_stable_repr_and_equality() {
+        let source = format!(r#"color.spot("Brand", {FALLBACK})"#);
+        assert_eq!(expect_ok(&format!("type({source}.tint(50%)) == color")), Value::Bool(true));
+        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%))")), format!("{source}.tint(50%)"));
+        assert_eq!(expect_ok(&format!("{source}.tint(50%) == {source}.tint(50%)")), Value::Bool(true));
+        assert_eq!(expect_ok(&format!("{source}.tint(50%) != {source}.tint(25%)")), Value::Bool(true));
+        assert_eq!(expect_ok(&format!("color.spot.tint({source}, 50%) == {source}.tint(50%)")), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1482_tint_bounds_and_errors() {
+        let source = format!(r#"color.spot("Brand", {FALLBACK})"#);
+        assert_eq!(expect_ok_str(&format!("repr({source}.tint(0%))")), format!("{source}.tint(0%)"));
+        assert_eq!(expect_ok_str(&format!("repr({source}.tint(100%))")), format!("{source}.tint(100%)"));
+        assert_eq!(expect_err_message(&format!("{source}.tint(-1%)")), "spot color tint must be positive");
+        assert_eq!(expect_err_message(&format!("{source}.tint(101%)")), "spot color tint must not exceed 100%");
+        assert_eq!(expect_err_message(&format!("{source}.tint(0.5)")), "expected ratio, found float");
+    }
+
+    #[test]
+    fn p1482_tint_process_projection_and_operations() {
+        let source = format!(r##"color.spot("Brand", rgb("#ff4136"))"##);
+        assert_eq!(expect_ok_str(&format!("{source}.tint(0%).to-hex()")), "#ffffff");
+        assert_eq!(expect_ok_str(&format!("{source}.tint(100%).to-hex()")), "#ff4136");
+        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%).lighten(20%))")), format!("{source}.tint(40%)"));
+        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%).darken(20%))")), format!("{source}.tint(60%)"));
+        assert_eq!(expect_ok(&format!("{source}.tint(50%).space() == {source}")), Value::Bool(true));
+        assert_eq!(expect_ok(&format!("{source}.tint(50%).components() == (50%,)")), Value::Bool(true));
+        assert_eq!(expect_ok(&format!("{source}.tint(12.3456789%).components().at(0) == 12.3456789%")), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1482_mix_and_gradient_keep_matching_spot_identity() {
+        let spot = r#"color.spot("Brand", red)"#;
+        let a = format!("{spot}.tint(50%)");
+        let b = format!("{spot}.tint(25%)");
+        let repr = expect_ok_str(&format!("repr({spot})"));
+        assert_eq!(expect_ok_str(&format!("repr({a}.mix({b}))")), format!("{repr}.tint(37.5%)"));
+        assert_eq!(expect_ok(&format!("gradient.linear({a}, {b}).space() == {spot}")), Value::Bool(true));
+        assert_eq!(expect_ok_str(&format!("repr(gradient.linear({a}, {b}).sample(50%))")), format!("{repr}.tint(37.5%)"));
+        assert_eq!(expect_ok(&format!("gradient.linear({a}, blue).space() == color.oklab")), Value::Bool(true));
+    }
+
+    #[test]
+    fn p1482_rejects_incompatible_spot_space_and_operators() {
+        let spot = r#"color.spot("Brand", red)"#;
+        let a = format!("{spot}.tint(50%)");
+        assert_eq!(expect_err_message(&format!("{a}.mix(blue, space: {spot})")), "cannot convert process color to spot colorant space");
+        assert_eq!(expect_err_message(&format!("gradient.linear({a}, blue, space: {spot})")), "cannot convert process color to spot colorant space");
+        assert_eq!(expect_err_message(&format!("{a}.saturate(20%)")), "cannot saturate spot color");
+        assert_eq!(expect_err_message(&format!("{a}.desaturate(20%)")), "cannot desaturate spot color");
+        assert_eq!(expect_err_message(&format!("{a}.transparentize(20%)")), "spot colors do not have an alpha component");
+        assert_eq!(expect_err_message(&format!("{a}.opacify(20%)")), "spot colors do not have an alpha component");
+        assert_eq!(expect_err_message(&format!("{a}.rotate(90deg)")), "cannot convert process color to spot colorant space");
+        assert_eq!(expect_err_message(&format!("{a}.negate(space: rgb)")), "cannot convert process color to spot colorant space");
+    }
+
+    #[test]
+    fn p1482_fallback_cast_and_tint_call_contract() {
+        let spot = r##"color.spot("Brand", rgb("#ff4136"))"##;
+        let a = format!("{spot}.tint(50%)");
+        assert_eq!(expect_ok_str(&format!("rgb({a}).to-hex()")), "#ffa09a");
+        assert_eq!(expect_err_message(&format!("{spot}.tint(value: 50%)")), "the argument `value` is positional");
+        assert_eq!(expect_err_message(&format!("{spot}.tint()")), "missing argument: value");
+        assert_eq!(expect_err_message("color.spot.tint(red, 50%)"), "expected spot colorant, found color");
+        assert_eq!(expect_err_message(&format!(r#"color.spot("X", {a})"#)), "spot color found where process color is required");
     }
 }

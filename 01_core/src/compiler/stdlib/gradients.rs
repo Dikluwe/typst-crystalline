@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/gradients.md
-//! @prompt-hash f82ff207
+//! @prompt-hash 05b57b8a
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -19,7 +19,7 @@
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::axes::Axes;
-use crate::entities::color::ColorSpace;
+use crate::entities::color::{Color, ColorSpace, ColorSpaceError};
 use crate::entities::dir::Dir;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
@@ -196,7 +196,7 @@ gradient_accessor!(native_gradient_stops, "gradient.stops", |g: &Gradient| {
             .iter()
             .zip(offsets)
             .map(|(stop, offset)| {
-                Value::Array(vec![Value::Color(stop.color), Value::Ratio(Ratio(offset))])
+                Value::Array(vec![Value::Color(stop.color.clone()), Value::Ratio(Ratio(offset))])
             })
             .collect(),
     )
@@ -204,11 +204,12 @@ gradient_accessor!(native_gradient_stops, "gradient.stops", |g: &Gradient| {
 
 gradient_accessor!(native_gradient_space, "gradient.space", |g: &Gradient| {
     let space = match g {
-        Gradient::Linear(v) => v.space,
-        Gradient::Radial(v) => v.space,
-        Gradient::Conic(v) => v.space,
+        Gradient::Linear(v) => v.space.clone(),
+        Gradient::Radial(v) => v.space.clone(),
+        Gradient::Conic(v) => v.space.clone(),
     };
     let name = match space {
+        ColorSpace::Spot(colorant) => return Value::SpotColorant(colorant),
         ColorSpace::Srgb => "rgb",
         ColorSpace::Luma => "luma",
         ColorSpace::LinearRgb => "linear-rgb",
@@ -360,7 +361,7 @@ fn resolved_stops(gradient: &Gradient) -> Vec<GradientStop> {
     stops
         .iter()
         .zip(offsets)
-        .map(|(stop, offset)| GradientStop::new(stop.color, Ratio(offset)))
+        .map(|(stop, offset)| GradientStop::new(stop.color.clone(), Ratio(offset)))
         .collect()
 }
 
@@ -375,7 +376,7 @@ fn rebuild_gradient(
         Gradient::Linear(v) => Gradient::Linear(Arc::new(Linear {
             stops: Arc::from(stops),
             angle: v.angle,
-            space: v.space,
+            space: v.space.clone(),
             relative: v.relative,
             anti_alias,
         })),
@@ -385,7 +386,7 @@ fn rebuild_gradient(
             radius: v.radius,
             focal_center: v.focal_center,
             focal_radius: v.focal_radius,
-            space: v.space,
+            space: v.space.clone(),
             relative: v.relative,
             anti_alias,
         })),
@@ -393,7 +394,7 @@ fn rebuild_gradient(
             stops: Arc::from(stops),
             center: v.center,
             angle: v.angle,
-            space: v.space,
+            space: v.space.clone(),
             relative: v.relative,
             anti_alias,
         })),
@@ -437,7 +438,7 @@ pub(crate) fn native_gradient_sharp(
                 Gradient::Radial(v) => v.sample(t),
                 Gradient::Conic(v) => v.sample(t),
             };
-            [color, color]
+            [color.clone(), color]
         })
         .collect();
     let progress = smoothness / (4.0 * n as f64);
@@ -453,7 +454,7 @@ pub(crate) fn native_gradient_sharp(
             offset -= progress;
         }
         let stop = GradientStop::new(color, Ratio(offset));
-        if stops.last().copied() != Some(stop) {
+        if stops.last() != Some(&stop) {
             stops.push(stop);
         }
     }
@@ -501,14 +502,14 @@ pub(crate) fn native_gradient_repeat(
                 } else {
                     (i as f64 + r) / n as f64
                 };
-                GradientStop::new(stop.color, Ratio(offset))
+                GradientStop::new(stop.color.clone(), Ratio(offset))
             })
             .collect();
         if i % 2 == 1 && mirror {
             part.reverse();
         }
         for stop in part {
-            if stops.last().copied() != Some(stop) {
+            if stops.last() != Some(&stop) {
                 stops.push(stop);
             }
         }
@@ -563,10 +564,8 @@ pub fn native_gradient_linear(
     };
 
     // P270 — named arg `space` (ADR-0091 EM VIGOR).
-    let space = parse_space_named(args, "gradient.linear")?;
-    for stop in &mut stops {
-        stop.color = stop.color.to_space(space);
-    }
+    let space = select_space(args, "gradient.linear", &stops)?;
+    convert_stops_to_space(&mut stops, &space, args)?;
 
     // P273 — named arg `relative` cross-variant.
     let relative = parse_relative_named(args, "gradient.linear")?;
@@ -635,6 +634,7 @@ fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
     match args.named.get("space") {
         None => Ok(ColorSpace::Oklab),
         Some(Value::Auto) => Ok(ColorSpace::Oklab),
+        Some(Value::SpotColorant(colorant)) => Ok(ColorSpace::Spot(colorant.clone())),
         Some(Value::Func(f)) => match f.name() {
             Some("rgb") => Ok(ColorSpace::Srgb),
             Some("luma") => Ok(ColorSpace::Luma),
@@ -672,6 +672,42 @@ fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
     }
 }
 
+/// Escolhe o colorante como espaço automático somente quando todos os stops
+/// carregam a mesma identidade spot.
+fn select_space(args: &Args, fn_name: &str, stops: &[GradientStop]) -> SourceResult<ColorSpace> {
+    if matches!(args.named.get("space"), None | Some(Value::Auto)) {
+        if let Some(Color::Spot(first)) = stops.first().map(|stop| &stop.color) {
+            if stops.iter().all(|stop| {
+                matches!(&stop.color, Color::Spot(spot) if spot.colorant == first.colorant)
+            }) {
+                return Ok(ColorSpace::Spot((*first.colorant).clone()));
+            }
+        }
+    }
+    parse_space_named(args, fn_name)
+}
+
+fn convert_stops_to_space(
+    stops: &mut [GradientStop],
+    space: &ColorSpace,
+    args: &Args,
+) -> SourceResult<()> {
+    for stop in stops {
+        stop.color = stop.color.clone().to_space(space.clone()).map_err(|error| {
+            let message = match error {
+                ColorSpaceError::ProcessToSpot { .. } => {
+                    "cannot convert process color to spot colorant space"
+                }
+                ColorSpaceError::SpotToOther { .. } => {
+                    "cannot convert spot color to different spot colorant"
+                }
+            };
+            vec![SourceDiagnostic::error(args.span, message)]
+        })?;
+    }
+    Ok(())
+}
+
 /// Parse cada item posicional para `GradientStop`.
 ///
 /// Aceita:
@@ -681,10 +717,10 @@ fn parse_stops(items: &[Value]) -> SourceResult<Vec<GradientStop>> {
     let mut stops = Vec::with_capacity(items.len());
     for (i, item) in items.iter().enumerate() {
         let stop = match item {
-            Value::Color(c) => GradientStop::unspaced(*c),
+            Value::Color(c) => GradientStop::unspaced(c.clone()),
             Value::Array(arr) if arr.len() == 2 => {
                 let c = match &arr[0] {
-                    Value::Color(c) => *c,
+                    Value::Color(c) => c.clone(),
                     other => return Err(vec![SourceDiagnostic::error(
                         Span::detached(),
                         format!("gradient.linear: stop {}: primeiro elemento deve ser Color, recebeu {}",
@@ -870,10 +906,8 @@ pub fn native_gradient_radial(
     }
 
     // P270 — named arg `space`.
-    let space = parse_space_named(args, "gradient.radial")?;
-    for stop in &mut stops {
-        stop.color = stop.color.to_space(space);
-    }
+    let space = select_space(args, "gradient.radial", &stops)?;
+    convert_stops_to_space(&mut stops, &space, args)?;
 
     for key in args.named.keys() {
         if key != "center"
@@ -985,10 +1019,8 @@ pub fn native_gradient_conic(
     };
 
     // P270 — named arg `space`.
-    let space = parse_space_named(args, "gradient.conic")?;
-    for stop in &mut stops {
-        stop.color = stop.color.to_space(space);
-    }
+    let space = select_space(args, "gradient.conic", &stops)?;
+    convert_stops_to_space(&mut stops, &space, args)?;
 
     // P273 — named arg `relative` cross-variant.
     let relative = parse_relative_named(args, "gradient.conic")?;

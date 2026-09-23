@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 0b58fda5
+Hash do Código: 9d29b6a0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1445,3 +1445,24 @@ integração" acima); os 2 testes novos de B não cobriam esse caso porque o
 próprio L0, nesta secção, também não o antecipava antes da integração.
 Suíte: 35/35 neste ficheiro (2 novos + 33 irmãos, incluindo os 5 P1303
 reconfirmados GREEN). Zero regressão em typst-core (6059/6059).
+## P1482 — campo estático `color.spot.tint` (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+`compiler/eval/bindings/field_access.rs:774-919` tem lookup de
+`Type::Color` mas nenhum ramo de `Type::SpotColorant`.
+Vanilla: `type(color.spot.tint) == function`,
+`repr(color.spot.tint) == "tint"`,
+`color.spot.tint(s, 50%)` funciona e `s.tint` isolado erra
+`cannot access fields on type spot colorant` (sondas P1482).
+O constructor P1473 continua em `color.spot(...)`.
+
+### Decisão proprietária
+
+`Type::SpotColorant` expõe somente o campo estático `tint` com
+`Func` nativa do owner `compiler/stdlib/color.md`; campos
+desconhecidos conservam o erro de tipo. `Value::SpotColorant` não
+adquire field access de instância: a chamada sintática ligada é
+interceptada exclusivamente em `compiler/eval/call_dispatch.md`.
+Não alterar lookup de `Type::Color` nem introduzir função ligada
+first-class ausente do vanilla.

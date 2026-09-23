@@ -203,9 +203,9 @@ pub(crate) fn emit_conic_coons_stream_rgb(
         push_coord(&mut stream, center.1);
 
         // 4 corner colors RGB (12 bytes); interpolated via Conic::sample.
-        push_color_rgb(&mut stream, color_start); // corner0
+        push_color_rgb(&mut stream, color_start.clone()); // corner0
         push_color_rgb(&mut stream, color_start); // corner1
-        push_color_rgb(&mut stream, color_end); // corner2
+        push_color_rgb(&mut stream, color_end.clone()); // corner2
         push_color_rgb(&mut stream, color_end); // corner3
     }
 
@@ -312,10 +312,10 @@ pub(crate) fn emit_conic_coons_stream_cmyk(
         push_coord(&mut stream, center.1);
 
         // 4 corner colors CMYK (16 bytes vs 12 RGB).
-        push_color_cmyk(&mut stream, stop_curr.color); // corner0
-        push_color_cmyk(&mut stream, stop_curr.color); // corner1
-        push_color_cmyk(&mut stream, stop_next.color); // corner2
-        push_color_cmyk(&mut stream, stop_next.color); // corner3
+        push_color_cmyk(&mut stream, stop_curr.color.clone()); // corner0
+        push_color_cmyk(&mut stream, stop_curr.color.clone()); // corner1
+        push_color_cmyk(&mut stream, stop_next.color.clone()); // corner2
+        push_color_cmyk(&mut stream, stop_next.color.clone()); // corner3
     }
 
     stream

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 4c88fed1
+//! @prompt-hash 68c37c22
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -875,6 +875,10 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                         format!("type {} does not contain field \"{field}\"", t.name()),
                     )]
                 }),
+            (Type::SpotColorant, "tint") => Ok(Value::Func(Func::native(
+                "tint",
+                crate::compiler::stdlib::color::native_spot_tint,
+            ))),
             (Type::Color, _) => crate::compiler::stdlib::color_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(

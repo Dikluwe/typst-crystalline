@@ -25,9 +25,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Modelo D (Lote 4 P319): destructure de Arc<Elem> + kind_em
     // num só match (os 3 são tipos `Arc` distintos — sem `|`).
     let (body, stroke, offset, extent, kind_em) = match content {
-        Content::Underline(e) => (&e.body, e.stroke, e.offset, e.extent, 0.10_f64),
-        Content::Strike(e) => (&e.body, e.stroke, e.offset, e.extent, -0.25),
-        Content::Overline(e) => (&e.body, e.stroke, e.offset, e.extent, -0.80),
+        Content::Underline(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, 0.10_f64),
+        Content::Strike(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, -0.25),
+        Content::Overline(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, -0.80),
         _ => unreachable!("arm gates Underline/Strike/Overline"),
     };
     let font_pt = layouter.style.size.val();
@@ -35,7 +35,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
     let thickness = (font_pt * 0.05).max(0.4);
     // P285 §A.3: utilizador explícito > herança do texto > default.
-    let color = stroke.or(layouter.style.fill);
+    let color = stroke.or(layouter.style.fill.clone());
 
     // P286 — snapshot inicial + activa collector.
     let start_x_initial = layouter.regions.current.cursor_x;
@@ -88,7 +88,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             start: Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
             end: Point { x: Pt(seg.end_x.val() + extent_pt), y: line_y },
             thickness,
-            color,
+            color: color.clone(),
             cap: crate::entities::geometry::LineCap::Butt,
         });
     }

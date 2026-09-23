@@ -581,3 +581,24 @@ própria dentro do contrato) sem ver os testes; resolveu os matches
 exaustivos apontados pelo compilador em `eval/repr.rs`,
 `eval/operators/error_formatting.rs` e outros consumers de `Type`/`Value`.
 Suíte: GREEN, zero regressão.
+## P1482 — `Value::Color` inclui tinta spot (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+`entities/value.rs:59-106,367-423` já tem `Value::Color(Color)`
+e `Value::SpotColorant` separado. Vanilla
+`visualize/color.rs:280-286,2397` devolve `Color::Spot` no tint.
+Sonda: `type(color.spot("Brand", red)) == spot`, mas
+`type(color.spot("Brand", red).tint(50%)) == color`;
+a serialização JSON da última é sua repr, não uma cor RGB.
+
+### Decisão proprietária
+
+Não criar novo `Value` nem novo `Type`: o resultado tint usa
+`Value::Color(Color::Spot)`. O colorant original continua
+`Value::SpotColorant`. Casts que aceitam `Value::Color` (fill,
+stroke, arrays/argumentos de cor) devem aceitar o novo carrier sem
+apagar nome, fallback e tint; cast de fallback do constructor spot
+continua a exigir processo. Igualdade de linguagem distingue spot da
+projeção `rgb(spot)`, mesmo quando a aparência coincide. JSON/YAML
+podem serializar pela repr canônica, não por `Debug` nem hex.

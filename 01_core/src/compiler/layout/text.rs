@@ -161,7 +161,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         semantic_strong: layouter.style.semantic_strong,
         semantic_emph: layouter.style.semantic_emph,
         size: layouter.style.size,
-        fill: layouter.style.fill.or(ns_fill),
+        fill: layouter.style.fill.clone().or(ns_fill),
         heading_level: layouter.style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).
         weight: layouter.style.weight.or(ns_weight),
@@ -178,7 +178,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         dir: layouter.style.dir.or(ns_dir),
         subscript: layouter.style.subscript,
         superscript: layouter.style.superscript,
-        highlight: layouter.style.highlight,
+        highlight: layouter.style.highlight.clone(),
         highlight_radius: layouter.style.highlight_radius,
         highlight_extent: layouter.style.highlight_extent,
         subscript_size: layouter.style.subscript_size,

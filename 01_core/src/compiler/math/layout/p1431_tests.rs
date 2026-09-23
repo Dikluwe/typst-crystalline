@@ -394,7 +394,7 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Line { color, .. } => *color,
+                FrameItem::Line { color, .. } => color.clone(),
                 _ => None,
             })
             .all(|color| color == Color::rgb(255, 0, 0)),

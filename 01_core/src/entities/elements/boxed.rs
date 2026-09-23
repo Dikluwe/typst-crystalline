@@ -64,7 +64,7 @@ impl Element for BoxedElem {
             outset: self.outset,
             radius: self.radius,
             clip: self.clip,
-            fill: self.fill,
+            fill: self.fill.clone(),
             stroke: self.stroke.clone(),
         })))
     }
@@ -83,7 +83,7 @@ impl Element for BoxedElem {
             outset: self.outset,
             radius: self.radius,
             clip: self.clip,
-            fill: self.fill,
+            fill: self.fill.clone(),
             stroke: self.stroke.clone(),
         }))
     }

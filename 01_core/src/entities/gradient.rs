@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 8342a92c
+//! @prompt-hash 5306a911
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -33,7 +33,7 @@ use std::sync::Arc;
 /// `offset: Option<Ratio>` permite auto-spacing (paridade vanilla):
 /// stops com `None` recebem distribuição uniforme entre stops
 /// com offset explícito (ou nos extremos implícitos 0% / 100%).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GradientStop {
     pub color: Color,
     pub offset: Option<Ratio>,
@@ -213,7 +213,7 @@ impl Linear {
             return Color::rgb(0, 0, 0);
         }
         if n == 1 {
-            return self.stops[0].color;
+            return self.stops[0].color.clone();
         }
 
         // Encontrar par [i, i+1] tal que offs[i] <= t <= offs[i+1].
@@ -223,18 +223,18 @@ impl Linear {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color,
-                    self.stops[i + 1].color,
+                    self.stops[i].color.clone(),
+                    self.stops[i + 1].color.clone(),
                     local_t,
-                    self.space,
+                    self.space.clone(),
                 );
             }
         }
         // Fallback (clamp): extremo apropriado.
         if t <= offs[0] {
-            self.stops[0].color
+            self.stops[0].color.clone()
         } else {
-            self.stops[n - 1].color
+            self.stops[n - 1].color.clone()
         }
     }
 
@@ -245,7 +245,7 @@ impl Linear {
             return Color::rgb(0, 0, 0);
         }
         if n == 1 {
-            return self.stops[0].color;
+            return self.stops[0].color.clone();
         }
         let resolved = self.effective_offsets_precise();
         for i in 0..(n - 1) {
@@ -254,9 +254,9 @@ impl Linear {
                 let local = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 if self.space == ColorSpace::Oklab {
                     let (l0, a0, b0, alpha0) =
-                        color_to_oklab_with_alpha(self.stops[i].color);
+                        color_to_oklab_with_alpha(self.stops[i].color.clone());
                     let (l1, a1, b1, alpha1) =
-                        color_to_oklab_with_alpha(self.stops[i + 1].color);
+                        color_to_oklab_with_alpha(self.stops[i + 1].color.clone());
                     let (w0, w1) = ((1.0 - local) as f32, local as f32);
                     let total = w0 + w1;
                     return Color::oklab(
@@ -267,17 +267,17 @@ impl Linear {
                     );
                 }
                 return interpolate_in_space(
-                    self.stops[i].color,
-                    self.stops[i + 1].color,
+                    self.stops[i].color.clone(),
+                    self.stops[i + 1].color.clone(),
                     local as f32,
-                    self.space,
+                    self.space.clone(),
                 );
             }
         }
         if t <= resolved[0] {
-            self.stops[0].color
+            self.stops[0].color.clone()
         } else {
-            self.stops[n - 1].color
+            self.stops[n - 1].color.clone()
         }
     }
 }
@@ -374,6 +374,17 @@ fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
 fn interpolate_in_space(c0: Color, c1: Color, t: f32, space: ColorSpace) -> Color {
     let t = t.clamp(0.0, 1.0);
     match space {
+        ColorSpace::Spot(colorant) => match (c0, c1) {
+            (Color::Spot(a), Color::Spot(b))
+                if a.colorant == b.colorant && a.colorant.as_ref() == &colorant =>
+            {
+                Color::Spot(crate::entities::color::SpotColor {
+                    colorant: a.colorant,
+                    tint: Ratio(a.tint.get() + (b.tint.get() - a.tint.get()) * t as f64),
+                })
+            }
+            (a, b) => interpolate_oklab(a.to_process(), b.to_process(), t),
+        },
         ColorSpace::Oklab => interpolate_oklab(c0, c1, t),
         ColorSpace::Oklch => interpolate_oklch(c0, c1, t),
         ColorSpace::Srgb => interpolate_srgb(c0, c1, t),
@@ -698,7 +709,7 @@ impl Radial {
             return Color::rgb(0, 0, 0);
         }
         if n == 1 {
-            return self.stops[0].color;
+            return self.stops[0].color.clone();
         }
 
         for i in 0..(n - 1) {
@@ -707,17 +718,17 @@ impl Radial {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color,
-                    self.stops[i + 1].color,
+                    self.stops[i].color.clone(),
+                    self.stops[i + 1].color.clone(),
                     local_t,
-                    self.space,
+                    self.space.clone(),
                 );
             }
         }
         if t <= offs[0] {
-            self.stops[0].color
+            self.stops[0].color.clone()
         } else {
-            self.stops[n - 1].color
+            self.stops[n - 1].color.clone()
         }
     }
 
@@ -730,7 +741,7 @@ impl Radial {
             return Color::rgb(0, 0, 0);
         }
         if n == 1 {
-            return self.stops[0].color;
+            return self.stops[0].color.clone();
         }
 
         let offsets = self.effective_offsets_precise();
@@ -743,9 +754,9 @@ impl Radial {
                 return match self.space {
                     ColorSpace::Oklab => {
                         let (l0, a0, b0, alpha0) =
-                            color_to_oklab_with_alpha(self.stops[i].color);
+                            color_to_oklab_with_alpha(self.stops[i].color.clone());
                         let (l1, a1, b1, alpha1) =
-                            color_to_oklab_with_alpha(self.stops[i + 1].color);
+                            color_to_oklab_with_alpha(self.stops[i + 1].color.clone());
                         Color::oklab(
                             (w0 * l0 + w1 * l1) / total,
                             (w0 * a0 + w1 * a1) / total,
@@ -755,9 +766,9 @@ impl Radial {
                     }
                     ColorSpace::LinearRgb => {
                         let (r0, g0, b0, a0) =
-                            to_linear_rgb_components(self.stops[i].color);
+                            to_linear_rgb_components(self.stops[i].color.clone());
                         let (r1, g1, b1, a1) =
-                            to_linear_rgb_components(self.stops[i + 1].color);
+                            to_linear_rgb_components(self.stops[i + 1].color.clone());
                         Color::linear_rgb(
                             (w0 * r0 + w1 * r1) / total,
                             (w0 * g0 + w1 * g1) / total,
@@ -766,18 +777,18 @@ impl Radial {
                         )
                     }
                     _ => interpolate_in_space(
-                        self.stops[i].color,
-                        self.stops[i + 1].color,
+                        self.stops[i].color.clone(),
+                        self.stops[i + 1].color.clone(),
                         local as f32,
-                        self.space,
+                        self.space.clone(),
                     ),
                 };
             }
         }
         if t <= offsets[0] {
-            self.stops[0].color
+            self.stops[0].color.clone()
         } else {
-            self.stops[n - 1].color
+            self.stops[n - 1].color.clone()
         }
     }
 }
@@ -874,7 +885,7 @@ impl Conic {
             return Color::rgb(0, 0, 0);
         }
         if n == 1 {
-            return self.stops[0].color;
+            return self.stops[0].color.clone();
         }
 
         for i in 0..(n - 1) {
@@ -883,17 +894,17 @@ impl Conic {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color,
-                    self.stops[i + 1].color,
+                    self.stops[i].color.clone(),
+                    self.stops[i + 1].color.clone(),
                     local_t,
-                    self.space,
+                    self.space.clone(),
                 );
             }
         }
         if t <= offs[0] {
-            self.stops[0].color
+            self.stops[0].color.clone()
         } else {
-            self.stops[n - 1].color
+            self.stops[n - 1].color.clone()
         }
     }
 }
@@ -1043,13 +1054,13 @@ impl Gradient {
     pub fn first_stop_color(&self) -> Color {
         match self {
             Gradient::Linear(l) => {
-                l.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+                l.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
             }
             Gradient::Radial(r) => {
-                r.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+                r.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
             }
             Gradient::Conic(c) => {
-                c.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+                c.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
             }
         }
     }

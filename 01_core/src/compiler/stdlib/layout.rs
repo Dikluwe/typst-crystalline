@@ -443,7 +443,7 @@ pub fn native_grid(
     // P228 — extract fill (Opção α: apenas Value::Color; rejeita outros).
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
-        Some(Value::Color(c)) => Some(*c),
+        Some(Value::Color(c)) => Some(c.clone()),
         Some(Value::None) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -730,7 +730,7 @@ pub fn native_page(
     let fill = match args.named.get("fill") {
         Some(Value::Auto) => Some(PageFill::Auto),
         Some(Value::None) => Some(PageFill::None),
-        Some(Value::Color(value)) => Some(PageFill::Paint((*value).into())),
+        Some(Value::Color(value)) => Some(PageFill::Paint((value.clone()).into())),
         Some(Value::Gradient(value)) => Some(PageFill::Paint(value.clone().into())),
         Some(Value::Tiling(value)) => Some(PageFill::Paint((**value).clone().into())),
         Some(other) => {
@@ -1023,7 +1023,7 @@ pub(super) fn extract_stroke(
             }
         }
         Value::Color(c) => Stroke {
-            paint: Paint::Solid(*c),
+            paint: Paint::Solid(c.clone()),
             thickness: 1.0,
             overhang: true,
             ..Stroke::default()
@@ -1656,7 +1656,7 @@ pub fn native_block(
     // Table inline). Refino futuro para Paint enum quando ADR dedicada.
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
-        Some(Value::Color(c)) => Some(*c),
+        Some(Value::Color(c)) => Some(c.clone()),
         Some(Value::None) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -1950,7 +1950,7 @@ pub fn native_box(
     // P247 — fill paralelo block.
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
-        Some(Value::Color(c)) => Some(*c),
+        Some(Value::Color(c)) => Some(c.clone()),
         Some(Value::None) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -2385,7 +2385,7 @@ pub fn native_stroke(
     }
 
     let paint = match args.named.get("paint") {
-        Some(Value::Color(c)) => *c,
+        Some(Value::Color(c)) => c.clone(),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

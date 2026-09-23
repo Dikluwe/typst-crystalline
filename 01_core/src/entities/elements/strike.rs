@@ -51,7 +51,7 @@ impl Element for StrikeElem {
     {
         Ok(Content::Strike(Arc::new(StrikeElem {
             body: self.body.map_content(transform)?,
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         })))
@@ -63,7 +63,7 @@ impl Element for StrikeElem {
     {
         Content::Strike(Arc::new(StrikeElem {
             body: self.body.map_text(transform),
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         }))

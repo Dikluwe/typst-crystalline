@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash a2950d5e
+//! @prompt-hash 1617461f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -331,7 +331,7 @@ fn repr_color(c: &Color) -> String {
     let pct = |v: f32| format_float_with_unit(v as f64 * 100.0, "%");
     let comp = |v: f32| format_float_component(v as f64);
     let hue = |h: f32| format_float_with_unit((h as f64).rem_euclid(360.0), "deg");
-    match *c {
+    match c.clone() {
         Color::Srgb { r, g, b, a } => {
             let to_u8 = |v: f32| (v.clamp(0.0, 1.0) * 255.0).round() as u8;
             let (r, g, b, a) = (to_u8(r), to_u8(g), to_u8(b), to_u8(a));
@@ -391,6 +391,17 @@ fn repr_color(c: &Color) -> String {
         }
         Color::Cmyk { c, m, y, k } => {
             format!("cmyk({}, {}, {}, {})", pct(c), pct(m), pct(y), pct(k))
+        }
+        Color::Spot(spot) => {
+            let name = match &spot.colorant.name {
+                Some(n) => format!("\"{}\"", n.as_str().escape_debug()),
+                None => "none".to_string(),
+            };
+            format!(
+                "color.spot({name}, {}).tint({})",
+                repr_color(&spot.colorant.fallback),
+                format_float_with_unit(spot.tint.get() * 100.0, "%")
+            )
         }
     }
 }
@@ -493,7 +504,7 @@ fn repr_gradient(gradient: &Gradient) -> String {
                 .map(|(stop, offset)| {
                     format!(
                         "({}, {})",
-                        repr_color(&stop.color.to_space(linear.space)),
+                        repr_color(&stop.color.clone().to_space(linear.space.clone()).unwrap_or_else(|_| stop.color.to_process())),
                         repr_ratio(Ratio(offset as f64))
                     )
                 })

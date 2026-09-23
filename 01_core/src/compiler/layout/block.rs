@@ -366,7 +366,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 kind: shape_kind,
                 width: outer_w,
                 height: outer_h,
-                fill: fill.map(crate::entities::paint::Paint::Solid),
+                fill: fill.clone().map(crate::entities::paint::Paint::Solid),
                 stroke: stroke.clone(),
                 // P273.6 — Block's own shape; gradient relative=parent
                 // resolve para contentor outer (saved_parent_bbox foi

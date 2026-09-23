@@ -28,7 +28,7 @@ use crate::entities::value::Value;
 /// Extrai somente uma cor já tipada pelo avaliador.
 pub(super) fn parse_color(val: &Value) -> Option<Color> {
     match val {
-        Value::Color(c) => Some(*c),
+        Value::Color(c) => Some(c.clone()),
         _ => None,
     }
 }
@@ -36,7 +36,7 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
 /// Converte um `Value` em `Paint` (fill de shape).
 pub(super) fn parse_paint(val: &Value, span: Span) -> SourceResult<Option<Paint>> {
     match val {
-        Value::Color(c) => Ok(Some(Paint::Solid(*c))),
+        Value::Color(c) => Ok(Some(Paint::Solid(c.clone()))),
         Value::Tiling(t) => Ok(Some(Paint::Tiling((**t).clone()))),
         Value::Gradient(g) => Ok(Some(Paint::Gradient(g.clone()))),
         Value::None => Ok(None),
@@ -1345,7 +1345,7 @@ mod tests {
             assert_eq!(parse_color(&Value::Str(name.into())), None, "string {name}");
         }
         let typed = Color::rgb(1, 2, 3);
-        assert_eq!(parse_color(&Value::Color(typed)), Some(typed));
+        assert_eq!(parse_color(&Value::Color(typed.clone())), Some(typed));
     }
 
     fn ctx() -> EvalContext {

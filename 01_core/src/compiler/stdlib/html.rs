@@ -1644,7 +1644,7 @@ fn cast_attr(
             other => return union_error(span, "duration or datetime", other),
         },
         AttrKind::Color => match value {
-            Value::Color(value) => value.to_hex().into(),
+            Value::Color(value) => value.clone().to_hex().into(),
             other => return type_error(span, "color", other),
         },
         AttrKind::FloatListComma => cast_float_list(value, span, false)?.into(),
@@ -1667,7 +1667,7 @@ fn cast_attr(
             Value::Float(value) => value.to_string().into(),
             Value::Int(value) => value.to_string().into(),
             Value::Datetime(_) => cast_datetime(value, span)?,
-            Value::Color(value) => value.to_hex().into(),
+            Value::Color(value) => value.clone().to_hex().into(),
             Value::Array(_) => cast_string_list(value, span, ",", false)?.into(),
             other => {
                 return union_error(

@@ -185,7 +185,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                         start: Point { x: grid_origin_x, y: Pt(y) },
                         end: Point { x: grid_origin_x + Pt(grid_box.width), y: Pt(y) },
                         thickness,
-                        color,
+                        color: color.clone(),
                         cap,
                     });
                 }
@@ -200,7 +200,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                             y: Pt(grid_box.ascent + grid_box.descent),
                         },
                         thickness,
-                        color,
+                        color: color.clone(),
                         cap,
                     });
                 }

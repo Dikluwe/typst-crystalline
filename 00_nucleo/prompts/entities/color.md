@@ -1,5 +1,8 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: db1c0006
+Hash do Código: f0559d46
+
+> **Estado P1482 confirmado em 2026-09-23:** a secção P1482 ao final amplia o carrier público
+> e prevalece sobre descrições históricas de apenas oito variantes e `Copy`.
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -558,3 +561,68 @@ Agente A (`01a82593d`) implementou `SpotColorant` conforme especificado —
 `Hash` manual via `Debug` desde o início (o achado "`Color` não implementa
 `Hash`" já tinha sido corrigido na fase L0, antes do commit causal). Suíte:
 GREEN, zero regressão.
+## P1482 — carrier spot da linguagem (CONFIRMADO em 2026-09-23; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Vanilla pinado `586e1bd43`, `visualize/color.rs:280-286,889-924,937-1020,
+1147-1245,1260-1415,2254-2397,2471-2549`: `Color::Spot` contém
+colorant e tint; `ColorSpace::Spot` identifica o colorant completo.
+`color.spot("Brand", red).tint(50%)` tem tipo `color`, repr
+`color.spot("Brand", rgb("#ff4136")).tint(50%)` e igualdade por
+nome+fallback+tint, não pelo fallback RGB. `0%` e `100%` são válidos;
+`-1%` e `101%` produzem os diagnósticos de limite de
+`color.rs:2385-2397`. `rgb(spot.tint(50%))` projeta fallback tingido,
+mas não torna os valores iguais. `spot.tint(50%).space()` devolve o
+colorant (`type == spot`), e `components()` devolve apenas `(50%,)`.
+No cristalino, `entities/color.rs:31-61,356-367,616-680,1024-1047`
+tem oito variantes `Copy`, `ColorSpace` apenas process e colorant irmão;
+a sonda falha com `type spot colorant has no method tint`.
+
+### Decisão pública para confirmação
+
+Adicionar `SpotColor { colorant: Arc<SpotColorant>, tint: Ratio }` e
+`Color::Spot(SpotColor)`, mantendo as oito variantes de processo e
+`Value::Color` como carrier do resultado. `SpotColorant.fallback` permanece
+cor de processo, validada na construção inclusive depois da nova variante;
+`None` e `"all"` preservam suas identidades. Tint usa `Ratio` sem
+arredondamento prematuro e mantém os extremos. `Color` deixa de ser `Copy`,
+continua `Clone + PartialEq` por valor; igualdade Rust não substitui
+o teste de igualdade da linguagem (ADR-0107). `SpotColorant` conserva
+`Clone + PartialEq + Hash` existentes.
+
+Adicionar `ColorSpace::Spot(SpotColorant)`. `ColorSpace` deixa de ser
+`Copy`; as oito variantes processuais e suas identidades permanecem.
+A conversão `Color::to_space(self, target: ColorSpace)` passa a devolver
+`Result<Color, ColorSpaceError>`, com
+`ProcessToSpot { target: SpotColorant }` e
+`SpotToOther { source: SpotColorant, target: SpotColorant }`; não
+inventar uma tinta spot a partir de processo nem converter entre colorants
+distintos. `Color::to_process(&self) -> Color` é projeção explícita do
+fallback com o tint aplicado; `to_srgb`/`to_rgba_f32`/`to_hex` usam essa
+projeção apenas quando o consumer não representa spot, sem mutar o valor.
+`Color::space` identifica o colorant, não o espaço do fallback.
+`lighten`/`darken` ajustam o tint, `negate` padrão o inverte,
+`components` expõe só o percentual, `mix` conserva spot apenas quando
+todos os operandos têm o mesmo colorant; os demais usam processo Oklab
+por defeito. Erros de conversão/alpha/saturação pertencem ao owner
+`compiler/stdlib/color.md`. Cada match sobre `Color`/`ColorSpace`
+deve ser total; um ramo spot não pode apagar identidade numa operação
+de linguagem nem cair em `unreachable!`.
+
+Esta é deliberadamente a primeira metade de um constructor dividido:
+P1482 materializa valor, chamadas e casts da linguagem; **P1483 completa
+PDF `/Separation` e render dos valores spot**, inclusive gradientes e
+backends de processo. Até P1483, export que não suporta tinta spot pode
+usar projeção de fallback; isso não fecha conformidade PDF nem a rota
+inteira `color.spot.tint`. O owner `infra/export/stream.md` registra
+a mesma fronteira. Novo carrier, perda de `Copy`, nova variante de
+`ColorSpace` e assinatura de conversão exigem confirmação explícita
+antes de L1 (ADR-0127).
+
+`ColorSpace` conserva `Clone + PartialEq`, mas perde `Eq + Hash` junto com
+`Copy`: o novo colorant contém fallback numérico e não é chave de mapa no
+corpus atual. Esta quebra de trait pública integra o mesmo gate.
+Projeção medida em `visualize/color.rs:2295-2297`:
+`fallback.lighten(1 - tint)` no espaço processual do fallback;
+`0%` projeta branco e `100%` projeta o fallback integral.

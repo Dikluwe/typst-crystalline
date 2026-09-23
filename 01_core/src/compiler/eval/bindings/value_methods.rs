@@ -201,7 +201,7 @@ pub(in crate::compiler::eval) fn eval_color_method(
             0,
             ArgOccurrence {
                 name: None,
-                value: Value::Color(*color),
+                value: Value::Color(color.clone()),
                 span: Span::detached(),
                 value_span: Span::detached(),
             },
@@ -209,7 +209,7 @@ pub(in crate::compiler::eval) fn eval_color_method(
         Args::from_occurrences(args.span, occurrences)
     } else {
         let mut items = args.items;
-        items.insert(0, Value::Color(*color));
+        items.insert(0, Value::Color(color.clone()));
         Args::from_parts(items, args.named, args.span)
     };
     let world = engine.world;

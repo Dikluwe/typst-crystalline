@@ -63,7 +63,7 @@ pub(super) fn layout<M: FontMetrics>(
         start: Point { x: Pt(0.0), y: Pt(line_y) },
         end: Point { x: Pt(line_width), y: Pt(line_y) },
         thickness,
-        color: style.fill,
+        color: style.fill.clone(),
         cap: crate::entities::geometry::LineCap::Butt,
     });
     body.descent += gap + thickness + extra_descender;
@@ -97,7 +97,7 @@ pub(super) fn layout_overline<M: FontMetrics>(
         start: Point { x: Pt(0.0), y: Pt(line_y) },
         end: Point { x: Pt(body.width), y: Pt(line_y) },
         thickness,
-        color: style.fill,
+        color: style.fill.clone(),
         cap: crate::entities::geometry::LineCap::Butt,
     });
     body.ascent += gap + thickness + extra_ascender;

@@ -51,7 +51,7 @@ impl Element for UnderlineElem {
     {
         Ok(Content::Underline(Arc::new(UnderlineElem {
             body: self.body.map_content(transform)?,
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         })))
@@ -63,7 +63,7 @@ impl Element for UnderlineElem {
     {
         Content::Underline(Arc::new(UnderlineElem {
             body: self.body.map_text(transform),
-            stroke: self.stroke,
+            stroke: self.stroke.clone(),
             offset: self.offset,
             extent: self.extent,
         }))

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 71ad0fbe
+Hash do Código: 826098fd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -970,3 +970,21 @@ markup não é duplicado.
 
 O teste deve comparar a morfologia canônica completa do vec, incluindo
 `strong(body: [b])` e `[quoted]`, sem congelar Debug Rust ou árvore interna.
+## P1482 — repr de cor spot (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+Vanilla `visualize/color.rs:2300-2303,2320-2323,1399-1415`
+compõe a repr de `Color::Spot` a partir do colorant e do tint. Sondas
+`repr(color.spot("Brand", red).tint(50%))` dão
+`color.spot("Brand", rgb("#ff4136")).tint(50%)`; com `none`,
+preservam `color.spot(none, ...)`. No cristalino,
+`compiler/eval/repr.rs:329-397` só formata oito variantes de processo.
+
+### Decisão proprietária
+
+Formatar `Color::Spot` com `repr` do `SpotColorant` P1473 e o
+percentual canônico de `Ratio`, sem projetar o fallback. `Value::Color`,
+`rect(fill:)`, stroke e serialização JSON via eval preservam essa
+morfologia; `to-hex()` continua sendo projeção explícita separada.
+Nenhum ponteiro, Arc, nome de enum Rust ou byte de PDF entra na repr.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 4a50a1a6
+//! @prompt-hash 35fdb512
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -28,7 +28,10 @@
 ///
 /// `PartialEq` derivado é exacto via `f32` bitwise (sem
 /// tolerância em produção; paridade ADR-0028 regra herdada).
-#[derive(Copy, Clone)]
+use std::sync::Arc;
+use crate::entities::layout_types::Ratio;
+
+#[derive(Clone)]
 pub enum Color {
     /// sRGB color space (paridade vanilla `Rgb`).
     /// Componentes normalizados [0.0, 1.0]. Espaço default
@@ -59,11 +62,13 @@ pub enum Color {
     /// converte para sRGB no exporter (ADR-0083 §"Scope-out
     /// PDF native CMYK").
     Cmyk { c: f32, m: f32, y: f32, k: f32 },
+    /// Cor spot com colorante e concentração preservados.
+    Spot(SpotColor),
 }
 
 impl std::fmt::Debug for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
+        match self.clone() {
             Self::Srgb { r, g, b, a }
                 if r == 0.0 && g == 0.454902 && b == 0.85098 && a == 1.0 =>
             {
@@ -121,6 +126,7 @@ impl std::fmt::Debug for Color {
                 .field("y", &y)
                 .field("k", &k)
                 .finish(),
+            Self::Spot(spot) => f.debug_tuple("Spot").field(&spot).finish(),
         }
     }
 }
@@ -198,6 +204,7 @@ impl PartialEq for Color {
                     && y1.to_bits() == y2.to_bits()
                     && k1.to_bits() == k2.to_bits()
             }
+            (Self::Spot(a), Self::Spot(b)) => a == b,
             _other => false, // neutro: N16[β] — variantes de cores em espaços distintos são estritamente desiguais
         }
     }
@@ -296,7 +303,7 @@ impl Color {
     /// Preservado para compatibilidade hot path PDF exporter
     /// cristalino existente.
     pub fn to_rgba_f32(&self) -> (f32, f32, f32, f32) {
-        match *self {
+        match self.clone() {
             Self::Srgb { r, g, b, a } => (r, g, b, a),
             Self::Luma { l, a } => (l, l, l, a),
             Self::LinearRgb { r, g, b, a } => {
@@ -340,6 +347,7 @@ impl Color {
                 let b = (1.0 - y) * (1.0 - k);
                 (r, g, b, 1.0)
             }
+            Self::Spot(spot) => spot.to_process().to_rgba_f32(),
         }
     }
 }
@@ -353,8 +361,9 @@ impl Color {
 ///
 /// `Luma` ≡ vanilla `D65Gray` (nome cristalino histórico P257).
 /// Demais 7 variants paridade nominal vanilla.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ColorSpace {
+    Spot(SpotColorant),
     Oklab,
     Oklch,
     Srgb,
@@ -363,6 +372,13 @@ pub enum ColorSpace {
     Hsl,
     Hsv,
     Cmyk,
+}
+
+/// Rejeição de conversões que fabricariam ou trocariam uma tinta spot.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ColorSpaceError {
+    ProcessToSpot { target: SpotColorant },
+    SpotToOther { source: SpotColorant, target: SpotColorant },
 }
 
 // ── Helpers conversões ──────────────────────────────────────
@@ -613,7 +629,7 @@ fn srgb_to_luma_p742(r: f32, g: f32, b: f32) -> f32 {
 impl Color {
     /// Espaço da cor (mapeamento 1:1 variante → `ColorSpace`; paridade
     /// vanilla `ProcessColor::space`, `color.rs:1535`).
-    pub fn space(self) -> ColorSpace {
+    pub fn space(&self) -> ColorSpace {
         match self {
             Color::Srgb { .. } => ColorSpace::Srgb,
             Color::Luma { .. } => ColorSpace::Luma,
@@ -623,62 +639,83 @@ impl Color {
             Color::Hsl { .. } => ColorSpace::Hsl,
             Color::Hsv { .. } => ColorSpace::Hsv,
             Color::Cmyk { .. } => ColorSpace::Cmyk,
+            Color::Spot(spot) => ColorSpace::Spot((*spot.colorant).clone()),
         }
     }
 
     /// **P742** — conversão para outro espaço. Hub sRGB: `to_rgba_f32` +
     /// conversão para o destino. Cmyk naive (o ICC do vanilla é scope-out
     /// ADR-0083). Mesmo espaço → identidade (paridade vanilla `to_space`).
-    pub fn to_space(self, target: ColorSpace) -> Color {
-        if self.space() == target {
-            return self;
+    /// Converte preservando identidade spot; rejeita colorants incompatíveis.
+    pub fn to_space(self, target: ColorSpace) -> Result<Color, ColorSpaceError> {
+        if let ColorSpace::Spot(target_colorant) = &target {
+            return match self {
+                Color::Spot(spot) if spot.colorant.as_ref() == target_colorant => {
+                    Ok(Color::Spot(spot))
+                }
+                Color::Spot(spot) => Err(ColorSpaceError::SpotToOther {
+                    source: (*spot.colorant).clone(),
+                    target: target_colorant.clone(),
+                }),
+                _ => Err(ColorSpaceError::ProcessToSpot {
+                    target: target_colorant.clone(),
+                }),
+            };
         }
-        match target {
+        let process = self.to_process();
+        if process.space() == target {
+            return Ok(process);
+        }
+        let (r, g, b, a) = process.to_rgba_f32();
+        Ok(match target {
             ColorSpace::Oklab => {
-                let (l, a, b, alpha) = to_oklab_p476(self);
+                let (l, a, b, alpha) = to_oklab_p476(process);
                 Color::oklab(l, a, b, alpha)
             }
             ColorSpace::Oklch => {
-                let (l, c, h, alpha) = to_oklch_p476(self);
+                let (l, c, h, alpha) = to_oklch_p476(process);
                 Color::oklch(l, c, h, alpha)
             }
-            _ => {
-                let (r, g, b, a) = self.to_rgba_f32();
-                match target {
-                    ColorSpace::Srgb => Color::srgb_f32(r, g, b, a),
-                    ColorSpace::Luma => Color::Luma { l: srgb_to_luma_p742(r, g, b), a },
-                    ColorSpace::LinearRgb => Color::linear_rgb(
-                        srgb_to_linear_p476(r),
-                        srgb_to_linear_p476(g),
-                        srgb_to_linear_p476(b),
-                        a,
-                    ),
-                    ColorSpace::Hsv => {
-                        let (h, s, v) = rgb_to_hsv_p742(r, g, b);
-                        Color::hsv(h, s, v, a)
-                    }
-                    ColorSpace::Hsl => {
-                        let (h, s, l) = rgb_to_hsl_p742(r, g, b);
-                        Color::hsl(h, s, l, a)
-                    }
-                    ColorSpace::Cmyk => {
-                        let k = 1.0 - r.max(g).max(b);
-                        if k >= 1.0 {
-                            Color::cmyk(0.0, 0.0, 0.0, 1.0)
-                        } else {
-                            Color::cmyk(
-                                (1.0 - r - k) / (1.0 - k),
-                                (1.0 - g - k) / (1.0 - k),
-                                (1.0 - b - k) / (1.0 - k),
-                                k,
-                            )
-                        }
-                    }
-                    ColorSpace::Oklab | ColorSpace::Oklch => {
-                        unreachable!("Oklab/Oklch tratados acima")
-                    }
+            ColorSpace::Srgb => Color::srgb_f32(r, g, b, a),
+            ColorSpace::Luma => Color::Luma { l: srgb_to_luma_p742(r, g, b), a },
+            ColorSpace::LinearRgb => Color::linear_rgb(
+                srgb_to_linear_p476(r),
+                srgb_to_linear_p476(g),
+                srgb_to_linear_p476(b),
+                a,
+            ),
+            ColorSpace::Hsv => {
+                let (h, s, v) = rgb_to_hsv_p742(r, g, b);
+                Color::hsv(h, s, v, a)
+            }
+            ColorSpace::Hsl => {
+                let (h, s, l) = rgb_to_hsl_p742(r, g, b);
+                Color::hsl(h, s, l, a)
+            }
+            ColorSpace::Cmyk => {
+                let k = 1.0 - r.max(g).max(b);
+                if k >= 1.0 {
+                    Color::cmyk(0.0, 0.0, 0.0, 1.0)
+                } else {
+                    Color::cmyk(
+                        (1.0 - r - k) / (1.0 - k),
+                        (1.0 - g - k) / (1.0 - k),
+                        (1.0 - b - k) / (1.0 - k),
+                        k,
+                    )
                 }
             }
+            ColorSpace::Spot(target) => {
+                return Err(ColorSpaceError::ProcessToSpot { target });
+            }
+        })
+    }
+
+    /// Projeção explícita para consumidores que só aceitam processo.
+    pub fn to_process(&self) -> Color {
+        match self {
+            Color::Spot(spot) => spot.to_process(),
+            _ => self.clone(),
         }
     }
 
@@ -710,6 +747,11 @@ impl Color {
             }
             Color::Hsl { h, s, l, a } => Color::hsl(h, s, increase_p742(l, factor), a),
             Color::Hsv { h, s, v, a } => Color::hsv(h, s, increase_p742(v, factor), a),
+            Color::Spot(mut spot) => {
+                let tint = spot.tint.get();
+                spot.tint = Ratio((tint - tint * factor as f64).clamp(0.0, 1.0));
+                Color::Spot(spot)
+            }
             Color::Cmyk { c, m, y, k } => {
                 let f = |u: f32| (u - u * factor).clamp(0.0, 1.0);
                 Color::cmyk(f(c), f(m), f(y), f(k))
@@ -722,6 +764,11 @@ impl Color {
     /// `u + (1-u)*factor` por componente (`color.rs:2240`).
     pub fn darken(self, factor: f32) -> Self {
         match self {
+            Color::Spot(mut spot) => {
+                let tint = spot.tint.get();
+                spot.tint = Ratio((tint + (1.0 - tint) * factor as f64).clamp(0.0, 1.0));
+                Color::Spot(spot)
+            }
             Color::Cmyk { c, m, y, k } => {
                 let f = |u: f32| (u + (1.0 - u) * factor).clamp(0.0, 1.0);
                 Color::cmyk(f(c), f(m), f(y), f(k))
@@ -733,7 +780,9 @@ impl Color {
     /// **P744** — converte a cor para um vec4 no espaço indicado. Usado por
     /// `mix` (paridade vanilla `ProcessColor::to_vec4`).
     fn to_vec4_in_space(self, space: ColorSpace) -> [f32; 4] {
-        let c = if self.space() == space { self } else { self.to_space(space) };
+        let c = if self.space() == space { self.clone() } else {
+            self.clone().to_space(space).unwrap_or_else(|_| self.to_process())
+        };
         match c {
             Color::Srgb { r, g, b, a } => [r, g, b, a],
             Color::Luma { l, a } => [l, 0.0, 0.0, a],
@@ -743,6 +792,7 @@ impl Color {
             Color::Hsl { h, s, l, a } => [h, s, l, a],
             Color::Hsv { h, s, v, a } => [h, s, v, a],
             Color::Cmyk { c, m, y, k } => [c, m, y, k],
+            Color::Spot(spot) => [spot.tint.get() as f32, 0.0, 0.0, 1.0],
         }
     }
 
@@ -757,6 +807,10 @@ impl Color {
             ColorSpace::Hsl => Color::hsl(v[0].rem_euclid(360.0), v[1], v[2], v[3]),
             ColorSpace::Hsv => Color::hsv(v[0].rem_euclid(360.0), v[1], v[2], v[3]),
             ColorSpace::Cmyk => Color::cmyk(v[0], v[1], v[2], v[3]),
+            ColorSpace::Spot(colorant) => Color::Spot(SpotColor {
+                colorant: Arc::new(colorant),
+                tint: Ratio(v[0] as f64),
+            }),
         }
     }
 
@@ -765,14 +819,19 @@ impl Color {
     /// Default `space: None` = Oklab (paridade P476/P742). O resultado fica
     /// no espaço indicado (P744).
     pub fn mix(self, other: Self, weight: f32, space: Option<ColorSpace>) -> Self {
-        let space = space.unwrap_or(ColorSpace::Oklab);
-        let mut c0 = self.to_vec4_in_space(space);
-        let mut c1 = other.to_vec4_in_space(space);
+        let space = space.unwrap_or_else(|| match (&self, &other) {
+            (Color::Spot(a), Color::Spot(b)) if a.colorant == b.colorant => {
+                ColorSpace::Spot((*a.colorant).clone())
+            }
+            _ => ColorSpace::Oklab,
+        });
+        let mut c0 = self.to_vec4_in_space(space.clone());
+        let mut c1 = other.to_vec4_in_space(space.clone());
         let t = weight.clamp(0.0, 1.0);
 
         // Para espaços com hue, percorre o círculo cromático pelo caminho
         // mais curto (paridade vanilla `mix_iter` hue_index).
-        let hue_idx = match space {
+        let hue_idx = match &space {
             ColorSpace::Oklch => Some(2),
             ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
             _other => None, // neutro: N16[β] — espaços cromáticos sem componente angular/hue não necessitam de correcção circular
@@ -806,8 +865,16 @@ impl Color {
         if total <= 0.0 || !total.is_finite() {
             return None;
         }
-        let space = space.unwrap_or(ColorSpace::Oklab);
-        let hue_idx = match space {
+        if colors.is_empty() {
+            return None;
+        }
+        let space = space.unwrap_or_else(|| match &colors[0].0 {
+            Color::Spot(first) if colors.iter().all(|(color, _)| {
+                matches!(color, Color::Spot(spot) if spot.colorant == first.colorant)
+            }) => ColorSpace::Spot((*first.colorant).clone()),
+            _ => ColorSpace::Oklab,
+        });
+        let hue_idx = match &space {
             ColorSpace::Oklch => Some(2),
             ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
             _ => None,
@@ -815,16 +882,12 @@ impl Color {
         if hue_idx.is_some() && colors.len() > 2 {
             return None;
         }
-        if colors.is_empty() {
-            return None;
-        }
-
         if let Some(idx) = hue_idx {
             if colors.len() == 1 {
-                return Some(colors[0].0.to_space(space));
+                return colors[0].0.clone().to_space(space).ok();
             }
-            let mut first = colors[0].0.to_vec4_in_space(space);
-            let mut second = colors[1].0.to_vec4_in_space(space);
+            let mut first = colors[0].0.clone().to_vec4_in_space(space.clone());
+            let mut second = colors[1].0.clone().to_vec4_in_space(space.clone());
             if (first[idx] - second[idx]).abs() > 180.0 {
                 if first[idx] < second[idx] {
                     first[idx] += 360.0;
@@ -840,7 +903,7 @@ impl Color {
 
         let mut mixed = [0.0_f32; 4];
         for (color, weight) in colors {
-            let components = color.to_vec4_in_space(space);
+            let components = color.clone().to_vec4_in_space(space.clone());
             for index in 0..4 {
                 mixed[index] += components[index] * *weight / total;
             }
@@ -852,9 +915,14 @@ impl Color {
     /// espaço, aplica a negação própria desse espaço, converte de volta ao
     /// espaço original de `self`.
     pub fn negate(self, space: Option<ColorSpace>) -> Self {
+        if let Color::Spot(mut spot) = self.clone() {
+            spot.tint = Ratio(1.0 - spot.tint.get());
+            return Color::Spot(spot);
+        }
         let original = self.space();
         let space = space.unwrap_or(ColorSpace::Oklab);
-        let negated = match self.to_space(space) {
+        let converted = self.clone().to_space(space).unwrap_or_else(|_| self.to_process());
+        let negated = match converted {
             Color::Srgb { r, g, b, a } => Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a),
             Color::Luma { l, a } => Color::Luma { l: 1.0 - l, a },
             Color::LinearRgb { r, g, b, a } => {
@@ -865,26 +933,30 @@ impl Color {
             Color::Hsl { h, s, l, a } => Color::hsl(h + 180.0, s, l, a),
             Color::Hsv { h, s, v, a } => Color::hsv(h + 180.0, s, v, a),
             Color::Cmyk { c, m, y, k } => Color::cmyk(1.0 - c, 1.0 - m, 1.0 - y, k),
+            Color::Spot(spot) => return Color::Spot(spot),
         };
-        negated.to_space(original)
+        negated.clone().to_space(original).unwrap_or(negated)
     }
 
     /// **P744** — rotação de hue no espaço indicado (default Oklch). Só é
     /// válida em espaços com hue (Oklch, Hsl, Hsv); os restantes devolvem
     /// `None` para o chamador emitir o erro vanilla.
     pub fn rotate(self, angle_deg: f32, space: Option<ColorSpace>) -> Option<Self> {
+        if matches!(&self, Color::Spot(_)) {
+            return None;
+        }
         let original = self.space();
         let space = space.unwrap_or(ColorSpace::Oklch);
         if !matches!(space, ColorSpace::Oklch | ColorSpace::Hsl | ColorSpace::Hsv) {
             return None;
         }
-        let rotated = match self.to_space(space) {
+        let rotated = match self.to_space(space).ok()? {
             Color::Oklch { l, c, h, alpha } => Color::oklch(l, c, h + angle_deg, alpha),
             Color::Hsl { h, s, l, a } => Color::hsl(h + angle_deg, s, l, a),
             Color::Hsv { h, s, v, a } => Color::hsv(h + angle_deg, s, v, a),
             _ => unreachable!("to_space(hue-space) devolve sempre o espaço hue"),
         };
-        Some(rotated.to_space(original))
+        rotated.to_space(original).ok()
     }
 
     /// **P742** — aumenta saturação por `factor` (paridade palette medida):
@@ -894,7 +966,7 @@ impl Color {
     /// o chamador em rules emite a mensagem verbatim com span).
     pub fn saturate(self, factor: f32) -> Option<Self> {
         match self {
-            Color::Luma { .. } => None,
+            Color::Luma { .. } | Color::Spot(_) => None,
             Color::Hsl { h, s, l, a } => {
                 Some(Color::hsl(h, increase_p742(s, factor), l, a))
             }
@@ -903,10 +975,10 @@ impl Color {
             }
             _ => {
                 let original = self.space();
-                let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv) else {
-                    unreachable!("to_space(Hsv) devolve sempre Hsv")
+                let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv).ok()? else {
+                    return None;
                 };
-                Some(Color::hsv(h, increase_p742(s, factor), v, a).to_space(original))
+                Color::hsv(h, increase_p742(s, factor), v, a).to_space(original).ok()
             }
         }
     }
@@ -933,12 +1005,13 @@ impl Color {
     /// `alpha' = alpha + scale * (scale > 0 ? 1 - alpha : alpha)`.
     fn scale_alpha(self, scale: f32) -> Option<Self> {
         let factor = if scale > 0.0 { 1.0 - self.alpha() } else { self.alpha() };
-        self.with_alpha((self.alpha() + scale * factor).clamp(0.0, 1.0))
+        let alpha = self.alpha();
+        self.with_alpha((alpha + scale * factor).clamp(0.0, 1.0))
     }
 
     /// Alpha da cor (Cmyk não tem → `None` no caller).
     fn alpha(&self) -> f32 {
-        match *self {
+        match self.clone() {
             Color::Srgb { a, .. } => a,
             Color::Luma { a, .. } => a,
             Color::LinearRgb { a, .. } => a,
@@ -946,7 +1019,7 @@ impl Color {
             Color::Oklch { alpha, .. } => alpha,
             Color::Hsl { a, .. } => a,
             Color::Hsv { a, .. } => a,
-            Color::Cmyk { .. } => 1.0,
+            Color::Cmyk { .. } | Color::Spot(_) => 1.0,
         }
     }
 
@@ -960,7 +1033,7 @@ impl Color {
             Color::Oklch { l, c, h, .. } => Color::oklch(l, c, h, alpha),
             Color::Hsl { h, s, l, .. } => Color::hsl(h, s, l, alpha),
             Color::Hsv { h, s, v, .. } => Color::hsv(h, s, v, alpha),
-            Color::Cmyk { .. } => return None,
+            Color::Cmyk { .. } | Color::Spot(_) => return None,
         })
     }
 
@@ -997,6 +1070,7 @@ impl Color {
             Color::Hsv { h, s, v, a } => {
                 vec![Angle(h.rem_euclid(360.0)), Ratio(s), Ratio(v), Ratio(a)]
             }
+            Color::Spot(spot) => return vec![Ratio(spot.tint.get() as f32)],
             Color::Cmyk { c, m, y, k } => {
                 return vec![Ratio(c), Ratio(m), Ratio(y), Ratio(k)]
             }
@@ -1021,8 +1095,8 @@ pub enum ColorComponent {
     Angle(f32),
 }
 
-/// **P1473** — `color.spot(name, fallback)` (escopo reduzido, sem
-/// `.tint()`). Não é uma variante de `Color`; tipo irmão paralelo, com
+/// **P1473/P1482** — `color.spot(name, fallback)` conserva o colorante
+/// como tipo irmão de `Color`, com `.tint()` a produzir `Color::Spot` e
 /// `Type::SpotColorant` próprio (`entities/value.md` §P1473). Construtor,
 /// `repr` e cast do `fallback` (rejeita `spot`-de-`spot` com "expected
 /// color, found spot colorant") vivem no owner produtivo
@@ -1031,9 +1105,22 @@ pub enum ColorComponent {
 pub struct SpotColorant {
     /// `None` = sem nome (vanilla aceita `color.spot(none, ..)`).
     pub name: Option<ecow::EcoString>,
-    /// Sempre um `Color` de processo — nunca `Spot` (não há variante `Spot`
-    /// em `Color` nesta fatia; validado pelo caller antes de chegar aqui).
+    /// Sempre um `Color` de processo — nunca `Spot`; validado pelo caller
+    /// antes de chegar aqui.
     pub fallback: Color,
+}
+
+/// Valor cromático spot; a intensidade não altera a identidade do colorante.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SpotColor {
+    pub colorant: Arc<SpotColorant>,
+    pub tint: Ratio,
+}
+
+impl SpotColor {
+    pub fn to_process(&self) -> Color {
+        self.colorant.fallback.clone().lighten(1.0 - self.tint.get() as f32)
+    }
 }
 
 // `Hash` manual via `Debug` — `Color` não implementa `Hash` (`#[derive(Copy,
@@ -1296,9 +1383,9 @@ mod tests {
     }
 
     #[test]
-    fn color_copy_clone_disponivel() {
+    fn color_clone_disponivel() {
         let c = Color::rgb(100, 200, 50);
-        let c2 = c; // Copy
+        let c2 = c.clone();
         let c3 = c.clone();
         assert_eq!(c, c2);
         assert_eq!(c, c3);
@@ -1321,11 +1408,11 @@ mod tests {
         let d = Color::rgb(0, 116, 217);
 
         // 50% mix em sRGB: 90.5 -> 90 (0x5a), não 91 (0x5b)
-        let m50 = c.mix(d, 0.5, Some(ColorSpace::Srgb));
+        let m50 = c.clone().mix(d.clone(), 0.5, Some(ColorSpace::Srgb));
         assert_eq!(m50.to_hex(), "#805a88");
 
         // 25% d:
-        let m25 = c.mix(d, 0.25, Some(ColorSpace::Srgb));
+        let m25 = c.clone().mix(d.clone(), 0.25, Some(ColorSpace::Srgb));
         assert_eq!(m25.to_hex(), "#bf4e5f");
 
         // 75% d:
@@ -1398,7 +1485,7 @@ mod tests {
         // Vanilla: "cannot saturate/desaturate grayscale color" — o domínio
         // devolve None; o chamador em rules emite o erro verbatim.
         let g = Color::luma(0.5);
-        assert!(g.saturate(0.2).is_none());
+        assert!(g.clone().saturate(0.2).is_none());
         assert!(g.desaturate(0.2).is_none());
     }
 
@@ -1420,7 +1507,7 @@ mod tests {
         // Cmyk é tipo próprio do vanilla (color.rs:2235-2243):
         // lighten(u) = u - u*f; darken(u) = u + (1-u)*f.
         let c = Color::cmyk(0.5, 0.5, 0.5, 0.5);
-        assert_eq!(c.lighten(0.2), Color::cmyk(0.4, 0.4, 0.4, 0.4));
+        assert_eq!(c.clone().lighten(0.2), Color::cmyk(0.4, 0.4, 0.4, 0.4));
         assert_eq!(c.darken(0.2), Color::cmyk(0.6, 0.6, 0.6, 0.6));
     }
 
@@ -1444,19 +1531,19 @@ mod tests {
 
     #[test]
     fn p742_to_space_roundtrip_srgb_hsv_bytes() {
-        let roundtrip = VANILLA_RED.to_space(ColorSpace::Hsv).to_space(ColorSpace::Srgb);
+        let roundtrip = VANILLA_RED.to_space(ColorSpace::Hsv).unwrap().to_space(ColorSpace::Srgb).unwrap();
         assert_eq!(roundtrip.to_srgb(), VANILLA_RED.to_srgb());
     }
 
     #[test]
     fn p742_to_space_identidade_mesmo_espaco() {
-        assert_eq!(VANILLA_RED.to_space(ColorSpace::Srgb), VANILLA_RED);
+        assert_eq!(VANILLA_RED.to_space(ColorSpace::Srgb).unwrap(), VANILLA_RED);
     }
 
     #[test]
     fn p1252_to_space_luma_preserva_alpha_known_upstream_bug() {
         let source = Color::srgb_f32(1.0, 0.254902, 0.211765, 0.4);
-        let Color::Luma { l, a } = source.to_space(ColorSpace::Luma) else {
+        let Ok(Color::Luma { l, a } ) = source.to_space(ColorSpace::Luma) else {
             panic!("to_space(Luma) deve produzir Luma");
         };
         assert_eq!(a.to_bits(), 0.4_f32.to_bits());
@@ -1468,7 +1555,7 @@ mod tests {
 
     #[test]
     fn p1239_luma_red_usa_matriz_srgb_palette() {
-        let Color::Luma { l, a } = VANILLA_RED.to_space(ColorSpace::Luma) else {
+        let Ok(Color::Luma { l, a } ) = VANILLA_RED.to_space(ColorSpace::Luma) else {
             panic!("red.to_space(Luma) deve produzir Luma");
         };
         assert!((l - 0.5402).abs() < 0.00005, "witness RED P1239: {l}");
@@ -1486,7 +1573,7 @@ mod tests {
 
     #[test]
     fn p1271_luma_white_para_oklab_segue_d65_palette() {
-        let Color::Oklab { l, a, b, alpha } =
+        let Ok(Color::Oklab { l, a, b, alpha }) =
             Color::luma(1.0).to_space(ColorSpace::Oklab)
         else {
             panic!("esperado Oklab")
@@ -1542,7 +1629,7 @@ mod tests {
     #[test]
     fn p476_lighten_zero_nao_altera_luminancia() {
         let red = Color::rgb(255, 0, 0);
-        let lightened = red.lighten(0.0);
+        let lightened = red.clone().lighten(0.0);
         let (l0, c0, h0, _) = to_oklch_p476(red);
         let (l1, c1, h1, _) = to_oklch_p476(lightened);
         assert!((l1 - l0).abs() < 1e-4, "l deve ser igual; delta={}", (l1 - l0).abs());
@@ -1562,7 +1649,7 @@ mod tests {
     #[test]
     fn p476_darken_zero_nao_altera_luminancia() {
         let blue = Color::rgb(0, 0, 255);
-        let darkened = blue.darken(0.0);
+        let darkened = blue.clone().darken(0.0);
         let (l0, _, _, _) = to_oklch_p476(blue);
         let (l1, _, _, _) = to_oklch_p476(darkened);
         assert!((l1 - l0).abs() < 1e-4);
@@ -1580,7 +1667,7 @@ mod tests {
     fn p476_mix_peso_zero_igual_a_self() {
         let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
-        let (l0, a0, b0, _) = to_oklab_p476(red);
+        let (l0, a0, b0, _) = to_oklab_p476(red.clone());
         let mixed = red.mix(blue, 0.0, None);
         let (l1, a1, b1, _) = to_oklab_p476(mixed);
         assert!((l1 - l0).abs() < 1e-4);
@@ -1592,7 +1679,7 @@ mod tests {
     fn p476_mix_peso_um_igual_a_other() {
         let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
-        let (l0, a0, b0, _) = to_oklab_p476(blue);
+        let (l0, a0, b0, _) = to_oklab_p476(blue.clone());
         let mixed = red.mix(blue, 1.0, None);
         let (l1, a1, b1, _) = to_oklab_p476(mixed);
         assert!((l1 - l0).abs() < 1e-4);
@@ -1604,8 +1691,8 @@ mod tests {
     fn p476_mix_meio_esta_entre_red_e_blue() {
         let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
-        let (l0, _, _, _) = to_oklab_p476(red);
-        let (l1, _, _, _) = to_oklab_p476(blue);
+        let (l0, _, _, _) = to_oklab_p476(red.clone());
+        let (l1, _, _, _) = to_oklab_p476(blue.clone());
         let mixed = red.mix(blue, 0.5, None);
         let (lm, _, _, _) = to_oklab_p476(mixed);
         let expected_l = (l0 + l1) / 2.0;
@@ -1622,7 +1709,7 @@ mod tests {
     // ── P477 — saturate / desaturate (semântica corrigida P742: via HSV) ──
 
     fn hsv_of(c: Color) -> (f32, f32, f32) {
-        match c.to_space(ColorSpace::Hsv) {
+        match c.to_space(ColorSpace::Hsv).unwrap() {
             Color::Hsv { h, s, v, .. } => (h, s, v),
             _ => unreachable!("to_space(Hsv) devolve sempre Hsv"),
         }
@@ -1631,7 +1718,7 @@ mod tests {
     #[test]
     fn p477_saturate_zero_nao_altera_chroma() {
         let red = Color::rgb(255, 0, 0);
-        let (_, c0, _, _) = to_oklch_p476(red);
+        let (_, c0, _, _) = to_oklch_p476(red.clone());
         let (_, c1, _, _) = to_oklch_p476(red.saturate(0.0).unwrap());
         assert!(
             (c1 - c0).abs() < 1e-5,
@@ -1645,10 +1732,10 @@ mod tests {
         // Semântica vanilla (palette): increase sobre `s` em HSV. Vermelho
         // puro (s=1) não muda; cor com s=0.5 passa a s=0.55 → g e b descem.
         let c = Color::srgb_f32(1.0, 0.5, 0.5, 1.0);
-        let (h0, s0, v0) = hsv_of(c);
+        let (h0, s0, v0) = hsv_of(c.clone());
         assert!((s0 - 0.5).abs() < 1e-5);
         let sat = c.saturate(0.1).unwrap();
-        let (h1, s1, v1) = hsv_of(sat);
+        let (h1, s1, v1) = hsv_of(sat.clone());
         assert!((s1 - 0.55).abs() < 1e-4, "s esperado 0.55; obtido {s1}");
         assert!((h1 - h0).abs() < 1e-3, "hue preservado");
         assert!((v1 - v0).abs() < 1e-5, "value preservado");
@@ -1658,7 +1745,7 @@ mod tests {
     #[test]
     fn p477_desaturate_zero_nao_altera_chroma() {
         let blue = Color::rgb(0, 0, 255);
-        let (_, c0, _, _) = to_oklch_p476(blue);
+        let (_, c0, _, _) = to_oklch_p476(blue.clone());
         let (_, c1, _, _) = to_oklch_p476(blue.desaturate(0.0).unwrap());
         assert!((c1 - c0).abs() < 1e-5);
     }
@@ -1669,7 +1756,7 @@ mod tests {
         // (não cinzento — corrigido P742). Chroma Oklch ≈ 0 mantém-se.
         let red = Color::rgb(255, 0, 0);
         let desat = red.desaturate(1.0).unwrap();
-        let (_, c, _, _) = to_oklch_p476(desat);
+        let (_, c, _, _) = to_oklch_p476(desat.clone());
         assert!((c - 0.0).abs() < 1e-5, "desaturate(1.0) → c=0; obtido {}", c);
         assert_eq!(desat.to_srgb(), (255, 255, 255, 255), "v=1 preservado → branco");
     }
@@ -1678,7 +1765,7 @@ mod tests {
     fn p742_saturate_preserva_hue_e_value() {
         let (h0, s0, v0) = hsv_of(VANILLA_RED);
         let sat = VANILLA_RED.saturate(0.2).unwrap();
-        let (h1, s1, v1) = hsv_of(sat);
+        let (h1, s1, v1) = hsv_of(sat.clone());
         assert!(s1 > s0, "s deve aumentar: s0={s0}, s1={s1}");
         assert!((h1 - h0).abs() < 1e-3, "hue preservado");
         assert!((v1 - v0).abs() < 1e-5, "value preservado");
@@ -1689,9 +1776,9 @@ mod tests {
     #[test]
     fn p742_desaturate_preserva_hue_e_value() {
         let blue = Color::rgb(0, 0, 255);
-        let (h0, s0, v0) = hsv_of(blue);
+        let (h0, s0, v0) = hsv_of(blue.clone());
         let desat = blue.desaturate(0.05).unwrap();
-        let (h1, s1, v1) = hsv_of(desat);
+        let (h1, s1, v1) = hsv_of(desat.clone());
         assert!(s1 < s0, "s deve diminuir: s0={s0}, s1={s1}");
         assert!((h1 - h0).abs() < 1e-3, "hue preservado");
         assert!((v1 - v0).abs() < 1e-5, "value preservado");
@@ -1732,7 +1819,7 @@ mod tests {
     fn p744_rotate_hsl_e_hsv_suportados() {
         // Vermelho puro em Hsl/Hsv com rotação 180° → cyan (#00ffff).
         let red = Color::rgb(255, 0, 0);
-        assert_eq!(red.rotate(180.0, Some(ColorSpace::Hsl)).unwrap().to_hex(), "#00ffff");
+        assert_eq!(red.clone().rotate(180.0, Some(ColorSpace::Hsl)).unwrap().to_hex(), "#00ffff");
         assert_eq!(red.rotate(180.0, Some(ColorSpace::Hsv)).unwrap().to_hex(), "#00ffff");
     }
 
@@ -1741,7 +1828,7 @@ mod tests {
         let red = Color::rgb(255, 0, 0);
         let blue = Color::rgb(0, 0, 255);
         assert_eq!(
-            red.mix(blue, 0.5, None).to_hex(),
+            red.clone().mix(blue.clone(), 0.5, None).to_hex(),
             red.mix(blue, 0.5, Some(ColorSpace::Oklab)).to_hex(),
         );
     }
@@ -1752,7 +1839,7 @@ mod tests {
         // mix em Srgb → Srgb (repr hex).
         let red = Color::rgb(255, 0, 0);
         let blue = Color::rgb(0, 0, 255);
-        let mixed_oklab = red.mix(blue, 0.5, Some(ColorSpace::Oklab));
+        let mixed_oklab = red.clone().mix(blue.clone(), 0.5, Some(ColorSpace::Oklab));
         assert!(matches!(mixed_oklab, Color::Oklab { .. }));
         let mixed_srgb = red.mix(blue, 0.5, Some(ColorSpace::Srgb));
         assert!(matches!(mixed_srgb, Color::Srgb { .. }));
@@ -1783,14 +1870,14 @@ mod tests {
     #[test]
     fn p744_transparentize_opacify() {
         let c = Color::rgba(255, 65, 54, 128);
-        assert_eq!(c.transparentize(0.5).unwrap().to_hex(), "#ff413640");
+        assert_eq!(c.clone().transparentize(0.5).unwrap().to_hex(), "#ff413640");
         assert_eq!(c.opacify(0.5).unwrap().to_hex(), "#ff4136c0");
     }
 
     #[test]
     fn p744_transparentize_opacify_cmyk_none() {
         let c = Color::cmyk(0.1, 0.2, 0.3, 0.4);
-        assert!(c.transparentize(0.5).is_none());
+        assert!(c.clone().transparentize(0.5).is_none());
         assert!(c.opacify(0.5).is_none());
     }
 }

@@ -93,7 +93,7 @@ fn image(data: &[u8], orientation: u32, clip_rect: Option<Rect>) -> FrameItem {
         intrinsic_width: 3,
         intrinsic_height: 2,
         clip_rect,
-        orientation,
+        orientation, alt: None,
     }
 }
 

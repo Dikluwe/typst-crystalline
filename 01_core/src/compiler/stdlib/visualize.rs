@@ -56,7 +56,7 @@ pub fn native_tiling(
     };
 
     let body = match body {
-        Value::Color(c) => TilingBody::Color(*c),
+        Value::Color(c) => TilingBody::Color(c.clone()),
         Value::Content(content) => TilingBody::Content(Arc::new(content.clone())),
         Value::Str(path) => {
             // Graded: resolve path via world.read_bytes (reusa P72-74).

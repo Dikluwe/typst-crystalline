@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: d8c2ce91
+Hash do Código: 3e6f9dd6
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -569,3 +569,52 @@ construção Rust direta de `Type::SpotColorant`, ainda inexistente no
 baseline). Suíte: GREEN, zero regressão. Import órfão
 (`use crate::entities::value::Type`) no módulo de teste do Agente B
 removido na integração (clippy).
+## P1482 — `color.spot.tint` e operações de cor spot (CONFIRMADO em 2026-09-23; ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla pinado, `visualize/color.rs:889-1020,1147-1245,2254-2397`
+declara `SpotColorant::tint` e os ramos spot de Color. Sondas:
+`color.spot.tint(s, 50%)` e `s.tint(50%)` devolvem o mesmo valor de tipo
+`color`; `type(color.spot.tint)` é `function`; `s.tint` isolado erra
+`cannot access fields on type spot colorant`. `-1%` erra
+`spot color tint must be positive`; `101%` erra
+`spot color tint must not exceed 100%`; float erra
+`expected ratio, found float`; falta de argumento erra
+`missing argument: value`. `stdlib/color.rs:118-138,743-808` não
+declara nem despacha tint; o resultado atual é método ausente.
+`visualize/color.rs:2270-2297` mede lighten/darken/negate no tint;
+`:889-924` mede components/space/to-hex; `:960-1015,1260-1328`
+mede rejeições e conversões. Sondas confirmam saturate/desaturate
+rejeitados com hint, alpha ausente, mix de mesmo colorant preservado,
+mix de colorants distintos ou com processo em Oklab.
+
+### Decisão proprietária
+
+O tipo `color.spot` expõe `tint` como função estática
+`tint(spot: SpotColorant, value: Ratio) -> Color` e a sintaxe de
+chamada ligada `spot.tint(value)`; não expor `spot.tint` como valor de
+campo independente. Usar um parser comum para as duas chamadas,
+conservar spans do valor/range, rejeitar named `value:` como argumento
+posicional e excedentes como `unexpected argument`. Validar
+inclusive `0%` e `100%`; não converter float/string para ratio nem
+truncar os limites. Não implementar `.fallback()` público: a fonte
+tem helper interno, mas `spot.tint(50%).fallback()` erra
+`type color has no method fallback` na linguagem.
+
+Os métodos já existentes de `Value::Color` aceitam Spot sem perda do
+carrier: `lighten`/`darken`/`negate()` ajustam tint e preservam
+colorant; `components(alpha: false)` ainda retorna só o tint;
+`space()` devolve `Value::SpotColorant`; `to-hex()` usa fallback
+tingido; `rgb(color)` é conversão explícita para processo, não
+identidade. `mix` padrão conserva spot somente entre tintas do mesmo
+colorant completo; senão usa Oklab. `space:` spot exige colorant
+compatível, com erros e hints de `ColorSpaceError`; não simular
+conversão impossível. Saturate/desaturate e alpha têm os diagnósticos
+vanilla específicos de spot; `rotate` não deve inventar hue da tinta.
+Ações em cor processual existente permanecem invariantes.
+P1482 é só linguagem; `infra/export/stream.md` registra o scope-out
+PDF até P1483. Não declarar a rota fechada por existência do método.
+Fórmulas vanilla (`visualize/color.rs:2270-2292`): lighten
+`t' = clamp(t - t×factor, 0, 1)`, darken
+`t' = clamp(t + (1-t)×factor, 0, 1)` e negate `t' = 1-t`.
