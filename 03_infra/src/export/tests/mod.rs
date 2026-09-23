@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash 46665882
+//! @prompt-hash eabba9f3
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -9977,3 +9977,5 @@ mod p1478_pdfa4f_empty_embedded_files_tests;
 mod p1480_pdfua_identification_tests;
 #[cfg(test)]
 mod p1481_pdfua_structure_tests;
+#[cfg(test)]
+mod p1483_pdf_spot_tests;

@@ -55,13 +55,14 @@ use self::gradients::{
     adaptive_n_for_stops, apply_parent_transform, bezier_control_points_for_arc,
     compute_axial_coords, compute_coons_patches_n_stops,
     compute_coons_patches_n_stops_extended, compute_radial_coords, dedup_key_for,
-    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb, emit_function_dict,
-    emit_function_dict_cmyk, group_bbox_from_fields, multispace_sample_stops,
+    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
+    emit_conic_coons_stream_spot, emit_function_dict, emit_function_dict_cmyk,
+    emit_function_dict_spot, group_bbox_from_fields, multispace_sample_stops,
     multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
     multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
     pattern_resources_for_page, perceptual_distance_in_space, resolve_relative,
-    rgb_to_cmyk, scan_all_gradients, DedupKey, GradientObject, GradientObjectKind,
-    PatternRef, RectKey,
+    rgb_to_cmyk, scan_all_gradients, spot_bbox_for_shape, DedupKey, GradientObject,
+    GradientObjectKind, PatternRef, RectKey,
 };
 use self::images::{
     build_icc_profile_stream, build_jpeg_xobject, build_png_rgb_xobject,

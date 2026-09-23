@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/function_dict.md
-//! @prompt-hash 19fe24a0
+//! @prompt-hash 07092702
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -114,4 +114,40 @@ pub(crate) fn emit_function_dict_cmyk(
     );
     let _ = function_id;
     (dict, sub_objs)
+}
+
+/// P1483 — função de tinta de canal único para /Separation.
+pub(crate) fn emit_function_dict_spot(
+    stops: &[f32],
+    function_id: usize,
+    sub_first_id: &mut usize,
+) -> (String, Vec<(usize, String)>) {
+    fn segment(a: f32, b: f32) -> String {
+        format!("<< /FunctionType 2 /Domain [0 1] /Range [0 1] /C0 [{a:.8}] /C1 [{b:.8}] /N 1 >>")
+    }
+    let _ = function_id;
+    if stops.len() <= 2 {
+        return (
+            segment(
+                stops.first().copied().unwrap_or(0.0),
+                stops.last().copied().unwrap_or(0.0),
+            ),
+            Vec::new(),
+        );
+    }
+    let mut sub_objects = Vec::new();
+    let mut references = Vec::new();
+    for pair in stops.windows(2) {
+        let id = *sub_first_id;
+        *sub_first_id += 1;
+        sub_objects.push((id, segment(pair[0], pair[1])));
+        references.push(format!("{id} 0 R"));
+    }
+    let bounds: Vec<String> = (1..stops.len() - 1)
+        .map(|i| format!("{:.8}", i as f64 / (stops.len() - 1) as f64))
+        .collect();
+    let encode = vec!["0 1"; stops.len() - 1].join(" ");
+    let dict = format!("<< /FunctionType 3 /Domain [0 1] /Range [0 1] /Functions [{}] /Bounds [{}] /Encode [{encode}] >>",
+        references.join(" "), bounds.join(" "));
+    (dict, sub_objects)
 }

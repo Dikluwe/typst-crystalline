@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/mod.md
-//! @prompt-hash 6e0bbd6b
+//! @prompt-hash 44eb5d9a
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -38,9 +38,12 @@ pub(super) use self::cmyk::{
 pub(super) use self::conic::{
     bezier_control_points_for_arc, compute_coons_patches_n_stops,
     compute_coons_patches_n_stops_extended, emit_conic_coons_stream_cmyk,
-    emit_conic_coons_stream_rgb, multispace_sample_stops_conic,
+    emit_conic_coons_stream_rgb, emit_conic_coons_stream_spot,
+    multispace_sample_stops_conic,
 };
-pub(super) use self::function_dict::{emit_function_dict, emit_function_dict_cmyk};
+pub(super) use self::function_dict::{
+    emit_function_dict, emit_function_dict_cmyk, emit_function_dict_spot,
+};
 pub(super) use self::linear::{compute_axial_coords, multispace_sample_stops};
 pub(super) use self::radial::{compute_radial_coords, multispace_sample_stops_radial};
 pub(super) use self::relative::{apply_parent_transform, resolve_relative};
@@ -77,6 +80,9 @@ pub(super) struct GradientObject {
     /// captura o bbox. Refino futuro para dedup bbox-aware fica fora de
     /// escopo P273.6 per ADR-0054 graded.
     pub(super) parent_bbox_at_emit: Option<typst_core::entities::layout_types::Rect>,
+    /// Caixa do próprio shape para posicionar shadings spot.
+    pub(super) paint_bbox_at_emit: Option<typst_core::entities::layout_types::Rect>,
+    pub(super) page_height_at_emit: f64,
 }
 
 /// **P273.12** — Quantização de `Rect` em milipontos para chave HashMap.
@@ -102,6 +108,26 @@ pub(super) fn rect_to_key(r: typst_core::entities::layout_types::Rect) -> RectKe
 pub(crate) struct DedupKey {
     arc_ptr: usize,
     bbox: Option<RectKey>,
+}
+
+/// P1483 — bbox próprio apenas para gradientes spot; processo conserva a chave anterior.
+pub(super) fn spot_bbox_for_shape(
+    g: &typst_core::entities::gradient::Gradient,
+    pos: typst_core::entities::layout_types::Point,
+    width: f64,
+    height: f64,
+) -> Option<typst_core::entities::layout_types::Rect> {
+    use typst_core::entities::gradient::Gradient;
+    use typst_core::entities::layout_types::{ColorSpace, Pt, Rect};
+    let space = match g {
+        Gradient::Linear(inner) => &inner.space,
+        Gradient::Radial(inner) => &inner.space,
+        Gradient::Conic(inner) => &inner.space,
+    };
+    if !matches!(space, ColorSpace::Spot(_)) {
+        return None;
+    }
+    Some(Rect { x: pos.x, y: pos.y, w: Pt(width), h: Pt(height) })
 }
 
 /// **P273.12** — Constrói `DedupKey` a partir de `Arc<g>` + bbox effective.
@@ -154,7 +180,6 @@ pub(super) fn scan_all_gradients(
     doc: &typst_core::entities::layout_types::PagedDocument,
     first_id: usize,
 ) -> (Vec<PatternRef>, HashMap<DedupKey, usize>, Vec<GradientObject>) {
-    use typst_core::entities::geometry::Stroke;
     use typst_core::entities::gradient::Gradient;
     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
     use typst_core::entities::paint::Paint;
@@ -166,6 +191,7 @@ pub(super) fn scan_all_gradients(
     fn walk(
         items: &[FrameItem],
         parent_bbox_override: Option<Rect>,
+        page_height: f64,
         ptr_to_idx: &mut HashMap<DedupKey, usize>,
         refs: &mut Vec<PatternRef>,
         grad_objs: &mut Vec<GradientObject>,
@@ -175,46 +201,65 @@ pub(super) fn scan_all_gradients(
         for item in items {
             match item {
                 FrameItem::Shape {
-                    stroke: Some(Stroke { paint: Paint::Gradient(g), .. }),
+                    pos,
+                    width,
+                    height,
+                    fill,
+                    stroke,
                     parent_bbox_at_emit,
                     ..
                 } => {
-                    // P273.10 — Inner wins: Shape's próprio campo prevalece.
-                    let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
-                    // P273.12 — DedupKey bbox-aware (substitui chave Arc-only).
-                    let key = dedup_key_for(g, effective_bbox);
-                    if ptr_to_idx.contains_key(&key) {
-                        continue;
+                    for g in fill
+                        .iter()
+                        .chain(stroke.iter().map(|s| &s.paint))
+                        .filter_map(|p| {
+                            if let Paint::Gradient(g) = p {
+                                Some(g)
+                            } else {
+                                None
+                            }
+                        })
+                    {
+                        // P273.10 — Inner wins: Shape's próprio campo prevalece.
+                        let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
+                        let paint_bbox = spot_bbox_for_shape(g, *pos, *width, *height);
+                        // Spot precisa da posição do próprio shape na chave.
+                        let key = dedup_key_for(g, paint_bbox.or(effective_bbox));
+                        if ptr_to_idx.contains_key(&key) {
+                            continue;
+                        }
+                        let kind = match g {
+                            Gradient::Linear(l) => {
+                                GradientObjectKind::Linear(std::sync::Arc::clone(l))
+                            }
+                            Gradient::Radial(r) => {
+                                GradientObjectKind::Radial(std::sync::Arc::clone(r))
+                            }
+                            Gradient::Conic(c) => {
+                                GradientObjectKind::Conic(std::sync::Arc::clone(c))
+                            }
+                        };
+                        let function_id = *next_id;
+                        *next_id += 1;
+                        let shading_id = *next_id;
+                        *next_id += 1;
+                        let pattern_id = *next_id;
+                        *next_id += 1;
+                        let name = format!("P{}", *counter);
+                        *counter += 1;
+                        let idx = refs.len();
+                        refs.push(PatternRef { pattern_obj_id: pattern_id, name });
+                        grad_objs.push(GradientObject {
+                            kind,
+                            function_id,
+                            shading_id,
+                            pattern_id,
+                            parent_bbox_at_emit: effective_bbox,
+                            paint_bbox_at_emit: paint_bbox,
+                            page_height_at_emit: page_height,
+                        });
+                        ptr_to_idx.insert(key, idx);
                     }
-                    let kind = match g {
-                        Gradient::Linear(l) => {
-                            GradientObjectKind::Linear(std::sync::Arc::clone(l))
-                        }
-                        Gradient::Radial(r) => {
-                            GradientObjectKind::Radial(std::sync::Arc::clone(r))
-                        }
-                        Gradient::Conic(c) => {
-                            GradientObjectKind::Conic(std::sync::Arc::clone(c))
-                        }
-                    };
-                    let function_id = *next_id;
-                    *next_id += 1;
-                    let shading_id = *next_id;
-                    *next_id += 1;
-                    let pattern_id = *next_id;
-                    *next_id += 1;
-                    let name = format!("P{}", *counter);
-                    *counter += 1;
-                    let idx = refs.len();
-                    refs.push(PatternRef { pattern_obj_id: pattern_id, name });
-                    grad_objs.push(GradientObject {
-                        kind,
-                        function_id,
-                        shading_id,
-                        pattern_id,
-                        parent_bbox_at_emit: effective_bbox,
-                    });
-                    ptr_to_idx.insert(key, idx);
                 }
                 FrameItem::Group { pos, inner_width, inner_height, items, .. } => {
                     // P273.10 — Group bbox L3-only override (Decisão 2α):
@@ -225,6 +270,7 @@ pub(super) fn scan_all_gradients(
                     walk(
                         items,
                         Some(group_bbox),
+                        page_height,
                         ptr_to_idx,
                         refs,
                         grad_objs,
@@ -237,6 +283,7 @@ pub(super) fn scan_all_gradients(
                     walk(
                         items,
                         parent_bbox_override,
+                        page_height,
                         ptr_to_idx,
                         refs,
                         grad_objs,
@@ -248,6 +295,7 @@ pub(super) fn scan_all_gradients(
                     walk(
                         items,
                         parent_bbox_override,
+                        page_height,
                         ptr_to_idx,
                         refs,
                         grad_objs,
@@ -275,15 +323,18 @@ pub(super) fn scan_all_gradients(
     for page in &doc.pages {
         // P273.10 — top-level: parent_bbox_override = None (gradient só
         // recebe override se descobrir Group em rota descendente).
-        walk(
-            &page.items,
-            None,
-            &mut ptr_to_idx,
-            &mut refs,
-            &mut grad_objs,
-            &mut next_id,
-            &mut counter,
-        );
+        for items in [&page.background, &page.items, &page.foreground] {
+            walk(
+                items,
+                None,
+                page.height,
+                &mut ptr_to_idx,
+                &mut refs,
+                &mut grad_objs,
+                &mut next_id,
+                &mut counter,
+            );
+        }
     }
     (refs, ptr_to_idx, grad_objs)
 }
@@ -295,7 +346,6 @@ pub(super) fn pattern_resources_for_page(
     ptr_to_idx: &HashMap<DedupKey, usize>,
     refs: &[PatternRef],
 ) -> String {
-    use typst_core::entities::geometry::Stroke;
     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
     use typst_core::entities::paint::Paint;
 
@@ -313,16 +363,36 @@ pub(super) fn pattern_resources_for_page(
         for item in items {
             match item {
                 FrameItem::Shape {
-                    stroke: Some(Stroke { paint: Paint::Gradient(g), .. }),
+                    pos,
+                    width,
+                    height,
+                    fill,
+                    stroke,
                     parent_bbox_at_emit,
                     ..
                 } => {
-                    let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
-                    let key = dedup_key_for(g, effective_bbox);
-                    if let Some(&idx) = ptr_to_idx.get(&key) {
-                        if seen.insert(idx) {
-                            let r = &refs[idx];
-                            entries.push(format!("/{} {} 0 R", r.name, r.pattern_obj_id));
+                    for g in fill
+                        .iter()
+                        .chain(stroke.iter().map(|s| &s.paint))
+                        .filter_map(|p| {
+                            if let Paint::Gradient(g) = p {
+                                Some(g)
+                            } else {
+                                None
+                            }
+                        })
+                    {
+                        let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
+                        let paint_bbox = spot_bbox_for_shape(g, *pos, *width, *height);
+                        let key = dedup_key_for(g, paint_bbox.or(effective_bbox));
+                        if let Some(&idx) = ptr_to_idx.get(&key) {
+                            if seen.insert(idx) {
+                                let r = &refs[idx];
+                                entries.push(format!(
+                                    "/{} {} 0 R",
+                                    r.name, r.pattern_obj_id
+                                ));
+                            }
                         }
                     }
                 }
@@ -332,7 +402,7 @@ pub(super) fn pattern_resources_for_page(
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
                     walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
                 }
-                FrameItem::Semantic { items, .. } => {
+                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                     walk(items, parent_bbox_override, ptr_to_idx, refs, entries, seen);
                 }
                 // intencional: texto, linhas, glifos e imagens não definem recursos /Pattern
@@ -341,7 +411,6 @@ pub(super) fn pattern_resources_for_page(
                 | FrameItem::Line { .. }
                 | FrameItem::Glyph { .. }
                 | FrameItem::Image { .. }
-                | FrameItem::Link { .. }
                 | FrameItem::Shape { .. } => {}
             }
         }
@@ -349,7 +418,9 @@ pub(super) fn pattern_resources_for_page(
 
     let mut entries: Vec<String> = Vec::new();
     let mut seen: BTreeSet<usize> = Default::default();
-    walk(&page.items, None, ptr_to_idx, refs, &mut entries, &mut seen);
+    for items in [&page.background, &page.items, &page.foreground] {
+        walk(items, None, ptr_to_idx, refs, &mut entries, &mut seen);
+    }
     if entries.is_empty() {
         return String::new();
     }

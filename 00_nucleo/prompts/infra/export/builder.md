@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: c1b13dd4
+Hash do Código: 5c119a5d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -2112,3 +2112,63 @@ Cada heading físico é uma única unidade H1–H6 e cada parágrafo é uma
 MCID, Strong/Em/Link mantêm seus papéis dentro do P. A boundary não
 vira nó nem conteúdo vazio acessível. A cardinalidade H1/H2/P no corpus
 de duas páginas coincide com o vanilla, sem impor igualdade de MCIDs.
+
+## P1483 — recursos PDF de separação spot
+
+### Medição anterior à decisão
+
+Vanilla pinado `586e1bd43`, fonte `typst-pdf/src/paint.rs:115-163`
+e PDFs de sonda `solid.typ`/`special.typ` às 18:43-18:50 de
+2026-09-23, HEAD cristalino
+`3d2aea6618f81bcde66aaf8a4dce8aea1bc0f3be`, working tree
+não commitada (SHA-256 do diff rastreado
+`34f47966acfee4f30c9d4905f6617323448bdf647b12e0e516f511a337ef34a0`):
+o vanilla declara `/ColorSpace << /c0 ref >>` por página,
+`[/Separation /Brand alternate << /FunctionType 2 /Domain [0 1]
+/C0 [1 1 1] /C1 [fallback] /N 1 >>]`; `none` vira
+`/None`, `"all"` vira `/All`, fallback CMYK usa
+`/DeviceCMYK` e `/C0 [0 0 0 0]`. O cristalino só declara
+`/c0` ICC processual e não `/Separation`. Identidade de
+colorant e cor alternativa são observáveis; IDs e ordem não.
+
+### Decisão interna
+
+Para cada página selecionada, percorrer fill/stroke/texto/linhas,
+grupos, conteúdo semântico e colorants dos gradientes; deduplicar
+pelo colorant completo (nome+fallback). Acrescentar entradas de
+separação ao `/ColorSpace` da página sem alterar `/c0` nem
+recursos das páginas sem spot. A entrada pode ser array inline,
+sem novo object ID nem assinatura pública:
+`[/Separation /Nome alternate tint-transform]`.
+Nome PDF deve escapar bytes reservados; `none` e `"all"`
+usam `/None`/`/All`. Tint-transform Type 2 linear de branco
+para fallback de processo; para CMYK o extremo sem tinta é zero.
+O recurso ICC sRGB existente serve ao alternativo RGB em verbose;
+compacto conserva os recursos de processo e pode usar DeviceRGB.
+Não se partilha recurso entre colorants com fallback diferente.
+Todos os três cenários de fonte usam o mesmo percurso e páginas
+excluídas não declaram tinta que não usam.
+
+Gradientes spot podem referir a mesma definição de separação no
+dicionário `/Shading` (array inline válido); não reduzir a
+`/DeviceRGB`. O shading axial spot espelha `/Extend [true true]`
+medido no vanilla, para não perder pintura nas bordas do shape.
+Dois stops nos extremos 0/1 preservam a rampa exata com função
+Type 2; stops internos exigem Type 3 amostrada. Coordenadas
+axiais/radiais spot e a matriz do mesh cónico são posicionadas
+no retângulo do shape em espaço PDF, não no centro da página:
+a sonda axial 180×180 com shape no topo ficou branca no
+cristalino apesar de `/Separation` válido, enquanto a sonda
+80×80 próxima ao eixo pintou. O vanilla pinta ambas.
+Standards ativos exigem PDF sintaticamente válido
+e renderizável, sem mudar o padrão de serialização.
+
+### Xref de IDs reservados
+
+A primeira sonda cristalina com gradiente de preenchimento efetivamente
+registrado revelou, via `qpdf --check`, entradas de xref com offset zero
+marcadas como objeto em uso para IDs não materializados. Trata-se de
+mecânica interna, não de semântica de cor: o `serialize()` deve marcar
+cada ID ausente como livre (`f`), preservando os offsets reais (`n`)
+e o contrato de PDF válido. Não criar objetos fictícios apenas para
+preencher a reserva de IDs.

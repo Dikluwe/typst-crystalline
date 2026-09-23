@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/tests/mod` — Testes agregadores E2E
-Hash do Código: cccf8fa7
+Hash do Código: 351dddba
 
 **Camada**: L3 (apoio — testes)
 **Ficheiro alvo**: `03_infra/src/export/tests/mod.rs`
@@ -118,3 +118,12 @@ incluindo os 5 testes de P1480). Falhas indicam regressão em algum cluster L3.
 - **Não** testa paridade vanilla (vive em `lab/parity/`).
 - **Não** testa binário cristalino vs cristalino (vive em `p307b_snapshot_tests.rs`).
 - **Não** valida performance.
+
+## P1483 — módulo de testes de separação spot
+
+Registrar `p1483_pdf_spot_tests`, com owner test-only próprio
+`infra/export/tests/p1483_pdf_spot_tests.md`. Ele exercita
+fill/stroke/texto, colorants `None`/`All`/nomeado, tint
+0/50/100, reuso de recurso, gradientes e controle processual
+em PDF; verifica fallback dos backends sem spot sem depender
+de bytes PDF exatos.

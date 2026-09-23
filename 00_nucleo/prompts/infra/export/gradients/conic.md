@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/conic` — Conic Type 6 Coons Patch Mesh
-Hash do Código: d2240efd
+Hash do Código: e581e3e0
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/conic.rs`
@@ -54,3 +54,20 @@ helpers.rs) possível mas baixo ROI dada coesão temática.
 ## Critérios de verificação
 
 Tests `p272_*` (15 testes) + `p270_*` CMYK em `super::super::tests`.
+
+## P1483 — Coons spot de um canal
+
+### Medição anterior à decisão
+
+A sonda vanilla aceita gradiente cônico de duas tintas do
+mesmo colorant e emite shading de saída de um canal no
+`/Separation`; o cristalino mantém Coons Type 6 para os
+oito espaços processuais, mas `ColorSpace::Spot` cai em
+`/DeviceRGB` via `to_rgba_f32`.
+
+### Decisão interna
+
+O Type 6 spot usa a geometria Coons já vigente e grava
+apenas um byte de tint por corner (4 bytes, não 12 RGB),
+com `/Decode` para um componente. Não alterar os caminhos
+RGB/CMYK, suas discretizações nem as assinaturas públicas.

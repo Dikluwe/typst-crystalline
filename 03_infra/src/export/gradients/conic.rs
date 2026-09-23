@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/conic.md
-//! @prompt-hash f96414bd
+//! @prompt-hash 37284505
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -318,5 +318,24 @@ pub(crate) fn emit_conic_coons_stream_cmyk(
         push_color_cmyk(&mut stream, stop_next.color.clone()); // corner3
     }
 
+    stream
+}
+
+/// P1483 — Coons Type 6 mantém a geometria e substitui as quatro cores RGB por tintas spot.
+pub(crate) fn emit_conic_coons_stream_spot(conic: &Conic) -> Vec<u8> {
+    let geometry = emit_conic_coons_stream_rgb(conic);
+    let n = compute_coons_patches_n_stops_extended(conic);
+    let mut stream = Vec::with_capacity(29 * n);
+    for i in 0..n {
+        let start = i * 37;
+        stream.extend_from_slice(&geometry[start..start + 25]);
+        let sample = |t: f32| -> u8 {
+            let Color::Spot(spot) = conic.sample(t) else { return 0 };
+            (spot.tint.get().clamp(0.0, 1.0) * 255.0).round() as u8
+        };
+        let a = sample(i as f32 / n as f32);
+        let b = sample((i + 1) as f32 / n as f32);
+        stream.extend_from_slice(&[a, a, b, b]);
+    }
     stream
 }

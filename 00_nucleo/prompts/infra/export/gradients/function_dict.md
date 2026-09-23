@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/gradients/function_dict` — PDF Function dict
-Hash do Código: 97fda67b
+Hash do Código: 1cdb3061
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/gradients/function_dict.rs`
@@ -52,3 +52,21 @@ Returns `(main_dict_string, vec_of_sub_function_objects)`.
 ## Critérios de verificação
 
 Tests `p263_emit_function_dict_*` em `super::super::tests`.
+
+## P1483 — função de um canal para spot
+
+### Medição anterior à decisão
+
+`vanilla-gradient.pdf` da sonda P1483 usa shading axial/radial
+com `/ColorSpace` de separação e função de saída única
+(`/Range [0 1]`, `/C0 [tint0]`, `/C1 [tint1]`);
+`function_dict.rs` só produz RGB/CMYK. Tint é um observável
+de impressão; IDs de subfunções não são.
+
+### Decisão interna
+
+Adicionar função Type 2 para dois tints e Type 3
+(stitching de Type 2) para amostras adicionais, sempre com
+um componente e `/Range [0 1]`. Usar tint dos valores spot
+interpolados no espaço do mesmo colorant; não derivar de RGB.
+A API é `pub(crate)`, interna ao cluster L3.

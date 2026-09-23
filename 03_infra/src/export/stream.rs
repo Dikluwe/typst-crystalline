@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 75d71ca5
+//! @prompt-hash c3378776
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -16,7 +16,9 @@
 //! Conteúdo bit-exact pré e pós migração.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use super::pdf_defaults;
@@ -31,11 +33,59 @@ use crate::font_variant::text_style_to_font_variant;
 
 use super::{
     dedup_key_for, escape_pdf_string, group_bbox_from_fields, remap_glyph_id,
-    text_to_hex_string, DedupKey, ImageRef, PatternRef, PdfTags, StreamMode,
+    spot_bbox_for_shape, text_to_hex_string, DedupKey, ImageRef, PatternRef, PdfTags,
+    StreamMode,
 };
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
 
+/// Nome interno estável por identidade completa do colorante. Dois hashes
+/// independentes evitam que nomes iguais com fallbacks distintos colidam
+/// na prática sem expor IDs de objeto ou ordem da varredura ao stream.
+pub(super) fn spot_resource_name(
+    colorant: &typst_core::entities::color::SpotColorant,
+) -> String {
+    let mut first = DefaultHasher::new();
+    colorant.hash(&mut first);
+    let mut second = DefaultHasher::new();
+    0x9e3779b97f4a7c15_u64.hash(&mut second);
+    colorant.hash(&mut second);
+    format!("s{:016x}{:016x}", first.finish(), second.finish())
+}
+
+fn spot_tint_pdf(spot: &typst_core::entities::color::SpotColor) -> String {
+    let value = (spot.tint.get().clamp(0.0, 1.0) * 255.0).round() / 255.0;
+    format!("{value:.8}")
+        .trim_end_matches('0')
+        .trim_end_matches('.')
+        .to_string()
+}
+
+fn spot_fill_operator(
+    color: &typst_core::entities::layout_types::Color,
+) -> Option<String> {
+    let typst_core::entities::layout_types::Color::Spot(spot) = color else {
+        return None;
+    };
+    Some(format!(
+        "/{} cs {} scn\n",
+        spot_resource_name(&spot.colorant),
+        spot_tint_pdf(spot)
+    ))
+}
+
+fn spot_stroke_operator(
+    color: &typst_core::entities::layout_types::Color,
+) -> Option<String> {
+    let typst_core::entities::layout_types::Color::Spot(spot) = color else {
+        return None;
+    };
+    Some(format!(
+        "/{} CS {} SCN\n",
+        spot_resource_name(&spot.colorant),
+        spot_tint_pdf(spot)
+    ))
+}
 // ── P281 — PageContext + FontScenario (agregador unificado) ───────────────
 //
 // Unificação dos 3 stream-builders (Type1/CIDFont/Multifont) num
@@ -472,6 +522,10 @@ fn verbose_block_prefix(
     base_y: f64,
     fill: &Option<typst_core::entities::layout_types::Color>,
 ) {
+    if let Some(op) = fill.as_ref().and_then(spot_fill_operator) {
+        ops.push_str(&format!("q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n{op}BT\n"));
+        return;
+    }
     let (r, g, b) = match fill {
         Some(c) => {
             let (r, g, b, _) = c.to_rgba_f32();
@@ -599,6 +653,9 @@ pub(super) fn line_rg_prefix(
     match color {
         None => String::new(),
         Some(c) => {
+            if let Some(op) = spot_stroke_operator(c) {
+                return op.replace('\n', " ");
+            }
             let (r, g, b, _) = c.to_rgba_f32();
             format!("{:.3} {:.3} {:.3} RG ", r, g, b)
         }
@@ -620,6 +677,9 @@ pub(super) fn fill_rg_prefix(
     match color {
         None => String::new(),
         Some(c) => {
+            if let Some(op) = spot_fill_operator(c) {
+                return op;
+            }
             let (r, g, b, _) = c.to_rgba_f32();
             format!("{:.3} {:.3} {:.3} rg\n", r, g, b)
         }
@@ -665,12 +725,12 @@ pub(super) fn emit_glyph_pdf(
     scenario: &FontScenario,
 ) {
     if let Some(c) = &style.fill {
-        let (r, g, b, _) = c.to_rgba_f32();
-        ops.push_str(&format!(
-            "{:.3} {:.3} {:.3} rg
-",
-            r, g, b
-        ));
+        if let Some(op) = spot_fill_operator(c) {
+            ops.push_str(&op);
+        } else {
+            let (r, g, b, _) = c.to_rgba_f32();
+            ops.push_str(&format!("{r:.3} {g:.3} {b:.3} rg\n"));
+        }
     }
     match scenario {
         FontScenario::Type1 => {
@@ -908,6 +968,54 @@ pub(super) fn emit_glyph_pdf_verbose(
     }
 }
 
+fn paint_effective_bbox(
+    paint: &typst_core::entities::paint::Paint,
+    pos: typst_core::entities::layout_types::Point,
+    width: f64,
+    height: f64,
+    parent: Option<typst_core::entities::layout_types::Rect>,
+) -> Option<typst_core::entities::layout_types::Rect> {
+    if let typst_core::entities::paint::Paint::Gradient(g) = paint {
+        spot_bbox_for_shape(g, pos, width, height).or(parent)
+    } else {
+        parent
+    }
+}
+
+/// Emite o preenchimento de um Paint sem perder a identidade spot.
+fn emit_fill_paint(
+    ops: &mut String,
+    paint: &typst_core::entities::paint::Paint,
+    effective_bbox: Option<typst_core::entities::layout_types::Rect>,
+    pat_ptr_to_idx: &HashMap<DedupKey, usize>,
+    pat_refs: &[PatternRef],
+) {
+    use typst_core::entities::paint::Paint;
+    match paint {
+        Paint::Solid(color) => {
+            if let Some(op) = spot_fill_operator(color) {
+                ops.push_str(&op);
+            } else {
+                let (r, g, b, _) = color.to_rgba_f32();
+                ops.push_str(&format!("{r:.3} {g:.3} {b:.3} rg\n"));
+            }
+        }
+        Paint::Gradient(gradient) => {
+            let key = dedup_key_for(gradient, effective_bbox);
+            if let Some(&idx) = pat_ptr_to_idx.get(&key) {
+                ops.push_str(&format!("/Pattern cs\n/{} scn\n", pat_refs[idx].name));
+            } else {
+                let (r, g, b, _) = paint.to_color().to_rgba_f32();
+                ops.push_str(&format!("{r:.3} {g:.3} {b:.3} rg\n"));
+            }
+        }
+        Paint::Tiling(_) => {
+            let (r, g, b, _) = paint.to_color().to_rgba_f32();
+            ops.push_str(&format!("{r:.3} {g:.3} {b:.3} rg\n"));
+        }
+    }
+}
+
 /// P263 — Emite operadores de stroke colour para um Paint (Solid ou Gradient).
 ///
 /// Para `Paint::Solid(c)`: emit `r g b RG` literal P261 preservado.
@@ -924,6 +1032,11 @@ pub(super) fn emit_stroke_paint(
     use typst_core::entities::paint::Paint;
     match paint {
         Paint::Solid(c) => {
+            if let Some(op) = spot_stroke_operator(c) {
+                ops.push_str(&op);
+                ops.push_str(&format!("{:.2} w\n", thickness));
+                return;
+            }
             let (r, g, b, _) = c.to_rgba_f32();
             ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
         }
@@ -996,9 +1109,19 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
         if ctx.ua1 {
             ops.push_str("/Artifact << /Type /Layout >> BDC\n");
         }
-        let (r, g, b, _) = paint.to_color().to_rgba_f32();
+        if let typst_core::entities::paint::Paint::Solid(color) = paint {
+            if let Some(op) = spot_fill_operator(color) {
+                ops.push_str(&op);
+            } else {
+                let (r, g, b, _) = color.to_rgba_f32();
+                ops.push_str(&format!("{r:.5} {g:.5} {b:.5} rg\n"));
+            }
+        } else {
+            let (r, g, b, _) = paint.to_color().to_rgba_f32();
+            ops.push_str(&format!("{r:.5} {g:.5} {b:.5} rg\n"));
+        }
         ops.push_str(&format!(
-            "{r:.5} {g:.5} {b:.5} rg\n0 0 {:.5} {:.5} re f\n",
+            "0 0 {:.5} {:.5} re f\n",
             page.canvas_width(),
             page.canvas_height(),
         ));
@@ -1487,8 +1610,13 @@ fn draw_item_top(
 
             // Cor de preenchimento (rg — RGB para fills).
             if let Some(c) = fill {
-                let (r, g, b, _) = c.to_color().to_rgba_f32();
-                ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+                emit_fill_paint(
+                    &mut ops,
+                    c,
+                    paint_effective_bbox(c, *pos, *width, *height, *parent_bbox_at_emit),
+                    ctx.pat_ptr_to_idx,
+                    ctx.pat_refs,
+                );
             }
 
             // Cor e espessura do contorno (RG + w).
@@ -1497,7 +1625,13 @@ fn draw_item_top(
                     &mut ops,
                     &s.paint,
                     s.thickness,
-                    *parent_bbox_at_emit,
+                    paint_effective_bbox(
+                        &s.paint,
+                        *pos,
+                        *width,
+                        *height,
+                        *parent_bbox_at_emit,
+                    ),
                     ctx.pat_ptr_to_idx,
                     ctx.pat_refs,
                 );
@@ -1904,11 +2038,15 @@ pub(super) fn draw_item_local(
             let local_y = pos.y.0;
             ops.push_str("q\n");
             if let Some(c) = fill {
-                let (r, g, b, _) = c.to_color().to_rgba_f32();
-                ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+                let parent = parent_bbox_at_emit.or(parent_bbox_override);
+                let effective_bbox =
+                    paint_effective_bbox(c, *pos, *width, *height, parent);
+                emit_fill_paint(ops, c, effective_bbox, ctx.pat_ptr_to_idx, ctx.pat_refs);
             }
             if let Some(s) = stroke {
-                let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
+                let parent = parent_bbox_at_emit.or(parent_bbox_override);
+                let effective_bbox =
+                    paint_effective_bbox(&s.paint, *pos, *width, *height, parent);
                 emit_stroke_paint(
                     ops,
                     &s.paint,

@@ -261,3 +261,15 @@ um sinal legítimo ("este L0 ainda não foi materializado").
   bytes/md5 actualizada.
 - `00_nucleo/materialization/typst-passo-307.md` §6: contexto
   inicial sobre snapshot binário.
+## P1483 — atualização intencional de referências de gradiente
+
+O P1483 liga `Shape.fill: Paint::Gradient` ao Pattern PDF; antes,
+os fixtures 05/06/07 pintavam a primeira cor sólida apesar dos
+nomes de gradiente. A falha binária destes três snapshots após
+a correção é esperada, não regressão de linguagem. Regenerar
+somente esses três via `UPDATE_P307B_SNAPSHOTS=1` no teste
+consumidor (modo Compact, tags Disabled, epoch fixo), repetir
+a geração para provar determinismo, validar `qpdf --check`
+e atualizar bytes/md5 no MANIFEST. Os demais fixtures não
+devem mudar. O teste binário continua a guardar o novo baseline,
+sem ser usado como oráculo de paridade com o vanilla.

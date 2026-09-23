@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: f0485e2c
+Hash do Código: 98a03fc4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -606,3 +606,37 @@ em PDF. P1483 é o passo que completa este L0: emissão de
 fill/stroke/gradientes conforme medição bilateral própria. Não
 declarar conformidade PDF nem contar `color.spot.tint` como fechado
 antes de P1483. PDF de processo existente permanece invariável.
+
+## P1483 — operadores de pintura spot
+
+### Medição anterior à decisão
+
+Nos PDFs vanilla da sonda P1483, preenchimento e traço usam
+`/cN cs tint scn` e `/cN CS tint SCN`, respectivamente:
+0%, 50%, 100% produzem 0, 0.5019608, 1 (quantização u8
+em `typst-pdf/src/paint.rs:155-163`). O cristalino atual usa
+RGB `rg/RG`; o traço em dicionário `(paint:, thickness:)`
+também falha com RGB simples e não é causado por spot.
+Texto spot vanilla usa a mesma separação. Os nomes `cN`
+são mecânica, não alvo de igualdade byte a byte.
+
+### Decisão interna
+
+O nome interno do recurso de separação é derivado deterministicamente
+do colorant completo, sem acrescentar assinatura ou campo público a
+`PageContext`. Em todo ponto de emissão de cor sólida (página, shape top/local,
+stroke, line, texto compacto/verboso e glyph), `Color::Spot`
+seleciona recurso por colorant e emite um componente tint
+quantizado como no vanilla; as oito cores de processo preservam
+seus operadores anteriores. Não se projeta o valor spot em RGB
+dentro do PDF quando há recurso. Paint de gradiente já
+registrado usa `/Pattern cs|CS ... scn|SCN`; fill de Shape
+deve usar esse percurso também, pois a sonda RGB de controle
+mostrou que antes caía em cor representativa sólida. A correção
+de fill é de paridade, não muda contrato público. Falta de
+recurso (documento malformado manualmente) pode projetar fallback
+como defesa, nunca como percurso normal. Não resolver neste
+passo o parsing anterior de stroke-dictionary em L1.
+Ao procurar Pattern de gradiente spot, usar o bbox do próprio
+shape como parte da chave, idêntico ao walker de recursos.
+Gradientes de processo conservam a chave de bbox existente.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash cc42eaad
+//! @prompt-hash ad085162
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -136,8 +136,9 @@ use super::{
     build_png_smask_xobject, char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
     collect_shaped_cluster_texts, collect_shaped_glyph_mappings, collect_text_codepoints,
     compress_zlib, compute_axial_coords, compute_radial_coords, detect_image_format,
-    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb, emit_function_dict,
-    emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb, map_chars_to_glyphs,
+    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
+    emit_conic_coons_stream_spot, emit_function_dict, emit_function_dict_cmyk,
+    emit_function_dict_spot, jpeg_color_space, jpeg_is_rgb, map_chars_to_glyphs,
     multispace_sample_stops, multispace_sample_stops_linear_cmyk,
     multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
     pattern_resources_for_page, resolve_relative, scan_all_gradients, scan_all_images,
@@ -210,10 +211,152 @@ impl PageIndexConverter {
 /// um colour space ICCBased é, por definição PDF, um array com o nome
 /// `/ICCBased` seguido da referência do stream do perfil. Compact → string
 /// vazia (recursos byte-inalterados).
-fn colorspace_resource_entry(verbose: bool, icc_profile_id: Option<usize>) -> String {
-    match (verbose, icc_profile_id) {
-        (true, Some(id)) => format!(" /ColorSpace << /c0 [/ICCBased {id} 0 R] >>"),
-        _ => String::new(),
+fn sampled_spot_tint(color: typst_core::entities::color::Color) -> f32 {
+    if let typst_core::entities::color::Color::Spot(spot) = color {
+        spot.tint.get().clamp(0.0, 1.0) as f32
+    } else {
+        0.0
+    }
+}
+
+fn pdf_spot_space(
+    colorant: &typst_core::entities::color::SpotColorant,
+    icc_profile_id: Option<usize>,
+) -> String {
+    use typst_core::entities::color::Color;
+    let name = match colorant.name.as_deref() {
+        None => "/None".to_string(),
+        Some("all") => "/All".to_string(),
+        Some(name) => {
+            let mut out = String::from("/");
+            for byte in name.bytes() {
+                if (33..=126).contains(&byte) && !b"#%()/<>[]{}".contains(&byte) {
+                    out.push(byte as char);
+                } else {
+                    out.push_str(&format!("#{byte:02X}"));
+                }
+            }
+            out
+        }
+    };
+    let (alternate, c0, c1, range) = match colorant.fallback {
+        Color::Cmyk { c, m, y, k } => (
+            "/DeviceCMYK".to_string(),
+            "0 0 0 0".to_string(),
+            format!("{c:.8} {m:.8} {y:.8} {k:.8}"),
+            "0 1 0 1 0 1 0 1",
+        ),
+        _ => {
+            let (r, g, b, _) = colorant.fallback.to_rgba_f32();
+            let space = icc_profile_id
+                .map(|id| format!("[/ICCBased {id} 0 R]"))
+                .unwrap_or_else(|| "/DeviceRGB".to_string());
+            (space, "1 1 1".to_string(), format!("{r:.8} {g:.8} {b:.8}"), "0 1 0 1 0 1")
+        }
+    };
+    format!("[/Separation {name} {alternate} << /FunctionType 2 /Domain [0 1] /C0 [{c0}] /C1 [{c1}] /N 1 /Range [{range}] >>]")
+}
+
+fn page_spot_colorants(
+    page: &typst_core::entities::layout_types::Page,
+) -> Vec<typst_core::entities::color::SpotColorant> {
+    use typst_core::entities::color::{Color, SpotColorant};
+    struct Collector(Vec<SpotColorant>);
+    impl Collector {
+        fn color(&mut self, color: &Color) {
+            if let Color::Spot(spot) = color {
+                if !self.0.contains(&spot.colorant) {
+                    self.0.push((*spot.colorant).clone());
+                }
+            }
+        }
+        fn paint(&mut self, paint: &typst_core::entities::paint::Paint) {
+            use typst_core::entities::gradient::Gradient;
+            use typst_core::entities::paint::Paint;
+            match paint {
+                Paint::Solid(color) => self.color(color),
+                Paint::Gradient(gradient) => {
+                    let stops = match gradient {
+                        Gradient::Linear(g) => &g.stops,
+                        Gradient::Radial(g) => &g.stops,
+                        Gradient::Conic(g) => &g.stops,
+                    };
+                    for stop in stops.iter() {
+                        self.color(&stop.color);
+                    }
+                }
+                Paint::Tiling(_) => {}
+            }
+        }
+    }
+    impl FrameVisitor for Collector {
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { style, .. } = item {
+                if let Some(c) = &style.fill {
+                    self.color(c);
+                }
+            }
+        }
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { style, .. } = item {
+                if let Some(c) = &style.fill {
+                    self.color(c);
+                }
+            }
+        }
+        fn visit_glyph(&mut self, item: &FrameItem) {
+            if let FrameItem::Glyph { style, .. } = item {
+                if let Some(c) = &style.fill {
+                    self.color(c);
+                }
+            }
+        }
+        fn visit_line(&mut self, item: &FrameItem) {
+            if let FrameItem::Line { color: Some(c), .. } = item {
+                self.color(c);
+            }
+        }
+        fn visit_shape(&mut self, item: &FrameItem) {
+            if let FrameItem::Shape { fill, stroke, .. } = item {
+                if let Some(fill) = fill {
+                    self.paint(fill);
+                }
+                if let Some(stroke) = stroke {
+                    self.paint(&stroke.paint);
+                }
+            }
+        }
+    }
+    let mut collector = Collector(Vec::new());
+    if let typst_core::entities::page_canvas::PageFill::Paint(paint) = &page.fill {
+        collector.paint(paint);
+    }
+    for items in [&page.background, &page.items, &page.foreground] {
+        walk_frame_items(&mut collector, items);
+    }
+    collector.0
+}
+
+fn colorspace_resource_entry(
+    verbose: bool,
+    icc_profile_id: Option<usize>,
+    page: &typst_core::entities::layout_types::Page,
+) -> String {
+    let mut entries = Vec::new();
+    if let (true, Some(id)) = (verbose, icc_profile_id) {
+        entries.push(format!("/c0 [/ICCBased {id} 0 R]"));
+    }
+    for colorant in page_spot_colorants(page) {
+        entries.push(format!(
+            "/{} {}",
+            super::stream::spot_resource_name(&colorant),
+            pdf_spot_space(&colorant, icc_profile_id)
+        ));
+    }
+    if entries.is_empty() {
+        String::new()
+    } else {
+        format!(" /ColorSpace << {} >>", entries.join(" "))
     }
 }
 
@@ -1009,7 +1152,7 @@ impl PdfBuilder {
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
-            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
             let resources_str = format!(
                 "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}{cs_res}"
             );
@@ -1091,7 +1234,12 @@ impl PdfBuilder {
         // P263 — Emit Function/Shading/Pattern objects para gradients.
         let page_dimensions: Vec<(f64, f64)> =
             doc.pages.iter().map(|p| (p.width, p.height)).collect();
-        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+        self.emit_gradient_objects(
+            grad_objs,
+            &page_dimensions,
+            &mut next_sub_id,
+            icc_profile_id,
+        );
 
         self.emit_link_annotations(doc);
         self.emit_named_destinations(doc);
@@ -1331,7 +1479,7 @@ impl PdfBuilder {
             );
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
-            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
             let resources_str =
                 format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}{cs_res}");
 
@@ -1483,7 +1631,12 @@ impl PdfBuilder {
         // P263 — Emit gradient objects.
         let page_dimensions: Vec<(f64, f64)> =
             doc.pages.iter().map(|p| (p.width, p.height)).collect();
-        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+        self.emit_gradient_objects(
+            grad_objs,
+            &page_dimensions,
+            &mut next_sub_id,
+            icc_profile_id,
+        );
 
         // **P1477** — `/CIDSet` no `/FontDescriptor`, universal para toda
         // CIDFont com `/FontFile*` embutido (não gated a `standard`).
@@ -1858,7 +2011,7 @@ impl PdfBuilder {
                 .collect::<Vec<_>>()
                 .join(" ");
             // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
-            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
             let resources_str =
                 format!("/Font << {font_entries} >> {xobj_res} {pat_res}{cs_res}");
 
@@ -2019,7 +2172,12 @@ impl PdfBuilder {
         // P263 — Emit gradient objects.
         let page_dimensions: Vec<(f64, f64)> =
             doc.pages.iter().map(|p| (p.width, p.height)).collect();
-        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+        self.emit_gradient_objects(
+            grad_objs,
+            &page_dimensions,
+            &mut next_sub_id,
+            icc_profile_id,
+        );
 
         // **P1477** — `/CIDSet` no `/FontDescriptor` de cada fonte embutida
         // (mesmo raciocínio de `build_cidfont`, ver comentário lá). Segunda
@@ -2078,6 +2236,7 @@ impl PdfBuilder {
         grad_objs: Vec<GradientObject>,
         page_dimensions: &[(f64, f64)],
         next_sub_id: &mut usize,
+        icc_profile_id: Option<usize>,
     ) {
         for go in grad_objs {
             let GradientObject {
@@ -2086,7 +2245,12 @@ impl PdfBuilder {
                 shading_id,
                 pattern_id,
                 parent_bbox_at_emit,
+                paint_bbox_at_emit,
+                page_height_at_emit,
             } = go;
+            let spot_pdf_bbox = paint_bbox_at_emit.map(|rect| {
+                (rect.x.0, page_height_at_emit - rect.y.0 - rect.h.0, rect.w.0, rect.h.0)
+            });
             let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((
                 pdf_defaults::A4_FALLBACK_WIDTH_ROUNDED,
                 pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED,
@@ -2135,8 +2299,54 @@ impl PdfBuilder {
                     } else {
                         (x0, y0, x1, y1)
                     };
-                    // P270.2 — dispatcher dual CMYK vs RGB-family.
-                    if linear.space == ColorSpace::Cmyk {
+                    // P1483 — /Separation mantém a tinta como único canal da função.
+                    if let ColorSpace::Spot(colorant) = &linear.space {
+                        let endpoints = linear.stops.len() == 2
+                            && linear.stops[0]
+                                .offset
+                                .as_ref()
+                                .map(|r| r.get())
+                                .unwrap_or(0.0)
+                                .abs()
+                                < 1e-9
+                            && (linear.stops[1]
+                                .offset
+                                .as_ref()
+                                .map(|r| r.get())
+                                .unwrap_or(1.0)
+                                - 1.0)
+                                .abs()
+                                < 1e-9;
+                        let count = if endpoints { 2 } else { 16 };
+                        let stops: Vec<f32> = (0..count)
+                            .map(|i| {
+                                sampled_spot_tint(
+                                    linear.sample(i as f32 / (count - 1) as f32),
+                                )
+                            })
+                            .collect();
+                        let (function, sub_objects) =
+                            emit_function_dict_spot(&stops, function_id, next_sub_id);
+                        for (id, object) in sub_objects {
+                            self.add(id, object);
+                        }
+                        self.add(function_id, function);
+                        let (x0, y0, x1, y1) = spot_pdf_bbox
+                            .map(|(bx, by, bw, bh)| {
+                                compute_axial_coords(
+                                    linear.angle.to_rad(),
+                                    bx,
+                                    by,
+                                    bw,
+                                    bh,
+                                )
+                            })
+                            .unwrap_or((x0, y0, x1, y1));
+                        self.add(shading_id, format!(
+                            "<< /ShadingType 2 /ColorSpace {} /Coords [{x0:.3} {y0:.3} {x1:.3} {y1:.3}] /Function {function_id} 0 R /Extend [true true] >>",
+                            pdf_spot_space(colorant, icc_profile_id)
+                        ));
+                    } else if linear.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_linear_cmyk(linear, 16);
                         let shading_dict = format!(
                             "<< /ShadingType 2 /ColorSpace /DeviceCMYK \
@@ -2204,8 +2414,35 @@ impl PdfBuilder {
                     } else {
                         (x0, y0, x1, y1)
                     };
-                    // P270.2 — dispatcher dual CMYK vs RGB-family.
-                    if radial.space == ColorSpace::Cmyk {
+                    // P1483 — função radial spot, com uma única componente.
+                    if let ColorSpace::Spot(colorant) = &radial.space {
+                        let stops: Vec<f32> = (0..16)
+                            .map(|i| sampled_spot_tint(radial.sample(i as f32 / 15.0)))
+                            .collect();
+                        let (function, sub_objects) =
+                            emit_function_dict_spot(&stops, function_id, next_sub_id);
+                        for (id, object) in sub_objects {
+                            self.add(id, object);
+                        }
+                        self.add(function_id, function);
+                        let (x0, y0, r0, x1, y1, r1) = spot_pdf_bbox
+                            .map(|(bx, by, bw, bh)| {
+                                let (a, b, c, d, e, f) = compute_radial_coords(
+                                    radial.center,
+                                    radial.radius,
+                                    radial.focal_center,
+                                    radial.focal_radius,
+                                    bw,
+                                    bh,
+                                );
+                                (a + bx, b + by, c, d + bx, e + by, f)
+                            })
+                            .unwrap_or((x0, y0, r0, x1, y1, r1));
+                        self.add(shading_id, format!(
+                            "<< /ShadingType 3 /ColorSpace {} /Coords [{x0:.3} {y0:.3} {r0:.3} {x1:.3} {y1:.3} {r1:.3}] /Function {function_id} 0 R /Extend [true true] >>",
+                            pdf_spot_space(colorant, icc_profile_id)
+                        ));
+                    } else if radial.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_radial_cmyk(radial, 16);
                         let shading_dict = format!(
                             "<< /ShadingType 3 /ColorSpace /DeviceCMYK \
@@ -2248,11 +2485,19 @@ impl PdfBuilder {
                     // ADR-0090 REVOGADO (Type 4 Gouraud descontinuado);
                     // ADR-0092 expandida cumulativamente (Cenário A revisado FINAL).
                     let (stream, colorspace, decode_array, c0, c1) =
-                        if conic.space == ColorSpace::Cmyk {
+                        if let ColorSpace::Spot(colorant) = &conic.space {
+                            (
+                                emit_conic_coons_stream_spot(conic),
+                                pdf_spot_space(colorant, icc_profile_id),
+                                "[0 1 0 1 0 1]",
+                                "[0]",
+                                "[1]",
+                            )
+                        } else if conic.space == ColorSpace::Cmyk {
                             // P270.4 — Type 6 Coons CMYK (preserved literal).
                             (
                                 emit_conic_coons_stream_cmyk(conic),
-                                "/DeviceCMYK",
+                                "/DeviceCMYK".to_string(),
                                 "[0 1 0 1 0 1 0 1 0 1 0 1]",
                                 "[0 0 0 0]",
                                 "[1 1 1 1]",
@@ -2261,7 +2506,7 @@ impl PdfBuilder {
                             // P272 — Type 6 Coons RGB (N=stops*4 patches).
                             (
                                 emit_conic_coons_stream_rgb(conic),
-                                "/DeviceRGB",
+                                "/DeviceRGB".to_string(),
                                 "[0 1 0 1 0 1 0 1 0 1]",
                                 "[0 0 0]",
                                 "[1 1 1]",
@@ -2292,9 +2537,19 @@ impl PdfBuilder {
                 }
             };
             // Emit Pattern dict.
+            let matrix = if matches!(&kind, GradientObjectKind::Conic(conic) if matches!(conic.space, typst_core::entities::layout_types::ColorSpace::Spot(_)))
+            {
+                spot_pdf_bbox
+                    .map(|(bx, by, bw, bh)| {
+                        format!("[{bw:.3} 0 0 {bh:.3} {bx:.3} {by:.3}]")
+                    })
+                    .unwrap_or_else(|| "[1 0 0 1 0 0]".to_string())
+            } else {
+                "[1 0 0 1 0 0]".to_string()
+            };
             let pattern_dict = format!(
-                "<< /PatternType 2 /Shading {} 0 R /Matrix [1 0 0 1 0 0] >>",
-                shading_id,
+                "<< /PatternType 2 /Shading {} 0 R /Matrix {} >>",
+                shading_id, matrix,
             );
             self.add(pattern_id, pattern_dict);
         }
@@ -3924,8 +4179,11 @@ impl PdfBuilder {
         out.extend_from_slice(format!("0 {}\n", max_id + 1).as_bytes());
         out.extend_from_slice(b"0000000000 65535 f \n");
         for id in 1..=max_id {
-            let off = offsets.get(&id).copied().unwrap_or(0);
-            out.extend_from_slice(format!("{off:010} 00000 n \n").as_bytes());
+            if let Some(&off) = offsets.get(&id) {
+                out.extend_from_slice(format!("{off:010} 00000 n \n").as_bytes());
+            } else {
+                out.extend_from_slice(b"0000000000 00000 f \n");
+            }
         }
 
         // Trailer
