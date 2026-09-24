@@ -1,5 +1,5 @@
 # Prompt L0 — `stack`
-Hash do Código: 5f7c616a
+Hash do Código: dcde18e7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -25,3 +25,16 @@ consumer e nenhum despacho dinâmico é introduzido.
 
 Testes focais e a suíte do subsistema preservam comportamento e morfologia;
 alteração observável exige medição e decisão próprias.
+## P1493 — composição de stack neutra ao carrier HTML
+
+### Medição anterior à decisão
+
+`stack.rs:25-87,255-267` inclui posição e fundo de cada item na largura e no
+descent do filho. O carrier zero-size podia assim alterar a composição por sua
+posição, apesar de não possuir tinta.
+
+### Contrato ratificado
+
+Stack exclui somente o carrier privado P1493 de ascent, descent, largura e
+avanço, mas continua a aplicar ao item a mesma translação do filho e a devolvê-lo
+para extração posterior. Os demais itens mantêm a semântica existente.

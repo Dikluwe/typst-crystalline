@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 29ed7ba7
+//! @prompt-hash c3b46a0c
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -152,7 +152,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     start.y = Pt(start.y.0 + dy);
                     end.y = Pt(end.y.0 + dy);
                 }
-                FrameItem::Link { .. } => {}
+                FrameItem::Link { .. } => {
+                    crate::compiler::layout::helpers::shift_frame_item_y(item, dy);
+                }
                 FrameItem::Semantic { items, .. } => {
                     for child in items {
                         crate::compiler::layout::helpers::shift_frame_item_y(child, dy);
@@ -593,7 +595,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (Passo 83). Caso contrário, flush_line é um no-op semanticamente
         // — evita acumular line_height em cascata quando Shape/Image/Heading
         // chamam flush_line por segurança antes do seu próprio push.
-        let had_items = !self.regions.current.current_line.is_empty();
+        let had_items =
+            super::html_frame::items_have_material(&self.regions.current.current_line);
 
         // Determinar o tamanho máximo de fonte presente nos items da linha e
         // o estilo do item que o possui (clonado para não manter borrow da
@@ -724,8 +727,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 + line_extra_ascent
                 + (-current_text_bottom.0).max(inline_descent);
             if ink_bottom > self.page_bottom_limit()
-                && (!self.regions.current.current_items.is_empty()
-                    || !self.pages.is_empty())
+                && (super::html_frame::items_have_material(
+                    &self.regions.current.current_items,
+                ) || !self.pages.is_empty())
             {
                 // P1292-D v11 — a unidade posterior ao marker foi rejeitada
                 // pela geometria efectiva. `new_page` pode materializar
@@ -1100,7 +1104,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let page_numbering = self.page_config.numbering.clone();
         let page_number = self.pages.len() + 1;
         let page = std::num::NonZeroUsize::new(page_number).unwrap();
-        let margin_number = self.runtime.known_page_store
+        let margin_number = self
+            .runtime
+            .known_page_store
             .logical_number_for_page(page)
             .unwrap_or(page_number);
 

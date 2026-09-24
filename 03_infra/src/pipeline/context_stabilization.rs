@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash b59a1109
+//! @prompt-hash 38e12843
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -32,6 +32,8 @@ struct Producer {
     children: Vec<usize>,
     current: Option<Box<Execution>>,
     selected: bool,
+    selected_filtered_counter: bool,
+    selected_html_position: bool,
     invalid: bool,
     active: bool,
     target: EvalTarget,
@@ -158,7 +160,8 @@ impl<'a> Session<'a> {
         parent: Option<usize>,
     ) -> usize {
         let index = self.nodes.len();
-        let target = parent.map(|parent| self.nodes[parent].target).unwrap_or(self.target);
+        let target =
+            parent.map(|parent| self.nodes[parent].target).unwrap_or(self.target);
         let selected = self.bundle_html_targets.is_some();
         self.nodes.push(Producer {
             elem,
@@ -167,6 +170,8 @@ impl<'a> Session<'a> {
             children: Vec::new(),
             current: None,
             selected,
+            selected_filtered_counter: false,
+            selected_html_position: false,
             invalid: true,
             active: true,
             target,
@@ -218,7 +223,9 @@ impl<'a> Session<'a> {
             .map(|v| value_to_content(&v))
         };
         self.next_id = ctx.next_context_id;
-        let selected = ctx.has_filtered_counter_reads();
+        let selected_filtered_counter = ctx.has_filtered_counter_reads();
+        let selected_html_position =
+            ctx.target == EvalTarget::Html && ctx.has_location_position_reads();
         let execution = Box::new(Execution {
             ctx,
             input: input.clone(),
@@ -228,7 +235,9 @@ impl<'a> Session<'a> {
             final_styles: styles,
         });
         let node = &mut self.nodes[index];
-        node.selected |= selected;
+        node.selected |= selected_filtered_counter || selected_html_position;
+        node.selected_filtered_counter |= selected_filtered_counter;
+        node.selected_html_position |= selected_html_position;
         node.invalid = false;
         if let Some(previous) = node.current.replace(execution) {
             self.retired.push(previous);
@@ -236,14 +245,15 @@ impl<'a> Session<'a> {
     }
 
     fn discover(&mut self) -> bool {
+        let input = self.original_intr.clone();
         for index in self.roots.clone() {
-            if let Some(location) = self
-                .original_intr
-                .context_block_locations
-                .get(&self.nodes[index].elem.id)
-                .copied()
+            if let Some(location) =
+                input.context_block_locations.get(&self.nodes[index].elem.id).copied()
             {
-                self.execute(index, &self.original_intr.clone(), location);
+                self.execute(index, &input, location);
+                if self.nodes[index].target == EvalTarget::Html && !self.impossible {
+                    self.realize(index, &input);
+                }
             }
         }
         self.nodes.iter().any(|n| n.selected)
@@ -405,7 +415,7 @@ impl<'a> Session<'a> {
         &mut self,
         module: Option<&Module>,
     ) -> (SourceResult<Prepared>, Vec<SourceDiagnostic>) {
-        for index in self.roots.clone() {
+        for index in self.order() {
             if self.nodes[index].selected {
                 if let Some(discovery) = self.nodes[index].current.take() {
                     self.retired.push(discovery);
@@ -413,7 +423,14 @@ impl<'a> Session<'a> {
                 self.nodes[index].invalid = true;
             }
         }
-        let mut history = vec![TagIntrospector::empty()];
+        let mut seed =
+            if self.target == EvalTarget::Html && self.bundle_html_targets.is_none() {
+                self.original_intr.clone()
+            } else {
+                TagIntrospector::empty()
+            };
+        seed.inject_html_positions(HashMap::new());
+        let mut history = vec![seed];
         for attempt in 1..=5 {
             let input = history.last().unwrap();
             for root in self.roots.clone() {
@@ -422,13 +439,24 @@ impl<'a> Session<'a> {
                     return (terminal(self.source, self.errors()), self.warnings());
                 }
             }
+            if self.target == EvalTarget::Html
+                && self.bundle_html_targets.is_none()
+                && self
+                    .nodes
+                    .iter()
+                    .any(|node| node.active && node.selected_filtered_counter)
+            {
+                return (terminal(self.source, self.errors()), self.warnings());
+            }
             let content = self.content();
             let (runtime, mut phase_warnings) = if self.bundle_html_targets.is_some() {
                 let Content::Sequence(parts) = &content else {
                     return (terminal(self.source, Vec::new()), self.warnings());
                 };
                 let (result, warnings) = introspect_bundle_with_runtime_for_pipeline(
-                    parts.as_ref(), self.world, self.source,
+                    parts.as_ref(),
+                    self.world,
+                    self.source,
                 );
                 (result.map(|(intr, _starts)| intr), warnings)
             } else {
@@ -440,13 +468,54 @@ impl<'a> Session<'a> {
             };
             if let Some(html_targets) = &self.bundle_html_targets {
                 let page_warnings = match bundle_page_views(
-                    &content, html_targets, &mut candidate, input, self.world, self.source,
+                    &content,
+                    html_targets,
+                    &mut candidate,
+                    input,
+                    self.world,
+                    self.source,
                 ) {
                     Ok(warnings) => warnings,
                     Err(errors) => return (self.fail(errors), self.warnings()),
                 };
                 phase_warnings.extend(page_warnings);
             }
+            let html_positions_selected =
+                self.nodes.iter().any(|node| node.selected_html_position)
+                    || !input.html_positions.is_empty();
+            if html_positions_selected {
+                let positions = if let Some(html_targets) = &self.bundle_html_targets {
+                    let Content::Sequence(parts) = &content else {
+                        return (terminal(self.source, Vec::new()), self.warnings());
+                    };
+                    let html_content = Content::sequence(
+                        parts
+                            .iter()
+                            .zip(html_targets)
+                            .filter(|(_, html)| **html)
+                            .map(|(body, _)| body.clone())
+                            .collect(),
+                    );
+                    html_frame_positions(
+                        &html_content,
+                        &candidate,
+                        self.metrics.clone(),
+                        self.source,
+                    )
+                } else {
+                    html_frame_positions(
+                        &content,
+                        &candidate,
+                        self.metrics.clone(),
+                        self.source,
+                    )
+                };
+                match positions {
+                    Ok(positions) => candidate.inject_html_positions(positions),
+                    Err(errors) => return (self.fail(errors), self.warnings()),
+                }
+            }
+
             let mut document = None;
             if let Some(module) = module {
                 for (key, style) in module.bibliography_styles() {
@@ -489,11 +558,17 @@ impl<'a> Session<'a> {
             // P1159 participates in this same budget even when selected reads
             // are page-independent. The first D cannot consume its own newly
             // realized numbering views: they belong to the next layout.
-            let (mut valid, mut closed) = if module.is_some() || self.bundle_html_targets.is_some() {
-                pagination_stability(input, &candidate)
-            } else {
-                (true, true)
-            };
+            let (mut valid, mut closed) =
+                if module.is_some() || self.bundle_html_targets.is_some() {
+                    pagination_stability(input, &candidate)
+                } else {
+                    (true, true)
+                };
+            if html_positions_selected {
+                let html_same = input.html_positions == candidate.html_positions;
+                valid &= html_same;
+                closed &= html_same;
+            }
             for index in self.order() {
                 if !self.nodes[index].selected {
                     continue;
@@ -629,47 +704,43 @@ pub(super) fn prepare_html(
         features,
         EvalTarget::Html,
     );
-    let selected = session.discover();
-    let warnings = session.warnings();
-    let errors = session.errors();
-    if session.impossible || selected {
-        return (terminal(source, errors), warnings);
+    session.discover();
+    let selected_filtered_counter = session
+        .nodes
+        .iter()
+        .any(|node| node.active && node.selected_filtered_counter);
+    let selected_html_position = session
+        .nodes
+        .iter()
+        .any(|node| node.active && node.selected_html_position);
+    if session.impossible || selected_filtered_counter {
+        return (terminal(source, session.errors()), session.warnings());
     }
-    if !errors.is_empty() {
-        return (Err(errors), warnings);
-    }
+
+    let (prepared_content, warnings) = if selected_html_position {
+        let (prepared, warnings) = session.stabilize(None);
+        let prepared = match prepared {
+            Ok(prepared) => prepared,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        (prepared.content, warnings)
+    } else {
+        let errors = session.errors();
+        let warnings = session.warnings();
+        if !errors.is_empty() {
+            return (Err(errors), warnings);
+        }
+        (session.content(), warnings)
+    };
 
     let executed: Vec<_> = session
         .nodes
         .iter()
-        .filter(|node| node.current.is_some())
+        .filter(|node| node.active && node.current.is_some())
         .map(|node| node.elem.clone())
         .collect();
-    let prepared = session.content().map_content(&mut |node| {
-        if let Content::ContextBlock(elem) = node {
-            if executed.iter().any(|known| Arc::ptr_eq(known, elem)) {
-                return Ok(Some(Content::Empty));
-            }
-            return Err(vec![SourceDiagnostic::error(
-                source.root().span(),
-                "HTML contextual expansion left unresolved content",
-            )]);
-        }
-        if let Content::Sequence(parts) = node {
-            let retained: Vec<_> = parts
-                .iter()
-                .filter(|part| !matches!(part, Content::Empty))
-                .cloned()
-                .collect();
-            if retained.iter().all(|part| matches!(part, Content::Space)) {
-                return Ok(Some(Content::Empty));
-            }
-            if retained.len() != parts.len() {
-                return Ok(Some(Content::sequence(retained)));
-            }
-        }
-        Ok(None)
-    });
+    let prepared =
+        strip_executed_html_markers(prepared_content, &executed, source, false);
     (prepared, warnings)
 }
 
@@ -683,7 +754,11 @@ pub(super) fn prepare_bundle(
     full_error: bool,
     features: Features,
 ) -> (
-    SourceResult<(Vec<Content>, TagIntrospector, Vec<typst_core::entities::locator::LocatorSeed>)>,
+    SourceResult<(
+        Vec<Content>,
+        TagIntrospector,
+        Vec<typst_core::entities::locator::LocatorSeed>,
+    )>,
     Vec<SourceDiagnostic>,
 ) {
     if bodies.len() != html_targets.len() {
@@ -691,7 +766,13 @@ pub(super) fn prepare_bundle(
     }
     let origin = Content::Sequence(bodies.clone().into());
     let mut session = Session::new(
-        origin, intr, world, source, full_error, features, EvalTarget::Paged,
+        origin,
+        intr,
+        world,
+        source,
+        full_error,
+        features,
+        EvalTarget::Paged,
     );
     session.bundle_html_targets = Some(html_targets.to_vec());
     let mut targets = HashMap::new();
@@ -701,7 +782,10 @@ pub(super) fn prepare_bundle(
             break;
         };
         for (elem, _) in blocks {
-            if targets.insert(elem.id, if html { EvalTarget::Html } else { EvalTarget::Paged }).is_some() {
+            if targets
+                .insert(elem.id, if html { EvalTarget::Html } else { EvalTarget::Paged })
+                .is_some()
+            {
                 session.impossible = true;
             }
         }
@@ -748,7 +832,9 @@ pub(super) fn prepare_bundle(
         _ => return (terminal(source, Vec::new()), warnings),
     };
     let (pure, starts) =
-        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(&raw_bodies);
+        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
+            &raw_bodies,
+        );
     let (runtime, runtime_warnings) =
         introspect_bundle_with_runtime_for_pipeline(&raw_bodies, world, source);
     if !selected {
@@ -760,7 +846,7 @@ pub(super) fn prepare_bundle(
     };
     let same_locations = runtime_starts == starts
         && pure.elements.keys().collect::<HashSet<_>>()
-        == runtime.elements.keys().collect::<HashSet<_>>()
+            == runtime.elements.keys().collect::<HashSet<_>>()
         && pure.context_block_locations == runtime.context_block_locations
         && pure.kind_index == runtime.kind_index
         && pure.parent_locations == runtime.parent_locations;
@@ -774,21 +860,29 @@ pub(super) fn prepare_bundle(
         // rótulos, e os bodies HTML não devem consumir páginas.
         let content = Content::Sequence(raw_bodies.clone().into());
         match bundle_page_views(
-            &content, html_targets, &mut runtime, &TagIntrospector::empty(),
-            world, source,
+            &content,
+            html_targets,
+            &mut runtime,
+            &TagIntrospector::empty(),
+            world,
+            source,
         ) {
             Ok(page_warnings) => warnings.extend(page_warnings),
             Err(errors) => return (Err(errors), warnings),
         }
     }
-    let executed_html: Vec<_> = session.nodes.iter()
-        .filter(|node| node.active && node.target == EvalTarget::Html && node.current.is_some())
+    let executed_html: Vec<_> = session
+        .nodes
+        .iter()
+        .filter(|node| {
+            node.active && node.target == EvalTarget::Html && node.current.is_some()
+        })
         .map(|node| node.elem.clone())
         .collect();
     let mut final_bodies = Vec::with_capacity(raw_bodies.len());
     for (body, &html) in raw_bodies.into_iter().zip(html_targets) {
         if html {
-            match strip_executed_html_markers(body, &executed_html, source) {
+            match strip_executed_html_markers(body, &executed_html, source, true) {
                 Ok(body) => final_bodies.push(body),
                 Err(errors) => return (Err(errors), warnings),
             }
@@ -820,7 +914,9 @@ fn bundle_page_views(
     }
     let bodies = parts.to_vec();
     let (pure, starts) =
-        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(&bodies);
+        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
+            &bodies,
+        );
     if pure.elements.keys().collect::<HashSet<_>>()
         != candidate.elements.keys().collect::<HashSet<_>>()
         || pure.context_block_locations != candidate.context_block_locations
@@ -831,7 +927,10 @@ fn bundle_page_views(
     candidate.inject_positions(input.positions.clone());
     candidate.inject_pages(input.page_store.clone());
 
-    let locations: HashSet<Location> = candidate.elements.keys().copied()
+    let locations: HashSet<Location> = candidate
+        .elements
+        .keys()
+        .copied()
         .chain(candidate.kind_index.values().flatten().copied())
         .chain(candidate.context_block_locations.values().copied())
         .chain(candidate.parent_locations.keys().copied())
@@ -854,9 +953,8 @@ fn bundle_page_views(
                 .as_u128()
         })
         .collect();
-    let counter_updates = candidate.query_by_kind(
-        typst_core::entities::element_kind::ElementKind::CounterUpdate,
-    );
+    let counter_updates = candidate
+        .query_by_kind(typst_core::entities::element_kind::ElementKind::CounterUpdate);
     for (index, ((body, &html), &start)) in
         bodies.iter().zip(html_targets).zip(&starts).enumerate()
     {
@@ -864,7 +962,11 @@ fn bundle_page_views(
             continue;
         }
         let (doc, callback_warnings) = layout_with_realized_math_callbacks_from(
-            body, candidate.clone(), world, source, start,
+            body,
+            candidate.clone(),
+            world,
+            source,
+            start,
         )?;
         warnings.extend(callback_warnings);
         let references = page_reference_pages(body, &doc);
@@ -909,23 +1011,27 @@ fn bundle_page_views(
         for page in 1..=doc.pages.len() {
             let page = NonZeroUsize::new(page).unwrap();
             numberings.push(pages.numbering_for_page(page).cloned());
-            logical_numbers.push(pages.logical_number_for_page(page).unwrap_or(page.get()));
-            numbering_spans.push(
-                pages.numbering_span_for_page(page).unwrap_or(Span::detached()),
-            );
+            logical_numbers
+                .push(pages.logical_number_for_page(page).unwrap_or(page.get()));
+            numbering_spans
+                .push(pages.numbering_span_for_page(page).unwrap_or(Span::detached()));
             visible_numberings.push(pages.visible_numbering_for_page(page).cloned());
             reference_numberings.push(pages.reference_numbering_for_page(page).cloned());
-            supplements.push(
-                pages.supplement_for_page(page).cloned().unwrap_or(Content::Empty),
-            );
+            supplements
+                .push(pages.supplement_for_page(page).cloned().unwrap_or(Content::Empty));
         }
         offset += doc.pages.len();
     }
     candidate.inject_positions(SealedPositions::from_runtime(positions));
     let store = if let Some(total) = NonZeroUsize::new(offset) {
         PageStore::from_realized(
-            total, numberings, logical_numbers, numbering_spans,
-            visible_numberings, reference_numberings, supplements,
+            total,
+            numberings,
+            logical_numbers,
+            numbering_spans,
+            visible_numberings,
+            reference_numberings,
+            supplements,
         )
     } else {
         PageStore::empty()
@@ -938,6 +1044,7 @@ fn strip_executed_html_markers(
     content: Content,
     executed: &[Arc<ContextBlockElem>],
     source: &Source,
+    strip_counter_updates: bool,
 ) -> SourceResult<Content> {
     content.map_content(&mut |node| {
         if let Content::ContextBlock(elem) = node {
@@ -950,11 +1057,12 @@ fn strip_executed_html_markers(
             )]);
         }
         // Update já participou do snapshot validado; não possui render HTML.
-        if matches!(node, Content::CounterUpdate(_)) {
+        if strip_counter_updates && matches!(node, Content::CounterUpdate(_)) {
             return Ok(Some(Content::Empty));
         }
         if let Content::Sequence(parts) = node {
-            let retained: Vec<_> = parts.iter()
+            let retained: Vec<_> = parts
+                .iter()
                 .filter(|part| !matches!(part, Content::Empty))
                 .cloned()
                 .collect();

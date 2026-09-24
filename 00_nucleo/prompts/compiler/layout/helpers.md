@@ -1,5 +1,5 @@
 # Prompt L0 — helpers geométricos de layout
-Hash do Código: d999bfa3
+Hash do Código: e633079e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -37,3 +37,18 @@ Wrappers semânticos medem o mesmo limite horizontal que renderizam, sem
 acrescentar espaço pela ordem dos filhos. Casos em que o primeiro filho já é o
 mínimo continuam iguais. A regra não depende de caracteres, slots, fixtures ou
 valores empíricos.
+## P1493 — neutralidade métrica do carrier HTML
+
+### Medição anterior à decisão
+
+`layout/html_frame.rs:30-45` representa a posição contextual por um `Semantic`
+privado com shape zero-size. `helpers.rs:85-95,438-465` ainda mede a posição
+desse sentinel como extensão direita/inferior, apesar de ele não existir na
+página legada.
+
+### Contrato ratificado
+
+Os helpers de extensão ignoram somente o carrier privado P1493; os helpers de
+translação continuam a deslocar recursivamente seu ponto. O sentinel não muda
+largura, altura, trailing space, baseline ou alinhamento e permanece disponível
+para a composição geométrica até ser removido pela fachada detalhada.

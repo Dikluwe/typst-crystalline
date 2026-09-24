@@ -1,5 +1,5 @@
 # Prompt L0 — `boxed`
-Hash do Código: c6dc5c19
+Hash do Código: 41562549
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -74,3 +74,10 @@ recompõe o avanço da caixa.
 O campo, constructor, assinatura pública, render e fase não mudam. Não criar
 variant, carrier público ou caso especial de `Content::Boxed` em
 `measure_content_real`.
+
+## P1493 — entrada de caixa neutra ao carrier HTML
+
+Um carrier direto anterior não torna a linha material ao entrar em `Boxed`; a
+decisão de baseline inicial usa o predicado material comum. Carrier dentro da
+caixa continua na composição geométrica e não altera largura, altura, baseline
+ou emissão da fachada legada.

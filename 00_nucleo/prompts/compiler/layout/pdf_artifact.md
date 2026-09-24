@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/pdf_artifact`
-Hash do Código: ca36cee8
+Hash do Código: 0117f9d4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -59,3 +59,9 @@ perder ou duplicar item; não forçar subframe único nem impedir paginação.
   perda/duplicação visual.
 - Este prompt não legitima `PdfArtifactElem`, `SemanticKind`, builder ou
   stream.
+
+## P1493 — boundary material
+
+O carrier privado HTML não é conteúdo material para as decisões de linha que
+antecedem ou sucedem `PdfArtifact`. O carrier direto não
+fabrica flush; artefato real e filhos visuais mantêm a semântica vigente.

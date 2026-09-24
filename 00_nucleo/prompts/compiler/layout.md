@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 5c644e22
+Hash do Código: 6cb4e96c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -819,3 +819,40 @@ Não inferir pelo variant de `Content`, não assar 20pt, não criar campo em
 injetadas. Width, sombra, diagnóstico e rejeição de `measure(width:/height:)`
 permanecem. O owner `boxed.md` torna o shift já transportado parte das
 extensões inline; este owner apenas extrai a geometria resultante.
+
+## P1493 — fachada intrínseca com posições HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+A fachada `layout_html_frame` devolve somente `Page`; a posição dos markers
+causais é descartada antes de L3 poder estabilizar leituras. Alterar a função
+existente quebraria callers P1424.
+
+### Contrato ratificado
+
+Conservar `layout_html_frame -> Page` como fachada de compatibilidade.
+Adicionar `layout_html_frame_detailed(...) -> HtmlFrameLayout`, com campos
+públicos `page: Page` e `positions: Vec<(u64, HtmlPosition)>`. A chave `u64`
+é o id causal do `ContextBlock` que executa `here()`. A sequência é
+determinística e produzida pelo owner descendente. A fachada não conhece
+pipeline, World, exportador ou target externo e não executa Func.
+
+A Page intrínseca pode conservar `logical_number: 1` apenas como mecânica de
+layout; esse número não integra `HtmlPosition` nem qualquer resposta da
+linguagem. Carriers geométricos privados são removidos antes da Page pública e
+não alteram itens, dimensões nem SVG. A adição da fachada pública entre L1 e L3
+foi confirmada pelo dono em 2026-09-24.
+
+## P1493 — neutralidade de fluxo após revisão adversarial
+
+Medição posterior ao gate: presença física do carrier em `current_line` fazia
+decisões cruas de vazio tratarem um `ContextBlock` no-op como conteúdo;
+espaço, parbreak, flush e transições de container podiam criar avanço
+fantasma.
+
+Em toda decisão de fluxo, somente o carrier privado direto é imaterial. Ele
+continua na árvore para receber a geometria, mas não satisfaz predicados de
+linha ou região com conteúdo. Wrappers preexistentes preservam exatamente a
+materialidade que possuem na fachada legada; conter apenas o carrier não os
+torna vazios. Fora da passagem
+detalhada não existe carrier e o comportamento permanece idêntico.

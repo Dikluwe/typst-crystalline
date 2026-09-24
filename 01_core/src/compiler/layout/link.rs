@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/link.md
-//! @prompt-hash dff300f3
+//! @prompt-hash 046ac8f2
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -65,6 +65,9 @@ pub(super) fn link_bbox<M: FontMetrics>(
     };
 
     for item in items {
+        if super::html_frame::is_context_marker(item) {
+            continue;
+        }
         match item {
             FrameItem::Text { pos, text, style } => {
                 let w = metrics.advance(text.as_str(), style.size, style).0;

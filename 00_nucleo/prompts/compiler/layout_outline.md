@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 4a907550
+Hash do Código: a9be52e8
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`
@@ -228,3 +228,9 @@ próximo bloco consomem as baselines já calculadas, sem coordenada ou espaçame
 fabricado. `flush_line` vazio continua neutro; o consumer não inspeciona o
 callback. A aceitação observa a ordem morfológica e visual do resultado
 `show outline.entry`, inclusive entre contexto exterior e heading subsequente.
+
+## P1493 — boundary material
+
+Ao preparar o outline, o carrier HTML direto não satisfaz o gate
+de linha pendente e não provoca flush. Conteúdo real e o body realizado
+preservam todas as fronteiras vigentes.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 65529090
+Hash do Código: 01111125
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -966,3 +966,25 @@ avaliação ou registro de `ContextReadRequest`. A leitura observada continua
 registrada com o resultado efetivo `None`. Não inferir HTML pela feature:
 feature e target são eixos distintos conforme ADR-0128. Não alterar neste
 passo a avaliação paginada intrínseca de `html.frame`.
+
+## P1493 — projeção de posição local em HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+P1492 faz `page` e `position` devolverem `none` para todo target HTML.
+Isso fecha o contexto externo, mas impede a exceção linguística de
+`html.frame`. O vanilla e as sondas P1493 devolvem dict `(x, y)` dentro da
+ilha, sem chave `page`.
+
+### Contrato ratificado
+
+No target `Html`, `page` permanece sempre `Value::None`.
+`position` consulta exclusivamente `Introspector::html_position_of`: ausência
+projeta `None`; presença projeta dict ordenado `x`, `y`, sem `page`.
+Targets `Paged` e `Bundle` continuam usando `position_of` e o dict
+paginado vigente. `page-numbering` não muda.
+
+A operação e o resultado efetivo continuam registrados uma vez em
+`ContextReadRequest`; replay usa a mesma projeção. Não inferir ilha por
+feature, conteúdo, página intrínseca ou valor das coordenadas. A mudança
+depende do contrato público P1493, confirmado pelo dono em 2026-09-24.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash 41dbc94c
+//! @prompt-hash 5a68c319
 //! @layer L3
 //! @updated 2026-05-12
 //!
@@ -236,6 +236,12 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
     fn position_of(&self, location: Location) -> Option<Position> {
         record_call(4);
         self.inner.position_of(location)
+    }
+    fn html_position_of(
+        &self,
+        location: Location,
+    ) -> Option<typst_core::entities::position::HtmlPosition> {
+        self.inner.html_position_of(location)
     }
 
     fn figure_number_for_label(&self, label: &Label) -> Option<usize> {
@@ -660,5 +666,27 @@ mod tests {
         // citation_order: second aparece primeiro, depois first.
         let order = wrapped.citation_order();
         assert_eq!(order, &["second", "first"][..]);
+    }
+
+    #[test]
+    fn p1493_html_position_delega_sem_incrementar_contadores() {
+        use std::collections::HashMap;
+        use typst_core::entities::layout_types::{Point, Pt};
+        use typst_core::entities::position::HtmlPosition;
+
+        let _guard = TEST_LOCK.lock().unwrap();
+        reset();
+        let mut locator = typst_core::entities::locator::Locator::new();
+        let location = locator.next();
+        let expected = HtmlPosition { point: Point { x: Pt(30.0), y: Pt(20.0) } };
+        let mut inner = TagIntrospector::empty();
+        inner.inject_html_positions(HashMap::from([(location, expected)]));
+        let wrapped = CountingIntrospector::new(inner);
+
+        assert_eq!(wrapped.html_position_of(location), Some(expected));
+        let counts = introspector_call_counts();
+        assert_eq!(counts.total, 0, "consulta auxiliar HTML não deve ser contada");
+        assert_eq!(counts.per_method.len(), 28);
+        assert!(counts.per_method.iter().all(|(_, count)| *count == 0));
     }
 }

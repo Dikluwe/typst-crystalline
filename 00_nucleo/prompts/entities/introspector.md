@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: c53394ea
+Hash do Código: 49607334
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -548,3 +548,27 @@ do outline e pelo nível 1-based, com o maior inset absoluto observado em
 carriers `outline.prefix-info`. A leitura é emprestada e interna ao crate; não
 altera o trait público `Introspector`, não cria resultados de query e não
 executa callbacks. Nível zero e payloads malformados são ignorados.
+
+## P1493 — store e consulta de posição local HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+`Introspector::position_of` e `TagIntrospector::positions` transportam
+somente `Position { page, point }`. O target HTML externo não possui posição
+física; dentro de `html.frame`, o vanilla devolve somente x/y. Reusar o store
+paginado exigiria uma página sintética e tornaria possível seu vazamento.
+
+### Contrato ratificado
+
+Acrescentar ao trait tracked
+`html_position_of(Location) -> Option<HtmlPosition>`, com default `None`
+para implementações sem HTML. `TagIntrospector` mantém store separado
+`Location -> HtmlPosition` e uma injeção por geração que substitui o mapa
+inteiro. `position_of`, `positions`, `PageStore` e as consultas paginadas
+não mudam.
+
+A consulta HTML só é consumida quando o `EvalTarget` causal é `Html`;
+feature ativa não escolhe o store. Clone/default começam vazios. Colisão de
+Location entre ilhas, posição não associável à topologia ou mistura de
+gerações falha fechado em L3, não é resolvida pelo trait. O novo método público
+foi confirmado pelo dono em 2026-09-24.

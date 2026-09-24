@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 2dc109e5
+Hash do Código: c46a31e2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -658,3 +658,12 @@ de uma página intermédia quando disponível; antes da store, manter o
 seu total será resolvido por `finish` conforme `compiler/layout.md`
 P1486.1. Não alterar o campo provisório `Page.logical_number`, a
 geometria explícita nem a fase de paginação.
+
+## P1493 — flush material do carrier HTML
+
+Medição adversarial: `flush_line` contava o carrier privado como item e
+fabricava altura tipográfica; após um flush, a mesma árvore podia tornar uma
+região falsamente não vazia. Cursor usa o predicado material comum para
+`had_items`, página ou região vazia e linha terminal. O carrier ainda é
+drenado e transportado para extração, mas sozinho não move cursor, baseline
+ou página.

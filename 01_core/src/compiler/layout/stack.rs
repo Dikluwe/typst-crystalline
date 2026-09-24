@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/stack.md
-//! @prompt-hash 7a3a511f
+//! @prompt-hash 67785fa7
 //! @layer L1
 //! @updated 2026-08-21
 //!
@@ -31,6 +31,9 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
         max_ink_ascent: &mut f64,
         metrics: &M,
     ) {
+        if super::html_frame::is_context_marker(item) {
+            return;
+        }
         match item {
             FrameItem::Text { pos, text, style } => {
                 *min_y = min_y.min(cur_y + pos.y.0);
@@ -254,12 +257,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
             let mut child_w = 0.0_f64;
             for mut item in items {
-                let (ix, _) = super::helpers::item_pos(&item);
-                let w = super::helpers::item_width(&item, &layouter.metrics);
-                child_w = child_w.max(ix - base_x + w);
-
-                let item_bottom = super::helpers::item_bottom_y(&item);
-                max_descent = max_descent.max(item_bottom - item_ascent);
+                if !super::html_frame::is_context_marker(&item) {
+                    let (ix, _) = super::helpers::item_pos(&item);
+                    let w = super::helpers::item_width(&item, &layouter.metrics);
+                    child_w = child_w.max(ix - base_x + w);
+                    let item_bottom = super::helpers::item_bottom_y(&item);
+                    max_descent = max_descent.max(item_bottom - item_ascent);
+                }
 
                 super::helpers::offset_frame_item(&mut item, cur_x - base_x, top_offset);
                 layouter.regions.current.current_items.push(item);

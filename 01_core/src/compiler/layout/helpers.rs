@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/helpers.md
-//! @prompt-hash 3458ecf9
+//! @prompt-hash 4a2f42b9
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -16,6 +16,10 @@ use crate::entities::{
 
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
 pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
+    if super::html_frame::is_context_marker(item) {
+        let FrameItem::Semantic { items, .. } = item else { unreachable!() };
+        return items.first().map(item_pos).unwrap_or((0.0, 0.0));
+    }
     match item {
         FrameItem::Text { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::TextShaped { pos, .. } => (pos.x.0, pos.y.0),
@@ -26,12 +30,16 @@ pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
         FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Link { .. } => (0.0, 0.0),
         FrameItem::Semantic { items, .. } => {
-            let Some(first) = items.first() else {
+            let Some(first) = items
+                .iter()
+                .find(|child| !super::html_frame::is_context_marker(child))
+            else {
                 return (0.0, 0.0);
             };
             let (_, first_y) = item_pos(first);
             let left = items
                 .iter()
+                .filter(|child| !super::html_frame::is_context_marker(child))
                 .map(|child| item_pos(child).0)
                 .fold(f64::INFINITY, f64::min);
             (if left.is_finite() { left } else { 0.0 }, first_y)
@@ -68,6 +76,7 @@ pub(crate) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> 
         FrameItem::Semantic { items, .. } => {
             let left = items
                 .iter()
+                .filter(|item| !super::html_frame::is_context_marker(item))
                 .map(|item| item_pos(item).0)
                 .fold(f64::INFINITY, f64::min);
             if !left.is_finite() {
@@ -88,6 +97,7 @@ pub(super) fn line_content_right<'a>(
 ) -> f64 {
     items
         .into_iter()
+        .filter(|item| !super::html_frame::is_context_marker(item))
         .map(|item| {
             let (x, _) = item_pos(item);
             x + item_width(item, metrics)
@@ -103,6 +113,7 @@ pub(super) fn line_content_bottom<'a>(
 ) -> f64 {
     items
         .into_iter()
+        .filter(|item| !super::html_frame::is_context_marker(item))
         .map(|item| match item {
             FrameItem::Text { pos, text, style } => {
                 let (_, ink_down) = metrics.text_ink_bounds(text, style.size, style);
@@ -425,7 +436,13 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
             end.x = Pt(end.x.0 + dx);
             end.y = Pt(end.y.0 + dy);
         }
-        FrameItem::Link { .. } => {}
+        FrameItem::Link { pos, items, .. } => {
+            pos.x = Pt(pos.x.0 + dx);
+            pos.y = Pt(pos.y.0 + dy);
+            for child in items {
+                offset_frame_item(child, dx, dy);
+            }
+        }
         FrameItem::Semantic { items, .. } => {
             for child in items {
                 offset_frame_item(child, dx, dy);
@@ -436,6 +453,9 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
 
 /// Extrai o limite inferior (bottom Y) de um FrameItem.
 pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
+    if super::html_frame::is_context_marker(item) {
+        return 0.0;
+    }
     match item {
         FrameItem::Text { pos, text, style } => {
             let has_descender = text.chars().any(|ch| "gjpqy,".contains(ch));

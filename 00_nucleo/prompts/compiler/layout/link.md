@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/link` — Layout de `Content::Link`
-Hash do Código: b0fc1327
+Hash do Código: dd8206d9
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/link.rs`
 **Origem**: P422 (S) — atomização do layout de hiperligações; **P424** — bbox.
@@ -82,3 +82,16 @@ Doc comments `#[elem]`/campos do vanilla ratificado (`e0e8ca4d`),
 > eval, não na representação. É superfície de linguagem (morfologia do argumento,
 > ADR-0107) → paridade, não divergência permitida. Mudança de contrato público + de
 > comportamento por defeito → gate ADR-0127 e passo próprio. **Não implementado aqui.**
+## P1493 — bbox de link neutra ao carrier HTML
+
+### Medição anterior à decisão
+
+`link_bbox` em `link.rs:51-103` desce por todo `Semantic` e inclui seu shape,
+portanto um ContextBlock sem render alterava a bbox do link na passagem
+detalhada, embora a passagem legada produzisse o mesmo link sem esse item.
+
+### Contrato ratificado
+
+A bbox omite somente o carrier privado P1493. O wrapper `Link`, inclusive vazio,
+é preservado com a mesma posição e dimensão da fachada legada; o carrier ainda
+recebe as translações do wrapper antes da extração.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 33c64c0c
+//! @prompt-hash 44ca73c2
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -735,21 +735,33 @@ impl ObservationEq for crate::entities::content::Content {
                 }
                 _ => ObservationRelation::Different,
             },
-            Self::Document { path: a0, body: a1, format: a2, title: a3, author: a4, date: a5, keywords: a6 } => {
-                match other {
-                    Self::Document { path: b0, body: b1, format: b2, title: b3, author: b4, date: b5, keywords: b6 } => {
-                        ObservationRelation::Same
-                            .and(a0.observation_relation(b0))
-                            .and(a1.observation_relation(b1))
-                            .and(a2.observation_relation(b2))
-                            .and(a3.observation_relation(b3))
-                            .and(a4.observation_relation(b4))
-                            .and(a5.observation_relation(b5))
-                            .and(a6.observation_relation(b6))
-                    }
-                    _ => ObservationRelation::Different,
-                }
-            }
+            Self::Document {
+                path: a0,
+                body: a1,
+                format: a2,
+                title: a3,
+                author: a4,
+                date: a5,
+                keywords: a6,
+            } => match other {
+                Self::Document {
+                    path: b0,
+                    body: b1,
+                    format: b2,
+                    title: b3,
+                    author: b4,
+                    date: b5,
+                    keywords: b6,
+                } => ObservationRelation::Same
+                    .and(a0.observation_relation(b0))
+                    .and(a1.observation_relation(b1))
+                    .and(a2.observation_relation(b2))
+                    .and(a3.observation_relation(b3))
+                    .and(a4.observation_relation(b4))
+                    .and(a5.observation_relation(b5))
+                    .and(a6.observation_relation(b6)),
+                _ => ObservationRelation::Different,
+            },
             Self::Asset { path: a0, data: a1 } => match other {
                 Self::Asset { path: b0, data: b1 } => {
                     if a0 == b0 && a1 == b1 {
@@ -5962,6 +5974,13 @@ impl EvalContext {
     pub fn has_filtered_counter_reads(&self) -> bool {
         self.context_reads.borrow().selected
     }
+    /// P1493 — indica demanda causal efetivamente observada por posição HTML.
+    #[doc(hidden)]
+    pub fn has_location_position_reads(&self) -> bool {
+        self.context_reads.borrow().reads.iter().any(|read| {
+            matches!(&read.request, ContextReadRequest::LocationPosition { .. })
+        })
+    }
 
     fn replay_context_read(
         &self,
@@ -7141,7 +7160,10 @@ fn eval_expr_inner(
                 if let Some(value) = scopes.get(name) {
                     return Ok(value.clone());
                 }
-                if !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle) {
+                if !ctx
+                    .features
+                    .contains(crate::entities::compiler_features::Feature::Bundle)
+                {
                     return Err(vec![SourceDiagnostic::error(
                         ident.span(),
                         "cannot access variable `asset` because the `bundle` feature is not enabled",
@@ -7732,6 +7754,7 @@ fn make_stdlib_with_features(
         native_assert,
         native_assert_eq,
         native_assert_ne,
+        native_asset,
         // P311b.3 + P765b — math style funcs.
         native_bb,
         native_bibliography,
@@ -7764,7 +7787,6 @@ fn make_stdlib_with_features(
         native_display,
         native_divider,
         native_document,
-        native_asset,
         native_ellipse,
         native_emph,
         native_enum,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 18cb46f6
+//! @prompt-hash 0875dfac
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -18,7 +18,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BoxedElem,
 ) {
-    if layouter.regions.current.current_line.is_empty() {
+    if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         if layouter.prev_margin_is_parbreak {
             let font = layouter.style.size.val();
             // Paridade Vanilla P1119: transição Parágrafo -> Linha de Caixas Inline (Parbreak)
@@ -218,15 +218,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         measured_body_height
     };
-    let box_height = height.map_or(
-        inset_top + natural_body_height + inset_bottom,
-        |h| inset_top + h.resolve_pt(font) + inset_bottom,
-    );
-    let natural_baseline = if body_has_text_baseline {
-        inset_top + body_ascent
-    } else {
-        box_height
-    };
+    let box_height = height.map_or(inset_top + natural_body_height + inset_bottom, |h| {
+        inset_top + h.resolve_pt(font) + inset_bottom
+    });
+    let natural_baseline =
+        if body_has_text_baseline { inset_top + body_ascent } else { box_height };
     let frame_baseline = natural_baseline - baseline_shift;
     layouter.note_inline_extent(
         frame_baseline.max(0.0),
@@ -380,7 +376,11 @@ fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
                 end.x = Pt(end.x.0 + dx);
                 end.y = Pt(end.y.0 + dy);
             }
-            FrameItem::Link { .. } => {}
+            FrameItem::Link { pos, items, .. } => {
+                pos.x = Pt(pos.x.0 + dx);
+                pos.y = Pt(pos.y.0 + dy);
+                offset_items(items, dx, dy);
+            }
             FrameItem::Semantic { items, .. } => offset_items(items, dx, dy),
         }
     }
@@ -388,7 +388,9 @@ fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
 
 fn frame_items_have_text_baseline(items: &[FrameItem]) -> bool {
     items.iter().any(|item| match item {
-        FrameItem::Text { .. } | FrameItem::TextShaped { .. } | FrameItem::Glyph { .. } => true,
+        FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::Glyph { .. } => true,
         FrameItem::Group { items, .. } | FrameItem::Semantic { items, .. } => {
             frame_items_have_text_baseline(items)
         }

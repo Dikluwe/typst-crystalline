@@ -1,5 +1,5 @@
 # Prompt L0 — `place`
-Hash do Código: 11e688b7
+Hash do Código: 88bded43
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -123,3 +123,10 @@ Refutam: anchor no topo; constante do token/fixture; translação global em
 Cursor; depender de marker/replay para o caminho ordinário; transformar
 Place não-float em flow que consome altura; ou alterar o contrato público de
 Place.
+
+## P1493 — região e linha materiais
+
+Durante a captura detalhada HTML, o carrier direto não conta como linha pendente
+nem como flow já materializado para `Place` ou floats. O carrier continua
+transladado junto da árvore que o contém; somente os predicados de vazio usam
+a classificação material comum. Conteúdo real mantém anchors e fitting.

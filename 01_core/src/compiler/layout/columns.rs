@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash f489961f
+//! @prompt-hash eb1d7e7c
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -144,7 +144,8 @@ fn flow_block_spacing<M: FontMetrics, S: ImageSizer>(
 /// protocolo sem criar margem no topo da região e sem duplicar o leading que
 /// `flush_line` já incluiu para uma linha inline anterior.
 fn enter_flow_block<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
-    let had_inline_line = !layouter.regions.current.current_line.is_empty();
+    let had_inline_line =
+        super::html_frame::items_have_material(&layouter.regions.current.current_line);
     if had_inline_line {
         layouter.flush_line();
     }
@@ -523,7 +524,9 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
             layouter.flush_pending_footnote_bodies(None);
         }
 
-        let segment_has_items = !layouter.regions.current.current_items.is_empty();
+        let segment_has_items = super::html_frame::items_have_material(
+            &layouter.regions.current.current_items,
+        );
         if segment_has_items {
             let candidate =
                 (layouter.prev_line_baseline, layouter.prev_block_equation_descent);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash a01c2abc
+//! @prompt-hash df8c145d
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -193,8 +193,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let spacing =
                 Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
             if self.is_sub_frame
-                && self.regions.current.current_items.is_empty()
-                && self.regions.current.current_line.is_empty()
+                && !super::html_frame::items_have_material(
+                    &self.regions.current.current_items,
+                )
+                && !super::html_frame::items_have_material(
+                    &self.regions.current.current_line,
+                )
             {
                 // Topo do sub-frame: baseline = ascender / ext.ascent
                 self.regions.current.cursor_y = Pt(ext.ascent);
@@ -208,7 +212,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.initial_baseline_pending = false;
             } else {
                 let pages_before = self.pages.len();
-                let prev_baseline = if !self.regions.current.current_line.is_empty() {
+                let prev_baseline = if super::html_frame::items_have_material(
+                    &self.regions.current.current_line,
+                ) {
                     let b = self.regions.current.cursor_y.0;
                     self.flush_line();
                     b

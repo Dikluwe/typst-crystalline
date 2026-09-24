@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash a6ad4e07
+//! @prompt-hash 1f335f2e
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -867,7 +867,9 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             layouter.arm_wrapped_inline_prefix_line();
         }
         if inline_prefix.is_some_and(|prefix| prefix.wrap_before == Some(part_index))
-            && !layouter.regions.current.current_line.is_empty()
+            && super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            )
         {
             layouter.flush_wrapped_inline_prefix_line();
         }
@@ -882,15 +884,18 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             prefix.wrap_before.is_some_and(|index| part_index > index)
                 && part_index < prefix.block_index
                 && matches!(part, Content::Space | Content::Empty)
-        }) && !layouter.regions.current.current_line.is_empty()
-        {
+        }) && super::html_frame::items_have_material(
+            &layouter.regions.current.current_line,
+        ) {
             layouter.flush_wrapped_inline_prefix_line();
         }
         if inline_prefix.is_some_and(|prefix| prefix.block_index == part_index) {
             // P1388 — o whitespace terminal pode já ter fechado a linha.
             // A boundary pertence ao prefixo confirmado, não ao estado
             // incidental de `current_line`, e deve ser aplicada uma vez.
-            if !layouter.regions.current.current_line.is_empty() {
+            if super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            ) {
                 if inline_prefix.is_some_and(|prefix| prefix.wrap_before.is_some()) {
                     layouter.flush_wrapped_inline_prefix_line();
                 } else {
@@ -923,7 +928,8 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         // mantêm o estado de colapso de margens.
         // **P1107/P1108** — Preservação da cadeia de colapso de margens:
         // A cadeia só é interrompida quando uma linha de texto inline aberta é populada.
-        if !layouter.regions.current.current_line.is_empty() {
+        if super::html_frame::items_have_material(&layouter.regions.current.current_line)
+        {
             layouter.block_chain_active = false;
             layouter.prev_block_below_pending = 0.0;
         }
@@ -959,7 +965,9 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         layouter.block_chain_active = saved_chain;
         layouter.prev_block_equation_descent = saved_descent;
     }
-    if distribution.is_some() && !layouter.regions.current.current_line.is_empty() {
+    if distribution.is_some()
+        && super::html_frame::items_have_material(&layouter.regions.current.current_line)
+    {
         layouter.fractional_flow_tail_pending = true;
     }
     layouter.fractional_block_height = saved_fractional_height;

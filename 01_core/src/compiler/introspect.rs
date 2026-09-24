@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 201f1365
+//! @prompt-hash ee193fd8
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -320,6 +320,12 @@ impl Introspector for TagIntrospector {
         // do trait (P204B). Re-tracking interno seria recursivo
         // e desnecessário.
         self.positions.position_of(location)
+    }
+    fn html_position_of(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::position::HtmlPosition> {
+        self.html_positions.get(&location).copied()
     }
 
     fn figure_number_for_label(&self, label: &Label) -> Option<usize> {
@@ -775,10 +781,12 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
 pub fn introspect_bundle_documents_with_starts(
     bodies: &[Content],
 ) -> (TagIntrospector, Vec<LocatorSeed>) {
-    let keys = bodies.iter().fold(std::collections::HashSet::new(), |mut keys, body| {
-        keys.extend(collect_bib_keys(body));
-        keys
-    });
+    let keys = bodies
+        .iter()
+        .fold(std::collections::HashSet::new(), |mut keys, body| {
+            keys.extend(collect_bib_keys(body));
+            keys
+        });
     let mut locator = Locator::new();
     let mut starts = Vec::with_capacity(bodies.len());
     let mut tags = Vec::new();
@@ -791,11 +799,8 @@ pub fn introspect_bundle_documents_with_starts(
         let boundary = Locator::from_seed(seed).next();
         starts.push(seed);
         // Fronteira lógica: o próximo Location é observado, não consumido.
-        intr.counters.apply_at(
-            CounterKey::Page,
-            CounterUpdate::Set(vec![1]),
-            boundary,
-        );
+        intr.counters
+            .apply_at(CounterKey::Page, CounterUpdate::Set(vec![1]), boundary);
         let converted = if keys.is_empty() {
             body.clone()
         } else {
@@ -815,7 +820,6 @@ pub fn introspect_bundle_documents_with_starts(
     materialize_outline_entries(&mut locator, &mut intr);
     intr.parent_locations = build_parent_index(&tags);
     (intr, starts)
-
 }
 
 /// Introspecta todos os bodies do bundle com os mesmos inícios causais do
@@ -825,10 +829,12 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
     engine: &mut crate::entities::engine::Engine<'_>,
     ctx: &mut crate::compiler::eval::EvalContext,
 ) -> crate::entities::source_result::SourceResult<(TagIntrospector, Vec<LocatorSeed>)> {
-    let keys = bodies.iter().fold(std::collections::HashSet::new(), |mut keys, body| {
-        keys.extend(collect_bib_keys(body));
-        keys
-    });
+    let keys = bodies
+        .iter()
+        .fold(std::collections::HashSet::new(), |mut keys, body| {
+            keys.extend(collect_bib_keys(body));
+            keys
+        });
     let mut locator = Locator::new();
     let mut starts = Vec::with_capacity(bodies.len());
     let mut body_tags = Vec::with_capacity(bodies.len());
@@ -841,11 +847,8 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
         let seed = locator.checkpoint();
         let boundary = Locator::from_seed(seed).next();
         starts.push(seed);
-        intr.counters.apply_at(
-            CounterKey::Page,
-            CounterUpdate::Set(vec![1]),
-            boundary,
-        );
+        intr.counters
+            .apply_at(CounterKey::Page, CounterUpdate::Set(vec![1]), boundary);
         let first_tag = tags.len();
         let converted = if keys.is_empty() {
             body.clone()
@@ -5832,8 +5835,14 @@ mod tests {
         assert_eq!(starts[1], starts[2]);
         let headings = global.query_by_kind(ElementKind::Heading);
         assert_eq!(headings.len(), 2);
-        assert_eq!(crate::entities::locator::Locator::from_seed(starts[0]).next(), headings[0]);
-        assert_eq!(crate::entities::locator::Locator::from_seed(starts[2]).next(), headings[1]);
+        assert_eq!(
+            crate::entities::locator::Locator::from_seed(starts[0]).next(),
+            headings[0]
+        );
+        assert_eq!(
+            crate::entities::locator::Locator::from_seed(starts[2]).next(),
+            headings[1]
+        );
         assert_eq!(headings, canonical.query_by_kind(ElementKind::Heading));
     }
 
@@ -5855,23 +5864,52 @@ mod tests {
         ];
         let (global, starts) = introspect_bundle_documents_with_starts(&bodies);
         let canonical = super::introspect_with_introspector(&Content::sequence(bodies));
-        let first = |seed| crate::entities::locator::Locator::from_seed(seed).next().as_u128();
+        let first =
+            |seed| crate::entities::locator::Locator::from_seed(seed).next().as_u128();
         assert!(first(starts[0]) < first(starts[1]));
         assert!(first(starts[1]) < first(starts[2]));
         assert_eq!(global.outline_elements.len(), canonical.outline_elements.len());
         assert_eq!(global.headings_for_toc.len(), canonical.headings_for_toc.len());
-        assert_eq!(global.outlined_heading_locations, canonical.outlined_heading_locations);
-        assert_eq!(global.outline_elements[0].target, canonical.outline_elements[0].target);
-        assert_eq!(global.outline_elements[0].depth, canonical.outline_elements[0].depth);
-        assert_eq!(canonical.outline_elements[0].target, crate::entities::elements::outline::OutlineTarget::Headings);
-        assert!(canonical.outline_elements[0].depth >= 1);
-        assert!(canonical.outlined_heading_locations.iter().all(|loc| canonical.elements.contains_key(loc)));
-        assert!(canonical.headings_for_toc.iter().all(|entry| entry.3 <= canonical.outline_elements[0].depth));
         assert_eq!(
-            global.headings_for_toc.iter().map(|entry| entry.3).collect::<Vec<_>>(),
-            canonical.headings_for_toc.iter().map(|entry| entry.3).collect::<Vec<_>>(),
+            global.outlined_heading_locations,
+            canonical.outlined_heading_locations
         );
-        let keys = |intr: &TagIntrospector| intr.elements.keys().copied().collect::<std::collections::HashSet<_>>();
+        assert_eq!(
+            global.outline_elements[0].target,
+            canonical.outline_elements[0].target
+        );
+        assert_eq!(global.outline_elements[0].depth, canonical.outline_elements[0].depth);
+        assert_eq!(
+            canonical.outline_elements[0].target,
+            crate::entities::elements::outline::OutlineTarget::Headings
+        );
+        assert!(canonical.outline_elements[0].depth >= 1);
+        assert!(canonical
+            .outlined_heading_locations
+            .iter()
+            .all(|loc| canonical.elements.contains_key(loc)));
+        assert!(canonical
+            .headings_for_toc
+            .iter()
+            .all(|entry| entry.3 <= canonical.outline_elements[0].depth));
+        assert_eq!(
+            global
+                .headings_for_toc
+                .iter()
+                .map(|entry| entry.3)
+                .collect::<Vec<_>>(),
+            canonical
+                .headings_for_toc
+                .iter()
+                .map(|entry| entry.3)
+                .collect::<Vec<_>>(),
+        );
+        let keys = |intr: &TagIntrospector| {
+            intr.elements
+                .keys()
+                .copied()
+                .collect::<std::collections::HashSet<_>>()
+        };
         assert_eq!(keys(&global), keys(&canonical));
         assert_eq!(global.kind_index, canonical.kind_index);
         assert_eq!(global.parent_locations, canonical.parent_locations);

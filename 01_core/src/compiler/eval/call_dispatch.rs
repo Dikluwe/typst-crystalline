@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 865bf9da
+//! @prompt-hash 5083e619
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1450,7 +1450,11 @@ pub(super) fn eval_func_call(
                 Value::SpotColorant(ref colorant) if method == "tint" => {
                     let args = eval_args(call.args(), scopes, ctx, engine)?;
                     return crate::compiler::stdlib::color::dispatch_spot_colorant_tint(
-                        colorant, args, ctx, engine.world, engine.current_file,
+                        colorant,
+                        args,
+                        ctx,
+                        engine.world,
+                        engine.current_file,
                     );
                 }
                 Value::Color(ref color) => {
@@ -2124,10 +2128,10 @@ pub(super) fn eval_func_call(
 /// Intercepção em `eval_func_call` para `loc.page()`, `loc.position()`,
 /// `loc.page-numbering()`. Paridade vanilla `location.rs #[scope]`.
 ///
-/// Acede ao `ctx.introspector` (TagIntrospector implementa `Introspector::position_of`).
-/// No target HTML externo, `page` e `position` devolvem `none`; em targets paginados,
-/// a ausência de posição (pre-layout ou localização inexistente) usa defaults seguros
-/// (page=1, x=0pt, y=0pt).
+/// Acede ao `ctx.introspector`: o target HTML mantém `page()` como `none`;
+/// `position()` devolve somente `x/y` quando existe posição local de ilha e `none`
+/// fora dela. Em targets paginados, a ausência de posição usa os defaults seguros
+/// page=1, x=0pt e y=0pt.
 pub(super) fn eval_location_method(
     loc: crate::entities::location::Location,
     method: &str,
@@ -2137,10 +2141,19 @@ pub(super) fn eval_location_method(
     use crate::entities::introspector::Introspector;
     use crate::entities::layout_types::Length;
 
-    let result = if ctx.target == super::EvalTarget::Html
-        && matches!(method, "page" | "position")
-    {
+    let result = if ctx.target == super::EvalTarget::Html && method == "page" {
         Ok(Value::None)
+    } else if ctx.target == super::EvalTarget::Html && method == "position" {
+        Ok(match ctx.introspector.html_position_of(loc) {
+            None => Value::None,
+            Some(pos) => {
+                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
+                    IndexMap::default();
+                dict.insert("x".into(), Value::Length(Length::pt(pos.point.x.val())));
+                dict.insert("y".into(), Value::Length(Length::pt(pos.point.y.val())));
+                Value::Dict(dict)
+            }
+        })
     } else {
         match method {
             "page" => {
@@ -2176,7 +2189,9 @@ pub(super) fn eval_location_method(
                 None => Value::None,
             }),
             _ => {
-                unreachable!("eval_location_method chamado com método inesperado: {method}")
+                unreachable!(
+                    "eval_location_method chamado com método inesperado: {method}"
+                )
             }
         }
     };
@@ -2601,5 +2616,59 @@ mod p1492_location_html_external_tests {
             };
             assert!(matches!(position.get("page"), Some(Value::Int(1))));
         }
+    }
+}
+
+#[cfg(test)]
+mod p1493_location_html_frame_tests {
+    use super::*;
+    use crate::compiler::eval::EvalTarget;
+    use crate::entities::layout_types::{Point, Pt};
+    use crate::entities::location::Location;
+    use crate::entities::position::HtmlPosition;
+    use std::collections::HashMap;
+
+    #[test]
+    fn html_frame_projeta_x_y_sem_pagina_e_regista_demanda() {
+        let loc = Location::from_raw(1493);
+        let mut ctx = EvalContext::new();
+        ctx.target = EvalTarget::Html;
+        ctx.introspector.inject_html_positions(HashMap::from([(
+            loc,
+            HtmlPosition { point: Point { x: Pt(30.0), y: Pt(20.0) } },
+        )]));
+
+        let Ok(Value::Dict(position)) =
+            eval_location_method(loc, "position", &mut ctx, Span::detached())
+        else {
+            panic!("posição local HTML deve ser um dict");
+        };
+        assert_eq!(position.len(), 2);
+        assert!(position.get("page").is_none());
+        assert!(matches!(
+            position.get("x"),
+            Some(Value::Length(length)) if length.resolve_pt(0.0) == 30.0
+        ));
+        assert!(matches!(
+            position.get("y"),
+            Some(Value::Length(length)) if length.resolve_pt(0.0) == 20.0
+        ));
+        assert!(ctx.has_location_position_reads());
+        assert!(matches!(
+            eval_location_method(loc, "page", &mut ctx, Span::detached()),
+            Ok(Value::None)
+        ));
+    }
+
+    #[test]
+    fn leitura_apenas_de_page_nao_seleciona_posicao_html() {
+        let loc = Location::from_raw(1493);
+        let mut ctx = EvalContext::new();
+        ctx.target = EvalTarget::Html;
+        assert!(matches!(
+            eval_location_method(loc, "page", &mut ctx, Span::detached()),
+            Ok(Value::None)
+        ));
+        assert!(!ctx.has_location_position_reads());
     }
 }

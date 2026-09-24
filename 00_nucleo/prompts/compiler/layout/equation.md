@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: fae016e3
+Hash do Código: 926bdd93
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
@@ -667,3 +667,9 @@ usa esse fallback: injeta o estado da tentativa, resolve todo `Pending` em L3
 e só então permite que o documento alcance numbering/export. A mudança de
 assinatura fica no mesmo gate ADR-0127 de
 `compiler/math/layout/callbacks.md`.
+
+## P1493 — vazio material antes de equação
+
+Os gates de linha e região vazia consultam o predicado material comum durante
+a captura de posições HTML. O carrier direto não altera a escolha inline ou bloco
+nem a baseline da equação; qualquer item real conserva a decisão anterior.

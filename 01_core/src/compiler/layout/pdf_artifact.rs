@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/pdf_artifact.md
-//! @prompt-hash 0b5e42d3
+//! @prompt-hash d1f7fc98
 //! @layer L1
 //! @updated 2026-08-30
 
@@ -84,7 +84,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let start: EcoString = format!("\u{0}p1286-artifact-start-{id}").into();
     let end: EcoString = format!("\u{0}p1286-artifact-end-{id}").into();
 
-    if layouter.regions.current.current_line.is_empty() {
+    if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         layouter
             .regions
             .current
@@ -98,7 +98,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .push(marker(elem.kind, start.clone()));
     }
     layouter.layout_content(&elem.body);
-    if layouter.regions.current.current_line.is_empty() {
+    if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         layouter
             .regions
             .current

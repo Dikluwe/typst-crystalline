@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 4a45d879
+Hash do Código: b3749500
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -2072,3 +2072,26 @@ PDF(update 5) seguido de HTML lê 1, HTML(update 7) lê 7, PDF seguinte
 lê início local; Empty, Styled, Outline e refs cruzadas não deslocam
 inícios; erros de funções runtime propagam-se. A assinatura pública
 L1 e a mudança observável foram confirmadas pelo dono em 2026-09-24.
+
+
+## P1493 — projeção concreta da posição local HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+A implementação produtiva de \`Introspector\` para \`TagIntrospector\` vive neste
+owner e hoje projeta somente \`position_of\` a partir de \`SealedPositions\`.
+O contrato P1493 acrescenta um store separado na entidade; deixar apenas o
+default do trait faria a implementação concreta perder posições já injetadas.
+
+### Contrato ratificado
+
+Implementar explicitamente \`html_position_of(Location) -> Option<HtmlPosition>\`
+por consulta somente leitura ao mapa HTML da geração corrente. A implementação
+não executa layout, não infere ilha, não converte \`Position\` paginada e não usa
+a página lógica intrínseca. Store vazio ou Location ausente devolve \`None\`.
+
+A injeção/substituição do mapa pertence ao owner
+\`entities/introspector.md\`; este módulo apenas materializa a projeção do trait.
+\`position_of\` e o walk de tags permanecem inalterados. Aceitação: mapa vazio
+é negativo, mapa injetado devolve exatamente o ponto local e o store paginado
+continua observacionalmente independente.

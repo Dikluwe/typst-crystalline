@@ -1,5 +1,5 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: ab268e9e
+Hash do Código: d5243cb4
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`
@@ -408,3 +408,58 @@ targets HTML, world, source e input vazio que a primeira tentativa usaria;
 propagar erros e warnings. Quando houve estabilização, conservar a store já
 produzida pelo candidato validado, sem segunda realização. HTML não consome
 página. Não introduzir fase, contrato público nem fallback de índice físico.
+
+## P1493 — fixpoint seletivo de posição em ilha HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+`prepare_html` executa cada produtor contra introspector sem posições e
+remove seu marker. Uma leitura de posição não seleciona tentativa adicional;
+asserções simples, duas Locations e nesting terminam com `none`. O marker
+preservado por `substitute_context_blocks` já permite medir o ponto mesmo
+quando o resultado provisório do produtor é erro.
+Dois RED adicionais no working tree de 2026-09-24 mostraram que `discover()`
+executava só roots: um leitor existente apenas num ContextBlock produzido por
+outro ficava sem execução e terminava como marker não resolvido. Uma sonda com
+Location publicada por metadata mostrou também a transição de store não vazio
+para vazio quando o descendente desaparece; filtrar o latch apenas por nós ativos
+aceitava estado obsoleto. HEAD da medição: `b5abe9b288ce168c494a4c5172830e325b9aedae`,
+working tree não commitado enumerado no diagnóstico P1493.
+
+
+### Contrato ratificado
+
+A sessão distingue seleção por counter filtrado da seleção por
+`LocationPosition` observada. No HTML standalone, somente a segunda autoriza
+o novo ciclo; leituras paginadas já proibidas e outras dívidas P1421 continuam
+fail-closed. Erro da descoberta selecionada é provisório e sua sink é
+descartada, como nas tentativas existentes.
+A descoberta HTML realiza recursivamente produtores descendentes criados pelo
+resultado provisório, contra o mesmo snapshot causal, antes de decidir se existe
+leitor de posição. Ao iniciar o ciclo, descartar a execução de qualquer produtor
+selecionado, inclusive descendente; produtores ancestrais não selecionados podem
+reter sua contribuição.
+
+Depois da primeira leitura observada, a fase HTML fica associada à sessão. Nós
+inativos não apagam essa seleção e um input com store não vazio obriga produzir
+e comparar o store corrente, inclusive vazio. A transição nonempty -> empty
+exige uma geração adicional que confirme empty -> empty antes de convergir.
+
+
+A tentativa HTML A_k lê o snapshot anterior, reconstrói conteúdo com
+marker+resultado, reintrospecta a topologia, realiza somente as ilhas
+`html.frame`, injeta o store `HtmlPosition` da geração e revalida todas as
+leituras do produtor. O seed é o introspector HTML causal original com store
+HTML vazio, não `TagIntrospector::empty()`, para não alterar query/state já
+medidos. Posição ou resultado diferente invalida o produtor e descendentes.
+Estabilidade exige igualdade completa do store HTML e das observações; o teto,
+erros, warnings, retenção e descarte seguem o orçamento vigente de cinco
+tentativas.
+
+No bundle, cada body HTML contribui suas ilhas ao candidato global da mesma
+geração; bodies paginados continuam compondo `positions` e PageStore
+separados. Nunca misturar os dois stores nem deslocar coordenadas HTML por
+offset de páginas. Após convergência, remover somente markers HTML executados.
+Colisão de Location/id, cobertura incompleta ou store de geração mista produz
+o diagnóstico terminal de incapacidade existente. A mudança de fase foi
+confirmada pelo dono em 2026-09-24.

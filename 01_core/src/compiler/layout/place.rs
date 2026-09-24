@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/place.md
-//! @prompt-hash d81459d5
+//! @prompt-hash 774e1e61
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -92,7 +92,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // decoração e fixups do owner existente.
         let follows_pending_line =
             matches!(effective_alignment.v, None | Some(VAlign::Top))
-                && !layouter.regions.current.current_line.is_empty();
+                && super::html_frame::items_have_material(
+                    &layouter.regions.current.current_line,
+                );
         let semantic_top_edge = follows_pending_line
             .then(|| layouter.metrics.text_edges(layouter.style.size, &layouter.style).0);
         let in_sub_frame = layouter.is_sub_frame;
@@ -163,8 +165,11 @@ pub(super) fn fitting_float_prefix_len<M: FontMetrics, S: ImageSizer>(
     // ela fosse usada para decidir se a região está vazia, uma página recém-
     // criada recusaria o primeiro float cujo `body + clearance` ultrapassa a
     // altura restante após essa baseline e o marcador avançaria para sempre.
-    let region_has_flow = !layouter.regions.current.current_items.is_empty()
-        || !layouter.regions.current.current_line.is_empty();
+    let region_has_flow =
+        super::html_frame::items_have_material(&layouter.regions.current.current_items)
+            || super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            );
     let used_height = if region_has_flow {
         (layouter.regions.current.cursor_y.0 - layouter.page_config.margin.top).max(0.0)
     } else {

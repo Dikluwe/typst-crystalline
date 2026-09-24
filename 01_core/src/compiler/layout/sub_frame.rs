@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 3d301ad0
+//! @prompt-hash 15821346
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -245,7 +245,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         self.style.size.val() * super::vanilla_defaults::PAR_LEADING
                     })
             });
-        let had_items = !self.regions.current.current_line.is_empty();
+        let had_items = self
+            .regions
+            .current
+            .current_line
+            .iter()
+            .any(|item| !super::html_frame::is_context_marker_only_tree(item));
         // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
         // segmento da última linha do sub-frame (que este flush manual
         // drena sem passar por `flush_line`, daí a decoração nunca ter
@@ -371,7 +376,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 _ => {}
             }
         }
-        if height == 0.0 {
+        let has_visual_items = aligned_body_tail
+            .iter()
+            .any(|item| !super::html_frame::is_context_marker_only_tree(item));
+        if height == 0.0 && has_visual_items {
             height = line_h.0;
         }
 

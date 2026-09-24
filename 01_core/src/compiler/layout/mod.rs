@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 24b71d80
+//! @prompt-hash 9eb38fd8
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -85,6 +85,7 @@ mod columns;
 mod curve;
 mod heading;
 mod html_frame;
+pub use html_frame::HtmlFrameLayout;
 mod shape;
 mod tiling;
 mod title;
@@ -461,6 +462,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// em vez de snapshot final (cf. ADR-0068 PROPOSTO). (F-4 E0, P338:
     /// `is_numbering_active_at` saiu — gate vive no campo assado.)
     pub(super) current_location: Option<Location>,
+    /// P1493 — emite carriers geométricos privados para ContextBlock nesta passagem.
+    pub(super) capture_html_context_markers: bool,
     /// Callback state for this concrete layout attempt. It is borrowed from
     /// the entrypoint and never escapes L1.
     pub(super) math_callback_pass:
@@ -1106,6 +1109,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P273.5 — fallback None; callsite L3 usa page_bbox.
             parent_bbox: None,
             cell_align: None, // P232
+            capture_html_context_markers: false,
             locator: Locator::new(),
             current_location: None,
             math_callback_pass: None,
@@ -1714,8 +1718,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// (items ainda pendentes de flush) — uma linha não fechada ainda constitui
     /// conteúdo visível na página.
     fn current_page_is_empty(&self) -> bool {
-        self.regions.current.current_items.is_empty()
-            && self.regions.current.current_line.is_empty()
+        !html_frame::items_have_material(&self.regions.current.current_items)
+            && !html_frame::items_have_material(&self.regions.current.current_line)
     }
 
     /// Instala uma configuração numa página vazia e sincroniza a região.
@@ -1865,7 +1869,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // P588 — não renderizar espaço visual no início de uma linha
                 // ou parágrafo. Espaços iniciais são gerados por newlines após
                 // `#set`, headings, etc., e não devem avançar o cursor.
-                if !self.regions.current.current_line.is_empty() {
+                if html_frame::items_have_material(&self.regions.current.current_line) {
                     self.regions.current.cursor_x += self.space_width();
                     self.justify_opportunities.push(self.regions.current.cursor_x.0);
                     if self.regions.current.cursor_x.0
@@ -1883,7 +1887,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // contra ele; e regista spacing_pt como prev_block_below_pending para que um
             // bloco subsequente possa colapsar contra este parágrafo.
             Content::Parbreak => {
-                let had_items = !self.regions.current.current_line.is_empty();
+                let had_items =
+                    html_frame::items_have_material(&self.regions.current.current_line);
                 if had_items {
                     parbreak::mark_boundary(self);
                     self.flush_line();
@@ -2223,7 +2228,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     .custom
                     .iter()
                     .any(|(key, _)| key.as_str().starts_with("par.line."));
-                if owns_par_line_style && !self.regions.current.current_line.is_empty() {
+                if owns_par_line_style
+                    && html_frame::items_have_material(&self.regions.current.current_line)
+                {
                     self.flush_line();
                 }
                 self.chain = prev_chain;
@@ -2453,9 +2460,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P381) → layout/quote.rs.
             Content::Quote(e) => quote::layout(self, e),
 
-            // ── P506 — ContextBlock (delayed evaluation). Deve ter sido
-            // expandido antes do layout; se chegou aqui, é defensive no-op.
-            Content::ContextBlock(_) | Content::HtmlElem(_) => {}
+            // P1493: ContextBlock continua no-op salvo na passagem intrínseca
+            // detalhada, onde um carrier privado acompanha a geometria final.
+            Content::ContextBlock(elem) => {
+                if self.capture_html_context_markers {
+                    let (ascender, _) =
+                        self.metrics.vertical_metrics(self.style.size, &self.style);
+                    let point = Point {
+                        x: self.regions.current.cursor_x,
+                        y: self.regions.current.cursor_y - ascender,
+                    };
+                    self.regions
+                        .current
+                        .current_line
+                        .push(html_frame::context_marker(elem.id, point));
+                }
+            }
+            Content::HtmlElem(_) => {}
         }
     }
     pub fn finish(mut self) -> PagedDocument {
@@ -2464,7 +2485,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // final do documento — medido em `temp/p842/l7_h_1fr.typ`).
         // **P1119** — o flush da última linha passa pelo caminho normal
         // (drena, alinha e aplica a descida de baseline de P1120).
-        let had_last_line = !self.regions.current.current_line.is_empty();
+        let had_last_line =
+            html_frame::items_have_material(&self.regions.current.current_line);
         self.flush_line();
         if had_last_line {
             self.regions.current.cursor_y = Pt(self.prev_line_baseline);
@@ -2510,13 +2532,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.new_page();
             iter_limit -= 1;
         }
-        if !self.regions.current.current_items.is_empty()
+        if html_frame::items_have_material(&self.regions.current.current_items)
             || (!self.pages.is_empty() && !self.page_run_boundary_empty)
         {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
             let page = std::num::NonZeroUsize::new(page_number).unwrap();
-            let margin_number = self.runtime.known_page_store
+            let margin_number = self
+                .runtime
+                .known_page_store
                 .logical_number_for_page(page)
                 .unwrap_or(page_number);
             let mut items = std::mem::take(&mut self.regions.current.current_items);
@@ -3200,8 +3224,7 @@ pub fn measure_content_real(
     chain: &StyleChain,
     metrics: &dyn FontMetrics,
 ) -> (f64, f64) {
-    let (width, height, _) =
-        measure_content_real_with_baseline(content, chain, metrics);
+    let (width, height, _) = measure_content_real_with_baseline(content, chain, metrics);
     (width, height)
 }
 
@@ -3288,6 +3311,15 @@ pub fn layout_html_frame<M: FontMetrics, S: ImageSizer>(
     sizer: S,
 ) -> Page {
     html_frame::layout_intrinsic(elem, chain, metrics, sizer)
+}
+/// P1493 — layout intrínseco com posições locais dos ContextBlocks.
+pub fn layout_html_frame_detailed<M: FontMetrics, S: ImageSizer>(
+    elem: &crate::entities::html::HtmlFrameElem,
+    chain: &StyleChain,
+    metrics: M,
+    sizer: S,
+) -> HtmlFrameLayout {
+    html_frame::layout_intrinsic_detailed(elem, chain, metrics, sizer)
 }
 
 /// **P544** — entry point genérico que permite injectar métricas de fonte

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/page_run.md
-//! @prompt-hash 5fee6a4c
+//! @prompt-hash 593a3f00
 //! @layer L1
 //! @updated 2026-08-24
 //!
@@ -88,7 +88,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.install_page_config(local);
     layouter.layout_content(&e.body);
 
-    if !layouter.regions.current.current_line.is_empty() {
+    if super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         layouter.flush_line();
     }
     // Boundary final: comita inclusive body vazio, mas a página vazia criada

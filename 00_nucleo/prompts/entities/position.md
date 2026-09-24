@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/position`
-Hash do Código: 23346252
+Hash do Código: 125512c5
 
 **Camada**: L1.
 **Fase**: M8 / P204D.
@@ -123,3 +123,25 @@ Per ADR-0073 §C6a (P204D diagnóstico).
 - ADR-0066 (superseded em P204H).
 - ADR-0073 (paridade vanilla literal).
 - Vanilla: `lab/typst-original/crates/typst-library/src/introspection/position.rs`.
+
+## P1493 — posição local HTML discriminada (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae`, `Position` contém
+obrigatoriamente página não nula e ponto. O vanilla pinado distingue
+`PagedPosition` de posição HTML e só projeta coordenadas quando a posição
+HTML pertence a um `html.frame`. As sondas simples, múltipla e aninhada
+confirmam pontos locais sem página; usar a página intrínseca 1 como linguagem
+refutaria `location.page() == none`.
+
+### Contrato ratificado
+
+Adicionar `HtmlPosition` como carrier L1 puro, `Copy`, composto somente por
+`Point`, com `PartialEq` e Hash manual de x/y; zeros assinados normalizam para
+o mesmo hash antes de usar bits, preservando `Eq => Hash` no retorno tracked.
+`html.frame`; não possui página, path DOM nem fallback de origem.
+
+`Position` paginada e todos os seus campos permanecem intactos. Ausência
+externa continua `None`, nunca `HtmlPosition::ZERO`. A nova entidade pública
+é mudança de contrato ratificada pelo dono em 2026-09-24.

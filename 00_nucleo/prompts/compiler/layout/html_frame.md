@@ -1,5 +1,5 @@
 # Prompt L0 — layout da ilha `html.frame`
-Hash do Código: 48b06d31
+Hash do Código: f0ebc1b7
 
 **Estado:** APROVADO NO GATE ADR-0127 P1424 EM 2026-09-16  
 **Camada:** L1  
@@ -52,3 +52,46 @@ explícito em toda `Page`. A ilha não participa em `/PageLabels`.
 
 A única página intrínseca recebe `logical_number: 1`.
 Nenhum contador global, callback ou rótulo PDF é criado.
+
+## P1493 — posições causais da ilha intrínseca (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+O layout intrínseco usa um Layouter isolado, mas `runtime.positions` grava o
+ponto local antes de sublayouts terminarem. `place` translada somente `FrameItem`s
+ao regressar ao pai; portanto a posição bruta do marker fica na origem e não
+prova os 30pt/20pt observados. A hipótese inicial de extrair o runtime foi
+refutada pela descida `layout_sub_frame` -> `placement`.
+
+Sonda adicional no vanilla pinado, em 2026-09-24T16:41:36-03:00, manteve
+`position() == (x: 30pt, y: 20pt)` quando o próprio contexto colocado também
+emitiu texto; diretamente na ilha, o ponto permaneceu 0pt/0pt. Isso refuta
+aplicar ao `HtmlPosition` o recorte vertical final usado pela Page cristalina.
+A medição partiu do HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae` com
+working tree não commitado enumerado no diagnóstico P1493.
+
+### Contrato ratificado
+
+Somente a variante detalhada substitui cada `ContextBlock` por um carrier
+privado zero-size identificável pelo id, usando a árvore existente de
+`FrameItem` sem nova variante pública. O carrier atravessa `place`, box, grid,
+grupos, links e transformações como item geométrico. Após essas composições, o
+owner extrai em ordem determinística os pares
+`ContextBlock id -> HtmlPosition` no referencial causal da ilha, **antes** do
+recorte vertical privado da Page. Em seguida calcula o topo ignorando carriers,
+normaliza somente a Page visual e remove integralmente os carriers antes de
+medir largura ou devolver a Page.
+
+Frames aninhados continuam uma só ilha: o resultado do frame externo contém as
+posições dos markers internos no referencial do externo. Não expor número
+lógico, `Position` paginada, PageStore, SVG ou World. Falta de correspondência
+id/Location não fabrica ponto; L3 a trata como incapacidade. A superfície
+detalhada foi confirmada pelo dono em 2026-09-24.
+
+### P1493 — classificação carrier-only
+
+Somente o sentinel direto é imaterial. `Semantic`, `Link` e `Group`
+preexistentes conservam a materialidade da fachada legada mesmo quando seu
+único filho é o carrier; classificá-los recursivamente como vazios faria o
+passe detalhado divergir do legado. A composição não remove nem achata
+wrappers, e translações reais continuam a alcançar o ponto causal.

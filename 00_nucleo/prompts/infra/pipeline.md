@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 22ebbded
+Hash do Código: 4f0754c2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1813,3 +1813,43 @@ esses eixos continuam globais para refs e consultas. O `bundle_intr`
 original, usado no bind final e demais bodies, não muda. Validar offset
 contra o total; desalinhamento continua erro. Não há API pública nova
 nem mudança de fase; a aceitação mede margem desenhada e rótulo PDF.
+
+## P1493 — fase localizada de posições em `html.frame` (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae`, o caminho HTML executa
+contextos e remove markers antes de resolver os frames. A resolução P1424
+obtém somente SVG/Page, tarde demais para replay. O RED bilateral permanece
+nos três perfis; múltiplas posições e frame aninhado passam no vanilla e
+falham no cristalino.
+
+### Contrato ratificado
+
+Entre a introspecção HTML e a projeção terminal, a pipeline fornece ao owner de
+estabilização uma vista das ilhas intrínsecas. Um coletor privado percorre as
+ocorrências com `StyleChain` causal, chama a fachada detalhada L1 e associa
+cada `ContextBlock id` à `Location` da topologia candidata. Frames
+aninhados colapsam no frame externo; sua posição final é relativa à ilha
+externa. Ocorrências distintas devem ter identidades distintas.
+
+A fase só é ativada por leitura efetiva de `location.position()` em contexto
+HTML. Ela não pagina o documento inteiro, não cria `PagedDocument` global,
+não injeta PageStore e não altera o target externo. O exporter recebe conteúdo
+sem markers somente depois de estabilidade. O mesmo mecanismo participa de
+bodies HTML no bundle misto; bodies paginados conservam seus stores atuais.
+
+Colisão, id ausente, topologia ambígua ou tentativa sem correspondência falha
+fechado.
+`location.page()` permanece `none`; a Page intrínseca nunca vira página
+pública. Esta nova fase foi confirmada pelo dono em 2026-09-24.
+
+### Limite medido fora do gate P1493
+
+Uma sonda adversarial confirmou que o vanilla também resolve a posição de uma
+Location obtida por `query` dentro de uma ilha quando o leitor está fora dela.
+Esse caso não pode ser acrescentado por ordinal no desenho atual: `Location` é
+um contador raw reutilizável entre gerações e faria um alvo removido herdar a
+posição de outro elemento. P1493 materializa somente a identidade causal de
+`ContextBlock`/`here()` ratificada acima. Generalizar o store exige passo e gate
+próprios para identidade estável de Locations; não fabricar associação aqui.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 66e94b50
+Hash do Código: de37a275
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1093,3 +1093,25 @@ compatibilidade, L0 causal, teste RED de ausência/controle GREEN do
 caminho substituto e confirmação específica ADR-0127 antes do código.
 Este registro preserva comportamento vigente; não muda assinatura,
 default, fase nem função produtiva.
+
+## P1493 — seleção causal de leituras de posição HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+O log já registra `ContextReadRequest::LocationPosition`, inclusive resultado
+ou erro, mas o único getter de seleção identifica counters filtrados. Assim a
+pipeline não consegue distinguir uma asserção provisoriamente falhada dentro
+de `html.frame` de um erro final sem analisar AST ou mensagem.
+
+### Contrato ratificado
+
+Expor como `#[doc(hidden)] pub` um getter técnico puro entre L1 e L3 que
+informe se a execução observou ao menos uma requisição `LocationPosition`. A marca nasce da
+requisição efetivamente registrada, mesmo quando seu resultado foi `None` ou
+erro posterior; não seleciona `LocationPage`, `page-numbering`, query,
+counter ou state.
+
+Replay continua usando target, styles, Location e recursos capturados. O novo
+getter não reexecuta corpo, não altera resultados e não amplia a seleção
+paginada existente. Sua única finalidade é permitir ao owner L3 escolher o
+fixpoint localizado P1493. A ampliação de fase foi confirmada pelo dono em 2026-09-24.

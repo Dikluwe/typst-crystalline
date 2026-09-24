@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: bf9efca7
+Hash do Código: b504ee24
 
 
 **Camada**: L1  
@@ -512,3 +512,10 @@ Content nem procura linha visível.
 Contador, scope, deduplicação, margem e callbacks não mudam. Body sem wrapper
 segmentado direto com primeira região vazia, configuração local de `par.line`,
 RTL e nested columns ficam `Unknown`.
+
+## P1493 — conteúdo material de coluna
+
+Predicados de linha ou segmento usam a classificação material comum: árvore
+exclusivamente carrier HTML não conta como item de coluna nem cria avanço ou
+fechamento. O sentinel continua transportado entre regiões para extração; a
+presença de qualquer item real conserva o comportamento anterior.

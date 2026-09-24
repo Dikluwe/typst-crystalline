@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash 5b6a50be
+//! @prompt-hash ae674717
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -91,7 +91,8 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
         OutlineTarget::Headings => {}
     }
     if let Some(body) = e.realized_body() {
-        if !layouter.regions.current.current_line.is_empty() {
+        if super::html_frame::items_have_material(&layouter.regions.current.current_line)
+        {
             layouter.flush_line();
             layouter.block_chain_active = true;
         }

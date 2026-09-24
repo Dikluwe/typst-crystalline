@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/transform.md
-//! @prompt-hash a05e1027
+//! @prompt-hash 24d4e806
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -200,7 +200,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     end.x = Pt(end.x.0 - base_x);
                     end.y = Pt(end.y.0 - base_y);
                 }
-                FrameItem::Link { .. } => {}
+                FrameItem::Link { .. } => {
+                    crate::compiler::layout::helpers::offset_frame_item(
+                        item, -base_x, -base_y,
+                    );
+                }
                 FrameItem::Semantic { items, .. } => {
                     for child in items {
                         crate::compiler::layout::helpers::offset_frame_item(
@@ -216,6 +220,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let mut max_y = 0.0_f64;
 
         for item in &sub_items {
+            if super::html_frame::is_context_marker(item) {
+                continue;
+            }
             let (ix, iy) = super::helpers::item_pos(item);
             let w = super::helpers::item_width(item, &layouter.metrics);
             max_x = max_x.max(ix + w);
@@ -264,8 +271,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // omissão de `rotate`/`scale`/`skew`: `center + horizon`).
         let cx = orig_w_exact / 2.0;
         let cy = (frame_descent - frame_ascent) / 2.0;
-        let tx = (1.0 - matrix.a) * cx - matrix.c * cy;
-        let ty = -matrix.b * cx + (1.0 - matrix.d) * cy;
+        let tx = matrix.tx + (1.0 - matrix.a) * cx - matrix.c * cy;
+        let ty = matrix.ty - matrix.b * cx + (1.0 - matrix.d) * cy;
         let final_matrix_exact = TransformMatrix {
             a: matrix.a,
             b: matrix.b,

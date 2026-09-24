@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 3058503c
+//! @prompt-hash f8e7201b
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -75,6 +75,17 @@ pub trait Introspector: Send + Sync {
         &self,
         location: Location,
     ) -> Option<crate::entities::position::Position>;
+
+    /// P1493 — posição local de uma Location dentro de \`html.frame\`.
+    ///
+    /// Implementações sem store HTML preservam ausência por defeito.
+    fn html_position_of(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::position::HtmlPosition> {
+        let _ = location;
+        None
+    }
 
     /// P168 (M5): número 1-based da figura associada à label, **apenas
     /// se a figura é numerada+captioned**. Equivalente ao
@@ -471,6 +482,11 @@ pub struct TagIntrospector {
     /// (P205C C2 = Caminho A; P205A.div-1 — vanilla não tem
     /// Layouter monolítico).
     pub positions: crate::entities::sealed_positions::SealedPositions,
+    /// P1493 — store da geração corrente para coordenadas locais HTML.
+    ///
+    /// Separado de \`positions\`: nunca contém página nem alimenta consultas
+    /// paginadas.
+    pub html_positions: HashMap<Location, crate::entities::position::HtmlPosition>,
     /// **P207D (M9c)** — sub-store sealed para metadata page-level
     /// per ADR-0076. Injectado pós-layout via `inject_pages`
     /// (paralelo a `inject_positions` P205C). Pre-injecção,
@@ -570,6 +586,14 @@ impl TagIntrospector {
         sealed: crate::entities::sealed_positions::SealedPositions,
     ) {
         self.positions = sealed;
+    }
+
+    /// P1493 — substitui integralmente o store local HTML da geração.
+    pub fn inject_html_positions(
+        &mut self,
+        positions: HashMap<Location, crate::entities::position::HtmlPosition>,
+    ) {
+        self.html_positions = positions;
     }
 
     /// **P207D (M9c)** — Injecta `PageStore` produzido pós-layout
@@ -1319,5 +1343,39 @@ mod tests {
         assert_eq!(lof.len(), 2);
         assert_eq!(lof[0], (1, "Diagrama 1".to_string()));
         assert_eq!(lof[1], (2, "Mapa".to_string()));
+    }
+}
+
+#[cfg(test)]
+mod p1493_tests {
+    use super::*;
+    use crate::entities::layout_types::{Point, Pt};
+    use crate::entities::position::HtmlPosition;
+    use std::collections::HashMap;
+
+    #[test]
+    fn p1493_injecao_html_substitui_geracao_sem_tocar_posicao_paginada() {
+        let first = Location::from_raw(1493);
+        let stale = Location::from_raw(1494);
+        let expected = HtmlPosition { point: Point { x: Pt(30.0), y: Pt(20.0) } };
+        let mut intr = TagIntrospector::empty();
+
+        assert_eq!(intr.html_position_of(first), None);
+        intr.inject_html_positions(HashMap::from([
+            (first, expected),
+            (stale, HtmlPosition { point: Point { x: Pt(1.0), y: Pt(2.0) } }),
+        ]));
+        assert_eq!(intr.html_position_of(first), Some(expected));
+        assert_eq!(intr.position_of(first), None);
+
+        intr.inject_html_positions(HashMap::from([(
+            first,
+            HtmlPosition { point: Point { x: Pt(40.0), y: Pt(25.0) } },
+        )]));
+        assert_eq!(intr.html_position_of(stale), None);
+        assert_eq!(
+            intr.html_position_of(first),
+            Some(HtmlPosition { point: Point { x: Pt(40.0), y: Pt(25.0) } })
+        );
     }
 }

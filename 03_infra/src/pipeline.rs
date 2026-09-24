@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 64b01096
+//! @prompt-hash c2f09cf7
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -46,12 +46,13 @@ use typst_core::compiler::eval::{
     eval_with_full_error_and_target, eval_with_full_error_target_and_features,
     realize_outlines, EvalContext, EvalTarget,
 };
-use typst_core::compiler::introspect::{introspect_bundle_documents_with_starts, introspect_with_introspector};
+use typst_core::compiler::introspect::{
+    introspect_bundle_documents_with_starts, introspect_with_introspector,
+};
 use typst_core::compiler::layout::{
     collect_document_format_options,
-    layout_with_introspector_and_metrics_and_callbacks_from,
-    LayoutPassOutcome, ParLineCallbackRequest, ParLineCallbackResolution,
-    SealedParLineCallbacks,
+    layout_with_introspector_and_metrics_and_callbacks_from, LayoutPassOutcome,
+    ParLineCallbackRequest, ParLineCallbackResolution, SealedParLineCallbacks,
 };
 use typst_core::compiler::math::layout::callbacks::{
     MathCancelResolution, SealedMathCallbacks,
@@ -490,7 +491,6 @@ fn introspect_bundle_with_runtime_for_pipeline(
     (result, sink.into_diagnostics())
 }
 
-
 /// P1406 — realiza outlines com Engine em L3, mantendo toda a decisão
 /// semântica em L1. Um segundo passe focal só ocorre quando os carriers de
 /// prefixo revelam máximos novos.
@@ -658,6 +658,113 @@ fn collect_context_blocks_into(
         }
     }
 }
+/// P1493 — recolhe `html.frame` em ordem bottom-up e conserva a cadeia causal.
+/// O frame externo sucede os aninhados e torna-se a autoridade final do ponto.
+fn collect_html_frames(
+    content: &Content,
+    chain: &StyleChain,
+) -> Vec<(Arc<typst_core::entities::html::HtmlFrameElem>, StyleChain)> {
+    fn frame_count(content: &Content) -> usize {
+        let mut count = 0usize;
+        let _ = content.map_content(&mut |node| {
+            count += usize::from(matches!(node, Content::HtmlFrame(_)));
+            Ok(None)
+        });
+        count
+    }
+
+    let mut frames: Vec<(
+        Arc<typst_core::entities::html::HtmlFrameElem>,
+        Vec<typst_core::entities::style::Styles>,
+    )> = Vec::new();
+    let _ = content.map_content(&mut |node| {
+        match node {
+            Content::HtmlFrame(elem) => frames.push((elem.clone(), Vec::new())),
+            Content::Styled(inner, styles) => {
+                let count = frame_count(inner);
+                for (_, ancestors_inner_first) in frames.iter_mut().rev().take(count) {
+                    ancestors_inner_first.push(styles.clone());
+                }
+            }
+            _ => {}
+        }
+        Ok(None)
+    });
+
+    frames
+        .into_iter()
+        .map(|(elem, ancestors_inner_first)| {
+            let causal = ancestors_inner_first
+                .iter()
+                .rev()
+                .fold(chain.clone(), |chain, styles| chain.push_styles(styles));
+            (elem, causal)
+        })
+        .collect()
+}
+
+/// P1493 — realiza somente ilhas intrínsecas e produz o store HTML completo.
+fn html_frame_positions(
+    content: &Content,
+    candidate: &typst_core::entities::introspector::TagIntrospector,
+    metrics: FallbackFontMetrics<'_>,
+    source: &Source,
+) -> SourceResult<
+    HashMap<
+        typst_core::entities::location::Location,
+        typst_core::entities::position::HtmlPosition,
+    >,
+> {
+    let failure = || {
+        vec![SourceDiagnostic::error(
+            source.root().span(),
+            "contextual stability could not be verified",
+        )]
+    };
+    let mut positions = HashMap::new();
+    let mut owners = HashMap::new();
+
+    for (elem, chain) in collect_html_frames(content, &StyleChain::default_chain()) {
+        let mut expected_ids = HashSet::new();
+        let mut unique_ids = true;
+        let _ = elem.body.map_content(&mut |node| {
+            if let Content::ContextBlock(context) = node {
+                unique_ids &= expected_ids.insert(context.id);
+            }
+            Ok(None)
+        });
+        if !unique_ids {
+            return Err(failure());
+        }
+        let detailed = typst_core::compiler::layout::layout_html_frame_detailed(
+            &elem,
+            &chain,
+            metrics.clone(),
+            ImageSizeImageSizer,
+        );
+        let mut frame_ids = HashSet::new();
+        for (id, position) in detailed.positions {
+            if !frame_ids.insert(id) {
+                return Err(failure());
+            }
+            let Some(location) = candidate.context_block_locations.get(&id).copied()
+            else {
+                return Err(failure());
+            };
+            if let Some(previous_id) = owners.insert(location, id) {
+                if previous_id != id {
+                    return Err(failure());
+                }
+            }
+            positions.insert(location, position);
+        }
+        if frame_ids != expected_ids {
+            return Err(failure());
+        }
+    }
+
+    Ok(positions)
+}
 
 /// **P1037** — substitui cada `ContextBlock` pelo conteúdo resolvido, em
 /// **toda** a árvore. Simétrico de `collect_context_blocks`: a descida é a de
@@ -749,11 +856,7 @@ pub fn compile_to_bundle_files(
     world: &dyn World,
     source: &Source,
     options: BundleCompileOptions,
-) -> (
-    Result<Vec<BundleFile>, Vec<SourceDiagnostic>>,
-    Vec<SourceDiagnostic>,
-    Timings,
-) {
+) -> (Result<Vec<BundleFile>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     use typst_core::entities::compiler_features::Feature;
     let mut timings = Timings::default();
     if !options.features.contains(Feature::Bundle) {
@@ -761,14 +864,19 @@ pub fn compile_to_bundle_files(
             Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "bundle export is only available when --features bundle is passed",
-            ).with_hint("bundle export is experimental")]),
+            )
+            .with_hint("bundle export is experimental")]),
             Vec::new(),
             timings,
         );
     }
     let t0 = Instant::now();
     let (evaluated, mut warnings) = eval_to_module_with_sink_target_features(
-        world, source, options.full_error, EvalTarget::Bundle, options.features,
+        world,
+        source,
+        options.full_error,
+        EvalTarget::Bundle,
+        options.features,
     );
     timings.eval_ms = duration_ms(t0.elapsed());
     let module = match evaluated {
@@ -787,34 +895,48 @@ pub fn compile_to_bundle_files(
             _ => unreachable!(),
         };
         if !paths.insert(path.to_string()) {
-            return (Err(bundle_error(format!(
-                "path \x60{}\x60 occurs multiple times in the bundle",
-                path.trim_start_matches('/'),
-            ))), warnings, timings);
+            return (
+                Err(bundle_error(format!(
+                    "path \x60{}\x60 occurs multiple times in the bundle",
+                    path.trim_start_matches('/'),
+                ))),
+                warnings,
+                timings,
+            );
         }
     }
-    let document_bodies: Vec<Content> = entries.iter().filter_map(|entry| {
-        if let Content::Document { body, .. } = entry {
-            Some((**body).clone())
-        } else {
-            None
-        }
-    }).collect();
-    let (initial_intr, _) =
-        introspect_bundle_documents_with_starts(&document_bodies);
-    let html_targets: Vec<bool> = entries.iter().filter_map(|entry| {
-        if let Content::Document { path, format, .. } = entry {
-            let selected = format.as_deref().unwrap_or_else(|| {
-                path.rsplit_once('.').map(|(_, extension)| extension).unwrap_or("")
-            });
-            Some(selected == "html")
-        } else {
-            None
-        }
-    }).collect();
+    let document_bodies: Vec<Content> = entries
+        .iter()
+        .filter_map(|entry| {
+            if let Content::Document { body, .. } = entry {
+                Some((**body).clone())
+            } else {
+                None
+            }
+        })
+        .collect();
+    let (initial_intr, _) = introspect_bundle_documents_with_starts(&document_bodies);
+    let html_targets: Vec<bool> = entries
+        .iter()
+        .filter_map(|entry| {
+            if let Content::Document { path, format, .. } = entry {
+                let selected = format.as_deref().unwrap_or_else(|| {
+                    path.rsplit_once('.').map(|(_, extension)| extension).unwrap_or("")
+                });
+                Some(selected == "html")
+            } else {
+                None
+            }
+        })
+        .collect();
     let (prepared, contextual_warnings) = context_stabilization::prepare_bundle(
-        document_bodies, &html_targets, &initial_intr, world, source,
-        options.full_error, options.features,
+        document_bodies,
+        &html_targets,
+        &initial_intr,
+        world,
+        source,
+        options.full_error,
+        options.features,
     );
     warnings.extend(contextual_warnings);
     let (prepared_bodies, bundle_intr, document_starts) = match prepared {
@@ -839,8 +961,15 @@ pub fn compile_to_bundle_files(
                 let body = &prepared_bodies[document_index];
                 document_index += 1;
                 let rendered = render_bundle_document(
-                    world, source, body, &bundle_intr, location_start, page_offset,
-                    selected, &options, &mut warnings,
+                    world,
+                    source,
+                    body,
+                    &bundle_intr,
+                    location_start,
+                    page_offset,
+                    selected,
+                    &options,
+                    &mut warnings,
                 );
                 let (data, is_html_document, page_count) = match rendered {
                     Ok(output) => output,
@@ -848,7 +977,13 @@ pub fn compile_to_bundle_files(
                 };
                 page_offset = match page_offset.checked_add(page_count) {
                     Some(next) => next,
-                    None => return (Err(bundle_error("page offset overflow")), warnings, timings),
+                    None => {
+                        return (
+                            Err(bundle_error("page offset overflow")),
+                            warnings,
+                            timings,
+                        )
+                    }
                 };
                 files.push(BundleFile {
                     path: path.trim_start_matches('/').to_owned(),
@@ -859,15 +994,23 @@ pub fn compile_to_bundle_files(
             _ => unreachable!(),
         }
     }
-    let realized_pages = bundle_intr.page_store.total_pages().map(|n| n.get()).unwrap_or(0);
+    let realized_pages =
+        bundle_intr.page_store.total_pages().map(|n| n.get()).unwrap_or(0);
     if page_offset != realized_pages {
-        return (Err(bundle_error("bundle page store does not match rendered documents")), warnings, timings);
+        return (
+            Err(bundle_error("bundle page store does not match rendered documents")),
+            warnings,
+            timings,
+        );
     }
     timings.total_ms = duration_ms(t0.elapsed());
     (Ok(files), warnings, timings)
 }
 
-fn collect_bundle_entries(content: &Content, entries: &mut Vec<Content>) -> SourceResult<()> {
+fn collect_bundle_entries(
+    content: &Content,
+    entries: &mut Vec<Content>,
+) -> SourceResult<()> {
     match content {
         Content::Sequence(children) => {
             for child in children.iter() {
@@ -887,16 +1030,22 @@ fn collect_bundle_entries(content: &Content, entries: &mut Vec<Content>) -> Sour
                 }
             }
             Ok(())
-        },
-        Content::Empty | Content::Space | Content::Parbreak | Content::Metadata(_) => Ok(()),
+        }
+        Content::Empty | Content::Space | Content::Parbreak | Content::Metadata(_) => {
+            Ok(())
+        }
         Content::Document { .. } | Content::Asset { .. } => {
             entries.push(content.clone());
             Ok(())
         }
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{} is not allowed at the top-level in bundle export", content.elem_name()),
-        ).with_hint("try wrapping the content in a document instead")]),
+            format!(
+                "{} is not allowed at the top-level in bundle export",
+                content.elem_name()
+            ),
+        )
+        .with_hint("try wrapping the content in a document instead")]),
     }
 }
 
@@ -932,11 +1081,17 @@ fn bundle_html_semantic_content(
             Content::HtmlElem(Arc::new(HtmlElem::new(
                 tag,
                 attrs,
-                HtmlBody::Content(Box::new(bundle_html_semantic_content(&heading.body, warnings))),
+                HtmlBody::Content(Box::new(bundle_html_semantic_content(
+                    &heading.body,
+                    warnings,
+                ))),
             )))
         }
         Content::Sequence(items) => Content::sequence(
-            items.iter().map(|item| bundle_html_semantic_content(item, warnings)).collect(),
+            items
+                .iter()
+                .map(|item| bundle_html_semantic_content(item, warnings))
+                .collect(),
         ),
         Content::Styled(body, styles) => Content::Styled(
             Box::new(bundle_html_semantic_content(body, warnings)),
@@ -945,12 +1100,17 @@ fn bundle_html_semantic_content(
         Content::Par { body } => Content::Par {
             body: Box::new(bundle_html_semantic_content(body, warnings)),
         },
-        Content::Strong(strong) => Content::strong(bundle_html_semantic_content(&strong.body, warnings)),
-        Content::Emph(emph) => Content::emph(bundle_html_semantic_content(&emph.body, warnings)),
+        Content::Strong(strong) => {
+            Content::strong(bundle_html_semantic_content(&strong.body, warnings))
+        }
+        Content::Emph(emph) => {
+            Content::emph(bundle_html_semantic_content(&emph.body, warnings))
+        }
         Content::HtmlElem(elem) => Content::HtmlElem(Arc::new(HtmlElem::new(
             elem.tag.clone(),
             elem.attrs.clone(),
-            elem.body.map_content(|body| bundle_html_semantic_content(body, warnings)),
+            elem.body
+                .map_content(|body| bundle_html_semantic_content(body, warnings)),
         ))),
         _ => content.clone(),
     }
@@ -973,7 +1133,8 @@ fn render_bundle_document(
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "html export is only available when --features html is passed",
-            ).with_hint("enable the html feature for HTML documents")]);
+            )
+            .with_hint("enable the html feature for HTML documents")]);
         }
         let prepared = body.clone();
         // Labels identify elements during global introspection, but have no
@@ -1011,7 +1172,8 @@ fn render_bundle_document(
             let svg_options = crate::export::SvgOptions { pretty, ..Default::default() };
             Ok(svg_options.export_html_frame_with_fonts(&page, &fonts, &glyph_fonts))
         };
-        let html = options.html_serialization
+        let html = options
+            .html_serialization
             .export_with_resolved_frames(&prepared, pretty, &resolve_frame)
             .map_err(|error| vec![error])?;
         return Ok((html.into_bytes(), true, 0));
@@ -1020,20 +1182,31 @@ fn render_bundle_document(
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             "unknown document format",
-        ).with_hint("set the format parameter explicitly")]);
+        )
+        .with_hint("set the format parameter explicitly")]);
     }
     let render_content = body.clone();
     let mut render_intr = bundle_intr.clone();
     if page_offset != 0 {
-        render_intr.inject_pages(localize_bundle_margin_views(&bundle_intr.page_store, page_offset)?);
+        render_intr.inject_pages(localize_bundle_margin_views(
+            &bundle_intr.page_store,
+            page_offset,
+        )?);
     }
     let (mut document, layout_warnings) = layout_with_realized_math_callbacks_from(
-        &render_content, render_intr, world, source, location_start,
+        &render_content,
+        render_intr,
+        world,
+        source,
+        location_start,
     )?;
     warnings.extend(layout_warnings);
-    warnings.extend(document.layout_warnings.drain(..).map(|message| {
-        SourceDiagnostic::warning(Span::detached(), message)
-    }));
+    warnings.extend(
+        document
+            .layout_warnings
+            .drain(..)
+            .map(|message| SourceDiagnostic::warning(Span::detached(), message)),
+    );
     if !document.layout_errors.is_empty() {
         return Err(document.layout_errors.drain(..).collect());
     }
@@ -1041,7 +1214,8 @@ fn render_bundle_document(
     let page_count = document.pages.len();
     document.format_options = collect_document_format_options(&render_content)?;
     let document = crate::layout_bidi::reorder_bidi_document(
-        document, &FallbackFontMetrics::new(world),
+        document,
+        &FallbackFontMetrics::new(world),
     );
     let document = crate::shaper::shape_document(world, document);
     let document = crate::shaper::fix_line_positions(world, document);
@@ -1082,7 +1256,9 @@ fn render_bundle_document(
                         )
                         .is_empty()
                     {
-                        let name = font_list.as_slice().first()
+                        let name = font_list
+                            .as_slice()
+                            .first()
                             .and_then(|font| font.name.as_str())
                             .unwrap_or("variable font");
                         return Err(bundle_error(format!(
@@ -1107,7 +1283,8 @@ fn render_bundle_document(
         }
         "svg" => {
             let page = &document.pages[0];
-            let pretty = options.pretty_override.unwrap_or(document.format_options.svg.pretty);
+            let pretty =
+                options.pretty_override.unwrap_or(document.format_options.svg.pretty);
             let svg_options = crate::export::SvgOptions { pretty, ..Default::default() };
             let destinations = svg_destination_context_for_page(&document, 1);
             let fonts = resolve_and_instantiate_fonts(&document, world)
@@ -1117,7 +1294,11 @@ fn render_bundle_document(
                 export_svg_with_context(page, &svg_options, &destinations)
             } else {
                 export_svg_with_fonts_and_contexts(
-                    page, &svg_options, &fonts, &destinations, &glyph_fonts,
+                    page,
+                    &svg_options,
+                    &fonts,
+                    &destinations,
+                    &glyph_fonts,
                 )
             };
             Ok((svg.into_bytes(), false, page_count))
@@ -1531,17 +1712,20 @@ fn compile_to_paged_document_full_error_and_features_with_introspector(
         (doc, intr_for_positions, extracted_headings)
     };
 
-    let realized_total = intr_for_positions.page_store
-        .total_pages().map(|count| count.get()).unwrap_or(0);
+    let realized_total = intr_for_positions
+        .page_store
+        .total_pages()
+        .map(|count| count.get())
+        .unwrap_or(0);
     if realized_total != doc.pages.len() {
         return (Err(bundle_error(format!(
             "realized page numbers do not match final document (rendered {}, store {realized_total})",
             doc.pages.len(),
         ))), warnings);
     }
-    if let Err(errors) = bind_logical_page_numbers(
-        &mut doc, &intr_for_positions.page_store, 0,
-    ) {
+    if let Err(errors) =
+        bind_logical_page_numbers(&mut doc, &intr_for_positions.page_store, 0)
+    {
         return (Err(errors), warnings);
     }
     doc.format_options = match collect_document_format_options(&format_content) {
@@ -1811,14 +1995,16 @@ fn localize_bundle_margin_views(
 ) -> SourceResult<typst_core::entities::page_store::PageStore> {
     use typst_core::entities::page_store::PageStore;
 
-    let total = store.total_pages()
+    let total = store
+        .total_pages()
         .ok_or_else(|| bundle_error("missing realized bundle page store"))?;
     let count = total.get();
     if offset > count {
         return Err(bundle_error("bundle page offset exceeds realized page store"));
     }
-    let page_at = |index: usize| std::num::NonZeroUsize::new(index + 1)
-        .expect("page indices start at one");
+    let page_at = |index: usize| {
+        std::num::NonZeroUsize::new(index + 1).expect("page indices start at one")
+    };
     let mut numberings = Vec::with_capacity(count);
     let mut logical_numbers = Vec::with_capacity(count);
     let mut numbering_spans = Vec::with_capacity(count);
@@ -1832,15 +2018,25 @@ fn localize_bundle_margin_views(
         let global = if local < count - offset { local + offset } else { local };
         let global_page = page_at(global);
         numberings.push(store.numbering_for_page(local_page).cloned());
-        logical_numbers.push(store.logical_number_for_page(global_page)
-            .ok_or_else(|| bundle_error("missing realized logical page number"))?);
-        numbering_spans.push(store.numbering_span_for_page(local_page)
-            .ok_or_else(|| bundle_error("missing realized page numbering span"))?);
+        logical_numbers.push(
+            store
+                .logical_number_for_page(global_page)
+                .ok_or_else(|| bundle_error("missing realized logical page number"))?,
+        );
+        numbering_spans.push(
+            store
+                .numbering_span_for_page(local_page)
+                .ok_or_else(|| bundle_error("missing realized page numbering span"))?,
+        );
         visible_numberings.push(store.visible_numbering_for_page(global_page).cloned());
-        reference_numberings.push(store.reference_numbering_for_page(local_page).cloned());
-        supplements.push(store.supplement_for_page(local_page)
-            .cloned()
-            .ok_or_else(|| bundle_error("missing realized page supplement"))?);
+        reference_numberings
+            .push(store.reference_numbering_for_page(local_page).cloned());
+        supplements.push(
+            store
+                .supplement_for_page(local_page)
+                .cloned()
+                .ok_or_else(|| bundle_error("missing realized page supplement"))?,
+        );
     }
     Ok(PageStore::from_realized(
         total,
@@ -4224,13 +4420,18 @@ mod tests {
         );
         let source = w.source.clone();
         let mut timings = Timings::default();
-        let (result, _) = compile_to_paged_document_full_error(
-            &w, &source, false, &mut timings,
-        );
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
         let doc = result.expect("numeração lógica deve realizar");
-        assert_eq!(doc.pages.iter().map(|page| page.logical_number).collect::<Vec<_>>(), [10, 11, 12, 13]);
         assert_eq!(
-            doc.pages.iter().map(|page| frame_items_text(&page.foreground)).collect::<Vec<_>>(),
+            doc.pages.iter().map(|page| page.logical_number).collect::<Vec<_>>(),
+            [10, 11, 12, 13]
+        );
+        assert_eq!(
+            doc.pages
+                .iter()
+                .map(|page| frame_items_text(&page.foreground))
+                .collect::<Vec<_>>(),
             ["10", "11", "12", "13"],
             "a margem impressa deve usar o mesmo contador lógico do label PDF",
         );
@@ -4242,11 +4443,15 @@ mod tests {
             "#set page(numbering: \"1 / 1\")\n#counter(page).update(10)\nOne\n#pagebreak()\nTwo\n#pagebreak()\nThree",
         );
         let mut timings = Timings::default();
-        let doc = compile_to_paged_document_full_error(
-            &w, &w.source, false, &mut timings,
-        ).0.expect("numeração composta deve compilar");
+        let doc =
+            compile_to_paged_document_full_error(&w, &w.source, false, &mut timings)
+                .0
+                .expect("numeração composta deve compilar");
         assert_eq!(
-            doc.pages.iter().map(|page| frame_items_text(&page.foreground)).collect::<Vec<_>>(),
+            doc.pages
+                .iter()
+                .map(|page| frame_items_text(&page.foreground))
+                .collect::<Vec<_>>(),
             ["10 / 12", "11 / 12", "12 / 12"],
         );
     }
@@ -4258,16 +4463,26 @@ mod tests {
             "#set page(numbering: (current, total) => [L#current])\nOne\n#pagebreak()\nTwo\n#pagebreak()\nThree",
         );
         let mut timings = Timings::default();
-        let doc = compile_to_paged_document_full_error(
-            &w, &w.source, false, &mut timings,
-        ).0.expect("callback deve compilar");
-        let ranges = PageRanges::new([1, 3].into_iter().map(|index| {
-            PageRange::at(std::num::NonZeroUsize::new(index).unwrap())
-        }).collect());
-        let pdf = export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
-            &doc, None, StreamMode::Verbose, PdfTags::Disabled,
-            PdfSerializationMode::Compact, Some(ranges), PdfStandards::default(),
+        let doc =
+            compile_to_paged_document_full_error(&w, &w.source, false, &mut timings)
+                .0
+                .expect("callback deve compilar");
+        let ranges = PageRanges::new(
+            [1, 3]
+                .into_iter()
+                .map(|index| PageRange::at(std::num::NonZeroUsize::new(index).unwrap()))
+                .collect(),
         );
+        let pdf =
+            export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+                &doc,
+                None,
+                StreamMode::Verbose,
+                PdfTags::Disabled,
+                PdfSerializationMode::Compact,
+                Some(ranges),
+                PdfStandards::default(),
+            );
         let raw = String::from_utf8_lossy(&pdf);
         assert!(raw.contains("/St 1") && raw.contains("/St 3"), "{raw}");
         assert!(!raw.contains("/St 2"), "página excluída não deve receber label");
@@ -4282,19 +4497,25 @@ mod tests {
         features.enable(Feature::Html);
         let run = |source: &str| {
             let world = mock_world(source);
-            compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
-                full_error: false,
-                features,
-                document_id: None,
-                pdf_stream_mode: StreamMode::Verbose,
-                pdf_serialization: PdfSerializationMode::Compact,
-                pdf_tagged_override: None,
-                pdf_pages_override: None,
-                pdf_standard_override: None,
-                png_ppi_override: None,
-                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
-                pretty_override: None,
-            }).0.expect("bundle P1486 deve compilar")
+            compile_to_bundle_files(
+                &world,
+                &world.source,
+                BundleCompileOptions {
+                    full_error: false,
+                    features,
+                    document_id: None,
+                    pdf_stream_mode: StreamMode::Verbose,
+                    pdf_serialization: PdfSerializationMode::Compact,
+                    pdf_tagged_override: None,
+                    pdf_pages_override: None,
+                    pdf_standard_override: None,
+                    png_ppi_override: None,
+                    html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                    pretty_override: None,
+                },
+            )
+            .0
+            .expect("bundle P1486 deve compilar")
         };
         for bridge in [
             "#document(\"bridge.html\")[Bridge]",
@@ -4313,15 +4534,35 @@ mod tests {
             let last = files.iter().find(|file| file.path == "last.pdf").unwrap();
             let first_pdf = String::from_utf8_lossy(&first.data);
             let last_pdf = String::from_utf8_lossy(&last.data);
-            assert!(first_pdf.contains("/St 10") && first_pdf.contains("/St 11"), "{bridge}: primeira numeração");
+            assert!(
+                first_pdf.contains("/St 10") && first_pdf.contains("/St 11"),
+                "{bridge}: primeira numeração"
+            );
             assert!(last_pdf.contains("/Count 2"), "{bridge}: seleção da segunda saída");
-            assert!(last_pdf.contains("/St 20") && last_pdf.contains("/St 22"), "{bridge}: offset lógico");
-            assert!(!last_pdf.contains("/St 21"), "{bridge}: página excluída não rotulada");
-            let first_stream = crate::export::extract_page_content_streams_text(&first.data);
-            let last_stream = crate::export::extract_page_content_streams_text(&last.data);
-            assert!(first_stream.contains("(10) Tj") && first_stream.contains("(11) Tj"), "{bridge}: margem do primeiro PDF: {first_stream}");
-            assert!(last_stream.contains("(20) Tj") && last_stream.contains("(22) Tj"), "{bridge}: margem do segundo PDF: {last_stream}");
-            assert!(!last_stream.contains("(21) Tj"), "{bridge}: página excluída não deve ser desenhada: {last_stream}");
+            assert!(
+                last_pdf.contains("/St 20") && last_pdf.contains("/St 22"),
+                "{bridge}: offset lógico"
+            );
+            assert!(
+                !last_pdf.contains("/St 21"),
+                "{bridge}: página excluída não rotulada"
+            );
+            let first_stream =
+                crate::export::extract_page_content_streams_text(&first.data);
+            let last_stream =
+                crate::export::extract_page_content_streams_text(&last.data);
+            assert!(
+                first_stream.contains("(10) Tj") && first_stream.contains("(11) Tj"),
+                "{bridge}: margem do primeiro PDF: {first_stream}"
+            );
+            assert!(
+                last_stream.contains("(20) Tj") && last_stream.contains("(22) Tj"),
+                "{bridge}: margem do segundo PDF: {last_stream}"
+            );
+            assert!(
+                !last_stream.contains("(21) Tj"),
+                "{bridge}: página excluída não deve ser desenhada: {last_stream}"
+            );
         }
     }
 
@@ -4337,19 +4578,25 @@ mod tests {
              #document(\"last.pdf\")[#set page(numbering: (current, total) => [V#current])\n\
              #counter(page).update(20) Third #pagebreak() Fourth]",
         );
-        let files = compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
-            full_error: false,
-            features,
-            document_id: None,
-            pdf_stream_mode: StreamMode::Verbose,
-            pdf_serialization: PdfSerializationMode::Compact,
-            pdf_tagged_override: None,
-            pdf_pages_override: None,
-            pdf_standard_override: None,
-            png_ppi_override: None,
-            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
-            pretty_override: None,
-        }).0.expect("bundle com callback deve compilar");
+        let files = compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        )
+        .0
+        .expect("bundle com callback deve compilar");
         let last = files.iter().find(|file| file.path == "last.pdf").unwrap();
         let stream = crate::export::extract_page_content_streams_text(&last.data);
         assert!(stream.contains("(20) Tj") && stream.contains("(21) Tj"), "{stream}");
@@ -5724,5 +5971,184 @@ mod tests {
             !String::from_utf8_lossy(&pdfa_pdf).contains("pdfuaid"),
             "a-2u isolado não deve emitir identificação PDF/UA"
         );
+    }
+
+    #[test]
+    fn p1493_html_frame_position_converge_no_pipeline_html() {
+        let world = mock_world(concat!(
+            "#html.frame(box(width: 100pt, height: 50pt, {\n",
+            "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+            "    let loc = here()\n",
+            "    assert.eq(loc.page(), none)\n",
+            "    assert.eq(loc.position(), (x: 30pt, y: 20pt))\n",
+            "  })\n",
+            "}))\n",
+        ));
+
+        let (result, _warnings) = compile_to_html_string_with_features(
+            &world,
+            &world.source,
+            typst_core::entities::compiler_features::Features::html(),
+        );
+        let html = result.expect("posição local no html.frame deve convergir");
+        assert!(html.contains("<svg"), "html.frame deve produzir SVG: {html:?}");
+    }
+
+    #[test]
+    fn p1493_bundle_misto_estabiliza_posicao_html_sem_contaminar_pagina() {
+        use typst_core::entities::compiler_features::{Feature, Features};
+
+        let world = mock_world(concat!(
+            "#document(\"paged.pdf\")[\n",
+            "  #context {\n",
+            "    assert.eq(target(), \"paged\")\n",
+            "    assert.eq(here().page(), 1)\n",
+            "    [paged-control]\n",
+            "  }\n",
+            "]\n",
+            "#document(\"island.html\")[\n",
+            "  #html.frame(box(width: 100pt, height: 50pt, {\n",
+            "    place(top + left, dx: 30pt, dy: 20pt, context {\n",
+            "      assert.eq(target(), \"html\")\n",
+            "      assert.eq(here().page(), none)\n",
+            "      assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+            "    })\n",
+            "  }))\n",
+            "]\n",
+        ));
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        features.enable(Feature::Html);
+
+        let files = compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        )
+        .0
+        .expect("bundle misto P1493 deve convergir");
+
+        let paged = files
+            .iter()
+            .find(|file| file.path == "paged.pdf")
+            .expect("bundle deve conter paged.pdf");
+        let html = files
+            .iter()
+            .find(|file| file.path == "island.html")
+            .expect("bundle deve conter island.html");
+        assert!(!paged.is_html_document);
+        assert!(html.is_html_document);
+    }
+
+    #[test]
+    fn p1493_descendente_unico_leitor_dispara_fixpoint_html() {
+        let world = mock_world(concat!(
+            "#html.frame(box(width: 100pt, height: 50pt, {\n",
+            "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+            "    context {\n",
+            "      assert.eq(here().page(), none)\n",
+            "      assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+            "    }\n",
+            "  })\n",
+            "}))\n",
+        ));
+
+        let (result, _warnings) = compile_to_html_string_with_features(
+            &world,
+            &world.source,
+            typst_core::entities::compiler_features::Features::html(),
+        );
+        let html = result.expect("leitor criado pelo contexto externo deve convergir");
+        assert!(html.contains("<svg"), "html.frame deve produzir SVG: {html:?}");
+    }
+
+    #[test]
+    fn p1493_fase_html_permanece_latched_ate_store_esvaziar() {
+        use typst_core::entities::compiler_features::{Feature, Features};
+
+        let world = mock_world(concat!(
+            "#document(\"island.html\")[\n",
+            "  #context {\n",
+            "    let found = query(<p1493-stale-location>)\n",
+            "    if found.len() == 0 {\n",
+            "      html.frame(box(width: 100pt, height: 50pt, {\n",
+            "        place(top + left, dx: 30pt, dy: 20pt, context {\n",
+            "          let loc = here()\n",
+            "          let observed = loc.position()\n",
+            "          [#metadata(loc) <p1493-stale-location>]\n",
+            "        })\n",
+            "      }))\n",
+            "    } else {\n",
+            "      let stale = found.first().value\n",
+            "      let settled = stale.position() == none\n",
+            "      [#html.frame(box(width: 1pt, height: 1pt, [#metadata(stale) <p1493-stale-location>])) #if settled [settled-after-empty]]\n",
+            "    }\n",
+            "  }\n",
+            "]\n",
+        ));
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        features.enable(Feature::Html);
+
+        let files = compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        )
+        .0
+        .expect("store HTML nonempty→empty deve estabilizar");
+        let html_file = files
+            .iter()
+            .find(|file| file.path == "island.html")
+            .expect("bundle deve conter island.html");
+        let html = String::from_utf8_lossy(&html_file.data);
+        assert!(
+            html.contains("settled-after-empty"),
+            "a geração vazia deve ser observada antes de aceitar: {html:?}"
+        );
+    }
+
+    #[test]
+    fn p1493_html_frame_position_preserva_place_com_resultado_visivel() {
+        let world = mock_world(concat!(
+            "#html.frame(box(width: 100pt, height: 50pt, {\n",
+            "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+            "    assert.eq(here().page(), none)\n",
+            "    assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+            "    [html-control]\n",
+            "  })\n",
+            "}))\n",
+        ));
+
+        let (result, _warnings) = compile_to_html_string_with_features(
+            &world,
+            &world.source,
+            typst_core::entities::compiler_features::Features::html(),
+        );
+        result.expect("conteúdo visível não pode deslocar a posição do context");
     }
 }

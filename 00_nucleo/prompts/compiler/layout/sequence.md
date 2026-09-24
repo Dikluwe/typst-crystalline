@@ -1,5 +1,5 @@
 # Prompt L0 — layout de sequência
-Hash do Código: c677cd06
+Hash do Código: 2ebc0f5a
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
@@ -648,3 +648,11 @@ Não há API pública, recursão, simulação ou coleção proporcional.
 em `Lead`, `More`, `One`, `Two`, `After` e `Tail` dentro de 0,001pt. O caso
 40→8 com `fill` adicional no segundo wrapper permanece opaco. P1391, P1390,
 P1389 e P1388 conservam seus vereditos.
+
+## P1493 — fronteiras neutras ao carrier HTML
+
+Medição adversarial: um `ContextBlock` no-op antes de whitespace ou parbreak
+deixava um carrier em `current_line` e acionava branches baseados apenas em
+`is_empty`. Sequence usa o predicado material comum em todas as decisões de
+fechamento: o carrier direto não cria linha, gap, wrap ou flush; wrappers e
+itens reais preservam a decisão anterior.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/metrics.md
-//! @prompt-hash cbbcb8ad
+//! @prompt-hash a6d2c8a9
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -270,6 +270,7 @@ pub trait FontMetrics: Send + Sync {
         items
             .iter()
             .copied()
+            .filter(|item| !super::html_frame::is_context_marker(item))
             .map(|item| {
                 let x = match item {
                     FrameItem::Text { pos, .. }

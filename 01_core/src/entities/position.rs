@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/position.md
-//! @prompt-hash a15c51d3
+//! @prompt-hash 9aa98dc7
 //! @layer L1
 //! @updated 2026-05-06
 //!
@@ -39,6 +39,22 @@ pub struct Position {
     pub page: NonZeroUsize,
     /// Coordenadas (x, y) na página.
     pub point: Point,
+}
+
+/// Posição geométrica local dentro de uma ilha `html.frame`.
+///
+/// Não contém página: HTML continua semanticamente não paginado.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HtmlPosition {
+    pub point: Point,
+}
+
+impl std::hash::Hash for HtmlPosition {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        let bits = |value: f64| if value == 0.0 { 0 } else { value.to_bits() };
+        bits(self.point.x.val()).hash(state);
+        bits(self.point.y.val()).hash(state);
+    }
 }
 
 // P204D: impl Hash necessário para `Option<Position>` retornado por
@@ -110,5 +126,40 @@ mod tests {
         p1.hash(&mut h1);
         p2.hash(&mut h2);
         assert_ne!(h1.finish(), h2.finish(), "page diferente → hashes distintos");
+    }
+}
+
+#[cfg(test)]
+mod p1493_tests {
+    use super::*;
+    use crate::entities::layout_types::{Point, Pt};
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    #[test]
+    fn p1493_html_position_nao_tem_pagina_e_hash_depende_do_ponto() {
+        let a = HtmlPosition { point: Point { x: Pt(30.0), y: Pt(20.0) } };
+        let b = HtmlPosition { point: Point { x: Pt(30.0), y: Pt(20.0) } };
+        let c = HtmlPosition { point: Point { x: Pt(31.0), y: Pt(20.0) } };
+
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        let mut ha = DefaultHasher::new();
+        let mut hb = DefaultHasher::new();
+        a.hash(&mut ha);
+        b.hash(&mut hb);
+        assert_eq!(ha.finish(), hb.finish());
+        let positive_zero = HtmlPosition { point: Point { x: Pt(0.0), y: Pt(0.0) } };
+        let negative_zero = HtmlPosition { point: Point { x: Pt(-0.0), y: Pt(-0.0) } };
+        assert_eq!(positive_zero, negative_zero);
+        let mut hz = DefaultHasher::new();
+        let mut hnz = DefaultHasher::new();
+        positive_zero.hash(&mut hz);
+        negative_zero.hash(&mut hnz);
+        assert_eq!(
+            hz.finish(),
+            hnz.finish(),
+            "Eq deve implicar Hash para zeros assinados"
+        );
     }
 }

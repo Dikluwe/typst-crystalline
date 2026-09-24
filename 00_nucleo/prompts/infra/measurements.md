@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/measurements`
-Hash do Código: 51502962
+Hash do Código: 7c7a5ab1
 
 > **P1140.4-A:** `CountingIntrospector` delega também
 > `equation_numbering_content(Location)`. A instrumentação não materializa nem
@@ -233,3 +233,22 @@ P1157 altera o retorno público de `Introspector::page_numbering` de
 `CountingIntrospector` atualiza apenas o tipo devolvido e delega ao inner. O
 mesmo `record_call(22)` é preservado; contagens e formato do relatório não
 mudam.
+
+
+## P1493 — delegação transparente de posição local HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+\`CountingIntrospector\` implementa explicitamente o trait completo. Após a
+adição pública de \`html_position_of\`, usar o default \`None\` ocultaria a
+posição disponível no \`inner\` e faria o wrapper alterar semântica em testes.
+
+### Contrato ratificado
+
+Delegar \`html_position_of\` diretamente ao \`inner\`, sem novo índice nem novo
+\`AtomicUsize\`. A matriz observada permanece com 28 métodos: a consulta HTML é
+auxiliar não contada, no mesmo regime de \`element_at\` e das consultas
+auxiliares de equação. O wrapper não injeta, converte ou armazena posições.
+
+Aceitação: wrapper e inner devolvem o mesmo \`Option<HtmlPosition>\`; os nomes,
+índices e totais públicos de medições permanecem byte a byte estáveis.
