@@ -201,6 +201,29 @@ Este log prepara dados para a resolução sob demanda de
 `compiler/introspect/from_tags.md`, aprovada pelo dono. A aprovação de fase
 não dispensa os demais gates do P1339 antes da implementação.
 
+## P1485.3 — ordem de Page no bundle (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+`value_at` filtra por Location e escolhe a última entrada por inserção
+(`01_core/src/entities/counter_registry.rs:151-159`); `apply_at` acrescenta
+ao fim (`:182-194`). Pós-pass Page Func pode, portanto, inserir evento
+de Location anterior depois da fronteira seguinte. É risco inferido
+da fonte, não prova de output Func; sonda Set e proveniência no
+diagnóstico P1485. Valor Page é linguagem, ordem de armazenamento é
+mecânica (ADR-0107).
+
+### Limite do owner
+
+Suportar por helper privado a materialização de snapshots Page em ordem
+causal Location + fonte exigida por `compiler/introspect/from_tags.md`
+P1485.3. Não mudar assinatura pública, significado de outras chaves nem
+transformar reset em ocorrência localizada. Compiler avalia Func; entidade
+guarda só estados, Locations e ações, sem Engine, I/O ou import reverso.
+O contrato público de introspecção P1485.3 foi confirmado pelo dono
+em 2026-09-24.
+
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |

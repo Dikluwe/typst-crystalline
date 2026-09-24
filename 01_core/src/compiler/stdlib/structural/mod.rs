@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 9d5ba3c9
+//! @prompt-hash 7cb3412f
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -141,7 +141,7 @@ mod tests {
 
     use crate::entities::content::Content;
 
-    use crate::compiler::eval::EvalContext;
+    use crate::compiler::eval::{EvalContext, EvalTarget};
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
@@ -149,6 +149,7 @@ mod tests {
     use crate::entities::source_result::SourceResult;
     use crate::entities::span::Span;
     use crate::entities::value::Value;
+    use crate::entities::bytes::Bytes as ValueBytes;
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
@@ -191,8 +192,10 @@ mod tests {
     }
 
     fn call_document(args: Args) -> SourceResult<Value> {
+        let mut context = EvalContext::new();
+        context.target = EvalTarget::Bundle;
         native_document(
-            &mut EvalContext::new(),
+            &mut context,
             &args,
             &NullWorld::default(),
             test_file_id(),
@@ -237,16 +240,54 @@ mod tests {
         assert_eq!(named[0].message, "unexpected argument: foo");
     }
 
+    fn document_args(named: &[(&str, Value)]) -> Args {
+        let mut args = Args::positional(vec![
+            Value::Str("a.pdf".into()),
+            Value::Content(Content::text("Body")),
+        ]);
+        for (name, value) in named {
+            args.named.insert((*name).into(), value.clone());
+        }
+        args
+    }
+
     #[test]
-    fn native_document_title_content() {
-        let mut args = Args::positional(vec![]);
-        args.named
-            .insert("title".into(), Value::Content(Content::text("Título")));
-        let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { title, author, date, keywords }) = v
-        else {
+    fn native_document_rejects_direct_construction_outside_bundle() {
+        for target in [EvalTarget::Paged, EvalTarget::Html] {
+            let mut context = EvalContext::new();
+            context.target = target;
+            let errors = native_document(
+                &mut context,
+                &document_args(&[]),
+                &NullWorld::default(),
+                test_file_id(),
+            )
+            .unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "constructing a document is only supported in the bundle target",
+                "{target:?}"
+            );
+            assert!(
+                errors[0].hints.iter().any(|hint| hint.contains("bundle")),
+                "{target:?}: {errors:?}"
+            );
+        }
+    }
+    #[test]
+    fn native_document_path_body_and_title_content() {
+        let v = call_document(document_args(&[(
+            "title",
+            Value::Content(Content::text("Título")),
+        )]))
+        .unwrap();
+        let Value::Content(Content::Document {
+            path, body, title, author, date, keywords, ..
+        }) = v else {
             panic!("esperado Content::Document, recebeu {:?}", v);
         };
+        assert_eq!(path.as_str(), "/a.pdf");
+        assert_eq!(body.plain_text(), "Body");
         assert_eq!(title.as_ref().map(|b| b.plain_text()), Some("Título".to_string()));
         assert!(author.is_empty());
         assert!(date.is_none());
@@ -255,8 +296,7 @@ mod tests {
 
     #[test]
     fn native_document_author_str() {
-        let args = named_args(&[("author", Value::Str("Ana".into()))]);
-        let v = call_document(args).unwrap();
+        let v = call_document(document_args(&[("author", Value::Str("Ana".into()))])).unwrap();
         let Value::Content(Content::Document { author, .. }) = v else {
             panic!("esperado Document")
         };
@@ -265,11 +305,11 @@ mod tests {
 
     #[test]
     fn native_document_author_array() {
-        let args = named_args(&[(
+        let v = call_document(document_args(&[(
             "author",
             Value::Array(vec![Value::Str("Ana".into()), Value::Str("Bob".into())]),
-        )]);
-        let v = call_document(args).unwrap();
+        )]))
+        .unwrap();
         let Value::Content(Content::Document { author, .. }) = v else {
             panic!("esperado Document")
         };
@@ -278,8 +318,7 @@ mod tests {
 
     #[test]
     fn native_document_keywords_str() {
-        let args = named_args(&[("keywords", Value::Str("typst".into()))]);
-        let v = call_document(args).unwrap();
+        let v = call_document(document_args(&[("keywords", Value::Str("typst".into()))])).unwrap();
         let Value::Content(Content::Document { keywords, .. }) = v else {
             panic!("esperado Document")
         };
@@ -288,11 +327,11 @@ mod tests {
 
     #[test]
     fn native_document_keywords_array() {
-        let args = named_args(&[(
+        let v = call_document(document_args(&[(
             "keywords",
             Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]),
-        )]);
-        let v = call_document(args).unwrap();
+        )]))
+        .unwrap();
         let Value::Content(Content::Document { keywords, .. }) = v else {
             panic!("esperado Document")
         };
@@ -302,8 +341,7 @@ mod tests {
     #[test]
     fn native_document_date() {
         let dt = Datetime::new_date(2026, 6, 22).unwrap();
-        let args = named_args(&[("date", Value::Datetime(dt))]);
-        let v = call_document(args).unwrap();
+        let v = call_document(document_args(&[("date", Value::Datetime(dt))])).unwrap();
         let Value::Content(Content::Document { date, .. }) = v else {
             panic!("esperado Document")
         };
@@ -311,11 +349,15 @@ mod tests {
     }
 
     #[test]
-    fn native_document_no_args() {
-        let args = Args::positional(vec![]);
-        let v = call_document(args).unwrap();
-        let Value::Content(Content::Document { title, author, date, keywords }) = v
-        else {
+    fn native_document_requires_path_and_body_and_preserves_metadata_defaults() {
+        let missing_path = call_document(Args::positional(vec![])).unwrap_err();
+        assert_eq!(missing_path[0].message, "missing argument: path");
+        let missing_body =
+            call_document(Args::positional(vec![Value::Str("a.pdf".into())])).unwrap_err();
+        assert_eq!(missing_body[0].message, "missing argument: body");
+
+        let v = call_document(document_args(&[])).unwrap();
+        let Value::Content(Content::Document { title, author, date, keywords, .. }) = v else {
             panic!("esperado Document")
         };
         assert!(title.is_none());
@@ -326,63 +368,77 @@ mod tests {
 
     #[test]
     fn native_document_rejects_unknown_named() {
-        let args = named_args(&[("foo", Value::Str("x".into()))]);
-        assert!(call_document(args).is_err());
+        let errors = call_document(document_args(&[("foo", Value::Str("x".into()))])).unwrap_err();
+        assert!(errors[0].message.contains("foo"), "{errors:?}");
     }
 
     #[test]
     fn native_document_rejects_bad_author_type() {
-        let args = named_args(&[("author", Value::Int(1))]);
-        assert!(call_document(args).is_err());
+        let errors = call_document(document_args(&[("author", Value::Int(1))])).unwrap_err();
+        assert!(errors[0].message.contains("author"), "{errors:?}");
     }
 
     #[test]
-    fn native_asset_path_positional() {
-        let args = Args::positional(vec![Value::Str("logo.png".into())]);
+    fn native_asset_path_positional_and_bytes_intact() {
+        let args = Args::positional(vec![
+            Value::Str("logo.png".into()),
+            Value::Bytes(ValueBytes::new(vec![0, 255, 10])),
+        ]);
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { path, kind }) = v else {
+        let Value::Content(Content::Asset { path, data, .. }) = v else {
             panic!("esperado Asset")
         };
-        assert_eq!(path, EcoString::from("logo.png"));
-        assert_eq!(kind, Some(EcoString::from("image")));
+        assert_eq!(path.as_str(), "/logo.png");
+        assert_eq!(data.as_ref(), &[0, 255, 10]);
     }
 
     #[test]
-    fn native_asset_path_named() {
-        let args = named_args(&[("path", Value::Str("font.ttf".into()))]);
-        let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { path, kind }) = v else {
-            panic!("esperado Asset")
-        };
-        assert_eq!(path, EcoString::from("font.ttf"));
-        assert_eq!(kind, Some(EcoString::from("font")));
+    fn native_asset_path_named_is_rejected() {
+        let mut args = Args::positional(vec![Value::Str("font.ttf".into())]);
+        args.named.insert("path".into(), Value::Str("other.ttf".into()));
+        args.items.push(Value::Str("payload".into()));
+        let errors = call_asset(args).unwrap_err();
+        assert!(errors[0].message.contains("positional"), "{errors:?}");
     }
 
     #[test]
-    fn native_asset_kind_explicit() {
-        let mut args = Args::positional(vec![Value::Str("x".into())]);
+    fn native_asset_kind_explicit_is_rejected() {
+        let mut args = Args::positional(vec![
+            Value::Str("x".into()),
+            Value::Str("payload".into()),
+        ]);
         args.named.insert("kind".into(), Value::Str("custom".into()));
-        let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { kind, .. }) = v else {
-            panic!("esperado Asset")
-        };
-        assert_eq!(kind, Some(EcoString::from("custom")));
+        let errors = call_asset(args).unwrap_err();
+        assert_eq!(errors[0].message, "unexpected argument: kind");
     }
 
     #[test]
-    fn native_asset_kind_unknown_extension() {
-        let args = Args::positional(vec![Value::Str("file.xyz".into())]);
+    fn native_asset_unknown_extension_preserves_utf8_data() {
+        let args = Args::positional(vec![
+            Value::Str("file.xyz".into()),
+            Value::Str("café".into()),
+        ]);
         let v = call_asset(args).unwrap();
-        let Value::Content(Content::Asset { kind, .. }) = v else {
+        let Value::Content(Content::Asset { path, data, .. }) = v else {
             panic!("esperado Asset")
         };
-        assert_eq!(kind, None);
+        assert_eq!(path.as_str(), "/file.xyz");
+        assert_eq!(data.as_ref(), "café".as_bytes());
     }
 
     #[test]
-    fn native_asset_rejects_missing_path() {
-        let args = Args::positional(vec![Value::Int(1)]);
-        assert!(call_asset(args).is_err());
+    fn native_asset_rejects_missing_path_data_and_bad_path_type() {
+        let missing_path = call_asset(Args::positional(vec![])).unwrap_err();
+        assert_eq!(missing_path[0].message, "missing argument: path");
+        let missing_data =
+            call_asset(Args::positional(vec![Value::Str("x".into())])).unwrap_err();
+        assert_eq!(missing_data[0].message, "missing argument: data");
+        let bad_path = call_asset(Args::positional(vec![
+            Value::Int(1),
+            Value::Str("payload".into()),
+        ]))
+        .unwrap_err();
+        assert_eq!(bad_path[0].message, "expected string, found integer");
     }
 
     fn call_heading(args: Args) -> SourceResult<Value> {

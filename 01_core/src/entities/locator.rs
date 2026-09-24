@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/locator.md
-//! @prompt-hash 6eadfa3b
+//! @prompt-hash 18690a35
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -25,10 +25,25 @@ pub struct Locator {
     counter: u64,
 }
 
+/// Início imutável de uma faixa causal de `Location`s.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct LocatorSeed(u64);
+
+
 impl Locator {
     /// Cria um novo `Locator` no estado inicial (counter = 0).
     pub fn new() -> Self {
         Self { counter: 0 }
+    }
+
+    /// Registra o próximo identificador sem avançar o walk.
+    pub fn checkpoint(&self) -> LocatorSeed {
+        LocatorSeed(self.counter)
+    }
+
+    /// Reproduz uma faixa a partir de um checkpoint do walk canônico.
+    pub fn from_seed(seed: LocatorSeed) -> Self {
+        Self { counter: seed.0 }
     }
 
     /// Produz a próxima `Location` e avança o contador interno.
@@ -88,5 +103,15 @@ mod tests {
         let mut l1 = Locator::default();
         let mut l2 = Locator::new();
         assert_eq!(l1.next(), l2.next());
+    }
+    #[test]
+    fn checkpoint_reproduz_faixa_sem_clonar_locator() {
+        let mut original = Locator::new();
+        assert_eq!(original.next().as_u128(), 0);
+        let seed = original.checkpoint();
+        let mut replay = Locator::from_seed(seed);
+        assert_eq!(original.next(), replay.next());
+        assert_eq!(original.next(), replay.next());
+        assert_eq!(seed, Locator::from_seed(seed).checkpoint());
     }
 }

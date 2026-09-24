@@ -696,7 +696,10 @@ fn realize_node(content: &Content) -> Content {
         Content::Styled(body, styles) => {
             Content::Styled(Box::new(realize_node(body)), styles.clone())
         }
-        Content::Document { title, author, date, keywords } => Content::Document {
+        Content::Document { path, body, format, title, author, date, keywords } => Content::Document {
+            path: path.clone(),
+            body: Box::new(realize_node(body)),
+            format: format.clone(),
             title: title.as_ref().map(|t| Box::new(realize_node(t))),
             author: author.clone(),
             date: *date,

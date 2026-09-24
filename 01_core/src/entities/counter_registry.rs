@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_registry.md
-//! @prompt-hash c085886c
+//! @prompt-hash bc62b516
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -189,6 +189,14 @@ impl CounterRegistry {
         if let Some(current) = self.inner.get(&key) {
             self.history.entry(key).or_default().push((location, current.clone()));
         }
+    }
+
+    /// Descarta apenas os snapshots Page produzidos pelo walk preliminar.
+    /// O bundle os materializa novamente em ordem causal, intercalando
+    /// fronteiras de body e callbacks que só podem rodar com Engine.
+    pub(crate) fn clear_page_snapshots(&mut self) {
+        self.inner.remove(&CounterKey::Page);
+        self.history.remove(&CounterKey::Page);
     }
 
     /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply_hierarchical`

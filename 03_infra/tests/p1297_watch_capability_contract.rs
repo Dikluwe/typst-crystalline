@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md
-//! @prompt-hash c1624a1f
+//! @prompt-hash 204e4c79
 //! @layer L3
 //! @updated 2026-09-03
 //!
@@ -403,7 +403,7 @@ fn rustdoc_json_pinado_fecha_superficie_publica_da_capacidade() {
     public_inherent_methods.sort_unstable();
     assert_eq!(
         public_inherent_methods,
-        vec!["abandon", "publish"],
+        vec!["abandon", "abandon_directory", "publish", "publish_directory"],
         "superfície inherent pública de ArmedWatch divergiu"
     );
 

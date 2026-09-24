@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 6e9a5f15
+//! @prompt-hash 29ed7ba7
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1099,6 +1099,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // a fechar, para que o export PDF saiba se/desenha o número.
         let page_numbering = self.page_config.numbering.clone();
         let page_number = self.pages.len() + 1;
+        let page = std::num::NonZeroUsize::new(page_number).unwrap();
+        let margin_number = self.runtime.known_page_store
+            .logical_number_for_page(page)
+            .unwrap_or(page_number);
 
         let mut items = std::mem::take(&mut self.regions.current.current_items);
         self.apply_pending_par_line_fixups(&mut items);
@@ -1142,7 +1146,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     );
                     self.pending_page_numbering.push((
                         self.pages.len(),
-                        page_number,
+                        margin_number,
                         pattern.clone(),
                         self.page_config.number_align,
                         self.page_config.margin,
@@ -1150,7 +1154,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         fd,
                     ));
                 } else if let Some(text) =
-                    format_counter(&[page_number], pattern.as_str())
+                    format_counter(&[margin_number], pattern.as_str())
                 {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
@@ -1184,7 +1188,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 page_numbering,
                 Some(crate::entities::numbering::Numbering::Func(_))
             ) {
-                let page = std::num::NonZeroUsize::new(page_number).unwrap();
                 if let Some(content) = self
                     .runtime
                     .known_page_store
@@ -1230,6 +1233,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             width: page_width,
             height: page_height,
             numbering: page_numbering,
+            logical_number: page_number,
             supplement: self.page_config.supplement.resolve(self.chain.lang()),
             bleed,
             fill: self.page_config.fill.clone(),

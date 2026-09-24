@@ -159,5 +159,6 @@ pub fn native_target(
     Ok(Value::Str(match ctx.target {
         crate::compiler::eval::EvalTarget::Paged => "paged".into(),
         crate::compiler::eval::EvalTarget::Html => "html".into(),
+        crate::compiler::eval::EvalTarget::Bundle => "bundle".into(),
     }))
 }

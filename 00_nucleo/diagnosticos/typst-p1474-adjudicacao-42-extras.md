@@ -292,3 +292,186 @@ Por ordem de prontidão (mais pronta primeiro):
 Nenhuma destas ações foi tomada nesta sessão — este documento fecha
 P1474 como diagnóstico, conforme autorizado explicitamente pelo próprio
 passo ("P1474 pode fechar como diagnóstico sem remover nada").
+
+## Adendo P1488 — retificação sem apagar o histórico (2026-09-24)
+
+Este adendo não substitui a classificação histórica acima. Distingue a
+medição posterior, a decisão já existente e o que ainda exige decisão nova.
+Não autoriza a remoção de nenhum binding público.
+
+### Proveniência
+
+As sondas locais decorreram em 2026-09-24, entre 10:56:01 e 10:58:04
+(-03:00), sobre HEAD e7670e5a1b97fca4e7d5ff236645720027a25669
+(P1487). O vanilla ratificado foi /usr/local/bin/typst, SHA-256
+eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f;
+o cristalino foi target/debug/typst, SHA-256
+81cbcb240620cfccac5677cbab236b9609cb7209252109f8ca63ba2b64275fa2.
+O SHA do executável cristalino identifica o binário sondado, não certifica
+sozinho que incorpora toda mudança não commitada da árvore.
+
+A árvore estava não commitada antes deste adendo: 66 arquivos rastreados
+modificados segundo git diff HEAD --name-only e 11 não rastreados segundo
+git ls-files --others --exclude-standard. Lista exata dos rastreados:
+
+~~~text
+00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md
+00_nucleo/prompts/compiler/eval.md
+00_nucleo/prompts/compiler/eval/bindings/field_access.md
+00_nucleo/prompts/compiler/eval/tests.md
+00_nucleo/prompts/compiler/introspect.md
+00_nucleo/prompts/compiler/introspect/from_tags.md
+00_nucleo/prompts/compiler/layout.md
+00_nucleo/prompts/compiler/layout/cursor.md
+00_nucleo/prompts/compiler/layout/html_frame.md
+00_nucleo/prompts/compiler/stdlib/counter.md
+00_nucleo/prompts/compiler/stdlib/format.md
+00_nucleo/prompts/compiler/stdlib/structural.md
+00_nucleo/prompts/compiler/stdlib/structural/document.md
+00_nucleo/prompts/entities/compiler_features.md
+00_nucleo/prompts/entities/content.md
+00_nucleo/prompts/entities/counter_registry.md
+00_nucleo/prompts/entities/layout_types.md
+00_nucleo/prompts/entities/locator.md
+00_nucleo/prompts/infra/export/builder.md
+00_nucleo/prompts/infra/export/tests/mod.md
+00_nucleo/prompts/infra/integration_tests.md
+00_nucleo/prompts/infra/pipeline.md
+00_nucleo/prompts/infra/pipeline/context_stabilization.md
+00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md
+00_nucleo/prompts/shell/cli.md
+00_nucleo/prompts/shell/watch.md
+00_nucleo/prompts/wiring.md
+00_nucleo/prompts/wiring/tests/cli.md
+01_core/src/compiler/eval/bindings/field_access.rs
+01_core/src/compiler/eval/mod.rs
+01_core/src/compiler/eval/repr.rs
+01_core/src/compiler/eval/rules.rs
+01_core/src/compiler/eval/tests.rs
+01_core/src/compiler/introspect.rs
+01_core/src/compiler/introspect/from_tags.rs
+01_core/src/compiler/layout/cursor.rs
+01_core/src/compiler/layout/html_frame.rs
+01_core/src/compiler/layout/mod.rs
+01_core/src/compiler/stdlib/counter.rs
+01_core/src/compiler/stdlib/format.rs
+01_core/src/compiler/stdlib/foundations/query.rs
+01_core/src/compiler/stdlib/structural/document.rs
+01_core/src/compiler/stdlib/structural/mod.rs
+01_core/src/entities/compiler_features.rs
+01_core/src/entities/content.rs
+01_core/src/entities/counter_registry.rs
+01_core/src/entities/layout_types.rs
+01_core/src/entities/locator.rs
+02_shell/src/cli.rs
+03_infra/src/export/builder.rs
+03_infra/src/export/fonts.rs
+03_infra/src/export/render.rs
+03_infra/src/export/stream.rs
+03_infra/src/export/svg.rs
+03_infra/src/export/tests/mod.rs
+03_infra/src/export/tests/p1481_pdfua_structure_tests.rs
+03_infra/src/export/tests/p1483_pdf_spot_tests.rs
+03_infra/src/integration_tests.rs
+03_infra/src/layout_bidi.rs
+03_infra/src/pipeline.rs
+03_infra/src/pipeline/context_stabilization.rs
+03_infra/src/shaper.rs
+03_infra/src/watch.rs
+03_infra/tests/p1297_watch_capability_contract.rs
+04_wiring/src/main.rs
+04_wiring/tests/cli.rs
+~~~
+
+Não rastreados no mesmo instantâneo:
+
+~~~text
+00_nucleo/diagnosticos/typst-p1484-matriz-bundle.md
+00_nucleo/diagnosticos/typst-p1485-bundle-sondas.md
+00_nucleo/diagnosticos/typst-p1485-integracao-gate2.md
+00_nucleo/diagnosticos/typst-p1486-page-labels.md
+00_nucleo/materialization/typst-passo-1484.md
+00_nucleo/materialization/typst-passo-1485.md
+00_nucleo/materialization/typst-passo-1486.md
+00_nucleo/materialization/typst-passo-1488.md
+00_nucleo/prompts/infra/export/tests/p1486_pdf_page_labels_tests.md
+03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs
+lab/parity/corpus/p1486-page-labels.typ
+~~~
+
+### Medição antes da retificação
+
+1. Nos dois binários acima, typst eval 'type(math.underover)' falhou com
+   module math does not contain underover. Typst eval 'type(underover)'
+   falhou no vanilla com unknown variable underover e devolveu function no
+   cristalino. O registro global está em
+   01_core/src/compiler/eval/mod.rs:8391; os registros do módulo math em
+   01_core/src/compiler/stdlib/structural/math.rs:2837-2861 não criam esse
+   membro. Portanto, a conclusão de P1474 §2.1/§3/§4 de que falta
+   math.underover como lacuna de paridade é falsa. Não adicionar o membro
+   para reparar uma ausência que também existe no vanilla. O global
+   underover é extra cristalina a adjudicar separadamente. Inferência:
+   pode ser conveniência histórica; refutação seria L0 ou uso real que
+   estabeleça outra finalidade. A medição não prova remoção segura.
+2. No cristalino, typst eval de
+   (math.cancel == cancel, repr(math.cancel), repr(cancel),
+   repr(math.cancel([x])), repr(cancel([x]))) devolveu
+   (false, cancel, cancel, cancel(body: [x]), cancel(body: [x]));
+   no vanilla, repr(math.cancel([x])) também devolveu cancel(body: [x]).
+   A forma JSON exata da primeira sonda foi
+   [false,"cancel","cancel","cancel(body: [x])","cancel(body: [x])"].
+   O qualificado usa nome nativo math.cancel em
+   01_core/src/compiler/stdlib/structural/math.rs:2856-2861; o global
+   usa cancel em 01_core/src/compiler/eval/mod.rs:8387-8390;
+   Func::PartialEq compara nomes em
+   01_core/src/entities/func.rs:375-396. A sonda completa de P1488
+   encontrou igualdade true nas outras 16 das 17 rotas math globais;
+   cancel é a exceção. Retificação: a alegação genérica de P1474 §2.1
+   de identidade por == não vale para todas. A chamada amostrada coincide,
+   mas não certifica todos os argumentos. Inferência de equivalência
+   completa seria refutada por outra chamada, diagnóstico ou contexto
+   que divergisse; manter decisão individual por binding.
+3. P1474 §2.2/§3 classificou calc.log10 como candidato a depreciar e
+   calc.deg/calc.rad como indeterminados. A medição vanilla/cristalino
+   e a decisão explícita MANTER as três como extensões cristalinas já
+   constam em 00_nucleo/diagnosticos/typst-passo-817-relatorio.md:107-116
+   e :177-180; o comentário produtivo confirma em
+   01_core/src/compiler/stdlib/calc.rs:83-91. Não reabrir essa decisão
+   apenas por redundância aritmética ou ausência no vanilla. Inferência:
+   o L0 calc vigente talvez não expresse a preservação tão claramente
+   quanto o relatório P817; refutação é cláusula L0 incompatível ou nova
+   decisão explícita do dono. Qualquer alteração exige reconciliação L0.
+4. As nove rotas counter_*/state_* e replace têm contrato L0, ao
+   contrário da hipótese de vazamento sem owner: ver
+   00_nucleo/prompts/compiler/stdlib/counter.md:213-221,
+   state.md:187-196 e text/case.md:29-43. Para state_at/state_final,
+   state.md:20-32 ainda veda substituir a semântica global None pelo
+   método moderno que usa init no replay. Preservar essas rotas na fase
+   diagnóstica; não afirmar que o método canônico é substituto compatível.
+   Inferência: exposição pública e helper Rust interno talvez possam
+   separar-se; refutação é uso externo ou comportamento linguístico
+   dependente do binding. Remoção exigiria L0 causal e ADR-0127.
+5. O total 42 acima é fotografia histórica que inclui asset como extra.
+   O gate de bundle foi especificado em
+   00_nucleo/prompts/compiler/eval.md:180-212. P1487 mediu 47/48
+   EXTRA_BINDING brutos em default/html, respectivamente
+   (00_nucleo/diagnosticos/typst-p1487-recalibracao.md:143-156), contra
+   48/49 históricos. Em P1488, dois passes completos dos seis perfis
+   default, html, a11y-extras, html+a11y, bundle e html+bundle foram
+   gerados sequencialmente com os extratores release P1487 e os binários
+   acima em /tmp/p1488-inventory-codex-20260924.T6k2u0; 18/18 pares
+   vanilla/crystal/inventory dos passes 1 e 2 foram idênticos byte a
+   byte. Após excluir os 6/7 defaults format.* conforme o perfil, os
+   seis catálogos atuais dão 41 rotas exatas, conjunto histórico das 42
+   menos asset, sem rota nova. A lista atual não é uma autorização de
+   depreciação: 10 extensões previamente deliberadas, 3 calc mantidas
+   por P817, 10 rotas counter/state/replace contratadas, e 18 globais
+   math/underover ainda sujeitos a decisão por binding. Inferência:
+   presença extra no catálogo não implica defeito da linguagem;
+   refutação para qualquer rótulo de intenção exige L0 e sonda
+   funcional, não só contagem de chaves.
+
+Nenhum código produtivo nem binding foi alterado por este adendo. O gate
+de P1488 §2.4/ADR-0127 permanece: confirmar com o dono antes de qualquer
+remoção pública, com L0 e plano de compatibilidade por owner, depois
+testes RED→GREEN e revalidação.

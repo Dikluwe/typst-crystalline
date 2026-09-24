@@ -1343,14 +1343,8 @@ pub fn repr_content(c: &Content) -> String {
         Content::ContextBlock(_) => "context()".to_string(),
         Content::Dynamic(_) => "dynamic".to_string(),
         Content::SetPage { .. } => "setpage".to_string(),
-        Content::Document { title, .. } => {
-            if let Some(t) = title {
-                format!("document[{}]", repr_content(t))
-            } else {
-                "document".to_string()
-            }
-        }
-        Content::Asset { path, .. } => format!("asset(\"{}\")", path.as_str()),
+        Content::Document { path, body, .. } => format!("document(path: \"{}\", body: {})", path, repr_content(body)),
+        Content::Asset { path, data } => format!("asset(path: \"{}\", data: bytes({}))", path, data.len()),
         Content::PdfAttach(e) => format!("pdf.attach(\"{}\")", e.path),
         Content::PdfArtifact(e) => {
             if e.kind == crate::entities::elements::pdf_artifact::ArtifactKind::Other {

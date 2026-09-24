@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 27dc5c47
+//! @prompt-hash 394bcae0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -855,6 +855,9 @@ pub struct Page {
     pub width: f64,
     /// Altura da página no momento em que foi fechada.
     pub height: f64,
+    /// **P1486** — número lógico validado da página; pode diferir do físico
+    /// após `counter(page).update`. O PDF usa-o só para rótulos com padrão.
+    pub logical_number: usize,
     /// **P532** — padrão de numeração automática activo na página.
     pub numbering: Option<crate::entities::numbering::Numbering>,
     pub supplement: crate::entities::content::Content,
@@ -1413,6 +1416,7 @@ mod tests {
             width: 595.28,
             height: 841.89,
             numbering: None,
+            logical_number: 1,
             supplement: crate::entities::content::Content::Empty,
             bleed: Default::default(),
             fill: Default::default(),
@@ -1428,6 +1432,7 @@ mod tests {
             width: 595.28,
             height: 841.89,
             numbering: None,
+            logical_number: 1,
             supplement: crate::entities::content::Content::Empty,
             bleed: Default::default(),
             fill: Default::default(),

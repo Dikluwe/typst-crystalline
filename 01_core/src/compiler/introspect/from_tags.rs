@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash ed951f3d
+//! @prompt-hash 70b8a9f6
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -160,8 +160,6 @@ pub fn apply_counter_funcs(
     engine: &mut Engine<'_>,
     ctx: &mut EvalContext,
 ) -> SourceResult<()> {
-    use crate::entities::value::Value;
-
     let mut scopes = Scopes::new(None);
     for tag in tags {
         let Tag::Start(loc, info) = tag else { continue };
@@ -176,42 +174,109 @@ pub fn apply_counter_funcs(
         {
             continue;
         }
+        apply_counter_func_at(key, func, *loc, intr, &mut scopes, engine, ctx)?;
+    }
+    Ok(())
+}
 
-        let current = intr.counters.value_at(key, *loc).unwrap_or(&[0]);
-        let inputs = current.iter().map(|value| Value::Int(*value as i64)).collect();
-        let result =
-            apply_func(func.clone(), Args::positional(inputs), &mut scopes, ctx, engine)?;
-        let state = match result {
-            Value::Int(value) if value >= 0 => vec![value as usize],
-            Value::Array(values) => values
-                .into_iter()
-                .map(|value| match value {
-                    Value::Int(value) if value >= 0 => Ok(value as usize),
-                    other => Err(vec![
-                        crate::entities::source_result::SourceDiagnostic::error(
-                            crate::entities::span::Span::detached(),
-                            format!(
-                                "counter update function returned {} instead of integer",
-                                other.type_name()
-                            ),
-                        ),
-                    ]),
-                })
-                .collect::<SourceResult<Vec<_>>>()?,
-            other => {
-                return Err(vec![
+/// No bundle, o walk puro já registrou Set/Step, mas Func só pode ser
+/// avaliada com Engine. Reconstruir exclusivamente Page evita inserir
+/// snapshots antigos após a fronteira do body seguinte.
+pub(crate) fn apply_bundle_counter_funcs(
+    tags: &[Tag],
+    bodies: &[(crate::entities::location::Location, std::ops::Range<usize>)],
+    intr: &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<()> {
+    use crate::entities::counter::CounterKey;
+
+    intr.counters.clear_page_snapshots();
+    let mut scopes = Scopes::new(None);
+    for (boundary, range) in bodies {
+        intr.counters.apply_at(
+            CounterKey::Page,
+            CounterUpdate::Set(vec![1]),
+            *boundary,
+        );
+        for tag in &tags[range.clone()] {
+            let Tag::Start(loc, info) = tag else { continue };
+            let ElementPayload::CounterUpdate { key, action } = &info.payload else {
+                continue;
+            };
+            if *key == CounterKey::Page {
+                match action {
+                    CounterUpdate::Set(values) => intr.counters.apply_at(
+                        CounterKey::Page,
+                        CounterUpdate::Set(values.clone()),
+                        *loc,
+                    ),
+                    CounterUpdate::Step(level) => intr.counters.apply_at(
+                        CounterKey::Page,
+                        CounterUpdate::Step(*level),
+                        *loc,
+                    ),
+                    CounterUpdate::Func(func) => {
+                        apply_counter_func_at(key, func, *loc, intr, &mut scopes, engine, ctx)?;
+                    }
+                }
+            } else if let CounterUpdate::Func(func) = action {
+                if matches!(key, CounterKey::Selector(selector)
+                    if crate::compiler::eval::operators::equality::selector_contains_element(selector))
+                {
+                    continue;
+                }
+                apply_counter_func_at(key, func, *loc, intr, &mut scopes, engine, ctx)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn apply_counter_func_at(
+    key: &crate::entities::counter::CounterKey,
+    func: &crate::entities::func::Func,
+    loc: crate::entities::location::Location,
+    intr: &mut TagIntrospector,
+    scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<()> {
+    use crate::entities::value::Value;
+
+    let current = intr.counters.value_at(key, loc).unwrap_or(&[0]);
+    let inputs = current.iter().map(|value| Value::Int(*value as i64)).collect();
+    let result = apply_func(func.clone(), Args::positional(inputs), scopes, ctx, engine)?;
+    let state = match result {
+        Value::Int(value) if value >= 0 => vec![value as usize],
+        Value::Array(values) => values
+            .into_iter()
+            .map(|value| match value {
+                Value::Int(value) if value >= 0 => Ok(value as usize),
+                other => Err(vec![
                     crate::entities::source_result::SourceDiagnostic::error(
                         crate::entities::span::Span::detached(),
                         format!(
+                            "counter update function returned {} instead of integer",
+                            other.type_name()
+                        ),
+                    ),
+                ]),
+            })
+            .collect::<SourceResult<Vec<_>>>()?,
+        other => {
+            return Err(vec![
+                crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    format!(
                         "counter update function returned {} instead of integer or array",
                         other.type_name()
                     ),
-                    ),
-                ])
-            }
-        };
-        intr.counters.apply_at(key.clone(), CounterUpdate::Set(state), *loc);
-    }
+                ),
+            ])
+        }
+    };
+    intr.counters.apply_at(key.clone(), CounterUpdate::Set(state), loc);
     Ok(())
 }
 

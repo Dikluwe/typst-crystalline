@@ -41,6 +41,7 @@ fn page(items: Vec<FrameItem>) -> Page {
         width: 100.0,
         height: 120.0,
         numbering: None,
+        logical_number: 1,
         supplement: Content::Empty,
         bleed: Default::default(),
         fill: Default::default(),

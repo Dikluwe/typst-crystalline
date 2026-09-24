@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash e3f308de
+//! @prompt-hash 201f1365
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -50,7 +50,7 @@ use crate::entities::{
     label::Label,
     label_kind::UnreferencableKind,
     location::Location,
-    locator::Locator,
+    locator::{Locator, LocatorSeed},
     selector::Selector,
     state_update::StateUpdate,
     style_chain::StyleChain,
@@ -770,6 +770,112 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     intr
 }
 
+/// Percorre os documentos do bundle numa única sequência causal e registra
+/// o início de cada body antes de nele entrar.
+pub fn introspect_bundle_documents_with_starts(
+    bodies: &[Content],
+) -> (TagIntrospector, Vec<LocatorSeed>) {
+    let keys = bodies.iter().fold(std::collections::HashSet::new(), |mut keys, body| {
+        keys.extend(collect_bib_keys(body));
+        keys
+    });
+    let mut locator = Locator::new();
+    let mut starts = Vec::with_capacity(bodies.len());
+    let mut tags = Vec::new();
+    let mut intr = TagIntrospector::empty();
+    let mut auto_label_counter = 0;
+    let root_chain = StyleChain::default_chain();
+    let root_lang = root_chain.lang();
+    for body in bodies {
+        let seed = locator.checkpoint();
+        let boundary = Locator::from_seed(seed).next();
+        starts.push(seed);
+        // Fronteira lógica: o próximo Location é observado, não consumido.
+        intr.counters.apply_at(
+            CounterKey::Page,
+            CounterUpdate::Set(vec![1]),
+            boundary,
+        );
+        let converted = if keys.is_empty() {
+            body.clone()
+        } else {
+            convert_refs(body.clone(), &keys)
+        };
+        walk(
+            &converted,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            root_lang.as_ref(),
+            &root_chain,
+            None,
+        );
+    }
+    materialize_outline_entries(&mut locator, &mut intr);
+    intr.parent_locations = build_parent_index(&tags);
+    (intr, starts)
+
+}
+
+/// Introspecta todos os bodies do bundle com os mesmos inícios causais do
+/// caminho puro e resolve callbacks Page na faixa do próprio documento.
+pub fn introspect_bundle_documents_with_runtime_and_starts(
+    bodies: &[Content],
+    engine: &mut crate::entities::engine::Engine<'_>,
+    ctx: &mut crate::compiler::eval::EvalContext,
+) -> crate::entities::source_result::SourceResult<(TagIntrospector, Vec<LocatorSeed>)> {
+    let keys = bodies.iter().fold(std::collections::HashSet::new(), |mut keys, body| {
+        keys.extend(collect_bib_keys(body));
+        keys
+    });
+    let mut locator = Locator::new();
+    let mut starts = Vec::with_capacity(bodies.len());
+    let mut body_tags = Vec::with_capacity(bodies.len());
+    let mut tags = Vec::new();
+    let mut intr = TagIntrospector::empty();
+    let mut auto_label_counter = 0;
+    let root_chain = StyleChain::default_chain();
+    let root_lang = root_chain.lang();
+    for body in bodies {
+        let seed = locator.checkpoint();
+        let boundary = Locator::from_seed(seed).next();
+        starts.push(seed);
+        intr.counters.apply_at(
+            CounterKey::Page,
+            CounterUpdate::Set(vec![1]),
+            boundary,
+        );
+        let first_tag = tags.len();
+        let converted = if keys.is_empty() {
+            body.clone()
+        } else {
+            convert_refs(body.clone(), &keys)
+        };
+        walk(
+            &converted,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            root_lang.as_ref(),
+            &root_chain,
+            None,
+        );
+        body_tags.push((boundary, first_tag..tags.len()));
+    }
+    materialize_outline_entries(&mut locator, &mut intr);
+    intr.parent_locations = build_parent_index(&tags);
+    from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_bundle_counter_funcs(&tags, &body_tags, &mut intr, engine, ctx)?;
+    from_tags::apply_state_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_counter_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_equation_numberings(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
+    from_tags::realize_equation_elements(&tags, &mut intr);
+    Ok((intr, starts))
+}
+
 /// Introspecção sobre `Content` final com os pós-processadores que requerem
 /// runtime de avaliação. Não reavalia o documento.
 pub fn introspect_with_runtime(
@@ -816,6 +922,7 @@ fn materialize_outline_entries(locator: &mut Locator, intr: &mut TagIntrospector
     let outlines = intr.outline_elements.clone();
     let headings = intr.headings_for_toc.clone();
     let heading_locations = intr.outlined_heading_locations.clone();
+
     for outline in outlines {
         if outline.target != OutlineTarget::Headings {
             continue;
@@ -1194,7 +1301,10 @@ fn materialize_time(
         ),
 
         // P397 — Document recursa no title; Asset é terminal.
-        Content::Document { title, author, date, keywords } => Content::Document {
+        Content::Document { path, body, format, title, author, date, keywords } => Content::Document {
+            path: path.clone(),
+            body: Box::new(materialize_time(body, intr, location)),
+            format: format.clone(),
             title: title.as_ref().map(|t| Box::new(materialize_time(t, intr, location))),
             author: author.clone(),
             date: *date,
@@ -5707,5 +5817,71 @@ mod tests {
         // O path interno de introspecção também deve aplicar a conversão.
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.citation_order(), &["k2", "k1"]);
+    }
+
+    #[test]
+    fn p1485_bundle_starts_preservam_locations_e_entradas_vazias() {
+        let bodies = vec![
+            Content::heading_numbered(1, Content::text("Alpha")),
+            Content::Empty,
+            Content::heading_numbered(1, Content::text("Beta")),
+        ];
+        let (global, starts) = introspect_bundle_documents_with_starts(&bodies);
+        let canonical = super::introspect_with_introspector(&Content::sequence(bodies));
+        assert_eq!(starts.len(), 3);
+        assert_eq!(starts[1], starts[2]);
+        let headings = global.query_by_kind(ElementKind::Heading);
+        assert_eq!(headings.len(), 2);
+        assert_eq!(crate::entities::locator::Locator::from_seed(starts[0]).next(), headings[0]);
+        assert_eq!(crate::entities::locator::Locator::from_seed(starts[2]).next(), headings[1]);
+        assert_eq!(headings, canonical.query_by_kind(ElementKind::Heading));
+    }
+
+    #[test]
+    fn p1485_bundle_starts_cobrem_styled_outline_label_ref_e_counter() {
+        let bodies = vec![
+            Content::Styled(
+                Box::new(Content::label_auto(
+                    "alpha".to_owned(),
+                    Content::heading_numbered(1, Content::text("Alpha")),
+                )),
+                crate::entities::style::Styles::new(),
+            ),
+            Content::outline(),
+            Content::sequence(vec![
+                Content::reference("alpha"),
+                Content::heading_numbered(1, Content::text("Beta")),
+            ]),
+        ];
+        let (global, starts) = introspect_bundle_documents_with_starts(&bodies);
+        let canonical = super::introspect_with_introspector(&Content::sequence(bodies));
+        let first = |seed| crate::entities::locator::Locator::from_seed(seed).next().as_u128();
+        assert!(first(starts[0]) < first(starts[1]));
+        assert!(first(starts[1]) < first(starts[2]));
+        assert_eq!(global.outline_elements.len(), canonical.outline_elements.len());
+        assert_eq!(global.headings_for_toc.len(), canonical.headings_for_toc.len());
+        assert_eq!(global.outlined_heading_locations, canonical.outlined_heading_locations);
+        assert_eq!(global.outline_elements[0].target, canonical.outline_elements[0].target);
+        assert_eq!(global.outline_elements[0].depth, canonical.outline_elements[0].depth);
+        assert_eq!(canonical.outline_elements[0].target, crate::entities::elements::outline::OutlineTarget::Headings);
+        assert!(canonical.outline_elements[0].depth >= 1);
+        assert!(canonical.outlined_heading_locations.iter().all(|loc| canonical.elements.contains_key(loc)));
+        assert!(canonical.headings_for_toc.iter().all(|entry| entry.3 <= canonical.outline_elements[0].depth));
+        assert_eq!(
+            global.headings_for_toc.iter().map(|entry| entry.3).collect::<Vec<_>>(),
+            canonical.headings_for_toc.iter().map(|entry| entry.3).collect::<Vec<_>>(),
+        );
+        let keys = |intr: &TagIntrospector| intr.elements.keys().copied().collect::<std::collections::HashSet<_>>();
+        assert_eq!(keys(&global), keys(&canonical));
+        assert_eq!(global.kind_index, canonical.kind_index);
+        assert_eq!(global.parent_locations, canonical.parent_locations);
+        assert_eq!(
+            global.query_by_label(&Label("alpha".to_owned())),
+            canonical.query_by_label(&Label("alpha".to_owned())),
+        );
+        let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+        let counter = global.counter_final_values(&heading_key);
+        assert!(counter.is_some());
+        assert_eq!(counter, canonical.counter_final_values(&heading_key));
     }
 }

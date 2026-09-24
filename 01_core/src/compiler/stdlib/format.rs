@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/format.md
-//! @prompt-hash 8a61f311
+//! @prompt-hash 78ee2c0e
 //! @layer L1
 //! @updated 2026-09-20
 
@@ -40,7 +40,7 @@ fn projected_html_function(html_scope: &Scope, name: &str) -> Value {
     Value::Func(function.clone())
 }
 
-pub(crate) fn make_format_module(pdf: &Value, html: &Value) -> Module {
+pub(crate) fn make_format_module(pdf: &Value, html: &Value, asset: &Value) -> Module {
     let Value::Func(pdf) = pdf else {
         panic!("format.pdf composition requires the effective pdf function");
     };
@@ -125,6 +125,14 @@ pub(crate) fn make_format_module(pdf: &Value, html: &Value) -> Module {
             Arc::new(html_namespace),
         )),
     );
+    let mut bundle_namespace = Scope::new();
+    bundle_namespace.define("asset", asset.clone());
+    scope.define(
+        "bundle",
+        Value::Func(Func::native_with_namespace(
+            "bundle", native_format, Arc::new(bundle_namespace),
+        )),
+    );
     Module::new("format", scope)
 }
 
@@ -136,24 +144,25 @@ mod tests {
     use crate::entities::compiler_features::Features;
     use crate::entities::value::Value;
 
-    fn make_default_format_module() -> Module {
+    fn make_default_format_module() -> (Module, Value) {
         let pdf = make_pdf_module(Features::empty());
         let html = make_html_module();
-        make_format_module(&pdf, &html)
+        let asset = Value::Func(Func::native("asset", crate::compiler::stdlib::structural::native_asset));
+        (make_format_module(&pdf, &html, &asset), asset)
     }
 
     #[test]
     fn u01_format_module_has_exact_name() {
-        let module = make_default_format_module();
+        let (module, _) = make_default_format_module();
 
         assert_eq!(module.name(), "format");
     }
 
     #[test]
-    fn p1465_format_module_exposes_svg_png_pdf_and_html() {
-        let module = make_default_format_module();
+    fn p1485_format_module_exposes_four_formats_and_bundle_asset_identity() {
+        let (module, asset) = make_default_format_module();
 
-        assert_eq!(module.scope().len(), 4);
+        assert_eq!(module.scope().len(), 5);
         let Value::Func(svg) = module.scope().get("svg").expect("format.svg") else {
             panic!("format.svg must be a function");
         };
@@ -194,6 +203,13 @@ mod tests {
                 "format.html.{name}"
             );
         }
+        let Value::Func(bundle) = module.scope().get("bundle").expect("format.bundle") else {
+            panic!("format.bundle must be a function");
+        };
+        assert_eq!(bundle.name(), Some("bundle"));
+        let namespace = bundle.namespace().expect("format.bundle namespace");
+        assert_eq!(namespace.len(), 1);
+        assert_eq!(namespace.get("asset"), Some(&asset));
     }
 }
 

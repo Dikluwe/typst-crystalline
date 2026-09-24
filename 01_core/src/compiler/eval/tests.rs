@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash b160f84a
+//! @prompt-hash b48f8259
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -21228,6 +21228,117 @@ mod tests {
             let (result, warnings) = eval_expression(&world, expression);
             assert!(warnings.is_empty(), "{warnings:?}");
             assert_eq!(result.expect(expression), Value::Str(expected.into()));
+        }
+    }
+
+    #[test]
+    fn p1484_asset_default_gate_and_local_shadowing_red() {
+        for (expression, message, span) in [
+            (
+                "asset",
+                "cannot access variable `asset` because the `bundle` feature is not enabled",
+                0..5,
+            ),
+            (
+                "std.asset",
+                "cannot access field `asset` because the `bundle` feature is not enabled",
+                4..9,
+            ),
+        ] {
+            let observation = p1303_observe(expression, Features::empty());
+            assert!(observation.lateral.is_empty(), "{expression}: {observation:?}");
+            let P1303Outcome::Failure(errors) = observation.outcome else {
+                panic!("{expression} deve falhar com o gate bundle");
+            };
+            assert_eq!(errors.len(), 1, "{expression}: {errors:?}");
+            assert_eq!(errors[0].message, message, "{expression}");
+            assert_eq!(errors[0].span, Some(span), "{expression}");
+            assert_eq!(
+                errors[0].hints,
+                [
+                    "try enabling the `bundle` feature",
+                    "see https://typst.app/help/compiler-features for more details",
+                ],
+                "{expression}",
+            );
+        }
+
+        let local = p1303_observe("{ let asset = 1; asset }", Features::empty());
+        assert!(local.lateral.is_empty(), "{local:?}");
+        assert_eq!(local.outcome, P1303Outcome::Success(Value::Int(1)));
+        let homonym = p1303_observe("{ let std = (asset: 1); std.asset }", Features::empty());
+        assert_eq!(homonym.outcome, P1303Outcome::Success(Value::Int(1)));
+        let alias = p1303_observe("{ let s = std; s.asset }", Features::empty());
+        let P1303Outcome::Failure(errors) = alias.outcome else {
+            panic!("alias de std efetivo deve conservar o gate");
+        };
+        assert_eq!(errors[0].message, "cannot access field `asset` because the `bundle` feature is not enabled");
+    }
+    #[test]
+    fn p1485_asset_oito_perfis_e_aliases() {
+        for mask in 0..8 {
+            let mut features = Features::empty();
+            if mask & 1 != 0 { features.enable(Feature::Html); }
+            if mask & 2 != 0 { features.enable(Feature::A11yExtras); }
+            if mask & 4 != 0 { features.enable(Feature::Bundle); }
+            for (expression, gated) in [
+                ("asset", "cannot access variable `asset` because the `bundle` feature is not enabled"),
+                ("std.asset", "cannot access field `asset` because the `bundle` feature is not enabled"),
+                ("format.bundle", "cannot access field `bundle` because the `bundle` feature is not enabled"),
+            ] {
+                let observation = p1303_observe(expression, features);
+                assert!(observation.lateral.is_empty(), "mask {mask}: {observation:?}");
+                if mask & 4 == 0 {
+                    let P1303Outcome::Failure(errors) = observation.outcome else {
+                        panic!("mask {mask}: {expression} deve ter gate bundle");
+                    };
+                    assert_eq!(errors.len(), 1, "mask {mask}: {expression}");
+                    assert_eq!(errors[0].message, gated, "mask {mask}: {expression}");
+                } else {
+                    let P1303Outcome::Success(Value::Func(_)) = observation.outcome else {
+                        panic!("mask {mask}: {expression} deve resolver função: {observation:?}");
+                    };
+                }
+            }
+            let local = p1303_observe("{ let asset = 1; asset }", features);
+            assert_eq!(local.outcome, P1303Outcome::Success(Value::Int(1)), "mask {mask}");
+            if mask & 4 != 0 {
+                let aliases = p1303_observe(
+                    "(asset == std.asset, asset == format.bundle.asset, repr(format.bundle), repr(asset(\"a/../b.txt\", bytes((0, 255)))))",
+                    features,
+                );
+                assert_eq!(
+                    aliases.outcome,
+                    P1303Outcome::Success(Value::Array(vec![
+                        Value::Bool(true),
+                        Value::Bool(true),
+                        Value::Str("bundle".into()),
+                        Value::Str("asset(path: \"/b.txt\", data: bytes(2))".into()),
+                    ])),
+                    "mask {mask}: {aliases:?}",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn p1485_asset_argumentos_rejeitados() {
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        for (expression, expected) in [
+            ("asset(\"x\")", "missing argument: data"),
+            ("asset(\"x\", 1)", "expected string or bytes, found integer"),
+            ("asset(1, \"x\")", "expected string, found integer"),
+            ("asset(\"x\", \"y\", kind: \"png\")", "unexpected argument: kind"),
+            ("asset(\"\", \"x\")", "path must have at least one component"),
+            ("asset(\".\", \"x\")", "path must have at least one component"),
+        ] {
+            let observation = p1303_observe(expression, features);
+            let P1303Outcome::Failure(errors) = observation.outcome else {
+                panic!("{expression} devia falhar: {observation:?}");
+            };
+            assert_eq!(errors.len(), 1, "{expression}: {errors:?}");
+            assert_eq!(errors[0].message, expected, "{expression}");
         }
     }
 }

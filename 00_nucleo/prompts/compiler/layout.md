@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 79da2520
+Hash do Código: 0dba777a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -697,3 +697,95 @@ Capturar regra top-level mesmo se não houver glifos; conservar overrides
 locais em `TextStyle.lang`. O campo público exige aprovação
 ADR-0127. A captura ocorre no layout existente: nenhuma decisão de
 idioma é movida entre eval e layout, nenhuma fonte externa é consultada.
+
+## P1485.2 — origem de Locations em layout multi-documento (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree P1485 não commitada sobre
+`bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`layout_with_introspector_and_metrics_and_callbacks`
+(`01_core/src/compiler/layout/mod.rs:3327-3450`) recebe o
+introspector global por valor e cria `Layouter::new` em cada
+iteração (`:3423-3424`); `Layouter.locator` inicia sempre em zero
+(`:1108`). O introspector do bundle já conhece os dois headings
+em Locations globais distintas. Com `#set heading(numbering: "1.")`,
+o vanilla pinado extrai `1. Alpha` de `a.pdf` e `2. Beta` de
+`b.pdf`; o cristalino extrai `1. Alpha` e `1. Beta`.
+A diferença é semântica da linguagem, não byte de PDF.
+Classificação ADR-0107: o texto numerado é semântica da
+linguagem; o valor numérico de `Location` e a forma da entrypoint
+são mecânica. O vanilla mede a continuidade, mas não legitima
+copiar seu `SplitLocator`. Inferência: iniciar cada iteração no
+checkpoint do walk global conserva a associação a counters/refs.
+Refutação: heading aninhado, fixpoint ou callback produzir Location
+distinta da introspecção apesar do seed correto.
+
+
+### Contrato público ratificado
+
+Adicionar uma entrypoint irmã
+`layout_with_introspector_and_metrics_and_callbacks_from` com a
+mesma assinatura vigente mais `location_start: LocatorSeed`.
+A entrypoint existente delega ao início zero e conserva resultados
+e API. A nova instala `Locator::from_seed(location_start)` em
+**cada** nova iteração de `Layouter` antes de `layout_content`,
+incluindo fixpoint, replay e callbacks; não avança artificialmente
+o conteúdo, não insere marcadores invisíveis e não altera a ordem
+de páginas. O seed é fornecido pela entrypoint proprietária de
+`compiler/introspect.md`, nunca por contagem ad hoc em L3.
+
+Aceitação: dois bodies paginados e um body HTML intercalado mantêm
+Locations/numeração globais; layout individual pela API antiga é
+idêntico ao anterior; fixpoint, labels, refs, counters, outline,
+equações e contextos não observam colisões nem offsets trocados.
+Repetir o mesmo body/seed no mesmo fixpoint é determinístico.
+A assinatura pública L1 teve o gate ADR-0127 confirmado
+pelo dono em 2026-09-24.
+## P1486 — número lógico inicial da página
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/mod.rs:2650-2665` fecha a última
+`Page` após calcular `page_number = self.pages.len() + 1`.
+`entities/layout_types.md` P1486 introduz o campo público já
+confirmado em 2026-09-24; a realização posterior do número lógico
+pertence a `infra/pipeline.md` P1486. Número mostrado no leitor PDF é
+observável; a inicialização física antes do snapshot é mecânica.
+
+### Decisão
+
+A página final nasce com `logical_number: page_number`. L1 não
+consulta o `PageStore` realizado nem antecipa `counter(page).update`;
+L3 substitui pelo número lógico validado antes do exportador.
+Nenhuma mudança de geometria, texto desenhado ou fase de layout.
+
+## P1486.1 — margem automática usa o número lógico realizado
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/typst-p1486-page-labels.md` registra a sonda
+bilateral: com `counter(page).update(10)` e seleção 1+3, ambos os leitores
+mostram rótulos PDF `10, 12`, mas `pdftotext` extrai margem `1, 3` no
+cristalino e `10, 12` no vanilla pinado. Neste owner, `finish` usa
+`page_number = self.pages.len() + 1` para `format_counter` e para o
+pending de padrões compostos (`01_core/src/compiler/layout/mod.rs:2516-2584,
+2670-2695`), ignorando `runtime.known_page_store.logical_number_for_page`.
+O texto da margem é observável de linguagem; o momento de injeção da store
+é mecânica. A inferência de que a store final corrige a margem sozinha foi
+refutada pela sonda. Uma página sem store realizada deve manter o fallback
+físico; divergência de paginação na passagem final refutaria um snapshot
+anterior não alinhado.
+
+### Decisão
+
+Ao desenhar a margem automática de `Numbering::Pattern`, usar o número
+lógico da `known_page_store` para a página local quando disponível, e o
+físico apenas antes da realização. Para padrões compostos, preservar o
+adiamento mas usar o número lógico da página e o último número lógico
+realizado como total; sem store, conservar a fórmula física anterior.
+Recalcular a largura e a posição a partir do texto novo, sem substituir
+camadas explícitas. A inicialização física de `Page.logical_number` é
+provisória e continua inalterada. Esta correção de paridade supersede só
+a cláusula histórica acima que excluía mudança do texto desenhado; não
+introduz API pública, modo novo nem outra fase de layout.

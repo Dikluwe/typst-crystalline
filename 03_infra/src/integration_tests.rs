@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash 1d0d95df
+//! @prompt-hash 268c6a32
 //! @layer L3
 //! @updated 2026-04-03 (Passo 34)
 
@@ -1738,10 +1738,10 @@ mod integration {
 
     #[test]
     fn document_metadata_nao_emite_frames_no_pdf() {
-        // #document(title: [Hello]) é metadata pura — o PDF deve ser vazio
+        // #set document(title: "Hello") é metadata pura — o PDF deve ser vazio
         // (apenas estrutura, sem stream de conteúdo com operadores de texto).
         let (world, _dir) = world_from_str(
-            "#document(title: [Hello], author: \"Ana\", keywords: (\"a\", \"b\"))",
+            "#set document(title: \"Hello\", author: \"Ana\", keywords: (\"a\", \"b\"))",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -1757,19 +1757,22 @@ mod integration {
     }
 
     #[test]
-    fn asset_placeholder_nao_emite_frames_no_pdf() {
-        // #asset("logo.png") é placeholder — não deve emitir conteúdo.
+    fn p1484_asset_sem_bundle_emite_gate_no_eval() {
         let (world, _dir) = world_from_str("#asset(\"logo.png\")");
         let source = world.source(world.main()).unwrap();
-        let module = do_eval(&world, &source).unwrap();
-        let content = module.content().expect("deve ter content");
-        let _state = introspect(content);
-        let doc = layout(content);
-        let pdf = export_pdf(&doc, StreamMode::Verbose);
-        let pdf_str = String::from_utf8_lossy(&pdf);
-
-        assert!(!pdf_str.contains("Tj"), "Asset não deve emitir texto");
-        assert!(!pdf_str.contains(" re\n"), "Asset não deve emitir shapes");
+        let errors = do_eval(&world, &source).expect_err("asset sem bundle deve falhar");
+        assert_eq!(errors.len(), 1);
+        assert_eq!(
+            errors[0].message,
+            "cannot access variable `asset` because the `bundle` feature is not enabled",
+        );
+        assert_eq!(
+            errors[0].hints,
+            [
+                "try enabling the `bundle` feature",
+                "see https://typst.app/help/compiler-features for more details",
+            ],
+        );
     }
 
     // ── Passo 398 — read binário + Value::Bytes ───────────────────────────────

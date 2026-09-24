@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash ad085162
+//! @prompt-hash fe85f7f2
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -65,6 +65,7 @@ mod p1360_ab_tests {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            logical_number: 1,
             supplement: typst_core::entities::content::Content::Empty,
             bleed: Default::default(),
             fill: Default::default(),
@@ -1064,6 +1065,7 @@ impl PdfBuilder {
             width: pdf_defaults::A4_DEFAULT_WIDTH,
             height: pdf_defaults::A4_DEFAULT_HEIGHT,
             numbering: None,
+            logical_number: 1,
             supplement: typst_core::entities::content::Content::Empty,
             bleed: Default::default(),
             fill: Default::default(),
@@ -1250,6 +1252,7 @@ impl PdfBuilder {
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         self.emit_pdfua_viewer_preferences();
+        self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1670,6 +1673,7 @@ impl PdfBuilder {
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         self.emit_pdfua_viewer_preferences();
+        self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -2215,6 +2219,7 @@ impl PdfBuilder {
         self.emit_xmp_metadata(doc);
         self.emit_tag_structure(doc);
         self.emit_pdfua_viewer_preferences();
+        self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -4133,6 +4138,47 @@ impl PdfBuilder {
         }
     }
 
+    /// **P1486** — number tree de rótulos da sequência exportada. O índice
+    /// da tree é o novo índice PDF, mas o valor vem da página Typst original.
+    fn emit_page_labels(&mut self, doc: &PagedDocument) {
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let skipped = pic.exported_count() < doc.pages.len();
+        let labels: Vec<(usize, String)> = doc
+            .pages
+            .iter()
+            .enumerate()
+            .filter_map(|(old_index, page)| {
+                let new_index = pic.new_index(old_index)?;
+                let dict = page_label_dict(page).or_else(|| {
+                    skipped.then(|| {
+                        format!(
+                            "<< /Type /PageLabel /S /D /St {} >>",
+                            old_index + 1
+                        )
+                    })
+                })?;
+                Some((new_index, dict))
+            })
+            .collect();
+        if labels.is_empty() {
+            return;
+        }
+
+        // Todos os outros objetos (incluindo tagging, PDF/A e PDF/UA) já foram
+        // emitidos. Alocar após o máximo real evita colisões com ranges vazios
+        // e com reservas de IDs dos outros domínios.
+        let tree_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let mut nums = Vec::with_capacity(labels.len());
+        for (entry, (new_index, dict)) in labels.into_iter().enumerate() {
+            let label_id = tree_id + entry + 1;
+            nums.push(format!("{new_index} {label_id} 0 R"));
+            self.add(label_id, dict);
+        }
+        self.add(tree_id, format!("<< /Nums [{}] >>", nums.join(" ")));
+        if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            insert_pdf_dict_entry(catalog, &format!(" /PageLabels {tree_id} 0 R"));
+        }
+    }
     /// **P1480** — `/ViewerPreferences /DisplayDocTitle true` no catálogo,
     /// exigido por ISO 14289-1 §7.1 teste 10 (medido em
     /// typst-passo-1480.md §1). Independente de `emit_tag_structure`
@@ -4450,6 +4496,47 @@ fn escape_pdf_dest_name(name: &str) -> String {
     }
 }
 
+fn page_label_dict(page: &typst_core::entities::layout_types::Page) -> Option<String> {
+    let pattern = page.numbering.as_ref()?.as_pattern()?;
+    let (token_index, token) = pattern
+        .char_indices()
+        .find(|(_, ch)| typst_core::entities::counter_format::is_numbering_token(*ch))?;
+    let prefix = &pattern[..token_index];
+    let suffix = &pattern[token_index + token.len_utf8()..];
+    let number = page.logical_number;
+
+    // PDF tem estilos nativos somente para estes sistemas sem sufixo.
+    // Os limites de romano/alfabético seguem o formatter de linguagem:
+    // fora deles, o estilo nativo comunicaria outro rótulo.
+    let style = if suffix.is_empty() && number > 0 {
+        match token {
+            '1' => Some("D"),
+            'i' if number <= 3999 => Some("r"),
+            'I' if number <= 3999 => Some("R"),
+            'a' if number <= 26 => Some("a"),
+            'A' if number <= 26 => Some("A"),
+            _ => None,
+        }
+    } else {
+        None
+    };
+    if let Some(style) = style {
+        let prefix_entry = if prefix.is_empty() {
+            String::new()
+        } else {
+            format!(" /P {}", utf16be_hex_string(prefix))
+        };
+        return Some(format!(
+            "<< /Type /PageLabel /S /{style}{prefix_entry} /St {number} >>"
+        ));
+    }
+
+    let text = typst_core::entities::counter_format::format_counter(&[number], pattern)?;
+    Some(format!(
+        "<< /Type /PageLabel /P {} >>",
+        utf16be_hex_string(&text)
+    ))
+}
 /// Converte uma string para representação PDF UTF-16BE com BOM, em hex.
 /// Resultado: `<FEFF...>` adequado para valores `/Title` em bookmarks.
 fn utf16be_hex_string(s: &str) -> String {

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/tests/mod` — Testes agregadores E2E
-Hash do Código: 351dddba
+Hash do Código: 9348b39d
 
 **Camada**: L3 (apoio — testes)
 **Ficheiro alvo**: `03_infra/src/export/tests/mod.rs`
@@ -127,3 +127,11 @@ fill/stroke/texto, colorants `None`/`All`/nomeado, tint
 0/50/100, reuso de recurso, gradientes e controle processual
 em PDF; verifica fallback dos backends sem spot sem depender
 de bytes PDF exatos.
+
+## P1486 — módulo de testes de rótulos de páginas
+
+Registrar `p1486_pdf_page_labels_tests`, owner test-only próprio
+`infra/export/tests/p1486_pdf_page_labels_tests.md`. O módulo compara os
+rótulos de cada página retida, incluindo contadores lógicos deslocados,
+seleção descontínua e fallback físico; o teste não se satisfaz com a
+presença de `/PageLabels` no catálogo.

@@ -435,3 +435,37 @@ de língua sobre `Value::Func`, não reconstrução Rust-level. Integração
 `p1465_format_module_exposes_svg_png_pdf_and_html`, que ainda chamava
 `global_html.scope()` diretamente. Suíte: 4/4 (2 novos + 2 irmãos). Zero
 regressão nas suítes dependentes (typst-core 6059/6059).
+
+## P1485 — `format.bundle` e projeção de `asset` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, working tree
+P1484 não commitada, `01_core/src/compiler/stdlib/format.rs:43-130`
+constrói apenas svg/png/pdf/html. No vanilla pinado `586e1bd43`,
+`typst-bundle/src/format.rs:15-18,135-158,194-240` registra
+`format.bundle` como elemento de formato com namespace `asset`.
+A sonda medida devolve `(function, bundle, function, asset, function)`
+para kind/repr de `format.bundle`, seu field e o alias global. Chamar
+`format.bundle()` dá `cannot be constructed manually`;
+`format.bundle.asset == asset` é `true`. Sem feature, o field
+`format.bundle` é gated, não simplesmente ausente. Isto é semântica
+pública; estrutura Rust de `Func` e `Scope` é mecânica.
+
+### Decisão proprietária e incompletude
+
+A factory efetiva de `format` acrescenta o membro função nominal
+`bundle`, com namespace contendo exatamente o mesmo `Func asset`
+global quando `Feature::Bundle` está ativa. Não cria um segundo
+constructor, wrapper de identidade distinta, I/O nem compila arquivos.
+Com feature ausente, a raiz `format` continua presente e o acesso
+público a `bundle` é barrado pelo owner
+`00_nucleo/prompts/compiler/eval/bindings/field_access.md`; o field interno não
+legitima acesso. A função `bundle` não é construível manualmente.
+O owner `00_nucleo/prompts/compiler/eval.md` fornece o `asset` efetivo e registra a
+raiz; L3/L4 implementam o target, nunca esta factory.
+
+P1485 somente pode ser declarado funcional junto com o target real e
+`document`/assets emitidos; descoberta de função isolada permanece
+RED. O gate ADR-0127 é obrigatório por novo membro público e mudança
+da assinatura crate-private da factory.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash d2a51a60
+//! @prompt-hash 27775f12
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -629,6 +629,19 @@ pub(crate) fn replay_context_read(
     }
 }
 
+fn page_counter_value(
+    counter: &Counter,
+    location: crate::entities::location::Location,
+    ctx: &EvalContext,
+) -> Option<Vec<usize>> {
+    if !matches!(counter.key, CounterKey::Page) {
+        return None;
+    }
+    let physical = ctx.introspector.page(location)?;
+    let logical = ctx.introspector.page_store.logical_number_for_page(physical)?;
+    Some(vec![logical])
+}
+
 pub fn counter_get(
     counter: &Counter,
     ctx: &EvalContext,
@@ -646,18 +659,7 @@ pub fn counter_get(
             "counter.get() requer uma localização de contexto".to_string(),
         )]);
     };
-    let values = ctx
-        .introspector
-        .counter_values_at(&counter.key, location)
-        .unwrap_or(&[0]);
-    ctx.observe_context_read(
-        crate::compiler::eval::ContextReadRequest::CounterAt {
-            key: counter.key.clone(),
-            location,
-        },
-        span,
-        Ok(state_value(values)),
-    )
+    counter_at_location_recorded(counter, location, ctx, span)
 }
 
 /// Resolve `.display([pattern|callback])` dentro ou fora de context.
@@ -848,10 +850,10 @@ pub fn counter_at(
     span: Span,
 ) -> SourceResult<Value> {
     resolve_counter_location(&Value::Label(label.clone()), ctx, span)?;
-    let values = ctx
-        .introspector
-        .query_by_label(&label)
-        .and_then(|loc| ctx.introspector.counter_values_at(&counter.key, loc))
+    let location = ctx.introspector.query_by_label(&label);
+    let page_value = location.and_then(|loc| page_counter_value(counter, loc, ctx));
+    let values = page_value.as_deref()
+        .or_else(|| location.and_then(|loc| ctx.introspector.counter_values_at(&counter.key, loc)))
         .unwrap_or(&[]);
 
     ctx.observe_context_read(
@@ -884,9 +886,9 @@ fn counter_at_location_recorded(
     ctx: &EvalContext,
     span: Span,
 ) -> SourceResult<Value> {
-    let values = ctx
-        .introspector
-        .counter_values_at(&counter.key, location)
+    let page_value = page_counter_value(counter, location, ctx);
+    let values = page_value.as_deref()
+        .or_else(|| ctx.introspector.counter_values_at(&counter.key, location))
         .unwrap_or(&[0]);
     ctx.observe_context_read(
         crate::compiler::eval::ContextReadRequest::CounterAt {

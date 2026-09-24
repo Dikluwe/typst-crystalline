@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 79886a9b
+//! @prompt-hash bf915db7
 //! @layer L4
 //! @updated 2026-09-21
 //!
@@ -41,6 +41,7 @@ mod eviction;
 // `introspector_call_counts()`.
 
 use std::io::{Read, Write};
+use std::path::Component;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, Instant};
@@ -57,6 +58,7 @@ use typst_infra::pipeline::{
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
+    compile_to_bundle_files, BundleCompileOptions, BundleFile,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{
@@ -65,6 +67,12 @@ use typst_shell::cli::{
 };
 use typst_shell::diagnostic::{format_diagnostic, DiagnosticSource};
 use typst_shell::duration::{format_watch_line, WatchStatus};
+
+const BUNDLE_EXPERIMENTAL_WARNING: &str = concat!(
+    "warning: bundle export is experimental\n",
+    " = hint: its behaviour may change at any time\n",
+    " = hint: do not rely on this feature for production use cases\n\n",
+);
 
 const HTML_EXPERIMENTAL_WARNING: &str = concat!(
     "warning: html export is under active development and incomplete\n",
@@ -334,6 +342,26 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
         return ExitCode::from(2);
     }
 
+    let server = if !intent.no_serve
+        && matches!(intent.compile.output_format, OutputFormat::Html | OutputFormat::Bundle)
+    {
+        match typst_infra::watch::BundleHttpServer::new(
+            &intent.compile.input.display().to_string(),
+            intent.port,
+            !intent.no_reload,
+        ) {
+            Ok(server) => {
+                eprintln!("watching at http://{}/", server.addr());
+                Some(server)
+            }
+            Err(error) => {
+                eprintln!("error: failed to start local server: {error}");
+                return ExitCode::from(2);
+            }
+        }
+    } else {
+        None
+    };
     let destination = intent.compile.output.clone();
     let file_name = destination
         .file_name()
@@ -354,7 +382,7 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
                 watch_status_for_outcome(exit_code, has_warnings, started.elapsed());
             emit_watch_block(&watch_block_now(&status));
         };
-        let (exit_code, dependencies, _) =
+        let (exit_code, dependencies, _, published) =
             run_compile_observed(compile, &mut report_status);
         let dependencies = if dependencies.is_empty() {
             vec![intent.compile.input.clone()]
@@ -364,7 +392,12 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
         let armed = typst_infra::watch::arm(&dependencies);
 
         let snapshot = if exit_code == ExitCode::SUCCESS {
-            match armed.publish(&staging, &destination) {
+            let publication = if intent.compile.output_format == OutputFormat::Bundle {
+                armed.publish_directory(&staging, &destination)
+            } else {
+                armed.publish(&staging, &destination)
+            };
+            match publication {
                 Ok(snapshot) => snapshot,
                 Err(error) => {
                     eprintln!(
@@ -376,8 +409,21 @@ fn run_watch(intent: WatchIntent) -> ExitCode {
                 }
             }
         } else {
-            armed.abandon(&staging)
+            if intent.compile.output_format == OutputFormat::Bundle {
+                armed.abandon_directory(&staging)
+            } else {
+                armed.abandon(&staging)
+            }
         };
+
+        if exit_code == ExitCode::SUCCESS {
+            if let (Some(server), Some(published)) = (&server, published) {
+                match published {
+                    Published::Html(html) => server.publish_html(&html),
+                    Published::Bundle(files) => server.publish(&files),
+                }
+            }
+        }
 
         eviction::crystalline_evict(10);
         typst_infra::watch::wait_for_change_since(
@@ -557,6 +603,36 @@ fn run_fonts(intent: FontsIntent) -> ExitCode {
     ExitCode::SUCCESS
 }
 
+enum Published {
+    Html(String),
+    Bundle(Vec<BundleFile>),
+}
+
+fn write_bundle_output(destination: &Path, files: &[BundleFile]) -> std::io::Result<()> {
+    std::fs::create_dir_all(destination)?;
+    let root = std::fs::canonicalize(destination)?;
+    for file in files {
+        let relative = Path::new(&file.path);
+        if !relative.components().all(|component| matches!(component, Component::Normal(_))) {
+            return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "invalid bundle file path"));
+        }
+        let path = destination.join(relative);
+        let parent = path.parent().ok_or_else(|| std::io::Error::new(
+            std::io::ErrorKind::InvalidInput, "invalid bundle file parent",
+        ))?;
+        std::fs::create_dir_all(parent)?;
+        if !std::fs::canonicalize(parent)?.starts_with(&root)
+            || std::fs::symlink_metadata(&path).is_ok_and(|metadata| metadata.file_type().is_symlink())
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput, "bundle file would escape output directory",
+            ));
+        }
+        std::fs::write(path, &file.data)?;
+    }
+    Ok(())
+}
+
 fn run_compile(intent: CompileIntent) -> ExitCode {
     let mut report_status = |_, _| {};
     run_compile_observed(intent, &mut report_status).0
@@ -565,7 +641,7 @@ fn run_compile(intent: CompileIntent) -> ExitCode {
 fn run_compile_observed(
     intent: CompileIntent,
     report_status: &mut impl FnMut(ExitCode, bool),
-) -> (ExitCode, Vec<PathBuf>, bool) {
+) -> (ExitCode, Vec<PathBuf>, bool, Option<Published>) {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
     let CompileIntent {
@@ -592,6 +668,17 @@ fn run_compile_observed(
         pdf_standard,
     } = intent;
 
+    if output_format == OutputFormat::Bundle {
+        if output == Path::new("-") {
+            eprintln!("error: cannot write bundle to standard output");
+            return (ExitCode::from(2), vec![input], false, None);
+        }
+        if !features.contains(typst_core::entities::compiler_features::Feature::Bundle) {
+            eprintln!("error: bundle export is only available when `--features bundle` is passed\n = hint: bundle export is experimental");
+            return (ExitCode::from(1), vec![input], false, None);
+        }
+    }
+
     // **P1468** — gate CLI-only do braço PDF: `--pages` + `--pdf-tagged=true`
     // explícito é erro antes de compilar (não envolve `PagedDocument` nem
     // pipeline — checagem puramente entre duas flags já parseadas,
@@ -609,7 +696,7 @@ fn run_compile_observed(
             || report_status(ExitCode::from(1), false),
             || eprintln!("error: cannot enable PDF tags when exporting a page range"),
         );
-        return (ExitCode::from(1), vec![input], false);
+        return (ExitCode::from(1), vec![input], false, None);
     }
 
     // **P1469** (escopo reduzido — contrato de linguagem) — gate CLI-only
@@ -658,7 +745,7 @@ fn run_compile_observed(
                         }
                     },
                 );
-                return (ExitCode::from(1), vec![input], false);
+                return (ExitCode::from(1), vec![input], false, None);
             }
         }
 
@@ -683,7 +770,7 @@ fn run_compile_observed(
                             eprintln!("{message}");
                         },
                     );
-                    return (ExitCode::from(1), vec![input], false);
+                    return (ExitCode::from(1), vec![input], false, None);
                 }
             }
         }
@@ -703,7 +790,7 @@ fn run_compile_observed(
                     )
                 },
             );
-            return (ExitCode::from(2), vec![input], false);
+            return (ExitCode::from(2), vec![input], false, None);
         }
     };
 
@@ -724,7 +811,7 @@ fn run_compile_observed(
                 || report_status(ExitCode::from(2), false),
                 || eprintln!("error: {}", e),
             );
-            return (ExitCode::from(2), vec![input], false);
+            return (ExitCode::from(2), vec![input], false, None);
         }
     };
 
@@ -735,7 +822,7 @@ fn run_compile_observed(
                 || report_status(ExitCode::from(2), false),
                 || eprintln!("error: failed to load source: {:?}", e),
             );
-            return (ExitCode::from(2), world.dependencies(), false);
+            return (ExitCode::from(2), world.dependencies(), false, None);
         }
     };
 
@@ -768,11 +855,47 @@ fn run_compile_observed(
     let oracle_pdf = oracle_pdf && matches!(output_format, OutputFormat::Pdf);
     let emit_html_experimental_warning = matches!(&output_format, OutputFormat::Html)
         && features.contains(typst_core::entities::compiler_features::Feature::Html);
+    let mut bundle_files: Option<Vec<BundleFile>> = None;
+    let mut published: Option<Published> = None;
     let (result, warnings, timings): (
         Result<Vec<u8>, Vec<SourceDiagnostic>>,
         Vec<SourceDiagnostic>,
         typst_infra::pipeline::Timings,
     ) = match output_format {
+        OutputFormat::Bundle => {
+            let html_mode = match html_serialization {
+                typst_shell::cli::HtmlSerialization::Crystalline => {
+                    typst_infra::export::HtmlSerializationMode::Crystalline
+                }
+                typst_shell::cli::HtmlSerialization::Vanilla => {
+                    typst_infra::export::HtmlSerializationMode::Vanilla
+                }
+            };
+            let (result, warnings, timings) = compile_to_bundle_files(
+                &world,
+                &source,
+                BundleCompileOptions {
+                    full_error,
+                    features,
+                    document_id,
+                    pdf_stream_mode: stream_mode,
+                    pdf_serialization: typst_infra::export::PdfSerializationMode::Compact,
+                    pdf_tagged_override,
+                    pdf_pages_override: pages.clone(),
+                    pdf_standard_override: standard_override,
+                    png_ppi_override: ppi,
+                    html_serialization: html_mode,
+                    pretty_override,
+                },
+            );
+            match result {
+                Ok(files) => {
+                    bundle_files = Some(files);
+                    (Ok(Vec::new()), warnings, timings)
+                }
+                Err(errors) => (Err(errors), warnings, timings),
+            }
+        }
         OutputFormat::Pdf => {
             if oracle_pdf {
                 let (r, w) =
@@ -886,7 +1009,12 @@ fn run_compile_observed(
 
     let exit_code = match result {
         Ok(output_bytes) => {
-            if let Err(e) = std::fs::write(&output, &output_bytes) {
+            let write_result = if let Some(files) = bundle_files.as_ref() {
+                write_bundle_output(&output, files)
+            } else {
+                std::fs::write(&output, &output_bytes)
+            };
+            if let Err(e) = write_result {
                 operational_error =
                     Some(format!("error: failed to write {}: {}", output.display(), e));
             } else if let Some(path) = timings_json.as_ref() {
@@ -901,6 +1029,11 @@ fn run_compile_observed(
             if operational_error.is_some() {
                 ExitCode::from(2)
             } else {
+                if let Some(files) = bundle_files.take() {
+                    published = Some(Published::Bundle(files));
+                } else if output_format == OutputFormat::Html {
+                    published = Some(Published::Html(String::from_utf8_lossy(&output_bytes).into_owned()));
+                }
                 ExitCode::SUCCESS
             }
         }
@@ -928,6 +1061,9 @@ fn run_compile_observed(
         || {
             if emit_html_experimental_warning {
                 eprint!("{HTML_EXPERIMENTAL_WARNING}");
+            }
+            if output_format == OutputFormat::Bundle {
+                eprint!("{BUNDLE_EXPERIMENTAL_WARNING}");
             }
             drain_to_stderr(&world, &warnings, &input, colored);
             if let Some(errors) = errors.as_deref() {
@@ -958,7 +1094,7 @@ fn run_compile_observed(
         }
     }
 
-    (exit_code, dependencies, has_warnings)
+    (exit_code, dependencies, has_warnings, published)
 }
 
 fn run_eval(intent: EvalIntent) -> ExitCode {

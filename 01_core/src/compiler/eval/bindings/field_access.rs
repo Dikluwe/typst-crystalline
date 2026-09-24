@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 68c37c22
+//! @prompt-hash e60a448c
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -501,6 +501,13 @@ fn is_effective_format_module(module: &crate::entities::module::Module) -> bool 
         })
 }
 
+fn is_effective_std_module(module: &crate::entities::module::Module) -> bool {
+    module.name() == "global"
+        && matches!(module.scope().get("type"), Some(Value::Type(Type::Type)))
+        && matches!(module.scope().get("format"), Some(Value::Module(format)) if is_effective_format_module(format))
+        && matches!(module.scope().get("document"), Some(Value::Func(func)) if func.name() == Some("document"))
+}
+
 pub(in crate::compiler::eval) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
     scopes: &mut Scopes<'_>,
@@ -511,6 +518,19 @@ pub(in crate::compiler::eval) fn eval_field_access(
 
     let target = eval_expr(access.target(), scopes, ctx, engine)?;
     let field = access.field().as_str();
+
+    // P1484 — gate apenas no std efetivo; módulos e dicts homônimos não são gated.
+    if field == "asset"
+        && matches!(&target, Value::Module(module) if is_effective_std_module(module))
+        && !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle)
+    {
+        return Err(vec![SourceDiagnostic::error(
+            access.field().span(),
+            "cannot access field `asset` because the `bundle` feature is not enabled",
+        )
+        .with_hint("try enabling the `bundle` feature")
+        .with_hint("see https://typst.app/help/compiler-features for more details")]);
+    }
 
     // P1465 — `format.html` existe no módulo efetivo em todos os perfis, mas
     // o acesso público é feature-gated. A checagem ocorre antes do lookup e,
@@ -526,6 +546,18 @@ pub(in crate::compiler::eval) fn eval_field_access(
             "cannot access field `html` because the `html` feature is not enabled",
         )
         .with_hint("try enabling the `html` feature")
+        .with_hint("see https://typst.app/help/compiler-features for more details")]);
+    }
+
+    if field == "bundle"
+        && matches!(&target, Value::Module(module) if is_effective_format_module(module))
+        && !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle)
+    {
+        return Err(vec![SourceDiagnostic::error(
+            access.field().span(),
+            "cannot access field `bundle` because the `bundle` feature is not enabled",
+        )
+        .with_hint("try enabling the `bundle` feature")
         .with_hint("see https://typst.app/help/compiler-features for more details")]);
     }
 

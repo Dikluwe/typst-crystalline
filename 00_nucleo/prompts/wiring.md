@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: a67a0f55
+Hash do Código: f2e9d3d2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -916,3 +916,61 @@ Agente B escreveu os 10 testes de integração de binário (contados em
 `infra/export/builder.md` P1469, mesmo ficheiro de teste cobre ambos os
 owners) a partir do mesmo baseline sem ver a implementação. O teste
 independente passou de RED a GREEN após a integração, sem regressão.
+
+## P1485 — emissão de bundle em diretório (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+`04_wiring/src/main.rs:775-885` despacha quatro formatos para
+um único buffer e `:890-930` escreve um arquivo. No vanilla
+pinado, `typst-cli/src/compile.rs:352-366,420-472` despacha
+Bundle separado, usa diretório de saída, cria diretórios
+intermediários e rejeita stdout. Sondas P1485: asset
+`assets/raw.bin` produz bytes `0 255 10`; PDF/SVG mistos
+produzem arquivos distintos; sem feature falha antes de eval;
+fora de bundle asset falha com diagnóstico e hint. Warning
+experimental bundle é observado com dois hints. Dados e
+caminhos escritos são observáveis; ordem de hash de arquivos
+e paralelismo upstream são mecânica.
+
+### Decisão proprietária
+
+`run_compile_observed` acrescenta braço
+`OutputFormat::Bundle` que valida `Feature::Bundle` sem
+ativá-la, chama o entrypoint L3 do owner
+`00_nucleo/prompts/infra/pipeline.md`, propaga diagnósticos/warnings e,
+somente em sucesso, escreve cada arquivo no diretório de
+output. O write cria pais intermediários, impede que paths
+escapem do diretório e nunca interpreta path de asset como
+fonte a ler. Stdout `-` é erro
+`cannot write bundle to standard output`. Sem feature,
+o erro é ``bundle export is only available when
+`--features bundle` is passed`` com hint experimental;
+com feature, warning experimental tem headline e dois hints
+medidos. PDF/PNG/SVG/HTML existentes e seu default permanecem
+inalterados. O target não publica um arquivo placeholder só
+para passar `type(asset)`.
+
+Em watch HTML/bundle, L4 cria `BundleHttpServer` do owner
+`00_nucleo/prompts/shell/watch.md` antes da primeira compilação, salvo `--no-serve`.
+O bind é loopback; porta opcional e live reload vêm do
+`WatchIntent` de `00_nucleo/prompts/shell/cli.md`. O servidor mantém placeholder
+até o primeiro sucesso. `run_compile_observed` devolve, em dado
+privado adicional, HTML ou `Vec<BundleFile>` do resultado
+bem-sucedido; compile ignora esse dado. Para bundle, L4 escreve
+um staging de diretório, chama `watch::arm` antes de finalizar
+e usa `ArmedWatch::publish_directory`; em falha usa
+`abandon_directory`. Para HTML/arquivos existentes continua
+a publicação de arquivo. Só após publicação bem-sucedida L4
+atualiza o snapshot do servidor via `publish_html`/`publish`.
+Erro de compilação ou write preserva o último output em disco e
+o último conteúdo servido. `--no-reload` mantém HTTP mas não
+injeta script; `--no-serve` não inicia listener. O status de
+watch apresenta URL local quando há servidor. Diretório de
+bundle nunca é tratado como arquivo de staging. O contrato do
+servidor, paths e SSE pertence a `00_nucleo/prompts/shell/watch.md`; L4 só compõe.
+
+Testes RED→GREEN observam `compile` e `watch`, HTTP de HTML e
+bundle, asset byte-exato, 200/301/404, flags, evento SSE após
+recompilação, preservação após erro, e neutralidade de PDF/PNG/SVG.
+Novo braço, semântica de output e default HTTP exigem gate ADR-0127.

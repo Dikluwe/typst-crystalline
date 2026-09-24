@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/html_frame.md
-//! @prompt-hash 44b880d7
+//! @prompt-hash 7e81a1dc
 //! @layer L1
 
 use crate::entities::html::HtmlFrameElem;
@@ -75,6 +75,7 @@ pub(super) fn layout_intrinsic<M: FontMetrics, S: ImageSizer>(
         width,
         height,
         numbering: None,
+        logical_number: 1,
         supplement: crate::entities::content::Content::Empty,
         bleed: Default::default(),
         fill: PageFill::None,

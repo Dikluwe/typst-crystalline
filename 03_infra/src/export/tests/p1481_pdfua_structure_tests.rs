@@ -79,6 +79,7 @@ fn p1481_fragmentos_formam_um_heading_e_um_paragrafo() {
         width: 200.0,
         height: 200.0,
         numbering: None,
+        logical_number: 1,
         supplement: Content::Empty,
         bleed: Default::default(),
         fill: Default::default(),

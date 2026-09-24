@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 5b38a200
+Hash do Código: 18c74410
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
@@ -3320,3 +3320,39 @@ inicializar `alt: None`. O constructor da stdlib pode formar
 API. Igualdade e demais operações observam o campo segundo o owner
 `entities/elements/image.md`. O campo público foi confirmado em 2026-09-23
 sob ADR-0127.
+
+## P1485 — carriers puros de arquivo em bundle (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, working
+tree P1484 não commitada, `01_core/src/entities/content.rs:707-720,
+2974-2986` conserva `Document` só com metadata e `Asset` com
+`path,kind`; `repr` de asset omite data. O vanilla pinado,
+`typst-bundle/src/format.rs:194-240`, transporta path e `Bytes`
+e `typst-library/src/model/document.rs:147-239` transporta path,
+body, formato e metadata. `repr(asset("x","data"))` mede path
+absoluto `"/x"` e `bytes(4)`. Payload, path e body são semântica/
+morfologia; enum Rust, Arc e localização de campos são mecânica.
+
+### Decisão proprietária
+
+Substituir o carrier público `Content::Asset { path, kind }` por
+asset de bundle com path normalizado e payload binário imutável.
+`kind` inferido deixa de existir como atributo de linguagem.
+`repr`, fields e igualdade de linguagem observam path e data
+segundo o vanilla; `plain_text` continua vazio. Clone estrutural
+não copia bytes desnecessariamente; nenhum acesso a filesystem em L1.
+O carrier de `Document` passa a representar arquivo de bundle com
+path, body, formato opcional e metadata; o uso de `#set document`
+continua metadado de estilo, não `Content::Document` sem path.
+Traversal/transformação recursam no body para preservar semântica
+e morfologia; asset permanece leaf. Fora de bundle, a validação
+de target impede emissão, não apaga conteúdo silenciosamente.
+
+A representação Rust pode divergir do vanilla, mas a assinatura
+pública, variante e campos que consumidores externos possam ler
+mudam; requerem confirmação ADR-0127. O owner
+`00_nucleo/prompts/compiler/stdlib/structural/document.md` valida argumentos e
+constrói os carriers; `00_nucleo/prompts/infra/pipeline.md` consome-os e nunca os
+cria por inferência de extensão de arquivo-fonte.

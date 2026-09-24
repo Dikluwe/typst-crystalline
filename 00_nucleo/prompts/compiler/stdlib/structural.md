@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 0a1be210
+Hash do Código: 6e39d730
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1298,3 +1298,25 @@ O hub encaminha `native_outline_entry_inner`, sem construir sua sequência.
 
 O hub encaminha `native_outline_entry_indented`; toda semântica permanece no
 owner `structural/outline`.
+
+## Retificação P1485 — cláusulas históricas P397
+
+### Medição anterior à decisão
+
+As seções históricas `native_document` e `native_asset` acima
+descrevem o placeholder P397 e até afirmam que `asset` não existe
+no vanilla. A fonte pinada `typst-bundle/src/format.rs:194-240`
+refuta essa premissa: o vanilla possui `asset(path,data)` gated
+e um target bundle. P1484 já retirou o placeholder da superfície
+pública; `00_nucleo/prompts/compiler/stdlib/structural/document.md` é o L0
+proprietário do consumer `structural/document.rs`.
+
+### Decisão do hub
+
+As cláusulas P397 de `asset(path,kind:?)` e `document` direto
+apenas metadata permanecem como história do código antigo, **não**
+como contrato vigente ou critério de aceitação. P1485 substitui-as
+pelo contrato do L0 proprietário
+`compiler/stdlib/structural/document.md`; este hub apenas mantém
+a reexportação/ligação de nativas sem segundo owner. Nenhum teste
+P397 que aceite `asset` sem bundle ou sem `data` legitima paridade.

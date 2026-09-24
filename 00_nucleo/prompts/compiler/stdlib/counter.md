@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: ae1ea986
+Hash do Código: a303f8ac
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -405,6 +405,51 @@ Testar os wrappers e o consumo com Some/None, inclusive default, sobra e
 receiver ausente; os argumentos consumidos não podem permanecer no carrier.
 É adaptação interna em fluxo contínuo ADR-0127 à API Args aprovada, não novo
 contrato público de Counter nem aprovação de dívidas históricas deste L0.
+
+## P1485.2 — leitura de `counter(page)` a partir da página lógica
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08` com working tree
+P1485.2 não commitada (estado exato registrado em
+`00_nucleo/diagnosticos/typst-p1485-integracao-gate2.md` e no diff final),
+`compiler/stdlib/counter.rs:632-661,881-900` lê `CounterRegistry` para
+`get`/`at`, inclusive `CounterKey::Page`. A composição L3 já injeta
+`SealedPositions` e `PageStore` do layout de cada documento, mas a
+leitura continua `(0,)`. Sonda local com dois PDFs de uma página no
+vanilla pinado `586e1bd43`: ambos imprimem `1`. O teste
+`p1485_bundle_page_counter_e_local_a_cada_pdf` está RED com `0`
+no primeiro PDF. A hora e o stat do working tree constam no diagnóstico
+de integração atualizado para esta emenda.
+
+### Decisão de paridade interna (ADR-0107/0127)
+
+Para `CounterKey::Page`, `.get()` e `.at(location/label)` usam o
+número **lógico** da página da Location quando já existem
+`SealedPositions` e `PageStore`. Antes de uma posição paginada
+conhecida, conservam o registro causal do counter e seu fallback
+vigente; não adivinham página 1. Atualizações explícitas são
+respeitadas pelo `PageStore` realizado de cada documento. A redução
+local do `CounterKey::Page` do body escolhe apenas o início lógico da
+realização; nunca substitui o snapshot global usado para validar
+leituras cruzadas. As demais chaves continuam lendo o histórico de
+`CounterRegistry` sem alteração. `.final()` não é modificado aqui:
+em um bundle de vários documentos, derivá-lo do último slot do
+`PageStore` global atribuiria o final do último PDF aos anteriores;
+esse contrato requer unidade separada. O replay de leituras
+contextuais passa pela mesma fórmula, sem cache, API pública nova ou
+alteração de fase.
+
+Aceitação: dois PDFs independentes leem página lógica 1, atualização
+explícita de página preserva seu valor, referência a label usa a página
+da ocorrência, contexto HTML sem página não herda a página do PDF e
+uma leitura anterior à realização não recebe valor inventado.
+
+Emenda P1485.3 (gate ADR-0127 confirmado): a aceitação HTML acima permanece
+RED no snapshot global sem fronteiras. Não a declarar concluída nem substituir
+o valor por 1 incondicional: `counter(page).update(7)` no HTML deve devolver 7.
+O owner `compiler/introspect.md` propõe a fronteira Page por body; este owner
+conserva a fórmula `get`/`at` já aprovada. `.final()` segue scope-out.
 
 ## P1341 — testemunho test-only da ocorrência de counter
 

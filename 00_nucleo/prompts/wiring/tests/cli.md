@@ -95,3 +95,29 @@ Os casos CLI que compilam PNG sem `--ppi` devem terminar normalmente a 144 PPI
 documentais, produzir IHDR A4 `1191 × 1684` e nunca depender de morte por OOM.
 Aplicar timeout e limite de memória ao subprocesso; ausência de artefato é
 falha. As asserções originais de status, stdout/stderr e assinatura continuam.
+
+## P1485 — bundle e HTTP/live reload no processo (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+A suíte atual de `04_wiring/tests/cli.rs` cobre watch de um único
+arquivo e preservação após erro, mas não possui seleção de bundle,
+árvore de saída nem cliente HTTP. O vanilla pinado responde 200 em
+`/` e `/index.html` com script SSE por omissão e sem script sob
+`--no-reload`, medido no diagnóstico P1485. A fonte do servidor
+confirma 301/404, asset bruto, SSE e atualização após export.
+
+### Obrigação dos testes independentes
+
+Antes da implementação, o agente B cria testes RED que exercitam
+`compile --format bundle --features bundle` com asset binário,
+documentos PDF/SVG/PNG/HTML, diretórios aninhados, duplicata
+normalizada, path inválido, top-level solto e feature ausente.
+Em watch bundle e HTML, processos externos controlados por RAII
+testam servidor local, `--no-serve`, `--no-reload`, `--port`,
+200/301/404, MIME, asset byte-exato, HTML com script só na
+resposta HTTP, evento SSE após recompilação e preservação do
+último snapshot/disco após erro. Testes usam portas isoladas e
+timeouts apenas como limite. A decisão de contrato não é derivada
+do código do implementador. A suíte existente de watch arquivo
+continua verde. Nenhum daemon externo nem processo órfão.

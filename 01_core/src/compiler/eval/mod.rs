@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash f6cdcde8
+//! @prompt-hash 33c64c0c
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -735,22 +735,29 @@ impl ObservationEq for crate::entities::content::Content {
                 }
                 _ => ObservationRelation::Different,
             },
-            Self::Document { title: a0, author: a1, date: a2, keywords: a3 } => {
+            Self::Document { path: a0, body: a1, format: a2, title: a3, author: a4, date: a5, keywords: a6 } => {
                 match other {
-                    Self::Document { title: b0, author: b1, date: b2, keywords: b3 } => {
+                    Self::Document { path: b0, body: b1, format: b2, title: b3, author: b4, date: b5, keywords: b6 } => {
                         ObservationRelation::Same
                             .and(a0.observation_relation(b0))
                             .and(a1.observation_relation(b1))
                             .and(a2.observation_relation(b2))
                             .and(a3.observation_relation(b3))
+                            .and(a4.observation_relation(b4))
+                            .and(a5.observation_relation(b5))
+                            .and(a6.observation_relation(b6))
                     }
                     _ => ObservationRelation::Different,
                 }
             }
-            Self::Asset { path: a0, kind: a1 } => match other {
-                Self::Asset { path: b0, kind: b1 } => ObservationRelation::Same
-                    .and(a0.observation_relation(b0))
-                    .and(a1.observation_relation(b1)),
+            Self::Asset { path: a0, data: a1 } => match other {
+                Self::Asset { path: b0, data: b1 } => {
+                    if a0 == b0 && a1 == b1 {
+                        ObservationRelation::Same
+                    } else {
+                        ObservationRelation::Different
+                    }
+                }
                 _ => ObservationRelation::Different,
             },
             Self::SmartQuote(a0) => match other {
@@ -6397,6 +6404,7 @@ impl EvalContext {
 pub enum EvalTarget {
     Paged,
     Html,
+    Bundle,
 }
 
 /// Avalia um ficheiro Typst e retorna o módulo resultante (flag de erro completo
@@ -7129,6 +7137,19 @@ fn eval_expr_inner(
 
         Expr::Ident(ident) => {
             let name = ident.as_str();
+            if name == "asset" {
+                if let Some(value) = scopes.get(name) {
+                    return Ok(value.clone());
+                }
+                if !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle) {
+                    return Err(vec![SourceDiagnostic::error(
+                        ident.span(),
+                        "cannot access variable `asset` because the `bundle` feature is not enabled",
+                    )
+                    .with_hint("try enabling the `bundle` feature")
+                    .with_hint("see https://typst.app/help/compiler-features for more details")]);
+                }
+            }
             if name == "html"
                 && !ctx
                     .features
@@ -7711,7 +7732,6 @@ fn make_stdlib_with_features(
         native_assert,
         native_assert_eq,
         native_assert_ne,
-        native_asset,
         // P311b.3 + P765b — math style funcs.
         native_bb,
         native_bibliography,
@@ -7744,6 +7764,7 @@ fn make_stdlib_with_features(
         native_display,
         native_divider,
         native_document,
+        native_asset,
         native_ellipse,
         native_emph,
         native_enum,
@@ -7872,7 +7893,11 @@ fn make_stdlib_with_features(
     let pdf = make_pdf_module(features);
     let html = make_html_module();
     let mut scope = Scope::new();
-    scope.define("format", Value::Module(make_format_module(&pdf, &html)));
+    let asset = Value::Func(Func::native("asset", native_asset));
+    scope.define("format", Value::Module(make_format_module(&pdf, &html, &asset)));
+    if features.contains(crate::entities::compiler_features::Feature::Bundle) {
+        scope.define("asset", asset);
+    }
     scope.define("html", html);
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
@@ -8340,9 +8365,8 @@ fn make_stdlib_with_features(
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
     scope.define("quote", Value::Func(Func::native("quote", native_quote)));
-    // P397 — document metadata wrapper + asset placeholder.
+    // P397 — document metadata wrapper; P1484 retira o placeholder asset.
     scope.define("document", Value::Func(Func::native("document", native_document)));
-    scope.define("asset", Value::Func(Func::native("asset", native_asset)));
     // Passo 295 — footnote Fase 1 (marker only).
     // P1473 — `footnote` ganha namespace com `entry`.
     {

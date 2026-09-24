@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 8db50518
+Hash do Código: 7a06c6af
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -161,6 +161,31 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 - `01_core/src/compiler/introspect.rs` — adicionar `pub mod from_tags;` em paralelo a `pub mod extract_payload;` e `pub mod locatable;`.
 
 ---
+
+## P1485.3 — callbacks Page em fronteiras bundle (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+`apply_counter_funcs` percorre Tags somente depois do walk e chama
+`intr.counters.apply_at` então (`01_core/src/compiler/introspect/from_tags.rs:157-214`).
+`CounterRegistry::value_at` seleciona a última entrada inserida cuja
+Location não excede a consulta (`01_core/src/entities/counter_registry.rs:151-159`).
+Um Func Page de PDF anterior pode assim ser inserido depois do reset do HTML.
+A sonda Set prova o vazamento atual no diagnóstico P1485; para Func, o risco
+é inferência a refutar por teste RED próprio. Valor é semântica; ordem de
+pós-pass é mecânica (ADR-0107), não peculiaridade vanilla a copiar.
+
+### Contrato interno condicionado
+
+No bundle runtime de `compiler/introspect.md` P1485.3, resolver ações
+Page e fronteiras em ordem causal de Location/fonte. Func recebe o estado
+Page corrente no próprio body; Set/Step posteriores veem seu resultado.
+A fronteira seguinte recomeça em 1; outras chaves seguem o caminho
+vigente. Não executar callback duas vezes nem esconder erro. Não mudar
+APIs públicas nem fase. Testar Func Page no PDF seguido de HTML, Func
+Page no HTML e Step posterior no mesmo body. Gate da API pública
+L1 P1485.3 confirmado pelo dono em 2026-09-24.
+
 
 ## Histórico de Revisões
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 6d1778ee
+//! @prompt-hash a1438720
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -27,7 +27,7 @@ use crate::entities::{
         SemanticKind, SemanticPlacement, TextStyle, VAlign,
     },
     location::Location,
-    locator::Locator,
+    locator::{Locator, LocatorSeed},
     source_result::{SourceDiagnostic, SourceResult},
     style_chain::StyleChain,
     value::Value,
@@ -807,6 +807,7 @@ pub(super) struct FlowSuffixCheckpoint {
     cell_origin_y: Option<f64>,
     parent_bbox: Option<crate::entities::layout_types::Rect>,
     cell_align: Option<crate::entities::layout_types::Align2D>,
+    locator_seed: LocatorSeed,
     current_location: Option<Location>,
     runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
     floats_pending_len: usize,
@@ -1226,6 +1227,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cell_align: self.cell_align,
             current_location: self.current_location,
             runtime: self.runtime.clone(),
+            locator_seed: self.locator.checkpoint(),
             floats_pending_len: self.floats_pending.len(),
             cursor_y_top_reserve: self.cursor_y_top_reserve,
             cursor_y_bottom_reserve: self.cursor_y_bottom_reserve,
@@ -1323,12 +1325,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.parent_bbox = checkpoint.parent_bbox;
         self.cell_align = checkpoint.cell_align;
         self.current_location = checkpoint.current_location;
-        self.locator = Locator::new();
-        if let Some(location) = checkpoint.current_location {
-            for _ in 0..=location.as_u128() {
-                let _ = self.locator.next();
-            }
-        }
+        self.locator = Locator::from_seed(checkpoint.locator_seed);
         self.runtime = checkpoint.runtime;
         self.floats_pending.truncate(checkpoint.floats_pending_len);
         self.cursor_y_top_reserve = checkpoint.cursor_y_top_reserve;
@@ -2518,6 +2515,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
+            let page = std::num::NonZeroUsize::new(page_number).unwrap();
+            let margin_number = self.runtime.known_page_store
+                .logical_number_for_page(page)
+                .unwrap_or(page_number);
             let mut items = std::mem::take(&mut self.regions.current.current_items);
             self.apply_pending_par_line_fixups(&mut items);
             // **P896** — resolve centragem/numeração de equação de bloco
@@ -2563,7 +2564,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         );
                         self.pending_page_numbering.push((
                             self.pages.len(),
-                            page_number,
+                            margin_number,
                             pattern.clone(),
                             self.page_config.number_align,
                             self.page_config.margin,
@@ -2572,7 +2573,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         ));
                     } else if let Some(text) =
                         crate::entities::counter_format::format_counter(
-                            &[page_number],
+                            &[margin_number],
                             pattern.as_str(),
                         )
                     {
@@ -2608,7 +2609,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     page_numbering,
                     Some(crate::entities::numbering::Numbering::Func(_))
                 ) {
-                    let page = std::num::NonZeroUsize::new(page_number).unwrap();
                     if let Some(content) = self
                         .runtime
                         .known_page_store
@@ -2654,6 +2654,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 width: page_width,
                 height: page_height,
                 numbering: page_numbering,
+                logical_number: page_number,
                 supplement: self.page_config.supplement.resolve(self.chain.lang()),
                 bleed,
                 fill: self.page_config.fill.clone(),
@@ -2668,11 +2669,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // de páginas é conhecido. Cada entrada pendente contém o índice da
         // página, o número da página e o pattern composto.
         let total_pages = self.pages.len();
+        let logical_total = std::num::NonZeroUsize::new(total_pages)
+            .and_then(|page| self.runtime.known_page_store.logical_number_for_page(page))
+            .unwrap_or(total_pages);
         for (page_idx, page_number, pattern, align, margins, ha, fd) in
             std::mem::take(&mut self.pending_page_numbering)
         {
             if let Some(text) = crate::entities::counter_format::format_counter(
-                &[page_number, total_pages],
+                &[page_number, logical_total],
                 pattern.as_str(),
             ) {
                 if let Some(page) = self.pages.get_mut(page_idx) {
@@ -3338,6 +3342,33 @@ pub fn layout_with_introspector_and_metrics_and_callbacks<
     >,
     par_line_callback_store: Option<&SealedParLineCallbacks>,
 ) -> LayoutPassOutcome {
+    layout_with_introspector_and_metrics_and_callbacks_from(
+        content,
+        introspector,
+        metrics,
+        sizer,
+        font_size,
+        math_callback_store,
+        par_line_callback_store,
+        Locator::new().checkpoint(),
+    )
+}
+
+pub fn layout_with_introspector_and_metrics_and_callbacks_from<
+    M: FontMetrics + Clone,
+    S: ImageSizer + Clone,
+>(
+    content: &Content,
+    introspector: crate::entities::introspector::TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    math_callback_store: Option<
+        &crate::compiler::math::layout::callbacks::SealedMathCallbacks,
+    >,
+    par_line_callback_store: Option<&SealedParLineCallbacks>,
+    location_start: LocatorSeed,
+) -> LayoutPassOutcome {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::collections::HashMap;
@@ -3425,6 +3456,7 @@ pub fn layout_with_introspector_and_metrics_and_callbacks<
         l.math_callback_pass = Some(&callback_pass);
         l.par_line_callback_pass = Some(&par_line_callback_pass);
         l.bib_render_cache = bib_render_cache.clone();
+        l.locator = Locator::from_seed(location_start);
         l.layout_errors = layout_errors.clone();
 
         // P204C (M8): assignment `l.introspector = introspector.clone()`

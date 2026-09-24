@@ -1,5 +1,5 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: e9a23c1a
+Hash do Código: ab268e9e
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`
@@ -280,3 +280,131 @@ Contextos aninhados não são gate positivo de P1421, mas também não podem
 alcançar o serializer como sucesso. A mudança é uma fase nova do pipeline HTML
 e aguarda confirmação humana explícita pelo ADR-0127. Nenhuma assinatura
 pública muda; a entry point permanece privada ao módulo pai.
+
+## P1485.2 — estabilização contextual do conjunto bundle (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree P1485 não commitada sobre
+`bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`Session::stabilize` constrói `self.content()` e reintrospecta
+apenas esse body (`03_infra/src/pipeline/context_stabilization.rs:408-423`).
+O caller bundle invoca `prepare` ou `prepare_html` por documento
+(`03_infra/src/pipeline.rs:900-955`). A primeira introspecção
+compartilhada já permite `query(heading).len() == 3` em dois HTMLs,
+mas uma contribuição contextual selecionada pode invalidar o
+snapshot de outro documento. Reintrospectar só o body selecionado
+não é evidência de estabilidade do bundle. `prepare_html`
+(`:586-625`) conserva target HTML sem layout paginado; misturar
+os targets numa Session Paged também seria deriva.
+Classificação ADR-0107: valores de query/counter/state e a
+identidade do documento observado são semântica; quantidade de
+tentativas e representação das Sessions são mecânica. A saída
+vanilla não prova sua intenção de usar esta mesma coordenação.
+Inferência: revalidar todos os produtores contra um único candidato
+global evita snapshot misto. Refutação: programa com produtor
+posterior ou alvo Html/Paged cruzado ainda divergir após a
+reintrospecção global, ou mudar a política de warnings medida.
+
+
+### Contrato privado ratificado
+
+Introduzir coordenação bundle **privada** neste owner, reutilizando
+as regras de descoberta, seleção, replay, invalidação, cinco
+tentativas, erros e warnings já aprovadas. Cada body conserva sua
+identidade, chain, target efetivo (Paged ou Html), features e
+recursos; HTML não herda layout paginado. Após qualquer realização
+selecionada, reconstruir o vetor completo de bodies atuais,
+reintrospectar o conjunto com um único snapshot causal e recalcular
+os inícios de Location pelo contrato de
+`00_nucleo/prompts/compiler/introspect.md`. Validar todas as
+leituras selecionadas contra esse mesmo snapshot antes de exportar
+qualquer documento. Nunca aceitar estados finais provenientes de
+gerações distintas nem fazer fallback para introspecção isolada
+quando a coordenação global falhar.
+
+O ramo paginado entrega o seed correto ao layout; o ramo HTML
+preserva o target semântico e remove apenas seus marcadores de
+contexto executados. O início lógico de página é reduzido por body
+a partir de suas ações de `CounterKey::Page`; essa redução local
+produz somente um escalar de paginação, não é candidata de consultas
+nem fallback para validação — o snapshot de leitura permanece global.
+Erros pendentes e warnings das tentativas
+descartadas obedecem à política atual. Não ampliar orçamento
+por documento, não criar uma fase eval↔layout nova e não alterar
+as fachadas públicas existentes. Se a topologia de produtores
+impedir a validação global, devolver diagnóstico de incapacidade,
+não sucesso parcial.
+
+Aceitação bilateral: query/counter/state em ambos os sentidos entre
+dois documentos, produtor posterior, heading rotulado, mistura
+Paged+Html, contexto aninhado, convergência e erro persistente;
+cada arquivo publicado corresponde à mesma geração validada.
+A entrypoint L3 permanece privada; os contratos públicos L1 dos
+quais depende tiveram o gate ADR-0127 confirmado pelo dono em
+2026-09-24.
+
+## P1485.3 — snapshot runtime com fronteiras por body (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+`prepare_bundle` usa seeds puros por body, mas entrega Sequence ao
+introspector runtime (`03_infra/src/pipeline/context_stabilization.rs:742-745`);
+`Session::stabilize` também reintrospecta `self.content()` como Sequence
+(`:404-433`). A sonda RED e o vanilla pinado no diagnóstico de integração
+P1485 distinguem Page local (1 no HTML posterior) da representação global.
+Sonda RED adicional no mesmo working tree:
+`p1485_bundle_html_respeita_update_page_proprio` falha com
+`HTML export does not yet support this content` porque
+`Content::CounterUpdate` chega ao serializer
+(`03_infra/src/export/html.rs:518-601`).
+Inferência: preservar fronteiras nos dois pontos de reintrospecção permite
+o reset local sem quebrar o candidato global. Refutação: produtor posterior
+ou aninhado ainda ler página de outro documento, ou snapshot puro/runtime
+discordar. Sequência de chamadas é mecânica; valor observado é linguagem
+(ADR-0107). Não copiar eventual bug vanilla em casos não medidos.
+
+### Decisão privada condicionada à API L1
+
+Depois da confirmação de `compiler/introspect.md` P1485.3, passar o vetor
+completo de bodies à nova variante runtime em cada geração e no prepare
+inicial, mantendo target e identidade. A fronteira Page integra o snapshot
+global; não construir snapshot por body nem substituir leituras por valor
+HTML constante. A redução local de página P1485.2 continua apenas a
+inicializar a paginação física Paged. Update Page próprio de HTML continua
+legível pelo histórico global na sua faixa. Só depois da validação
+global, a projeção terminal HTML remove os marcadores
+`Content::CounterUpdate`, que já agiram semanticamente e não têm
+representação visual; nunca os remover do candidato de leitura.
+Validar produtores contra um candidato, manter cinco tentativas,
+erros, warnings e publicação atômica. Não há nova fase nem API L3
+pública. O gate da entrypoint L1 foi confirmado pelo dono em
+2026-09-24.
+
+## P1486 — PageStore final no bundle sem produtores contextuais
+
+### Medição anterior à decisão
+
+No teste RED `p1486_bundle_preserva_offset_apos_html_svg_png`, um bundle
+PDF/HTML/PDF sem produtor contextual chega ao primeiro PDF com duas páginas
+renderizadas e `PageStore` de comprimento zero: diagnóstico
+`realized page numbers do not match final document (offset 0, rendered 2, store 0)`.
+`prepare_bundle` em `03_infra/src/pipeline/context_stabilization.rs:729-771`
+invoca `bundle_page_views` apenas via `Session::stabilize`; sem produtores
+selecionados, devolve o introspector runtime sem realizar a vista paginada.
+O `PageStore` passa a ser necessário também ao exportador PDF para transportar
+o número lógico observável; a existência de produtores contextuais é mecânica
+interna, não deve determinar o rótulo da linguagem. Inferência: realizar essa
+vista uma vez no ramo sem seleção fornece a mesma store que a geração
+estabilizada. Refutação: divergência de posições, numeração ou contagem de
+páginas num bundle sem contexto após a realização terminal.
+
+### Decisão privada
+
+Depois de validar a introspecção runtime contra a pura e antes da projeção
+HTML terminal, executar `bundle_page_views` uma vez para o candidato final
+quando não houve estabilização selecionada. Usar o mesmo vetor de bodies,
+targets HTML, world, source e input vazio que a primeira tentativa usaria;
+propagar erros e warnings. Quando houve estabilização, conservar a store já
+produzida pelo candidato validado, sem segunda realização. HTML não consome
+página. Não introduzir fase, contrato público nem fallback de índice físico.

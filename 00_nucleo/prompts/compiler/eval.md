@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 3bad5018
+Hash do Código: 66e94b50
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -175,6 +175,41 @@ O diagnóstico de binding gated ausente conserva a semântica pública medida de
 feature não habilitada. O mecanismo concreto pode ser scope filtrado ou lookup
 condicional; igualdade estrutural do scope não é contrato. Não criar binding
 stub nem registrar só uma das três funções.
+
+
+## P1484 — gate global de `asset` (CONFIRMADO; ADR-0127)
+
+### Medição anterior à decisão
+
+Sobre HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, sem diff
+rastreado, `01_core/src/compiler/eval/mod.rs:8343-8345` registra
+`native_asset` incondicionalmente e `:7130-7145` só diagnostica o gate
+de `html`. O vanilla pinado `586e1bd43` rejeita `type(asset)` sem
+`bundle` com ``cannot access variable `asset` because the `bundle` feature
+is not enabled``, seguido dos dois hints medidos; com `bundle`, devolve
+`function`. O cristalino pré-P1484 devolve `function` nos dois perfis.
+`{ let asset = 1; asset }` devolve 1 também no vanilla sem feature:
+o gate não pode bloquear um binding local homônimo.
+
+### Decisão e incompletude explícita
+
+P1484 transporta `Feature::Bundle` ao mesmo `EvalContext.features` usado
+pelos entrypoints de expressão e documento. Sem `Bundle`, o binding
+global de `asset` não existe; a tentativa de resolver esse global recebe
+o diagnóstico gated acima, com span no identificador e hint
+``try enabling the `bundle` feature`` e URL de compiler-features. Binding local homônimo
+conserva precedência e não é bloqueado. `std.asset` é responsabilidade do
+owner `00_nucleo/prompts/compiler/eval/bindings/field_access.md`.
+
+Mesmo com `Bundle`, P1484 não registra o placeholder
+`native_asset(path, kind:?)` como função pública: essa rota permanece
+RED (ausente/Unknown) até P1485, que substituirá a assinatura por
+`asset(path, data)` e concluirá o target bundle. Não fabricar um stub que
+resolva `type(asset)` e falhe só na chamada; isso daria crédito falso à
+existência do binding. Os perfis `html`, `a11y-extras`, suas combinações e
+os formatos paginados mantêm o comportamento já contratado. A adição
+pública de `Feature::Bundle` e a remoção do default visível requerem
+confirmação do dono antes de L1.
 
 ## P1293 — identidades públicas curtas nos namespaces `grid` e `table`
 
@@ -982,3 +1017,79 @@ Contrato: a implementação `ObservationEq for ImageElem` inclui `alt`
 na comparação, distinguindo `None`, `Some("")` e texto não vazio.
 A ampliação do pattern é consequência mecânica do campo confirmado
 em 2026-09-23 (ADR-0127), sem nova variante de `Content` ou fase.
+
+## P1485 — ativação efetiva de bundle no eval (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Após P1484 não commitado, `01_core/src/compiler/eval/mod.rs:7130-7155`
+diagnostica `asset` sem feature e `make_stdlib_with_features` não o
+registra nem mesmo com bundle. `EvalTarget` em
+`01_core/src/compiler/eval/mod.rs:6397-6401` só possui Paged/Html.
+No vanilla pinado, `typst-library/src/lib.rs:430` projeta
+`format.bundle.asset` ao prelude quando feature ativa; a sonda
+`asset == format.bundle.asset` e `std.asset == asset` devolve
+`true`. `typst-bundle/src/lib.rs:67-76` é target separado de
+Paged e Html. A hipótese de que registrar a função já completa o
+target é refutada pela exportação de múltiplos arquivos medida no
+diagnóstico P1485.
+
+### Decisão proprietária
+
+`make_stdlib_with_features` registra um único `Func asset` quando
+`Feature::Bundle` está ativa e projeta exatamente a mesma identidade
+em `std.asset` e `format.bundle.asset`, através do owner
+`compiler/stdlib/format.md`. Sem feature, o gate P1484 de
+identificador permanece, inclusive hints, e locals homônimos seguem
+resolúveis. A seleção de `EvalTarget::Bundle` é explícita pelo
+pipeline; nem `--format bundle` nem outro target habilita a feature
+sozinho. Eval puro constrói Content e conserva diagnósticos, sem
+escrever arquivos. `target()` e contextos dentro de cada documento
+devem refletir o target real daquele documento; não converter HTML
+em layout paginado. Com feature ativa, `type(asset)` passa a
+`function` **somente** junto à assinatura real e ao target.
+O gate ADR-0127 cobre nova variante pública de target/fase.
+
+A divisão P1484 → P1485 fica concluída somente se o pipeline L3 e
+a composição L4 produzirem a árvore de arquivos; não confundir
+registro de nome com implementação funcional.
+
+## P1488 — globais matemáticos históricos: compatibilidade sem crédito vanilla
+
+### Medição anterior à decisão
+
+No vanilla ratificado `586e1bd43` (SHA-256 do produto
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`),
+os globais `accent`, `bb`, `bold`, `cal`, `cancel`, `display`, `frak`,
+`inline`, `italic`, `mono`, `op`, `sans`, `scr`, `script`, `serif`,
+`sscript`, `upright` e `underover` não existem. No cristalino medido
+(SHA-256 `81cbcb240620cfccac5677cbab236b9609cb7209252109f8ca63ba2b64275fa2`),
+`eval/mod.rs:8387-8408` os registra como funções globais. Para os
+primeiros 17, `math.<nome>` existe bilateralmente e uma chamada concreta
+de cada par produz o mesmo conteúdo no cristalino. A igualdade pública
+das funções é verdadeira em 16 pares, mas `cancel == math.cancel` é
+`false`, apesar de `repr(cancel([x])) == repr(math.cancel([x]))`: o
+registro qualificado em `structural/math.rs:2859-2860` usa nome interno
+distinto. `math.underover` não existe em nenhum dos binários; a chamada
+global cristalina com `under:`/`over:` funciona. P1472 apenas acrescentou
+projeções e reservou a compatibilidade dos globais a uma decisão posterior
+(`structural/math.md` §P1472; `math_style.md` §P1472). O diagnóstico
+`00_nucleo/diagnosticos/typst-p1488-extras.md` guarda comandos, hora e
+snapshot exato da árvore não commitada. Chamada igual numa amostra não
+prova equivalência universal; cliente externo, igualdade de função e
+morfologia de `math.op` podem refutar uma substituição automática.
+
+### Decisão
+
+Preservar os 18 bindings globais acima como superfície histórica de
+compatibilidade cristalina, visível e contabilizada como extensão fora
+do numerador de paridade vanilla. Não os ocultar no inventário, não
+remover nenhum neste passo e não adicionar `math.underover` em nome de
+uma ausência que também existe no vanilla. A forma global e a forma
+qualificada de `cancel` continuam distintas quanto à igualdade de
+funções; a morfologia observada de conteúdo não autoriza fundi-las.
+Qualquer futura remoção pública exige nova medição por rota, plano de
+compatibilidade, L0 causal, teste RED de ausência/controle GREEN do
+caminho substituto e confirmação específica ADR-0127 antes do código.
+Este registro preserva comportamento vigente; não muda assinatura,
+default, fase nem função produtiva.

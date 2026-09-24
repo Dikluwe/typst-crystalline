@@ -1123,3 +1123,35 @@ Exigir diagnóstico integral, resultados semânticos, RED compilado, GREEN,
 build/workspace/fmt/lint/linhagem e corpus CLI anterior mais fronteiras nos
 quatro perfis, repetido/reordenado. Unknown obrigatório bloqueia. A/B sem
 atestação técnica de isolamento, sem refinamento/mutation score.
+
+## P1488 — preservar as três extensões numéricas de P817-E
+
+### Medição anterior à decisão
+
+No vanilla ratificado `586e1bd43`, `calc.log10`, `calc.deg` e
+`calc.rad` não existem; no cristalino de SHA-256
+`81cbcb240620cfccac5677cbab236b9609cb7209252109f8ca63ba2b64275fa2`
+são funções registradas em `calc.rs:87-91`. A sonda real devolve
+`calc.log10(100) == 2.0`, `calc.deg(calc.pi) == 180.0` e
+`calc.rad(180) == 3.141592653589793`. `calc.log(100, base: 10)`
+produz `2.0` bilateralmente, mas não cobre conversões numéricas puras
+de graus/radianos nem prova equivalência completa de diagnósticos.
+`calc.rs:951-994` define as três nativas; o corpus do workspace
+`lab/parity/corpus/p500/test-calc-rest.typ:19-21` usa as três rotas.
+O diagnóstico P817-E (`00_nucleo/diagnosticos/typst-passo-817-relatorio.md`
+§Sub-achado E) já decidiu explicitamente MANTER as três extensões.
+O diagnóstico P1488 registra hora, hashes e diff da árvore medidos.
+A inferência de redundância total seria refutada por domínio, aridade,
+diagnóstico, igualdade de função ou uso externo distinto.
+
+### Decisão
+
+`calc.log10`, `calc.deg` e `calc.rad` permanecem funções públicas
+cristalinas: a primeira calcula logaritmo decimal de número positivo;
+as outras convertem número puro radianos→graus e graus→radianos,
+respectivamente. São extensões deliberadas, não cobertura vanilla;
+não as subtrair silenciosamente do inventário nem as remover por
+haver `calc.log(x, base: 10)` ou `Angle` tipado. Esta cláusula
+explicita no L0 a decisão P817-E já materializada, sem mudar código,
+assinatura, default ou fase. Remoção futura seria quebra de
+compatibilidade sujeita a L0 causal novo e confirmação ADR-0127.

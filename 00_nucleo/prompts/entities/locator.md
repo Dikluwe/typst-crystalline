@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/locator`
-Hash do Código: fb8154be
+Hash do Código: 6e50bd9c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/locator.rs`
@@ -115,3 +115,42 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .4: gerador determinístico de Location — peça M1 da Introspection com fixpoint | `locator.rs`, `locator.md` |
+
+## P1485.2 — checkpoint de Location para bundle (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08` com P1485 em
+working tree não commitada, `entities/locator.rs:24-46` só expõe `new`
+e `next`; o contador é opaco. O walk global do bundle atribui Locations
+sucessivas aos headings de dois documentos, mas cada
+`Layouter::new` recomeça em zero (`compiler/layout/mod.rs:1108`).
+A sonda bilateral P1485.2 extrai `1. Alpha`/`2. Beta` dos PDFs
+vanilla e `1. Alpha`/`1. Beta` dos PDFs cristalinos. O número e
+a provenance completos constam em `materialization/typst-passo-1485.md`.
+
+Classificação ADR-0107: a numeração extraída é semântica da linguagem;
+o contador e o formato de `LocatorSeed` são mecânica interna, sem
+exigência de copiar o vanilla. A intenção do upstream não é inferida
+dos bytes do PDF; a fonte confirma apenas a ordenação global observada.
+Inferência: um checkpoint opaco é suficiente para transportar a posição
+do walk. Refutação: replay com seed correto ainda divergir nas Locations
+ou introduzir colisão em conteúdo aninhado.
+
+### Contrato público ratificado
+
+Expor `LocatorSeed` opaco, proprietário deste consumer, e apenas
+`Locator::checkpoint(&self) -> LocatorSeed` e
+`Locator::from_seed(LocatorSeed) -> Locator`. O checkpoint representa
+o estado da próxima Location, sem consumir uma ocorrência. O seed pode
+ser reutilizado para replay/fixpoint do **mesmo** body, mas não é
+identidade de documento nem substitui a ordem do walk. Não expor
+counter numérico, não tornar `Locator` clonável e não aceitar offset
+deduzido da quantidade de tags, headings ou páginas. `new`,
+`next` e `Default` preservam o contrato atual.
+
+A aceitação exige que um walk dividido em dois corpos, retomado por
+checkpoint, produza a mesma sequência de Locations de um walk contínuo;
+replay do segundo corpo começa no seu seed, sem colisão com o primeiro.
+Este par de métodos é contrato público L1; gate ADR-0127
+confirmado pelo dono em 2026-09-24.

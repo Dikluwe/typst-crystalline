@@ -1,9 +1,36 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 9d29b6a0
+Hash do Código: f38d821a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1484 — `std.asset` gated (CONFIRMADO; ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`01_core/src/compiler/eval/bindings/field_access.rs:516-529` trata
+somente `format.html`; `:571-583` trata os três fields PDF a11y.
+O vanilla pinado `586e1bd43` rejeita `type(std.asset)` sem feature
+com ``cannot access field `asset` because the `bundle` feature is not
+enabled`` no identificador `asset`, mais os hints de habilitação e ajuda;
+com `bundle` devolve `function`. O cristalino pré-P1484 devolve função
+nos dois perfis porque a stdlib contém o placeholder. Um campo homônimo
+em Dict ou Module alheio não é o binding gated do std efetivo.
+
+### Decisão e sucessão
+
+Quando o target é o módulo `std` efetivo e `Bundle` está ausente,
+aceder ao field `asset` emite exatamente o diagnóstico gated medido,
+com span somente no field e os dois hints. O gate não intercepta
+Dict, módulos arbitrários nem outro field; não executa o placeholder.
+Com `Bundle`, P1484 ainda deixa `std.asset` ausente/RED, pois P1485
+substitui a assinatura e o target bundle. O lookup normal de field ausente
+aplica-se até essa substituição. Esta obrigação complementa o gate de
+identificador global em `00_nucleo/prompts/compiler/eval.md` e sucede qualquer disponibilidade
+incondicional herdada de P397; não declara paridade no perfil ativo.
+
 
 ## P1444 — superfície de campo de `MathPrimes` (MATERIALIZADO)
 
@@ -1466,3 +1493,27 @@ adquire field access de instância: a chamada sintática ligada é
 interceptada exclusivamente em `compiler/eval/call_dispatch.md`.
 Não alterar lookup de `Type::Color` nem introduzir função ligada
 first-class ausente do vanilla.
+
+## P1485 — acesso gated a `format.bundle` (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, P1484
+cobre `std.asset` e `format.html`, mas
+`01_core/src/compiler/eval/bindings/field_access.rs:497-535`
+não conhece `format.bundle`. O vanilla pinado sem feature
+diagnostica ``cannot access field `bundle` because the `bundle`
+feature is not enabled`` no field de `format.bundle` com os
+dois hints do gate; com feature devolve função nominal `bundle`.
+Um Dict ou módulo alheio com field homônimo não é esse binding.
+
+### Decisão proprietária
+
+No módulo `format` efetivo, o field `bundle` sem
+`Feature::Bundle` devolve exatamente o diagnóstico/hints acima,
+antes do lookup normal; alias de `format` e `std.format` conservam
+o gate. Com feature, o lookup devolve a função de
+`compiler/stdlib/format.md`. O controle de módulo efetivo não
+intercepta Dict/Module arbitrário ou outro field. O gate P1484
+de `std.asset` permanece; não converter ausência em sucesso quando
+o constructor/target não estiverem completos.

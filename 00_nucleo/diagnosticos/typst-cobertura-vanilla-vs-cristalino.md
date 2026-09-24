@@ -5,6 +5,12 @@
 **Vanilla snapshot**: `lab/typst-original/` em commit `ba61529986e0a5a916cbf937c3c65117cd450683` (2026-04-24).
 **Cristalino snapshot**: Passo 447/P453; 68 ADRs; DEBT-1, DEBT-42, DEBT-43, DEBT-52, DEBT-55, DEBT-57 fechados; DEBT-58 dissolvido; DEBT-2 em aberto.
 
+> **Retificação P1484 (2026-09-23; gate L0 confirmado):** o crédito histórico
+> P397 a `asset` não prova paridade com o vanilla ratificado `586e1bd43`.
+> O placeholder `asset(path, kind:?)` esteve exposto sem feature e diverge de
+> `asset(path, data)` no bundle. P1484 retirou-o da superfície pública;
+> matriz por perfil e proveniência: `typst-p1484-matriz-bundle.md`. Nenhum percentual histórico é recalculado.
+
 > **Refresh P384 (2026-06-19) — recon amplo, read-only.** O corpo deste inventário foi mantido
 > ad-hoc **até ao P299**; o agregado vigente (Tabela A/B) é: **user-facing ~69%** (Markup 78%,
 > #let/#set/#show 62%, Text 65%, Math 92%, Layout 89%, Model 50%, Visualize 54%, Foundations stdlib
@@ -216,7 +222,7 @@ primitives e `skew`). Detalhe em
 | `numbering(pattern, ...)` | model/numbering.rs | `implementado⁺` | Passos 75, 99 | numéricas/letras/romanas |
 | `document(...)` | model/document.rs | `implementado` | **Passo 397** | `Content::Document { title, author, date, keywords }` + stdlib `#document(...)`; metadata pura — não emite frames; export PDF Info dict scope-out ADR-0054 graded. |
 | `divider` | model/divider.rs | `implementado` | Passo 154B | `Content::Divider` singleton; layouter emite `FrameItem::Shape::Line` 0.5pt |
-| `asset(...)` | model/asset.rs | `implementado` | **Passo 397** | `Content::Asset { path, kind }` + stdlib `#asset(path, kind:?)`; extensão cristalina (não existe no vanilla como elemento); resource registry real scope-out ADR-0054 graded. |
+| `asset(...)` | `typst-bundle/src/format.rs` | `não conforme` | **P397; retificação P1484/P1485** | P1484 materializou o gate `bundle` e retirou o placeholder `asset(path, kind:?)` da superfície pública. Perfil ativo permanece RED: P1485 implementa `asset(path, data)` e o target bundle. Não contar P397 nem o perfil desligado como MATCH. |
 | `title(...)` | — | `ausente` | — | Não é função standalone no vanilla; `title` é campo de `document`/`heading`/`figure`. |
 | `par` (paragraph element) | model/par.rs | `parcial` | Passo 138 | `leading` activo; sem `Content::Par` |
 

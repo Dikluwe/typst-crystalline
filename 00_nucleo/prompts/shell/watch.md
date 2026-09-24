@@ -130,3 +130,78 @@ As propriedades de snapshot pertencem a
 `infra/tests/p1295_watch_contract.md`; o consumo de `ArmedWatch` pertence a
 `infra/tests/p1297_watch_capability_contract.md`. Cada prompt possui
 exclusivamente seu integration test e não altera o ownership deste módulo.
+
+## P1485 — servidor HTTP local e live reload de bundle (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`03_infra/src/watch.rs` observa paths e publica apenas arquivo; não
+oferece HTTP nem troca diretório de bundle. No vanilla pinado,
+`typst-kit/src/server.rs:28-67,117-181,219-248,381-390`
+vincula `127.0.0.1`, serve árvore virtual, trata `/__events` como
+SSE e injeta script de reload apenas em HTML servido.
+`typst-cli/src/compile.rs:209-220,442-444` cria servidor em
+watch HTML/bundle e republica somente após export bem-sucedido.
+A sonda runtime P1485 confirmou HTTP 200 em `/` e `/index.html`,
+script por omissão e ausência do script com `--no-reload`; detalhes,
+binário e working tree em `diagnosticos/typst-p1485-bundle-sondas.md`.
+Rede e notificação são mecânica operacional observável; a
+igualdade da implementação HTTP do vanilla não é exigida.
+
+### Decisão proprietária
+
+Este owner estende `03_infra/src/watch.rs` com API pública
+`BundleHttpServer::new(title: &str, port: Option<u16>, live: bool)
+-> io::Result<BundleHttpServer>`, `addr(&self) -> SocketAddr` e
+`publish(&self, files: &[BundleFile])` e
+`publish_html(&self, html: &str)`, sendo `BundleFile` do
+owner `00_nucleo/prompts/infra/pipeline.md`. `publish_html` atende `/` como HTML;
+`publish` usa as rotas do bundle. O servidor faz bind somente em
+`127.0.0.1`, tenta 3000–3005 na ausência de porta explícita,
+e falha sem selecionar silenciosamente outra porta quando
+`--port` encontra endereço ocupado. Só watch HTML/bundle cria
+servidor; `--no-serve` evita até o bind. `--no-reload` mantém
+HTTP mas não injeta script. O servidor é local e não lê paths
+arbitrários no filesystem: serve snapshot imutável validado do
+bundle após uma compilação bem-sucedida, preservando o snapshot
+anterior após falha de compilação.
+
+Lookup percent-decodifica path, normaliza sem escapar do root,
+serve asset byte-exato e documento HTML como `text/html`, tenta
+`index.html` para diretórios, redireciona falta da barra final
+e devolve 404 em path ausente. `/__events` fornece SSE; cada
+publish bem-sucedido notifica browsers com evento `reload`. A
+injeção em HTML servido precede `</body>` ou fica no fim;
+bytes do arquivo escrito em disco não são alterados. MIME de
+tipos comuns acompanha extensão; tipo desconhecido pode ser
+`application/octet-stream`. Não exigir headers, threads nem
+algoritmo de locking idênticos ao vanilla.
+
+Para watch bundle, acrescentar ao `ArmedWatch`:
+
+```rust
+pub fn publish_directory(self, staging: &Path, destination: &Path)
+    -> io::Result<WatchSnapshot>;
+pub fn abandon_directory(self, staging: &Path) -> WatchSnapshot;
+```
+
+A capacidade captura o baseline antes da finalização. `publish_directory`
+prepara um backup irmão exclusivo do destino anterior, troca o diretório
+de staging pelo destino somente depois de todos os arquivos prontos,
+tenta restaurar o destino antigo se a troca falhar e limpa backup
+após sucesso. O caminho nunca remove recursivamente um root genérico:
+só staging/backup/destino específicos construídos por L4 e validados.
+`abandon_directory` remove apenas o staging, preserva o destino
+e devolve o baseline. O snapshot HTTP só muda depois de a publicação
+de output ter sucesso. O fluxo de arquivo existente permanece.
+
+### Aceitação
+
+Teste RED→GREEN verifica bind loopback, flags, fallback de
+porta, 200/301/404, asset byte-exato, MIME, script apenas em
+HTML servido, endpoint SSE e evento após recompilação, preservação
+do último snapshot após erro, e output no disco sem script.
+O teste usa porta efêmera explícita e timeouts apenas como
+limites, não como prova de prontidão. Nenhum servidor externo.
+O novo contrato público e default exigem gate ADR-0127.

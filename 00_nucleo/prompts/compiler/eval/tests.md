@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: 427bb68e
+Hash do Código: bf910bce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -32,11 +32,27 @@ access, chamadas estáticas/ligadas e construção de Content. Casos positivos
 preservam valores e efeitos; negativos preservam mensagem, severidade, hints,
 trace e range quando publicamente observáveis.
 
+## P1484 — medição pré-teste do gate `bundle`
+
+Em HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`00_nucleo/diagnosticos/typst-p1484-matriz-bundle.md` mede os oito
+perfis. O vanilla sem bundle rejeita `asset` e `std.asset` com mensagem,
+span e hints gated; com bundle, `type(asset)` é função. O cristalino
+pré-P1484 expõe o placeholder em ambos. `{ let asset = 1; asset }`
+prova que o homônimo local continua resolvível sem feature.
+
+Os testes P1484 exigem `Bundle` independente em `Features` e CLI,
+diagnóstico exato para global/`std` desligados, local homônimo
+preservado, e ausência do placeholder também no perfil ativo até
+P1485. O perfil ativo permanece RED/Unknown para o constructor real;
+não contar um perfil desligado como paridade exercitada.
+
 ## Perfis
 
 Contratos afetados por feature são repetidos nos perfis `default`, `html`,
-`a11y` e `html+a11y`. Uma feature não habilita outra e uma correção não pode
-existir somente num perfil quando a linguagem a define globalmente.
+`a11y`, `html+a11y`, `bundle`, `bundle+html`, `bundle+a11y` e
+`bundle+html+a11y`. Uma feature não habilita outra; perfis desligados não recebem
+crédito de MATCH.
 
 ## Imports e módulos
 
@@ -348,3 +364,26 @@ antecipado pelo passo original — os dois testes vivem neste ficheiro, com
 owner próprio, distinto de `compiler/eval.md` apesar do nome parecido.
 Nenhum outro oráculo deste ficheiro foi tocado; `p1303_*` (gate a11y de
 `format.pdf.*`) pertence a `field_access.md`, não aqui.
+
+## P1485 — provas causais de bundle (PROPOSTO)
+
+### Medição anterior à decisão
+
+O teste P1484 vigente verifica o gate e deixa `asset` Unknown com
+feature ativa. No vanilla ratificado, sonda P1485 mede a identidade
+`asset == format.bundle.asset == std.asset`, path normalizado e
+payload byte-exato, diagnósticos de argumentos e gate de
+`format.bundle`; fonte e comandos no diagnóstico
+`00_nucleo/diagnosticos/typst-p1485-bundle-sondas.md`.
+
+### Obrigação dos testes
+
+Escrever RED antes do código para: oito perfis de feature;
+`type/repr/fields` e identidade dos aliases; path absoluto e
+relativo normalizado, escapes e backslash; `Str` UTF-8 e `Bytes`
+arbitrários; faltas, tipos, named posicionais e `kind:` proibido;
+document path/body e metadata set; contexto paged/html por
+documento; globals locais homônimos; fora do target sem I/O.
+Constructor que apenas resolve o nome mas não exporta continua RED
+nos testes L3/L4. Não comparar endereços Rust nem bytes de
+documentos paginados como critério de linguagem.

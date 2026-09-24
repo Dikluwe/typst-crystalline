@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 04966438
+//! @prompt-hash 4b66a2f5
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -19,9 +19,11 @@
 
 use std::env;
 use std::fs;
-use std::io::Write;
+use std::io::{BufRead, BufReader, Read, Write};
+use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
+use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -2577,4 +2579,647 @@ fn p1359_pdf_tagged_e_neutro_para_png() {
         String::from_utf8_lossy(&result.stderr)
     );
     assert!(bytes.starts_with(&[0x89, 0x50, 0x4e, 0x47]));
+}
+
+fn p1485_fixture(name: &str, source: &str) -> (WatchFixture, PathBuf, PathBuf) {
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = env::temp_dir().join(format!("typst-p1485-{name}-{}-{stamp}", std::process::id()));
+    fs::create_dir(&root).unwrap();
+    let input = root.join("main.typ");
+    let output = root.join("bundle");
+    fs::write(&input, source).unwrap();
+    (WatchFixture(root), input, output)
+}
+
+fn p1485_compile(input: &PathBuf, output: &PathBuf, features: &str) -> std::process::Output {
+    Command::new(BIN)
+        .arg("compile")
+        .arg(input)
+        .arg(output)
+        .args(["--format", "bundle", "--features", features])
+        .output()
+        .unwrap()
+}
+
+fn p1485_http_get(port: u16, path: &str) -> Option<Vec<u8>> {
+    let address = SocketAddr::from(([127, 0, 0, 1], port));
+    let mut stream = TcpStream::connect_timeout(&address, Duration::from_millis(200)).ok()?;
+    stream.set_read_timeout(Some(Duration::from_millis(500))).ok()?;
+    stream.write_all(format!("GET {path} HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n").as_bytes()).ok()?;
+    let mut response = Vec::new();
+    let mut chunk = [0u8; 4096];
+    loop {
+        match stream.read(&mut chunk) {
+            Ok(0) => break,
+            Ok(size) => response.extend_from_slice(&chunk[..size]),
+            Err(error) if matches!(error.kind(), std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock) => break,
+            Err(_) => return None,
+        }
+    }
+    (!response.is_empty()).then_some(response)
+}
+
+fn p1485_http_body(response: &[u8]) -> &[u8] {
+    let boundary = response.windows(4).position(|window| window == b"\r\n\r\n").unwrap();
+    &response[boundary + 4..]
+}
+
+fn p1485_free_port() -> u16 {
+    let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+    listener.local_addr().unwrap().port()
+}
+
+#[test]
+fn p1485_bundle_mistura_documentos_e_preserva_asset_byte_exato() {
+    let (_fixture, input, output) = p1485_fixture(
+        "mixed",
+        "#asset(\"assets/./raw.bin\", bytes((0, 255, 10)))\n\
+         #asset(\"assets/../style.css\", \"café\")\n\
+         #document(\"pdf/a.pdf\")[Hello]\n\
+         #document(\"svg/b.svg\")[Hello]\n\
+         #document(\"png/c.png\")[Hello]\n\
+         #document(\"web/index.html\")[Hello]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_eq!(result.status.code(), Some(0), "{stderr}");
+    assert!(stderr.contains("bundle export is experimental"), "{stderr}");
+    assert_eq!(fs::read(output.join("assets/raw.bin")).unwrap(), [0, 255, 10]);
+    assert_eq!(fs::read(output.join("style.css")).unwrap(), "café".as_bytes());
+    let pdf = fs::read(output.join("pdf/a.pdf")).unwrap();
+    assert!(pdf.starts_with(b"%PDF-"), "PDF ausente ou inválido");
+    let pdf_tail = &pdf[pdf.len().saturating_sub(16)..];
+    assert!(pdf_tail.windows(5).any(|window| window == b"%%EOF"), "PDF truncado");
+    let svg = fs::read_to_string(output.join("svg/b.svg")).unwrap();
+    assert!(svg.contains("<svg") && svg.contains("</svg>"), "{svg}");
+    let png = fs::read(output.join("png/c.png")).unwrap();
+    assert!(png.starts_with(b"\x89PNG\r\n\x1a\n"), "PNG ausente ou inválido");
+    let html = fs::read_to_string(output.join("web/index.html")).unwrap();
+    assert!(html.contains("Hello"), "{html}");
+}
+
+#[test]
+fn p1485_bundle_rejeita_entradas_invalidas_sem_publicar_arvore() {
+    for (name, source, features, diagnostic) in [
+        ("no-feature", "#asset(\"a\", \"x\")", "html", "bundle export is only available"),
+        ("duplicate", "#asset(\"a/../x.txt\", \"one\")\n#asset(\"x.txt\", \"two\")", "bundle", "occurs multiple times in the bundle"),
+        ("mixed-duplicate", "#asset(\"x.pdf\", \"one\")\n#document(\"./x.pdf\")[Two]", "bundle", "occurs multiple times in the bundle"),
+        ("escape", "#asset(\"../outside.txt\", \"x\")", "bundle", "would escape the bundle root"),
+        ("top-level", "Loose text", "bundle", "text is not allowed at the top-level in bundle export"),
+        ("unknown-format", "#document(\"x.weird\")[X]", "bundle", "unknown document format"),
+        ("html-feature", "#document(\"index.html\")[X]", "bundle", "html"),
+    ] {
+        let (_fixture, input, output) = p1485_fixture(name, source);
+        let result = p1485_compile(&input, &output, features);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_ne!(result.status.code(), Some(0), "{name}: {stderr}");
+        assert!(stderr.contains(diagnostic), "{name}: {stderr}");
+        assert!(!output.exists(), "{name}: bundle parcial publicado");
+    }
+
+    let (_fixture, input, output) = p1485_fixture("outside", "#asset(\"x.txt\", \"x\")");
+    let result = Command::new(BIN)
+        .arg("compile").arg(&input).arg(output.with_extension("pdf"))
+        .args(["--format", "pdf", "--features", "bundle"])
+        .output().unwrap();
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_ne!(result.status.code(), Some(0), "{stderr}");
+    assert!(stderr.contains("assets are only supported in the bundle target"), "{stderr}");
+}
+
+#[test]
+fn p1485_bundle_default_output_e_stdout() {
+    let (_fixture, input, output) = p1485_fixture("default", "#asset(\"a.txt\", \"exact\")");
+    let result = Command::new(BIN)
+        .arg("compile").arg(&input)
+        .args(["--format", "bundle", "--features", "bundle"])
+        .output().unwrap();
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let default_output = input.with_extension("");
+    assert_eq!(fs::read(default_output.join("a.txt")).unwrap(), b"exact");
+    assert!(!output.exists());
+
+    let stdout = Command::new(BIN)
+        .arg("compile").arg(&input).arg("-")
+        .args(["--format", "bundle", "--features", "bundle"])
+        .output().unwrap();
+    assert_ne!(stdout.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&stdout.stderr).contains("cannot write bundle to standard output"));
+    assert!(stdout.stdout.is_empty());
+}
+
+#[test]
+fn p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro() {
+    let (_fixture, input, output) = p1485_fixture(
+        "watch-http",
+        "#asset(\"raw.bin\", bytes((0, 255, 10)))\n\
+         #document(\"index.html\")[First]\n\
+         #document(\"dir/index.html\")[Nested]",
+    );
+    let port = p1485_free_port();
+    let mut child = Command::new(BIN)
+        .arg("watch").arg(&input).arg(&output)
+        .args(["--format", "bundle", "--features", "bundle,html", "--port"])
+        .arg(port.to_string())
+        .stdout(Stdio::null()).stderr(Stdio::piped())
+        .spawn().unwrap();
+    let stderr = child.stderr.take().unwrap();
+    let (sender, receiver) = mpsc::channel();
+    let log_reader = thread::spawn(move || {
+        for line in BufReader::new(stderr).lines().map_while(Result::ok) {
+            if sender.send(line).is_err() { break; }
+        }
+    });
+    let mut watch = WatchedChild(child);
+    wait_until(&mut watch, "bundle inicial e servidor", Duration::from_secs(20), || {
+        output.join("raw.bin").exists()
+            && p1485_http_get(port, "/index.html")
+                .is_some_and(|response| response.starts_with(b"HTTP/1.1 200") || response.starts_with(b"HTTP/1.0 200"))
+    });
+    let initial = p1485_http_get(port, "/").unwrap();
+    assert!(initial.starts_with(b"HTTP/1.1 200") || initial.starts_with(b"HTTP/1.0 200"));
+    assert!(String::from_utf8_lossy(p1485_http_body(&initial)).contains("EventSource"));
+    let disk = fs::read(output.join("index.html")).unwrap();
+    assert!(!String::from_utf8_lossy(&disk).contains("EventSource"));
+    let raw = p1485_http_get(port, "/raw.bin").unwrap();
+    assert_eq!(p1485_http_body(&raw), [0, 255, 10]);
+    assert!(String::from_utf8_lossy(&raw).to_ascii_lowercase().contains("application/octet-stream"));
+    assert!(p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.1 404")
+        || p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.0 404"));
+    let redirect = p1485_http_get(port, "/dir").unwrap();
+    assert!(redirect.starts_with(b"HTTP/1.1 301") || redirect.starts_with(b"HTTP/1.0 301"));
+    let nested = p1485_http_get(port, "/dir/").unwrap();
+    assert!(String::from_utf8_lossy(p1485_http_body(&nested)).contains("Nested"));
+
+    let address = SocketAddr::from(([127, 0, 0, 1], port));
+    let mut sse = TcpStream::connect_timeout(&address, Duration::from_secs(2)).unwrap();
+    sse.set_read_timeout(Some(Duration::from_secs(10))).unwrap();
+    sse.write_all(b"GET /__events HTTP/1.1\r\nHost: localhost\r\nAccept: text/event-stream\r\n\r\n").unwrap();
+    let mut prelude = [0u8; 1024];
+    let size = sse.read(&mut prelude).unwrap();
+    assert!(String::from_utf8_lossy(&prelude[..size]).contains("200"));
+    fs::write(&input, "#asset(\"raw.bin\", bytes((1, 2, 3)))\n#document(\"index.html\")[Second]").unwrap();
+    wait_until(&mut watch, "republicação bundle", Duration::from_secs(20), || {
+        fs::read(output.join("raw.bin")).is_ok_and(|bytes| bytes == [1, 2, 3])
+    });
+    let mut event = Vec::new();
+    let mut buffer = [0u8; 1024];
+    while !String::from_utf8_lossy(&event).contains("reload") {
+        let count = sse.read(&mut buffer).expect("evento SSE após republicação");
+        assert_ne!(count, 0, "SSE fechou antes do reload");
+        event.extend_from_slice(&buffer[..count]);
+    }
+    let last_disk = fs::read(output.join("index.html")).unwrap();
+    let last_http = p1485_http_get(port, "/index.html").unwrap();
+    assert!(String::from_utf8_lossy(p1485_http_body(&last_http)).contains("Second"));
+
+    fs::write(&input, "#unknown-watch-name").unwrap();
+    let deadline = Instant::now() + Duration::from_secs(20);
+    let mut observed_error = false;
+    while Instant::now() < deadline {
+        watch.assert_alive("erro transitório bundle");
+        if let Ok(line) = receiver.recv_timeout(Duration::from_millis(200)) {
+            if line.contains("unknown-watch-name") || line.contains("unknown variable") {
+                observed_error = true;
+                break;
+            }
+        }
+    }
+    assert!(observed_error, "watch não reportou o erro transitório");
+    assert_eq!(fs::read(output.join("index.html")).unwrap(), last_disk);
+    assert_eq!(p1485_http_body(&p1485_http_get(port, "/index.html").unwrap()), p1485_http_body(&last_http));
+    drop(watch);
+    log_reader.join().unwrap();
+}
+
+#[test]
+fn p1485_watch_flags_no_reload_no_serve_e_porta_ocupada() {
+    for (name, flags, expect_http) in [
+        ("no-reload", vec!["--no-reload"], true),
+        ("no-serve", vec!["--no-serve"], false),
+    ] {
+        let (_fixture, input, output) = p1485_fixture(name, "#document(\"index.html\")[Hello]");
+        let port = p1485_free_port();
+        let mut command = Command::new(BIN);
+        command.arg("watch").arg(&input).arg(&output)
+            .args(["--format", "bundle", "--features", "bundle,html", "--port"])
+            .arg(port.to_string()).args(&flags).stdout(Stdio::null()).stderr(Stdio::null());
+        let mut watch = WatchedChild(command.spawn().unwrap());
+        wait_until(&mut watch, "watch flags", Duration::from_secs(20), || output.join("index.html").exists());
+        if expect_http {
+            wait_until(&mut watch, "HTTP sem reload", Duration::from_secs(10), || p1485_http_get(port, "/").is_some());
+            let response = p1485_http_get(port, "/").unwrap();
+            assert!(response.starts_with(b"HTTP/1.1 200") || response.starts_with(b"HTTP/1.0 200"));
+            assert!(!String::from_utf8_lossy(p1485_http_body(&response)).contains("EventSource"));
+        } else {
+            assert!(TcpStream::connect_timeout(
+                &SocketAddr::from(([127, 0, 0, 1], port)), Duration::from_millis(300)
+            ).is_err(), "--no-serve abriu listener");
+        }
+    }
+
+    let (_fixture, input, output) = p1485_fixture("occupied", "#document(\"index.html\")[Hello]");
+    let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let result = Command::new(BIN)
+        .arg("watch").arg(&input).arg(&output)
+        .args(["--format", "bundle", "--features", "bundle,html", "--port"])
+        .arg(port.to_string())
+        .output().unwrap();
+    assert!(!result.status.success(), "watch ignorou porta ocupada");
+    assert!(!output.exists());
+}
+
+#[test]
+fn p1485_bundle_target_contextual_por_documento() {
+    // Vanilla pinado 586e1bd43: o documento PDF observa "paged" e o HTML observa "html".
+    let (_fixture, input, output) = p1485_fixture(
+        "targets",
+        "#document(\"paged.pdf\")[#context assert.eq(target(), \"paged\") Paged marker]\n\
+         #document(\"semantic.html\")[#context assert.eq(target(), \"html\") #context target()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(fs::read(output.join("paged.pdf")).unwrap().starts_with(b"%PDF-"));
+    let html = fs::read_to_string(output.join("semantic.html")).unwrap();
+    assert!(html.contains("<body><p>html</p></body>"), "{html}");
+}
+
+#[test]
+fn p1485_bundle_introspeccao_atravessa_documentos() {
+    // Vanilla pinado 586e1bd43: query(heading) vê 3 headings em ambos os arquivos.
+    let (_fixture, input, output) = p1485_fixture(
+        "cross-introspection",
+        "#document(\"one.html\")[= One <one>\n#context query(heading).len()]\n\
+         #document(\"two.html\")[= Two <two>\n= Three <three>\n#context query(heading).len()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let one = fs::read_to_string(output.join("one.html")).unwrap();
+    let two = fs::read_to_string(output.join("two.html")).unwrap();
+    assert!(one.contains("<h2>One</h2>"), "{one}");
+    assert!(two.contains("<h2>Two</h2>") && two.contains("<h2>Three</h2>"), "{two}");
+    assert!(one.contains("<p>3</p>"), "consulta cross-document em one.html: {one}");
+    assert!(two.contains("<p>3</p>"), "consulta cross-document em two.html: {two}");
+}
+
+#[test]
+fn p1485_bundle_contexto_posterior_atualiza_consulta_anterior() {
+    let (_fixture, input, output) = p1485_fixture(
+        "context-cross-generation",
+        "#document(\"first.html\")[#context query(heading).len()]\n\
+         #document(\"second.html\")[#context [= Generated]]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let first = fs::read_to_string(output.join("first.html")).unwrap();
+    let second = fs::read_to_string(output.join("second.html")).unwrap();
+    assert!(first.contains("<p>1</p>"), "{first}");
+    assert!(second.contains("<h2>Generated</h2>"), "{second}");
+}
+
+#[test]
+fn p1485_bundle_counter_global_entre_html_e_pdf() {
+    let (_fixture, input, output) = p1485_fixture(
+        "counter-cross-target",
+        "#set heading(numbering: \"1.\")\n\
+         #document(\"first.html\")[#context counter(heading).final().first()]\n\
+         #document(\"second.pdf\")[= Beta]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let first = fs::read_to_string(output.join("first.html")).unwrap();
+    assert!(first.contains("<p>1</p>"), "{first}");
+    assert!(fs::read(output.join("second.pdf")).unwrap().starts_with(b"%PDF-"));
+}
+
+#[test]
+fn p1485_bundle_estado_global_e_contexto_aninhado() {
+    let (_fixture, input, output) = p1485_fixture(
+        "state-nested",
+        "#let shared = state(\"bundle-cross\", 0)\n\
+         #document(\"first.html\")[#context [#context shared.final()]]\n\
+         #document(\"second.pdf\")[#shared.update(7)]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let first = fs::read_to_string(output.join("first.html")).unwrap();
+    assert!(first.contains("<p>7</p>"), "{first}");
+    assert!(fs::read(output.join("second.pdf")).unwrap().starts_with(b"%PDF-"));
+}
+
+#[test]
+fn p1485_bundle_page_counter_e_local_a_cada_pdf() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-counter",
+        "#document(\"one.pdf\")[#context counter(page).get().first()]\n\
+         #document(\"two.pdf\")[#context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    for name in ["one.pdf", "two.pdf"] {
+        let path = output.join(name);
+        match Command::new("pdftotext").arg(&path).arg("-").output() {
+            Ok(extracted) => {
+                assert!(extracted.status.success(), "{name}: pdftotext falhou");
+                assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), "1", "{name}");
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                assert!(fs::read(path).unwrap().starts_with(b"%PDF-"));
+            }
+            Err(error) => panic!("{name}: {error}"),
+        }
+    }
+}
+
+#[test]
+fn p1485_bundle_page_update_nao_vaza_ao_pdf_seguinte() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-update",
+        "#document(\"one.pdf\")[#counter(page).update(5) #context counter(page).get().first()]\n\
+         #document(\"two.pdf\")[#context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    for (name, expected) in [("one.pdf", "5"), ("two.pdf", "1")] {
+        let path = output.join(name);
+        match Command::new("pdftotext").arg(&path).arg("-").output() {
+            Ok(extracted) => {
+                assert!(extracted.status.success(), "{name}: pdftotext falhou");
+                assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), expected, "{name}");
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                assert!(fs::read(path).unwrap().starts_with(b"%PDF-"));
+            }
+            Err(error) => panic!("{name}: {error}"),
+        }
+    }
+}
+
+#[test]
+fn p1485_bundle_referencia_rotulada_cruza_pdfs() {
+    let (_fixture, input, output) = p1485_fixture(
+        "cross-reference",
+        "#set heading(numbering: \"1.\")\n\
+         #document(\"a.pdf\")[See @beta.]\n\
+         #document(\"b.pdf\")[= Beta <beta>]",
+    );
+    let result = p1485_compile(&input, &output, "bundle");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    match Command::new("pdftotext").arg(output.join("a.pdf")).arg("-").output() {
+        Ok(extracted) => {
+            assert!(extracted.status.success());
+            let text = String::from_utf8_lossy(&extracted.stdout);
+            assert!(text.contains("See Section 1."), "{text}");
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => panic!("{error}"),
+    }
+}
+
+#[test]
+fn p1485_bundle_html_nao_herda_page_counter_do_pdf() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-html-isolation",
+        "#document(\"first.pdf\")[#counter(page).update(5)]\n\
+         #document(\"second.html\")[#context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let html = fs::read_to_string(output.join("second.html")).unwrap();
+    assert!(html.contains("<p>1</p>"), "{html}");
+}
+#[test]
+fn p1485_bundle_html_respeita_update_page_proprio() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-html-own-update",
+        "#document(\"first.pdf\")[#counter(page).update(5)]\n\
+         #document(\"second.html\")[#counter(page).update(7) #context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let html = fs::read_to_string(output.join("second.html")).unwrap();
+    assert!(html.contains("<p>7</p>"), "{html}");
+}
+
+#[test]
+fn p1485_bundle_page_func_segue_ordem_causal_entre_bodies() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-func-boundary",
+        "#document(\"first.html\")[#counter(page).update(n => n + 4) #context counter(page).get().first()]\n\
+         #document(\"second.html\")[#context counter(page).get().first()]\n\
+         #document(\"third.html\")[#counter(page).update(n => n + 6) #counter(page).step() #context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    for (name, expected) in [("first.html", "5"), ("second.html", "1"), ("third.html", "8")] {
+        let html = fs::read_to_string(output.join(name)).unwrap();
+        assert!(html.contains(&format!("<p>{expected}</p>")), "{name}: {html}");
+    }
+}
+
+#[test]
+fn p1485_bundle_body_vazio_reinicia_so_page() {
+    let (_fixture, input, output) = p1485_fixture(
+        "empty-page-boundary",
+        "#document(\"first.html\")[#counter(page).update(9) #counter(\"shared\").update(4)]\n\
+         #document(\"empty.html\")[]\n\
+         #document(\"page.html\")[#context counter(page).get().first()]\n\
+         #document(\"shared.html\")[#context counter(\"shared\").get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let page = fs::read_to_string(output.join("page.html")).unwrap();
+    let shared = fs::read_to_string(output.join("shared.html")).unwrap();
+    assert!(page.contains("<p>1</p>"), "page.html: {page}");
+    assert!(shared.contains("<p>4</p>"), "shared.html: {shared}");
+    assert!(output.join("empty.html").exists(), "body vazio não foi publicado");
+}
+
+#[test]
+fn p1485_bundle_page_at_label_cruzado_usa_documento_de_origem() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-at-cross-document",
+        "#document(\"origin.pdf\")[#counter(page).update(5)\n= Origin <origin>]\n\
+         #document(\"reader.html\")[#context counter(page).at(<origin>).first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert!(fs::read(output.join("origin.pdf")).unwrap().starts_with(b"%PDF-"));
+    let html = fs::read_to_string(output.join("reader.html")).unwrap();
+    assert!(html.contains("<p>5</p>"), "reader.html: {html}");
+}
+
+#[test]
+fn p1485_bundle_page_func_no_pdf_nao_contamina_html() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-func-pdf-html",
+        "#document(\"first.pdf\")[#counter(page).update(n => n + 4) #context counter(page).get().first()]\n\
+         #document(\"second.html\")[#context counter(page).get().first()]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    let html = fs::read_to_string(output.join("second.html")).unwrap();
+    assert!(html.contains("<p>1</p>"), "second.html: {html}");
+    match Command::new("pdftotext").arg(output.join("first.pdf")).arg("-").output() {
+        Ok(extracted) => {
+            assert!(extracted.status.success(), "pdftotext falhou");
+            assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), "5");
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            assert!(fs::read(output.join("first.pdf")).unwrap().starts_with(b"%PDF-"));
+        }
+        Err(error) => panic!("{error}"),
+    }
+}
+
+#[test]
+fn p1485_bundle_page_func_erro_impede_publicacao_parcial() {
+    let (_fixture, input, output) = p1485_fixture(
+        "page-func-error-atomic",
+        "#asset(\"ready.txt\", \"not-published\")\n\
+         #document(\"first.html\")[#counter(page).update(n => assert.eq(n, 99)) #context counter(page).get().first()]\n\
+         #document(\"second.html\")[Would have rendered]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_ne!(result.status.code(), Some(0), "callback inválida passou: {}", String::from_utf8_lossy(&result.stderr));
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert!(stderr.contains("assert"), "erro não veio do callback: {stderr}");
+    assert!(!output.exists(), "bundle parcial publicado após erro do callback");
+}
+
+#[test]
+fn p1485_bundle_html_frame_exporta_svg_inline() {
+    let (_fixture, input, output) = p1485_fixture(
+        "frame",
+        "#document(\"frame.html\")[#html.frame[#rect(width: 20pt, height: 10pt, fill: red)]]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let html = fs::read_to_string(output.join("frame.html")).unwrap();
+    assert!(html.contains("<body><svg") && html.contains("</svg></body>"), "{html}");
+    assert!(
+        (html.contains("<rect") || html.contains("<path"))
+            && html.contains("fill=\"#ff4136\""),
+        "{html}"
+    );
+    assert!(!html.contains("<frame"), "frame não deve escapar como tag HTML: {html}");
+}
+
+#[test]
+fn p1485_bundle_pdf_unicode_e_fonte_embutida() {
+    let (_fixture, input, output) = p1485_fixture(
+        "unicode-font",
+        "#document(\"unicode.pdf\")[#set text(font: \"Libertinus Serif\")\nCafé Ω — Ελληνικά]",
+    );
+    let result = p1485_compile(&input, &output, "bundle");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let pdf_path = output.join("unicode.pdf");
+    let pdf = fs::read(&pdf_path).unwrap();
+    assert!(pdf.starts_with(b"%PDF-"));
+    let structure = String::from_utf8_lossy(&pdf);
+    assert!(structure.contains("/ToUnicode"), "PDF sem mapa Unicode");
+    assert!(structure.contains("LibertinusSerif"), "fonte pedida não foi embutida");
+
+    // Poppler é opcional no ambiente de teste; quando existe, verificar também
+    // o texto extraível, que é o observável de linguagem medido no vanilla.
+    match Command::new("pdftotext").arg(&pdf_path).arg("-").output() {
+        Ok(extracted) => {
+            assert!(extracted.status.success(), "pdftotext falhou");
+            let text = String::from_utf8_lossy(&extracted.stdout);
+            assert!(text.contains("Café Ω — Ελληνικά"), "{text}");
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => panic!("não foi possível executar pdftotext: {error}"),
+    }
+}
+
+#[test]
+fn p1485_bundle_heading_numbering_continua_entre_pdfs() {
+    // Vanilla pinado 586e1bd43: a.pdf extrai "1. Alpha"; b.pdf extrai "2. Beta".
+    let (_fixture, input, output) = p1485_fixture(
+        "heading-numbering",
+        "#set heading(numbering: \"1.\")\n\
+         #document(\"a.pdf\")[= Alpha]\n\
+         #document(\"b.pdf\")[= Beta]",
+    );
+    let result = p1485_compile(&input, &output, "bundle");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let a_path = output.join("a.pdf");
+    let b_path = output.join("b.pdf");
+    let a = fs::read(&a_path).unwrap();
+    let b = fs::read(&b_path).unwrap();
+    for (name, pdf) in [("a.pdf", &a), ("b.pdf", &b)] {
+        assert!(pdf.starts_with(b"%PDF-"), "{name} não é PDF");
+        let body = String::from_utf8_lossy(pdf);
+        assert!(body.contains("/ToUnicode"), "{name} sem mapeamento de texto");
+    }
+
+    match Command::new("pdftotext").arg(&a_path).arg("-").output() {
+        Ok(first) => {
+            assert!(first.status.success(), "extração de a.pdf falhou");
+            let second = Command::new("pdftotext").arg(&b_path).arg("-").output().unwrap();
+            assert!(second.status.success(), "extração de b.pdf falhou");
+            let first_text = String::from_utf8_lossy(&first.stdout);
+            let second_text = String::from_utf8_lossy(&second.stdout);
+            assert!(first_text.contains("1. Alpha"), "a.pdf: {first_text}");
+            assert!(second_text.contains("2. Beta"), "b.pdf: {second_text}");
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            // Sem Poppler, o teste ainda exige dois PDFs textuais válidos.
+        }
+        Err(error) => panic!("não foi possível executar pdftotext: {error}"),
+    }
+}
+
+#[test]
+fn p1485_bundle_html_frame_heading_rotulada_renderiza_svg() {
+    // Vanilla pinado 586e1bd43 aceita heading rotulada no body paginado da ilha.
+    let (_fixture, input, output) = p1485_fixture(
+        "frame-heading",
+        "#document(\"frame.html\")[#html.frame[= Framed heading <inside>]]",
+    );
+    let result = p1485_compile(&input, &output, "bundle,html");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let html = fs::read_to_string(output.join("frame.html")).unwrap();
+    assert!(html.contains("<body><svg") && html.contains("</svg></body>"), "{html}");
+    assert!(
+        html.contains("<text") || html.contains("<use") || html.contains("<path"),
+        "heading deve produzir desenho visível na ilha SVG: {html}"
+    );
+    assert!(!html.contains("<h2>"), "heading da ilha não deve virar heading HTML: {html}");
+    assert!(!html.contains("<frame"), "ilha não deve virar tag HTML frame: {html}");
 }

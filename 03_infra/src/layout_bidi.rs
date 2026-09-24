@@ -578,6 +578,7 @@ mod tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            logical_number: 1,
             supplement: typst_core::entities::content::Content::Empty,
             bleed: Default::default(),
             fill: Default::default(),

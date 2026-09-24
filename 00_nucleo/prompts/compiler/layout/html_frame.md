@@ -1,5 +1,5 @@
 # Prompt L0 — layout da ilha `html.frame`
-Hash do Código: 1939c26d
+Hash do Código: 48b06d31
 
 **Estado:** APROVADO NO GATE ADR-0127 P1424 EM 2026-09-16  
 **Camada:** L1  
@@ -39,3 +39,16 @@ Texto simples produz dimensões intrínsecas positivas; rect 10pt×5pt produz
 page 10×5 transparente; frame aninhado é geometricamente idêntico; no layout
 paginado ordinário o body ocupa exatamente a posição que teria sem wrapper.
 IDs/bytes SVG não pertencem a esta unidade.
+## P1486 — número da página intrínseca
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/html_frame.rs:74-86` constrói uma
+`Page` isolada para o encoder HTML, fora da sequência paginada
+global; `entities/layout_types.md` P1486 exige número lógico
+explícito em toda `Page`. A ilha não participa em `/PageLabels`.
+
+### Decisão
+
+A única página intrínseca recebe `logical_number: 1`.
+Nenhum contador global, callback ou rótulo PDF é criado.

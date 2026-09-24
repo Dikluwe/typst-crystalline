@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 19fc4a0d
+Hash do Código: 4a45d879
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -1961,3 +1961,114 @@ Correção interna de paridade em fluxo contínuo conforme ADR-0127. A descobert
 ocorreu depois da validação preliminar e deve constar como emenda verificável, sem reescrever
 o artefacto congelado. O caso show-set permanece um achado negativo que não
 pode ser promovido a Preserved nesta unidade.
+
+## P1485.2 — introspecção de bodies do bundle com inícios causais (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+No P1485 em working tree não commitada sobre
+`bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`introspect_with_introspector` cria um único `Locator::new()`
+(`compiler/introspect.rs:743-765`), enquanto o bundle compõe
+`Content::sequence(document_bodies)` em
+`infra/pipeline.rs:759-760`. Esse walk global vê três headings
+em dois HTMLs (sonda vanilla e cristalina), mas não devolve o início
+da faixa de Locations de cada body. Um segundo walk por body não
+preserva os números globais: PDFs `a`/`b` divergem `1.,1.` de
+`1.,2.`. A tentativa de inferir inícios por
+`TagIntrospector.elements.len()` falha conceitualmente porque
+nem todo avanço de `Locator` vira uma entrada nessa tabela.
+
+Classificação ADR-0107: contagem/numeração observada por `query` e
+PDF é semântica; offsets, tags e seed são mecânica interna. O
+vanilla confirma o comportamento, não a intenção de copiar seu
+algoritmo. Inferência: checkpoints colhidos pelo mesmo walk
+locatable mantêm as duas representações alinhadas. Refutação:
+uma transformação runtime que altere a ordem, ou um body com
+labels/Styled/Outline cujo primeiro Location divirja no layout.
+
+### Contrato público ratificado
+
+Adicionar `introspect_bundle_documents_with_starts(bodies: &[Content])
+-> (TagIntrospector, Vec<LocatorSeed>)`, com exatamente um seed por
+body na ordem recebida. O consumer mantém um único `Locator`, a mesma
+classificação de locatables e a mesma cadeia/contadores de labels do
+walk canônico. Registra `Locator::checkpoint()` **antes** de entrar
+em cada body; converte referências bibliográficas sem alterar a ordem;
+executa pós-processadores globais uma vez após todos os bodies.
+`LocatorSeed` pertence a `entities/locator.md`, não a este owner.
+Os entrypoints existentes não mudam.
+
+Para a coordenação runtime L3, o mesmo conjunto de bodies final deve
+ser introspectado globalmente por `introspect_with_runtime` ou
+equivalente já contratado, nunca um body isolado. A ordem e os
+checkpoints do walk puro devem concordar com o walk runtime; se
+qualquer transformação mudar a ordem das ocorrências, invalidar a
+tentativa, não usar seed aproximado. Esta entrypoint não executa
+contextos, layouts ou writes.
+
+Testes cobrem bodies vazios, headings rotulados, nós aninhados,
+Styled, Outline e dois documentos com refs/counters; exigem
+alinhamento entre o seed de cada body e a Location da primeira
+ocorrência no introspector global. A assinatura pública L1 teve
+o gate ADR-0127 confirmado pelo dono em 2026-09-24.
+
+## P1485.3 — fronteira de página nos bodies runtime do bundle (ratificado; ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree não commitada sobre `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+`introspect_bundle_documents_with_starts` percorre os bodies sem fronteira
+semântica de página (`01_core/src/compiler/introspect.rs:775-811`), enquanto
+`introspect_with_runtime` aceita um só `Content` e não conhece esses inícios
+(`:814-854`). L3 passa uma Sequence (`03_infra/src/pipeline/context_stabilization.rs:742-745`).
+A sonda `p1485_bundle_html_nao_herda_page_counter_do_pdf` falha: após
+`counter(page).update(5)` no PDF, o HTML seguinte observa 5; no vanilla
+pinado `586e1bd43`, observa 1. Outra sonda vanilla mostra que atualização
+explícita para 7 no próprio HTML devolve 7. Provas e proveniência constam no
+diagnóstico P1485 de integração.
+
+ADR-0107: o valor do contador é semântica da linguagem; resets do histórico,
+seeds e formato da chamada são mecânica. Não copiar o algoritmo vanilla.
+Inferência: fronteira lógica antes das atualizações de cada body separa apenas
+Page sem quebrar headings, states e referências globais. Refutação: HTML
+continuar a herdar o PDF, atualização local não prevalecer, ou fronteira
+alterar Locations e valores de outras chaves.
+
+### Contrato público ratificado
+
+Adicionar `introspect_bundle_documents_with_runtime_and_starts(
+    bodies: &[Content], engine: &mut Engine<'_>, ctx: &mut EvalContext
+) -> SourceResult<(TagIntrospector, Vec<LocatorSeed>)>` ao mesmo owner L1.
+Usa um Locator, walk causal e cadeia de estilo para todos os bodies, a mesma
+conversão global de referências bibliográficas e os pós-processadores runtime
+uma vez após o conjunto, propagando erros. Entrega exatamente um seed antes
+de cada body e alinha com a variante pura. APIs single-file não mudam.
+
+Em ambas as variantes bundle, imediatamente antes do walk de cada body,
+registrar no `CounterRegistry` a fronteira lógica `CounterKey::Page = [1]`
+na próxima Location obtida sem avançar o Locator. Não inserir Content, Tag,
+Metadata nem deslocar Location. Update Page explícito dentro do body
+prevalece; HTML sem update próprio observa 1 e não herda o PDF anterior.
+Body vazio mantém seed e não consome Location. Headings, outras chaves,
+labels, state e queries seguem globais. Usar o histórico já contratado em
+`entities/counter_registry.md`, sem API nova nele. Não definir `.final()`
+multi-documento nesta unidade.
+
+O pós-pass atual de `CounterUpdate::Func` acrescenta snapshots depois do walk
+(`compiler/introspect/from_tags.rs:157-214`); inserção de reset isolada não
+basta para funções Page. No bundle runtime, o valor Page segue ordem causal de
+Location + fonte, incluindo reset e Set/Step/Func; callbacks Page recebem o
+estado da própria faixa e erros propagam. Não tratar inserção tardia como
+ordem documental. O owner `compiler/introspect/from_tags.md` especifica esse
+replay; outras chaves mantêm contratos vigentes. Aceitação adicional: Func
+Page no PDF não contamina HTML posterior; Func Page no HTML vê 1 antes de seu
+update e seu retorno é observado no mesmo body.
+
+
+Aceitação: puro/runtime dão seeds, Locations e Page equivalentes para
+ações determinísticas; Func é avaliada apenas no caminho runtime.
+PDF(update 5) seguido de HTML lê 1, HTML(update 7) lê 7, PDF seguinte
+lê início local; Empty, Styled, Outline e refs cruzadas não deslocam
+inícios; erros de funções runtime propagam-se. A assinatura pública
+L1 e a mudança observável foram confirmadas pelo dono em 2026-09-24.

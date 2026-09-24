@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 6d98a9e6
+Hash do Código: 4ce9e0f8
 
 ## P1339 — causa existente das conversões de Angle
 
@@ -667,6 +667,39 @@ a função original. Logo `EcoString` no snapshot perde semântica.
 desativado. `Page` também conserva o span de origem necessário para erro de
 callback e o número lógico corrente validado; estes campos públicos exatos serão
 materializados somente após o gate. Geometria e ordem de páginas não mudam.
+
+## P1486 — número lógico da página para rótulos PDF (PROPOSTO; GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree não commitada sobre `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`
+(proveniência, fixtures e extração: `00_nucleo/diagnosticos/typst-p1486-page-labels.md`),
+o vanilla pinado rotula a seleção física 1+3 com `1, 3` sob padrão `"1"`
+e com `10, 12` após `counter(page).update(10)`. O cristalino atual rotula
+ambas como `1, 2`. Em `layout_types.rs:853-865`, `Page` preserva o
+`numbering`, mas não o número lógico; em `pipeline.rs:1847-1856`, o
+`PageStore` realizado possui os números lógicos, enquanto
+`pipeline.rs:1558-1565` devolve apenas o documento. A inferência do Passo
+1486 de que `Page.numbering` mais índice físico bastariam é refutada pelo
+segundo probe. Rótulo visto pelo leitor é observável; a escolha de campo é
+mecânica (ADR-0107). A inferência de que o store final é fonte suficiente
+seria refutada por uma página cujo número lógico realizado difira do seu
+snapshot após o último relayout.
+
+### Contrato público proposto
+
+`Page` ganha `pub logical_number: usize`, número lógico validado da própria
+página, independente do índice físico e da seleção PDF. Construtores de
+layout L1 iniciam-no pelo número físico quando ainda não há store realizado;
+o pipeline L3 substitui esse valor pelo snapshot lógico do `PageStore` final,
+em correspondência 1:1, antes de devolver o `PagedDocument` para exportação.
+O campo não muda `plain_text`, canvas, conteúdo visual, contadores ou seleção.
+Uma página construída diretamente para exportação declara explicitamente o
+seu número lógico. O span de origem de P1157 permanece fora deste passo.
+
+**Paragem obrigatória:** adicionar um campo público de entidade é mudança de
+contrato pela ADR-0127. Nenhum código L1/L3 deve materializar este bloco
+antes de confirmação específica do dono para P1486.
 # P1226 — `FrameItem::Shape.fill_rule`
 
 Medição pública: o frame cristalino perdia `curve(fill-rule: "even-odd")`

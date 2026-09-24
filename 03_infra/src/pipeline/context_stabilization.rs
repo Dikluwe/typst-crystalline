@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash be0e9bfb
+//! @prompt-hash b59a1109
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -34,6 +34,7 @@ struct Producer {
     selected: bool,
     invalid: bool,
     active: bool,
+    target: EvalTarget,
 }
 
 struct Session<'a> {
@@ -51,6 +52,8 @@ struct Session<'a> {
     retired: Vec<Box<Execution>>,
     next_id: u64,
     impossible: bool,
+    bundle_html_targets: Option<Vec<bool>>,
+    bundle_candidate: Option<TagIntrospector>,
 }
 
 fn terminal<T>(source: &Source, errors: Vec<SourceDiagnostic>) -> SourceResult<T> {
@@ -138,6 +141,8 @@ impl<'a> Session<'a> {
             retired: Vec::new(),
             next_id,
             impossible,
+            bundle_html_targets: None,
+            bundle_candidate: None,
         };
         for (elem, chain) in blocks {
             let index = session.add(elem, chain, None);
@@ -153,15 +158,18 @@ impl<'a> Session<'a> {
         parent: Option<usize>,
     ) -> usize {
         let index = self.nodes.len();
+        let target = parent.map(|parent| self.nodes[parent].target).unwrap_or(self.target);
+        let selected = self.bundle_html_targets.is_some();
         self.nodes.push(Producer {
             elem,
             chain,
             parent,
             children: Vec::new(),
             current: None,
-            selected: false,
+            selected,
             invalid: true,
             active: true,
+            target,
         });
         index
     }
@@ -172,11 +180,11 @@ impl<'a> Session<'a> {
         ctx.in_context = true;
         ctx.introspector = input.clone();
         ctx.current_location = Some(location);
-        ctx.target = self.target;
+        ctx.target = node.target;
         // Discovery and never-selected producers retain EvalContext::new's
         // legacy options. HTML is a distinct causal target: its closures must
         // retain the feature set selected by the compile invocation.
-        if node.selected || self.target == EvalTarget::Html {
+        if node.selected || node.target == EvalTarget::Html {
             ctx.features = self.features;
             ctx.full_error = self.full_error;
         }
@@ -415,12 +423,30 @@ impl<'a> Session<'a> {
                 }
             }
             let content = self.content();
-            let (runtime, mut phase_warnings) =
-                introspect_with_runtime_for_pipeline(&content, self.world, self.source);
+            let (runtime, mut phase_warnings) = if self.bundle_html_targets.is_some() {
+                let Content::Sequence(parts) = &content else {
+                    return (terminal(self.source, Vec::new()), self.warnings());
+                };
+                let (result, warnings) = introspect_bundle_with_runtime_for_pipeline(
+                    parts.as_ref(), self.world, self.source,
+                );
+                (result.map(|(intr, _starts)| intr), warnings)
+            } else {
+                introspect_with_runtime_for_pipeline(&content, self.world, self.source)
+            };
             let mut candidate = match runtime {
                 Ok(intr) => intr,
                 Err(error) => return (self.fail(error), self.warnings()),
             };
+            if let Some(html_targets) = &self.bundle_html_targets {
+                let page_warnings = match bundle_page_views(
+                    &content, html_targets, &mut candidate, input, self.world, self.source,
+                ) {
+                    Ok(warnings) => warnings,
+                    Err(errors) => return (self.fail(errors), self.warnings()),
+                };
+                phase_warnings.extend(page_warnings);
+            }
             let mut document = None;
             if let Some(module) = module {
                 for (key, style) in module.bibliography_styles() {
@@ -463,7 +489,7 @@ impl<'a> Session<'a> {
             // P1159 participates in this same budget even when selected reads
             // are page-independent. The first D cannot consume its own newly
             // realized numbering views: they belong to the next layout.
-            let (mut valid, mut closed) = if module.is_some() {
+            let (mut valid, mut closed) = if module.is_some() || self.bundle_html_targets.is_some() {
                 pagination_stability(input, &candidate)
             } else {
                 (true, true)
@@ -531,6 +557,9 @@ impl<'a> Session<'a> {
                     }
                 }
                 warnings.extend(phase_warnings);
+                if self.bundle_html_targets.is_some() {
+                    self.bundle_candidate = Some(candidate.clone());
+                }
                 return (
                     Ok(Prepared {
                         content,
@@ -642,6 +671,302 @@ pub(super) fn prepare_html(
         Ok(None)
     });
     (prepared, warnings)
+}
+
+/// Prepara todos os bodies contra uma única geração causal antes de exportar.
+pub(super) fn prepare_bundle(
+    bodies: Vec<Content>,
+    html_targets: &[bool],
+    intr: &TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: Features,
+) -> (
+    SourceResult<(Vec<Content>, TagIntrospector, Vec<typst_core::entities::locator::LocatorSeed>)>,
+    Vec<SourceDiagnostic>,
+) {
+    if bodies.len() != html_targets.len() {
+        return (terminal(source, Vec::new()), Vec::new());
+    }
+    let origin = Content::Sequence(bodies.clone().into());
+    let mut session = Session::new(
+        origin, intr, world, source, full_error, features, EvalTarget::Paged,
+    );
+    session.bundle_html_targets = Some(html_targets.to_vec());
+    let mut targets = HashMap::new();
+    for (body, &html) in bodies.iter().zip(html_targets) {
+        let Some(blocks) = ordered_blocks(body, &StyleChain::default_chain()) else {
+            session.impossible = true;
+            break;
+        };
+        for (elem, _) in blocks {
+            if targets.insert(elem.id, if html { EvalTarget::Html } else { EvalTarget::Paged }).is_some() {
+                session.impossible = true;
+            }
+        }
+    }
+    for node in &mut session.nodes {
+        if let Some(target) = targets.get(&node.elem.id) {
+            node.target = *target;
+        }
+    }
+    if session.impossible {
+        return (terminal(source, session.errors()), session.warnings());
+    }
+    session.discover();
+    if session.impossible {
+        return (terminal(source, session.errors()), session.warnings());
+    }
+    // Um produtor posterior pode criar um elemento visto por query anterior,
+    // mesmo sem filtered-counter read. No bundle, todo produtor participa
+    // do mesmo fixpoint global.
+    let selected = !session.roots.is_empty();
+    if selected {
+        for node in &mut session.nodes {
+            node.selected = true;
+        }
+    }
+    let (prepared, mut warnings) = if selected {
+        session.stabilize(None)
+    } else {
+        let errors = session.errors();
+        let warnings = session.warnings();
+        let prepared = if errors.is_empty() {
+            Ok(Prepared { content: session.content(), settled: None })
+        } else {
+            Err(errors)
+        };
+        (prepared, warnings)
+    };
+    let prepared = match prepared {
+        Ok(prepared) => prepared,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let raw_bodies = match prepared.content {
+        Content::Sequence(parts) if parts.len() == bodies.len() => parts.to_vec(),
+        _ => return (terminal(source, Vec::new()), warnings),
+    };
+    let (pure, starts) =
+        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(&raw_bodies);
+    let (runtime, runtime_warnings) =
+        introspect_bundle_with_runtime_for_pipeline(&raw_bodies, world, source);
+    if !selected {
+        warnings.extend(runtime_warnings);
+    }
+    let (runtime, runtime_starts) = match runtime {
+        Ok(pair) => pair,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let same_locations = runtime_starts == starts
+        && pure.elements.keys().collect::<HashSet<_>>()
+        == runtime.elements.keys().collect::<HashSet<_>>()
+        && pure.context_block_locations == runtime.context_block_locations
+        && pure.kind_index == runtime.kind_index
+        && pure.parent_locations == runtime.parent_locations;
+    if !same_locations {
+        return (terminal(source, Vec::new()), warnings);
+    }
+    let mut runtime = session.bundle_candidate.take().unwrap_or(runtime);
+    if !selected {
+        // P1486: sem produtores contextuais, a Session não entrou em
+        // stabilize(). O PDF ainda precisa do PageStore final para os
+        // rótulos, e os bodies HTML não devem consumir páginas.
+        let content = Content::Sequence(raw_bodies.clone().into());
+        match bundle_page_views(
+            &content, html_targets, &mut runtime, &TagIntrospector::empty(),
+            world, source,
+        ) {
+            Ok(page_warnings) => warnings.extend(page_warnings),
+            Err(errors) => return (Err(errors), warnings),
+        }
+    }
+    let executed_html: Vec<_> = session.nodes.iter()
+        .filter(|node| node.active && node.target == EvalTarget::Html && node.current.is_some())
+        .map(|node| node.elem.clone())
+        .collect();
+    let mut final_bodies = Vec::with_capacity(raw_bodies.len());
+    for (body, &html) in raw_bodies.into_iter().zip(html_targets) {
+        if html {
+            match strip_executed_html_markers(body, &executed_html, source) {
+                Ok(body) => final_bodies.push(body),
+                Err(errors) => return (Err(errors), warnings),
+            }
+        } else {
+            final_bodies.push(body);
+        }
+    }
+    (Ok((final_bodies, runtime, starts)), warnings)
+}
+
+/// Compoe visoes paginadas dos bodies sem layout do target HTML.
+fn bundle_page_views(
+    content: &Content,
+    html_targets: &[bool],
+    candidate: &mut TagIntrospector,
+    input: &TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<Vec<SourceDiagnostic>> {
+    use std::num::NonZeroUsize;
+    use typst_core::entities::page_store::PageStore;
+    use typst_core::entities::sealed_positions::SealedPositions;
+
+    let Content::Sequence(parts) = content else {
+        return terminal(source, Vec::new());
+    };
+    if parts.len() != html_targets.len() {
+        return terminal(source, Vec::new());
+    }
+    let bodies = parts.to_vec();
+    let (pure, starts) =
+        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(&bodies);
+    if pure.elements.keys().collect::<HashSet<_>>()
+        != candidate.elements.keys().collect::<HashSet<_>>()
+        || pure.context_block_locations != candidate.context_block_locations
+        || pure.kind_index != candidate.kind_index
+    {
+        return terminal(source, Vec::new());
+    }
+    candidate.inject_positions(input.positions.clone());
+    candidate.inject_pages(input.page_store.clone());
+
+    let locations: HashSet<Location> = candidate.elements.keys().copied()
+        .chain(candidate.kind_index.values().flatten().copied())
+        .chain(candidate.context_block_locations.values().copied())
+        .chain(candidate.parent_locations.keys().copied())
+        .chain(candidate.parent_locations.values().copied())
+        .collect();
+    let mut positions = HashMap::new();
+    let mut numberings = Vec::new();
+    let mut logical_numbers = Vec::new();
+    let mut numbering_spans = Vec::new();
+    let mut visible_numberings = Vec::new();
+    let mut reference_numberings = Vec::new();
+    let mut supplements = Vec::new();
+    let mut warnings = Vec::new();
+    let mut offset = 0usize;
+    let starts_raw: Vec<_> = starts
+        .iter()
+        .map(|&seed| {
+            typst_core::entities::locator::Locator::from_seed(seed)
+                .next()
+                .as_u128()
+        })
+        .collect();
+    let counter_updates = candidate.query_by_kind(
+        typst_core::entities::element_kind::ElementKind::CounterUpdate,
+    );
+    for (index, ((body, &html), &start)) in
+        bodies.iter().zip(html_targets).zip(&starts).enumerate()
+    {
+        if html {
+            continue;
+        }
+        let (doc, callback_warnings) = layout_with_realized_math_callbacks_from(
+            body, candidate.clone(), world, source, start,
+        )?;
+        warnings.extend(callback_warnings);
+        let references = page_reference_pages(body, &doc);
+        // O início lógico Paged é o valor Page após as ações deste body,
+        // já resolvidas pelo único snapshot runtime. A última ocorrência de
+        // CounterUpdate delimita uma leitura dentro da faixa [start, next).
+        // Sem ocorrência, a fronteira lógica no próprio start fornece 1.
+        let upper = starts_raw.get(index + 1).copied().unwrap_or(u128::MAX);
+        let observation = counter_updates
+            .iter()
+            .filter(|loc| {
+                let raw = loc.as_u128();
+                raw >= starts_raw[index] && raw < upper
+            })
+            .max_by_key(|loc| loc.as_u128())
+            .copied()
+            .unwrap_or_else(|| {
+                typst_core::entities::locator::Locator::from_seed(start).next()
+            });
+        let logical_start = candidate
+            .counter_values_at(
+                &typst_core::entities::counter::CounterKey::Page,
+                observation,
+            )
+            .and_then(|values| values.first().copied())
+            .unwrap_or(1);
+        let (pages, numbering_warnings) =
+            realize_page_numberings(world, source, &doc, logical_start, &references)?;
+        warnings.extend(numbering_warnings);
+        for &location in &locations {
+            if let Some(position) = doc.extracted_positions.position_of(location) {
+                let shifted = typst_core::entities::position::Position {
+                    page: NonZeroUsize::new(position.page.get() + offset)
+                        .expect("page number remains nonzero"),
+                    point: position.point,
+                };
+                if positions.insert(location, shifted).is_some() {
+                    return terminal(source, Vec::new());
+                }
+            }
+        }
+        for page in 1..=doc.pages.len() {
+            let page = NonZeroUsize::new(page).unwrap();
+            numberings.push(pages.numbering_for_page(page).cloned());
+            logical_numbers.push(pages.logical_number_for_page(page).unwrap_or(page.get()));
+            numbering_spans.push(
+                pages.numbering_span_for_page(page).unwrap_or(Span::detached()),
+            );
+            visible_numberings.push(pages.visible_numbering_for_page(page).cloned());
+            reference_numberings.push(pages.reference_numbering_for_page(page).cloned());
+            supplements.push(
+                pages.supplement_for_page(page).cloned().unwrap_or(Content::Empty),
+            );
+        }
+        offset += doc.pages.len();
+    }
+    candidate.inject_positions(SealedPositions::from_runtime(positions));
+    let store = if let Some(total) = NonZeroUsize::new(offset) {
+        PageStore::from_realized(
+            total, numberings, logical_numbers, numbering_spans,
+            visible_numberings, reference_numberings, supplements,
+        )
+    } else {
+        PageStore::empty()
+    };
+    candidate.inject_pages(store);
+    Ok(warnings)
+}
+
+fn strip_executed_html_markers(
+    content: Content,
+    executed: &[Arc<ContextBlockElem>],
+    source: &Source,
+) -> SourceResult<Content> {
+    content.map_content(&mut |node| {
+        if let Content::ContextBlock(elem) = node {
+            if executed.iter().any(|known| Arc::ptr_eq(known, elem)) {
+                return Ok(Some(Content::Empty));
+            }
+            return Err(vec![SourceDiagnostic::error(
+                source.root().span(),
+                "HTML contextual expansion left unresolved content",
+            )]);
+        }
+        // Update já participou do snapshot validado; não possui render HTML.
+        if matches!(node, Content::CounterUpdate(_)) {
+            return Ok(Some(Content::Empty));
+        }
+        if let Content::Sequence(parts) = node {
+            let retained: Vec<_> = parts.iter()
+                .filter(|part| !matches!(part, Content::Empty))
+                .cloned()
+                .collect();
+            if retained.iter().all(|part| matches!(part, Content::Space)) {
+                return Ok(Some(Content::Empty));
+            }
+            if retained.len() != parts.len() {
+                return Ok(Some(Content::sequence(retained)));
+            }
+        }
+        Ok(None)
+    })
 }
 
 /// Conservative equality of the actual layout input views, not a language

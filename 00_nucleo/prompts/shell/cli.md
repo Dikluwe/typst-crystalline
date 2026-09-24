@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 66babf53
+Hash do Código: e641117a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1077,6 +1077,34 @@ consumer L4.
 - sem flag, ambos permanecem false;
 - nome desconhecido falha no parser e não alcança L1/L3/L4 como valor parcial.
 
+## P1484 — transporte de `bundle` sem publicar `asset` (CONFIRMADO; ADR-0127)
+
+### Medição anterior à decisão
+
+Sobre HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, sem diff
+rastreado, `02_shell/src/cli.rs:166-185` já aceita a grafia `bundle` em
+`FeatureArg`, mas `resolve_features` a descarta. `CompileIntent.features` e
+`EvalIntent.features` já transportam o set tipado. No vanilla pinado
+`586e1bd43`, `type(asset)` sem feature erra com o gate `bundle` e
+`--features bundle` resolve uma função; no cristalino pré-P1484 ambos
+resolvem o placeholder. A hipótese de que aceitar a flag já ativa a feature
+é refutada pelo braço vazio em `cli.rs:182`.
+
+### Decisão pública proposta
+
+Compile e Eval convertem `--features bundle` em `Feature::Bundle` no mesmo
+`Features` canônico, sem nova flag, field no intent ou assinatura pública.
+Ausência continua vazia; combinação com `html` e `a11y-extras`, repetição
+e ordem são idempotentes e independentes. `--format`, extensão, target e
+exporter não ativam `Bundle`. A grafia já anunciada no help passa a ser
+efetiva; nome desconhecido continua erro de argumentos. `info` não recebe
+`--features` próprio. O target `--format bundle` e a assinatura real de
+`asset(path, data)` permanecem RED até P1485; a mera aceitação da flag
+não dá crédito de paridade a `asset`. Esta cláusula sucede a exclusão
+histórica de `bundle` no recorte P1288 acima e exige confirmação do dono
+antes de código.
+
+
 ## Seleção explícita de serialização HTML
 
 ### Medição anterior à decisão
@@ -1372,3 +1400,45 @@ testes a partir do mesmo baseline sem ver a implementação. O teste
 independente passou de RED (erro de compilação — campo/tipo inexistentes)
 a GREEN (6/6) após a integração, sem regredir a suíte de `typst-shell`
 (83/83 no total, incluindo os 6 novos).
+
+## P1485 — seleção pública do target bundle (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, working
+tree P1484 não commitada, `02_shell/src/cli.rs:155-164` oferece
+Pdf/Png/Svg/Html e `:1499-1523` nunca infere Bundle. O vanilla
+pinado, `typst-cli/src/args.rs:624-630` e
+`typst-cli/src/compile.rs:114-144`, aceita
+`--format bundle`, mas não infere bundle de uma extensão de output.
+Sem output explícito, retira a extensão do input para nomear o
+diretório de saída. Sonda de `out-noformat.bundle` sem flag
+rejeita inferência; `--format bundle` sem feature devolve gate.
+Este formato público e caminho default são comportamento observável;
+nome do enum Rust é mecânica apenas dentro do código.
+
+### Decisão proprietária
+
+Adicionar `OutputFormat::Bundle` ao enum público e ao help de
+compile/watch. Só `--format bundle` seleciona o target; `--features
+bundle`, extensão `.bundle`, `--format html` e defaults não o
+ativam. Compile com output explícito o interpreta como diretório;
+sem output explícito, usa o path do input sem extensão. O helper
+público legado `resolve_output_with` conserva sua assinatura e
+contrato para formatos existentes; `compile_intent` resolve o
+default de bundle após conhecer `output_format`. `RunIntent`
+transporta a nova variante sem flag adicional e sem habilitar
+`Feature::Bundle` implicitamente. O erro de stdout e a escrita
+segura pertencem a `00_nucleo/prompts/wiring.md`.
+
+Watch transporta opções de servidor próprias: `pub no_serve: bool`,
+`pub no_reload: bool`, `pub port: Option<u16>` no `WatchIntent`.
+Só watch aceita `--no-serve`, `--no-reload` e `--port`; compile
+não ganha essas flags. Por omissão, watch de HTML ou Bundle abre
+servidor local e injeta live reload no HTML servido. `--no-serve`
+desliga o servidor; `--no-reload` conserva HTTP mas não injeta
+script; `--port` seleciona a porta u16, sem porta há busca
+3000–3005. As flags são parseadas em L2, mas bind/HTTP pertencem
+ao owner L3 `00_nucleo/prompts/shell/watch.md` e composição a `00_nucleo/prompts/wiring.md`. A sonda
+runtime e fonte constam do diagnóstico P1485. Esta mudança de
+enum, API pública e defaults exige confirmação ADR-0127.

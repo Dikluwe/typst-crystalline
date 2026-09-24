@@ -1,5 +1,5 @@
 # Prompt L0 — cursor e fechamento de linhas
-Hash do Código: 01c93c76
+Hash do Código: 2dc109e5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -623,3 +623,38 @@ Ao sair do carrier Styled que introduziu `par.line.*`, uma linha terminal ainda
 pendente é fechada antes do pop para não perder a configuração; isso não cria
 linebreak adicional nem muda o conteúdo. Callbacks e coordenação de última
 coluna ficam explicitamente para P1415. Gate público pendente.
+## P1486 — número lógico inicial ao fechar página
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/cursor.rs:1229-1245` fecha a página
+corrente com `page_number` físico; o número lógico validado só
+existe depois da realização do `PageStore` em L3
+(`infra/pipeline.md` P1486). O campo público `Page.logical_number`
+foi confirmado pelo dono em 2026-09-24.
+
+### Decisão
+
+Inicializar o campo com `page_number` no fecho de cada página.
+Não ler counter de runtime nem alterar o timing de paginação;
+o overlay lógico posterior pertence exclusivamente à pipeline.
+
+## P1486.1 — margem automática no fecho de página intermédia
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/cursor.rs:1100-1170` formata a margem com
+`page_number` físico; `runtime.known_page_store` já é lido neste owner
+para `Numbering::Func` (`:1187-1198`). A sonda bilateral no diagnóstico
+P1486 extrai `1, 3` do cristalino após `update(10)` contra `10, 12` do
+vanilla. Inferência: o snapshot lógico realizado basta ao Pattern da
+página local; refutação seria mudança de contagem entre snapshot e layout.
+
+### Decisão
+
+Usar `known_page_store.logical_number_for_page` na formatação Pattern
+de uma página intermédia quando disponível; antes da store, manter o
+índice físico. O número lógico de Pattern composto fica no pending e
+seu total será resolvido por `finish` conforme `compiler/layout.md`
+P1486.1. Não alterar o campo provisório `Page.logical_number`, a
+geometria explícita nem a fase de paginação.

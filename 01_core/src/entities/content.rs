@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 171cf391
+//! @prompt-hash b311aced
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -705,6 +705,9 @@ pub enum Content {
     /// Não emite frames — é metadata pura; PDF Info dict continua scope-out
     /// per ADR-0054 graded.
     Document {
+        path: EcoString,
+        body: Box<Content>,
+        format: Option<EcoString>,
         title: Option<Box<Content>>,
         author: Vec<EcoString>,
         date: Option<Datetime>,
@@ -715,7 +718,7 @@ pub enum Content {
     /// Registry real de resources continua scope-out per ADR-0054 graded.
     Asset {
         path: EcoString,
-        kind: Option<EcoString>,
+        data: Arc<[u8]>,
     },
 
     // ── Passo 287 (frente `P-smartquote`) — função stdlib smartquote ──────
@@ -1392,14 +1395,8 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::StateDisplay(_) => write!(f, "state.display"),
         Content::CounterDisplayCallback(_) => write!(f, "counter.display.callback"),
         Content::Dynamic(_) => write!(f, "dynamic"),
-        Content::Document { title, .. } => {
-            if let Some(t) = title {
-                write!(f, "document({:?})", t)
-            } else {
-                write!(f, "document")
-            }
-        }
-        Content::Asset { path, .. } => write!(f, "asset({:?})", path),
+        Content::Document { path, body, .. } => write!(f, "document(path: {:?}, body: {:?})", path, body),
+        Content::Asset { path, data } => write!(f, "asset(path: {:?}, data: bytes({}))", path, data.len()),
         Content::ContextBlock(e) => write!(f, "context({:?})", e),
         Content::PageRun(e) => write!(f, "page.run({:?})", e),
     }
@@ -2973,17 +2970,20 @@ impl Content {
 
     /// **Passo 397** — `Content::Document` (metadata pura).
     pub fn document(
+        path: EcoString,
+        body: Content,
+        format: Option<EcoString>,
         title: Option<Content>,
         author: Vec<EcoString>,
         date: Option<Datetime>,
         keywords: Vec<EcoString>,
     ) -> Self {
-        Self::Document { title: title.map(Box::new), author, date, keywords }
+        Self::Document { path, body: Box::new(body), format, title: title.map(Box::new), author, date, keywords }
     }
 
     /// **Passo 397** — `Content::Asset` (placeholder de resource).
-    pub fn asset(path: EcoString, kind: Option<EcoString>) -> Self {
-        Self::Asset { path, kind }
+    pub fn asset(path: EcoString, data: Vec<u8>) -> Self {
+        Self::Asset { path, data: Arc::from(data) }
     }
 
     /// `table(columns, rows, ..children)` — Passo 157A (ADR-0060
@@ -3960,10 +3960,10 @@ impl PartialEq for Content {
             (Self::Quote(a), Self::Quote(b)) => a == b,
             // P397: Document/Asset comparam estruturalmente por campos.
             (
-                Self::Document { title: a, author: b, date: c, keywords: d },
-                Self::Document { title: e, author: f, date: g, keywords: h },
-            ) => a == e && b == f && c == g && d == h,
-            (Self::Asset { path: a, kind: b }, Self::Asset { path: c, kind: d }) => {
+                Self::Document { path: p, body: a, format: q, title: b, author: c, date: d, keywords: e },
+                Self::Document { path: r, body: f, format: s, title: g, author: h, date: i, keywords: j },
+            ) => p == r && a == f && q == s && b == g && c == h && d == i && e == j,
+            (Self::Asset { path: a, data: b }, Self::Asset { path: c, data: d }) => {
                 a == c && b == d
             }
             // Modelo D (Lote 4 P319): decorações delegam ao `Arc<…Elem>`.
@@ -4333,7 +4333,10 @@ impl Content {
             ),
             // P397: Document recursa no título (único Content aninhado);
             // Asset é terminal (sem Content aninhado).
-            Content::Document { title, author, date, keywords } => Content::Document {
+            Content::Document { path, body, format, title, author, date, keywords } => Content::Document {
+                path: path.clone(),
+                body: Box::new(body.map_content(transform)?),
+                format: format.clone(),
                 title: match title {
                     Some(body) => Some(Box::new(body.map_content(transform)?)),
                     None       => None,
@@ -4617,7 +4620,10 @@ impl Content {
                 styles.clone(),
             ),
             // P397: Document recursa no título; Asset é terminal.
-            Content::Document { title, author, date, keywords } => Content::Document {
+            Content::Document { path, body, format, title, author, date, keywords } => Content::Document {
+                path: path.clone(),
+                body: Box::new(body.map_text(transform)),
+                format: format.clone(),
                 title: title.as_ref().map(|body| Box::new(body.map_text(transform))),
                 author: author.clone(),
                 date:   *date,

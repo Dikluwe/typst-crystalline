@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 34b17703
+//! @prompt-hash 90a0607c
 //! @layer L2
 //! @updated 2026-09-21
 //!
@@ -61,7 +61,7 @@ mod p1360_ab_tests {
             Args::try_parse_from(argv).expect("P1360 accepted spelling must parse");
         match parsed.command {
             Command::Compile(args) => args.compile.pretty,
-            Command::Watch(args) => args.pretty,
+            Command::Watch(args) => args.compile.pretty,
             _ => panic!("P1360 test selected an unexpected command"),
         }
     }
@@ -103,7 +103,7 @@ mod p1360_ab_tests {
             );
             let compile = match separate.command {
                 Command::Compile(args) => args.compile,
-                Command::Watch(args) => args,
+                Command::Watch(args) => args.compile,
                 _ => panic!("P1360 test selected an unexpected command"),
             };
             assert_eq!(compile.pretty, Some(true), "{command}: bare --pretty");
@@ -161,6 +161,8 @@ pub enum OutputFormat {
     Svg,
     /// HTML semântico — backend experimental, sem layout paginado.
     Html,
+    /// Directory containing bundle documents and assets.
+    Bundle,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
@@ -179,7 +181,7 @@ fn resolve_features(
         match value {
             FeatureArg::Html => features.enable(Feature::Html),
             FeatureArg::A11yExtras => features.enable(Feature::A11yExtras),
-            FeatureArg::Bundle => {}
+            FeatureArg::Bundle => features.enable(Feature::Bundle),
         }
     }
     features
@@ -491,7 +493,7 @@ enum Command {
     Compile(CompileCommandArgs),
     /// Compile continuously when the input or one of its dependencies changes.
     #[command(visible_alias = "w")]
-    Watch(CompileArgs),
+    Watch(WatchArgs),
     /// Evaluate a piece of Typst code.
     Eval(EvalArgs),
     /// List all discovered fonts in system and custom font paths.
@@ -505,6 +507,18 @@ enum Command {
     /// Process an input file to extract metadata (deprecated).
     #[command(hide = true)]
     Query(QueryArgs),
+}
+
+#[derive(Debug, clap::Args)]
+struct WatchArgs {
+    #[command(flatten)]
+    compile: CompileArgs,
+    #[arg(long = "no-serve")]
+    no_serve: bool,
+    #[arg(long = "no-reload")]
+    no_reload: bool,
+    #[arg(long = "port")]
+    port: Option<u16>,
 }
 
 #[derive(Debug, clap::Args)]
@@ -718,6 +732,9 @@ pub struct InitIntent {
 #[derive(Debug)]
 pub struct WatchIntent {
     pub compile: CompileIntent,
+    pub no_serve: bool,
+    pub no_reload: bool,
+    pub port: Option<u16>,
 }
 
 #[derive(Debug)]
@@ -748,13 +765,16 @@ pub fn parse() -> RunIntent {
             colored,
             cert_path,
         )),
-        Command::Watch(compile) => RunIntent::Watch(WatchIntent {
+        Command::Watch(watch) => RunIntent::Watch(WatchIntent {
             compile: compile_intent(
-                compile,
+                watch.compile,
                 HtmlSerialization::Crystalline,
                 colored,
                 cert_path,
             ),
+            no_serve: watch.no_serve,
+            no_reload: watch.no_reload,
+            port: watch.port,
         }),
         Command::Eval(eval) => RunIntent::Eval(EvalIntent {
             features: resolve_features(&eval.features),
@@ -822,14 +842,20 @@ fn compile_intent(
             )
             .exit()
     });
-    let output =
-        resolve_output_with(&input, args.output.as_ref(), args.output_flag.as_ref());
     // P866 — resolver formato antes de validações dependentes de caminho.
     let output_format = resolve_output_format_with(
         args.format.as_ref(),
         args.output_flag.as_ref().or(args.output.as_ref()),
         OutputFormat::Pdf,
     );
+    let output = if output_format == OutputFormat::Bundle
+        && args.output.is_none()
+        && args.output_flag.is_none()
+    {
+        input.with_extension("")
+    } else {
+        resolve_output_with(&input, args.output.as_ref(), args.output_flag.as_ref())
+    };
     let root = resolve_root_with(args.root.as_ref(), &input);
 
     // P617 — validar UUID antes de converter para bytes; erro claro em L2.
@@ -2157,7 +2183,7 @@ mod tests {
                     .expect("flag deve ser aceite");
             let compile = match args.command {
                 Command::Compile(args) => args.compile,
-                Command::Watch(args) => args,
+                Command::Watch(args) => args.compile,
                 _ => panic!("comando inesperado"),
             };
             assert!(compile.no_pdf_tags);
@@ -2181,7 +2207,7 @@ mod tests {
             let parsed = Args::try_parse_from(argv).expect("forma P1359 deve parsear");
             let compile = match parsed.command {
                 Command::Compile(args) => args.compile,
-                Command::Watch(args) => args,
+                Command::Watch(args) => args.compile,
                 _ => panic!("comando compile/watch esperado"),
             };
             assert_eq!(compile.pdf_tagged, expected);
@@ -2498,7 +2524,7 @@ mod tests {
         let parsed = Args::try_parse_from(argv).expect("forma P1468 deve parsear");
         match parsed.command {
             Command::Compile(args) => args.compile,
-            Command::Watch(args) => args,
+            Command::Watch(args) => args.compile,
             _ => panic!("comando compile/watch esperado"),
         }
     }
@@ -2687,5 +2713,35 @@ mod tests {
                 compile_intent(compile, HtmlSerialization::Crystalline, false, None);
             assert_eq!(intent.pdf_standard, vec![PdfStandard::A4], "{command}");
         }
+    }
+    #[test]
+    fn p1484_bundle_cli_compile_watch_eval_e_combinacoes() {
+        use typst_core::entities::compiler_features::Feature;
+        for command in ["compile", "watch"] {
+            let parsed = Args::try_parse_from([
+                "typst", command, "in.typ", "--features", "html,bundle,a11y-extras,bundle",
+            ]).expect("features combinadas devem parsear");
+            let args = match parsed.command {
+                Command::Compile(args) => args.compile,
+                Command::Watch(args) => args.compile,
+                _ => panic!("compile/watch esperado"),
+            };
+            let intent = compile_intent(args, HtmlSerialization::Crystalline, false, None);
+            assert!(intent.features.contains(Feature::Bundle), "{command}");
+            assert!(intent.features.contains(Feature::Html), "{command}");
+            assert!(intent.features.contains(Feature::A11yExtras), "{command}");
+        }
+        let parsed = Args::try_parse_from([
+            "typst", "eval", "type(asset)", "--features", "bundle",
+        ]).expect("eval --features bundle deve parsear");
+        let Command::Eval(args) = parsed.command else { panic!("eval esperado") };
+        let features = resolve_features(&args.features);
+        assert!(features.contains(Feature::Bundle));
+        assert!(!features.contains(Feature::Html));
+        assert!(!features.contains(Feature::A11yExtras));
+        assert!(!resolve_features(&[]).contains(Feature::Bundle));
+        assert!(Args::try_parse_from([
+            "typst", "eval", "type(asset)", "--features", "unknown",
+        ]).is_err());
     }
 }

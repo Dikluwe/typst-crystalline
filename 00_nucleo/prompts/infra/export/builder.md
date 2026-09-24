@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 5c119a5d
+Hash do Código: 79ff88a1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
@@ -915,15 +915,13 @@ confirmado por leitura de `typst-pdf/src/convert.rs:877-908`,
    (`typst-library/src/model/outline.rs:338-395`), sem a inversão de sinal.
    Isto é registado como divergência intencional, não como lacuna de
    paridade.
-5. **PageLabel**: o vanilla preserva o número físico original via
-   `/PageLabel` quando páginas são omitidas
-   (`typst-pdf/src/convert.rs:130-141`). **Scope-out explícito**: o
-   cristalino hoje não emite `/PageLabel` para nenhum caso (confirmado:
-   ausente do builder atual); adicionar essa estrutura é trabalho novo e
-   ortogonal à seleção de páginas em si. P1468 não implementa `/PageLabel`;
-   a numeração visível dentro do conteúdo da página (produzida pelo layout)
-   já reflete o número físico original independentemente da seleção, porque
-   a seleção só afeta o exportador, nunca o layout.
+5. **Rótulos de página — scope-out histórico de P1468, supersedido por
+   P1486**: P1468 não emitia rótulos PDF. A chave real do catálogo é
+   `/PageLabels` (plural); `/PageLabel` singular é o tipo dos objetos
+   referenciados pela number tree. A medição e o contrato de emissão
+   pertencem ao bloco P1486 abaixo. A numeração desenhada dentro do
+   conteúdo da página continua independente da seleção, que só afeta
+   o exportador.
 
 ### Contrato
 
@@ -2172,3 +2170,67 @@ mecânica interna, não de semântica de cor: o `serialize()` deve marcar
 cada ID ausente como livre (`f`), preservando os offsets reais (`n`)
 e o contrato de PDF válido. Não criar objetos fictícios apenas para
 preencher a reserva de IDs.
+
+## P1486 — rótulos de páginas PDF depois da seleção (PROPOSTO; GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree não commitada sobre `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
+a matriz bilateral, binários, fixtures e comandos de extração estão em
+`00_nucleo/diagnosticos/typst-p1486-page-labels.md`. No vanilla pinado,
+a seleção física 1+3 mostra `1, 3` com padrão arábico, `i, iii` com
+romano, `1, 3` sem padrão e `10, 12` após
+`counter(page).update(10)`; no cristalino atual, 1+3 mostra `1, 2`
+nos casos arábico e deslocado. O catálogo vanilla contém `/PageLabels`
+(plural), cujo `/Nums` usa índices do PDF resultante, começando em zero;
+`/PageLabel` singular é o tipo dos objetos, não a chave do catálogo.
+`lab/typst-original/crates/typst-pdf/src/convert.rs:130-149` usa o
+número lógico quando há padrão de numbering serializável e o físico
+quando não há padrão e alguma página foi omitida; `page.rs:17-60`
+converte padrões com estilo PDF nativo ou prefixo literal. A inferência
+anterior do Passo 1486 de que `Page.numbering` + índice físico bastariam
+é refutada pelo contador deslocado: `Page` não transporta esse valor
+(`01_core/src/entities/layout_types.rs:853-865`). Rótulo apresentado
+é observável de linguagem; object IDs, forma da number tree e bytes
+são mecânica (ADR-0107). A inferência de que a fórmula medida vale para
+todos os padrões seria refutada por um padrão cujo rótulo extraído difira
+do numbering de linguagem no mesmo documento; por isso a aceitação
+inclui prefixos/sufixos e padrões não nativos.
+
+### Contrato condicionado
+
+Nas três variantes `build_*`, depois de determinar `PageIndexConverter`,
+emitir rótulos somente para páginas retidas, na ordem do PDF resultante.
+Página com `Numbering::Pattern` serializável usa o padrão e
+`Page.logical_number`; se o padrão não for representável por um estilo
+PDF nativo, gravar o rótulo formatado como texto completo, sem perder
+prefixo/sufixo. `Numbering::Func` não é reexecutado pelo exportador:
+como no vanilla medido, usa o fallback físico apenas se alguma página
+foi omitida. Página sem padrão também usa esse fallback físico quando
+`exported_count() < doc.pages.len()`; sem omissão não precisa de
+`/PageLabels` e conserva a sequência implícita do leitor. Não confundir
+seleção presente que retém todas as páginas com omissão. Em páginas
+retidas sem padrão, o fallback é o número físico original (`old_i+1`),
+nunca `new_i+1` nem o lógico. O número lógico pode divergir do físico
+após update explícito do contador.
+
+A chave de catálogo é `/PageLabels` e referencia uma number tree PDF
+válida com índice de cada página retida que exija início/alteração de
+rótulo. O builder aloca IDs sem colisão com páginas, streams, imagens,
+annotations, outlines, tags, XMP e objetos PDF/A/PDF/UA. Nenhum campo
+público ou assinatura de exportação adicional é necessário além do
+`Page.logical_number` definido em `entities/layout_types.md` P1486,
+que aguarda confirmação ADR-0127. Nenhum novo default/flag/target é
+introduzido. Links, outlines, `ParentTree`, conteúdo desenhado e
+seleção de páginas permanecem inalterados.
+
+RED→GREEN compara rótulos extraídos por leitor PDF para seleções 1–4,
+2–4, 1+3 e só 4, sob numeração arábica, romana e ausente; cobre
+`counter(page).update(10)`, padrão com prefixo/sufixo, ausência de
+seleção e seleção vazia, e valida catálogo/number tree via parser e
+`qpdf --check`. Regressões abrangem Helvetica, CIDFont, multifont,
+tagged, PDF/A e PDF/UA. O gate mede o rótulo observado, não só
+presença de `/PageLabels`. Este bloco supersede exclusivamente o
+scope-out histórico de `PageLabel` em P1468, não reescreve o
+comportamento já materializado de seleção. Código condicionado à
+confirmação específica do campo público P1486.
