@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 5ca0f2a4
+//! @prompt-hash c0c28126
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2675,5 +2675,63 @@ mod p1374_block_sizing_tests {
             .expect("2fr deve ser height fracionária válida");
         assert!(matches!(height, BlockHeight::Fractional(2.0)));
         assert!(extract_block_width(&Value::Fraction(1.0)).is_none());
+    }
+}
+
+#[cfg(test)]
+mod p1491_measure_tests {
+    use super::*;
+    use crate::compiler::layout::{measure_content_real_with_baseline, FixedMetrics};
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::style_chain::StyleChain;
+    use std::sync::Arc;
+
+    #[test]
+    fn measure_preserva_baseline_causal_de_texto_box_vazio_e_composto() {
+        let rect = Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(Value::Length(Length::pt(10.0)))),
+            Some(Box::new(Value::Length(Length::pt(20.0)))),
+            None,
+            None,
+        );
+        let boxed = Content::boxed(
+            rect.clone(),
+            None,
+            None,
+            Sides::uniform(Length::ZERO),
+            Length::pt(3.0),
+        );
+        let composite = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            boxed.clone(),
+        ]));
+        let measure = |content: &Content| -> (f64, f64, f64) {
+            measure_content_real_with_baseline(
+                content,
+                &StyleChain::default_chain(),
+                &FixedMetrics,
+            )
+        };
+
+        let (rect_w, rect_h, rect_baseline) = measure(&rect);
+        assert!((rect_w - 10.0).abs() < 1e-6);
+        assert!((rect_h - 20.0).abs() < 1e-6);
+        assert!((rect_baseline - 20.0).abs() < 1e-6);
+
+        let (_, text_h, text_baseline) = measure(&Content::text("A"));
+        assert!(text_h > 0.0);
+        assert!((text_baseline - text_h).abs() < 1e-6);
+
+        let (box_w, box_h, box_baseline) = measure(&boxed);
+        assert!((box_h - 20.0).abs() < 1e-6);
+        assert!((box_baseline - 17.0).abs() < 1e-6);
+
+        assert_eq!(measure(&Content::Empty), (0.0, 0.0, 0.0));
+
+        let (composite_w, composite_h, composite_baseline) = measure(&composite);
+        assert!(composite_w > box_w);
+        assert!((composite_h - 20.0).abs() < 1e-6);
+        assert!((composite_baseline - 17.0).abs() < 1e-6);
     }
 }

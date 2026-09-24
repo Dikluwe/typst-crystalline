@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 0dba777a
+Hash do Código: 5c644e22
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -7,7 +7,7 @@ Núcleos Tekt:
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
-**Vanila ratificado:** `586e1bd43`
+**Vanila ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
 **ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
 
 ## Medição e contrato
@@ -789,3 +789,33 @@ camadas explícitas. A inicialização física de `Page.logical_number` é
 provisória e continua inalterada. Esta correção de paridade supersede só
 a cláusula histórica acima que excluía mudança do texto desenhado; não
 introduz API pública, modo novo nem outra fase de layout.
+
+
+## P1491 — geometria causal de baseline para `measure`
+
+### Medição anterior à decisão
+
+Em 2026-09-24T14:12:42-03:00, no HEAD
+`b169a78c6c6bc17764b294f501ac09b63d678b03`, a redução vigente de
+`measure_content_real` perde a baseline e, quando há texto, substitui a altura
+do subframe pela aresta textual. O vanilla pinado mede: rect 10×20 → baseline
+20; texto → baseline igual à altura; box 20 com shift 3 → baseline 17; vazio →
+zero; composto texto+box → altura 20 e baseline 17. HTML conserva essas
+relações. Isso refuta `baseline = height` e a altura escolhida só por
+`plain_text()`.
+
+### Decisão proprietária
+
+Manter `pub fn measure_content_real(...) -> (f64, f64)` sem alteração. Um
+helper de visibilidade interna a `compiler` reutiliza exatamente o mesmo
+Layouter isolado e devolve também a baseline. A altura/baseline vêm das
+extensões da linha composta: arestas tipográficas reais para texto e
+`line_inline_ascent`/`line_inline_descent` para frames inline. Conteúdo sem
+baseline natural usa a borda inferior do frame; vazio usa zero. O par público
+legado delega ao helper e descarta apenas baseline.
+
+Não inferir pelo variant de `Content`, não assar 20pt, não criar campo em
+`Frame`, `Region`, entidade ou trait, e não mover fase. Métricas continuam
+injetadas. Width, sombra, diagnóstico e rejeição de `measure(width:/height:)`
+permanecem. O owner `boxed.md` torna o shift já transportado parte das
+extensões inline; este owner apenas extrai a geometria resultante.

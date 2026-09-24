@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 5f2477fc
+Hash do Código: 0ccb3a17
 
 ## P1408 — largura fracionária pública de `box`
 
@@ -546,9 +546,9 @@ colbreak("x") -> Err "não aceita posicionais"
 
 ---
 
-### `measure(body)` — **P712: reescrito, medição real via layout isolado**
+### `measure(body)` — **P712/P1491: medição real via layout isolado**
 
-**Assinatura**: `measure(body: Content | Str) -> Dict { width: Length, height: Length }`
+**Assinatura**: `measure(body: Content | Str) -> Dict { width: Length, height: Length, baseline: Length }`
 
 **Argumentos** (validados por `extract_measure_body`, `stdlib/layout.rs`,
 partilhado entre `native_measure` e a intercepção real):
@@ -592,6 +592,18 @@ no vanilla). **Divergência mecânica documentada, não de língua
 largura é real e proporcional ao conteúdo dado o motor de layout usado,
 mas não byte-exacta ao vanilla (que faz shaping real via `rustybuzz`,
 só disponível em L3).
+
+**P1491 — baseline medida.** No vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8`, medido em
+2026-09-24T14:12:42-03:00, rect 10pt×20pt produz `(10pt, 20pt, 20pt)`;
+texto `A` produz baseline igual à altura; `box(baseline: 3pt,
+rect(height: 20pt))` e a linha composta `A + box` produzem altura 20pt e
+baseline 17pt; vazio produz zero nos três e HTML conserva os invariantes.
+Logo baseline não é alias de height: é a distância causal do topo do frame à
+baseline que o layout compôs. A intercepção direta devolve sempre as três
+chaves, nesta ordem: `width`, `height`, `baseline`. Os controles existentes de
+sombra, gate contextual e rejeição de `width:`/`height:` permanecem. O fallback
+indireto continua falhando alto.
 
 **Limitações / scope-outs (inalterados)**:
 - Runtime queries (counter values, labels) diferidas.

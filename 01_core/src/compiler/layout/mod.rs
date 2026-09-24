@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash a1438720
+//! @prompt-hash 24b71d80
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -3200,6 +3200,20 @@ pub fn measure_content_real(
     chain: &StyleChain,
     metrics: &dyn FontMetrics,
 ) -> (f64, f64) {
+    let (width, height, _) =
+        measure_content_real_with_baseline(content, chain, metrics);
+    (width, height)
+}
+
+/// **P1491** — variante interna de `measure_content_real` que preserva a
+/// baseline causal do frame medido. O helper público histórico mantém a
+/// assinatura `(width, height)`; só o dispatch de `measure()` consome a
+/// terceira coordenada.
+pub(in crate::compiler) fn measure_content_real_with_baseline(
+    content: &Content,
+    chain: &StyleChain,
+    metrics: &dyn FontMetrics,
+) -> (f64, f64, f64) {
     use comemo::Track;
 
     let font_size = chain.size();
@@ -3240,14 +3254,30 @@ pub fn measure_content_real(
     // baseline, pelo que a altura total é `top - bottom`.
     // Para conteúdo sem texto plano, mantém-se o fallback do avanço de linha.
     let text = content.plain_text();
-    let height = if text.is_empty() {
-        height
+    let (text_ascent, text_descent) = if text.is_empty() {
+        (0.0, 0.0)
     } else {
         let (top, bottom) = metrics.text_edges(Pt(font_size), &layouter.style);
-        top.val() - bottom.val()
+        (top.val(), -bottom.val())
     };
 
-    (width, height)
+    let inline_ascent = layouter.line_inline_ascent.max(0.0);
+    let inline_descent = layouter.line_inline_descent.max(0.0);
+    let has_inline_frame = inline_ascent > 0.0 || inline_descent > 0.0;
+
+    let (height, baseline) = if has_inline_frame {
+        let ascent = text_ascent.max(inline_ascent);
+        let descent = text_descent.max(inline_descent);
+        (ascent + descent, ascent)
+    } else if !text.is_empty() {
+        (text_ascent + text_descent, text_ascent)
+    } else if height > 0.0 {
+        (height, height)
+    } else {
+        (0.0, 0.0)
+    };
+
+    (width, height, baseline)
 }
 
 /// Layouta uma ocorrência de `html.frame` como fragmento paginado intrínseco.

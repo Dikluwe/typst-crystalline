@@ -1,6 +1,6 @@
 # Passo 1491 — completar `measure().baseline`
 
-**Estado:** PLANEADO. Dependência: P1489; independente de P1490.
+**Estado:** CONCLUÍDO em 2026-09-24. Dependência: P1489; independente de P1490. Evidência final em `00_nucleo/diagnosticos/typst-p1491-measure-baseline.md`.
 
 ## Medição anterior à decisão
 

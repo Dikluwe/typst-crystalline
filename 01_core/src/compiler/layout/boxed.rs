@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 9a89a987
+//! @prompt-hash 18cb46f6
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -110,7 +110,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.width = (cursor_x_pt + w_pt).max(0.0);
     }
 
-    let _ = baseline; // armazenado; refino futuro
+    let baseline_shift = baseline.resolve_pt(font);
+    let body_measure_width = width
+        .map(|w| w.resolve_pt(font))
+        .unwrap_or_else(|| layouter.available_width());
+    let (measured_body_width, measured_body_height) =
+        layouter.measure_content_constrained(body, body_measure_width);
 
     // P248 — Boxed.height overflow semantic real activação.
     // Quando `height: Some(h)` e body natural altura > h E
@@ -145,9 +150,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let saved_line_descent = layouter.line_inline_descent;
     layouter.line_inline_ascent = 0.0;
     layouter.line_inline_descent = 0.0;
-    // P625/P631 — layout inline do body isolando a linha do pai e aplicando
-    // RTL apenas aos itens produzidos pelo body. O width do box ainda está
-    // activo em `regions.current.width` (configurado acima).
+    // P625/P631/P1491 — layout inline do body isolando a linha do pai e
+    // aplicando RTL apenas aos itens produzidos pelo body. A separação
+    // física da linha também impede um body de bloco (por exemplo, rect) de
+    // descarregar os itens inline que precedem a caixa.
+    let parent_line = std::mem::take(&mut layouter.regions.current.current_line);
+    let body_origin_x = layouter.regions.current.cursor_x.0;
     let (_, body_items) = layouter.layout_sub_frame_inline(
         body,
         super::sub_frame::SubLayoutRegion {
@@ -158,6 +166,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: true,
         },
     );
+    layouter.regions.current.current_line = parent_line;
+    if body_items.is_empty() && measured_body_width > 0.0 {
+        offset_items(
+            &mut layouter.regions.current.current_items[body_items_before..],
+            body_origin_x,
+            0.0,
+        );
+        layouter.regions.current.cursor_x = Pt(body_origin_x + measured_body_width);
+    }
+    let body_has_text_baseline = frame_items_have_text_baseline(&body_items);
     layouter.regions.current.current_line.extend(body_items);
     let fraction_insert_at =
         width_fraction.map(|_| layouter.regions.current.current_line.len());
@@ -191,20 +209,35 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let body_descent = layouter.line_inline_descent;
     layouter.line_inline_ascent = saved_line_ascent;
     layouter.line_inline_descent = saved_line_descent;
-    if height.is_none() {
-        // Sem altura explícita a caixa é do tamanho do body: as extensões
-        // medidas pelo body são as da caixa.
-        layouter.note_inline_extent(body_ascent, body_descent);
-    }
+
+    // **P1491** — a baseline explícita desloca a baseline natural do frame,
+    // sem alterar a sua altura. Corpos textuais herdam a baseline do texto;
+    // corpos sem baseline natural (por exemplo, rect) alinham pela base.
+    let natural_body_height = if body_has_text_baseline {
+        body_ascent + body_descent
+    } else {
+        measured_body_height
+    };
+    let box_height = height.map_or(
+        inset_top + natural_body_height + inset_bottom,
+        |h| inset_top + h.resolve_pt(font) + inset_bottom,
+    );
+    let natural_baseline = if body_has_text_baseline {
+        inset_top + body_ascent
+    } else {
+        box_height
+    };
+    let frame_baseline = natural_baseline - baseline_shift;
+    layouter.note_inline_extent(
+        frame_baseline.max(0.0),
+        (box_height - frame_baseline).max(0.0),
+    );
 
     // P1119/P1120 / P248 — altura explícita: extensão da linha, anotação do
     // `Group` do body e clip quando activo.
     if let Some(h) = height {
         let h_pt = h.resolve_pt(font);
         let box_h = inset_top + h_pt + inset_bottom;
-        // rationale: mesma calibração P1119/P1120 normalizada da base medida de 11pt.
-        let top_edge_pt = 7.633997_f64 * (font / 11.0);
-        layouter.note_inline_extent(top_edge_pt, (box_h - top_edge_pt).max(0.0));
         let mut found_group = false;
         for item in &mut layouter.regions.current.current_line[parent_line_len_before..] {
             if let FrameItem::Group { inner_height, .. } = item {
@@ -351,4 +384,14 @@ fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
             FrameItem::Semantic { items, .. } => offset_items(items, dx, dy),
         }
     }
+}
+
+fn frame_items_have_text_baseline(items: &[FrameItem]) -> bool {
+    items.iter().any(|item| match item {
+        FrameItem::Text { .. } | FrameItem::TextShaped { .. } | FrameItem::Glyph { .. } => true,
+        FrameItem::Group { items, .. } | FrameItem::Semantic { items, .. } => {
+            frame_items_have_text_baseline(items)
+        }
+        _ => false,
+    })
 }

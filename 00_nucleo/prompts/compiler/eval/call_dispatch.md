@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 7b92c4c1
+Hash do Código: 493f95ec
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -917,3 +917,24 @@ campo de `Type::SpotColorant` usa o mesmo parser. Field access isolado
 do valor spot continua inválido; nenhuma reavaliação de argumentos,
 coerção para Color, mudança de ordem ou fase do pipeline. As demais
 rotas de `Value::Color` e constructors ficam inalteradas.
+
+
+## P1491 — projeção da baseline de `measure`
+
+### Medição anterior à decisão
+
+No HEAD `b169a78c6c6bc17764b294f501ac09b63d678b03`, working tree limpo,
+a sonda `P1489-L-001` permanece `VIOLATED`: o layout mede o retângulo, mas o
+dict construído em `eval_func_call` contém somente `width` e `height`. O
+vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` devolve também `baseline`.
+Texto, box com shift 3pt, vazio, composto e HTML refutam um literal igual a
+height. Proveniência e hashes ficam no diagnóstico P1491.
+
+### Decisão proprietária
+
+A intercepção identificada pelo ponteiro de `native_measure` chama a medição
+geométrica interna que produz `(width, height, baseline)` e constrói o dict com
+essas três chaves nessa ordem. Não calcula baseline, não examina `Content` e
+não altera validação, sombra, ordem de avaliação, gate contextual ou fallback
+indireto. A assinatura pública de `measure_content_real` permanece intacta;
+a projeção tripla usa somente helper interno ao módulo `compiler`.

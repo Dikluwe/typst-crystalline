@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash e9820b7f
+//! @prompt-hash 4751e254
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -1682,8 +1682,8 @@ pub(super) fn eval_func_call(
                     }
                     let args = eval_args(call.args(), scopes, ctx, engine)?;
                     let body = extract_measure_body(&args)?;
-                    let (width_pt, height_pt) =
-                        crate::compiler::layout::measure_content_real(
+                    let (width_pt, height_pt, baseline_pt) =
+                        crate::compiler::layout::measure_content_real_with_baseline(
                             &body,
                             engine.styles,
                             engine.font_metrics,
@@ -1700,6 +1700,12 @@ pub(super) fn eval_func_call(
                         "height".into(),
                         Value::Length(crate::entities::layout_types::Length::pt(
                             height_pt,
+                        )),
+                    );
+                    dict.insert(
+                        "baseline".into(),
+                        Value::Length(crate::entities::layout_types::Length::pt(
+                            baseline_pt,
                         )),
                     );
                     return Ok(Value::Dict(dict));
