@@ -85,7 +85,7 @@ fn main() {
             &serde_json::to_vec(&catalog).expect("serialize entries"),
         ),
         route_count: catalog.len(),
-        vanilla_revision: "586e1bd43",
+        vanilla_revision: "9f2b6e87",
         entries: &catalog,
     };
     let json = serde_json::to_string_pretty(&envelope).expect("serialize catalog");

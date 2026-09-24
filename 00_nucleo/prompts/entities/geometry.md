@@ -184,16 +184,20 @@ LineTo-only paths preservam bit-exact min/max behavior.
 
 ## Exposição em `entities/mod.rs`
 
-## P1225 — presença explícita dos campos (NOVO GATE ADR-0127)
+## P1225/P1490 — presença explícita dos campos
 
-Medição pública mostrou que valores resolvidos não bastam para `repr`:
+Medição pública mostrou que valores resolvidos não bastam para `repr`.
+P1490 retifica a primeira expectativa histórica de P1225 contra o vanilla
+pinado `9f2b6e8715237cb086899a42873660fe744622e8`; as demais formas continuam
+dependendo da presença causal:
 
 ```text
-stroke()                    -> "1pt + black"
-stroke(paint: red)          -> "rgb(\"#ff4136\")"
-stroke(thickness: 1pt)      -> "1pt"
-stroke(cap: "butt")         -> "(cap: \"butt\")"
-stroke(miter-limit: 4)      -> "(miter-limit: 4.0)"
+stroke()                              -> "stroke()"
+stroke(paint: black)                  -> "luma(0%)"
+stroke(thickness: 1pt)                -> "1pt"
+stroke(paint: black, thickness: 1pt)  -> "1pt + luma(0%)"
+stroke(cap: "butt")                   -> "(cap: \"butt\")"
+stroke(miter-limit: 4)                -> "(miter-limit: 4.0)"
 ```
 
 `Stroke` deve preservar quais campos foram explicitamente fornecidos, mesmo
@@ -214,6 +218,15 @@ pub struct StrokeFields {
 os bits `false`; `native_stroke` marca cada named presente. Layout/exportadores
 consomem os valores resolvidos e ignoram `specified`; repr usa os bits para
 distinguir ausência de valor explicitamente igual ao default.
+
+P1490 não altera a entidade: `paint == false && thickness == false`, junto
+dos valores default resolvidos pelo constructor, já identifica o caso público
+totalmente automático e deve projetar `stroke()` no owner de `repr`. Os bits
+de presença continuam distinguindo os três casos nomeados explícitos, inclusive
+quando iguais ao default; os quatro bits dos campos complexos continuam
+decidindo a forma parentizada. Strokes internos/shorthand sem carrier de
+presença e com valores não-default preservam o fallback histórico; corrigir o
+round-trip posicional completo exige o trabalho de constructor separado.
 
 ## Exposição em `entities/mod.rs`
 ```rust

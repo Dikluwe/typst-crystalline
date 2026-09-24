@@ -208,13 +208,13 @@ compatibilidade. A constante **não acompanha automaticamente** `upstream/main`,
 a versão mais recente da rede: só muda num passo explícito de re-sync que substitua o hash
 pinado e volte a medir `sys.version`. Isso preserva a reprodutibilidade do oráculo.
 
-**Ressincronização P1355 (2026-09-12):** o alvo corrente passa a upstream/main
+**Ressincronização P1355 (2026-09-12):** o alvo então corrente passa a upstream/main
 `586e1bd43`, árvore `2847920eeaa98d26a41dc6fb0f9c02334b9d593b`. A sonda direta do
 novo binário ratificado devolve `version(0, 15, 1)`, portanto `PARITY_VERSION` permanece
 inalterada. Esta troca atualiza a autoridade do oráculo; não reescreve as medições
 históricas de `a51e02804` nem concede crédito automático às novas superfícies.
 
-Impacto público deliberado da correção:
+Impacto público deliberado da correção P1137:
 
 - `sys.version` e `repr(sys.version)` passam de `0.15.0` para `0.15.1`;
 - comparações como `sys.version >= version(0, 15, 1)` passam de `false` para `true`;
@@ -226,6 +226,16 @@ oráculo e GREEN exige `sys.version == version(0, 15, 1)`, sua `repr` e sua exib
 markup. O CLI verifica adicionalmente a propagação da fonte única. O que refutaria esta
 decisão seria o binário ratificado `a51e02804` devolver valor diferente em sonda direta de
 `sys.version`; a string nominal de outro binário/tag não a refuta.
+
+**Ressincronização P1489 (2026-09-24):** a medição direta do binário vanilla
+construído de upstream/main `9f2b6e8715237cb086899a42873660fe744622e8`
+(árvore `6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4`, SHA-256 do binário
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
+devolve `"version(0, 15, 1)"` para `typst eval 'sys.version' --format json`.
+O cristalino HEAD `9e3a267f5` também devolve `"version(0, 15, 1)"` no mesmo
+comando. Logo `PARITY_VERSION` permanece `(0, 15, 1)`; não há mudança
+de contrato nem necessidade de gate ADR-0127. A medição anterior de P1355
+continua histórica, não prova automaticamente outros comportamentos do novo pin.
 
 ## 10. Scope-out
 

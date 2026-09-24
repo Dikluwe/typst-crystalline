@@ -55,14 +55,17 @@ estrutura interna do cristalino):
 - Toda afirmação sobre "o que o Typst faz" devia citar a documentação oficial
   (`typst.app/docs/`) ou, na ausência de página de documentação para o caso, uma medição
   directa contra o binário vanilla com proveniência (`file:line` ou comando+resultado).
-- **Qual binário é o vanilla** (armadilha medida em 2026-08-13, ver `CLAUDE.md`
-  §"Referência de paridade"): o alvo é upstream/main **`586e1bd43`**, pinado. Os binários
-  de referência são `lab/typst-original/target/release/typst` e `/usr/local/bin/typst`;
-  ambos reportam `typst 0.15.1 (586e1bd4)` porque o build recebe o pin completo por
-  `TYPST_COMMIT_SHA`. O `./target/release/typst` da raiz é o **cristalino** — usá-lo como
-  oráculo é medir o cristalino contra si mesmo. Confirmar qual binário se está a correr
-  antes de citar a medição; e citar o **hash pinado**, a árvore e o SHA-256 do binário,
-  não uma tag nem apenas `--version`.
+- **Qual binário é o vanilla** (ver `CLAUDE.md` §"Referência de paridade"): o alvo atual
+  é upstream/main **`9f2b6e8715237cb086899a42873660fe744622e8`**, pinado. O pin
+  `586e1bd43fae6c9a973218163d3165c53ab8d16d` é referência histórica; suas
+  medições não comprovam paridade contra o novo alvo. O oráculo preferido é
+  `lab/typst-original/target/release/typst` depois de construído com
+  `TYPST_COMMIT_SHA` explícito e proveniência verificada. `/usr/local/bin/typst` ainda
+  contém o pin anterior; só serve se for byte-idêntico ao build novo. O
+  `./target/release/typst` da raiz é o **cristalino** — usá-lo como oráculo é medir o
+  cristalino contra si mesmo. Confirmar hash pinado, árvore, receita e SHA-256 do
+  binário antes de citar uma medição; não inferir identidade de tag ou `--version`.
+  A aceitação segue ADR-0107/0108: linguagem medida, sem copiar bugs do vanilla.
 - Afirmações **sem nenhuma das duas fontes** — nem citação, nem medição — são achado de
   fundamentação em falta, independentemente de estarem certas ou erradas.
 - **Cuidado com generalizações não suportadas pela própria citação**: se o prompt cita a

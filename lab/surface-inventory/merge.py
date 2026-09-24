@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Classificador bilateral P1282 para catálogos runtime frescos."""
+"""Classificador bilateral P1282 para catálogos runtime frescos.
+
+O esquema v2 separa metadados observados como diferentes de observações ausentes.
+Diferença de metadados, por si só, não prova violação semântica da linguagem.
+"""
 
 from __future__ import annotations
 
@@ -9,9 +13,9 @@ import pathlib
 from collections import Counter
 
 
-SCHEMA_VERSION = "p1282-v1"
+SCHEMA_VERSION = "p1282-v2"
 CATALOG_SCHEMA_VERSION = "p1282-catalog-v1"
-EXPECTED_VANILLA_REVISION = "586e1bd43"
+EXPECTED_VANILLA_REVISION = "9f2b6e87"
 PROFILE_FEATURES = {
     "default": [],
     "html": ["html"],
@@ -26,9 +30,15 @@ CLASSES = (
     "MISSING_MEMBER",
     "WRONG_KIND",
     "UNVERIFIED_METADATA",
+    "VERIFIED_METADATA_DIFFERENCE",
     "EXTRA_BINDING",
     "UNKNOWN",
 )
+
+METADATA_CLASSES = {
+    "MISSING_OBSERVATION": "UNVERIFIED_METADATA",
+    "VERIFIED_DIFFERENCE": "VERIFIED_METADATA_DIFFERENCE",
+}
 
 
 def absent_side() -> dict:
@@ -174,7 +184,7 @@ def classify_entry(
 
     metadata_state, reason = metadata_result(vanilla, crystalline)
     if metadata_state:
-        result["classification"] = "UNVERIFIED_METADATA"
+        result["classification"] = METADATA_CLASSES[metadata_state]
         result["metadata_state"] = metadata_state
         result["inference"] = reason
         result["refutation"] = "bilateral metadata proving equality"

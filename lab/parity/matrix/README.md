@@ -2,7 +2,7 @@
 
 Este diretório contém casos versionados, não uma alegação de paridade. `manifest.yaml` é JSON válido e YAML 1.2 válido; essa forma permite validação reproduzível apenas com a biblioteca padrão do Python. `schema.json` documenta o contrato completo em JSON Schema.
 
-O alvo vanilla é exclusivamente `upstream/main 586e1bd43`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova sozinha a revisão. A proveniência ratificada vem do pin e da árvore do upstream, da receita com `TYPST_COMMIT_SHA` explícito e do SHA-256 do binário; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore.
+O alvo vanilla é exclusivamente `upstream/main 9f2b6e8715237cb086899a42873660fe744622e8`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova sozinha a revisão. A proveniência ratificada vem do pin e da árvore do upstream, da receita com `TYPST_COMMIT_SHA` explícito e do SHA-256 do binário; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore. As medições P1487 com `586e1bd43` permanecem históricas; estados esperados só são confirmados para o alvo novo após executar novamente a matriz.
 
 ## Reprodução
 
@@ -57,9 +57,21 @@ não recebe crédito de execução. O manifesto P1487 executa `spot.tint`,
 `asset`, bundle, PDF/UA e page labels, com controles de rejeição.
 `pdf_ua` é um smoke estrutural; não certifica conformidade integral.
 
-Exemplo: `python3 lab/parity/matrix/runner.py --vanilla /usr/local/bin/typst
---crystalline target/debug/typst --profile bundle --output /tmp/p1487-bundle.json`.
+Exemplo: `python3 lab/parity/matrix/runner.py --vanilla
+lab/typst-original/target/release/typst --crystalline target/debug/typst
+--profile bundle --output /tmp/p1489-bundle.json`.
 Os seis perfis devem registrar o hash dos binários utilizados; o release
 cristalino não deve ser presumido atualizado por causa de `--version`.
 
 `UNKNOWN` nunca fecha um item. Uma inferência só pode ser promovida após registrar a evidência que a sustenta e o resultado que a refutaria. Resultados gerados devem ir para `/tmp` ou para diagnósticos, nunca substituir o manifesto.
+
+## Ressincronização P1489
+
+O manifesto incorpora sete sondas RED do novo pin: `measure().baseline`,
+localização em HTML, espaço CJK de quebra de linha, `repr(stroke())`,
+`sym.chess`, `sym.tack.r.double` e `sym.not.inv`. `VIOLATED` esperado
+significa lacuna conhecida e reproduzível, não sucesso de paridade.
+Para símbolos, o inventário separa `VERIFIED_METADATA_DIFFERENCE` de
+`UNVERIFIED_METADATA`; diferença de metadados só vira violação da
+linguagem após sonda executável. `join` persiste no cristalino como extra
+de compatibilidade e não é removido automaticamente.

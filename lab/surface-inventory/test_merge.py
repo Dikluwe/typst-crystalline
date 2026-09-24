@@ -85,7 +85,7 @@ class ClassificationTests(unittest.TestCase):
         )
         self.assertEqual(got["classification"], "UNKNOWN")
 
-    def test_symbol_kind_alone_is_insufficient(self):
+    def test_symbol_metadata_difference_is_verified_not_unverified(self):
         vanilla = side(
             kind="symbol",
             params=None,
@@ -97,7 +97,14 @@ class ClassificationTests(unittest.TestCase):
             symbol={"value": "←", "variants": [["l", "←"]]},
         )
         got = merge.classify_entry("default", "sym.arrow", vanilla, crystalline)
-        self.assertEqual(got["classification"], "UNVERIFIED_METADATA")
+        self.assertEqual(got["classification"], "VERIFIED_METADATA_DIFFERENCE")
+        self.assertEqual(got["metadata_state"], "VERIFIED_DIFFERENCE")
+
+    def test_function_parameter_difference_is_verified_not_unverified(self):
+        got = merge.classify_entry(
+            "default", "foo", side(params=["first"]), side(params=["second"])
+        )
+        self.assertEqual(got["classification"], "VERIFIED_METADATA_DIFFERENCE")
         self.assertEqual(got["metadata_state"], "VERIFIED_DIFFERENCE")
 
     def test_extra_keeps_member_subtype(self):
@@ -140,7 +147,7 @@ class ProfileAndDeterminismTests(unittest.TestCase):
             "side": side_name,
             "profile": profile,
             "features": features,
-            "vanilla_revision": "586e1bd43" if side_name == "vanilla" else None,
+            "vanilla_revision": "9f2b6e87" if side_name == "vanilla" else None,
             "entries": {"same": side(kind="module", params=None)},
         }
 
@@ -215,6 +222,7 @@ class ProfileAndDeterminismTests(unittest.TestCase):
         )
         self.assertEqual(payload["counts"]["UNKNOWN"], 1)
         self.assertEqual(payload["entries"][0]["unknown_reason"], "invalid_provenance")
+        self.assertEqual(payload["counts"]["VERIFIED_METADATA_DIFFERENCE"], 0)
 
     def test_catalog_feature_mismatch_becomes_unknown(self):
         payload = merge.merge_catalog_payloads(
@@ -233,6 +241,28 @@ class ProfileAndDeterminismTests(unittest.TestCase):
             {"deep.__p1282_scope_truncated__": truncated},
         )
         self.assertEqual(got["counts"]["UNKNOWN"], 1)
+
+    def test_verified_difference_and_missing_observation_have_separate_counts(self):
+        vanilla = {
+            "different": side(
+                kind="symbol",
+                params=None,
+                symbol={"value": "→", "variants": [["r", "→"]]},
+            ),
+            "unobserved": side(params=[]),
+        }
+        crystalline = {
+            "different": side(
+                kind="symbol",
+                params=None,
+                symbol={"value": "←", "variants": [["l", "←"]]},
+            ),
+            "unobserved": side(params=None),
+        }
+        got = merge.merge_catalogs("default", vanilla, crystalline)
+        self.assertEqual(got["schema_version"], "p1282-v2")
+        self.assertEqual(got["counts"]["VERIFIED_METADATA_DIFFERENCE"], 1)
+        self.assertEqual(got["counts"]["UNVERIFIED_METADATA"], 1)
 
 
 if __name__ == "__main__":

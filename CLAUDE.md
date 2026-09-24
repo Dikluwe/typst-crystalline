@@ -113,31 +113,39 @@ objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do est
 
 ---
 
-## Referência de paridade — qual binário, qual fonte (ratificado 2026-09-12)
+## Referência de paridade — qual binário, qual fonte (novo pin 2026-09-24)
 
-O alvo de paridade é o **vanilla ratificado**: upstream/main **`586e1bd43`**, hash
-**pinado** — re-sync futuro exige passo explícito. A ratificação anterior de
-`a51e02804` permanece registada no adendo do dono à retificação P990-P992
-(`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`); a substituição explícita pelo
-novo pin está registrada no relatório consolidado
-`00_nucleo/diagnosticos/limpeza-tekt-2026-08-26.md`. **Não** é a tag
-0.15.0 nem a 0.15.1.
+O alvo atual da busca de paridade é o vanilla upstream/main
+**`9f2b6e8715237cb086899a42873660fe744622e8`**, hash **pinado** — re-sync
+posterior exige passo explícito. Substitui o pin
+`586e1bd43fae6c9a973218163d3165c53ab8d16d` (ratificado em 2026-09-12).
+Medições, prompts e relatórios feitos contra `586e1bd43` continuam válidos apenas
+para aquele snapshot, não são prova de paridade contra `9f2b6e871` sem nova medição.
+O pin `a51e02804` permanece histórico na retificação P990-P992. O alvo não é uma
+tag 0.15.0/0.15.1 nem `main` móvel. A paridade segue ADR-0107/0108: semântica,
+sintaxe e morfologia medidas antes da decisão, não a mecânica; defeitos do vanilla
+não são copiados como requisito do cristalino.
 
-Quatro armadilhas, todas medidas em 2026-08-13:
+Quatro armadilhas de proveniência:
 
 1. **A string de versão só é evidência auxiliar.** `lab/typst-original` não tem `.git`
-   próprio. O build ratificado recebe
-   `TYPST_COMMIT_SHA=586e1bd43fae6c9a973218163d3165c53ab8d16d` explicitamente e reporta
-   `typst 0.15.1 (586e1bd4)`, mas a proveniência continua a ser provada pelo pin, árvore,
-   receita e SHA-256 do binário — nunca pela string sozinha.
+   próprio. O build ratificado recebeu
+   `TYPST_COMMIT_SHA=9f2b6e8715237cb086899a42873660fe744622e8` explicitamente,
+   a partir da árvore `6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4`;
+   `lab/typst-original/target/release/typst` tem SHA-256
+   `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+   A receita completa está no diagnóstico P1489. A proveniência exige pin,
+   árvore, receita e SHA-256 do binário — nunca só a string de `--version`.
 2. **`./target/release/typst` na raiz é o cristalino, não o vanilla.** `04_wiring` declara
-   `[[bin]] name = "typst"`; o seu `typst 0.15.0 (…)` é a constante `PARITY_VERSION`
+   `[[bin]] name = "typst"`; a sua versão pública `0.15.1` vem de `PARITY_VERSION`
    (`entities/version.rs`) + o hash do nosso HEAD. Confundir os dois foi o erro do Passo
-   1024. Os binários de referência são `lab/typst-original/target/release/typst` e
-   `/usr/local/bin/typst` — ambos o mesmo build ratificado.
-3. **`sys.version` continua em paridade.** Medido no novo vanilla ratificado e no
-   cristalino: `version(0, 15, 1)`. É superfície de linguagem (ADR-0107); uma futura
-   mudança exige nova medição e o gate ADR-0127 descrito em `prompts/entities/version.md`.
+   1024. O oráculo deve ser o build comprovado de
+   `lab/typst-original/target/release/typst`. `/usr/local/bin/typst` permanece no pin
+   anterior e só pode substituí-lo após prova de identidade de bytes com o build novo.
+3. **`sys.version` é superfície de linguagem.** A sonda direta do novo vanilla
+   `9f2b6e871` e do cristalino devolveu `version(0, 15, 1)`; por isso
+   `PARITY_VERSION` não muda no P1489. Uma futura mudança exige o gate ADR-0127 em
+   `prompts/entities/version.md`.
 4. **`--version` do cristalino pode ficar preso a um HEAD antigo.** Antes do Passo 1033,
    `02_shell/build.rs` só declarava `rerun-if-env-changed=TYPST_COMMIT_SHA`; o cargo não
    reexecutava o script quando o HEAD mudava, logo a string `--version` refletia o primeiro
@@ -147,7 +155,7 @@ Quatro armadilhas, todas medidas em 2026-08-13:
    sozinho.
 
 Nunca citar "0.15.0"/"0.15.1" como alvo sem confirmar o hash pinado primeiro. Medições
-antigas que citam versões antigas ficam como registo do que foi medido na altura.
+antigas, inclusive as de `586e1bd43`, ficam como registo do que foi medido na altura.
 
 ---
 

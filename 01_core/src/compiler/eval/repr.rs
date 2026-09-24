@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 1617461f
+//! @prompt-hash 84eea910
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -407,9 +407,8 @@ fn repr_color(c: &Color) -> String {
 }
 
 /// Representação de um `Stroke` — paridade vanilla `Stroke::repr`
-/// (visualize/stroke.rs:308) adaptada: o cristalino não modela
-/// `Smart::Auto` (thickness colapsa para 1.0pt na construção, P227), logo
-/// imprime sempre `"{thickness} + {paint}"`.
+/// (`visualize/stroke.rs:306-320`). `StrokeFields` preserva os slots
+/// automáticos mesmo depois de os valores resolvidos terem sido preenchidos.
 pub(super) fn repr_stroke(s: &Stroke) -> String {
     use crate::entities::geometry::{DashLength, LineCap, LineJoin};
     let complex = s.specified.cap
@@ -422,7 +421,7 @@ pub(super) fn repr_stroke(s: &Stroke) -> String {
             && s.paint == Stroke::default().paint
             && s.thickness == 1.0
         {
-            return "1pt + black".to_string();
+            return "stroke()".to_string();
         }
         return match (s.specified.paint, s.specified.thickness) {
             (true, false) => repr_paint(&s.paint),
@@ -2029,13 +2028,18 @@ mod tests {
 
     #[test]
     fn p721_repr_stroke_thickness_mais_paint() {
-        use crate::entities::geometry::Stroke;
+        use crate::entities::geometry::{Stroke, StrokeFields};
         use crate::entities::layout_types::Color;
         use crate::entities::paint::Paint;
         // `stroke(paint: red, thickness: 2pt)` — red Typst = #ff4136.
         let s = Stroke {
             paint: Paint::Solid(Color::rgb(255, 65, 54)),
             thickness: 2.0,
+            specified: StrokeFields {
+                paint: true,
+                thickness: true,
+                ..StrokeFields::default()
+            },
             overhang: true,
             ..Stroke::default()
         };
@@ -2043,8 +2047,44 @@ mod tests {
     }
 
     #[test]
-    fn p1225_repr_stroke_preserva_default_nominal() {
-        assert_eq!(repr_value(&Value::Stroke(Stroke::default())), "1pt + black");
+    fn p1490_repr_stroke_preserva_quatro_estados_morfologicos() {
+        use crate::entities::geometry::{Stroke, StrokeFields};
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+
+        let automatic = Stroke::default();
+        let thickness = Stroke {
+            specified: StrokeFields { thickness: true, ..StrokeFields::default() },
+            ..Stroke::default()
+        };
+        let paint = Stroke {
+            paint: Paint::Solid(Color::luma(0.0)),
+            specified: StrokeFields { paint: true, ..StrokeFields::default() },
+            ..Stroke::default()
+        };
+        let both = Stroke {
+            paint: Paint::Solid(Color::luma(0.0)),
+            specified: StrokeFields {
+                paint: true,
+                thickness: true,
+                ..StrokeFields::default()
+            },
+            ..Stroke::default()
+        };
+
+        assert_eq!(repr_value(&Value::Stroke(automatic.clone())), "stroke()");
+        assert_eq!(repr_value(&Value::Stroke(thickness.clone())), "1pt");
+        assert_eq!(repr_value(&Value::Stroke(paint.clone())), "luma(0%)");
+        assert_eq!(repr_value(&Value::Stroke(both.clone())), "1pt + luma(0%)");
+        assert_eq!(
+            repr_value(&Value::Array(vec![
+                Value::Stroke(automatic),
+                Value::Stroke(thickness),
+                Value::Stroke(paint),
+                Value::Stroke(both),
+            ])),
+            "(stroke(), 1pt, luma(0%), 1pt + luma(0%))"
+        );
     }
 
     #[test]

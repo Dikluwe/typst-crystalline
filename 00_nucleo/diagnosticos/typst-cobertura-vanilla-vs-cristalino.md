@@ -5,6 +5,15 @@
 **Vanilla snapshot**: `lab/typst-original/` em commit `ba61529986e0a5a916cbf937c3c65117cd450683` (2026-04-24).
 **Cristalino snapshot**: Passo 447/P453; 68 ADRs; DEBT-1, DEBT-42, DEBT-43, DEBT-52, DEBT-55, DEBT-57 fechados; DEBT-58 dissolvido; DEBT-2 em aberto.
 
+> **Ressincronização P1489 (2026-09-24):** este inventário e seus percentuais
+> continuam históricos, não são uma medição contra o novo alvo pinado
+> `upstream/main 9f2b6e8715237cb086899a42873660fe744622e8`.
+> A busca atual usa a matriz bilateral e o catálogo por perfil do diagnóstico
+> `typst-p1489-resync-vanilla.md`, separando MATCH, diferenças ainda sem
+> prova semântica, VIOLATED, membros ausentes, metadados verificados e
+> observações insuficientes. Nenhum percentual global é inferido de sondas
+> amostrais; extensões deliberadas não recebem crédito de paridade.
+
 > **Retificação P1484 (2026-09-23; gate L0 confirmado):** o crédito histórico
 > P397 a `asset` não prova paridade com o vanilla ratificado `586e1bd43`.
 > O placeholder `asset(path, kind:?)` esteve exposto sem feature e diverge de

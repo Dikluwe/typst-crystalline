@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: 826098fd
+Hash do Código: e71a82a9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -72,7 +72,7 @@ esta string. A fachada pública de repr conserva assinatura.
 
 **Camada:** L1
 **Ficheiro proprietário:** `01_core/src/compiler/eval/repr.rs`
-**Vanila ratificado vigente:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+**Vanila ratificado vigente:** `9f2b6e8715237cb086899a42873660fe744622e8`
 
 ## Contrato
 
@@ -94,6 +94,51 @@ contrário usam `label(<repr string>)`. Raiz matemática segue a medição P1426
 abaixo. Symbols multi-codepoint preservam todos os scalar values,
 incluindo variation selectors e ZWJ, sem conversão para `char`, normalização ou
 substituição pelo nome canônico.
+
+## P1490 — morfologia do `Stroke` totalmente automático
+
+### Medição anterior à decisão
+
+Em 2026-09-24T13:41:18-03:00, no vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8` (binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`),
+as quatro formas nomeadas produziram, respectivamente:
+
+```text
+repr(stroke())                                  -> "stroke()"
+repr(stroke(thickness: 1pt))                    -> "1pt"
+repr(stroke(paint: black))                      -> "luma(0%)"
+repr(stroke(paint: black, thickness: 1pt))      -> "1pt + luma(0%)"
+```
+
+`visualize/stroke.rs:306-320` confirma que a forma `stroke()` corresponde aos
+dois slots automáticos, enquanto as outras três formas dependem da presença
+causal dos slots. No cristalino pré-P1490, medido na mesma árvore não
+commitada pelo binário SHA-256
+`ba164438e499d0ae1980993bdfc751539f43bbedf029875a102495a508ef3442`,
+somente o primeiro resultado divergia: `"1pt + black"`. Os bits existentes
+`StrokeFields.paint` e `StrokeFields.thickness` distinguem os quatro estados;
+não é necessário inferir presença pelos valores resolvidos nem acrescentar
+campo de entidade.
+
+### Decisão proprietária
+
+Quando `cap`, `join`, `dash` e `miter-limit` não são explícitos, a projeção
+do par automático com os valores default emite exatamente `stroke()`. Somente
+paint explícito emite a `repr` canônica do paint; somente thickness explícito
+emite o comprimento; ambos explícitos emitem `<thickness> + <paint>`. A forma
+complexa parentizada e o fallback histórico para strokes internos com valores
+não-default permanecem inalterados. Layout/render continuam a consumir os
+valores resolvidos.
+
+A aceitação cobre as quatro formas acima, composição em tuple e round-trip de
+`stroke()` por `eval(repr(...))`. Os shorthands explícitos são reintroduzidos
+pelos slots nomeados que o constructor cristalino aceita; o caso combinado
+recompõe os dois slots a partir das suas reprs individuais. O round-trip da
+suite vanilla por argumento posicional (`stroke(eval(repr(case)))`) continua
+fora deste passo, porque o constructor cristalino ainda rejeita posicionais.
+Esta é correção de morfologia da linguagem, não igualdade do valor resolvido
+nem de bytes renderizados.
 
 ## P1426 — `repr` de raiz por presença (APROVADO no gate ADR-0127)
 

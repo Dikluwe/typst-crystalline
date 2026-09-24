@@ -1,39 +1,39 @@
 //! Vanilla CLI smoke sentinel — P206B.
 //!
-//! Sentinel de runtime: confirma que o binário vanilla
-//! `typst` está acessível via PATH e reporta versão
-//! idêntico ao vanilla ratificado `upstream/main 586e1bd43`.
+//! Sentinel de runtime: usa o build vanilla local em
+//! `lab/typst-original/target/release/typst` e confere a versão
+//! do pin ratificado `upstream/main 9f2b6e87`.
 //!
-//! **Skip graceful**: se vanilla CLI ausente (CI sem
-//! install step ou ambiente local sem typst), o test
-//! emite warning via `eprintln!` e completa com sucesso.
-//! Não falha a suite — paridade é medição, não verificação
-//! (consistente com `layout_parity.rs::corpus_completo_p3`).
+//! **Skip graceful**: se o build local não puder ser iniciado
+//! (por exemplo, CI sem build do lab), o teste avisa via
+//! `eprintln!` e completa com sucesso. Quando presente, versão
+//! incompatível ou falha de `query --help` reprova o teste.
 //!
-//! Per ADR-0075 PROPOSTO §"Mecanismo": vanilla CLI é
-//! dependência ambiental externa (não compilada na
-//! quarentena, não workspace member). Smoke confirma
-//! que pre-built binário é detectável.
+//! Não usa `PATH` nem `/usr/local/bin/typst`: esses binários
+//! não substituem o build local do snapshot pinado.
 
+use std::path::PathBuf;
 use std::process::Command;
 
 /// Identidade pública esperada do binário construído com o pin explícito.
 /// A prova completa continua a exigir fonte, árvore, receita e SHA-256.
-const VANILLA_EXPECTED_VERSION: &str = "typst 0.15.1 (586e1bd4)";
+const VANILLA_EXPECTED_VERSION: &str = "typst 0.15.1 (9f2b6e87)";
+
+fn vanilla_binary() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../typst-original/target/release/typst")
+}
 
 #[test]
 fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
-    let output = match Command::new("typst").arg("--version").output() {
+    let output = match Command::new(vanilla_binary()).arg("--version").output() {
         Ok(o) => o,
         Err(e) => {
-            // Skip graceful: vanilla CLI ausente em PATH.
-            // Per ADR-0075 §Plano de validação cond 6:
-            // "abort gracefully se ausente". P206C/D dependem
-            // mas são opt-in.
+            // Skip graceful: build vanilla local ausente ou indisponível.
             eprintln!(
-                "[p206b smoke] vanilla `typst` ausente em PATH ({}); skip graceful. \
-                 Para activar comparação vanilla, instalar via cargo install --git \
-                 https://github.com/typst/typst typst-cli ou package manager.",
+                "[p206b smoke] build vanilla local indisponível em \
+                 lab/typst-original/target/release/typst ({}); skip graceful. \
+                 Para ativar a comparação, compilar typst-cli do lab no pin 9f2b6e87.",
                 e
             );
             return;
@@ -42,7 +42,7 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
 
     assert!(
         output.status.success(),
-        "vanilla CLI presente mas `typst --version` falhou (exit {:?})",
+        "build vanilla local presente mas `typst --version` falhou (exit {:?})",
         output.status.code()
     );
 
@@ -53,23 +53,24 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
         stdout_trim == VANILLA_EXPECTED_VERSION,
         "vanilla CLI incompatível: esperado exatamente \
          `{}`, output `{}`. Pinning per vanilla ratificado \
-         `upstream/main 586e1bd43`.",
+         `upstream/main 9f2b6e87`.",
         VANILLA_EXPECTED_VERSION,
         stdout_trim
     );
 
-    eprintln!("[p206b smoke] ✓ vanilla CLI detectada: {}", stdout_trim);
+    eprintln!("[p206b smoke] ✓ build vanilla local detectado: {}", stdout_trim);
 }
 
 #[test]
 fn p206b_vanilla_cli_query_subcomando_existe() {
     // Confirma que subcomando `query` está disponível —
     // pré-requisito para P206C comparação estrutural.
-    let output = match Command::new("typst").arg("query").arg("--help").output() {
+    let output = match Command::new(vanilla_binary()).arg("query").arg("--help").output() {
         Ok(o) => o,
         Err(e) => {
             eprintln!(
-                "[p206b smoke] vanilla `typst` ausente em PATH ({}); skip.",
+                "[p206b smoke] build vanilla local indisponível em \
+                 lab/typst-original/target/release/typst ({}); skip graceful.",
                 e
             );
             return;

@@ -5,7 +5,7 @@
   "required": ["schema_version", "vanilla_revision", "cases"],
   "properties": {
     "schema_version": { "const": 1 },
-    "vanilla_revision": { "const": "586e1bd43" },
+    "vanilla_revision": { "const": "9f2b6e87" },
     "profiles": { "type": "object", "additionalProperties": { "type": "object", "properties": { "features": { "type": "array", "items": { "type": "string" } } }, "required": ["features"] } },
     "scope_out_features": { "type": "array", "items": { "type": "string" } },
     "cases": {
