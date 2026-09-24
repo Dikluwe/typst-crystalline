@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 4751e254
+//! @prompt-hash 865bf9da
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2125,8 +2125,9 @@ pub(super) fn eval_func_call(
 /// `loc.page-numbering()`. Paridade vanilla `location.rs #[scope]`.
 ///
 /// Acede ao `ctx.introspector` (TagIntrospector implementa `Introspector::position_of`).
-/// Se o introspector não tiver a posição da localização (pre-layout ou localização
-/// inexistente), usa defaults seguros (page=1, x=0pt, y=0pt).
+/// No target HTML externo, `page` e `position` devolvem `none`; em targets paginados,
+/// a ausência de posição (pre-layout ou localização inexistente) usa defaults seguros
+/// (page=1, x=0pt, y=0pt).
 pub(super) fn eval_location_method(
     loc: crate::entities::location::Location,
     method: &str,
@@ -2136,39 +2137,48 @@ pub(super) fn eval_location_method(
     use crate::entities::introspector::Introspector;
     use crate::entities::layout_types::Length;
 
-    let result = match method {
-        "page" => {
-            // Número da página (1-based) via introspector; default 1 se não disponível.
-            let page_num = ctx
-                .introspector
-                .position_of(loc)
-                .map(|p| p.page.get() as i64)
-                .unwrap_or(1);
-            Ok(Value::Int(page_num))
-        }
-        "position" => {
-            // Dict {page: int, x: length, y: length} em pontos.
-            let pos = ctx.introspector.position_of(loc);
-            let page_num = pos.as_ref().map(|p| p.page.get() as i64).unwrap_or(1);
-            let x_pt = pos.as_ref().map(|p| p.point.x.0).unwrap_or(0.0);
-            let y_pt = pos.as_ref().map(|p| p.point.y.0).unwrap_or(0.0);
+    let result = if ctx.target == super::EvalTarget::Html
+        && matches!(method, "page" | "position")
+    {
+        Ok(Value::None)
+    } else {
+        match method {
+            "page" => {
+                // Número da página (1-based) via introspector; default 1 se não disponível.
+                let page_num = ctx
+                    .introspector
+                    .position_of(loc)
+                    .map(|p| p.page.get() as i64)
+                    .unwrap_or(1);
+                Ok(Value::Int(page_num))
+            }
+            "position" => {
+                // Dict {page: int, x: length, y: length} em pontos.
+                let pos = ctx.introspector.position_of(loc);
+                let page_num = pos.as_ref().map(|p| p.page.get() as i64).unwrap_or(1);
+                let x_pt = pos.as_ref().map(|p| p.point.x.0).unwrap_or(0.0);
+                let y_pt = pos.as_ref().map(|p| p.point.y.0).unwrap_or(0.0);
 
-            let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-            dict.insert("page".into(), Value::Int(page_num));
-            dict.insert("x".into(), Value::Length(Length::pt(x_pt)));
-            dict.insert("y".into(), Value::Length(Length::pt(y_pt)));
-            Ok(Value::Dict(dict))
+                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
+                    IndexMap::default();
+                dict.insert("page".into(), Value::Int(page_num));
+                dict.insert("x".into(), Value::Length(Length::pt(x_pt)));
+                dict.insert("y".into(), Value::Length(Length::pt(y_pt)));
+                Ok(Value::Dict(dict))
+            }
+            "page-numbering" => Ok(match ctx.introspector.page_numbering(loc) {
+                Some(crate::entities::numbering::Numbering::Pattern(pattern)) => {
+                    Value::Str(pattern.clone())
+                }
+                Some(crate::entities::numbering::Numbering::Func(func)) => {
+                    Value::Func(func.clone())
+                }
+                None => Value::None,
+            }),
+            _ => {
+                unreachable!("eval_location_method chamado com método inesperado: {method}")
+            }
         }
-        "page-numbering" => Ok(match ctx.introspector.page_numbering(loc) {
-            Some(crate::entities::numbering::Numbering::Pattern(pattern)) => {
-                Value::Str(pattern.clone())
-            }
-            Some(crate::entities::numbering::Numbering::Func(func)) => {
-                Value::Func(func.clone())
-            }
-            None => Value::None,
-        }),
-        _ => unreachable!("eval_location_method chamado com método inesperado: {method}"),
     };
     use crate::compiler::eval::ContextReadRequest as Read;
     let request = match method {
@@ -2547,6 +2557,49 @@ mod p1334_dispatch_tests {
             transport_native_call_span(&func, &mut args, p1293_span(1));
             assert_eq!(args.span, p1293_span(1));
             assert!(args.occurrences.is_none());
+        }
+    }
+}
+
+#[cfg(test)]
+mod p1492_location_html_external_tests {
+    use super::*;
+    use crate::compiler::eval::EvalTarget;
+    use crate::entities::location::Location;
+
+    #[test]
+    fn html_externo_nao_fabrica_pagina_ou_posicao() {
+        let mut ctx = EvalContext::new();
+        ctx.target = EvalTarget::Html;
+        let loc = Location::from_raw(1492);
+
+        assert!(matches!(
+            eval_location_method(loc, "page", &mut ctx, Span::detached()),
+            Ok(Value::None)
+        ));
+        assert!(matches!(
+            eval_location_method(loc, "position", &mut ctx, Span::detached()),
+            Ok(Value::None)
+        ));
+    }
+
+    #[test]
+    fn paged_e_bundle_preservam_defaults_sem_posicao_selada() {
+        let loc = Location::from_raw(1492);
+        for target in [EvalTarget::Paged, EvalTarget::Bundle] {
+            let mut ctx = EvalContext::new();
+            ctx.target = target;
+
+            assert!(matches!(
+                eval_location_method(loc, "page", &mut ctx, Span::detached()),
+                Ok(Value::Int(1))
+            ));
+            let Ok(Value::Dict(position)) =
+                eval_location_method(loc, "position", &mut ctx, Span::detached())
+            else {
+                panic!("target {target:?} deve preservar a posição paginada default");
+            };
+            assert!(matches!(position.get("page"), Some(Value::Int(1))));
         }
     }
 }

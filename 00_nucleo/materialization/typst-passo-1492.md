@@ -1,6 +1,6 @@
 # Passo 1492 — localização HTML fora de `html.frame`
 
-**Estado:** PLANEADO. Dependência: P1489; primeiro recorte da sonda `P1489-I-001`.
+**Estado:** CONCLUÍDO em 2026-09-24. Dependência P1489; primeiro recorte da sonda `P1489-I-001` fechado em `P1492-I-001`.
 
 ## Medição anterior à decisão
 
@@ -16,3 +16,7 @@ Inferência: a ausência de posição no target HTML externo deve permanecer `no
 4. Rodar testes focais, build com um job, `crystalline-lint .` e `git diff --check`; registrar HEAD/worktree e hashes.
 
 **Gate ADR-0127:** correção interna de paridade pode fluir com L0 primeiro e RED→GREEN. Se exigir mudança de trait, entidade, assinatura pública ou ordem do pipeline, parar e remeter o desenho ao P1493.
+
+## Fechamento
+
+Implementação, RED→GREEN, matriz bilateral, controles, hashes e proveniência estão registrados em `00_nucleo/diagnosticos/typst-p1492-location-html-external.md`. O recorte externo está `MATCH` nos perfis HTML; a coordenada dentro de `html.frame` permanece para P1493.

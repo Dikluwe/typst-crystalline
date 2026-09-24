@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 493f95ec
+Hash do Código: 65529090
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -938,3 +938,31 @@ essas três chaves nessa ordem. Não calcula baseline, não examina `Content` e
 não altera validação, sombra, ordem de avaliação, gate contextual ou fallback
 indireto. A assinatura pública de `measure_content_real` permanece intacta;
 a projeção tripla usa somente helper interno ao módulo `compiler`.
+
+## P1492 — localização no target HTML externo
+
+### Medição anterior à decisão
+
+No HEAD `7f814615b786fddfceca30fb9fa11825c3b42eba`, working tree limpo,
+`eval_location_method` converte ausência de `position_of` em página 1 e
+coordenadas 0pt. O vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8` devolve `none` para
+`location.page()` e `location.position()` no target HTML fora de
+`html.frame`. As sondas nos perfis html, html+a11y e html+bundle ficam
+`VIOLATED` com ordem bilateral idêntica. O caso dentro de `html.frame`
+permanece recorte independente de P1493.
+
+### Decisão proprietária
+
+Quando `ctx.target == EvalTarget::Html`, os métodos `page` e `position`
+devolvem `Value::None` antes de consultar ou fabricar uma posição paginada.
+O método `page-numbering` conserva a consulta vigente. Nos targets `Paged` e
+`Bundle`, preservar integralmente a projeção atual, inclusive defaults seguros
+quando o introspector ainda não contém a localização.
+
+A decisão usa somente o carrier interno `EvalContext::target` já existente;
+não muda `Position`, `Introspector`, assinatura pública, fase, ordem de
+avaliação ou registro de `ContextReadRequest`. A leitura observada continua
+registrada com o resultado efetivo `None`. Não inferir HTML pela feature:
+feature e target são eixos distintos conforme ADR-0128. Não alterar neste
+passo a avaliação paginada intrínseca de `html.frame`.
