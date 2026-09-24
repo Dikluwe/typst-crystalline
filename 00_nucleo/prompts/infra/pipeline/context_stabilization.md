@@ -1,5 +1,5 @@
 # Prompt L0 — estabilização contextual seletiva
-Hash do Código: d5243cb4
+Hash do Código: 3fab6631
 
 **Camada:** L3
 **Consumer único:** `03_infra/src/pipeline/context_stabilization.rs`
@@ -463,3 +463,40 @@ offset de páginas. Após convergência, remover somente markers HTML executados
 Colisão de Location/id, cobertura incompleta ou store de geração mista produz
 o diagnóstico terminal de incapacidade existente. A mudança de fase foi
 confirmada pelo dono em 2026-09-24.
+
+## P1494 — preservação causal do espaço na estabilização (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, o consumer
+03_infra/src/pipeline/context_stabilization.rs não tem diff.
+prepare_bundle compõe os bodies originais em uma Sequence, atribui
+EvalTarget por body e descobre os produtores antes das tentativas
+(:748-839). Depois da estabilização, reintrospecta raw_bodies e remove
+markers HTML executados apenas no fim (:835-887).
+strip_executed_html_markers reduz uma Sequence só de Content::Space a
+Empty (:1058-1077). No P1489-S-001, a origem do newline já se perdeu
+em eval antes de esta sessão ser criada; isso não prova que um strip
+tardio possa decidir o descarte CJK. Inferência: a sessão deve manter
+o carrier em cada tentativa até a normalização L1 causal; refutação:
+uma tentativa que mude a origem sem alterar a observação validada.
+
+### Decisão ratificada
+
+Manter SpaceFromNewline no conteúdo de origem, nas contribuições dos
+produtores e nos snapshots das tentativas enquanto o owner L1 não
+tiver normalizado o grupo textual. Não reclassificar pela grafia,
+converter em Space na montagem do bundle nem fazer colapso CJK no
+fixpoint. A observação causal pré-normalização deve distinguir as duas
+origens, conforme o contrato L1, para não certificar um replay errado.
+No strip terminal de markers, uma Sequence composta só de Space e/ou
+SpaceFromNewline continua estruturalmente vazia; fora desse caso,
+preservar os nós na mesma ordem. Os targets Html/Paged mantêm os
+limites de P1493 e P1485, mas usam a mesma normalização linguística L1.
+Erros, warnings, PageStore, HtmlPosition e orçamento de tentativas
+não mudam.
+
+Testes incluem produtor contextual que devolve newline CJK e espaço
+explícito, controle de convergência e bundle misto sem perda de target.
+O gate ADR-0127 da variante pública e da fase P1494 foi confirmado
+pelo dono em 2026-09-24; esta seção secundária está autorizada.

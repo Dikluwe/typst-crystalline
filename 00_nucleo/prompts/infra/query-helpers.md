@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: cf83e295
+Hash do Código: 0cad2616
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -581,3 +581,25 @@ Adicionar `MathUnderbracket` aos braços terminais de
 `has_any_text`/`count_variant`, sem ocorrência própria nem recursão L3 em
 body/annotation. Walkers estruturais e repr permanecem donos desses
 observáveis.
+
+## P1494 — neutralidade do espaço com origem de newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, o consumer
+03_infra/src/query_helpers.rs não tem diff. Os matches terminais de
+has_any_text (:330-353) e count_variant (:420-445) tratam Content::Space
+como sem texto e sem ocorrência consultável. A variante pública proposta
+SpaceFromNewline ainda não existe; o P1489-S-001 mede sua causa em L1.
+
+### Decisão ratificada
+
+Tratar SpaceFromNewline exatamente como Space nos dois helpers: não contém
+texto, não é ocorrência consultável e não inicia descida estrutural. Este
+owner não descarta espaço entre caracteres CJK, não deduz origem pelo texto
+e não altera query_to_summary. A origem continua disponível aos owners L1
+até a normalização causal. Testes com ambas as variantes devem devolver as
+mesmas contagens e preservar as consultas de conteúdo vizinho.
+
+O gate ADR-0127 da variante pública e da fase P1494 foi confirmado
+pelo dono em 2026-09-24; este contrato secundário está autorizado.

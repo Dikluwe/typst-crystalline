@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash 1f335f2e
+//! @prompt-hash d8f22abf
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -47,7 +47,7 @@ fn fractional_block(content: &Content) -> Option<&BlockElem> {
         if let Content::Sequence(parts) = current {
             let mut substantive = parts
                 .iter()
-                .filter(|part| !matches!(part, Content::Space | Content::Empty));
+                .filter(|part| !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty));
             let only = substantive.next()?;
             if substantive.next().is_some() {
                 return None;
@@ -275,7 +275,7 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 }
                 _ => return None,
             },
-            Content::Space => {
+            Content::Space | Content::SpaceFromNewline => {
                 if has_text {
                     width += layouter.space_width().0;
                 }
@@ -653,7 +653,7 @@ fn fractional_preflight<M: FontMetrics, S: ImageSizer>(
                 // não no avanço até à baseline hipotética seguinte.
                 let only_trailing_transparent = parts[index + 1..]
                     .iter()
-                    .all(|tail| matches!(tail, Content::Space | Content::Empty));
+                    .all(|tail| matches!(tail, Content::Space | Content::SpaceFromNewline | Content::Empty));
                 if precedes_fraction {
                     let (top, bottom) =
                         layouter.metrics.text_edges(layouter.style.size, &layouter.style);
@@ -806,7 +806,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     let distribution = fractional_preflight(layouter, parts, basis);
     let terminal_flow_index = parts
         .iter()
-        .rposition(|part| !matches!(part, Content::Space | Content::Empty));
+        .rposition(|part| !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty));
 
     let mut iter = parts.iter().peekable();
     let mut part_index = 0usize;
@@ -834,7 +834,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             if layouter.last_seen_item_group.is_some() {
                 layouter.parbreak_since_last_item = true;
             }
-        } else if !matches!(part, Content::Space | Content::Empty | Content::Styled(..)) {
+        } else if !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty | Content::Styled(..)) {
             // Qualquer outro conteúdo real quebra a consecutividade.
             layouter.last_seen_item_group = None;
             layouter.parbreak_since_last_item = false;
@@ -883,7 +883,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         if inline_prefix.is_some_and(|prefix| {
             prefix.wrap_before.is_some_and(|index| part_index > index)
                 && part_index < prefix.block_index
-                && matches!(part, Content::Space | Content::Empty)
+                && matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty)
         }) && super::html_frame::items_have_material(
             &layouter.regions.current.current_line,
         ) {
@@ -943,6 +943,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         if !matches!(
             part,
             Content::EnumItem(_)
+                | Content::SpaceFromNewline
                 | Content::Space
                 | Content::Parbreak
                 | Content::Empty
@@ -957,7 +958,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     let is_transparent = parts.iter().all(|p| {
         matches!(
             p,
-            Content::Empty | Content::Styled(..) | Content::Space | Content::Parbreak
+            Content::Empty | Content::Styled(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak
         )
     });
     if is_transparent && saved_chain {
@@ -1047,14 +1048,16 @@ mod p1375_tests {
 
     #[test]
     fn p1375_styled_singleton_exposes_fractional_block() {
-        let wrapped = Content::Styled(
-            Box::new(Content::sequence(vec![Content::Space, fractional(1.0)])),
-            Styles::new(),
-        );
-        assert!(matches!(
-            fractional_block(&wrapped).and_then(|block| block.height),
-            Some(BlockHeight::Fractional(1.0))
-        ));
+        for space in [Content::Space, Content::SpaceFromNewline] {
+            let wrapped = Content::Styled(
+                Box::new(Content::sequence(vec![space, fractional(1.0)])),
+                Styles::new(),
+            );
+            assert!(matches!(
+                fractional_block(&wrapped).and_then(|block| block.height),
+                Some(BlockHeight::Fractional(1.0))
+            ));
+        }
     }
 
     #[test]

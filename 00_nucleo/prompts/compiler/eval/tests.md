@@ -1,11 +1,64 @@
 # Prompt L0 — `compiler/eval/tests`
-Hash do Código: bf910bce
+Hash do Código: e8dacd22
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 
 **Camada:** L1 test-only
 **Ficheiro alvo exclusivo:** `01_core/src/compiler/eval/tests.rs`
+
+## P1494 — regressões de espaço realizado e show textual (gate confirmado)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, working tree
+limpa na medição inicial, o diagnóstico
+00_nucleo/diagnosticos/typst-p1494-gate-cjk-newline.md registra:
+vanilla CJK_JOINED versus cristalino 水 果, explícito CJK_EXPLICIT_SPACE
+em ambos; show regex entre nós casa no vanilla e falha no cristalino.
+Há também controles de latim, coreano, pontuação, comentário, strong,
+dinâmico, Linebreak e fronteira de estilo. A nova variante pública e a
+ordem eval→realização foram confirmadas pelo dono em 2026-09-24,
+conforme gate ADR-0127 do passo 1494.
+
+### Decisão de teste
+
+Separar RED (A) origem/normalização sem show e (B) show literal/regex
+sobre grupo textual de nós distintos. Asserir morfologia efetiva e
+identidade causal do espaço antes/depois da realização; não usar somente
+ausência de erro, artefato ou igualdade Rust. Controles negativos
+preservam espaço explícito, latim/coreano e aspas ambíguas; Linebreak
+consome adjacências, não vira Space; style chains e conteúdo não textual
+não se tornam matches regex cross-boundary. A sonda de override
+foo/EARLY/LATE é dívida preexistente separada e não deve ser usada como
+GREEN desta fatia. Cada novo teste deve falhar no baseline antes da
+implementação, passar depois dela e não depender da mecânica vanilla.
+
+
+### Refinamento P1494/P1140 — medição antes da decisão
+
+No vanilla pinado, as sondas de 2026-09-24 22:36:52 UTC
+devolveram repr([a\ b]) = sequence([a], linebreak(), [ ], [b])
+e repr([水\n果]) = sequence([水], [ ], [果]), onde \n
+denota a quebra de linha real no ContentBlock. O teste preexistente
+eval/tests.rs:11081-11095 cobre o primeiro; o executável WIP P1494
+identificado no L0 compiler/eval.md falhou também no controle menor
+repr([\ ]), perdendo o Space após Linebreak. Em contraste, a
+realização do fluxo/root deve continuar a colapsar o espaço CJK
+após a inserção. O vanilla local de show 水果 → X sobre
+水-newline-果 emite X, dívida combinada separada.
+
+### Decisão de teste estreita
+
+Conservar o teste P1140 de repr([a\ b]) e acrescentar
+repr([水\n果]) antes da interpolação, exigindo os nós de espaço
+brutos indicados acima. Testar também a inserção posterior em
+fluxo/root, que decide whitespace pela vizinhança textual.
+Um show textual local pré-normalizado pode substituir somente a
+fatia casada; prefixo, sufixo e separadores não casados permanecem
+para a inserção. A sonda combinada de show local CJK não é GREEN
+de P1494 nem se declara paridade dela. Estes controles preservam
+P1140 sem ampliar o gate público ADR-0127 aprovado.
 
 ## P1447 — oráculo bare de `math.abs`
 

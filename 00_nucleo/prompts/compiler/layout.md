@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: 6cb4e96c
+Hash do Código: bbfda1ff
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -9,6 +9,27 @@ Núcleos Tekt:
 **Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
 **Vanila ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
 **ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+
+## P1494 — despacho da folha de espaço com origem newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`, o despacho
+exaustivo de `Layouter::layout_content` trata `Content::Space` em
+`01_core/src/compiler/layout/mod.rs:1865-1881`: só avança o cursor se a
+linha já tiver material e usa a largura de espaço vigente. O diagnóstico
+P1494 mede que a origem de newline altera a junção CJK antes de layout;
+layout não dispõe do contexto textual de show/regex.
+
+### Decisão ratificada
+
+Despachar `Content::SpaceFromNewline` pelo mesmo comportamento de espaço
+comum caso essa folha alcance layout: mesma supressão inicial, avanço,
+oportunidade de justificação e flush condicional. Não executar regra de
+junção CJK, colapso de origem ou show/regex no layouter; a normalização
+textual cabe ao owner de eval antes do alvo. Não alterar assinatura,
+geometria de outros elementos nem fase deste consumer. O braço exaustivo
+será materializado após o gate ADR-0127 P1494, confirmado em 2026-09-24.
 
 ## Medição e contrato
 

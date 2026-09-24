@@ -121,6 +121,9 @@ types = ["Lang", "hyphenate", "from_iso"]  # ADR-0057
 [l1_allowed_external.icu_segmenter]
 types = ["LineSegmenter", "LineSegmenterBorrowed", "options::LineBreakOptions"]  # P756 — segmentação de linha CJK/Thai (dados estáticos)
 
+[l1_allowed_external.icu_properties]
+types = ["CodePointMapDataBorrowed", "CodePointSetDataBorrowed", "props::Script", "props::EastAsianWidth", "props::Emoji"]  # P1494 — dados Unicode estáticos e imutáveis
+
 [l1_allowed_external.regex]
 types = ["Regex", "new"]  # ADR-0077
 

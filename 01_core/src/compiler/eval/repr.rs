@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 84eea910
+//! @prompt-hash 88f3ca1f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -676,7 +676,7 @@ pub fn repr_content(c: &Content) -> String {
     match c {
         Content::Empty => "[]".to_string(),
         Content::Text(t) => format!("[{}]", t.as_str()),
-        Content::Space => "[ ]".to_string(),
+        Content::Space | Content::SpaceFromNewline => "[ ]".to_string(),
         Content::Parbreak => "parbreak()".to_string(),
         Content::Par { body } => format!("par(body: {})", repr_content(body)),
         Content::HtmlElem(elem) => {

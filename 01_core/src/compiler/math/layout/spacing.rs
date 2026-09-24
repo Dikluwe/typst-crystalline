@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash f1c9fab4
+//! @prompt-hash daec4486
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -101,7 +101,7 @@ fn base_math_class(content: &Content) -> MathClass {
         Content::MathSequence(items) if !items.is_empty() => base_math_class(&items[0]),
         // intencional: composite nodes (frac, root, matrix, cases, accent, cancel, underover) e elementos fora de math usam MathClass::Normal per vanilla
         Content::Empty
-        | Content::Space
+        | Content::Space | Content::SpaceFromNewline
         | Content::Parbreak
         | Content::Sequence(_)
         | Content::Par { .. }
@@ -1100,5 +1100,13 @@ mod tests {
         let nodes = vec![Content::Empty, Content::Empty];
         let gaps = compute_gaps(&nodes, 10.0, false, 3.5);
         assert_eq!(gaps, vec![0.0]);
+    }
+    #[test]
+    fn p1494_newline_space_tem_classe_matematica_neutra() {
+        assert_eq!(base_math_class(&Content::Space), MathClass::Normal);
+        assert_eq!(
+            base_math_class(&Content::SpaceFromNewline),
+            MathClass::Normal
+        );
     }
 }

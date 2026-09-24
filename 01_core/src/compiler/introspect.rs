@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash ee193fd8
+//! @prompt-hash 4cf0501f
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1120,7 +1120,7 @@ fn materialize_time(
         // em markup válido — clonados em bloco sem recursão.
         Content::Empty
         | Content::Text(_)
-        | Content::Space
+        | Content::Space | Content::SpaceFromNewline
         // P622: Parbreak é leaf estrutural — sem CounterDisplay possível.
         | Content::Parbreak
         | Content::Raw(_)
@@ -1764,7 +1764,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         // intencional: todo outro elemento não-Raw e não-Equation sem numeração é classificado como Text para mensagens de erro
         Content::Empty
         | Content::Text(_)
-        | Content::Space
+        | Content::Space | Content::SpaceFromNewline
         | Content::Parbreak
         | Content::Par { .. }
         | Content::Heading(_)
@@ -2375,7 +2375,7 @@ pub(crate) fn walk(
 
         Content::Empty
         | Content::Text(_)
-        | Content::Space
+        | Content::Space | Content::SpaceFromNewline
         // P622: Parbreak é leaf estrutural — sem efeito em counters.
         | Content::Parbreak
         | Content::Ref(_)

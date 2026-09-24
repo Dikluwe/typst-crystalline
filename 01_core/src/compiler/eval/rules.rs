@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash a9abf6df
+//! @prompt-hash 97b376c3
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -1427,8 +1427,8 @@ pub(crate) fn intercept_content(
 /// Parágrafos são sintetizados a partir de vários nós de texto/`Space`/`Parbreak`,
 /// pelo que não têm um único ponto de construção onde `intercept_content` possa
 /// atuar. Esta função realiza os parágrafos e aplica **apenas** as regras
-/// `NodeKind::Par`, deixando as regras de texto (já aplicadas eager em cada nó
-/// de texto) e as restantes regras de elemento (já aplicadas nos seus pontos de
+/// `NodeKind::Par`, deixando as regras textuais (já aplicadas ao grupo
+/// normalizado) e as restantes regras de elemento (já aplicadas nos seus pontos de
 /// construção) intactas.
 pub(crate) fn intercept_paragraphs(
     content: Content,
@@ -3684,6 +3684,511 @@ pub(super) fn eval_show_rule(
     Ok(Value::None)
 }
 
+
+/// Snapshot causal de show e style no instante em que uma ocorrência de
+/// markup é avaliada. Não é exposto como valor da linguagem.
+#[derive(Clone)]
+pub(crate) struct TextualSnapshot {
+    rules: Arc<[ShowRule]>,
+    styles: StyleChain,
+    guards: Vec<crate::entities::show::RuleId>,
+}
+
+impl TextualSnapshot {
+    pub(crate) fn capture(engine: &Engine<'_>) -> Self {
+        Self {
+            rules: Arc::clone(&*engine.show_rules),
+            styles: (*engine.styles).clone(),
+            guards: (*engine.active_guards).clone(),
+        }
+    }
+
+    fn same_group(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.rules, &other.rules)
+            && self.styles.collapse() == other.styles.collapse()
+            && self.guards == other.guards
+    }
+}
+
+/// Intercepta os selectors de elemento de texto no momento da construção,
+/// sem antecipar os selectors literais/regex que precisam do grupo realizado.
+pub(crate) fn intercept_text_element(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    if !ctx.apply_show_rules {
+        return Ok(content);
+    }
+    let rules: Vec<ShowRule> = engine
+        .show_rules
+        .iter()
+        .filter(|rule| {
+            selector_matching::is_node_rule(&rule.selector)
+                && !selector_matching::is_par_rule(&rule.selector)
+        })
+        .cloned()
+        .collect();
+    apply_show_rules(content, &rules, ctx, engine)
+}
+
+/// No fluxo realizado, normaliza espaços antes dos selectors textuais. Um
+/// ContentBlock ainda bruto preserva-os até ser interpolado; seu show local
+/// atua provisoriamente no texto pré-normalizado. Slots consumidos tornam-se
+/// Empty para que os índices das fronteiras lexicais de #set permaneçam válidos.
+pub(crate) fn realize_textual_parts(
+    parts: &mut [Content],
+    snapshots: &[TextualSnapshot],
+    style_boundaries: &[(usize, Styles)],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    normalize_spaces: bool,
+) -> SourceResult<()> {
+    debug_assert_eq!(parts.len(), snapshots.len());
+    if normalize_spaces {
+        normalize_markup_spaces(parts);
+    }
+    if !ctx.apply_show_rules {
+        return Ok(());
+    }
+
+    let mut start = 0;
+    while start < parts.len() {
+        if textual_piece(&parts[start]).is_none() {
+            start += 1;
+            continue;
+        }
+        let snapshot = &snapshots[start];
+        let mut end = start;
+        let mut merged = String::new();
+        let mut has_text = false;
+        while end < parts.len()
+            && (end == start
+                || (!style_boundaries.iter().any(|(index, _)| *index == end)
+                    && snapshot.same_group(&snapshots[end])))
+        {
+            let Some(piece) = textual_piece(&parts[end]) else {
+                break;
+            };
+            has_text |= matches!(&parts[end], Content::Text(_));
+            merged.push_str(&piece);
+            end += 1;
+        }
+
+        if has_text && !merged.is_empty() {
+            let rules: Vec<ShowRule> = snapshot
+                .rules
+                .iter()
+                .filter(|rule| {
+                    !snapshot.guards.contains(&rule.id)
+                        && selector_matching::is_text_rule(&rule.selector)
+                })
+                .cloned()
+                .collect();
+            if rules.iter().any(|rule| {
+                selector_matching::textual_selector_matches(&rule.selector, &merged)
+            }) {
+                let old_rules =
+                    std::mem::replace(engine.show_rules, Arc::clone(&snapshot.rules));
+                let old_styles =
+                    std::mem::replace(engine.styles, snapshot.styles.clone());
+                let old_guards =
+                    std::mem::replace(engine.active_guards, snapshot.guards.clone());
+                let original = parts[start..end].to_vec();
+                let transformed = apply_group_text_rules(&original, &rules, ctx, engine);
+                *engine.show_rules = old_rules;
+                *engine.styles = old_styles;
+                *engine.active_guards = old_guards;
+                if let Some(replacement) = transformed? {
+                    parts[start] = Content::sequence(replacement);
+                    for part in &mut parts[start + 1..end] {
+                        *part = Content::Empty;
+                    }
+                }
+            }
+        }
+        start = end.max(start + 1);
+    }
+    Ok(())
+}
+
+/// Regex conserva a precedência reversa vigente; o primeiro selector regex
+/// que casa transforma o grupo. Literais correm depois na ordem de declaração.
+/// Cada passe observa somente a entrada desse passe: a própria substituição
+/// não regressa à mesma regra, mas regras posteriores podem ver o seu texto.
+fn apply_group_text_rules(
+    original: &[Content],
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Option<Vec<Content>>> {
+    route_check_show_depth(engine.route)?;
+    let mut scopes = Scopes::new(None);
+    let mut work = original.to_vec();
+    let mut applied = false;
+
+    for rule in rules.iter().rev() {
+        if !matches!(rule.selector, Selector::Regex(_)) {
+            continue;
+        }
+        let (next, matched) =
+            splice_rule_over_runs(&work, rule, &mut scopes, ctx, engine)?;
+        if matched {
+            work = next;
+            applied = true;
+            break;
+        }
+    }
+    for rule in rules {
+        if !matches!(rule.selector, Selector::Text(_)) {
+            continue;
+        }
+        let (next, matched) =
+            splice_rule_over_runs(&work, rule, &mut scopes, ctx, engine)?;
+        if matched {
+            work = next;
+            applied = true;
+        }
+    }
+    Ok(applied.then_some(work))
+}
+
+fn splice_rule_over_runs(
+    input: &[Content],
+    rule: &ShowRule,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<(Vec<Content>, bool)> {
+    let mut out = Vec::new();
+    let mut applied = false;
+    let mut start = 0;
+    while start < input.len() {
+        if textual_piece(&input[start]).is_none() {
+            out.push(input[start].clone());
+            start += 1;
+            continue;
+        }
+        let mut end = start;
+        let mut merged = String::new();
+        while end < input.len() {
+            let Some(piece) = textual_piece(&input[end]) else {
+                break;
+            };
+            merged.push_str(&piece);
+            end += 1;
+        }
+        let ranges =
+            selector_matching::textual_match_ranges(&rule.selector, &merged);
+        if ranges.is_empty() {
+            out.extend_from_slice(&input[start..end]);
+        } else {
+            applied = true;
+            let source = &input[start..end];
+            let mut cursor = 0;
+            for (match_start, match_end) in ranges {
+                project_original_range(source, cursor, match_start, &mut out);
+                append_flat_sequence(
+                    &mut out,
+                    transform_textual_match(
+                        rule,
+                        &merged[match_start..match_end],
+                        scopes,
+                        ctx,
+                        engine,
+                    )?,
+                );
+                cursor = match_end;
+            }
+            project_original_range(source, cursor, merged.len(), &mut out);
+        }
+        start = end;
+    }
+    Ok((out, applied))
+}
+
+/// Reconstitui uma fatia não casada nos nós que a originaram. Espaços
+/// explícitos e inferidos fora do match conservam a variante e o estilo;
+/// somente um Text parcialmente atravessado vira Text fatiado.
+fn project_original_range(
+    source: &[Content],
+    from: usize,
+    until: usize,
+    out: &mut Vec<Content>,
+) {
+    let mut cursor = 0;
+    for node in source {
+        let Some(piece) = textual_piece(node) else {
+            continue;
+        };
+        let end = cursor + piece.len();
+        let lower = from.max(cursor);
+        let upper = until.min(end);
+        if lower < upper {
+            if lower == cursor && upper == end {
+                out.push(node.clone());
+            } else {
+                out.push(Content::text(&piece[lower - cursor..upper - cursor]));
+            }
+        }
+        cursor = end;
+    }
+}
+
+fn append_flat_sequence(out: &mut Vec<Content>, content: Content) {
+    match content {
+        Content::Sequence(children) => {
+            for child in children.iter().cloned() {
+                append_flat_sequence(out, child);
+            }
+        }
+        other => out.push(other),
+    }
+}
+
+fn transform_textual_match(
+    rule: &ShowRule,
+    matched: &str,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    match &rule.transform {
+        Transformation::Func(func) => {
+            let args = Args::positional(vec![Value::Content(Content::text(matched))]);
+            engine.active_guards.push(rule.id);
+            let result =
+                call_dispatch::apply_func(func.clone(), args, scopes, ctx, engine);
+            engine.active_guards.pop();
+            match result? {
+                Value::Content(content) => Ok(content),
+                Value::Str(text) => Ok(Content::text(text.as_str())),
+                other => {
+                    let label = if matches!(rule.selector, Selector::Regex(_)) {
+                        "show rule regex"
+                    } else {
+                        "show rule"
+                    };
+                    Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("{label} deve retornar Content ou String, recebeu {}", other.type_name()),
+                    )])
+                }
+            }
+        }
+        Transformation::Content(content) => Ok(content.clone()),
+        Transformation::Str(text) => Ok(Content::text(text.as_str())),
+        Transformation::Style(_) => Ok(Content::text(matched)),
+    }
+}
+
+fn textual_piece(content: &Content) -> Option<String> {
+    match content {
+        Content::Empty => Some(String::new()),
+        Content::Text(text) => Some(text.to_string()),
+        Content::Space | Content::SpaceFromNewline => Some(" ".to_string()),
+        // A quebra explícita é fronteira destrutiva, nunca texto agregado.
+        _ => None,
+    }
+}
+
+fn space_origin(content: &Content) -> Option<bool> {
+    match content {
+        Content::Space => Some(false),
+        Content::SpaceFromNewline => Some(true),
+        Content::Styled(inner, _) => space_origin(inner),
+        _ => None,
+    }
+}
+
+fn space_with_origin(original: &Content, had_newline: bool) -> Content {
+    match original {
+        Content::Styled(inner, styles) => Content::Styled(
+            Box::new(space_with_origin(inner, had_newline)),
+            styles.clone(),
+        ),
+        _ if had_newline => Content::SpaceFromNewline,
+        _ => Content::Space,
+    }
+}
+
+fn previous_visible(parts: &[Content], before: usize) -> Option<usize> {
+    (0..before)
+        .rev()
+        .find(|&index| !matches!(&parts[index], Content::Empty))
+}
+
+fn next_visible(parts: &[Content], from: usize) -> Option<usize> {
+    (from..parts.len()).find(|&index| !matches!(&parts[index], Content::Empty))
+}
+
+/// Texto de um wrapper de estilo pode informar o descarte do espaço exterior,
+/// embora o wrapper continue a interromper matching literal/regex.
+fn supportive_text(content: &Content) -> String {
+    match content {
+        Content::Text(text) => text.to_string(),
+        Content::Styled(..)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. } => content.plain_text(),
+        _ => String::new(),
+    }
+}
+
+fn normalize_markup_spaces(parts: &mut [Content]) {
+    let mut start = 0;
+    while start < parts.len() {
+        let Some(mut had_newline) = space_origin(&parts[start]) else {
+            start += 1;
+            continue;
+        };
+        let mut end = start + 1;
+        while end < parts.len() {
+            match space_origin(&parts[end]) {
+                Some(origin) => had_newline |= origin,
+                None if matches!(&parts[end], Content::Empty) => {}
+                None => break,
+            }
+            end += 1;
+        }
+
+        let before = previous_visible(parts, start);
+        let after = next_visible(parts, end);
+        let destructive = before
+            .is_some_and(|index| matches!(&parts[index], Content::Linebreak(_)))
+            || after.is_some_and(|index| matches!(&parts[index], Content::Linebreak(_)));
+        // Não decidir uma borda ainda sem vizinhos: [newline] em #let deve
+        // conservar a origem até ser inserido noutro corpo de markup.
+        let discard = had_newline
+            && before.is_some()
+            && after.is_some()
+            && discard_space_between(
+                &supportive_text(&parts[before.unwrap()]),
+                &supportive_text(&parts[after.unwrap()]),
+            );
+        if destructive || discard {
+            parts[start] = Content::Empty;
+        } else {
+            let normalized = space_with_origin(&parts[start], had_newline);
+            parts[start] = normalized;
+        }
+        for part in &mut parts[start + 1..end] {
+            if space_origin(part).is_some() {
+                *part = Content::Empty;
+            }
+        }
+        start = end;
+    }
+}
+
+/// Predicado Unicode puro equivalente à superfície do pin vanilla:
+/// Han/Bopomofo/Hiragana/Katakana/Yi e pontuação ideográfica não recebem
+/// espaços inferidos; coreano, aspas ambíguas e emoji conservam-nos.
+fn discard_space_between(left: &str, right: &str) -> bool {
+    use icu_properties::props::{EastAsianWidth, Emoji, Script};
+    use icu_properties::{CodePointMapDataBorrowed, CodePointSetDataBorrowed};
+
+    fn spacingless(c: char) -> bool {
+        const SCRIPTS: CodePointMapDataBorrowed<Script> =
+            CodePointMapDataBorrowed::new();
+        const WIDTHS: CodePointMapDataBorrowed<EastAsianWidth> =
+            CodePointMapDataBorrowed::new();
+        const EMOJI: CodePointSetDataBorrowed =
+            CodePointSetDataBorrowed::new::<Emoji>();
+
+        match SCRIPTS.get(c) {
+            Script::Han | Script::Bopomofo | Script::Hiragana
+            | Script::Katakana | Script::Yi => true,
+            Script::Inherited
+                if matches!(c, '\u{302A}'..='\u{302D}' | '\u{3099}'..='\u{309A}') =>
+            {
+                true
+            }
+            Script::Common => match WIDTHS.get(c) {
+                EastAsianWidth::Fullwidth => true,
+                EastAsianWidth::Halfwidth if c != '₩' => true,
+                EastAsianWidth::Wide if !EMOJI.contains(c) => true,
+                EastAsianWidth::Ambiguous if matches!(c, '㉈'..='㉏') => true,
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
+    left.chars().next_back().is_some_and(spacingless)
+        || right.chars().next().is_some_and(spacingless)
+}
+
+#[cfg(test)]
+mod p1494_unicode_tests {
+    use super::{discard_space_between, normalize_markup_spaces, project_original_range};
+    use crate::entities::content::Content;
+    use crate::entities::style::Styles;
+
+    #[test]
+    fn pin_unicode_spacing_controls() {
+        for (left, right, discard) in [
+            ("水", "果", true),
+            ("换行", "newline", true),
+            ("newline", "换行", true),
+            ("쉼표，", "줄", true),
+            ("줄", "바꿈", false),
+            ("new", "line", false),
+            ("“你好”", "“你好”", false),
+            ("🎃", "🎃", false),
+            ("A", "（B", true),
+            ("A", "₩", false),
+        ] {
+            assert_eq!(discard_space_between(left, right), discard, "{left:?}/{right:?}");
+        }
+    }
+
+    #[test]
+    fn splice_preserva_espacos_nao_casados_e_fatia_texto() {
+        let source = [
+            Content::text("ab"),
+            Content::SpaceFromNewline,
+            Content::text("cd"),
+            Content::Space,
+            Content::text("ef"),
+        ];
+        let mut prefix = Vec::new();
+        project_original_range(&source, 0, 4, &mut prefix);
+        assert!(matches!(&prefix[1], Content::SpaceFromNewline));
+        assert_eq!(prefix[2].plain_text(), "c");
+
+        let mut suffix = Vec::new();
+        project_original_range(&source, 4, 8, &mut suffix);
+        assert_eq!(suffix[0].plain_text(), "d");
+        assert!(matches!(&suffix[1], Content::Space));
+        assert_eq!(suffix[2].plain_text(), "ef");
+    }
+
+    #[test]
+    fn styled_space_preserva_origem_ate_observar_vizinhos() {
+        let styled = Content::Styled(
+            Box::new(Content::SpaceFromNewline),
+            Styles::default(),
+        );
+        let mut isolated = [styled.clone()];
+        normalize_markup_spaces(&mut isolated);
+        assert!(matches!(
+            &isolated[0],
+            Content::Styled(inner, _) if matches!(inner.as_ref(), Content::SpaceFromNewline)
+        ));
+
+        let mut between_han = [
+            Content::text("水"),
+            styled,
+            Content::text("果"),
+        ];
+        normalize_markup_spaces(&mut between_han);
+        assert!(matches!(&between_han[1], Content::Empty));
+    }
+}
 // P1467 (RED — Agente B) — testes do braço `format.pdf` de `eval_set_rule`.
 //
 // `format.pdf` ainda não tem braço estrutural em `eval_set_rule` neste

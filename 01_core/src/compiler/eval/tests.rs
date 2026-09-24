@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash b48f8259
+//! @prompt-hash a5f636e4
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -21339,6 +21339,163 @@ mod tests {
             };
             assert_eq!(errors.len(), 1, "{expression}: {errors:?}");
             assert_eq!(errors[0].message, expected, "{expression}");
+        }
+    }
+    // ── P1494 — origem de newline, normalização CJK e show textual ────────
+
+    fn p1494_plain_text(source: &str) -> String {
+        p729_eval(source)
+            .expect("P1494: fonte válida")
+            .content()
+            .expect("P1494: conteúdo de markup")
+            .plain_text()
+            .trim()
+            .to_string()
+    }
+
+    #[test]
+    fn p1494_newline_cjk_difere_de_espaco_explicito() {
+        // O espaço inferido de newline desaparece entre ideogramas, mas
+        // o espaço escrito explicitamente continua morfologia da linguagem.
+        for (source, expected) in [
+            ("水\n果", "水果"),
+            ("水 果", "水 果"),
+            ("注//\n释", "注释"),
+            ("空格 //\n注释", "空格注释"),
+            ("水\n/**/ 果", "水果"),
+        ] {
+            assert_eq!(p1494_plain_text(source), expected, "{source:?}");
+        }
+    }
+
+    #[test]
+    fn p1494_classificacao_unicode_preserva_controles_sem_ideograma() {
+        // Decisão pelo caractere interno adjacente, não pela língua do
+        // documento: latim e coreano conservam espaço; pontuação chinesa
+        // pode descartá-lo; aspas curvas ambíguas não o descartam.
+        for (source, expected) in [
+            ("换行\nnewline", "换行newline"),
+            ("newline\n换行", "newline换行"),
+            ("new\nline", "new line"),
+            ("줄\n바꿈", "줄 바꿈"),
+            ("쉼표，\n줄 바꿈", "쉼표，줄 바꿈"),
+            ("你好，\n你好。", "你好，你好。"),
+            ("“你好”\n“你好”", "“你好” “你好”"),
+        ] {
+            assert_eq!(p1494_plain_text(source), expected, "{source:?}");
+        }
+    }
+
+    #[test]
+    fn p1494_origem_atravessa_conteudo_dinamico_sem_mudar_igualdade() {
+        // O newline dentro de [ ] atravessa #let e #var até a realização.
+        // Na linguagem, [newline] == [espaço] continua true.
+        assert_eq!(
+            p1494_plain_text("#let cjk = [水果]\n#cjk\n#cjk"),
+            "水果水果"
+        );
+        assert_eq!(
+            p1494_plain_text(
+                "#let inferred = [\n]\n#let explicit = [ ]\n\
+                 #assert.eq(inferred, explicit)\n啊#inferred;啊"
+            ),
+            "啊啊"
+        );
+        assert_eq!(
+            p1494_plain_text("#let explicit = [ ]\n啊#explicit;啊"),
+            "啊 啊"
+        );
+        assert_eq!(
+            p1494_plain_text("#let latin = [fruit]\n#latin\n#latin"),
+            "fruit fruit"
+        );
+    }
+
+    #[test]
+    fn p1494_strong_nao_impede_normalizacao_e_linebreak_consume_adjacencias() {
+        let strong = p729_eval("*换*\n行").expect("markup strong válido");
+        let content = strong.content().expect("content strong");
+        assert_eq!(content.plain_text().trim(), "换行");
+        assert!(texto_em_strong(content, "换"), "strong preservado: {content:?}");
+
+        // Linebreak explícito é fronteira destrutiva de espaços adjacentes,
+        // sem ser convertido em Space nem apagado.
+        assert_eq!(p1494_plain_text("水 \\\n果"), "水\n果");
+    }
+
+    #[test]
+    fn p1494_show_literal_casa_grupo_textual_apos_normalizacao() {
+        assert_eq!(
+            p1494_plain_text("#show \"new line\": [LITERAL_LATIN]\nnew\nline"),
+            "LITERAL_LATIN"
+        );
+        assert_eq!(
+            p1494_plain_text("#show \"水果\": [LITERAL_CJK]\n水\n果"),
+            "LITERAL_CJK"
+        );
+    }
+
+    #[test]
+    fn p1494_show_regex_casa_nos_textuais_e_preserva_fatias() {
+        assert_eq!(
+            p1494_plain_text("#show regex(\"new line\"): [R]\npre new\nline post"),
+            "pre R post"
+        );
+        assert_eq!(
+            p1494_plain_text("#show regex(\"注释\"): [R]\n注//\n释"),
+            "R"
+        );
+        assert_eq!(
+            p1494_plain_text("#show regex(\"换行newline\"): [R]\n换行\nnewline"),
+            "R"
+        );
+    }
+
+    #[test]
+    fn p1494_regex_nao_atravessa_fronteira_de_estilo() {
+        // O primeiro par casa após colapso de newline. O segundo tem a
+        // mesma forma textual, mas style chains diferentes.
+        let text = p1494_plain_text(
+            "#show regex(\"a b\"): [MATCH]\na\nb\n\na #strong[b]",
+        );
+        assert_eq!(text.matches("MATCH").count(), 1, "{text:?}");
+        assert!(text.contains("a b"), "fronteira de strong: {text:?}");
+    }
+    #[test]
+    fn p1494_show_preserva_espaco_inferido_na_fatia_nao_casada() {
+        // Sonda bilateral 2026-09-24, pin 9f2b6e871: HTML <p>水X果</p>;
+        // cristalino 6da06e849: <p>水  X 果</p>. A regra casa "foo" no
+        // fragmento dinâmico, mas os newlines não casados antes/depois
+        // continuam espaços inferidos até a inserção entre ideogramas.
+        let source = concat!(
+            "#let part = [\n",
+            "#show \"foo\": [X]\n",
+            "foo\n",
+            "]\n",
+            "水#part;果",
+        );
+        assert_eq!(p1494_plain_text(source), "水X果");
+    }
+    #[test]
+    fn p1494_show_elemento_sequence_recebe_regra_textual_posterior() {
+        // Pin vanilla 9f2b6e871: <p>MATCH</p>; cristalino 6da06e849:
+        // <p>ab</p>. A recipe de strong devolve dois nós textuais;
+        // o show literal posterior deve casar a forma conjunta.
+        let source = concat!(
+            "#show strong: it => [a] + [b]\n",
+            "#show \"ab\": [MATCH]\n",
+            "*x*",
+        );
+        assert_eq!(p1494_plain_text(source), "MATCH");
+    }
+
+    #[test]
+    fn p1494_repr_de_fragmento_conserva_espaco_bruto() {
+        for (source, expected) in [
+            (r#"#repr([a\ b])"#, "sequence([a], linebreak(), [ ], [b])"),
+            ("#repr([水\n果])", "sequence([水], [ ], [果])"),
+        ] {
+            assert_eq!(p1494_plain_text(source), expected, "{source:?}");
         }
     }
 }

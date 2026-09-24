@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 184ef1c4
+//! @prompt-hash e5a7dcba
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -350,7 +350,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
         // P622: Parbreak não contém texto.
-        | Content::Empty | Content::Space | Content::Parbreak | Content::Document { .. } | Content::Asset { .. } | Content::HtmlElem(_) => false,
+        | Content::Empty | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Document { .. } | Content::Asset { .. } | Content::HtmlElem(_) => false,
     }
 }
 
@@ -442,7 +442,7 @@ where
         | Content::ContextBlock(_)
         | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_)
         // P622: Parbreak é leaf estrutural — não conta para a variante.
-        | Content::Empty | Content::Space | Content::Parbreak | Content::Text(_)
+        | Content::Empty | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Text(_)
         | Content::Document { .. } | Content::Asset { .. } | Content::HtmlElem(_) => 0,
     }
 }
@@ -909,5 +909,25 @@ mod tests {
             false,
         );
         assert!(!has_any_text(&lr));
+    }
+    #[test]
+    fn p1494_espacos_nao_criam_texto_ou_ocorrencia_queryable() {
+        for space in [Content::Space, Content::SpaceFromNewline] {
+            assert!(!has_any_text(&space));
+            assert_eq!(
+                count_variant(&space, |node| matches!(node, Content::Text(_))),
+                0
+            );
+            let neighbors = Content::sequence(vec![
+                Content::text("before"),
+                space,
+                Content::text("after"),
+            ]);
+            assert!(has_any_text(&neighbors));
+            assert_eq!(
+                count_variant(&neighbors, |node| matches!(node, Content::Text(_))),
+                2
+            );
+        }
     }
 }

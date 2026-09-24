@@ -200,6 +200,16 @@ def validate_manifest(data: dict) -> list[str]:
                 errors.append(f"{prefix}: pdf_page_labels requires positive expected_labels")
         elif expected_labels is not None:
             errors.append(f"{prefix}: expected_labels only applies to pdf_page_labels")
+        expected_paragraphs = case.get("expected_paragraphs")
+        if case.get("comparison") == "html_paragraph_text":
+            if (
+                not isinstance(expected_paragraphs, list)
+                or not expected_paragraphs
+                or not all(isinstance(text, str) and text for text in expected_paragraphs)
+            ):
+                errors.append(f"{prefix}: html_paragraph_text requires nonempty expected_paragraphs")
+        elif expected_paragraphs is not None:
+            errors.append(f"{prefix}: expected_paragraphs only applies to html_paragraph_text")
         if case.get("estado") != "MATCH" and case.get("classe") is None:
             errors.append(f"{prefix}: non-MATCH requires classe")
         source_name = case.get("fonte_typ")
@@ -312,6 +322,56 @@ class _HtmlTree(HTMLParser):
     def handle_endtag(self, tag): self.events.append(("end", tag))
     def handle_data(self, data):
         if data.strip(): self.events.append(("text", data))
+
+
+class _HtmlParagraphText(HTMLParser):
+    """Collect body paragraph text without depending on inline HTML wrappers."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.in_body = False
+        self.saw_body = False
+        self.current = None
+        self.paragraphs = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "body":
+            if self.saw_body:
+                raise ValueError("multiple HTML bodies")
+            self.saw_body = True
+            self.in_body = True
+        elif self.in_body and tag == "p":
+            if self.current is not None:
+                raise ValueError("nested HTML paragraph")
+            self.current = []
+
+    def handle_endtag(self, tag):
+        if tag == "p" and self.in_body:
+            if self.current is None:
+                raise ValueError("unmatched HTML paragraph close")
+            self.paragraphs.append("".join(self.current))
+            self.current = None
+        elif tag == "body":
+            if not self.in_body:
+                raise ValueError("unmatched HTML body close")
+            if self.current is not None:
+                raise ValueError("unclosed HTML paragraph")
+            self.in_body = False
+
+    def handle_data(self, data):
+        if self.in_body and self.current is not None:
+            self.current.append(data)
+        elif self.in_body and data.strip(" \t\r\n\f"):
+            raise ValueError("text outside HTML paragraph")
+
+
+def html_paragraph_text(path: pathlib.Path) -> tuple[str, ...]:
+    parser = _HtmlParagraphText()
+    parser.feed(path.read_text(encoding="utf-8"))
+    parser.close()
+    if not parser.saw_body or parser.in_body or parser.current is not None:
+        raise ValueError("incomplete HTML body/paragraph")
+    return tuple(parser.paragraphs)
 
 
 def artifact(result: dict, suffix: str) -> pathlib.Path:
@@ -449,6 +509,8 @@ def comparison_observables(comparison: str, oracle: dict, crystalline: dict, art
         return {"oracle": normalize_diagnostic(oracle["stderr"]), "crystalline": normalize_diagnostic(crystalline["stderr"])}
     if comparison == "typed_value":
         return {"oracle": typed_value(oracle["stdout"]), "crystalline": typed_value(crystalline["stdout"])}
+    if comparison == "html_paragraph_text":
+        return {"oracle": html_paragraph_text(artifact(oracle, ".html")), "crystalline": html_paragraph_text(artifact(crystalline, ".html"))}
     if comparison == "semantic_tree":
         suffix = ".html" if any(path.endswith(".html") for path in oracle.get("artifact_paths", [])) else ".svg"
         if suffix == ".svg":
@@ -492,6 +554,20 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
         try: same = oracle["exit_code"] == crystalline["exit_code"] == 0 and typed_value(oracle["stdout"]) == typed_value(crystalline["stdout"])
         except (ValueError, json.JSONDecodeError): return "ERROR", "HARNESS_DEFECT"
         return ("MATCH", None) if same else ("DIFF", "LANGUAGE_SEMANTICS")
+    if comparison == "html_paragraph_text":
+        if oracle["exit_code"] != 0:
+            return "ERROR", "BASELINE_DEFECT"
+        if crystalline["exit_code"] != 0:
+            return "DIFF", "LANGUAGE_MORPHOLOGY"
+        try:
+            left = html_paragraph_text(artifact(oracle, ".html"))
+        except (OSError, ValueError):
+            return "ERROR", "BASELINE_DEFECT"
+        try:
+            right = html_paragraph_text(artifact(crystalline, ".html"))
+        except (OSError, ValueError):
+            return "DIFF", "LANGUAGE_MORPHOLOGY"
+        return ("MATCH", None) if left == right else ("DIFF", "LANGUAGE_MORPHOLOGY")
     if comparison == "bundle_observables":
         if oracle["exit_code"] != 0:
             return "ERROR", "BASELINE_DEFECT"
@@ -648,6 +724,18 @@ def classify_for_profile(
     if asymmetry == "extra-binding":
         return "EXTRA_BINDING", None
     legacy, inferred_class = classify(comparison, oracle, crystalline)
+    if comparison == "html_paragraph_text":
+        if legacy == "ERROR":
+            return "UNKNOWN", inferred_class
+        try:
+            oracle_text = html_paragraph_text(artifact(oracle, ".html"))
+        except (OSError, ValueError):
+            return "UNKNOWN", "BASELINE_DEFECT"
+        if oracle_text != tuple(case["expected_paragraphs"]):
+            return "UNKNOWN", "BASELINE_DEFECT"
+        if legacy == "DIFF":
+            return "VIOLATED", "LANGUAGE_MORPHOLOGY"
+        return "MATCH", None
     if comparison == "pdf_page_labels" and legacy in {"MATCH", "DIFF"}:
         expected = tuple(case["expected_labels"])
         try:

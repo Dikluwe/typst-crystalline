@@ -1,8 +1,32 @@
 # Prompt L0 — layout de sequência
-Hash do Código: 2ebc0f5a
+Hash do Código: d7be11c8
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/layout/sequence.rs`
+
+## P1494 — equivalência de espaço nas decisões de Sequence (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`, Sequence
+filtra `Content::Space` ao buscar único bloco fracionário
+(`01_core/src/compiler/layout/sequence.rs:45-55`), soma sua largura no
+pré-voo fracionário (`:274-283`) e o considera transparente em caudas,
+índices terminais, agrupamento de listas, wrap e cadeia de blocos
+(`:652-658,805-811,833-839,882-888,942-963`). A nova variante pública
+cairia em ramos de conteúdo substantivo ou de pré-voo inválido se não for
+enumerada. O diagnóstico P1494 mede a distinção lexical antes do layout.
+
+### Decisão ratificada
+
+Em cada predicado e braço que hoje reconhece `Content::Space`, reconhecer
+também `Content::SpaceFromNewline` com a mesma largura, transparência e
+efeito sobre agrupamento/fechamento. Não trocar a variante no Content, não
+reordenar nós nem efetuar normalização CJK ou show/regex na Sequence.
+Manter intactos os critérios já distintos de `Empty`, `Parbreak` e
+`Styled`. Aceitação: se a folha causal chegar a este consumer, as decisões
+de layout coincidem com `Space` no mesmo contexto. O gate ADR-0127 P1494
+foi confirmado em 2026-09-24.
 
 ## Contrato e aceitação
 

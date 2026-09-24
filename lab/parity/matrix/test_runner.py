@@ -2,6 +2,7 @@ import copy
 import importlib.util
 import pathlib
 import sys
+import tempfile
 import unittest
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -226,6 +227,24 @@ class SchemaTests(unittest.TestCase):
         broken["cases"][0]["required_features"] = ["future-flag"]
         self.assertTrue(runner.validate_manifest(broken))
 
+    def test_p1494_cjk_case_has_exact_paragraph_contract(self):
+        manifest = runner.load_manifest(HERE / "manifest.yaml")
+        case = next(case for case in manifest["cases"] if case["id"] == "P1489-S-001")
+        self.assertEqual(case["comparison"], "html_paragraph_text")
+        self.assertEqual(case["expected_paragraphs"], ["CJK_JOINED", "CJK_EXPLICIT_SPACE"])
+        for invalid in (None, [], ["CJK_JOINED", 7]):
+            with self.subTest(invalid=invalid):
+                broken = copy.deepcopy(manifest)
+                item = next(case for case in broken["cases"] if case["id"] == "P1489-S-001")
+                if invalid is None:
+                    del item["expected_paragraphs"]
+                else:
+                    item["expected_paragraphs"] = invalid
+                self.assertTrue(runner.validate_manifest(broken))
+        broken = copy.deepcopy(manifest)
+        broken["cases"][0]["expected_paragraphs"] = ["unrelated"]
+        self.assertTrue(runner.validate_manifest(broken))
+
 
 class ClassifierTests(unittest.TestCase):
     def result(self, code=0, stdout="", stderr="", artifact=False):
@@ -286,6 +305,84 @@ class ClassifierTests(unittest.TestCase):
         oracle = self.result(stdout='{"a":1,"b":[true]}\n')
         crystal = self.result(stdout='{"b":[true],"a":1}\n')
         self.assertEqual(runner.classify("typed_value", oracle, crystal)[0], "MATCH")
+
+    def p1494_html_verdict(self, oracle_markup, crystalline_markup):
+        with tempfile.TemporaryDirectory() as tmp:
+            oracle_path = pathlib.Path(tmp) / "oracle.html"
+            crystalline_path = pathlib.Path(tmp) / "crystalline.html"
+            oracle_path.write_text(oracle_markup, encoding="utf-8")
+            crystalline_path.write_text(crystalline_markup, encoding="utf-8")
+            oracle = {"exit_code": 0, "artifact_paths": [str(oracle_path)]}
+            crystalline = {"exit_code": 0, "artifact_paths": [str(crystalline_path)]}
+            case = {
+                "required_features": ["html"],
+                "expected_paragraphs": ["CJK_JOINED", "CJK_EXPLICIT_SPACE"],
+            }
+            return runner.classify_for_profile(
+                case, "html", {"html": {"features": ["html"]}},
+                "html_paragraph_text", oracle, crystalline,
+            )
+
+    def test_p1494_paragraph_text_accepts_only_the_two_expected_sentinels(self):
+        oracle = "<html><body><p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p></body></html>"
+        wrapped = (
+            "<html><head><title>CJK_JOINED</title></head><body>"
+            "<p class=x><span>CJK_</span>JOINED</p>"
+            "<p><b>CJK_</b>EXPLICIT_SPACE</p></body></html>"
+        )
+        self.assertEqual(self.p1494_html_verdict(oracle, wrapped), ("MATCH", None))
+
+        incorrect = (
+            "<p>水 果</p><p>CJK_EXPLICIT_SPACE</p>",
+            "<p>CJK_JOINED</p><p>CJK_JOINED</p>",
+            "<p>CJK_EXPLICIT_SPACE</p><p>CJK_JOINED</p>",
+            "<p>CJK_JOINED</p><p>水 果</p>",
+            "<p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p><p>CJK_JOINED</p>",
+            "<p>CJK_JOINED</p>",
+        )
+        for body in incorrect:
+            with self.subTest(body=body):
+                crystalline = "<html><body>" + body + "</body></html>"
+                self.assertEqual(
+                    self.p1494_html_verdict(oracle, crystalline),
+                    ("VIOLATED", "LANGUAGE_MORPHOLOGY"),
+                )
+
+    def test_p1494_identically_wrong_oracle_is_baseline_defect(self):
+        wrong = "<html><body><p>水 果</p><p>CJK_EXPLICIT_SPACE</p></body></html>"
+        self.assertEqual(
+            self.p1494_html_verdict(wrong, wrong),
+            ("UNKNOWN", "BASELINE_DEFECT"),
+        )
+        self.assertEqual(
+            self.p1494_html_verdict("<html><p>CJK_JOINED</p></html>", wrong),
+            ("UNKNOWN", "BASELINE_DEFECT"),
+        )
+
+    def test_p1494_rejects_stray_body_text_and_multiple_bodies(self):
+        expected = "<html><body><p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p></body></html>"
+        formatted = (
+            "<html><body>\n  <p>CJK_JOINED</p>\n  "
+            "<p>CJK_EXPLICIT_SPACE</p>\n</body></html>"
+        )
+        self.assertEqual(self.p1494_html_verdict(expected, formatted), ("MATCH", None))
+        invalid = (
+            "<html><body>STRAY<p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p></body></html>",
+            "<html><body><p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p>STRAY</body></html>",
+            "<html><body><p>CJK_JOINED</p><div>STRAY</div><p>CJK_EXPLICIT_SPACE</p></body></html>",
+            "<html><body>&nbsp;<p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p></body></html>",
+            "<html><body><p>CJK_JOINED</p><p>CJK_EXPLICIT_SPACE</p></body><body></body></html>",
+        )
+        for markup in invalid:
+            with self.subTest(markup=markup):
+                self.assertEqual(
+                    self.p1494_html_verdict(expected, markup),
+                    ("VIOLATED", "LANGUAGE_MORPHOLOGY"),
+                )
+                self.assertEqual(
+                    self.p1494_html_verdict(markup, expected),
+                    ("UNKNOWN", "BASELINE_DEFECT"),
+                )
 
     def test_semantic_tree_excludes_only_svg_id(self):
         import tempfile

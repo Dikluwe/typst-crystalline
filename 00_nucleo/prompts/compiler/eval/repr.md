@@ -1,9 +1,28 @@
 # Prompt L0 — `compiler/eval/repr` — representação morfológica
-Hash do Código: e71a82a9
+Hash do Código: 8cda0c57
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1494 — repr idêntica dos espaços (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree
+limpo nas sondas, repr.rs:679 representa Content::Space como "[ ]".
+O controle bilateral de igualdade [newline] == [espaço] passa; na fonte
+vanilla pinada typst-library/src/text/space.rs:10-45, had_newline é interno
+e ambas as origens têm repr "[ ]".
+
+### Decisão ratificada
+
+O match exaustivo repr_content representa Content::SpaceFromNewline
+exatamente como Content::Space: "[ ]". A origem não aparece em repr_value,
+serializações que a usam nem texto plano. Representação do valor e
+normalização da realização são operações distintas. O gate ADR-0127
+da nova variante pública de Content foi confirmado em 2026-09-24.
+
 
 ## P1404 — repr da caixa fracionária interna
 

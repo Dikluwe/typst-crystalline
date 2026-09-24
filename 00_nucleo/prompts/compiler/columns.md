@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: b504ee24
+Hash do Código: f13e786f
 
 
 **Camada**: L1  
@@ -7,6 +7,26 @@ Hash do Código: b504ee24
 **Ficheiros adjacentes**: `01_core/src/compiler/layout/cursor.rs`, `01_core/src/compiler/layout/mod.rs`, `01_core/src/compiler/layout/footnote.rs`, `01_core/src/entities/elements/columns.rs`  
 **Origem**: P537 (colunas reais), P537b (`#set page(columns:)`), P552 (correcção de footnotes), P553 (correcção geométrica de largura de coluna)  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (graded / scope-outs).
+
+## P1494 — espaço com origem newline não é conteúdo visível (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`,
+`has_visible_content` desce por `Sequence`/`Styled` e devolve `false`
+para `Content::Space` (`01_core/src/compiler/layout/columns.rs:285-295`).
+Uma variante causal nova cairia no `_ => true`, podendo transformar um
+segmento só de whitespace em coluna material. O diagnóstico P1494 mede a
+origem no texto antes de qualquer decisão de coluna.
+
+### Decisão ratificada
+
+Classificar `Content::SpaceFromNewline` como não visível no mesmo braço de
+`Space`, sem converter sua origem nem introduzir normalização textual no
+layout de colunas. Segmentos compostos só por essas folhas não criam
+conteúdo de coluna; presença de item real conserva o comportamento vigente.
+Não mudar a geometria, o fluxo ou a interface de `columns`. O gate
+ADR-0127 P1494 foi confirmado em 2026-09-24.
 
 ## P1377 — fronteira vertical do contentor de colunas
 

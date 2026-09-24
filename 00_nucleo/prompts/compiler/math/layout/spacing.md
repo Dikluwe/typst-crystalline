@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: b31ba2f7
+Hash do Código: 074768bc
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -9,6 +9,27 @@ partilhados). Nono submódulo de `rules/math/layout/` (ver lista em
 (`THIN`/`MEDIUM`/`THICK`).
 
 ---
+
+## P1494 — classe neutra do espaço com origem newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`, o match
+exaustivo de `base_math_class` enumera `Content::Space` no grupo que
+devolve `MathClass::Normal`
+(`01_core/src/compiler/math/layout/spacing.rs:101-195`). O predicado
+de fallback textual reconhece `Content::Text`, não `Space`
+(`01_core/src/compiler/math/layout/spacing.rs:522-533`). O diagnóstico
+P1494 mede uma origem de newline em markup, não uma classe matemática nova.
+
+### Decisão ratificada
+
+Enumerar `Content::SpaceFromNewline` junto de `Content::Space` com classe
+`Normal` e manter as regras de espaçamento matemático atuais; a origem
+lexical não cria átomo matemático nem aciona o fallback de `Text`. Não
+normalizar CJK, executar show/regex ou alterar gaps em math neste owner.
+A revisão do match exaustivo está autorizada pelo gate ADR-0127 P1494,
+confirmado em 2026-09-24.
 
 ## Contexto
 

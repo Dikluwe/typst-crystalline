@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash eb1d7e7c
+//! @prompt-hash 3c3f5bdf
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -287,7 +287,7 @@ fn has_visible_content(content: &Content) -> bool {
         Content::Text(_) => true,
         Content::Sequence(seq) => seq.iter().any(has_visible_content),
         Content::Styled(body, _) => has_visible_content(body),
-        Content::Empty | Content::Space | Content::Parbreak | Content::Pagebreak(_) => {
+        Content::Empty | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Pagebreak(_) => {
             false
         }
         // Outros elementos (figuras, formas, etc.) presumem conteúdo visível.
@@ -919,5 +919,23 @@ mod p1379_tests {
         assert!(one > intro);
         assert!(after - intro > 150.0, "Intro={intro}, After={after}");
         assert!((after - tail).abs() < 1e-9, "After={after}, Tail={tail}");
+    }
+}
+
+#[cfg(test)]
+mod p1494_tests {
+    use super::*;
+
+    #[test]
+    fn espaco_inferido_nao_cria_coluna_visivel() {
+        assert!(!has_visible_content(&Content::Space));
+        assert!(!has_visible_content(&Content::SpaceFromNewline));
+        let only_spaces = Content::sequence(vec![
+            Content::SpaceFromNewline,
+            Content::Space,
+        ]);
+        assert!(!has_visible_content(&only_spaces));
+        let with_text = Content::sequence(vec![only_spaces, Content::text("A")]);
+        assert!(has_visible_content(&with_text));
     }
 }

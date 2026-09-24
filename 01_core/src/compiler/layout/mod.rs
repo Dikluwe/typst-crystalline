@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9eb38fd8
+//! @prompt-hash 0cf94eb3
 //! @layer L1
 //! @updated 2026-09-01
 
@@ -1865,7 +1865,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P381) → layout/text.rs (folha de render).
             Content::Text(text) => text::layout(self, text),
 
-            Content::Space => {
+            Content::Space | Content::SpaceFromNewline => {
                 // P588 — não renderizar espaço visual no início de uma linha
                 // ou parágrafo. Espaços iniciais são gerados por newlines após
                 // `#set`, headings, etc., e não devem avançar o cursor.

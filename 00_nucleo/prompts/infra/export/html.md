@@ -1,5 +1,5 @@
 # Prompt L0 — exportação HTML semântica
-Hash do Código: 73bdeb50
+Hash do Código: 182e34f2
 
 **Camada:** L3  
 **Ficheiro alvo:** `03_infra/src/export/html.rs`  
@@ -318,3 +318,38 @@ defeito. Texto/attrs HTML comuns, `html.elem("frame")`, modos de escaping e
 pretty externo permanecem inalterados. O exporter não chama layout, World nem
 filesystem. A nova integração de fase foi confirmada pelo dono em 2026-09-16
 e fica limitada pelo escopo de P1424.
+
+## P1494 — projeção neutra do espaço inferido (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, o consumer
+03_infra/src/export/html.rs não tem diff. Ele reconhece Content::Space
+na escolha da raiz explícita (:420-425), no agrupamento de parágrafo
+(:499), na emissão inline (:520), em raw/title (:609,703-710), e nos
+predicados de espaços adjacentes e bordas (:738-877). O caso bilateral
+P1489-S-001 mostra que o vanilla emite CJK_JOINED para ideogramas
+separados por newline e CJK_EXPLICIT_SPACE para espaço explícito,
+enquanto o cristalino atual só emite a segunda sentinela. A medição de
+eval/mod.rs:6970 e rules.rs:982-1055 situa a perda de origem e o
+matching por folha antes da exportação. Inferência: uma correção de
+whitespace CJK apenas no encoder esconderia o erro de show textual;
+seria refutada por equivalência da morfologia L1 antes do exporter.
+
+### Decisão ratificada
+
+Em todos os ramos produtivos citados, SpaceFromNewline recebe exatamente
+a mesma projeção local que Space: emissão de espaço, tratamento de borda,
+adjacência block/void/ruby, raiz explícita, raw e title. Uma chamada
+direta ao exporter com a variante ainda não normalizada conserva essa
+equivalência. A normalização linguística do newline CJK e o matching
+show ocorrem antes do exporter, no owner L1; este owner não examina os
+caracteres CJK vizinhos para descartar espaço. As regras estruturais
+P1171/P1173 e os modos Crystalline/Vanilla permanecem como estão.
+Standalone HTML e HTML no bundle recebem a mesma morfologia já realizada;
+o SVG de html.frame continua resolvido pela pipeline.
+
+Testes distinguem projeção direta das duas variantes em top-level,
+inline, raw/title e junto a block/void, além do caso integrado CJK.
+O gate ADR-0127 da variante pública e da fase P1494 foi confirmado
+pelo dono em 2026-09-24; esta seção secundária está autorizada.

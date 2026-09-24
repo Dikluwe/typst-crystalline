@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 38e12843
+//! @prompt-hash 559788e9
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -1066,7 +1066,7 @@ fn strip_executed_html_markers(
                 .filter(|part| !matches!(part, Content::Empty))
                 .cloned()
                 .collect();
-            if retained.iter().all(|part| matches!(part, Content::Space)) {
+            if retained.iter().all(|part| matches!(part, Content::Space | Content::SpaceFromNewline)) {
                 return Ok(Some(Content::Empty));
             }
             if retained.len() != parts.len() {
@@ -1174,4 +1174,40 @@ pub(super) fn discovered_options_for_test(
         .filter_map(|n| n.current.as_ref())
         .map(|e| (e.ctx.full_error, e.ctx.features))
         .collect()
+}
+
+#[cfg(test)]
+mod p1494_tests {
+    use super::*;
+    use std::num::NonZeroU16;
+    use typst_core::entities::file_id::FileId;
+
+    #[test]
+    fn strip_terminal_colapsa_somente_sequencia_so_de_espacos() {
+        let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        let source = Source::new(id, String::new());
+        let spaces = Content::sequence(vec![
+            Content::Space,
+            Content::SpaceFromNewline,
+            Content::Space,
+        ]);
+        let stripped = strip_executed_html_markers(spaces, &[], &source, false)
+            .expect("sem markers pendentes");
+        assert!(matches!(stripped, Content::Empty));
+
+        let with_text = Content::sequence(vec![
+            Content::text("A"),
+            Content::SpaceFromNewline,
+            Content::text("B"),
+        ]);
+        let retained = strip_executed_html_markers(with_text, &[], &source, false)
+            .expect("conteúdo textual preservado");
+        let Content::Sequence(items) = retained else {
+            panic!("sequência com texto não deve colapsar");
+        };
+        assert!(
+            items.iter().any(|item| matches!(item, Content::SpaceFromNewline)),
+            "a origem deve sobreviver ao strip enquanto há texto"
+        );
+    }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/selector_matching` — matching de selectores de show rule
-Hash do Código: d58ed34c
+Hash do Código: b761c574
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/selector_matching.rs`
@@ -8,6 +8,33 @@ Hash do Código: d58ed34c
 **Técnica**: pattern matching estrutural
 
 ---
+
+## P1494 — splice do grupo textual realizado (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, working tree
+limpo nas sondas, selector_matching.rs recebe &str de um único Text de
+rules.rs:982-1055. O vanilla pinado
+9f2b6e8715237cb086899a42873660fe744622e8, em
+typst-realize/src/lib.rs:1261-1325, casa regex na representação normalizada
+de vários nós sem atravessar style chains. A sonda "new"–newline–"line"
+casa regex("new line") no vanilla, não no cristalino; CJK participa do
+mesmo agrupamento após descarte de espaço inferido.
+
+### Decisão ratificada
+
+O owner permanece puro: localizar/fatiar ocorrências não vazias na string
+já normalizada pelo owner rules.rs, mantendo offsets UTF-8 e correspondência
+das fatias originais para preservar prefixo, match entregue à recipe e
+sufixo em ordem. Não decide descarte Unicode, não cria proveniência e
+não atravessa fronteiras lexicais ou de estilo. O matcher geral de
+Content::Text continua local; is_node_rule(Text|Regex) permanece falso,
+e somente o caminho textual dedicado recebe o grupo. P1285 é revogado
+apenas no limite de aplicação por nó, não em match vazio, precedência ou
+revogação. O gate ADR-0127 da alteração de fase no caller foi confirmado
+pelo dono em 2026-09-24; nenhuma assinatura pública nova é presumida.
+
 
 ## Contexto
 

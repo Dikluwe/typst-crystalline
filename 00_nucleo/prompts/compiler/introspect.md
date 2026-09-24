@@ -1,8 +1,30 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: b3749500
+Hash do Código: 6f237728
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+
+## P1494 — folha de espaço com origem newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`, o match exaustivo
+de `materialize_time` clona `Content::Space` como terminal
+(`01_core/src/compiler/introspect.rs:1119-1125`); a classificação de body
+não referenciável agrupa `Space` com texto (`:1763-1769`); o walk de
+contadores o enumera entre folhas sem efeito (`:2373-2381`). A nova origem
+proposta está definida no owner `entities/content.md`; os controles de
+linguagem e a proveniência do baseline constam do diagnóstico P1494.
+
+### Decisão ratificada
+
+Tratar `Content::SpaceFromNewline` como a mesma folha estrutural de
+`Content::Space` nesses três pontos: clonar sem recursão, classificar como
+texto para o erro de referência e não criar tag, Location, contador ou
+efeito de state. Preservar a variante causal enquanto a introspecção a
+transportar; não a converter aqui para `Space` e não antecipar show/regex.
+Nenhuma assinatura, fase ou ordem do walk muda neste owner. O gate
+ADR-0127 do carrier público P1494 foi confirmado em 2026-09-24.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 

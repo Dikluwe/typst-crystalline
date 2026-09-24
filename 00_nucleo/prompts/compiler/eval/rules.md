@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/rules`
-Hash do Código: a4ab9d7e
+Hash do Código: 10aaf64a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -19,6 +19,104 @@ diagnosticado. Named desconhecido nunca é ignorado.
 
 Selectors, regras, warnings, casts, composição, recursão e spans seguem
 `a51e02804`.
+
+## P1494 — espaço e show sobre grupo textual (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree
+limpo durante as sondas, rules.rs:982-1055 fatia cada Content::Text isolado.
+Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8 (binário SHA-256
+7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea)
+casa regex em "new line" repartido por newline e em "换行newline" depois
+de descartar o espaço CJK; o cristalino não casa o primeiro e mantém espaço
+no segundo. spaces.rs:180-205 combina espaços adjacentes por OR de
+had_newline; lib.rs:1261-1325 pesquisa regex na representação textual
+virtualmente colapsada do grupo, respeitando fronteira de style chain.
+Controles: espaço explícito CJK permanece, latino e coreano conservam
+espaço, pontuação ideográfica pode descartá-lo, aspas curvas ambíguas não
+forçam descarte; [newline] dinâmico entre CJK descarta, [espaço] não.
+O predicado vanilla em codex git rev 2e43ab9,
+src/space_discarding.rs:53-73,194-256, olha os caracteres internos
+adjacentes, incluindo Han/Bopomofo/Hiragana/Katakana/Yi e pontuação
+ideográfica, mas não classifica coreano como sem espaçamento. O
+codex = 0.3.0 do cristalino (Cargo.toml:74) NÃO exporta esse módulo;
+a chamada direta seria inexequível. icu_properties 2.2.0 já está no
+Cargo.lock:987-997 como transitiva; icu_segmenter puro tem precedente
+na whitelist L1 (crystalline.toml:121-122). O controle
+bilateral de Linebreak explícito entre ideogramas produziu
+"<p>水<br>果</p>" no vanilla e "<p>水 <br> 果</p>" no cristalino;
+typst-realize/src/spaces.rs:114-127 classifica a fronteira como destrutiva.
+
+### Decisão ratificada
+
+Antes de show literal/regex, normalizar espaços no fluxo textual realizado:
+espaços consecutivos tornam-se uma ocorrência; a origem é newline quando
+qualquer componente a tiver. Descartar somente essa ocorrência inferida
+quando o caractere textual interno anterior ou seguinte for sem espaçamento
+segundo uma classificação Unicode pura equivalente à superfície medida.
+Para materializá-la, declarar icu_properties 2.2.0 como dependência direta
+L1 e autorizar somente os tipos de consulta imutável necessários na
+whitelist crystalline.toml; usar dados estáticos, sem I/O nem estado global
+mutável. Confrontar a classificação dos caracteres internos com o
+predicado vanilla pinado em testes, incluindo ideogramas, coreano,
+pontuação ideográfica, aspas ambíguas e emoji. Não importar o módulo
+inexistente de codex 0.3.0. Entre textos de suporte, sem componente
+com newline, preservar o espaço explícito. Linebreak explícito é fronteira
+destrutiva e consome espaços imediatamente adjacentes, inclusive explícitos;
+ele próprio não vira Space. Não usar split_whitespace, trim global, língua
+do documento ou tratamento específico de target. Um wrapper de estilo sem
+texto não impede observar os caracteres vizinhos para normalização, mas
+style chains diferentes separam os grupos de matching regex. Conteúdo
+não textual real permanece fronteira causal; Parbreak não vira espaço.
+
+Após normalizar, buscar literal/regex no maior grupo elegível de mesmo
+snapshot lexical e style chain, incluindo nós Text/espaço separados e
+conteúdo dinâmico textual. A recipe recebe somente a fatia casada; manter
+prefixo/sufixo, ordem leftmost, precedência vigente, revogação por RuleId,
+guardas e teto. Substituição não regressa à mesma regra; regras de elemento
+e parágrafo não executam duas vezes. Esta cláusula revoga apenas o scope-out
+entre nós de P1285/P790; as demais garantias desses passos continuam.
+A sonda suplementar /tmp/p1494-snapshot.typ (SHA-256
+161c06c311c616ebe730be2f9ff5332eb50c736737d47cb1f121de678a700575)
+mostrou foo/EARLY/LATE no vanilla e foo/EARLY/EARLY no cristalino para
+duas regras literais idênticas sequenciais; essa dívida preexistente de
+override não é critério de fechamento P1494 nem se declara sanada aqui.
+RED→GREEN separa (A) origem/normalização sem show e (B) literal/regex
+cruzando nós, mais controles negativos de espaço explícito, coreano,
+aspas, fronteiras de estilo e Linebreak destrutivo. O gate ADR-0127
+foi confirmado pelo dono em 2026-09-24 antes de L1.
+
+
+### Refinamento P1494/P1140 — medição antes da decisão
+
+No pin vanilla e no estado WIP medidos no owner compiler/eval.md,
+repr de ContentBlock conserva Space após Linebreak e entre 水 e 果
+separados por newline; o teste P1140 falha quando o valor passa
+prematuramente por normalize_markup_spaces
+(eval/mod.rs:7060-7070; rules.rs:3745,4036-4078). Em sonda HTML
+vanilla via stdin, um ContentBlock com show local literal 水果 → X
+e corpo 水-newline-果, inserido depois por variável, emitiu <p>X</p>.
+Logo, a preservação do valor bruto e o show local após colapso CJK
+são observáveis distintos; o segundo não foi demonstrado no
+caminho local cristalino.
+
+### Decisão estreita de realização e dívida combinada
+
+A cláusula anterior de normalizar antes de show vale para o fluxo/root
+realizado. Enquanto ContentBlock é apenas valor, não colapsar nem
+descartar Space ou SpaceFromNewline. Seu show textual local opera
+provisoriamente no texto pré-normalizado; quando casa, substituir só
+a fatia casada e preservar prefixo, sufixo e separadores não casados
+para a inserção posterior. O fluxo/root, ao receber esse valor,
+normaliza as adjacências e aplica as regras elegíveis no seu snapshot.
+
+A sonda vanilla de show local 水果 → X sobre 水-newline-果 é dívida
+combinada explícita: o matching local pré-normalizado não promete X.
+Não alegar paridade nem usá-la como GREEN de P1494. Fechamento futuro
+exige medição e L0 específicos do entrelaçamento de show local e
+normalização do fragmento. Este refinamento não cria contrato público
+ou fase nova além do gate ADR-0127 já confirmado.
 
 ## P1339 — transporte da base nativa aprovada
 

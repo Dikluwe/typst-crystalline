@@ -1,8 +1,45 @@
 # Prompt L0 — Content
-Hash do Código: 18c74410
+Hash do Código: 3445d042
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
+## P1494 — proveniência de newline em espaço de markup (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree limpo
+durante as sondas, o vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8
+(binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea)
+produz 水果 para ideograma–newline–ideograma e 水 果 para espaço explícito;
+o cristalino (binário SHA-256
+35a2fdea38c3e5a9b8b0c2a8a93c1cf9f4b6439965ed0103aa0e564c9ca3ca83)
+produz 水 果 para ambos. O controle de igualdade da linguagem entre [newline]
+e [espaço] passa em ambos. Na fonte pinada, typst-eval/src/markup.rs:98-107
+conserva had_newline e typst-realize/src/spaces.rs:180-205 consome a origem.
+No consumer cristalino content.rs:157-172,1275,3598,3781,4020-4034, Space
+é variante unitária pública, sem origem; Debug serve de entrada ao hash.
+
+### Decisão pública ratificada
+
+Adicionar Content::SpaceFromNewline como variante unitária para o espaço de
+markup inferido por ao menos uma quebra de linha. Content::Space mantém a
+forma unitária e os callers atuais, designando espaço sem essa origem. As
+duas variantes são indistinguíveis na linguagem: mesmo elem_name "space",
+Debug "space", repr "[ ]", plain_text " ", vacuidade e PartialEq cruzado;
+hashes iguais são obrigatórios. morph_canon e == da linguagem consideram-nas
+iguais também dentro de sequências; Parbreak e Linebreak continuam distintos.
+Travessia, clone e transporte preservam a origem até a normalização causal,
+sem assá-la em Text, Styled ou estilo de render. O hash baseado em Debug
+deve continuar coerente com a igualdade cruzada.
+Como o resultado da realização ainda depende dessa origem, nenhuma cache
+com chave Content::PartialEq/Hash pode colapsar as duas formas antes da
+normalização. A chave causal privada deve incluir a origem, ou a realização
+deve preceder a memoização que usa a igualdade pública.
+
+A nova variante é contrato Rust público mesmo sem diferença observável na
+linguagem. O dono confirmou especificamente este contrato pelo ADR-0127
+em 2026-09-24; a materialização L1–L4 está autorizada após este gate.
 
 ## P1374 — compatibilidade do construtor `Content::block`
 

@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 4f0754c2
+Hash do Código: 249d77df
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1853,3 +1853,39 @@ um contador raw reutilizável entre gerações e faria um alvo removido herdar a
 posição de outro elemento. P1493 materializa somente a identidade causal de
 `ContextBlock`/`here()` ratificada acima. Generalizar o store exige passo e gate
 próprios para identidade estável de Locations; não fabricar associação aqui.
+
+## P1494 — transporte da origem de espaço entre targets (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, o consumer
+03_infra/src/pipeline.rs não tem diff. HTML standalone avalia com
+EvalTarget::Html e passa o conteúdo por prepare_html antes do exporter
+(:301-313,345-348). O bundle extrai os bodies originais e chama
+prepare_bundle antes de renderizar cada documento (:885-947); só na
+renderização HTML projeta seu body para nós semânticos (:1119-1145).
+collect_bundle_entries aceita Content::Space como separador de topo
+(:1010-1035), e bundle_html_semantic_content clona folhas restantes
+(:1052-1116). A sonda P1489-S-001 observa no HTML uma diferença de forma
+textual. eval/mod.rs:6970 e rules.rs:982-1055 mostram perda de origem e
+matching por folha antes da serialização. Inferência: converter a nova
+origem em Space ao extrair um body impediria a normalização L1 posterior;
+a refutação seria um body com origem preservada após essa extração.
+
+### Decisão ratificada
+
+Tratar SpaceFromNewline como Space apenas na política de separadores
+fora de Document/Asset no topo do bundle. Dentro de cada Document,
+preservar a variante no body clonado, na preparação contextual e na
+projeção posterior até o ponto L1 que normaliza o grupo textual.
+bundle_html_semantic_content não colapsa a origem antecipadamente.
+Paged, HTML standalone e cada body HTML/PDF do bundle observam a mesma
+regra linguística de normalização e show, sem reparo específico de
+target, exporter ou extensão de arquivo. Conservar fronteiras Page,
+Locations, target por body, html.frame e publicação atômica já
+contratadas. Nenhuma fachada pública L3 muda.
+
+Aceitação compara texto realizado e sentinelas CJK em HTML standalone,
+PDF e bundle misto; espaço explícito, latim e coreano são controles.
+O gate ADR-0127 da variante pública e da fase P1494 foi confirmado
+pelo dono em 2026-09-24; os consumers L3 estão autorizados.

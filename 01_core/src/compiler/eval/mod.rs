@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 44ca73c2
+//! @prompt-hash 7e87f91c
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -249,6 +249,12 @@ impl ObservationEq for crate::entities::content::Content {
             },
             Self::Space => match other {
                 Self::Space => ObservationRelation::Same,
+                _ => ObservationRelation::Different,
+            },
+            // Origem causal distinta para a estabilização; o == da linguagem
+            // permanece independente desta relação observacional.
+            Self::SpaceFromNewline => match other {
+                Self::SpaceFromNewline => ObservationRelation::Same,
                 _ => ObservationRelation::Different,
             },
             Self::Parbreak => match other {
@@ -6872,7 +6878,22 @@ pub(crate) fn eval_markup(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
+    eval_markup_impl(node, scopes, ctx, engine, true)
+}
+
+/// Um ContentBlock ainda é um valor: conserva os espaços brutos até entrar
+/// num fluxo de markup. Os demais corpos são realizados no próprio escopo.
+fn eval_markup_impl(
+    node: &SyntaxNode,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    normalize_spaces: bool,
+) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
+    // P1494: snapshots por ocorrência, sem retroatividade de regras textuais.
+    let mut textual_snapshots: Vec<rules::TextualSnapshot> = Vec::new();
+
     // Passo 445: smart quotes context-aware em markup.
     // O lexer marca `"` e `'` como `SyntaxKind::SmartQuote`; o eval decide
     // open/close/apostrophe com base nos caracteres adjacentes e no `text.lang`.
@@ -6908,13 +6929,16 @@ pub(crate) fn eval_markup(
     let mut boundaries: Vec<(usize, crate::entities::style::Styles)> = Vec::new();
 
     for child in node.children() {
+        let snapshot = rules::TextualSnapshot::capture(engine);
         match child.kind() {
             SyntaxKind::Text => {
                 // F-5b fatia 2 (P373): o render não é mais assado no node — viaja
                 // na chain (custom), resolvido no layout.
                 let text_node = Content::Text(child.text().as_str().into());
-                // Intercepção eager para Selector::Text (Passo 68).
-                parts.push(rules::intercept_content(text_node, ctx, engine)?);
+                append_markup_sequence(
+                    &mut parts,
+                    rules::intercept_text_element(text_node, ctx, engine)?,
+                );
             }
             // Passo 445 — SmartQuote: emite glyph localizado consoante
             // open/close (contexto adjacente) e `text.lang`/`smartquote` activo.
@@ -6965,9 +6989,16 @@ pub(crate) fn eval_markup(
                     };
                     Content::Text(glyph)
                 };
-                parts.push(rules::intercept_content(quote_node, ctx, engine)?);
+                append_markup_sequence(
+                    &mut parts,
+                    rules::intercept_text_element(quote_node, ctx, engine)?,
+                );
             }
-            SyntaxKind::Space => parts.push(Content::Space),
+            SyntaxKind::Space => parts.push(if child.text().as_str().contains('\n') {
+                Content::SpaceFromNewline
+            } else {
+                Content::Space
+            }),
             // P622: quebra de parágrafo semântica — distinta de Space.
             SyntaxKind::Parbreak => parts.push(Content::Parbreak),
             k if k.is_trivia() => continue,
@@ -6982,7 +7013,7 @@ pub(crate) fn eval_markup(
                     let mut trailing: Vec<Content> = Vec::new();
                     while matches!(
                         parts.last(),
-                        Some(Content::Space) | Some(Content::Empty)
+                        Some(Content::Space | Content::SpaceFromNewline | Content::Empty)
                     ) {
                         trailing.push(parts.pop().unwrap());
                     }
@@ -7014,11 +7045,12 @@ pub(crate) fn eval_markup(
                 if let Some(expr) = Expr::from_untyped(child) {
                     let value = eval_expr(expr, scopes, ctx, engine)?;
                     if let Some(content) = value_to_display_content(value) {
-                        parts.push(content);
+                        append_markup_sequence(&mut parts, content);
                     }
                 }
             }
         }
+        textual_snapshots.resize(parts.len(), snapshot);
 
         byte_offset += child.len();
 
@@ -7039,6 +7071,14 @@ pub(crate) fn eval_markup(
     // (`parts[idx..]`) no delta do seu `#set`, produzindo o aninhamento
     // `Styled(A, [X, Styled(B, [Y])])` (escopo léxico, fiel ao vanilla). `#set`
     // único → 1 fronteira → 1 wrap = comportamento de antes (content-preserving).
+    rules::realize_textual_parts(
+        &mut parts,
+        &textual_snapshots,
+        &boundaries,
+        ctx,
+        engine,
+        normalize_spaces,
+    )?;
     for (idx, styles) in boundaries.into_iter().rev() {
         let tail = parts.split_off(idx);
         parts.push(Content::Styled(Box::new(Content::sequence(tail)), styles));
@@ -7048,13 +7088,27 @@ pub(crate) fn eval_markup(
     // de construção do conteúdo, mas os parágrafos são sintetizados a partir de
     // vários nós de texto/`Space`/`Parbreak`. Aplica-se apenas as regras
     // `NodeKind::Par` ao fluxo montado, para que `#show par: ...` possa realizar
-    // e transformar os parágrafos sem re-disparar regras de texto já aplicadas
-    // eager em cada nó de texto.
+    // e transformar os parágrafos sem re-disparar regras textuais já aplicadas
+    // ao grupo normalizado acima.
     Ok(Value::Content(rules::intercept_paragraphs(
         Content::sequence(parts),
         ctx,
         engine,
     )?))
+}
+
+/// Sequências interpoladas são transparentes no fluxo de markup. Os filhos
+/// retêm a sua origem; um espaço inferido isolado só é decidido quando
+/// encontra os vizinhos no corpo que o consome.
+fn append_markup_sequence(parts: &mut Vec<Content>, content: Content) {
+    match content {
+        Content::Sequence(children) => {
+            for child in children.iter().cloned() {
+                append_markup_sequence(parts, child);
+            }
+        }
+        other => parts.push(other),
+    }
 }
 
 /// **P545** (extraído em **P780**) — conversão genérica `Value` → `Content`
@@ -7367,11 +7421,12 @@ fn eval_expr_inner(
                 current_file: engine.current_file,
                 sink: &mut local_sink,
             };
-            let result = eval_markup(
+            let result = eval_markup_impl(
                 content_block.body().to_untyped(),
                 scopes,
                 ctx,
                 &mut local_engine,
+                false,
             );
             scopes.exit();
             result

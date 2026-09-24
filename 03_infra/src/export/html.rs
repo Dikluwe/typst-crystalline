@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash 6e1cab6f
+//! @prompt-hash a079f32d
 //! @layer L3
 
 use typst_core::entities::content::Content;
@@ -420,9 +420,9 @@ fn explicit_document_root(
     let nodes: Vec<&Content> = match content {
         Content::Sequence(items) => items
             .iter()
-            .filter(|item| !matches!(item, Content::Empty | Content::Space))
+            .filter(|item| !matches!(item, Content::Empty | Content::Space | Content::SpaceFromNewline))
             .collect(),
-        Content::Empty | Content::Space => vec![],
+        Content::Empty | Content::Space | Content::SpaceFromNewline => vec![],
         other => vec![other],
     };
 
@@ -496,7 +496,7 @@ fn block_sequence(
                 flush(&mut out, &mut paragraph);
                 out.push_str(&inline(item, mode, resolver, chain)?);
             }
-            Content::Space => paragraph.push_str(top_level_space_between(seq, index)),
+            Content::Space | Content::SpaceFromNewline => paragraph.push_str(top_level_space_between(seq, index)),
             other => paragraph.push_str(&inline(other, mode, resolver, chain)?),
         }
     }
@@ -517,7 +517,7 @@ fn inline(
     Ok(match content {
         Content::Empty => String::new(),
         Content::Text(text) => escape_text(text, mode),
-        Content::Space => " ".into(),
+        Content::Space | Content::SpaceFromNewline => " ".into(),
         Content::SetPage { .. } => String::new(),
         Content::Sequence(seq) => seq
             .iter()
@@ -606,7 +606,7 @@ fn raw_text(content: &Content) -> Result<String, SourceDiagnostic> {
     Ok(match content {
         Content::Empty => String::new(),
         Content::Text(text) => text.to_string(),
-        Content::Space => " ".into(),
+        Content::Space | Content::SpaceFromNewline => " ".into(),
         Content::Linebreak(_) => "\n".into(),
         Content::Sequence(items) => {
             items.iter().map(raw_text).collect::<Result<Vec<_>, _>>()?.concat()
@@ -700,13 +700,13 @@ fn title_text(content: &Content) -> Result<String, SourceDiagnostic> {
     Ok(match content {
         Content::Empty => String::new(),
         Content::Text(text) => text.as_str().replace('&', "&amp;").replace('<', "&lt;"),
-        Content::Space => " ".into(),
+        Content::Space | Content::SpaceFromNewline => " ".into(),
         Content::Linebreak(_) => "\n".into(),
         Content::Sequence(items) => {
             let mut out = String::new();
             let mut after_linebreak = false;
             for item in items.iter() {
-                if after_linebreak && matches!(item, Content::Space) {
+                if after_linebreak && matches!(item, Content::Space | Content::SpaceFromNewline) {
                     after_linebreak = false;
                     continue;
                 }
@@ -735,15 +735,15 @@ fn inline_html_body(
     let Content::Sequence(items) = content else {
         return inline(content, mode, resolver, chain);
     };
-    let first = items.iter().position(|item| !matches!(item, Content::Space));
+    let first = items.iter().position(|item| !matches!(item, Content::Space | Content::SpaceFromNewline));
     let Some(first) = first else { return Ok(String::new()) };
     let last = items
         .iter()
-        .rposition(|item| !matches!(item, Content::Space))
+        .rposition(|item| !matches!(item, Content::Space | Content::SpaceFromNewline))
         .unwrap();
     let mut out = String::new();
     for index in first..=last {
-        if matches!(items[index], Content::Space) {
+        if matches!(items[index], Content::Space | Content::SpaceFromNewline) {
             if parent_tag == "ruby"
                 && index > first
                 && index < last
@@ -816,7 +816,7 @@ fn paragraph_space_support<'a>(items: impl Iterator<Item = &'a Content>) -> Spac
         if supports_adjacent_space(item) {
             return SpaceSupport::Supportive;
         }
-        if !matches!(item, Content::Space | Content::Empty) {
+        if !matches!(item, Content::Space | Content::SpaceFromNewline | Content::Empty) {
             found_inline = true;
         }
     }
@@ -847,7 +847,7 @@ fn space_support<'a>(items: impl Iterator<Item = &'a Content>) -> SpaceSupport {
         if supports_adjacent_space(item) {
             return SpaceSupport::Supportive;
         }
-        if !matches!(item, Content::Space | Content::Empty) {
+        if !matches!(item, Content::Space | Content::SpaceFromNewline | Content::Empty) {
             found_inline = true;
         }
     }
@@ -874,7 +874,7 @@ fn supports_adjacent_space(content: &Content) -> bool {
                 elem.body.content().is_some_and(supports_adjacent_space)
             }
         }
-        Content::Empty | Content::Space | Content::Parbreak => false,
+        Content::Empty | Content::Space | Content::SpaceFromNewline | Content::Parbreak => false,
         _ => true,
     }
 }
@@ -1265,5 +1265,69 @@ mod tests {
                     .expect("raw text HTML");
             assert!(html.contains(&format!("<{tag}>{text}</{tag}>")));
         }
+    }
+    #[test]
+    fn p1494_espaco_com_newline_tem_projecao_html_local_identica() {
+        fn element(tag: &str, body: Content) -> Content {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::Content(Box::new(body)),
+            )))
+        }
+
+        fn render_cases(space: Content) -> Vec<String> {
+            let br = Content::HtmlElem(Arc::new(HtmlElem::new(
+                "br".into(),
+                None,
+                typst_core::entities::html::HtmlBody::None,
+            )));
+            let cases = [
+                // Top-level paragraph and its boundary whitespace.
+                Content::sequence(vec![
+                    space.clone(),
+                    Content::text("A"),
+                    space.clone(),
+                    Content::text("B"),
+                    space.clone(),
+                ]),
+                // Inline, raw and title use separate exporter paths.
+                element(
+                    "span",
+                    Content::sequence(vec![
+                        Content::text("A"),
+                        space.clone(),
+                        Content::text("B"),
+                    ]),
+                ),
+                element(
+                    "script",
+                    Content::sequence(vec![Content::text("A"), space.clone(), Content::text("B")]),
+                ),
+                element(
+                    "title",
+                    Content::sequence(vec![Content::text("A"), space.clone(), Content::text("B")]),
+                ),
+                // Block and void neighbors still use structural whitespace.
+                Content::sequence(vec![
+                    Content::text("A"),
+                    space.clone(),
+                    element("div", Content::text("B")),
+                    space.clone(),
+                    br,
+                    space.clone(),
+                    Content::text("C"),
+                ]),
+                // Explicit document root must ignore both edge-space kinds.
+                Content::sequence(vec![
+                    space.clone(),
+                    element("html", element("body", Content::text("Body"))),
+                    space,
+                ]),
+            ];
+            cases.iter().map(|content| export_html(content).unwrap()).collect()
+        }
+
+        assert_eq!(render_cases(Content::Space), render_cases(Content::SpaceFromNewline));
     }
 }

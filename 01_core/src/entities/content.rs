@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash b311aced
+//! @prompt-hash 402b2d45
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -165,6 +165,8 @@ pub enum Content {
     Text(EcoString),
     /// Espaço entre elementos (SpaceElem).
     Space,
+    /// Espaço de markup inferido por newline; preserva a origem até a realização.
+    SpaceFromNewline,
     /// Quebra de parágrafo semântica (linha em branco no markup).
     /// **P622**: distinta de `Space` e de `Linebreak` (`\\` explícito).
     Parbreak,
@@ -1272,7 +1274,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match c {
         Content::Empty => write!(f, "empty"),
         Content::Text(t) => write!(f, "text({:?})", t),
-        Content::Space => write!(f, "space"),
+        Content::Space | Content::SpaceFromNewline => write!(f, "space"),
         Content::Parbreak => write!(f, "parbreak"),
         Content::Par { body } => write!(f, "par({:?})", body),
         Content::Sequence(seq) => f.debug_tuple("sequence").field(&seq.as_ref()).finish(),
@@ -1415,7 +1417,7 @@ impl Content {
     pub fn elem_name(&self) -> &'static str {
         match self {
             Self::Text(_) => "text",
-            Self::Space => "space",
+            Self::Space | Self::SpaceFromNewline => "space",
             Self::Empty => "empty",
             Self::Sequence(_) => "sequence",
             Self::HtmlElem(_) => "elem",
@@ -3282,6 +3284,7 @@ impl Content {
             | Self::Text(_)
             | Self::PageRun(_)
             | Self::Space
+            | Self::SpaceFromNewline
             | Self::Parbreak
             | Self::Par { .. }
             | Self::Heading(_)
@@ -3595,7 +3598,7 @@ impl Content {
         match self {
             Self::Empty => String::new(),
             Self::Text(s) => s.to_string(),
-            Self::Space => " ".to_string(),
+            Self::Space | Self::SpaceFromNewline => " ".to_string(),
             // P622: representação textual de separação de parágrafos.
             Self::Parbreak => "\n".to_string(),
             // P863: parágrafo é transparente para texto plano.
@@ -3778,7 +3781,7 @@ impl PartialEq for Content {
         match (self, other) {
             (Self::Empty, Self::Empty) => true,
             (Self::Text(a), Self::Text(b)) => a == b,
-            (Self::Space, Self::Space) => true,
+            (Self::Space | Self::SpaceFromNewline, Self::Space | Self::SpaceFromNewline) => true,
             (Self::Parbreak, Self::Parbreak) => true,
             (Self::Sequence(a), Self::Sequence(b)) => a.as_ref() == b.as_ref(),
             (Self::Par { body: a }, Self::Par { body: b }) => a == b,
@@ -4258,6 +4261,7 @@ impl Content {
             Content::Text(_)
             | Content::Space
             | Content::Parbreak
+            | Content::SpaceFromNewline
             | Content::Empty
             | Content::Linebreak(_)
             | Content::Raw(_)
@@ -4387,6 +4391,7 @@ impl Content {
         > {
             Ok(match node {
                 Content::Text(s) => Some(Content::Text(s.clone())),
+                Content::SpaceFromNewline => Some(Content::Space),
                 // F-5a de-bake (P364): heading/equation numbering deixaram de
                 // viver em campo assado — viajam como `custom` num
                 // `Content::Styled` semanticamente vazio, já tratado
@@ -4511,6 +4516,7 @@ impl Content {
             Content::Empty
             | Content::Space
             | Content::Parbreak
+            | Content::SpaceFromNewline
             | Content::Linebreak(_)
             | Content::Outline(_)
             | Content::Raw(_)
@@ -4658,6 +4664,34 @@ mod tests {
     fn space_nao_e_empty() {
         assert!(!Content::Space.is_empty());
         assert_eq!(Content::Space.plain_text(), " ");
+    }
+
+    #[test]
+    fn p1494_space_from_newline_mantem_morfologia_e_hash_publicos() {
+        use std::hash::{Hash, Hasher};
+
+        let explicit = Content::Space;
+        let inferred = Content::SpaceFromNewline;
+        assert_eq!(inferred, explicit);
+        assert_eq!(inferred.elem_name(), explicit.elem_name());
+        assert_eq!(format!("{inferred:?}"), format!("{explicit:?}"));
+        assert_eq!(inferred.plain_text(), explicit.plain_text());
+        assert_eq!(
+            crate::compiler::eval::repr::repr_content(&inferred),
+            crate::compiler::eval::repr::repr_content(&explicit),
+        );
+
+        let mut inferred_hash = std::collections::hash_map::DefaultHasher::new();
+        let mut explicit_hash = std::collections::hash_map::DefaultHasher::new();
+        inferred.hash(&mut inferred_hash);
+        explicit.hash(&mut explicit_hash);
+        assert_eq!(inferred_hash.finish(), explicit_hash.finish());
+
+        let nested = Content::sequence(vec![Content::text("水"), inferred, Content::text("果")]);
+        let expected = Content::sequence(vec![Content::text("水"), explicit, Content::text("果")]);
+        assert_eq!(nested, expected);
+        assert_eq!(nested.morph_canon(), expected.morph_canon());
+        assert!(!Content::SpaceFromNewline.is_empty());
     }
 
     #[test]

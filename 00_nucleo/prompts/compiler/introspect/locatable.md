@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 5a434a3b
+Hash do Código: 7304c0b9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
@@ -7,6 +7,26 @@ Hash do Código: 5a434a3b
 **ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
 
 ---
+
+## P1494 — origem newline não-locatable (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+### Medição anterior à decisão
+
+No baseline `6da06e849d75972651a342ad6aad337313451c79`,
+`is_locatable` tem match exaustivo: `Content::Space` está no conjunto
+não-locatable em `01_core/src/compiler/introspect/locatable.rs:123-131`.
+O extrator de payload não cria ocorrência para espaço
+(`01_core/src/compiler/introspect/extract_payload.rs:92-96`), mantendo o
+invariante deste L0. O diagnóstico P1494 registra a medição de linguagem.
+
+### Decisão ratificada
+
+Adicionar `Content::SpaceFromNewline` explicitamente ao braço `false`, sem
+wildcard novo. A origem lexical não torna espaço consultável: não há payload,
+Location ou identidade de elemento. Manter
+`is_locatable(c) == extract_payload(c).is_some()` também para a nova folha;
+não normalizar o conteúdo neste classificador. O gate ADR-0127 da
+variante pública P1494 foi confirmado em 2026-09-24.
 
 ## Contexto
 

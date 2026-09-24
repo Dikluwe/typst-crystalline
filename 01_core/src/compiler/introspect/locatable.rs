@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash 212cdb51
+//! @prompt-hash c6da96f2
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -122,7 +122,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // ── Não-locatable ──────────────────────────────────────────
         Content::Empty
         | Content::Text(_)
-        | Content::Space
+        | Content::Space | Content::SpaceFromNewline
         // P622: Parbreak não é locatable — é cola estrutural.
         | Content::Parbreak
         | Content::PageRun(_)
@@ -297,7 +297,10 @@ mod tests {
 
     #[test]
     fn space_nao_e_locatable() {
-        assert!(!is_locatable(&Content::Space));
+        for space in [Content::Space, Content::SpaceFromNewline] {
+            assert!(!is_locatable(&space));
+            assert!(extract_payload(&space).is_none());
+        }
     }
 
     #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: de37a275
+Hash do Código: 49e25394
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -17,6 +17,84 @@ base, a passagem dupla, `eval_markup` e o dispatcher exaustivo de `Expr`; os
 corpos especializados já delegam aos seus módulos donos.
 
 ## Contrato
+
+### P1494 — captura da origem e ordem de show textual (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+
+#### Medição anterior à decisão
+
+No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree
+limpo durante as sondas, lexer/mod.rs:163-177 conserva o texto do token de
+espaço, mas eval/mod.rs:6912-6918,6970 intercepta show em cada Text e emite
+Space sem origem. rules.rs:982-1055 procura regex em cada folha. No vanilla
+pinado 9f2b6e8715237cb086899a42873660fe744622e8 (binário SHA-256
+7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea),
+a sonda de show regex casa "new line" em dois Text separados por newline e
+"换行newline" após descarte de espaço CJK; no cristalino não. A fonte
+typst-realize/src/lib.rs:1261-1325 monta representação textual normalizada
+para testar regex antes da transformação. HTML e sentinelas PDF reproduzem
+o delta; a distribuição entre funções vanilla é mecânica (ADR-0107).
+Sonda suplementar /tmp/p1494-snapshot.typ (SHA-256
+161c06c311c616ebe730be2f9ff5332eb50c736737d47cb1f121de678a700575)
+no mesmo HEAD/binários, mas com working tree documental em edição, mostrou
+foo/EARLY/LATE no vanilla e foo/EARLY/EARLY no cristalino quando duas
+regras literais idênticas são declaradas sequencialmente. É indicação de
+dívida de precedência anterior, não prova de fechamento P1494.
+
+#### Decisão ratificada
+
+eval_markup emite SpaceFromNewline quando o token SyntaxKind::Space contém
+quebra de linha e Space quando não contém. Trivia e comentários não apagam
+essa origem dos espaços adjacentes. Parbreak e Linebreak conservam identidade
+própria; Linebreak consome espaços vizinhos na realização, sem virar Space.
+A intercepção de show textual deixa de ocorrer eager por folha:
+o fluxo e os snapshots lexicais necessários seguem ao owner rules.rs para
+normalização e matching sobre grupo textual realizado antes da recipe.
+Regras de elemento, label e parágrafo mantêm identidade e momento causal;
+não reexecutar efeito ou regra sobre substituição. Fronteiras de #set e
+#show mantêm o instante lexical de ativação, sem retroatividade; estilos
+de render não viram morfologia. A operação é comum a PDF/HTML e não pertence
+ao lexer isolado ou ao exporter.
+A igualdade observacional interna de Content distingue Space e
+SpaceFromNewline antes da normalização para não esconder mudança causal
+em iterações; isso não altera PartialEq nem == da linguagem.
+
+Nova variante pública e alteração de ordem eval→realização ativam os itens
+1 e 3 do ADR-0127. O dono confirmou especificamente ambas em 2026-09-24;
+a implementação L1 está autorizada após este gate.
+
+
+#### Refinamento P1494/P1140 — medição antes da decisão
+
+Em 2026-09-24 22:36:52 UTC, o vanilla pinado acima (mesmo SHA-256)
+devolveu para repr de [barra-invertida espaço] a forma
+sequence(linebreak(), [ ]), para repr de [a barra-invertida espaço b]
+sequence([a], linebreak(), [ ], [b]), e para repr de [水 newline 果]
+sequence([水], [ ], [果]). O teste já vigente em
+eval/tests.rs:11081-11095 exige as duas primeiras formas. No HEAD
+6da06e849d75972651a342ad6aad337313451c79 com working tree P1494
+não commitada, o executável de teste SHA-256
+c67f6626a5656c90e42f25f378a6844db889c41edc62d1e7f6813abd972b3439
+falhou em tests.rs:11092: obteve sequence(linebreak(), []) em vez de
+sequence(linebreak(), [ ]). Em eval/mod.rs:7382-7411, ContentBlock como
+valor chama eval_markup; eval/mod.rs:7060-7070 chama a realização, que
+normaliza em rules.rs:3745,4036-4078. Inferência: essa antecipação
+apaga morfologia observável antes da interpolação; refutação seria
+outra origem demonstrada para a perda do Space nesse caminho.
+
+#### Decisão estreita de valor e fluxo
+
+ContentBlock avaliado como valor conserva whitespace bruto até ser
+interpolado: repr observa o espaço após Linebreak e o espaço oriundo
+de newline CJK. Quando esse valor entra no fluxo/root, a realização
+normaliza as adjacências como antes e continua comum a PDF/HTML.
+Show textual local do ContentBlock opera provisoriamente sobre a
+forma pré-normalizada, sem consumir prefixo, sufixo ou espaços não
+casados necessários à inserção. O vanilla também transforma em X
+o fragmento local com show literal de 水果 sobre 水-newline-果;
+esse caso combinado não fica fechado pelo matching local provisório.
+Preservar o contrato P1140 aqui apenas delimita a fase já aprovada:
+nenhuma nova variante, assinatura, default ou fase pública é criada
+além do gate ADR-0127 confirmado em 2026-09-24.
 
 ### P1374 — relação observacional do carrier de altura de Block
 

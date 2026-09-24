@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 925e3e4e
+//! @prompt-hash 387a811a
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -365,6 +365,54 @@ pub(crate) fn is_node_rule(selector: &Selector) -> bool {
     }
 }
 
+
+/// O caminho textual dedicado aceita somente estes dois selectors; os de
+/// elemento e de parágrafo conservam os seus pontos de intercepção.
+pub(crate) fn is_text_rule(selector: &Selector) -> bool {
+    matches!(selector, Selector::Text(_) | Selector::Regex(_))
+}
+
+/// Testa a representação textual normalizada do grupo antes do splice.
+/// Matches vazios não disparam recipes nem substituições.
+pub(crate) fn textual_selector_matches(selector: &Selector, text: &str) -> bool {
+    match selector {
+        Selector::Text(pattern) => !pattern.is_empty() && text.contains(pattern),
+        Selector::Regex(regex) => regex
+            .captures_all(text)
+            .iter()
+            .any(|matched| matched.start < matched.end),
+        _ => false,
+    }
+}
+
+
+/// Offsets UTF-8 das ocorrências não vazias e não sobrepostas no grupo já
+/// normalizado; a projeção para nós originais pertence ao owner rules.
+pub(crate) fn textual_match_ranges(
+    selector: &Selector,
+    text: &str,
+) -> Vec<(usize, usize)> {
+    match selector {
+        Selector::Text(pattern) if !pattern.is_empty() => {
+            let mut ranges = Vec::new();
+            let mut cursor = 0;
+            while let Some(offset) = text[cursor..].find(pattern) {
+                let start = cursor + offset;
+                let end = start + pattern.len();
+                ranges.push((start, end));
+                cursor = end;
+            }
+            ranges
+        }
+        Selector::Regex(regex) => regex
+            .captures_all(text)
+            .into_iter()
+            .filter(|matched| matched.start < matched.end)
+            .map(|matched| (matched.start, matched.end))
+            .collect(),
+        _ => Vec::new(),
+    }
+}
 /// **P790** — Fatia `text` nas ocorrências de `pattern` e emenda o
 /// replacement produzido para cada match (paridade vanilla
 /// `visit_regex_match`, `typst-realize/src/lib.rs:1391`): o texto antes e

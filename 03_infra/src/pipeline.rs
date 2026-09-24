@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash c2f09cf7
+//! @prompt-hash 6a1e0d63
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -1031,7 +1031,7 @@ fn collect_bundle_entries(
             }
             Ok(())
         }
-        Content::Empty | Content::Space | Content::Parbreak | Content::Metadata(_) => {
+        Content::Empty | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Metadata(_) => {
             Ok(())
         }
         Content::Document { .. } | Content::Asset { .. } => {
@@ -6150,5 +6150,37 @@ mod tests {
             typst_core::entities::compiler_features::Features::html(),
         );
         result.expect("conteúdo visível não pode deslocar a posição do context");
+    }
+    #[test]
+    fn p1494_bundle_ignora_espaco_exterior_e_preserva_origem_no_body() {
+        let body = Content::sequence(vec![
+            Content::text("水"),
+            Content::SpaceFromNewline,
+            Content::text("果"),
+        ]);
+        let document = Content::document(
+            "one.typ".into(),
+            body,
+            None,
+            None,
+            vec![],
+            None,
+            vec![],
+        );
+        let root = Content::sequence(vec![
+            Content::SpaceFromNewline,
+            document,
+            Content::Space,
+        ]);
+        let mut entries = Vec::new();
+        collect_bundle_entries(&root, &mut entries).expect("bundle válido");
+        assert_eq!(entries.len(), 1);
+        let Content::Document { body, .. } = &entries[0] else {
+            panic!("entrada deve manter Document");
+        };
+        let Content::Sequence(parts) = body.as_ref() else {
+            panic!("body deve manter sequência lexical");
+        };
+        assert!(matches!(parts[1], Content::SpaceFromNewline));
     }
 }
