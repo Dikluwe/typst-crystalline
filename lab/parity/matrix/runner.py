@@ -26,6 +26,7 @@ STATES = {"MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPL
 LATTICE_STATES = (
     "MATCH",
     "DIFFERENCE",
+    "VIOLATED",
     "DISABLED_BY_PROFILE",
     "UNKNOWN",
     "BASELINE_ONLY",
@@ -36,6 +37,9 @@ REQUIRED_PROFILES = {
     "default": {"features": []},
     "html": {"features": ["html"]},
     "a11y-extras": {"features": ["a11y-extras"]},
+    "html+a11y": {"features": ["html", "a11y-extras"]},
+    "bundle": {"features": ["bundle"]},
+    "html+bundle": {"features": ["html", "bundle"]},
 }
 CLASSES = {"LANGUAGE_SEMANTICS", "LANGUAGE_SYNTAX", "LANGUAGE_MORPHOLOGY", "PUBLIC_DIAGNOSTIC", "PUBLIC_CLI", "PUBLIC_FORMAT", "MECHANICS_ALLOWED", "HARNESS_DEFECT", "BASELINE_DEFECT", "UNKNOWN", None}
 AXES = set("SEBILXC")
@@ -155,10 +159,10 @@ def validate_manifest(data: dict) -> list[str]:
         errors.append("vanilla_revision must be 586e1bd43")
     profiles = data.get("profiles")
     if profiles != REQUIRED_PROFILES:
-        errors.append("profiles must freeze default, html and a11y-extras exactly")
+        errors.append("profiles must freeze default/html/a11y/bundle combinations exactly")
         profiles = profiles if isinstance(profiles, dict) else {}
-    if data.get("scope_out_features") != ["bundle"]:
-        errors.append("scope_out_features must contain only bundle")
+    if data.get("scope_out_features") != []:
+        errors.append("scope_out_features must be empty after P1487")
     cases = data.get("cases")
     if not isinstance(cases, list):
         return errors + ["cases must be an array"]
@@ -187,6 +191,15 @@ def validate_manifest(data: dict) -> list[str]:
             errors.append(f"{prefix}: invalid classe")
         if case.get("expected_state") not in EXPECTED_STATES:
             errors.append(f"{prefix}: invalid expected_state")
+        expected_labels = case.get("expected_labels")
+        if case.get("comparison") == "pdf_page_labels":
+            if not isinstance(expected_labels, list) or not expected_labels or not all(
+                isinstance(value, int) and not isinstance(value, bool) and value > 0
+                for value in expected_labels
+            ):
+                errors.append(f"{prefix}: pdf_page_labels requires positive expected_labels")
+        elif expected_labels is not None:
+            errors.append(f"{prefix}: expected_labels only applies to pdf_page_labels")
         if case.get("estado") != "MATCH" and case.get("classe") is None:
             errors.append(f"{prefix}: non-MATCH requires classe")
         source_name = case.get("fonte_typ")
@@ -335,6 +348,64 @@ def pdf_observables(path: pathlib.Path):
     return info, text.rstrip(), font_names
 
 
+def bundle_observables(path: pathlib.Path):
+    if not path.is_dir():
+        raise ValueError("bundle artifact is not a directory")
+    files = sorted(child for child in path.rglob("*") if child.is_file())
+    if not files:
+        raise ValueError("bundle has no files")
+    result = []
+    for child in files:
+        if child.is_symlink():
+            raise ValueError("bundle contains a symlink")
+        relative = child.relative_to(path).as_posix()
+        if child.suffix == ".pdf":
+            geometry, text, _fonts = pdf_observables(child)
+            result.append((relative, "pdf", geometry, text))
+        elif child.suffix == ".html":
+            result.append((relative, "html", semantic_tree(child)))
+        else:
+            result.append((relative, "bytes", sha256_file(child)))
+    return tuple(result)
+
+
+def pdf_page_label_observables(path: pathlib.Path):
+    raw = path.read_bytes()
+    labels = tuple(int(value) for value in re.findall(rb"/St\s+(\d+)", raw))
+    extracted = subprocess.run(
+        ["pdftotext", "-layout", str(path), "-"],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    pages = tuple(page.strip() for page in extracted.split("\f") if page.strip())
+    return pdf_geometry(path), labels, pages
+
+
+def pdf_ua_observables(path: pathlib.Path):
+    raw = path.read_bytes()
+    markers = (
+        b"/StructTreeRoot" in raw,
+        b"/MarkInfo" in raw,
+        b"/Lang" in raw,
+        b"/Title" in raw,
+        bool(re.search(rb"pdfuaid:part\s*>\s*1", raw)),
+    )
+    extracted = subprocess.run(
+        ["pdftotext", "-layout", str(path), "-"],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    return pdf_geometry(path), extracted.strip(), markers
+
+
+def labels_match_drawn_margins(observed) -> bool:
+    geometry, labels, pages = observed
+    if len(labels) != geometry[0] or len(pages) != geometry[0]:
+        return False
+    return all(
+        re.search(rf"(?m)^\s*{label}\s*$", page) is not None
+        for label, page in zip(labels, pages)
+    )
+
+
 def png_pixels(path: pathlib.Path):
     data = path.read_bytes()
     if data[:8] != b"\x89PNG\r\n\x1a\n": raise ValueError("not PNG")
@@ -387,6 +458,12 @@ def comparison_observables(comparison: str, oracle: dict, crystalline: dict, art
         return {"unit": "pt", "rounding": 0.001, "oracle": pdf_geometry(artifact(oracle, ".pdf")), "crystalline": pdf_geometry(artifact(crystalline, ".pdf"))}
     if comparison == "pdf_observables":
         return {"oracle": pdf_observables(artifact(oracle, ".pdf")), "crystalline": pdf_observables(artifact(crystalline, ".pdf"))}
+    if comparison == "bundle_observables":
+        return {"oracle": bundle_observables(artifact(oracle, ".bundle")), "crystalline": bundle_observables(artifact(crystalline, ".bundle"))}
+    if comparison == "pdf_page_labels":
+        return {"oracle": pdf_page_label_observables(artifact(oracle, ".pdf")), "crystalline": pdf_page_label_observables(artifact(crystalline, ".pdf"))}
+    if comparison == "pdf_ua":
+        return {"oracle": pdf_ua_observables(artifact(oracle, ".pdf")), "crystalline": pdf_ua_observables(artifact(crystalline, ".pdf"))}
     if comparison == "raster":
         ow, oh, op = png_pixels(artifact(oracle, ".png")); cw, ch, cp = png_pixels(artifact(crystalline, ".png"))
         summary = {"oracle_size": [ow, oh], "crystalline_size": [cw, ch]}
@@ -406,6 +483,8 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
         return "ERROR", "HARNESS_DEFECT"
     if comparison == "exit_code":
         return ("MATCH", None) if oracle["exit_code"] == crystalline["exit_code"] else ("DIFF", "LANGUAGE_SYNTAX")
+    if comparison == "rejection":
+        return (("ERROR", "BASELINE_DEFECT") if oracle["exit_code"] == 0 else ("MATCH", None) if crystalline["exit_code"] != 0 else ("DIFF", "LANGUAGE_SEMANTICS"))
     if comparison == "diagnostic":
         same = oracle["exit_code"] == crystalline["exit_code"] and normalize_diagnostic(oracle["stderr"]) == normalize_diagnostic(crystalline["stderr"])
         return ("MATCH", None) if same else ("DIFF", "PUBLIC_DIAGNOSTIC")
@@ -413,6 +492,40 @@ def classify(comparison: str, oracle: dict, crystalline: dict) -> tuple[str, str
         try: same = oracle["exit_code"] == crystalline["exit_code"] == 0 and typed_value(oracle["stdout"]) == typed_value(crystalline["stdout"])
         except (ValueError, json.JSONDecodeError): return "ERROR", "HARNESS_DEFECT"
         return ("MATCH", None) if same else ("DIFF", "LANGUAGE_SEMANTICS")
+    if comparison == "bundle_observables":
+        if oracle["exit_code"] != 0:
+            return "ERROR", "BASELINE_DEFECT"
+        if crystalline["exit_code"] != 0:
+            return "DIFF", "PUBLIC_FORMAT"
+        try:
+            left = bundle_observables(artifact(oracle, ".bundle"))
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return "ERROR", "BASELINE_DEFECT"
+        try:
+            right = bundle_observables(artifact(crystalline, ".bundle"))
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return "DIFF", "PUBLIC_FORMAT"
+        return ("MATCH", None) if left == right else ("DIFF", "PUBLIC_FORMAT")
+    if comparison in {"pdf_page_labels", "pdf_ua"}:
+        if oracle["exit_code"] != 0:
+            return "ERROR", "BASELINE_DEFECT"
+        if crystalline["exit_code"] != 0:
+            return "DIFF", "PUBLIC_FORMAT"
+        extract = pdf_page_label_observables if comparison == "pdf_page_labels" else pdf_ua_observables
+        try:
+            left = extract(artifact(oracle, ".pdf"))
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return "ERROR", "BASELINE_DEFECT"
+        try:
+            right = extract(artifact(crystalline, ".pdf"))
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return "DIFF", "PUBLIC_FORMAT"
+        valid = labels_match_drawn_margins if comparison == "pdf_page_labels" else lambda observed: all(observed[2])
+        if not valid(left):
+            return "ERROR", "BASELINE_DEFECT"
+        if not valid(right):
+            return "DIFF", "PUBLIC_FORMAT"
+        return ("MATCH", None) if left == right else ("DIFF", "PUBLIC_FORMAT")
     if comparison in {"semantic_tree", "geometry", "raster", "pdf_observables"}:
         classes = {"semantic_tree": "LANGUAGE_MORPHOLOGY", "geometry": "LANGUAGE_MORPHOLOGY", "raster": "PUBLIC_FORMAT", "pdf_observables": "PUBLIC_FORMAT"}
         suffix = ({"geometry": ".pdf", "raster": ".png", "pdf_observables": ".pdf"}.get(comparison)
@@ -535,6 +648,35 @@ def classify_for_profile(
     if asymmetry == "extra-binding":
         return "EXTRA_BINDING", None
     legacy, inferred_class = classify(comparison, oracle, crystalline)
+    if comparison == "pdf_page_labels" and legacy in {"MATCH", "DIFF"}:
+        expected = tuple(case["expected_labels"])
+        try:
+            oracle_labels = pdf_page_label_observables(artifact(oracle, ".pdf"))[1]
+            crystal_labels = pdf_page_label_observables(artifact(crystalline, ".pdf"))[1]
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return "UNKNOWN", "HARNESS_DEFECT"
+        if oracle_labels != expected:
+            return "UNKNOWN", "BASELINE_DEFECT"
+        if crystal_labels != expected:
+            return "VIOLATED", "PUBLIC_FORMAT"
+    if legacy in {"DIFF", "ABSENT"}:
+        # Pixel and font-name differences remain recorded as observations;
+        # they are not semantic violations without a language-level witness.
+        if comparison == "raster":
+            try:
+                left = png_pixels(artifact(oracle, ".png"))
+                right = png_pixels(artifact(crystalline, ".png"))
+            except (OSError, ValueError, zlib.error):
+                return "VIOLATED", inferred_class
+            return ("VIOLATED" if left[:2] != right[:2] else "DIFFERENCE"), inferred_class
+        if comparison == "pdf_observables":
+            try:
+                left = pdf_observables(artifact(oracle, ".pdf"))
+                right = pdf_observables(artifact(crystalline, ".pdf"))
+            except (OSError, ValueError, subprocess.SubprocessError):
+                return "VIOLATED", inferred_class
+            return ("VIOLATED" if left[:2] != right[:2] else "DIFFERENCE"), inferred_class
+        return "VIOLATED", inferred_class
     return lattice_state(legacy), inferred_class
 
 

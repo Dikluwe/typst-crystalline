@@ -12,6 +12,14 @@ from collections import Counter
 SCHEMA_VERSION = "p1282-v1"
 CATALOG_SCHEMA_VERSION = "p1282-catalog-v1"
 EXPECTED_VANILLA_REVISION = "586e1bd43"
+PROFILE_FEATURES = {
+    "default": [],
+    "html": ["html"],
+    "a11y-extras": ["a11y-extras"],
+    "html+a11y": ["html", "a11y-extras"],
+    "bundle": ["bundle"],
+    "html+bundle": ["html", "bundle"],
+}
 CLASSES = (
     "MATCH",
     "MISSING_BINDING",
@@ -206,7 +214,7 @@ def merge_catalogs(profile: str, vanilla_raw: dict, crystalline_raw: dict) -> di
     return {
         "schema_version": SCHEMA_VERSION,
         "profile": profile,
-        "features": [] if profile == "default" else ["html"],
+        "features": list(PROFILE_FEATURES[profile]),
         "counts": {name: counts.get(name, 0) for name in CLASSES},
         "blocked_by_ancestor_count": len(blocked),
         "blocked_by_ancestor": blocked,
@@ -219,7 +227,7 @@ def provenance_errors(
     vanilla: dict,
     crystalline: dict,
 ) -> list[str]:
-    expected_features = [] if profile == "default" else ["html"]
+    expected_features = PROFILE_FEATURES[profile]
     errors = []
     for name, payload in (("vanilla", vanilla), ("crystalline", crystalline)):
         if payload.get("schema_version") != CATALOG_SCHEMA_VERSION:
@@ -246,7 +254,7 @@ def invalid_provenance_payload(profile: str, errors: list[str]) -> dict:
     return {
         "schema_version": SCHEMA_VERSION,
         "profile": profile,
-        "features": [] if profile == "default" else ["html"],
+        "features": list(PROFILE_FEATURES[profile]),
         "counts": {name: int(name == "UNKNOWN") for name in CLASSES},
         "blocked_by_ancestor_count": 0,
         "blocked_by_ancestor": [],
@@ -278,7 +286,7 @@ def validate_profiles(vanilla: dict, crystalline: dict) -> None:
     if vanilla.get("profile") != crystalline.get("profile"):
         raise ValueError("profile names must be symmetric")
     if vanilla.get("features", []) != crystalline.get("features", []):
-        raise ValueError("HTML profile must be symmetric")
+        raise ValueError("feature set must be symmetric")
 
 
 def feature_ledger(
@@ -320,7 +328,7 @@ def main() -> None:
     parser.add_argument("vanilla", type=pathlib.Path)
     parser.add_argument("crystalline", type=pathlib.Path)
     parser.add_argument("output", type=pathlib.Path)
-    parser.add_argument("--profile", choices=("default", "html"), required=True)
+    parser.add_argument("--profile", choices=tuple(PROFILE_FEATURES), required=True)
     args = parser.parse_args()
 
     payload = merge_catalog_payloads(

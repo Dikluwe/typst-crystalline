@@ -200,9 +200,12 @@ class SchemaTests(unittest.TestCase):
                 "default": {"features": []},
                 "html": {"features": ["html"]},
                 "a11y-extras": {"features": ["a11y-extras"]},
+                "html+a11y": {"features": ["html", "a11y-extras"]},
+                "bundle": {"features": ["bundle"]},
+                "html+bundle": {"features": ["html", "bundle"]},
             },
         )
-        self.assertEqual(manifest["scope_out_features"], ["bundle"])
+        self.assertEqual(manifest["scope_out_features"], [])
         a11y = next(
             case for case in manifest["cases"]
             if case["feature"] == "pdf/a11y-extras-bindings"
@@ -247,6 +250,17 @@ class ClassifierTests(unittest.TestCase):
 
     def test_matching_failure_exit_is_match(self):
         self.assertEqual(runner.classify("exit_code", self.result(1), self.result(1))[0], "MATCH")
+
+    def test_negative_control_requires_bilateral_rejection(self):
+        self.assertEqual(
+            runner.classify("rejection", self.result(1), self.result(1))[0], "MATCH"
+        )
+        self.assertEqual(
+            runner.classify("rejection", self.result(1), self.result(0))[0], "DIFF"
+        )
+        self.assertEqual(
+            runner.classify("rejection", self.result(0), self.result(0))[0], "ERROR"
+        )
 
     def test_expected_result_mismatch_is_detectable(self):
         measured = "DIFF"
@@ -335,6 +349,48 @@ class ClassifierTests(unittest.TestCase):
     def test_pdf_observable_requires_single_artifact(self):
         with self.assertRaises(ValueError): runner.artifact({"artifact_paths": []}, ".pdf")
 
+    def test_bundle_observables_verify_asset_bytes_not_only_presence(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            left = pathlib.Path(tmp) / "oracle.bundle"
+            right = pathlib.Path(tmp) / "crystal.bundle"
+            (left / "assets").mkdir(parents=True)
+            (right / "assets").mkdir(parents=True)
+            (left / "assets" / "raw.bin").write_bytes(b"\x00\xff\n")
+            (right / "assets" / "raw.bin").write_bytes(b"\x00\xff\x0b")
+            oracle = {"exit_code": 0, "artifact_paths": [str(left)]}
+            crystal = {"exit_code": 0, "artifact_paths": [str(right)]}
+            self.assertEqual(runner.classify("bundle_observables", oracle, crystal)[0], "DIFF")
+
+    def test_page_label_observables_include_drawn_margin(self):
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = pathlib.Path(tmp) / "labels.pdf"
+            pdf.write_bytes(b"/PageLabels << /St 10 /St 12 >>")
+            extracted = mock.Mock(stdout="One\n10\fThree\n12\f")
+            with mock.patch.object(runner, "pdf_geometry", return_value=(2, 100.0, 100.0)), mock.patch.object(
+                runner.subprocess, "run", return_value=extracted
+            ):
+                observed = runner.pdf_page_label_observables(pdf)
+        self.assertEqual(observed[1], (10, 12))
+        self.assertEqual(observed[2], ("One\n10", "Three\n12"))
+
+    def test_pdfua_observables_require_structure_and_xmp_identity(self):
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = pathlib.Path(tmp) / "ua.pdf"
+            pdf.write_bytes(b"/StructTreeRoot /MarkInfo /Lang /Title pdfuaid:part>1")
+            with mock.patch.object(runner, "pdf_geometry", return_value=(1, 100.0, 100.0)), mock.patch.object(
+                runner.subprocess, "run", return_value=mock.Mock(stdout="Hello\f")
+            ):
+                observed = runner.pdf_ua_observables(pdf)
+        self.assertTrue(all(observed[2]))
+
 
 class ProfileLatticeTests(unittest.TestCase):
     PROFILES = {
@@ -361,6 +417,7 @@ class ProfileLatticeTests(unittest.TestCase):
             (
                 "MATCH",
                 "DIFFERENCE",
+                "VIOLATED",
                 "DISABLED_BY_PROFILE",
                 "UNKNOWN",
                 "BASELINE_ONLY",
@@ -398,6 +455,37 @@ class ProfileLatticeTests(unittest.TestCase):
             self.result(code=0, stdout="ok"),
             self.result(code=2, stderr="unknown feature: future-flag"),
         )
+        self.assertEqual(state, "VIOLATED")
+
+    def test_typed_value_mismatch_is_semantic_violation(self):
+        state, _ = runner.classify_for_profile(
+            self.case([]), "default", self.PROFILES, "typed_value",
+            self.result(stdout="true\n"), self.result(stdout="1\n"),
+        )
+        self.assertEqual(state, "VIOLATED")
+
+    def test_pdf_font_name_only_is_observed_difference_not_violation(self):
+        from unittest import mock
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            left = pathlib.Path(tmp) / "oracle.pdf"
+            right = pathlib.Path(tmp) / "crystalline.pdf"
+            left.write_bytes(b"pdf")
+            right.write_bytes(b"pdf")
+            oracle = {**self.result(), "artifact_paths": [str(left)]}
+            crystal = {**self.result(), "artifact_paths": [str(right)]}
+            observed = {
+                "oracle.pdf": ((1, 100.0, 100.0), "Hello", ["Font-A"]),
+                "crystalline.pdf": ((1, 100.0, 100.0), "Hello", ["Font-A-Identity-H"]),
+            }
+            with mock.patch.object(
+                runner, "pdf_observables", side_effect=lambda path: observed[path.name]
+            ):
+                state, _ = runner.classify_for_profile(
+                    self.case([]), "default", self.PROFILES,
+                    "pdf_observables", oracle, crystal,
+                )
         self.assertEqual(state, "DIFFERENCE")
 
     def test_missing_active_peer_is_unknown_not_disabled(self):

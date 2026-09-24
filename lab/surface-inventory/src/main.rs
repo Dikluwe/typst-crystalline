@@ -65,7 +65,7 @@ fn main() {
         .map(PathBuf::from)
         .expect("fifth argument must be the crystalline product binary");
     let (features, feature_names) = profile_features(&profile)
-        .unwrap_or_else(|| panic!("unknown profile {profile:?}; expected default, html, a11y-extras, or html+a11y"));
+        .unwrap_or_else(|| panic!("unknown profile {profile:?}; expected default, html, a11y-extras, html+a11y, bundle, or html+bundle"));
     let world = SystemWorld::for_eval(env::current_dir().expect("current directory"));
     let (result, _) = typst_infra::pipeline::eval_expression_with_sink_features(
         &world, "std", features,
@@ -138,6 +138,8 @@ fn profile_features(profile: &str) -> Option<(Features, Vec<&'static str>)> {
         "html" => vec!["html"],
         "a11y-extras" => vec!["a11y-extras"],
         "html+a11y" => vec!["html", "a11y-extras"],
+        "bundle" => vec!["bundle"],
+        "html+bundle" => vec!["html", "bundle"],
         _ => return None,
     };
     let mut features = Features::empty();
@@ -145,6 +147,7 @@ fn profile_features(profile: &str) -> Option<(Features, Vec<&'static str>)> {
         features.enable(match *name {
             "html" => Feature::Html,
             "a11y-extras" => Feature::A11yExtras,
+            "bundle" => Feature::Bundle,
             _ => unreachable!(),
         });
     }
@@ -346,6 +349,8 @@ mod tests {
             ("html", vec!["html"]),
             ("a11y-extras", vec!["a11y-extras"]),
             ("html+a11y", vec!["html", "a11y-extras"]),
+            ("bundle", vec!["bundle"]),
+            ("html+bundle", vec!["html", "bundle"]),
         ] {
             let (_, names) = profile_features(profile).expect("known profile");
             assert_eq!(names, expected);

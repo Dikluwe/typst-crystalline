@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1464-format-pdf.md
-//! @prompt-hash 8d005fff
+//! @prompt-hash 77c9dd93
 
 use std::ffi::{OsStr, OsString};
 use std::path::Path;
@@ -373,7 +373,7 @@ fn p1464_svg_png_global_pdf_html_and_homonymous_closure_controls() {
     const FORMAT_SIBLINGS: &str =
         r#"["function","svg","false","function","png","144.0"]"#;
     const GLOBAL_PDF: &str =
-        r#"["module","<module pdf>","function","attach","function","artifact"]"#;
+        r#"["function","pdf","function","attach","function","artifact"]"#;
     let mut checks = Checks::default();
 
     for profile in PROFILES {

@@ -64,7 +64,7 @@ fn main() {
         .map(PathBuf::from)
         .expect("third argument must be the vanilla product binary");
     let (features, feature_names) = profile_features(&profile)
-        .unwrap_or_else(|| panic!("unknown profile {profile:?}; expected default, html, a11y-extras, or html+a11y"));
+        .unwrap_or_else(|| panic!("unknown profile {profile:?}; expected default, html, a11y-extras, html+a11y, bundle, or html+bundle"));
     let library = typst::Library::new([
         typst_html::FORMAT,
         typst_pdf::FORMAT,
@@ -99,6 +99,8 @@ fn profile_features(profile: &str) -> Option<(Features, Vec<&'static str>)> {
         "html" => vec!["html"],
         "a11y-extras" => vec!["a11y-extras"],
         "html+a11y" => vec!["html", "a11y-extras"],
+        "bundle" => vec!["bundle"],
+        "html+bundle" => vec!["html", "bundle"],
         _ => return None,
     };
     let features = names
@@ -106,6 +108,7 @@ fn profile_features(profile: &str) -> Option<(Features, Vec<&'static str>)> {
         .map(|name| match *name {
             "html" => Feature::Html,
             "a11y-extras" => Feature::A11yExtras,
+            "bundle" => Feature::Bundle,
             _ => unreachable!(),
         })
         .collect();

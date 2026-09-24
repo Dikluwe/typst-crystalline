@@ -1,5 +1,5 @@
 # Prompt L0 — integração de `format.pdf`
-Hash do Código: 4534f7f4
+Hash do Código: 42bd80e3
 
 **Estado:** MATERIALIZADO APÓS CONFIRMAÇÃO ADR-0127.
 
@@ -56,7 +56,7 @@ permanecer descobertos através de `.with`.
 ## Controles de fronteira
 
 - `format.svg` e `format.png` mantêm tipo, nome e defaults vigentes;
-- o módulo global `pdf`, seus dois membros permanentes e o gate do trio não
+- a função global `pdf` com namespace, seus dois membros permanentes e o gate do trio não
   mudam;
 - sucessão P1465: sem `html`, `format.html` recebe o gate público dessa
   feature; com `html`, o teste apenas confirma que o sibling existe como
@@ -95,3 +95,27 @@ O controle de sibling foi sucedido pelo contrato P1465 confirmado depois do
 commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`: ausência estrita
 deixou de ser expectativa válida e foi substituída por gate/presença conforme
 o perfil, sem ampliar a responsabilidade PDF deste teste.
+
+## P1487 — retificação do controle global obsoleto
+
+### Medição anterior à decisão
+
+Em 2026-09-24, o vanilla pinado (`/usr/local/bin/typst`, SHA-256
+`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`)
+e o cristalino da árvore de trabalho devolveram ambos
+`["function","pdf","function","attach","function","artifact"]` para
+`(repr(type(pdf)),repr(pdf),repr(type(pdf.attach)),repr(pdf.attach),repr(type(pdf.artifact)),repr(pdf.artifact))`.
+O consumer `04_wiring/tests/p1464_format_pdf.rs:376` ainda exige
+`["module","<module pdf>",...]` nos quatro perfis; o RED reproduz essa única
+divergência por perfil. `compiler/eval.md` §P1471 já decidiu a forma vigente.
+Trata-se de morfologia pública da linguagem, não de mecânica. A inferência
+de oráculo obsoleto seria refutada se a sonda vanilla pinada ou os membros
+do namespace divergissem.
+
+### Decisão
+
+O controle global exige `type(pdf) == function` e `repr(pdf) == "pdf"`,
+mantendo `attach` e `artifact` e os gates existentes nos quatro perfis.
+Não alterar código produtivo, expectativa de `format.pdf` nem os controles
+de closures homônimas. A frase histórica anterior sobre módulo global é
+superada somente quanto à forma de `pdf`.

@@ -134,7 +134,7 @@ class ClassificationTests(unittest.TestCase):
 class ProfileAndDeterminismTests(unittest.TestCase):
     def catalog(self, side_name, *, profile="default", features=None):
         if features is None:
-            features = [] if profile == "default" else ["html"]
+            features = merge.PROFILE_FEATURES[profile]
         return {
             "schema_version": "p1282-catalog-v1",
             "side": side_name,
@@ -145,11 +145,32 @@ class ProfileAndDeterminismTests(unittest.TestCase):
         }
 
     def test_html_must_be_symmetric(self):
-        with self.assertRaisesRegex(ValueError, "HTML profile must be symmetric"):
+        with self.assertRaisesRegex(ValueError, "feature set must be symmetric"):
             merge.validate_profiles(
                 {"profile": "html", "features": ["html"]},
                 {"profile": "html", "features": []},
             )
+
+    def test_bundle_profiles_have_exact_provenance_features(self):
+        for profile in ("bundle", "html+bundle", "a11y-extras", "html+a11y"):
+            with self.subTest(profile=profile):
+                payload = merge.merge_catalog_payloads(
+                    profile,
+                    self.catalog("vanilla", profile=profile),
+                    self.catalog("crystalline", profile=profile),
+                )
+                self.assertEqual(payload["provenance_errors"], [])
+                self.assertEqual(payload["features"], merge.PROFILE_FEATURES[profile])
+                self.assertEqual(payload["counts"]["MATCH"], 1)
+
+    def test_bundle_mismatched_feature_is_not_absence(self):
+        payload = merge.merge_catalog_payloads(
+            "bundle",
+            self.catalog("vanilla", profile="bundle", features=[]),
+            self.catalog("crystalline", profile="bundle"),
+        )
+        self.assertEqual(payload["counts"]["UNKNOWN"], 1)
+        self.assertIn("vanilla feature set", payload["provenance_errors"])
 
     def test_default_html_is_disabled_not_missing(self):
         ledger = merge.feature_ledger(

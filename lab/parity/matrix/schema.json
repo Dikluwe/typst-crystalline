@@ -6,6 +6,8 @@
   "properties": {
     "schema_version": { "const": 1 },
     "vanilla_revision": { "const": "586e1bd43" },
+    "profiles": { "type": "object", "additionalProperties": { "type": "object", "properties": { "features": { "type": "array", "items": { "type": "string" } } }, "required": ["features"] } },
+    "scope_out_features": { "type": "array", "items": { "type": "string" } },
     "cases": {
       "type": "array",
       "items": { "$ref": "#/$defs/case" }
@@ -15,9 +17,9 @@
   "$defs": {
     "case": {
       "type": "object",
-      "required": ["id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison"],
+      "required": ["id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison", "expected_state"],
       "properties": {
-        "id": { "type": "string", "pattern": "^P11(37|38)-[SEBILXC]-[0-9]{3}$" },
+        "id": { "type": "string", "pattern": "^P[0-9]+-[SEBILXC]-[0-9]{3}$" },
         "eixo": { "enum": ["S", "E", "B", "I", "L", "X", "C"] },
         "feature": { "type": "string", "minLength": 1 },
         "caso": { "type": "string", "minLength": 1 },
@@ -32,8 +34,10 @@
         "comando_reproducao": { "type": "string", "minLength": 1 },
         "artefactos": { "type": "array", "items": { "type": "string" } },
         "nota": { "type": "string" },
-        "comparison": { "enum": ["exit_code", "exact_output", "semantic_version", "capability", "artifact_presence", "cli_surface", "diagnostic", "typed_value", "semantic_tree", "geometry", "raster", "pdf_observables"] },
-        "expected_state": { "enum": ["MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE"] }
+        "comparison": { "enum": ["exit_code", "rejection", "exact_output", "semantic_version", "capability", "artifact_presence", "cli_surface", "diagnostic", "typed_value", "semantic_tree", "geometry", "raster", "pdf_observables", "bundle_observables", "pdf_page_labels", "pdf_ua"] },
+        "expected_state": { "enum": ["MATCH", "DIFF", "VIOLATED", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE", "DIFFERENCE", "DISABLED_BY_PROFILE", "UNKNOWN", "BASELINE_ONLY", "EXTRA_BINDING"] },
+        "required_features": { "type": "array", "items": { "type": "string" } },
+        "expected_labels": { "type": "array", "items": { "type": "integer", "minimum": 1 } }
       },
       "additionalProperties": false
     },

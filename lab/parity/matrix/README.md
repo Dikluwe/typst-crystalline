@@ -39,4 +39,27 @@ JSON em `<stem>-artifacts/`. Sem `--output`, o runner usa diretório temporário
 
 Uma sentinela divergente está verde quando o estado medido coincide com `expected_state=DIFF` ou `ABSENT`. O processo do runner sai com código 1 quando uma expectativa não coincide; diferenças reais esperadas permanecem dados válidos.
 
+## Recalibração P1487
+
+Os perfis fechados são `default`, `html`, `a11y-extras`, `html+a11y`,
+`bundle` e `html+bundle`. O perfil sem `bundle` mede o gate negativo;
+os casos funcionais de bundle recebem `DISABLED_BY_PROFILE` fora dos
+perfis ativos, nunca `MATCH` por falha bilateral.
+
+`DIFFERENCE` registra um desvio observável cuja semântica não foi
+demonstrada: diferenças de pixels com as mesmas dimensões e de nomes
+internos de fontes PDF preservam métricas e artefatos. `VIOLATED`
+indica divergência em valor, diagnóstico, capacidade, geometria, texto,
+estrutura PDF/UA, rótulo/margem ou bytes exportados de `asset`.
+Nenhuma tolerância de pixels foi acrescentada. `UNVERIFIED_METADATA`
+no inventário de superfície permanece distinto de ausência real e
+não recebe crédito de execução. O manifesto P1487 executa `spot.tint`,
+`asset`, bundle, PDF/UA e page labels, com controles de rejeição.
+`pdf_ua` é um smoke estrutural; não certifica conformidade integral.
+
+Exemplo: `python3 lab/parity/matrix/runner.py --vanilla /usr/local/bin/typst
+--crystalline target/debug/typst --profile bundle --output /tmp/p1487-bundle.json`.
+Os seis perfis devem registrar o hash dos binários utilizados; o release
+cristalino não deve ser presumido atualizado por causa de `--version`.
+
 `UNKNOWN` nunca fecha um item. Uma inferência só pode ser promovida após registrar a evidência que a sustenta e o resultado que a refutaria. Resultados gerados devem ir para `/tmp` ou para diagnósticos, nunca substituir o manifesto.
