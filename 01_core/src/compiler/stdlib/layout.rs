@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash c0c28126
+//! @prompt-hash 225e5a6f
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -2352,19 +2352,20 @@ pub fn native_measure(
     )])
 }
 
-/// `stroke(paint: ?, thickness: ?)` → `Value::Stroke` — Passo 227
+/// `stroke(positional?, paint: ?, thickness: ?)` → `Value::Stroke` — Passos 227/1499
 /// (ADR-0079 PROPOSTO Categoria A.1 Fase 5 Layout candidata).
 ///
-/// Forma: `#stroke(thickness: 2pt)` ou `#stroke(paint: red, thickness: 1pt)`.
+/// Forma: `#stroke(thickness: 2pt)`, `#stroke(paint: red, thickness: 1pt)`
+/// ou um único posicional conversível em `Stroke` (ex.: `#stroke(2pt)`).
 ///
 /// **Defaults paridade vanilla**:
 /// - `paint: Color` (named opcional; default `Color::rgb(0, 0, 0)` BLACK).
 /// - `thickness: Length` (named opcional; default 1.0 pt).
 ///
 /// **Validações**:
-/// - Sem argumentos posicionais.
-/// - `thickness > 0` (rejeita 0 e negativos).
-/// - Named args restritos a `paint` + `thickness`.
+/// - Um posicional não pode ser misturado com named nem com outro posicional.
+/// - No caminho named, `thickness > 0` (rejeita 0 e negativos).
+/// - Named args restritos aos campos de stroke e à extensão `overhang`.
 pub fn native_stroke(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -2377,11 +2378,14 @@ pub fn native_stroke(
     use crate::entities::layout_types::Color;
     use crate::entities::paint::Paint;
 
-    if !args.items.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "stroke() não aceita argumentos posicionais".to_string(),
-        )]);
+    if let Some(value) = args.items.first() {
+        if args.items.len() != 1 || !args.named.is_empty() {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "stroke(): argumento inesperado".to_string(),
+            )]);
+        }
+        return positional_stroke(value, args.span).map(Value::Stroke);
     }
 
     let paint = match args.named.get("paint") {
@@ -2566,6 +2570,227 @@ pub fn native_stroke(
         },
         overhang,
     }))
+}
+
+/// P1499 — conversão do único argumento posicional de stroke().
+///
+/// Diferentemente do caminho named legado, conserva os slots automáticos
+/// da linguagem, aceita espessuras não positivas e valida a forma Dict
+/// conforme a conversão Stroke do vanilla. O render decide separadamente
+/// como tratar esses comprimentos.
+fn positional_stroke(value: &Value, span: Span) -> SourceResult<crate::entities::geometry::Stroke> {
+    use crate::entities::geometry::{DashLength, DashPattern, LineCap, LineJoin, Stroke};
+    use crate::entities::paint::Paint;
+
+    fn invalid(span: Span, field: &str, value: &Value) -> Vec<SourceDiagnostic> {
+        vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "stroke({field}): tipo não conversível, recebeu {}",
+                value.type_name()
+            ),
+        )]
+    }
+
+    fn dash_item(value: &Value, span: Span) -> SourceResult<DashLength> {
+        match value {
+            Value::Length(length) => Ok(DashLength::Length(length.abs.to_pt())),
+            Value::Str(name) if name.as_str() == "dot" => Ok(DashLength::LineWidth),
+            other => Err(invalid(span, "dash", other)),
+        }
+    }
+
+    fn dash_array(values: &[Value], span: Span) -> SourceResult<Vec<DashLength>> {
+        values.iter().map(|item| dash_item(item, span)).collect()
+    }
+
+    fn dash_preset(name: &str) -> Option<Vec<DashLength>> {
+        let l = DashLength::LineWidth;
+        let pt = DashLength::Length;
+        Some(match name {
+            "solid" => vec![],
+            "dotted" => vec![l, pt(2.0)],
+            "densely-dotted" => vec![l, pt(1.0)],
+            "loosely-dotted" => vec![l, pt(4.0)],
+            "dashed" => vec![pt(3.0), pt(3.0)],
+            "densely-dashed" => vec![pt(3.0), pt(2.0)],
+            "loosely-dashed" => vec![pt(3.0), pt(6.0)],
+            "dash-dotted" => vec![pt(3.0), pt(2.0), l, pt(2.0)],
+            "densely-dash-dotted" => vec![pt(3.0), pt(1.0), l, pt(1.0)],
+            "loosely-dash-dotted" => vec![pt(3.0), pt(4.0), l, pt(4.0)],
+            _ => return None,
+        })
+    }
+
+    fn dash(value: &Value, span: Span) -> SourceResult<Option<DashPattern>> {
+        let pattern = match value {
+            Value::None => return Ok(None),
+            Value::Str(name) => DashPattern {
+                array: dash_preset(name.as_str()).ok_or_else(|| invalid(span, "dash", value))?,
+                phase: 0.0,
+            },
+            Value::Array(values) => DashPattern {
+                array: dash_array(values, span)?,
+                phase: 0.0,
+            },
+            Value::Dict(dict) => {
+                for key in dict.keys() {
+                    if !["array", "phase"].contains(&key.as_str()) {
+                        return Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!("stroke(dash): chave inesperada '{key}'"),
+                        )]);
+                    }
+                }
+                let array = match dict.get("array") {
+                    Some(Value::Array(values)) => dash_array(values, span)?,
+                    Some(other) => return Err(invalid(span, "dash.array", other)),
+                    None => {
+                        return Err(vec![SourceDiagnostic::error(
+                            span,
+                            "stroke(dash): falta array".to_string(),
+                        )]);
+                    }
+                };
+                let phase = match dict.get("phase") {
+                    Some(Value::Length(length)) => length.abs.to_pt(),
+                    Some(other) => return Err(invalid(span, "dash.phase", other)),
+                    None => 0.0,
+                };
+                DashPattern { array, phase }
+            }
+            other => return Err(invalid(span, "dash", other)),
+        };
+        Ok(Some(pattern))
+    }
+
+    if let Value::Stroke(stroke) = value {
+        return Ok(stroke.clone());
+    }
+
+    let mut stroke = Stroke {
+        overhang: true,
+        ..Stroke::default()
+    };
+    match value {
+        Value::Length(length) => {
+            stroke.thickness = length.abs.to_pt();
+            stroke.specified.thickness = true;
+        }
+        Value::Color(color) => {
+            stroke.paint = Paint::Solid(color.clone());
+            stroke.specified.paint = true;
+        }
+        Value::Gradient(gradient) => {
+            stroke.paint = Paint::Gradient(gradient.clone());
+            stroke.specified.paint = true;
+        }
+        Value::Tiling(tiling) => {
+            stroke.paint = Paint::Tiling(tiling.as_ref().clone());
+            stroke.specified.paint = true;
+        }
+        Value::Dict(dict) => {
+            for key in dict.keys() {
+                if !["paint", "thickness", "cap", "join", "dash", "miter-limit"]
+                    .contains(&key.as_str())
+                {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!("stroke(): chave inesperada '{key}'"),
+                    )]);
+                }
+            }
+            match dict.get("paint") {
+                None | Some(Value::Auto) => {}
+                Some(Value::Color(color)) => {
+                    stroke.paint = Paint::Solid(color.clone());
+                    stroke.specified.paint = true;
+                }
+                Some(Value::Gradient(gradient)) => {
+                    stroke.paint = Paint::Gradient(gradient.clone());
+                    stroke.specified.paint = true;
+                }
+                Some(Value::Tiling(tiling)) => {
+                    stroke.paint = Paint::Tiling(tiling.as_ref().clone());
+                    stroke.specified.paint = true;
+                }
+                Some(other) => return Err(invalid(span, "paint", other)),
+            }
+            match dict.get("thickness") {
+                None | Some(Value::Auto) => {}
+                Some(Value::Length(length)) => {
+                    stroke.thickness = length.abs.to_pt();
+                    stroke.specified.thickness = true;
+                }
+                Some(other) => return Err(invalid(span, "thickness", other)),
+            }
+            match dict.get("cap") {
+                None | Some(Value::Auto) => {}
+                Some(Value::Str(name)) => {
+                    stroke.cap = match name.as_str() {
+                        "butt" => LineCap::Butt,
+                        "round" => LineCap::Round,
+                        "square" => LineCap::Square,
+                        _ => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!("stroke(cap): valor inesperado {:?}", name.as_str()),
+                            )])
+                        }
+                    };
+                    stroke.specified.cap = true;
+                }
+                Some(other) => return Err(invalid(span, "cap", other)),
+            }
+            match dict.get("join") {
+                None | Some(Value::Auto) => {}
+                Some(Value::Str(name)) => {
+                    stroke.join = match name.as_str() {
+                        "miter" => LineJoin::Miter,
+                        "round" => LineJoin::Round,
+                        "bevel" => LineJoin::Bevel,
+                        _ => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!("stroke(join): valor inesperado {:?}", name.as_str()),
+                            )])
+                        }
+                    };
+                    stroke.specified.join = true;
+                }
+                Some(other) => return Err(invalid(span, "join", other)),
+            }
+            match dict.get("dash") {
+                None | Some(Value::Auto) => {}
+                Some(value) => {
+                    stroke.dash = dash(value, span)?;
+                    stroke.specified.dash = true;
+                }
+            }
+            match dict.get("miter-limit") {
+                None | Some(Value::Auto) => {}
+                Some(Value::Float(limit)) => {
+                    stroke.miter_limit = *limit;
+                    stroke.specified.miter_limit = true;
+                }
+                Some(Value::Int(limit)) => {
+                    stroke.miter_limit = *limit as f64;
+                    stroke.specified.miter_limit = true;
+                }
+                Some(other) => return Err(invalid(span, "miter-limit", other)),
+            }
+        }
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "stroke(): tipo não conversível em Stroke: {}",
+                    other.type_name()
+                ),
+            )]);
+        }
+    }
+    Ok(stroke)
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.

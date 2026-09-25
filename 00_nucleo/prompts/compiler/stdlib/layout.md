@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 0ccb3a17
+Hash do Código: 6fc7656d
 
 ## P1408 — largura fracionária pública de `box`
 
@@ -622,15 +622,61 @@ measure([abc], width: 5cm)        -> Err "named arg não suportado"
 
 ---
 
-### `native_stroke(paint?, thickness?, cap?, join?, dash?, miter-limit?, overhang?)`
+### `native_stroke(positional?, paint?, thickness?, cap?, join?, dash?, miter-limit?, overhang?)`
 
-**Assinatura**: `stroke(paint: Color?, thickness: Length?, cap: Str?, join: Str?, dash: none | Str | Array | Dict?, miter-limit: Number?, overhang: bool = true) -> Stroke`
+#### P1499 — medição anterior à decisão
 
-**Argumentos**:
+Entre 2026-09-25T10:54:15Z e 10:57:42Z, no HEAD cristalino
+`c9d0162163f80f105f022ff9081f1e079f63f266`, a working tree estava
+limpa antes/depois (`git status --short --untracked-files=all` e
+`git diff HEAD --stat` vazios). Sondas `NO_COLOR=1 <bin> eval '<expr>'
+--format json` usaram o vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8` (binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
+e o cristalino release (binário SHA-256
+`2620ffb09b9f1ed2f51bdb412cd883cc1bf944c5f0a6a7433926eee7146412e3`).
+`repr(stroke(eval(repr(stroke()))))` vale `"stroke()"` no vanilla e falha
+no cristalino por posicional. `eval(repr(stroke())) == stroke()` já é
+verdadeiro bilateralmente: o RED está na chamada externa. No vanilla,
+`repr(stroke(1pt))` vale `"1pt"`; `stroke(2pt + red)` e
+`stroke((paint: red, thickness: 2pt))` conservam valor e repr
+`"2pt + rgb(\"#ff4136\")"`. O named equivalente coincide bilateralmente.
+A fonte upstream consome primeiro um `Stroke` posicional e retorna-o
+(`visualize/stroke.rs:227-243`); a conversão admite `Stroke`, `Length`,
+`Color`, `Gradient`, `Tiling` e `Dict` (`:397-439`). Segundo posicional,
+mistura posicional+named, `Int`, `Float`, `Ratio`, `auto`, `none` e string
+são rejeitados. Vanilla aceita `0pt` e `-1pt` posicionais e named; o
+cristalino atual rejeita os named não positivos.
+
+#### P1499 — decisão proposta; gate ADR-0127 pendente
+
+Admitir no máximo um posicional conversível em `Stroke`: `Stroke`,
+`Length`, `Color`, `Gradient`, `Tiling` ou `Dict`. Esse ramo é exclusivo:
+qualquer named junto ao posicional ou um segundo posicional é erro, sem
+mesclar nem sobrescrever campos. Um `Stroke` posicional conserva slots
+explícitos/automáticos e `overhang`; `Length` preenche somente thickness,
+`Color`/`Gradient`/`Tiling` somente paint. Comprimento posicional é aceito
+mesmo zero ou negativo; isso não afirma validade de render posterior.
+`Dict` converte apenas `paint`, `thickness`, `cap`, `join`, `dash` e
+`miter-limit`, preserva `auto` como slot não especificado e rejeita
+chaves/tipos inválidos; `overhang` não é chave da conversão vanilla.
+Sem posicional, manter named, defaults e validações existentes. Assim,
+thickness named não positivo e paint named Gradient/Tiling seguem como
+lacunas distintas; este passo não reivindica paridade total do constructor.
+Não alterar `repr`, dispatch, entidade nem render nesta correção.
+
+O owner é este L0; testes RED e código em `01_core/src/compiler/stdlib/layout.rs`
+só após confirmação humana do contrato e do hash (ADR-0127).
+
+**Assinatura**: `stroke([Stroke | Length | Color | Gradient | Tiling | Dict]?, paint: Color?, thickness: Length?, cap: Str?, join: Str?, dash: none | Str | Array | Dict?, miter-limit: Number?, overhang: bool = true) -> Stroke`
+
+**Argumentos nomeados**:
 - `paint`: `Color`, default `BLACK`.
 - `thickness`: `Length` (ou `Float`/`Int`), default `1pt`. Deve ser > 0.
 - `overhang`: bool default `true`.
-- Sem posicionais.
+
+**Forma posicional P1499**: um valor conversível em `Stroke`, exclusivo dos
+named; sem posicional, conserva o contrato named acima.
 
 **Semântica P1224**: cria `Value::Stroke` preservando paint, thickness,
 cap (`butt|round|square`), join (`miter|round|bevel`), dash ordenado,
@@ -641,14 +687,23 @@ entidade até a espessura efetiva ser conhecida.
 
 **Paridade vanilla**: Equivalente a `#stroke(thickness: 2pt)`.
 
-**Limitações / scope-outs**: Outras propriedades de stroke (dash, cap, join, miter-limit) scope-out per ADR-0079.
+**Limitações / scope-outs P1499**: não modifica herança nem render dos
+campos de `Stroke`; paint named Gradient/Tiling e thickness named não
+positivo continuam lacunas separadas. `overhang` é extensão cristalina
+preservada na cópia de um `Stroke` posicional.
 
 **Testes canónicos**:
 ```
 stroke(thickness: 2pt) -> Stroke { paint: Black, thickness: 2, overhang: true }
 stroke(paint: red, overhang: false) -> Stroke red overhang false
 stroke(thickness: 0pt) -> Err "> 0"
-stroke(1pt) -> Err "não aceita posicionais"
+stroke(1pt) -> Stroke com thickness explícito e paint automático
+stroke(red) -> Stroke com paint explícito e thickness automático
+stroke(stroke()) -> Stroke com ambos os slots automáticos preservados
+stroke((paint: red, thickness: 2pt)) -> Stroke com ambos os slots explícitos
+stroke(1pt, paint: red) -> Err "argumento inesperado"
+stroke(1pt, red) -> Err "argumento inesperado"
+stroke(42) -> Err "tipo não conversível em Stroke"
 ```
 
 ---

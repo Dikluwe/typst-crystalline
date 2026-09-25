@@ -8659,7 +8659,7 @@ mod tests {
     }
 
     #[test]
-    fn p227_native_stroke_posicional_rejeita() {
+    fn p227_native_stroke_posicional_tipo_invalido_rejeita() {
         null_ctx!(ctx);
         let r = native_stroke(
             &mut ctx,
@@ -8667,9 +8667,217 @@ mod tests {
             &null_world(),
             test_file_id(),
         );
-        assert!(r.is_err(), "posicional deve falhar");
+        assert!(r.is_err(), "posicional Bool deve falhar");
     }
 
+    // ── P1499 — um posicional conversível em Stroke ──────────────────────
+
+    #[test]
+    fn p1499_stroke_posicional_preserva_automatico_e_explicito() {
+        use crate::compiler::eval::repr::repr_value;
+        null_ctx!(ctx);
+        let automatic =
+            native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let rebuilt = native_stroke(
+            &mut ctx,
+            &p(vec![automatic.clone()]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(rebuilt, automatic);
+        assert_eq!(repr_value(&rebuilt), "stroke()");
+
+        let mut named = p(vec![]);
+        named.named.insert("paint".into(), Value::Color(Color::rgb(255, 65, 54)));
+        named.named.insert("thickness".into(), Value::Length(Length::pt(2.0)));
+        named.named.insert("cap".into(), Value::Str("round".into()));
+        named.named.insert("overhang".into(), Value::Bool(false));
+        let explicit = native_stroke(&mut ctx, &named, &null_world(), test_file_id()).unwrap();
+        let rebuilt = native_stroke(
+            &mut ctx,
+            &p(vec![explicit.clone()]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(rebuilt, explicit);
+        assert_eq!(repr_value(&rebuilt), repr_value(&explicit));
+    }
+
+    #[test]
+    fn p1499_stroke_posicional_length_inclusive_zero_negativo() {
+        use crate::compiler::eval::repr::repr_value;
+        null_ctx!(ctx);
+        for thickness in [2.0, 0.0, -1.0] {
+            let value = native_stroke(
+                &mut ctx,
+                &p(vec![Value::Length(Length::pt(thickness))]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
+            let Value::Stroke(stroke) = &value else { panic!("esperado stroke") };
+            assert_eq!(stroke.thickness, thickness);
+            assert!(stroke.specified.thickness);
+            assert!(!stroke.specified.paint);
+            assert!(stroke.overhang);
+            assert_eq!(repr_value(&value), format!("{thickness}pt"));
+        }
+    }
+
+    #[test]
+    fn p1499_stroke_posicional_color_gradient_tiling_preenche_so_paint() {
+        use crate::entities::gradient::{Gradient, GradientStop};
+        use crate::entities::paint::Paint;
+        use crate::entities::tiling::{Tiling, TilingBody};
+        null_ctx!(ctx);
+        let red = Color::rgb(255, 65, 54);
+        let blue = Color::rgb(0, 0, 255);
+        let gradient = Gradient::linear(
+            vec![GradientStop::unspaced(red.clone()), GradientStop::unspaced(blue)],
+            Angle::rad(0.0),
+        );
+        let tiling = Tiling::new(TilingBody::Color(red.clone()));
+        let cases = [
+            (Value::Color(red.clone()), Paint::Solid(red)),
+            (Value::Gradient(gradient.clone()), Paint::Gradient(gradient)),
+            (Value::Tiling(Arc::new(tiling.clone())), Paint::Tiling(tiling)),
+        ];
+        for (input, expected_paint) in cases {
+            let value = native_stroke(
+                &mut ctx,
+                &p(vec![input]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
+            let Value::Stroke(stroke) = value else { panic!("esperado stroke") };
+            assert_eq!(stroke.paint, expected_paint);
+            assert_eq!(stroke.thickness, 1.0);
+            assert!(stroke.specified.paint);
+            assert!(!stroke.specified.thickness);
+            assert!(stroke.overhang);
+        }
+    }
+
+    #[test]
+    fn p1499_stroke_posicional_dict_auto_e_campos_explicitos() {
+        use crate::entities::geometry::{LineCap, StrokeFields};
+        use crate::entities::paint::Paint;
+        null_ctx!(ctx);
+        let mut dict = IndexMap::with_hasher(FxBuildHasher);
+        dict.insert("paint".into(), Value::Auto);
+        dict.insert("thickness".into(), Value::Length(Length::pt(2.0)));
+        dict.insert("cap".into(), Value::Str("round".into()));
+        let value = native_stroke(
+            &mut ctx,
+            &p(vec![Value::Dict(dict)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let Value::Stroke(stroke) = value else { panic!("esperado stroke") };
+        assert_eq!(stroke.paint, Paint::Solid(Color::rgb(0, 0, 0)));
+        assert_eq!(stroke.thickness, 2.0);
+        assert_eq!(stroke.cap, LineCap::Round);
+        assert_eq!(stroke.specified, StrokeFields {
+            thickness: true,
+            cap: true,
+            ..StrokeFields::default()
+        });
+    }
+
+    #[test]
+    fn p1499_stroke_posicional_rejeita_tipos_extras_mistura_e_dict_invalido() {
+        null_ctx!(ctx);
+        for value in [
+            Value::Int(42),
+            Value::Float(1.0),
+            Value::Ratio(Ratio(0.5)),
+            Value::Auto,
+            Value::None,
+            Value::Str("red".into()),
+        ] {
+            assert!(native_stroke(
+                &mut ctx,
+                &p(vec![value]),
+                &null_world(),
+                test_file_id(),
+            )
+            .is_err());
+        }
+        let length = Value::Length(Length::pt(1.0));
+        assert!(native_stroke(
+            &mut ctx,
+            &p(vec![length.clone(), length.clone()]),
+            &null_world(),
+            test_file_id(),
+        )
+        .is_err());
+        assert!(native_stroke(
+            &mut ctx,
+            &pn(vec![length], "paint", Value::Color(Color::rgb(255, 65, 54))),
+            &null_world(),
+            test_file_id(),
+        )
+        .is_err());
+        for (key, value) in [
+            ("overhang", Value::Bool(false)),
+            ("thickness", Value::Str("2pt".into())),
+            ("paint", Value::Int(42)),
+        ] {
+            let mut dict = IndexMap::with_hasher(FxBuildHasher);
+            dict.insert(key.into(), value);
+            assert!(native_stroke(
+                &mut ctx,
+                &p(vec![Value::Dict(dict)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .is_err());
+        }
+    }
+
+    #[test]
+    fn p1499_stroke_posicional_dict_auto_none_solid_e_miter_negativo() {
+        null_ctx!(ctx);
+        for (dash, specified, array_len) in [
+            (Value::Auto, false, None),
+            (Value::None, true, None),
+            (Value::Str("solid".into()), true, Some(0)),
+            (Value::Array(vec![]), true, Some(0)),
+        ] {
+            let mut dict = IndexMap::with_hasher(FxBuildHasher);
+            dict.insert("dash".into(), dash);
+            dict.insert("thickness".into(), Value::Length(Length::pt(-1.0)));
+            dict.insert("miter-limit".into(), Value::Float(-1.0));
+            let result = native_stroke(
+                &mut ctx,
+                &p(vec![Value::Dict(dict)]),
+                &null_world(),
+                test_file_id(),
+            )
+            .unwrap();
+            let Value::Stroke(stroke) = result else { panic!("esperado stroke") };
+            assert_eq!(stroke.thickness, -1.0);
+            assert_eq!(stroke.miter_limit, -1.0);
+            assert!(stroke.specified.thickness);
+            assert!(stroke.specified.miter_limit);
+            assert_eq!(stroke.specified.dash, specified);
+            assert_eq!(stroke.dash.as_ref().map(|dash| dash.array.len()), array_len);
+        }
+
+        let mut invalid = IndexMap::with_hasher(FxBuildHasher);
+        invalid.insert("thickness".into(), Value::Int(2));
+        assert!(native_stroke(
+            &mut ctx,
+            &p(vec![Value::Dict(invalid)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .is_err());
+    }
     #[test]
     fn p227_native_grid_stroke_length_shorthand() {
         // grid(stroke: 2pt) → Stroke{BLACK, 2pt}.
