@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: f38d821a
+Hash do Código: c0f24114
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1517,3 +1517,31 @@ o gate. Com feature, o lookup devolve a função de
 intercepta Dict/Module arbitrário ou outro field. O gate P1484
 de `std.asset` permanece; não converter ausência em sucesso quando
 o constructor/target não estiverem completos.
+
+## P1495 — depreciação dos bindings de símbolos (P1496)
+
+### Medição anterior à decisão
+
+No vanilla pinado `9f2b6e871`, `typst-library/src/symbols.rs:12-35`
+inclui a metadata de `codex::SYM` tanto em `sym` quanto em `math`.
+Sondas P1495: `sym.spacebar` e `math.spacebar` resolvem ␣ e
+avisam `` `spacebar` is deprecated, use `keyboard.space` instead ``;
+`join` está ausente em ambos. No cristalino P1494,
+`field_access.rs:618-629` emite warning só para módulo chamado
+`sym`, e o faz antes de verificar se o field existe; por isso
+`math.spacebar` fica silencioso e uma remoção mecânica de `join`
+avisaria antes de falhar. Proveniência no diagnóstico P1495.
+
+### Decisão
+
+Depois de resolver com sucesso um binding de símbolo de topo do
+módulo efetivo `sym` ou `math`, emitir sua depreciação pinada com
+span no field. `spacebar` avisa nos dois namespaces. `join`,
+preservado como extensão por `compiler/stdlib/sym.md`, conserva
+o aviso histórico apenas em `sym`; `math.join` fica silencioso.
+Não criar warning novo para esta extensão sem gate ADR-0127.
+Acesso a campo inexistente não avisa antes de errar. Dict, módulos homônimos alheios,
+modifiers de `Symbol` e outros campos não adquirem warnings
+por nome parecido. Warnings de variantes seguem a dívida
+separada P1283; não ampliar o carrier público neste passo.
+Todos os diagnósticos não relacionados mantêm a precedência atual.

@@ -79,3 +79,22 @@ entradas simples com `Symbol::new` e grupos com `Symbol::with_variants`.
   kind, valor, `repr` e modifier do vanilla.
 - Amostra de entradas da tabela (`emoji.ant` → 🐜, `emoji.banana` → 🍌) renderiza.
 - `cargo test --workspace` verde; `crystalline-lint .` limpo.
+
+## P1495 — invariância de dados no novo pin (verificação P1496)
+
+### Medição anterior à decisão
+
+O `emoji.txt` do `codex = 0.3.0` e o do git
+`2e43ab90079cf9f9fa670d421c8c38233143b376` são byte-idênticos:
+SHA-256 `8691ca68e09b6fedca61e00e824648e79f7502772eefe7af367e404e26161489`
+(sonda local P1495; receita e caminhos no diagnóstico). A fonte
+`sym.txt` mudou, portanto não inferir imobilidade de todo o crate
+a partir da igualdade de `emoji.txt`.
+
+### Decisão
+
+A atualização da dependência por P1496 não muda o catálogo público
+`emoji` nem seus valores, modifiers, `repr` e Unicode integral.
+Conservar as obrigações P1283 acima como contrato, com teste de
+não-regressão bilateral após o pin novo. Nenhum código deste owner
+é legitimado para mudar somente porque a dependência é compartilhada.

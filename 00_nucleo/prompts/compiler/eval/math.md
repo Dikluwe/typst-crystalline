@@ -8,6 +8,8 @@ Núcleos Tekt:
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/compiler/eval/math.rs`
 **Vanila ratificado:** `586e1bd43fae6c9a973218163d3165c53ab8d16d`
+**Alvo atual P1495/P1496:** `9f2b6e8715237cb086899a42873660fe744622e8`;
+o pin `586e1bd43` acima identifica medições históricas, não o alvo novo.
 
 ## Medição e contrato
 
@@ -666,3 +668,32 @@ Preservar o constructor comum bare/qualificado, avaliação única, argumentos
 named e diagnósticos P1430. Não fabricar align points no layout, não trocar a
 fixture por uma sem `&` e não generalizar esta correção para sintaxe code que
 não pertence ao corpo matemático.
+
+## P1495 — lookup bare dos símbolos do catálogo novo (P1496)
+
+### Medição anterior à decisão
+
+No vanilla `9f2b6e871`, `foundations/scope.rs:55-98` procura escopo
+local antes do módulo math, e `typst-eval/src/math.rs:47-74` resolve
+o acesso matemático por bindings. A sonda P1495 obteve em math bare
+`chess.king.white` → ♔, `keyboard.tab.r` → ⇥ e
+`ordinal.feminine` → ª; `$join$` e `$gt.tri$` são rejeitados.
+No cristalino P1494, `eval/math.rs:161-188,577-592,1493-1496`
+não encontra a raiz `chess`, mas aceita os aliases históricos.
+`$spacebar$` no novo vanilla emite warning e vale ␣; cristalino
+devolve o valor sem warning. Receita completa no diagnóstico P1495.
+
+### Decisão
+
+P1496 preserva prioridade de bindings locais, depois bindings
+math próprios e símbolos do catálogo pinado. Novos submódulos
+de `sym` copiados para math são percorríveis em bare composto;
+a raiz de módulo isolada não vira símbolo nem texto inventado.
+`sym` global continua indisponível diretamente em math sem `#` ou
+`std.sym`. Os doze aliases legados de `compiler/stdlib/sym.md`
+continuam acessíveis em bare com os mesmos valores das rotas
+qualificadas, embora sejam extensões ao vanilla novo.
+`spacebar` bare e `join` legado emitem as mensagens de depreciação
+decididas no owner sym. Não emitir warning para um path ausente,
+nem para os cinco `tack` des-depreciados. Não mudar parser, AST,
+carrier público, layout ou fase.

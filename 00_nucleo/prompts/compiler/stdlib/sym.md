@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: 9bfa8e7f
+Hash do Código: c48fd6c8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`
@@ -115,3 +115,64 @@ Critérios de verificação (binário):
 - `#sym.join` → mesmo warning (span @1:5), exit 0.
 - `$bowtie$`, `$bowtie.big$`, `#sym.bowtie.big` → exit 0, sem warning.
 - `$foo.bar$` → `unknown variable: foo` + 2 hints (nunca `variável desconhecida` em português).
+
+## 8. P1495 — catálogo pinado e compatibilidade (materialização P1496)
+
+### Medição anterior à decisão
+
+O vanilla `9f2b6e8715237cb086899a42873660fe744622e8` usa `codex` git
+`2e43ab90079cf9f9fa670d421c8c38233143b376` (`lab/typst-original/Cargo.toml:51`),
+não `0.3.0` histórico P1283. SHA-256 de `sym.txt`: antigo
+`6ee467d9939acb5c7d0a3eba30c9f640d157529cbf57df752367deb343e0fc16`, novo
+`60c79540af8ebe590c80d672b55a41f337bc8d61ebd42d9be8879fce9b18f8bc`.
+`sym.txt:765-793,1377-1400` declara `chess`, `keyboard`, `ordinal`:
+3 módulos, 21 filhos, 19 variantes. Sondas bilaterais de `repr`
+confirmam 43 paths (3 pais + 40 descendentes) por namespace vanilla; faltam os pais no
+cristalino P1494. Doze famílias (`eq, equiv, gt, lat, lt, not, prec,
+smt, succ, tack, tilde, trademark`) têm diferenças verificadas;
+`not.inv` vale ⌙. Cinco `tack.*.double` mudaram (`CHANGELOG.md:33-40`).
+O diagnóstico P1495 guarda 198 sondas e proveniência; metadados
+sozinhos não provam comportamento da linguagem.
+
+`CHANGELOG.md:42-47` remove `join{,.r,.l,.l.r}` e
+`{gt,lt}.tri{,.eq,.eq.not,.not}` do vanilla novo; o cristalino P1494
+ainda os aceita em `sym`, `math` e bare. O catálogo novo deprecia
+`spacebar` para `keyboard.space` (`sym.txt:1374-1375`): vanilla avisa
+nos três acessos, cristalino P1494 silencia.
+
+### Decisão proprietária
+
+P1496 pina exatamente a revisão git acima e materializa módulos, filhos,
+modifiers, valores Unicode e `repr` novos, sem branch móvel. Os cinco
+`tack.*.double` são correções de entradas de tabela para o novo alvo
+de linguagem: embora o crate os chame breaking, não mudam path,
+assinatura, carrier nem fase; seguem fluxo contínuo ADR-0127 com
+L0 antes de RED→GREEN. Um novo contrato público ou valor diferente
+no pin de linguagem refutaria esta classificação.
+
+**Compatibilidade:** conservar os doze paths removidos upstream como
+extensões cristalinas sem crédito de paridade. Valores estáveis:
+`join` ⨝/`.r` ⟖/`.l` ⟕/`.l.r` ⟗; `gt.tri` ⊳/`.eq` ⊵/
+`.eq.not` ⋭/`.not` ⋫; `lt.tri` ⊲/`.eq` ⊴/`.eq.not` ⋬/
+`.not` ⋪. `build_sym_module`, `sym_lookup`, espelho `math` e bare
+devem concordar; trocar apenas o crate retiraria bindings dos
+módulos, deixando fallback incoerente. Mesclar só os aliases
+legados, sem substituir grupos `gt`/`lt` inteiros nem perder
+variantes novas. `sym.registered` continua extensão separada.
+
+`spacebar` resolve e avisa nos três acessos com a mensagem vanilla
+`` `spacebar` is deprecated, use `keyboard.space` instead ``.
+`join` conserva o aviso histórico em `sym` e bare; `math.join`
+permanece silencioso, como no cristalino P1494. Uniformizar o
+aviso desta extensão seria novo comportamento por defeito e exige
+gate ADR-0127; não é autorizado por P1495.
+Warnings de variantes antigas continuam dívida P1283 de
+`SymbolVariant`; não ressuscitar avisos `tri` removidos do vanilla
+nem avisar os cinco `tack` des-depreciados. Emissão pertence a
+`compiler/eval/math.md` e `compiler/eval/bindings/field_access.md`.
+
+P1495 entrega L0 e sondas RED; P1496 completa lockfile e código.
+Testar 43 paths por namespace, 12 famílias com valor/modifiers/`repr`,
+cinco `tack`, `not.inv`, `spacebar`, aliases legados nos três acessos
+e controles `registered`, `sqrt`, `emoji`. Remover qualquer alias
+público no futuro exige novo L0 e confirmação ADR-0127.

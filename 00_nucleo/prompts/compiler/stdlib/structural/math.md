@@ -15,6 +15,9 @@ especifica **a superfície do nó**; o detalhe por marco vive no pai.
 P290-301 e P317 movem `native_accent`, `native_cancel`, `native_op`,
 `native_underover`, `op_value` e `make_math_module` como bloco.
 
+**Alvo atual P1495/P1496:** `9f2b6e8715237cb086899a42873660fe744622e8`;
+o pin `586e1bd43` acima é proveniência histórica das secções anteriores.
+
 ---
 
 ## Captura triestatal dos slots de `attach`
@@ -881,3 +884,30 @@ mensagem errada, confirmando que o achado não contaminou o RED. Suíte:
 typst-infra (995/995). Clippy comparado por contagem `(ficheiro,
 mensagem)` contra o baseline `445cf0c81` em worktree isolada: zero
 avisos novos.
+
+## P1495 — espelho do catálogo pinado (completar em P1496)
+
+### Medição anterior à decisão
+
+No vanilla `9f2b6e871`, `typst-library/src/math/mod.rs:189-190` chama
+`symbols::define_math`, que injeta `codex::SYM` em math
+(`typst-library/src/symbols.rs:12-35`). O `codex` git
+`2e43ab90079cf9f9fa670d421c8c38233143b376` declara os novos
+`chess`, `keyboard` e `ordinal`; sondas P1495 confirmaram os 21 filhos
+e 19 variantes idênticos em `sym`/`math` no vanilla. O cristalino
+`structural/math.rs:3123-3131` copia apenas os valores do módulo
+`sym` atual e não tem os três pais. O pin, hashes e RED estão no
+diagnóstico P1495.
+
+### Decisão
+
+Em P1496, o espelho copia o catálogo novo integral de `sym` para
+`math`, inclusive submódulos e Unicode/variants, sem sobrescrever
+`sqrt`, `class`, `equation`, `op` ou outra nativa math própria.
+Os doze aliases legados preservados por `compiler/stdlib/sym.md`
+também aparecem em `math` com os mesmos valores, nunca apenas no
+fallback bare. `math.registered` continua extensão separada.
+`math.spacebar` conserva valor ␣ e emite o warning do binding
+depreciado; a emissão é do owner
+`compiler/eval/bindings/field_access.md`, não deste montador.
+Este L0 não altera assinatura, carrier ou layout matemático.

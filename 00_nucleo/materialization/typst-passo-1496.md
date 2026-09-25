@@ -2,6 +2,21 @@
 
 **Estado:** PLANEADO. Pré-requisito: P1495 com L0 vigente e decisão de compatibilidade; se houver opção incompatível, confirmação humana registrada.
 
+**Entrada ratificada por P1495:** preservar os doze aliases legados como
+extensões (`join{,.r,.l,.l.r}` e `{gt,lt}.tri{,.eq,.eq.not,.not}`)
+nos três acessos. `math.join` mantém warning histórico silencioso;
+`sym.join` e bare mantêm aviso; `spacebar` novo deve avisar em todos.
+Os cinco valores `tack.*.double` foram classificados como correção
+de tabela para o pin novo. A sonda
+`lab/parity/tools/p1495_symbols_probe.py` mediu 198 casos:
+162 RED de paridade e 36 extensões preservadas. Receita, SHA e owners
+estão em `00_nucleo/diagnosticos/typst-p1495-auditoria-catalogo-simbolos.md`.
+Não há autorização para remover aliases; se o desenho mudar, reabrir
+o gate ADR-0127 antes de código. Nas 16 sondas bare, glifo e warning
+convergentes com carrier público ainda diferente contam como
+`TEXT_MATCH_CARRIER_DIFF`, não como `MATCH` integral; P1496 não
+muda o carrier.
+
 ## Medição anterior à decisão
 
 P1489 mediu `sym.chess` ausente, `sym.not.inv` ausente e `sym.tack.r.double` com glifo antigo, além dos seis módulos-pai e 12 famílias com metadados divergentes. Fonte vanilla: `codex` git `2e43ab9`; cristalino: `=0.3.0`. O adaptador recursivo está em `01_core/src/compiler/stdlib/sym.rs:575-646` e o espelho matemático em `01_core/src/compiler/stdlib/structural/math.rs:3123-3131`. Reexecutar as sondas P1495 contra binários pinados e registrar HEAD/worktree/hash antes de alterar código.

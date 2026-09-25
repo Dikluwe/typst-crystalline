@@ -1,6 +1,6 @@
 # Passo 1495 — auditar o catálogo de símbolos e decidir compatibilidade
 
-**Estado:** PLANEADO; etapa de L0/decisão, sem troca automática de dependência. Dependência: P1489.
+**Estado:** MATERIALIZADO — auditoria, decisão de compatibilidade e L0; sem troca de dependência ou código funcional. Dependência: P1489; sucessor: P1496.
 
 ## Medição anterior à decisão
 
@@ -18,3 +18,35 @@ Inferência: o pin explica a maior parte da diferença; refutação: valores ain
 4. Entregar decisão registrada e lista exata de testes/owners para P1496. Não atualizar o lockfile nem código produtivo neste passo enquanto o gate de compatibilidade estiver aberto; sondas de laboratório RED são permitidas e não legitimam L1.
 
 Nenhum dos 469 `UNVERIFIED_METADATA` do perfil default é tratado como bug por inferência.
+
+## Fechamento da auditoria P1495
+
+No HEAD `3d61023e46475cd6e5df52021164523c84e9f074`, as
+sondas P1495 compararam os binários pinados e produziram 198 casos:
+162 RED de paridade e 36 extensões cristalinas preservadas com valor,
+`repr` e warnings históricos, sem defeito do oráculo. São 6
+módulos-pai, 42 filhos imediatos, 19 variantes por
+namespace, 12 famílias de metadados e os cinco valores `tack`.
+O `emoji.txt` tem o mesmo SHA-256 nos dois pins. Comandos, UTC,
+SHA-256 dos binários e inventário da working tree estão em
+`00_nucleo/diagnosticos/typst-p1495-auditoria-catalogo-simbolos.md`.
+
+Decisão: preservar `join{,.r,.l,.l.r}` e
+`{gt,lt}.tri{,.eq,.eq.not,.not}` como extensões coerentes em `sym`,
+`math` e bare, sem crédito de paridade; não remover bindings públicos.
+Os cinco valores `tack.*.double` são correções de tabela para o
+novo pin de linguagem, sob fluxo contínuo ADR-0127 (L0 primeiro,
+RED→GREEN). Se a implementação exigir novo contrato público ou
+remover alias, P1496 deve parar para confirmação do dono.
+
+Os L0s de `compiler/stdlib/sym.md`,
+`compiler/stdlib/structural/math.md`, `compiler/stdlib/emoji.md`,
+`compiler/eval/math.md` e
+`compiler/eval/bindings/field_access.md` foram revisados e os
+headers de linhagem ressellados após preflight V15/V26 limpo.
+Os testes RED reproduzíveis estão em
+`lab/parity/tools/p1495_symbols_probe.py`. `entities/symbol.md` e
+Núcleos Tekt não mudaram. P1496 recebe os owners e testes exatos
+do diagnóstico; `Cargo.toml`, `Cargo.lock` e implementação funcional
+permanecem intactos neste passo. A matriz P1489-B-002/003/004
+continua VIOLATED até a materialização e rebaseline P1496.
