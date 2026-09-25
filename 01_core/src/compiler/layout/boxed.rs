@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 0875dfac
+//! @prompt-hash 71023ebf
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -155,6 +155,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // física da linha também impede um body de bloco (por exemplo, rect) de
     // descarregar os itens inline que precedem a caixa.
     let parent_line = std::mem::take(&mut layouter.regions.current.current_line);
+    // P1502 — os pendentes pertencem à mesma linha que seus índices.
+    let parent_pending_fr = std::mem::take(&mut layouter.regions.current.pending_fr);
+    let parent_pending_fr_natural_widths =
+        std::mem::take(&mut layouter.pending_fr_natural_widths);
+    let parent_pending_repeats = std::mem::take(&mut layouter.pending_repeats);
     let body_origin_x = layouter.regions.current.cursor_x.0;
     let (_, body_items) = layouter.layout_sub_frame_inline(
         body,
@@ -166,7 +171,28 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: true,
         },
     );
+    // O body foi disposto com índices locais; rebasear antes de reunir
+    // seu estado com o prefixo, sem expor pendentes do pai a flushes internos.
+    let mut body_pending_fr = std::mem::take(&mut layouter.regions.current.pending_fr);
+    let mut body_pending_fr_natural_widths =
+        std::mem::take(&mut layouter.pending_fr_natural_widths);
+    let mut body_pending_repeats = std::mem::take(&mut layouter.pending_repeats);
+    for (index, _) in &mut body_pending_fr {
+        *index += parent_line_len_before;
+    }
+    for repeat in &mut body_pending_repeats {
+        repeat.start += parent_line_len_before;
+        repeat.end += parent_line_len_before;
+    }
     layouter.regions.current.current_line = parent_line;
+    layouter.regions.current.pending_fr = parent_pending_fr;
+    layouter.regions.current.pending_fr.append(&mut body_pending_fr);
+    layouter.pending_fr_natural_widths = parent_pending_fr_natural_widths;
+    layouter
+        .pending_fr_natural_widths
+        .append(&mut body_pending_fr_natural_widths);
+    layouter.pending_repeats = parent_pending_repeats;
+    layouter.pending_repeats.append(&mut body_pending_repeats);
     if body_items.is_empty() && measured_body_width > 0.0 {
         offset_items(
             &mut layouter.regions.current.current_items[body_items_before..],

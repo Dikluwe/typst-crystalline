@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 249d77df
+Hash do Código: c1aa1309
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -823,6 +823,29 @@ o fragmento público P1407: uma caixa `1fr` repete mais de uma vez, a largura
 maior produz estritamente mais cópias que a menor e as cópias do fill default
 permanecem dentro do mesmo link de destino. Esses oráculos não inspecionam o
 estado privado nem fixam estrutura Rust.
+
+## P1502 — controles de morfologia do repeat após box
+
+### Medição anterior à decisão
+
+No HEAD `f6d4f890141203bbdbbb91dd0ac8d5009c757abc`, worktree limpa,
+o comando `cargo test -p typst-infra --lib p1407_` termina exit 101:
+0/5 testes passam. A sonda bilateral P1498 mediu 23/1 pontos com
+prefixo em repeat e 23/23 sem prefixo. A sonda de 2026-09-25
+14:36:52–14:37:43 UTC mediu 18/18 sem segunda box e 18/1 ao inserir
+body `rect` depois do repeat. O contrato produtivo é do owner boxed;
+esta suíte observa somente o documento paginado.
+
+### Obrigação da suíte
+
+Conservar os cinco testes P1407 de unicidade A/B, sensibilidade à
+largura, fill dentro do link, teto 1000 e gap/justify. Acrescentar
+controle com e sem prefixo na mesma largura, duas boxes `1fr` irmãs
+com repeats distintos e suffixes únicos, e body de bloco após repeat
+pendente sem prefixo. Box aninhada é controle adicional para índices
+fr/repeat locais. A aceitação é texto, escopo do link e posições
+observáveis, não índices privados nem bytes de PDF. Nenhuma fase ou
+regra de negócio é adicionada ao pipeline.
 
 ## P1411 — contexto produzido pela realização de outline
 

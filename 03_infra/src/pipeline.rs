@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 6a1e0d63
+//! @prompt-hash fd0702f8
 //! @layer L3
 //! @updated 2026-09-21
 //!
@@ -4178,6 +4178,108 @@ mod tests {
             justified.last().unwrap() > fixed.last().unwrap(),
             "fixed={fixed:?}, justified={justified:?}"
         );
+    }
+
+    fn p1502_compile_paged(source: &str) -> PagedDocument {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect("sonda P1502 deve compilar")
+    }
+
+    #[test]
+    fn p1502_repeat_com_prefixo_preserva_controle_sem_prefixo() {
+        let page = "#set page(width: 180pt, height: auto, margin: 20pt)\n";
+        let without_prefix = p1502_compile_paged(&format!(
+            "{page}#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+        ))
+        .plain_text();
+        let with_prefix = p1502_compile_paged(&format!(
+            "{page}A#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+        ))
+        .plain_text();
+
+        let expected_dots = without_prefix.matches('.').count();
+        assert!(expected_dots > 1, "{without_prefix:?}");
+        assert_eq!(without_prefix.matches('B').count(), 1, "{without_prefix:?}");
+        assert_eq!(with_prefix.matches('.').count(), expected_dots, "{with_prefix:?}");
+        assert_eq!(with_prefix.matches('A').count(), 1, "{with_prefix:?}");
+        assert_eq!(with_prefix.matches('B').count(), 1, "{with_prefix:?}");
+    }
+
+    #[test]
+    fn p1502_duas_boxes_fr_expandem_repeats_sem_deslocar_suffix_duas_vezes() {
+        let page = "#set page(width: 220pt, height: auto, margin: 10pt)\n";
+        let compile = |body: &str| {
+            let doc = p1502_compile_paged(&format!("{page}{body}\n"));
+            let text = doc.plain_text();
+            let items = &doc.pages.first().expect("página P1502").items;
+            let middle_x = p1408_text_x(items, "M").expect("separador M deve existir");
+            let suffix_x = p1408_text_x(items, "B").expect("suffix B deve existir");
+            (text, middle_x, suffix_x)
+        };
+        let (_, control_middle_x, control_suffix_x) =
+            compile("A#box(width: 1fr)[.]M#box(width: 1fr)[:]B");
+        let (text, middle_x, suffix_x) = compile(concat!(
+            "A#box(width: 1fr, repeat(\".\", gap: 2pt, justify: false))M",
+            "#box(width: 1fr, repeat(\":\", gap: 2pt, justify: false))B",
+        ));
+
+        for marker in ['A', 'M', 'B'] {
+            assert_eq!(text.matches(marker).count(), 1, "{marker}: {text:?}");
+        }
+        assert!(text.matches('.').count() > 1, "{text:?}");
+        assert!(text.matches(':').count() > 1, "{text:?}");
+        assert!(
+            (middle_x - control_middle_x).abs() < 0.05,
+            "middle={middle_x}, control={control_middle_x}"
+        );
+        assert!(
+            (suffix_x - control_suffix_x).abs() < 0.05,
+            "suffix={suffix_x}, control={control_suffix_x}"
+        );
+    }
+
+    #[test]
+    fn p1502_box_de_body_bloco_nao_consume_repeat_pendente_anterior() {
+        let page = "#set page(width: 180pt, height: auto, margin: 20pt)\n";
+        let repeat = "#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))";
+        let control = p1502_compile_paged(&format!("{page}{repeat}B\n")).plain_text();
+        let with_block_box = p1502_compile_paged(&format!(
+            "{page}{repeat}#box(rect(width: 1pt, height: 1pt))B\n"
+        ))
+        .plain_text();
+
+        let expected_dots = control.matches('.').count();
+        assert!(expected_dots > 1, "{control:?}");
+        assert_eq!(
+            with_block_box.matches('.').count(),
+            expected_dots,
+            "{with_block_box:?}"
+        );
+        assert_eq!(with_block_box.matches('B').count(), 1, "{with_block_box:?}");
+    }
+
+    #[test]
+    fn p1502_box_aninhada_preserva_repeat_e_prefixos() {
+        let control = p1502_compile_paged(concat!(
+            "#set page(width: 220pt, height: auto, margin: 20pt)\n",
+            "#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))B\n",
+        ))
+        .plain_text();
+        let text = p1502_compile_paged(concat!(
+            "#set page(width: 220pt, height: auto, margin: 20pt)\n",
+            "A#box(width: 120pt)[X#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))Y]B\n",
+        ))
+        .plain_text();
+
+        for marker in ['A', 'X', 'Y', 'B'] {
+            assert_eq!(text.matches(marker).count(), 1, "{marker}: {text:?}");
+        }
+        let expected_dots = control.matches('.').count();
+        assert!(expected_dots > 1, "{control:?}");
+        assert_eq!(text.matches('.').count(), expected_dots, "{text:?}");
     }
 
     #[allow(deprecated)]

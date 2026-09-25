@@ -1,5 +1,5 @@
 # Prompt L0 — `boxed`
-Hash do Código: 41562549
+Hash do Código: ed5effdb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -81,3 +81,47 @@ Um carrier direto anterior não torna a linha material ao entrar em `Boxed`; a
 decisão de baseline inicial usa o predicado material comum. Carrier dentro da
 caixa continua na composição geométrica e não altera largura, altura, baseline
 ou emissão da fachada legada.
+
+## P1502 — estado pendente acompanha a linha isolada do body
+
+### Medição anterior à decisão
+
+No HEAD `f6d4f890141203bbdbbb91dd0ac8d5009c757abc`, worktree limpa,
+os cinco testes P1407 de `03_infra/src/pipeline.rs:4012-4180` falham.
+`boxed.rs:145-181` retira apenas `current_line` antes do body e anexa a
+cauda depois de restaurar o prefixo. `repeat.rs:32-51` guarda índices
+locais; `cursor.rs:489-519` usa-os após a anexação. O controle sem
+prefixo da sonda P1498 teve 23/23 pontos (vanilla/cristalino), mas
+com A antes da box houve 23/1 e o cristalino emitiu `AA.`.
+
+A sonda adicional de 2026-09-25T14:36:52Z–14:37:43Z, mesmos HEAD e
+binários pinados, mediu sem prefixo: box de 80pt com repeat seguida de
+B = 18/18 pontos; inserindo uma segunda box com body `rect` antes de B
+= 18/1. O body de bloco chama flush e consome o pendente do pai embora
+a linha física dele tenha sido retirada. Uma box aninhada com repeat
+produziu 18/1 pontos; isso combina índices locais e fronteiras fr.
+
+**Inferência causal:** o desfasamento dos índices faz o Cursor escolher o
+prefixo como peça; o flush interno consome estado pendente de outra linha.
+Refutação: índices corretamente transladados ainda clonarem A, ou estado
+pendente do pai isolado ainda ser consumido pelo flush do body. A forma
+textual é morfologia da língua; índices e buffers são mecânica privada.
+
+### Decisão interna
+
+Retirar com a `current_line` do pai os três estados pareados:
+`pending_fr`, suas larguras naturais e `pending_repeats`. O body dispõe
+somente sobre buffers locais. Ao regressar, rebasear os índices fr e
+`start/end` de repeats locais pelo comprimento do prefixo; restaurar
+primeiro os buffers do pai e anexar os locais na mesma ordem dos itens
+de body. A fronteira fr da própria box continua a ser registrada depois
+da anexação, já no referencial do pai. Flush interno pode consumir apenas
+os pendentes locais, nunca os do pai. Preservar isolamento físico P1491,
+baseline, geometria, API pública e fase; não mover lógica a outro owner.
+
+### Aceitação
+
+A/B únicos e repeat expandido com e sem prefixo; duas boxes fracionárias
+irmãs, box aninhada e body de bloco seguinte preservam cada pendente.
+Gap/justify, teto, fill dentro do link de outline, baseline P1491 e
+carrier HTML P1493 não regridem.
