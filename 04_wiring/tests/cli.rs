@@ -941,6 +941,201 @@ fn cli_env_typst_font_paths_delimiter() {
     cleanup(&[&input, &output]);
 }
 
+fn p1500_font_families(
+    font_dir: &PathBuf,
+    flags: &[&str],
+    env_paths: Option<&str>,
+) -> std::collections::BTreeSet<String> {
+    let mut command = Command::new(BIN);
+    command
+        .args(["fonts", "--ignore-system-fonts"])
+        .args(flags)
+        .current_dir(font_dir)
+        .env_remove("TYPST_FONT_PATHS");
+    if let Some(value) = env_paths {
+        command.env("TYPST_FONT_PATHS", value);
+    }
+    let result = command.output().expect("executar fonts P1500");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "flags {flags:?}, env {env_paths:?}; stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    String::from_utf8(result.stdout)
+        .expect("listagem de fontes UTF-8")
+        .lines()
+        .map(str::to_owned)
+        .collect()
+}
+
+#[test]
+fn p1500_fonts_font_path_vazio_nao_descobre_diretorio() {
+    let font_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../03_infra/fixtures/fonts")
+        .canonicalize()
+        .expect("fixture de fontes P1500");
+    let real_path = font_dir.to_str().expect("path da fixture UTF-8");
+    let omitted = p1500_font_families(&font_dir, &[], None);
+    let real = p1500_font_families(&font_dir, &["--font-path", real_path], None);
+    assert_ne!(real, omitted, "a fixture deve acrescentar famílias de fontes");
+
+    for flags in [&["--font-path", ""][..], &["--font-path="][..]] {
+        assert_eq!(
+            p1500_font_families(&font_dir, flags, None),
+            omitted,
+            "{flags:?} não deve descobrir fontes do cwd"
+        );
+    }
+    assert_eq!(
+        p1500_font_families(&font_dir, &[], Some("")),
+        omitted,
+        "ambiente vazio não deve descobrir fontes do cwd"
+    );
+}
+
+#[test]
+fn p1500_fonts_flag_vazia_vence_env_e_segmentos_reais_permanecem() {
+    let font_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../03_infra/fixtures/fonts")
+        .canonicalize()
+        .expect("fixture de fontes P1500");
+    let real_path = font_dir.to_str().expect("path da fixture UTF-8");
+    let omitted = p1500_font_families(&font_dir, &[], None);
+    let real = p1500_font_families(&font_dir, &["--font-path", real_path], None);
+    assert_ne!(real, omitted, "o env real deve ser distinguível do vazio");
+
+    assert_eq!(
+        p1500_font_families(&font_dir, &[], Some(real_path)),
+        real,
+        "sem flag, o env real fornece o diretório"
+    );
+    for flags in [&["--font-path", ""][..], &["--font-path="][..]] {
+        assert_eq!(
+            p1500_font_families(&font_dir, flags, Some(real_path)),
+            omitted,
+            "flag vazia {flags:?} deve suprimir o env real"
+        );
+    }
+
+    let sep = if cfg!(windows) { ';' } else { ':' };
+    let mixed = format!("{sep}{real_path}{sep}");
+    assert_eq!(
+        p1500_font_families(&font_dir, &[], Some(&mixed)),
+        real,
+        "segmentos vazios do env não apagam o diretório real"
+    );
+    assert_eq!(
+        p1500_font_families(&font_dir, &["--font-path", &mixed], None),
+        real,
+        "segmentos vazios da flag não apagam o diretório real"
+    );
+    assert_eq!(
+        p1500_font_families(
+            &font_dir,
+            &["--font-path", "", "--font-path", real_path, "--font-path="],
+            None,
+        ),
+        real,
+        "ocorrências vazias repetidas não apagam o diretório real"
+    );
+}
+
+#[test]
+fn p1500_compile_e_alias_aceitam_font_path_vazio() {
+    let input = temp_typ("p1500-compile", "Hello");
+    let cases: [(&str, &[&str], Option<&str>); 3] = [
+        ("compile", &["--font-path", ""], None),
+        ("c", &["--font-path="], None),
+        ("compile", &[], Some("")),
+    ];
+    for (index, (subcommand, flags, env_paths)) in cases.into_iter().enumerate() {
+        let output = temp_pdf(&format!("p1500-compile-{index}"));
+        let _ = fs::remove_file(&output);
+        let mut command = Command::new(BIN);
+        command
+            .arg(subcommand)
+            .arg(&input)
+            .arg(&output)
+            .args(flags)
+            .env_remove("TYPST_FONT_PATHS");
+        if let Some(value) = env_paths {
+            command.env("TYPST_FONT_PATHS", value);
+        }
+        let result = command.output().expect("executar compile P1500");
+        assert_eq!(
+            result.status.code(),
+            Some(0),
+            "{subcommand} {flags:?} env {env_paths:?}; stderr: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(
+            fs::metadata(&output).is_ok_and(|meta| meta.len() > 0),
+            "{subcommand} deve publicar PDF não vazio"
+        );
+        cleanup(&[&output]);
+    }
+    cleanup(&[&input]);
+}
+
+#[test]
+fn p1500_watch_e_alias_aceitam_font_path_vazio() {
+    let input = temp_typ("p1500-watch", "Hello");
+    let cases: [(&str, &[&str], Option<&str>); 3] = [
+        ("watch", &["--font-path", ""], None),
+        ("w", &["--font-path="], None),
+        ("watch", &[], Some("")),
+    ];
+    for (index, (subcommand, flags, env_paths)) in cases.into_iter().enumerate() {
+        let output = temp_pdf(&format!("p1500-watch-{index}"));
+        let _ = fs::remove_file(&output);
+        let mut command = Command::new(BIN);
+        command
+            .arg(subcommand)
+            .arg(&input)
+            .arg(&output)
+            .args(flags)
+            .arg("--no-serve")
+            .env_remove("TYPST_FONT_PATHS")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+        if let Some(value) = env_paths {
+            command.env("TYPST_FONT_PATHS", value);
+        }
+        let mut watch = WatchedChild(command.spawn().expect("iniciar watch P1500"));
+        wait_until(&mut watch, subcommand, Duration::from_secs(20), || {
+            fs::metadata(&output).is_ok_and(|meta| meta.len() > 0)
+        });
+        drop(watch);
+        cleanup(&[&output]);
+    }
+    cleanup(&[&input]);
+}
+
+#[test]
+fn p1500_font_path_sem_argumento_continua_erro() {
+    let input = temp_typ("p1500-missing", "Hello");
+    let output = temp_pdf("p1500-missing");
+    let _ = fs::remove_file(&output);
+    for subcommand in ["fonts", "compile", "watch"] {
+        let mut command = Command::new(BIN);
+        command.arg(subcommand);
+        if subcommand != "fonts" {
+            command.arg(&input).arg(&output);
+        }
+        let result = command
+            .arg("--font-path")
+            .env_remove("TYPST_FONT_PATHS")
+            .output()
+            .expect("executar flag sem argumento P1500");
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(2), "{subcommand}: {stderr}");
+        assert!(stderr.contains("--font-path"), "{subcommand}: {stderr}");
+    }
+    assert!(!output.exists(), "flag sem argumento não deve criar PDF");
+    cleanup(&[&input, &output]);
+}
+
 /// Passo 121 (ADR-0051): `--root DIR` flag funciona.
 ///
 /// Estratégia: passar `--root <parent(input)>` explicitamente e

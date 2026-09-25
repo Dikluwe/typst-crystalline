@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 90a0607c
+//! @prompt-hash 3c8d1348
 //! @layer L2
-//! @updated 2026-09-21
+//! @updated 2026-09-25
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -24,6 +24,7 @@ use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use clap::builder::TypedValueParser;
 use clap::{CommandFactory, Parser, Subcommand};
 use typst_core::compiler::lang::heading_supplement_for_lang;
 use typst_core::entities::document_format_options::{PageRange, PageRanges, PdfStandard};
@@ -35,6 +36,12 @@ use typst_core::entities::value::Value;
 /// Alinhado com vanilla typst-cli: `':'` em Unix, `';'` em Windows.
 /// Usado por `--font-path` para suportar `TYPST_FONT_PATHS=/a:/b`.
 const ENV_PATH_SEP: char = if cfg!(windows) { ';' } else { ':' };
+
+/// P1500: aceita valores vazios sem os transformar em diretórios de fontes.
+fn font_path_value_parser() -> impl TypedValueParser<Value = Option<PathBuf>> {
+    clap::builder::OsStringValueParser::new()
+        .map(|value| (!value.is_empty()).then(|| value.into()))
+}
 
 /// Trunca o hash do commit a 8 chars — mirror de `typst_utils::display_commit`
 /// do vanilla (P796, `shell/cli.md` §"Decisão — número de versão do CLI").
@@ -129,6 +136,40 @@ mod p1360_ab_tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod p1500_font_path_tests {
+    use super::*;
+
+    #[test]
+    fn p1500_empty_slots_preserve_nonempty_order_and_duplicates() {
+        let first = "p1500-first-font-dir";
+        let second = "p1500-second-font-dir";
+        let delimited = format!("{first}{ENV_PATH_SEP}{second}{ENV_PATH_SEP}");
+        let parsed = Args::try_parse_from([
+            "typst",
+            "compile",
+            "p1500.typ",
+            "--font-path",
+            "",
+            "--font-path",
+            delimited.as_str(),
+            "--font-path",
+            first,
+            "--font-path=",
+        ])
+        .expect("P1500: tokens vazios devem parsear");
+        let Command::Compile(args) = parsed.command else {
+            panic!("P1500: compile esperado");
+        };
+        let intent =
+            compile_intent(args.compile, HtmlSerialization::Crystalline, false, None);
+        assert_eq!(
+            intent.font_paths,
+            vec![PathBuf::from(first), PathBuf::from(second), PathBuf::from(first)]
+        );
     }
 }
 
@@ -384,9 +425,10 @@ struct CompileArgs {
         env = "TYPST_FONT_PATHS",
         value_name = "DIR",
         value_delimiter = ENV_PATH_SEP,
+        value_parser = font_path_value_parser(),
         action = clap::ArgAction::Append,
     )]
-    font_paths: Vec<PathBuf>,
+    font_paths: Vec<Option<PathBuf>>,
 
     /// Show an extended third hint for show-rule recursion errors.
     #[arg(long = "full-error", action = clap::ArgAction::SetTrue)]
@@ -559,9 +601,10 @@ struct FontsArgs {
         env = "TYPST_FONT_PATHS",
         value_name = "DIR",
         value_delimiter = ENV_PATH_SEP,
+        value_parser = font_path_value_parser(),
         action = clap::ArgAction::Append,
     )]
-    font_paths: Vec<PathBuf>,
+    font_paths: Vec<Option<PathBuf>>,
     /// Do not discover fonts installed in the operating system.
     #[arg(long)]
     ignore_system_fonts: bool,
@@ -786,7 +829,7 @@ pub fn parse() -> RunIntent {
             cert_path,
         }),
         Command::Fonts(fonts) => RunIntent::Fonts(FontsIntent {
-            font_paths: fonts.font_paths,
+            font_paths: fonts.font_paths.into_iter().flatten().collect(),
             include_system: !fonts.ignore_system_fonts,
             variants: fonts.variants,
         }),
@@ -885,7 +928,7 @@ fn compile_intent(
         output_format,
         html_serialization,
         root,
-        font_paths: args.font_paths,
+        font_paths: args.font_paths.into_iter().flatten().collect(),
         colored,
         // P350c → P428 (DEBT-59): a flag CLI é parseada e fiada a L4/L1.
         // Default `false` preserva comportamento byte-idêntico ao vanilla.

@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: e641117a
+Hash do Código: 7227d084
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -363,8 +363,9 @@ struct Args {
     root: Option<PathBuf>,             // project root (121); env em 123
     #[arg(long = "font-path", env = "TYPST_FONT_PATHS", value_name = "DIR",
           value_delimiter = ENV_PATH_SEP,
+          value_parser = font_path_value_parser(),
           action = clap::ArgAction::Append)]
-    font_paths: Vec<PathBuf>,          // repetível (122); env+delim em 123
+    font_paths: Vec<Option<PathBuf>>,  // slots vazios filtrados em L2 (P1500)
     #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
     document_id: Option<String>,       // P617 — UUID externo para DocumentID
     #[arg(long = "input", value_name = "chave=valor",
@@ -777,14 +778,57 @@ valida se o backend consegue satisfazê-lo (PDF implementado;
 PNG/SVG dependem de rasterização que ainda não existe no
 repositório cristalino e são recusados com erro claro).
 
-## Nota sobre `font_paths` (Passo 122 + 123)
+## Nota sobre `font_paths` (Passos 122, 123 e 1500)
+
+### P1500 — medição anterior à decisão
+
+Em 2026-09-25T11:43:20Z, no HEAD cristalino
+`5d2798dc473346ea7169d1bf171425db734056ad`, com working tree limpa
+antes/depois das sondas, o vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8` (binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
+aceitou `fonts --font-path '' --ignore-system-fonts`,
+`fonts --font-path= --ignore-system-fonts` e `TYPST_FONT_PATHS='' fonts
+--ignore-system-fonts` (exit 0); o cristalino release (binário SHA-256
+`2620ffb09b9f1ed2f51bdb412cd883cc1bf944c5f0a6a7433926eee7146412e3`)
+rejeitou os três no parser (exit 2). Ambos rejeitaram `--font-path`
+sem valor e aceitaram a flag omitida e um diretório real. No vanilla,
+a flag explicitamente vazia substituiu `TYPST_FONT_PATHS` não vazio,
+sem pesquisar o diretório corrente; ocorrências repetidas e segmentos
+vazios separados por `ENV_PATH_SEP` não apagaram paths não vazios.
+A fonte upstream `typst-cli/src/args.rs:538-550,880-884` converte o
+token vazio em `None`; `typst-cli/src/fonts.rs:50` filtra os `None`
+antes de descobrir fontes. O observável é sintaxe e escolha dos
+diretórios, não bytes da listagem (perfis embedded distintos).
+
+### P1500 — decisão proposta; gate ADR-0127 pendente
+
+Nos parsers privados de `compile`/`watch` (inclusive aliases) e `fonts`,
+um token explicitamente vazio após `--font-path` ou em `--font-path=`
+é valor válido, distinto da flag sem argumento, que continua erro.
+`TYPST_FONT_PATHS=''` também é válido. Cada token/segmento vazio
+representa ausência de diretório; nunca é encaminhado como
+`PathBuf("")`, interpretado como `.` ou usado para iniciar I/O.
+Segmentos não vazios conservam ordem e repetição. Uma ou mais flags
+explícitas vencem o env por inteiro, mesmo se todos os valores forem
+vazios; omissão de ambos produz lista vazia. A filtragem pura ocorre
+em L2, antes de formar `CompileIntent.font_paths` e
+`FontsIntent.font_paths`, que permanecem `Vec<PathBuf>`; L3/L4 e
+descoberta de fontes não mudam. O campo privado de clap pode preservar
+cada ocorrência como `Option<PathBuf>` sem ampliar a API pública.
+
+Aceitação: flag vazia nas duas sintaxes, env vazio, segmentos vazios
+misturados com diretório real, precedência flag vazia > env real,
+omissão e flag sem argumento; medir `fonts` e a rota partilhada de
+`compile`/`watch`. Testes RED e código só após confirmação humana
+deste L0 e do seu hash, conforme ADR-0127.
 
 - **`ArgAction::Append` + `value_delimiter = ENV_PATH_SEP`**
   combinados: `--font-path /a --font-path /b` e
   `TYPST_FONT_PATHS=/a:/b` ambos produzem `[/a, /b]`.
-- **Passagem directa** para L4 sem helper `resolve_font_paths_with`:
-  lógica é `args.font_paths` move. P6 de ADR-0051 é sobre
-  testabilidade; passagem directa não precisa de helper.
+- **Filtragem pura em L2** antes da passagem para L4: o parser
+  preserva slots vazios, removidos sem consultar filesystem.
+  `RunIntent` e `FontsIntent` recebem somente paths não vazios.
 - **I/O em L3**: L2 não descobre fontes. `discover_fonts(&paths)`
   vive em `typst_infra::fonts`; L4 compõe.
 
@@ -802,9 +846,9 @@ repositório cristalino e são recusados com erro claro).
   (const privado em `cli.rs`, vanilla-style).
 - Flag explícita substitui env **inteiramente** (não concatena);
   comportamento clap standard.
-- `resolve_root_with` e passagem directa de `font_paths`
-  **não mudam** — clap preenche `args.root` / `args.font_paths`
-  transparentemente, quer da flag quer do env.
+- `resolve_root_with` não muda. Clap preenche `args.root` e os slots
+  privados de `font_paths`; a filtragem P1500 antecede o transporte
+  para L4 tanto para valores da flag como do env.
 
 
 ## P956 — flag `--compact`
