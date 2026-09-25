@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 4b66a2f5
+//! @prompt-hash 6e763ffe
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -111,7 +111,10 @@ fn p1137_watch_help_alias_e_stdout_rejeitado() {
     let help = Command::new(BIN).arg("--help").output().unwrap();
     let stdout = String::from_utf8_lossy(&help.stdout);
     assert!(stdout.contains("watch"));
-    assert!(stdout.contains("[aliases: w]"));
+    assert!(stdout.lines().any(|line| {
+        line.trim_start().starts_with("watch ")
+            && (line.contains("[alias: w]") || line.contains("[aliases: w]"))
+    }));
 
     let input = temp_typ("watch-stdout", "Hello");
     for command in ["watch", "w"] {
@@ -427,6 +430,8 @@ fn p1137_completions_bash_usa_arvore_cli_real() {
         "stderr: {}",
         String::from_utf8_lossy(&result.stderr)
     );
+    assert!(result.stderr.is_empty());
+    assert!(!result.stdout.is_empty());
     assert!(stdout.contains("compile"));
     assert!(stdout.contains("fonts"));
     assert!(stdout.contains("completions"));
@@ -441,6 +446,61 @@ fn p1137_completions_shell_invalido_e_exit_2() {
         .output()
         .expect("executar completions inválida");
     assert_eq!(result.status.code(), Some(2));
+    assert!(result.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("invalid-shell"));
+}
+
+/// P1501: o script Nushell é produzido em stdout, sem efeitos em disco,
+/// e repete exatamente os bytes no mesmo build.
+#[test]
+fn p1501_completions_nushell_estrutura_determinismo_e_sem_ficheiros() {
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("relógio depois de 1970")
+        .as_nanos();
+    let sandbox = env::temp_dir().join(format!(
+        "typst-p1501-completions-{}-{stamp}",
+        std::process::id()
+    ));
+    fs::create_dir(&sandbox).expect("criar diretório isolado");
+
+    let run = || {
+        Command::new(BIN)
+            .args(["completions", "nushell"])
+            .current_dir(&sandbox)
+            .env("HOME", &sandbox)
+            .env("XDG_CONFIG_HOME", &sandbox)
+            .env("XDG_CACHE_HOME", &sandbox)
+            .env("XDG_DATA_HOME", &sandbox)
+            .output()
+            .expect("executar completions nushell")
+    };
+    let first = run();
+    let second = run();
+    let entries = fs::read_dir(&sandbox)
+        .expect("listar diretório isolado")
+        .collect::<Result<Vec<_>, _>>()
+        .expect("ler entradas do diretório isolado");
+    fs::remove_dir_all(&sandbox).expect("remover diretório isolado");
+
+    assert!(entries.is_empty(), "completions não deve criar ficheiros");
+    assert_eq!(
+        first.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    assert!(first.stderr.is_empty());
+    assert!(!first.stdout.is_empty());
+    let script = std::str::from_utf8(&first.stdout).expect("script Nushell UTF-8");
+    assert!(script.contains("module completions {"));
+    assert!(script.contains("export extern typst"));
+    for command in ["compile", "fonts", "completions", "watch"] {
+        assert!(script.contains(command), "comando ausente: {command}");
+    }
+    assert_eq!(second.status.code(), Some(0));
+    assert!(second.stderr.is_empty());
+    assert_eq!(first.stdout, second.stdout);
 }
 
 #[test]

@@ -18,6 +18,7 @@ anyhow     = { workspace = true }
 # activa em `typst-cli/Cargo.toml` para o mesmo padrão. P796.
 clap       = { workspace = true, features = ["string"] }
 clap_complete = { workspace = true }
+clap_complete_nushell = { workspace = true }
 codespan-reporting = { workspace = true }
 serde_json = { workspace = true }
 serde      = { workspace = true }

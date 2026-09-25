@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 3c8d1348
+//! @prompt-hash 4f29d38c
 //! @layer L2
 //! @updated 2026-09-25
 //!
@@ -170,6 +170,24 @@ mod p1500_font_path_tests {
             intent.font_paths,
             vec![PathBuf::from(first), PathBuf::from(second), PathBuf::from(first)]
         );
+    }
+}
+
+#[cfg(test)]
+mod p1501_completion_shell_tests {
+    use super::*;
+
+    #[test]
+    fn p1501_nushell_entra_no_dominio_sem_perder_shells_existentes() {
+        for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
+            let parsed = Args::try_parse_from(["typst", "completions", shell])
+                .unwrap_or_else(|error| panic!("{shell}: {error}"));
+            assert!(matches!(parsed.command, Command::Completions(_)));
+        }
+
+        let invalid = Args::try_parse_from(["typst", "completions", "invalid-shell"])
+            .expect_err("shell desconhecido deve continuar inválido");
+        assert_eq!(invalid.exit_code(), 2);
     }
 }
 
@@ -563,11 +581,23 @@ struct WatchArgs {
     port: Option<u16>,
 }
 
+/// Shells aceites pelo subcomando público `completions` (P1501).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+#[clap(rename_all = "lowercase")]
+pub enum CompletionShell {
+    Bash,
+    Elvish,
+    Fish,
+    Nushell,
+    PowerShell,
+    Zsh,
+}
+
 #[derive(Debug, clap::Args)]
 struct CompletionsArgs {
     /// Shell to generate completions for.
     #[arg(value_enum)]
-    shell: clap_complete::Shell,
+    shell: CompletionShell,
 }
 
 #[derive(Debug, clap::Args)]
@@ -755,7 +785,7 @@ pub struct FontsIntent {
 
 #[derive(Debug)]
 pub struct CompletionsIntent {
-    pub shell: clap_complete::Shell,
+    pub shell: CompletionShell,
 }
 
 #[derive(Debug)]

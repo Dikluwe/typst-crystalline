@@ -1,5 +1,5 @@
 # Prompt L0 — `wiring/tests/cli` — integração do binário `typst`
-Hash do Código: e8a2c0ee
+Hash do Código: 8d62ac6e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
@@ -50,6 +50,32 @@ provadas pelos testes dos respectivos owners.
   contrato L2; L4 não cria defaults alternativos.
 - `init` não deixa árvore parcial quando falha e não atravessa o destino.
 - Spans de imports e plugins apontam para a fonte responsável.
+
+## P1501 — completions Nushell no processo externo
+
+### Medição anterior à decisão
+
+No HEAD 2accc929159f3a744d4965400bdbb47d34d33e17, com working tree
+limpa, a sonda de 2026-09-25T12:28:14Z–12:29:26Z mostrou que o vanilla
+pinado aceita completions nushell com exit 0, script não vazio em stdout
+e stderr vazio, enquanto o cristalino pré-P1501 rejeita o valor com exit 2.
+completions bash passa em ambos e invalid-shell falha com exit 2.
+O contrato produtivo pertence aos prompts shell/cli.md e
+shell/completions.md; esta unidade observa somente o binário.
+
+### Obrigação da suíte
+
+Invocar completions nushell duas vezes no mesmo build e verificar exit 0,
+stdout não vazio e idêntico, stderr vazio e estrutura mínima do script
+(module completions {, export extern typst e comandos correntes).
+Executar em diretório e variáveis HOME/XDG isolados; a operação não cria
+ficheiros. Conservar controles Bash e shell inválido, inclusive seus canais
+stdout/stderr. Não exigir byte-paridade com outro gerador ou versão.
+
+O upgrade compatível de Clap pode trocar a anotação de help de
+[aliases: w] por [alias: w]. A suíte aceita ambas as grafias apenas na
+linha de watch e continua a provar que o comando w funciona; a alias
+pública não pode desaparecer.
 
 ## `eval repr` e HTML
 

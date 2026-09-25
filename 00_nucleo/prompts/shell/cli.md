@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 7227d084
+Hash do Código: 4f12a5f1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1486,3 +1486,58 @@ script; `--port` seleciona a porta u16, sem porta há busca
 ao owner L3 `00_nucleo/prompts/shell/watch.md` e composição a `00_nucleo/prompts/wiring.md`. A sonda
 runtime e fonte constam do diagnóstico P1485. Esta mudança de
 enum, API pública e defaults exige confirmação ADR-0127.
+
+## P1501 — selector público de completions Nushell (PROPOSTO; gate ADR-0127)
+
+### Medição anterior à decisão
+
+Em 2026-09-25T12:28:14Z–12:29:26Z, sobre o HEAD
+`2accc929159f3a744d4965400bdbb47d34d33e17` e working tree
+limpa antes/depois, duas execuções `LC_ALL=C` por caso foram
+determinísticas. O vanilla pinado
+`9f2b6e8715237cb086899a42873660fe744622e8` (binário
+`lab/typst-original/target/release/typst` SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
+aceitou `completions nushell` com exit 0, stdout não vazio e stderr
+vazio. O cristalino `target/debug/typst` (SHA-256
+`509a3de9ab945b3f52c15ad720752e2795090087bb5abee16385aa2074a095c5`)
+rejeitou `nushell` no parsing com exit 2 e stdout vazio.
+`completions bash` saiu 0 com script não vazio nos dois; o
+controle `invalid-shell` saiu 2 em ambos. A fonte vanilla
+`lab/typst-original/crates/typst-cli/src/args.rs:282-315`
+enumera bash, elvish, fish, nushell, powershell e zsh. O
+cristalino `02_shell/src/cli.rs:567-570,757-758` usa
+`clap_complete::Shell`, que enumera apenas os outros cinco.
+
+**Classificação:** a diferença é aceitação de sintaxe pública do
+subcomando e mudança de tipo num carrier público, não igualdade
+dos bytes gerados por versões distintas de `clap_complete`
+(ADR-0107). Esta decisão decorre da enumeração da fonte e das
+sondas; seria refutada se o pin vanilla não aceitasse `nushell`.
+
+### Decisão proprietária do parser
+
+`CompletionsArgs.shell` passa a usar um `CompletionShell` tipado,
+proprietário de `02_shell/src/cli.rs`, com exatamente seis valores
+CLI minúsculos: `bash`, `elvish`, `fish`, `nushell`, `powershell`,
+`zsh`. Os cinco valores existentes preservam grafia e aceitação;
+`nushell` passa a constar do help e a ser aceito. Shell inválido
+continua a falhar no parser clap com exit 2. O carrier público
+`CompletionsIntent.shell` usa esse mesmo enum em vez de
+`clap_complete::Shell`; `RunIntent::Completions` conserva a forma
+e L4 mantém o dispatch existente, sem novo branch ou I/O no L1.
+
+A geração do script a partir de `crate::cli::command()` pertence
+exclusivamente a `00_nucleo/prompts/shell/completions.md`
+(`02_shell/src/completions.rs`); este prompt não possui o gerador
+nem `04_wiring/src/main.rs` (ADR-0129). Não acrescentar parser
+paralelo, template de script ou tolerância genérica a string.
+
+### Aceitação e gate
+
+Após confirmação humana dos hashes deste L0 e de
+`00_nucleo/prompts/shell/completions.md`, testes RED de
+`nushell`/Bash/shell inválido devem preceder código. Aceitar
+`nushell` em `completions` não modifica flags ou defaults de
+`compile`, `watch` e demais comandos. A nova alternativa pública
+e o novo tipo do intent exigem a paragem ADR-0127.
