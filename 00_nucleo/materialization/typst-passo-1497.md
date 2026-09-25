@@ -1,6 +1,8 @@
 # Passo 1497 — converter observações inconclusivas em sondas de linguagem
 
-**Estado:** PLANEADO; investigação após P1490–P1496, sem pressupor novas falhas produtivas.
+**Estado:** MATERIALIZADO em 2026-09-25 como triagem diagnóstica, sem
+alteração produtiva L1–L4. Resultados e proveniência em
+`00_nucleo/diagnosticos/typst-p1497-triagem-linguagem.md`.
 
 ## Medição anterior à decisão
 
@@ -16,3 +18,20 @@ Há candidatos ainda não sondados no delta upstream (SVG, MathML, kern matemát
 4. Para cada nova violação comprovada, abrir passo numerado próprio com owner L0, RED, gate e aceitação. Se uma sonda revelar bug do vanilla, documentar a razão de **não** o copiar. Atualizar só o diagnóstico/instrumentação desta triagem; alterações de ferramenta com consumer produtivo requerem L0 próprio.
 
 **Saída:** fila de lacunas confirmadas e observações ainda inconclusivas, com comandos, hashes e estado do código. Não há meta artificial de zerar 469 sem semântica medida, nem percentual global extraído da amostra.
+
+## Resultado P1497
+
+O inventário recompilado zerou os seis membros ausentes e as 24
+diferenças verificadas do P1489, mantendo 469 metadados ainda não
+verificados no default. Os 43 casos da matriz passaram nos seis perfis
+sem VIOLATED/UNKNOWN; seus dois DIFFERENCE antigos continuam sem
+testemunho semântico. O executor focal produziu 5 MATCH, 4 VIOLATED e
+3 DISABLED_BY_PROFILE. As quatro linhas RED representam três lacunas
+independentes: round-trip posicional de `stroke` (P1499), valor vazio
+de `--font-path` (P1500) e completions Nushell (P1501). Math kern
+permanece MISSING_OBSERVATION; SVG e MathML ficam fora do perfil,
+sem crédito de paridade. P1498 já estava ocupado.
+
+Só instrumentação, lockfile do extrator e documentação foram mudados.
+Os contratos públicos futuros continuam sujeitos ao gate humano
+ADR-0127 antes de código produtivo.
