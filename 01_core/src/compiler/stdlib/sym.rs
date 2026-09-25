@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md
-//! @prompt-hash 0cae7d63
+//! @prompt-hash c23c7f41
 //! @layer L1
 //! @updated 2026-08-30
 //!
-//! Módulo `sym` — tabela estática de símbolos Unicode prioritários.
+//! Módulo `sym` — catálogo Unicode do codex git pinado (P1496)
+//! com overlay explícito de aliases legados.
 //!
 //! **P765a**: suporte a modificadores encadeados (`sym.arrow.r.filled`)
 //! via `Symbol::variants`.
@@ -194,6 +195,19 @@ fn gt_variants() -> Vec<SymbolVariant> {
         ("tri.not".into(), '⋫'.into()),
         ("triple".into(), '⋙'.into()),
         ("triple.nested".into(), '⫸'.into()),
+    ]
+}
+
+/// P1496 — variante de compatibilidade retirada do catálogo novo.
+/// Usada apenas nos oito paths `lt.tri*` aprovados, nunca no parent
+/// público `lt`, cujo repr permanece idêntico ao codex pinado.
+fn lt_legacy_tri_variants() -> Vec<SymbolVariant> {
+    vec![
+        (EcoString::default(), '<'.into()),
+        ("tri".into(), '⊲'.into()),
+        ("tri.eq".into(), '⊴'.into()),
+        ("tri.eq.not".into(), '⋬'.into()),
+        ("tri.not".into(), '⋪'.into()),
     ]
 }
 
@@ -493,13 +507,10 @@ fn inter_variants() -> Vec<SymbolVariant> {
     vec![(EcoString::default(), '∩'.into()), ("big".into(), '⋂'.into())]
 }
 
-/// **P820** (achado #7 de P810) — símbolos **depreciados** de topo,
-/// nome → mensagem verbatim do vanilla. Fonte de dados: tag `@deprecated`
-/// do codex `sym.txt` (vanilla 0.15.0). O vanilla tem 14 entradas
-/// `@deprecated`, mas 13 são ao nível de **variante** (`gt.tri*`, `lt.tri*`,
-/// `tack.*.double`) — ficam em scope-out explícito (requerem mensagem por
-/// variante em `SymbolVariant`, mecanismo separado); apenas `join` é
-/// depreciação de símbolo de topo, e é o caso medido em P810/P820.
+/// **P820/P1496** — aviso histórico de `join`, retirado do codex
+/// novo mas preservado na extensão cristalina. Depreciações de
+/// bindings ainda presentes, como `spacebar`, vêm da metadata pinada
+/// de `codex::SYM`; avisos de variantes são dívida P1283.
 static SYM_DEPRECATED: &[(&str, &str)] =
     &[("join", "`join` is deprecated, use `bowtie.big` instead")];
 
@@ -518,6 +529,7 @@ pub(crate) static SYM_GROUPS: &[(&str, &str, fn() -> Vec<SymbolVariant>)] = &[
     ("arrow", "→", arrow_variants),
     ("plus", "+", plus_variants),
     ("gt", ">", gt_variants),
+    ("lt", "<", lt_legacy_tri_variants),
     ("diamond", "◇", diamond_variants),
     ("tilde", "∼", tilde_variants),
     ("integral", "∫", integral_variants),
@@ -605,10 +617,29 @@ fn codex_lookup(name: &str) -> Option<Symbol> {
     }
 }
 
-/// Procura primeiro no catálogo integral codex 0.3.0; a tabela histórica só
-/// preserva extensões cristalinas explicitamente decididas, como `registered`.
+/// A tabela antiga só autoriza os paths de compatibilidade decididos
+/// em P1495; não reintroduz silenciosamente outros nomes removidos do pin.
+fn legacy_extension_lookup(name: &str) -> Option<Symbol> {
+    let allowed = match name.split_once('.') {
+        None => matches!(name, "registered" | "join"),
+        Some(("join", modifiers)) => modifiers.split('.').all(|m| matches!(m, "r" | "l")),
+        Some(("gt" | "lt", modifiers)) => {
+            let mut has_tri = false;
+            let valid = modifiers.split('.').all(|modifier| {
+                has_tri |= modifier == "tri";
+                matches!(modifier, "tri" | "eq" | "not")
+            });
+            valid && has_tri
+        }
+        _ => false,
+    };
+    allowed.then(|| legacy_sym_lookup(name)).flatten()
+}
+
+/// Procura primeiro no catálogo git pinado P1496; só os aliases
+/// cristalinos aprovados recorrem à tabela histórica.
 pub fn sym_lookup(name: &str) -> Option<Symbol> {
-    codex_lookup(name).or_else(|| legacy_sym_lookup(name))
+    codex_lookup(name).or_else(|| legacy_extension_lookup(name))
 }
 
 fn module_from_codex(
@@ -638,10 +669,14 @@ fn module_from_codex(
 pub fn build_sym_module() -> Value {
     let module = module_from_codex("sym", codex::SYM);
     let mut scope = module.scope().clone();
-    // Extensão histórica preservada sem crédito de paridade (P1283).
-    if scope.get("registered").is_none() {
-        let registered = legacy_sym_lookup("registered").expect("registered extension");
-        scope.define("registered", Value::Symbol(registered));
+    // Só bindings de topo aprovados em P1283/P1495. As variantes
+    // tri são paths seletivos: não alteram repr dos parents gt/lt.
+    for name in ["registered", "join"] {
+        if scope.get(name).is_none() {
+            let symbol =
+                legacy_extension_lookup(name).expect("approved symbol extension");
+            scope.define(name, Value::Symbol(symbol));
+        }
     }
     Value::Module(crate::entities::module::Module::new("sym", scope))
 }
@@ -696,7 +731,7 @@ mod tests {
     #[test]
     fn sym_lookup_tack_modifier() {
         let s = sym_lookup("tack.r.double").unwrap();
-        assert_eq!(s.value, "⊨");
+        assert_eq!(s.value, "⊩");
     }
 
     /// **P894** — `dot` bare deve ser U+22C5 (DOT OPERATOR, paridade vanilla
@@ -942,9 +977,11 @@ mod tests {
         let Value::Module(module) = build_sym_module() else {
             panic!("sym must be module")
         };
-        // O catálogo codex é fechado; `registered` é a única extensão P1283 preservada.
-        assert_eq!(module.scope().iter().count(), codex::SYM.iter().count() + 1);
+        // O catálogo pinado só ganha os dois bindings top-level aprovados:
+        // registered (P1283) e join (P1495); tri fica fora do parent.
+        assert_eq!(module.scope().iter().count(), codex::SYM.iter().count() + 2);
         assert!(module.scope().get("registered").is_some());
+        assert!(module.scope().get("join").is_some());
         for (name, expected) in codex::SYM.iter() {
             let actual = module
                 .scope()
@@ -988,5 +1025,172 @@ mod tests {
             assert_eq!(left.value, right.value);
             assert_eq!(left.variants, right.variants);
         }
+    }
+}
+#[cfg(test)]
+mod p1496_tests {
+    use super::*;
+    use crate::entities::module::Module;
+
+    fn scope_symbol<'a>(root: &'a Module, name: &str) -> &'a Symbol {
+        let Some(Value::Symbol(symbol)) = root.scope().get(name) else {
+            panic!("missing public sym.{name}")
+        };
+        symbol
+    }
+
+    #[test]
+    fn p1496_nested_catalog_has_children_and_named_variants() {
+        let Value::Module(root) = build_sym_module() else {
+            panic!("sym must be module")
+        };
+        for (parent, children) in [
+            ("chess", &["king", "queen", "rook", "bishop", "knight", "pawn"][..]),
+            (
+                "keyboard",
+                &[
+                    "tab", "pageup", "pagedown", "shift", "capslock", "space", "erase",
+                    "cmd", "option", "clear", "alt", "esc", "enter",
+                ][..],
+            ),
+            ("ordinal", &["feminine", "masculine"][..]),
+        ] {
+            let Some(Value::Module(module)) = root.scope().get(parent) else {
+                panic!("sym.{parent} must be a public module")
+            };
+            assert_eq!(module.scope().len(), children.len(), "sym.{parent} children");
+            for child in children {
+                assert!(
+                    matches!(module.scope().get(child), Some(Value::Symbol(_))),
+                    "missing sym.{parent}.{child}"
+                );
+                assert!(sym_lookup(&format!("{parent}.{child}")).is_some());
+            }
+        }
+        for (piece, white, black) in [
+            ("king", "♔", "♚"),
+            ("queen", "♕", "♛"),
+            ("rook", "♖", "♜"),
+            ("bishop", "♗", "♝"),
+            ("knight", "♘", "♞"),
+            ("pawn", "♙", "♟\u{fe0e}"),
+        ] {
+            for (color, expected) in [("white", white), ("black", black)] {
+                let path = format!("chess.{piece}.{color}");
+                assert_eq!(
+                    sym_lookup(&path).unwrap().value.as_str(),
+                    expected,
+                    "sym.{path}"
+                );
+            }
+        }
+        for (path, expected) in [
+            ("keyboard.tab.r", "⇥"),
+            ("keyboard.pageup.alt", "⎗"),
+            ("keyboard.pagedown.alt", "⎘"),
+            ("keyboard.capslock.pedestal", "⇫"),
+            ("keyboard.erase.l", "⌫"),
+            ("keyboard.erase.r", "⌦"),
+            ("keyboard.enter.alt", "↵"),
+            ("ordinal.feminine", "ª"),
+            ("ordinal.masculine", "º"),
+        ] {
+            assert_eq!(sym_lookup(path).unwrap().value.as_str(), expected, "sym.{path}");
+        }
+    }
+
+    #[test]
+    fn p1496_metadata_families_and_five_tack_values_are_goldens() {
+        for (path, expected) in [
+            ("eq.gt.slant", "⪖"),
+            ("equiv.lt", "⪙"),
+            ("gt.eq.lt.slant", "⋛\u{fe00}"),
+            ("lat.eq.slant", "⪭\u{fe00}"),
+            ("lt.eq.gt.slant", "⋚\u{fe00}"),
+            ("not.inv", "⌙"),
+            ("prec.eq.slant", "≼"),
+            ("smt.eq.slant", "⪬\u{fe00}"),
+            ("succ.eq.slant", "≽"),
+            ("tack.r.double", "⊩"),
+            ("tilde.lt", "⪝"),
+            ("trademark.mc", "🅪"),
+            ("tack.r.double.not", "⊮"),
+            ("tack.l.double", "⫣"),
+            ("tack.t.double", "⫨"),
+            ("tack.b.double", "⫧"),
+        ] {
+            assert_eq!(sym_lookup(path).unwrap().value.as_str(), expected, "sym.{path}");
+        }
+    }
+
+    #[test]
+    fn p1496_legacy_paths_preserved_without_mutating_gt_lt_repr() {
+        let Value::Module(root) = build_sym_module() else {
+            panic!("sym must be module")
+        };
+        for (path, expected) in [
+            ("join", "⨝"),
+            ("join.r", "⟖"),
+            ("join.l", "⟕"),
+            ("join.l.r", "⟗"),
+            ("gt.tri", "⊳"),
+            ("gt.tri.eq", "⊵"),
+            ("gt.tri.eq.not", "⋭"),
+            ("gt.tri.not", "⋫"),
+            ("lt.tri", "⊲"),
+            ("lt.tri.eq", "⊴"),
+            ("lt.tri.eq.not", "⋬"),
+            ("lt.tri.not", "⋪"),
+        ] {
+            assert_eq!(sym_lookup(path).unwrap().value.as_str(), expected, "sym.{path}");
+        }
+        // Modifiers são conjuntos: estas grafias antigas não podem
+        // desaparecer só por não serem a ordem canônica do relatório.
+        for (path, expected) in
+            [("join.r.l", "⟗"), ("gt.eq.tri.not", "⋭"), ("lt.not.tri.eq", "⋬")]
+        {
+            assert_eq!(sym_lookup(path).unwrap().value.as_str(), expected, "sym.{path}");
+        }
+        assert_eq!(scope_symbol(&root, "join").value.as_str(), "⨝");
+        for group in ["gt", "lt"] {
+            let actual = scope_symbol(&root, group);
+            let codex::Def::Symbol(source) = codex::SYM.get(group).unwrap().def else {
+                panic!("codex {group} must be a symbol")
+            };
+            let expected = symbol_from_codex(group, source);
+            assert_eq!(
+                actual.variants, expected.variants,
+                "sym.{group} variants changed"
+            );
+            assert_eq!(
+                actual.repr_variants(),
+                expected.repr_variants(),
+                "sym.{group} repr changed"
+            );
+            assert!(
+                !actual
+                    .variants
+                    .iter()
+                    .any(|(mods, _)| mods.split('.').any(|part| part == "tri")),
+                "legacy tri must not contaminate sym.{group} repr"
+            );
+        }
+        assert!(matches!(root.scope().get("registered"), Some(Value::Symbol(_))));
+        assert_eq!(sym_lookup("registered").unwrap().value.as_str(), "®");
+        assert!(root.scope().get("sqrt").is_none());
+        assert!(sym_lookup("sqrt").is_none());
+    }
+
+    #[test]
+    fn p1496_spacebar_deprecation_and_legacy_warning_policy() {
+        assert_eq!(sym_lookup("spacebar").unwrap().value.as_str(), "␣");
+        assert_eq!(sym_lookup("keyboard.space").unwrap().value.as_str(), "␣");
+        assert_eq!(sym_deprecation("spacebar"),
+            Some("\u{60}spacebar\u{60} is deprecated, use \u{60}keyboard.space\u{60} instead"));
+        assert_eq!(
+            sym_deprecation("join"),
+            Some("\u{60}join\u{60} is deprecated, use \u{60}bowtie.big\u{60} instead")
+        );
+        assert_eq!(sym_deprecation("tack"), None);
     }
 }

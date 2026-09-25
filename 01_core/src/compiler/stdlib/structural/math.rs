@@ -3803,6 +3803,33 @@ mod p1283_tests {
         assert!(matches!(math.scope().get("gender"), Some(Value::Module(_))));
         assert!(matches!(math.scope().get("control"), Some(Value::Module(_))));
     }
+    #[test]
+    fn p1496_new_symbol_modules_mirror_without_overwriting_math_sqrt() {
+        let Value::Module(sym) = crate::compiler::stdlib::sym::build_sym_module() else {
+            panic!("sym must be module")
+        };
+        let Value::Module(math) = make_math_module() else {
+            panic!("math must be module")
+        };
+        for name in ["chess", "keyboard", "ordinal"] {
+            let Some(Value::Module(sym_child)) = sym.scope().get(name) else {
+                panic!("missing sym.{name} module")
+            };
+            let Some(Value::Module(math_child)) = math.scope().get(name) else {
+                panic!("missing math.{name} module")
+            };
+            assert_eq!(math_child.scope().len(), sym_child.scope().len(), "math.{name}");
+        }
+        for name in ["join", "gt", "lt", "registered"] {
+            assert_eq!(
+                math.scope().get(name),
+                sym.scope().get(name),
+                "math.{name} mirror"
+            );
+        }
+        assert!(sym.scope().get("sqrt").is_none());
+        assert!(matches!(math.scope().get("sqrt"), Some(Value::Func(_))));
+    }
 }
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────

@@ -1,10 +1,15 @@
 # Prompt L0 — `emoji` — módulo de emoji Unicode
-Hash do Código: c4ecf7d3
+Hash do Código: 047dd8d3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/emoji.rs`
 **Origem**: Passo 735 — namespace `emoji` ausente no cristalino ("unknown variable"); vanilla expõe como `module` (medido em P731/P735). **P1283**: catálogo integral do vanilla ratificado a partir de `codex = 0.3.0`.
 **ADRs**: ADR-0107 (paridade linguagem vs mecânica), ADR-0108 (medir antes de decidir), ADR-0029 (pureza L1), ADR-0129 (ownership 1:1).
+
+**Pin vigente P1496:** `codex` git `2e43ab90079cf9f9fa670d421c8c38233143b376`.
+O arquivo `emoji.txt` é byte-idêntico ao do pin histórico `0.3.0`; as
+referências a esse pin abaixo registram a medição P1283, não a versão
+de dependência atualmente declarada.
 
 ---
 
@@ -36,8 +41,10 @@ de inventário, não percentagem de paridade.
 
 ## 2. Tabela
 
-P1283 substitui as tabelas manuais por um adaptador puro sobre `codex::EMOJI`, pinado
-exactamente em `0.3.0`. Entradas simples usam `Symbol::new`; grupos usam
+Na medição histórica P1283, as tabelas manuais deram lugar a um adaptador
+puro sobre `codex::EMOJI`, então pinado exatamente em `0.3.0`. O adaptador
+usa o pin vigente acima sem mudar os dados. Entradas simples usam
+`Symbol::new`; grupos usam
 `Symbol::with_variants`. A sequência Unicode integral é morfologia da linguagem:
 VS15/U+FE0E, VS16/U+FE0F e ZWJ não podem ser truncados nem normalizados.
 

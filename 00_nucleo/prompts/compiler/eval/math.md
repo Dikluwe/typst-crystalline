@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/math`
-Hash do Código: 1fc2f5ec
+Hash do Código: 6cff39da
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -683,17 +683,40 @@ não encontra a raiz `chess`, mas aceita os aliases históricos.
 `$spacebar$` no novo vanilla emite warning e vale ␣; cristalino
 devolve o valor sem warning. Receita completa no diagnóstico P1495.
 
+**Medição adicional P1496, antes do ajuste:** no vanilla pinado,
+`{ let math = 1; $chess.king.white$ }` avalia ♔, enquanto a
+primeira implementação P1496 erra `unknown variable chess`: o lookup
+da stdlib math não depende do binding lexical chamado `math`
+(`foundations/scope.rs:80-93`). O vanilla também avisa em
+`eval("std.sym.spacebar", mode: "math").body` e em
+`eval("std.math.spacebar", mode: "math").body`; o cristalino
+não avisa porque o acesso matemático qualificado usa lookup puro.
+Com `spacebar.inexistente`, o vanilla emite primeiro erro de modifier
+e também o warning do binding raiz: ausência de raiz e modifier inválido
+são casos diferentes, não uma regra geral de silêncio. Outra sonda
+bilateral: `{ let chess = std.sym.chess; $chess.king.white$ }` avalia ♔
+no vanilla, mas a primeira release P1496 veta o módulo lexical `chess`
+como se fosse módulo global; `eval/math.rs:191-205` não distingue a origem.
+
 ### Decisão
 
 P1496 preserva prioridade de bindings locais, depois bindings
-math próprios e símbolos do catálogo pinado. Novos submódulos
-de `sym` copiados para math são percorríveis em bare composto;
-a raiz de módulo isolada não vira símbolo nem texto inventado.
+math próprios e símbolos do catálogo pinado. O veto histórico a módulos
+globais bare não se aplica a um módulo ligado lexicalmente no scope
+ativo: `let chess = std.sym.chess` conserva `chess.king.white` em math.
+A pesquisa dos novos submódulos usa o namespace math padrão não
+sombreado, não `scopes.get("math")` lexical: `#let math = 1` não
+oculta `chess`/`keyboard`/`ordinal`. O lookup prévio de
+operadores fora deste recorte mantém seu owner e sua dívida própria.
+Novos submódulos de `sym` copiados para math são percorríveis em
+bare composto; a raiz de módulo isolada não vira símbolo nem texto inventado.
 `sym` global continua indisponível diretamente em math sem `#` ou
 `std.sym`. Os doze aliases legados de `compiler/stdlib/sym.md`
 continuam acessíveis em bare com os mesmos valores das rotas
 qualificadas, embora sejam extensões ao vanilla novo.
-`spacebar` bare e `join` legado emitem as mensagens de depreciação
-decididas no owner sym. Não emitir warning para um path ausente,
-nem para os cinco `tack` des-depreciados. Não mudar parser, AST,
+`spacebar` bare e qualificado em math, e `join` legado, emitem
+as mensagens de depreciação decididas no owner sym. Não avisar
+para raiz/binding ausente; um modifier inválido sobre binding
+depreciado conserva o warning da raiz, como medido no vanilla.
+Não avisar os cinco `tack` des-depreciados nem mudar parser, AST,
 carrier público, layout ou fase.

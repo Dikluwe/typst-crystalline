@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings` — hub de bindings, acesso e métodos
-Hash do Código: 5d064ec6
+Hash do Código: 7a346727
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/mod.rs`
@@ -115,3 +115,21 @@ interpreta argumentos, não constrói selector e não amplia visibilidade além 
 
 O hub reexporta somente o interceptor de `outline.entry.body` para o dispatcher
 irmão. Não interpreta o receptor nem os argumentos.
+
+## P1496 — transporte interno do warning de símbolo
+
+### Medição anterior à decisão
+
+`compiler/eval/math.rs:161-165` usa `eval_value_field_access` diretamente
+para acesso qualificado em math, sem passar pela emissão pós-lookup
+de `field_access.rs`. No vanilla pinado, `std.sym.spacebar` e
+`std.math.spacebar` nesse modo resolvem e avisam; na primeira
+release P1496 resolvem sem warning (sonda bilateral P1496).
+
+### Decisão
+
+Reexportar `warn_deprecated_symbol_binding` de `field_access` para
+o consumidor irmão `eval/math.rs` com visibilidade limitada a
+`compiler::eval`. Este hub não decide depreciações nem duplica a
+regra: transporta o hook após lookup bem-sucedido; o owner
+`bindings/field_access.md` mantém identidade, precedência e mensagem.

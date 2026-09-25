@@ -1,6 +1,6 @@
 # Passo 1496 — materializar o catálogo pinado de símbolos
 
-**Estado:** PLANEADO. Pré-requisito: P1495 com L0 vigente e decisão de compatibilidade; se houver opção incompatível, confirmação humana registrada.
+**Estado:** MATERIALIZADO em 2026-09-25. A decisão P1495 de preservar os aliases legados foi seguida; nenhuma opção incompatível foi aplicada.
 
 **Entrada ratificada por P1495:** preservar os doze aliases legados como
 extensões (`join{,.r,.l,.l.r}` e `{gt,lt}.tri{,.eq,.eq.not,.not}`)
@@ -29,3 +29,26 @@ P1489 mediu `sym.chess` ausente, `sym.not.inv` ausente e `sym.tack.r.double` com
 4. Se mudar `eval/math.rs` ou `eval/bindings/field_access.rs`, atualizar antes seus L0 proprietários indicados em P1495. Resselar apenas owners afetados após V15/V26; rodar testes focais, `CARGO_BUILD_JOBS=1 cargo build`, `crystalline-lint .` e `git diff --check`. Usar o binário vanilla já ratificado em P1489; não rebuildar lab ou jobs Cargo em paralelo.
 
 **Gate ADR-0127:** adições/correções de entradas e paridade de valores podem fluir com L0 primeiro + RED→GREEN. Remover alias público, mudar assinatura/campo ou decidir quebra deliberada exige confirmação específica; sem ela, preservar compatibilidade e registrar extra como extensão, não como crédito de paridade. Se a confirmação faltar, este passo fica pendente — não se força GREEN por omissão de testes.
+
+## Resultado P1496
+
+O `codex` ficou pinado em `2e43ab90079cf9f9fa670d421c8c38233143b376`;
+o catálogo recursivo e o espelho em `math` foram materializados, com
+compatibilidade seletiva para os doze aliases decididos. Os cinco
+valores `tack.*.double` e os warnings de `spacebar` foram corrigidos.
+Os L0s proprietários foram atualizados antes do código e os cinco owners
+afetados foram ressellados após V15/V26 limpos.
+
+A sonda bilateral de 198 casos terminou com 146 `MATCH`, 36
+`EXTENSION`, 16 `TEXT_MATCH_CARRIER_DIFF` e zero `RED`.
+`P1489-B-002/003/004` passaram a `MATCH` após medição bilateral e
+rebaseline. A suíte focal passou 16/16 e a suíte `typst-core --lib`
+passou 6190/6190; build debug/release, lint e verificação do manifesto
+passaram. Proveniência, outputs e limites da decisão constam em
+`00_nucleo/diagnosticos/typst-p1496-catalogo-simbolos.md`.
+
+Não fechar como paridade os 16 carriers bare diferentes nem as
+36 extensões. A divergência de aviso para alias canônico capturado em
+closure com `std` sombreado foi reproduzida e documentada como dívida
+separada; sua correção exige transportar identidade canônica na captura
+e não integra o escopo focal deste passo.

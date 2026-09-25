@@ -1,11 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/emoji.md
-//! @prompt-hash f945c1cc
+//! @prompt-hash cebde3f4
 //! @layer L1
-//! @updated 2026-08-30
+//! @updated 2026-09-24
 //!
-//! Módulo `emoji` — catálogo Unicode integral do `codex 0.3.0` pinado
-//! (P1283), incluindo sequências multi-codepoint e variantes ordenadas.
+//! Módulo `emoji` — catálogo Unicode integral de `codex::EMOJI` no pin
+//! git P1496 (dados idênticos aos de P1283), incluindo sequências
+//! multi-codepoint e variantes ordenadas.
 
 use crate::entities::symbol::Symbol;
 use crate::entities::value::Value;
@@ -102,5 +103,29 @@ mod tests {
             .variants
             .iter()
             .any(|(mods, value)| { mods == "ballet" && value == "🧑‍🩰" }));
+    }
+    #[test]
+    fn p1496_emoji_catalog_stays_byte_equivalent_across_codex_pin() {
+        let Value::Module(module) = build_emoji_module() else {
+            panic!("emoji must be module")
+        };
+        assert_eq!(module.scope().len(), 772);
+        for (name, expected) in [
+            ("face", "😀"),
+            ("apple", "🍏"),
+            ("arrow", "↙\u{fe0f}"),
+            ("heart", "❤\u{fe0f}"),
+            ("bigfoot", "🫈"),
+        ] {
+            let Some(Value::Symbol(symbol)) = module.scope().get(name) else {
+                panic!("missing emoji.{name}")
+            };
+            assert_eq!(symbol.value.as_str(), expected, "emoji.{name}");
+        }
+        let Some(Value::Symbol(heart)) = module.scope().get("heart") else {
+            panic!("missing emoji.heart")
+        };
+        assert_eq!(heart.modified("arrow").unwrap().value.as_str(), "💘");
+        assert_eq!(heart.modified("excl").unwrap().value.as_str(), "❣\u{fe0f}");
     }
 }

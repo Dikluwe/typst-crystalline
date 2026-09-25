@@ -1,10 +1,14 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: c48fd6c8
+Hash do Código: c30f83ef
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`
 **Origem**: Passo 471 — módulo `sym` com tabela de ~70 símbolos prioritários; registado no scope como `Value::Dict`. **P731**: passa a `Value::Module` (paridade vanilla — medido: `type(sym)` → `module`). **P766**: expansão por uso real do corpus. **P1283**: catálogo integral do vanilla ratificado a partir de `codex = 0.3.0`.
 **ADRs**: ADR-0017, ADR-0107 (paridade linguagem vs mecânica), ADR-0029 (pureza L1), ADR-0129 (ownership 1:1).
+
+**Pin vigente P1496:** `codex` git `2e43ab90079cf9f9fa670d421c8c38233143b376`.
+As referências a `0.3.0` nas secções P1283 abaixo documentam aquele snapshot
+histórico; a obrigação atual do catálogo é a da secção 8.
 
 ---
 
@@ -25,8 +29,9 @@ inventário de paths/registos, não percentagem de paridade.
 
 ## 2. Tabela
 
-P1283 substitui as tabelas manuais incompletas por um adaptador puro sobre
-`codex::SYM`, pinado exactamente em `0.3.0`. Duas categorias semânticas permanecem:
+Na medição histórica P1283, as tabelas manuais incompletas deram lugar a um
+adaptador puro sobre `codex::SYM`, então pinado exatamente em `0.3.0`.
+O mesmo adaptador usa o pin vigente da secção 8; duas categorias semânticas permanecem:
 
 1. **Símbolos simples** (`SYM_SIMPLE`): nome → string de exactamente um
    grapheme cluster. Inclui letras gregas, operadores básicos, e variantes
@@ -83,8 +88,9 @@ Apenas entradas sem `.` no nome ficam no scope do módulo. As compostas (`"eq.no
 
 ## 6. P1283 — fechamento e divergência intencional
 
-A tabela e todas as variantes de `codex 0.3.0` deixam de ser scope-out. Existência,
-kind, valor default, `repr`, modifiers e valores de variantes são obrigação fechada.
+No snapshot P1283, a tabela e todas as variantes de `codex 0.3.0`
+deixaram de ser scope-out. A obrigação atual de existência, kind, valor
+default, `repr`, modifiers e valores de variantes segue o pin da secção 8.
 
 Depreciação ao nível de variante permanece divergência intencional individualizada: a
 entidade `SymbolVariant` ainda não transporta mensagem. Depreciação de binding de topo
@@ -159,6 +165,29 @@ devem concordar; trocar apenas o crate retiraria bindings dos
 módulos, deixando fallback incoerente. Mesclar só os aliases
 legados, sem substituir grupos `gt`/`lt` inteiros nem perder
 variantes novas. `sym.registered` continua extensão separada.
+
+**Medição de viabilidade P1496** (HEAD P1495 limpo
+`0d722061c6f285501e3614bef823b4f16bcb13c5`, 2026-09-25 UTC):
+`repr(sym.gt)` e `repr(sym.lt)` no vanilla pinado não contêm
+`tri*`, mas os parents cristalinos P1495 contêm esses modifiers.
+Injetar `tri*` em `Symbol.variants` dos parents novos manteria os
+paths legados, porém perpetuaria a divergência de `repr` nas duas
+famílias. A fonte nova `codex/src/modules/sym.txt:315-378` confirma
+`closed*` e não `tri*`; `field_access.rs:949` chama `modified` no
+parent. Portanto o overlay é **por path**, não por alteração do
+parent: manter `gt`/`lt` e suas variantes exatamente do codex novo;
+`sym_lookup` usa o legado só nos oito conjuntos de modifiers
+`gt.tri*`/`lt.tri*` (incluindo permutações equivalentes como
+`gt.eq.tri.not`, já coberta por teste P766) e nos quatro conjuntos
+`join{,.r,.l,.l.r}`, além de `registered`. Modifiers são conjuntos
+na linguagem; a grafia canônica não pode bloquear uma ordem antiga válida.
+`build_sym_module` injeta somente os bindings de topo `join` e
+`registered`. O acesso de campo ao símbolo canônico `gt`/`lt`
+com `eq`/`not` já aplicados resolve `.tri` por esse lookup seletivo
+no owner
+`compiler/eval/bindings/field_access.md`; módulos `sym`/`math` e bare
+convergem no valor e `repr` dos aliases sem contaminar `repr(gt/lt)`.
+Não abrir o fallback da tabela manual para outros paths removidos.
 
 `spacebar` resolve e avisa nos três acessos com a mensagem vanilla
 `` `spacebar` is deprecated, use `keyboard.space` instead ``.

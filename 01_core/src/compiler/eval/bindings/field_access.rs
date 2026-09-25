@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 8e1fa6a4
+//! @prompt-hash a882f084
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -507,6 +507,45 @@ fn is_effective_std_module(module: &crate::entities::module::Module) -> bool {
         && matches!(module.scope().get("format"), Some(Value::Module(format)) if is_effective_format_module(format))
         && matches!(module.scope().get("document"), Some(Value::Func(func)) if func.name() == Some("document"))
 }
+/// Compara por identidade Arc com o namespace da stdlib, não por nome: um
+/// `sym.typ` ou `math.typ` importado pode ter o mesmo `Module::name()`.
+fn is_effective_symbol_module(
+    scopes: &Scopes<'_>,
+    module: &crate::entities::module::Module,
+    name: &str,
+) -> bool {
+    if module.name() != name {
+        return false;
+    }
+    let std = scopes
+        .base
+        .and_then(|base| base.global.get("std"))
+        .or_else(|| scopes.captured.as_ref().and_then(|captured| captured.get("std")));
+    matches!(std, Some(Value::Module(std)) if
+        matches!(std.scope().get(name), Some(Value::Module(canonical)) if canonical == module))
+}
+
+/// Emite a depreciação de um binding de símbolo já resolvido. O caller
+/// preserva o Module para a checagem por identidade depois do lookup.
+pub(in crate::compiler::eval) fn warn_deprecated_symbol_binding(
+    scopes: &Scopes<'_>,
+    module: &crate::entities::module::Module,
+    field: &str,
+    value: &Value,
+    span: Span,
+    engine: &mut Engine<'_>,
+) {
+    if !matches!(value, Value::Symbol(_)) {
+        return;
+    }
+    let in_sym = is_effective_symbol_module(scopes, module, "sym");
+    let in_math = is_effective_symbol_module(scopes, module, "math");
+    if in_sym || (in_math && field != "join") {
+        if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(field) {
+            engine.sink.warn_note(span, msg, "");
+        }
+    }
+}
 
 pub(in crate::compiler::eval) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
@@ -615,18 +654,12 @@ pub(in crate::compiler::eval) fn eval_field_access(
         .with_hint("see https://typst.app/help/compiler-features for more details")]);
     }
 
-    // P820 (achado #7 de P810) — acesso a símbolo **depreciado** do módulo
-    // `sym` (`#sym.join`): warning verbatim do vanilla com span no campo
-    // (medido: `#sym.join` → warning @1:5, exit 0). O mecanismo geral do
-    // vanilla é `Deprecation` em `Binding` (`foundations/scope.rs:288`);
-    // aqui, data-driven pela tabela `SYM_DEPRECATED` do módulo `sym`.
-    if let Value::Module(ref m) = target {
-        if m.name() == "sym" {
-            if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(field) {
-                engine.sink.warn_note(access.field().span(), msg, "");
-            }
-        }
-    }
+    // Guardar só a identidade Arc do módulo, para consultar metadata
+    // depois de um lookup válido sem clonar os demais tipos de Value.
+    let warning_module = match &target {
+        Value::Module(module) => Some(module.clone()),
+        _ => None,
+    };
 
     let span = if matches!(
         &target,
@@ -646,7 +679,18 @@ pub(in crate::compiler::eval) fn eval_field_access(
     } else {
         access.span()
     };
-    eval_value_field_access(target, field, span)
+    let value = eval_value_field_access(target, field, span)?;
+    if let Some(module) = warning_module {
+        warn_deprecated_symbol_binding(
+            scopes,
+            &module,
+            field,
+            &value,
+            access.field().span(),
+            engine,
+        );
+    }
+    Ok(value)
 }
 
 pub(in crate::compiler::eval) fn eval_value_field_access(
@@ -946,12 +990,41 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             )]
         }),
         // P765a — Field access em Value::Symbol
-        Value::Symbol(s) => s.modified(field).map(Value::Symbol).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                span,
-                format!("unknown symbol modifier '{field}'"),
-            )]
-        }),
+        Value::Symbol(s) => {
+            let modified = s.modified(field).or_else(|| {
+                if field != "tri"
+                    || s.applied.iter().any(|m| !matches!(m.as_str(), "eq" | "not"))
+                {
+                    return None;
+                }
+                let sym_lookup = crate::compiler::stdlib::sym::sym_lookup;
+                for name in ["gt", "lt"] {
+                    let Some(parent) = sym_lookup(name) else {
+                        continue;
+                    };
+                    let canonical =
+                        s.applied.iter().try_fold(parent, |value, modifier| {
+                            value.modified(modifier.as_str())
+                        });
+                    if canonical.as_ref() == Some(&s) {
+                        let mut path = name.to_owned();
+                        for modifier in &s.applied {
+                            path.push('.');
+                            path.push_str(modifier.as_str());
+                        }
+                        path.push_str(".tri");
+                        return sym_lookup(&path);
+                    }
+                }
+                None
+            });
+            modified.map(Value::Symbol).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    format!("unknown symbol modifier '{field}'"),
+                )]
+            })
+        }
         other @ (Value::Bool(_) | Value::Int(_) | Value::Str(_)) => {
             Err(vec![SourceDiagnostic::error(
                 span,

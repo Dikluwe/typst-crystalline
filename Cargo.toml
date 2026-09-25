@@ -72,4 +72,4 @@ two-face             = { version = "0.4.3", default-features = false, features =
 
 # lorem byte-parity — P805 (mesma crate do vanilla: Markov chain determinística)
 lipsum               = "0.9.1"
-codex                = "=0.3.0" # P1283 — catálogo declarativo pinado de sym/emoji
+codex                = { git = "https://github.com/typst/codex", rev = "2e43ab90079cf9f9fa670d421c8c38233143b376" } # P1496 — catálogo pinado de sym/emoji

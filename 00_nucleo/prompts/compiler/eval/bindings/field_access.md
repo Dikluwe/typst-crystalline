@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: c0f24114
+Hash do Código: 2b90802f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -1540,8 +1540,30 @@ span no field. `spacebar` avisa nos dois namespaces. `join`,
 preservado como extensão por `compiler/stdlib/sym.md`, conserva
 o aviso histórico apenas em `sym`; `math.join` fica silencioso.
 Não criar warning novo para esta extensão sem gate ADR-0127.
-Acesso a campo inexistente não avisa antes de errar. Dict, módulos homônimos alheios,
+A mesma regra pós-lookup vale para a rota qualificada em modo math
+(`std.sym.spacebar`, `std.math.spacebar`), que deve chamar o hook
+deste owner em vez de omiti-lo no lookup puro. Acesso a campo
+inexistente não avisa antes de errar. Dict, módulos homônimos alheios,
 modifiers de `Symbol` e outros campos não adquirem warnings
 por nome parecido. Warnings de variantes seguem a dívida
 separada P1283; não ampliar o carrier público neste passo.
 Todos os diagnósticos não relacionados mantêm a precedência atual.
+
+### P1496 — acesso seletivo aos aliases `tri`
+
+A medição de `repr(sym.gt)`/`repr(sym.lt)` no HEAD P1495 e no
+vanilla pinado (registrada em `compiler/stdlib/sym.md`) mostra que
+injetar `tri*` nos parents novos adulteraria sua morfologia. Depois
+de tentar `Symbol::modified(field)`, apenas para `field == "tri"`
+e um `Symbol` do parent canônico `gt`/`lt`, ainda sem modifiers
+ou com somente `eq`/`not` aplicados, resolver o mesmo conjunto mais
+`tri` pelo `sym_lookup` seletivo. Confirmar igualdade estrutural
+com o parent codex submetido aos modifiers já aplicados; um
+`Symbol` arbitrário de nome semelhante não ganha a extensão.
+Os modifiers subsequentes `.eq`, `.eq.not`, `.not` usam o
+`Symbol` legado resultante; permutações antigas como
+`gt.eq.tri.not` continuam válidas. Não enriquecer o parent, ampliar esse
+fallback a outros modifiers/symbols ou transformar erro em warning.
+Isto conserva os oito paths públicos e mantém `repr(gt/lt)` do
+catálogo pinado sem alterar o carrier nem o contrato de
+`entities/symbol.md`.

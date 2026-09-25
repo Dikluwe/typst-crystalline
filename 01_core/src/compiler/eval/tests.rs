@@ -5526,6 +5526,198 @@ mod tests {
             diags
         );
     }
+    // ── P1496 — depreciação dos bindings no catálogo pinado ────────────
+
+    #[test]
+    fn p1496_spacebar_avisado_uma_vez_em_sym_math_e_bare() {
+        const MESSAGE: &str = "`spacebar` is deprecated, use `keyboard.space` instead";
+        for source in [
+            "#sym.spacebar",
+            "#math.spacebar",
+            "$spacebar$",
+            "#std.sym.spacebar",
+            "#std.math.spacebar",
+            "#let alias = math\n#alias.spacebar",
+        ] {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{source}: spacebar deve resolver: {result:?}");
+            let diags = sink.into_diagnostics();
+            assert_eq!(
+                diags.iter().filter(|d| d.message == MESSAGE).count(),
+                1,
+                "{source}: warning exato uma vez: {diags:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1496_join_preserva_politica_historica_por_rota() {
+        const MESSAGE: &str = "`join` is deprecated, use `bowtie.big` instead";
+        for (source, expected) in [
+            ("#sym.join", 1),
+            ("#std.sym.join", 1),
+            ("#let alias = sym\n#alias.join", 1),
+            ("$join$", 1),
+            ("$join.r$", 1),
+            ("#math.join", 0),
+            ("#std.math.join", 0),
+        ] {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{source}: alias legado deve resolver: {result:?}");
+            let diags = sink.into_diagnostics();
+            assert_eq!(
+                diags.iter().filter(|d| d.message == MESSAGE).count(),
+                expected,
+                "{source}: politica historica de warning: {diags:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1496_homonimos_dict_e_modulos_importados_nao_avisam() {
+        let world = MockWorld::new(
+            "#let d = (join: 7, spacebar: 8)\n#let a = d.join\n#let b = d.spacebar",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "campos de Dict devem resolver: {result:?}");
+        assert!(
+            sink.into_diagnostics()
+                .iter()
+                .all(|d| !d.message.contains("deprecated")),
+            "Dict homonimo nao possui deprecacao de simbolos"
+        );
+
+        for (filename, field) in [("sym.typ", "join"), ("math.typ", "spacebar")] {
+            let source =
+                format!("#import \"{filename}\" as imported\n#let a = imported.{field}");
+            let world = ImportMockWorld::new(
+                &source,
+                &[(filename, "#let join = 7\n#let spacebar = 8")],
+            );
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(
+                result.is_ok(),
+                "{source}: campo importado deve resolver: {result:?}"
+            );
+            let diags = sink.into_diagnostics();
+            assert!(
+                diags.iter().all(|d| !d.message.contains("deprecated")),
+                "{source}: modulo importado homonimo nao e std: {diags:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1496_campo_ausente_homonimo_nao_avisa_antes_do_erro() {
+        let source = "#import \"sym.typ\" as imported\n#let a = imported.join";
+        let world = ImportMockWorld::new(source, &[("sym.typ", "#let alpha = 1")]);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_err(), "campo inexistente deve falhar");
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("deprecated")),
+            "campo ausente nao pode emitir warning antes do erro: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn p1496_binding_local_bare_prevalece_sem_aviso() {
+        for name in ["spacebar", "join"] {
+            let source = format!("#let {name} = 42\n${name}$");
+            let world = MockWorld::new(&source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{source}: binding local deve resolver: {result:?}");
+            let diags = sink.into_diagnostics();
+            assert!(
+                diags.iter().all(|d| !d.message.contains("deprecated")),
+                "{source}: binding local nao herda deprecacao: {diags:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1496_permutacoes_legadas_em_sym_math_e_bare() {
+        for source in [
+            "#sym.gt.eq.tri.not",
+            "#math.lt.not.tri.eq",
+            "$gt.eq.tri.not$",
+            "$lt.not.tri.eq$",
+            "#sym.join.r.l",
+            "$join.r.l$",
+        ] {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, _) = eval_for_test_keep_sink(&world, &src);
+            assert!(
+                result.is_ok(),
+                "{source}: permutation legada deve resolver: {result:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1496_novos_submodulos_sym_resolvem_em_math_bare_composto() {
+        for (source, expected) in [
+            ("$chess.king.white$", "♔"),
+            ("$keyboard.tab.r$", "⇥"),
+            ("$ordinal.feminine$", "ª"),
+        ] {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, _) = eval_for_test_keep_sink(&world, &src);
+            let module = result.unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let actual = module.content().expect("conteúdo matemático").plain_text();
+            assert!(actual.contains(expected), "{source}: {actual:?}");
+        }
+    }
+
+    #[test]
+    fn p1496_math_bare_usa_catalogo_padrao_mesmo_com_math_sombreado() {
+        let source = "#let math = 1\n$chess.king.white$";
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, _) = eval_for_test_keep_sink(&world, &src);
+        let module = result.unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+        assert!(
+            module.content().expect("equação").plain_text().contains('♔'),
+            "módulo math sombreado não oculta sym.chess"
+        );
+    }
+
+    #[test]
+    fn p1496_modulo_lexical_em_math_nao_e_vetado_como_global() {
+        let source = "#let chess = std.sym.chess\n$chess.king.white$";
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, _) = eval_for_test_keep_sink(&world, &src);
+        let module = result.unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+        assert!(module.content().expect("equação").plain_text().contains('♔'));
+    }
+
+    #[test]
+    fn p1496_spacebar_qualificado_em_math_avisado() {
+        const MESSAGE: &str = "`spacebar` is deprecated, use `keyboard.space` instead";
+        for source in ["$std.sym.spacebar$", "$std.math.spacebar$"] {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{source}: {result:?}");
+            let diags = sink.into_diagnostics();
+            assert_eq!(
+                diags.iter().filter(|d| d.message == MESSAGE).count(),
+                1,
+                "{source}: {diags:?}"
+            );
+        }
+    }
 
     /// (b) `$bowtie.big$` → compila sem warning (bowtie não é
     /// depreciado; medido vanilla: exit 0, render ⨝). ANTES:

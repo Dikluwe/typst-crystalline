@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 689aef06
+//! @prompt-hash c08976a3
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -58,6 +58,29 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
         return None;
     };
     Some(c.clone())
+}
+
+/// P1496 — o binding lexical `math` pode ser sombreado sem alterar o
+/// namespace matemático padrão. Closure sem `base` conserva a cópia
+/// capturada de `std.math` antes do fallback ao binding `math`.
+fn lookup_math_catalog_submodule(scopes: &Scopes<'_>, name: &str) -> Option<Value> {
+    let math = scopes
+        .base
+        .and_then(|base| base.global.get("math"))
+        .or_else(|| {
+            let Value::Module(std) = scopes.captured.as_ref()?.get("std")? else {
+                return None;
+            };
+            std.scope().get("math")
+        })
+        .or_else(|| scopes.captured.as_ref().and_then(|captured| captured.get("math")))?;
+    let Value::Module(math) = math else {
+        return None;
+    };
+    let Value::Module(child) = math.scope().get(name)? else {
+        return None;
+    };
+    Some(Value::Module(child.clone()))
 }
 
 /// **P780** — mensagem de erro para identificador não resolvido em modo
@@ -161,7 +184,23 @@ fn eval_math_callee(
         Expr::FieldAccess(access) => {
             let target = eval_math_callee(scopes, ctx, engine, access.target())?;
             let field = access.field().as_str();
-            super::bindings::eval_value_field_access(target, field, access.span())
+            let warning_module = match &target {
+                Value::Module(module) => Some(module.clone()),
+                _ => None,
+            };
+            let value =
+                super::bindings::eval_value_field_access(target, field, access.span())?;
+            if let Some(module) = warning_module {
+                super::bindings::warn_deprecated_symbol_binding(
+                    scopes,
+                    &module,
+                    field,
+                    &value,
+                    access.field().span(),
+                    engine,
+                );
+            }
+            Ok(value)
         }
         Expr::MathIdent(ident) => {
             let name = ident.get();
@@ -176,10 +215,16 @@ fn eval_math_callee(
                 // validação de P782 (não duplicação): o caminho via `#`
                 // (target `Expr::Ident` de código) passa pelo braço
                 // `other => eval_expr` e não é tocado.
-                if matches!(val, Value::Module(_)) && name != "std" {
+                let lexical = scopes.top.get(name).is_some()
+                    || scopes.scopes.iter().rev().any(|scope| scope.get(name).is_some());
+                if matches!(val, Value::Module(_)) && name != "std" && !lexical {
                     return Err(vec![unknown_variable_math(ident.span(), name, true)]);
                 }
                 Ok(val)
+            } else if let Some(module) = lookup_math_catalog_submodule(scopes, name) {
+                // Só o alvo de um acesso composto chega aqui: um módulo
+                // isolado não passa a texto/símbolo.
+                Ok(module)
             } else if let Some(sym) = crate::compiler::stdlib::sym::sym_lookup(name) {
                 // P820 — símbolo depreciado (ex.: `join`): resolve, mas com
                 // warning verbatim do vanilla (span na raiz — medido

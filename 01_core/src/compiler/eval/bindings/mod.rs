@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings.md
-//! @prompt-hash decd7aa2
+//! @prompt-hash 571648d5
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -30,6 +30,7 @@ pub(crate) use field_access::{
 };
 pub(super) use field_access::{
     eval_field_access, eval_value_field_access, field_callee_error,
+    warn_deprecated_symbol_binding,
 };
 pub(super) use method_dispatch::{is_mutating_method, try_eval_mutating_method};
 pub(super) use value_methods::{
