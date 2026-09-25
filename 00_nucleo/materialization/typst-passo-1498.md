@@ -1,6 +1,9 @@
 # Passo 1498 — revalidar o fecho das lacunas confirmadas do P1489
 
-**Estado:** PLANEADO. Dependências: P1490–P1497 concluídos (inclusive gates humanos quando aplicáveis); a triagem P1497 fornece a fila adicional, não substitui as correções.
+**Estado:** MATERIALIZADO em 2026-09-25, com fecho **restrito** das sete
+lacunas P1489. A regressão P1407 e as lacunas P1497 permanecem abertas.
+Medições, gates e proveniência:
+`00_nucleo/diagnosticos/typst-p1498-fecho-p1489.md`.
 
 ## Baseline e critério de fecho
 
@@ -14,3 +17,20 @@ O relatório P1489 fixa o alvo vanilla em `9f2b6e8715237cb086899a42873660fe74462
 4. Executar `CARGO_BUILD_JOBS=1 cargo build`, testes relevantes, `crystalline-lint .` com zero violações e `git diff --check`. Confirmar V5/V15/V26 após resselo; evitar builds simultâneos, servidor/watch e processos pendurados. Limpar somente artefatos temporários criados por esta execução, após guardar as provas, sem tocar no trabalho alheio.
 
 **Conclusão permitida:** fechar **as lacunas de linguagem confirmadas pelo P1489** somente se todas as sondas correspondentes estiverem GREEN nos perfis aplicáveis. Não declarar paridade global nem percentual a partir dos 39 casos ou do inventário; registrar separadamente observações inconclusivas, diferenças de formato e extensões deliberadas.
+
+## Resultado P1498
+
+As sete sondas P1489 estão MATCH nos perfis aplicáveis, com asserções
+internas e comparador focal CJK íntegros. A matriz completa de 43
+casos passou nos seis perfis; os dois DIFFERENCE de formato continuam
+sem testemunho semântico. O inventário recompilado confirmou seis
+pais, 42 filhos e 12 grupos espelhados sem diferenças verificadas,
+mas metadados não verificados, extras e carriers continuam fora do
+crédito de paridade. Build, core 6190/6190, testes focais e lint
+passaram.
+
+A suíte ampla de infraestrutura encontrou 0/5 testes P1407, com
+testemunho bilateral de repeat/outline; P1502 registra essa regressão
+e sua hipótese causal. As três lacunas P1497 ficam em P1499–P1501.
+Por isso só se fecha o conjunto confirmado em P1489, não a paridade
+geral nem todas as divergências de linguagem.
