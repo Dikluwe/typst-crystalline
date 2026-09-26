@@ -1,5 +1,5 @@
 # Prompt L0 — `place`
-Hash do Código: 88bded43
+Hash do Código: aed298c0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
@@ -20,6 +20,19 @@ consumer e nenhum despacho dinâmico é introduzido.
 
 Testes focais e a suíte do subsistema preservam comportamento e morfologia;
 alteração observável exige medição e decisão próprias.
+
+## P1504 — emissão final do float diferido
+
+Medição: no estado P1503 não commitado descrito em
+`00_nucleo/materialization/typst-passo-1504.md`,
+`compiler/layout/cursor.rs:35-65,862-1064` mede a origem física e
+translada um `DeferredFloat` depois de `layout/place.rs:195-245` calcular
+o fitting e o anchor final. Decisão interna: os dois helpers de emissão
+passam a este consumer. A translação rebaseia body, align órfão e segmentos
+de decoração no mesmo referencial, conservando a ordem e a compensação do
+top-edge medido. Cursor continua dono do avanço regional; não há mudança
+de estado, assinatura pública ou fase. Testes de float top/bottom, marker,
+Place aninhado e ausência de float mantêm páginas, posições e unicidade.
 
 ## P1292 amendment-9 — inserção float e recomposição da região
 

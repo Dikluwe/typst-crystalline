@@ -1,5 +1,5 @@
-# Prompt L0 — cursor e fechamento de linhas
-Hash do Código: c46a31e2
+# Prompt L0 — cursor, wrap e progressão de regiões
+Hash do Código: e6571615
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -9,10 +9,83 @@ Núcleos Tekt:
 
 ## Contrato
 
-Gere palavras/chunks, wrap, baseline, `flush_line`, paginação e footnotes.
+Gere palavras/chunks, wrap, baseline inicial, paginação e footnotes.
+O fechamento da linha (`flush_line`, expansão `fr`, justificação, commit)
+é propriedade de `compiler/layout/line_commit.md` desde P1503; este owner
+continua a oferecer as transições e hooks que o fechamento solicita.
 Avanço usa arestas tipográficas, leading e extensões inline; collectors e
 pending geometry recebem a mesma translação dos itens. Página auto deriva
 dimensão do conteúdo real, sem constantes posicionais de oracle.
+
+## P1504 — decisão de replay em owner próprio
+
+Medição: `cursor.rs:361-372,753-808` no baseline P1503 decide aceite,
+rollback e replay do sufixo; `compiler/layout.md` possui o checkpoint.
+Decisão interna: `compiler/layout/flow_suffix.md` passa a possuir a decisão
+transacional e o hook de aceite antes da transição. Este owner conserva
+`new_page`, o marker, drain e avanço de região; Place conserva fitting.
+As cláusulas históricas P1292 neste prompt são proveniência, não segundo
+owner da decisão movida.
+
+## P1504 — translação de float no owner Place
+
+Medição: `cursor.rs:35-65,862-1064` no baseline P1503 contém origem e
+translação final de float, após Place decidir anchor. Decisão interna:
+`compiler/layout/place.md` passa a possuir essa emissão; Cursor conserva
+fitting delegado, marker, drain e avanço de região.
+
+## P1504 — segmentação de palavra separada
+
+Medição: `cursor.rs:1192-1303` no baseline P1503 contém ICU e tailoring
+CJK; `layout_word` apenas escolhe esse caminho. Decisão interna: seleção de
+scripts, breakpoints e tailoring passam ao consumer
+`compiler/layout/word_segment.md`; este owner conserva baseline,
+`layout_word`, `layout_chunk`, wrap e hifenização.
+
+## P1504 — emissão de cell tails separada
+
+Medição: `cursor.rs:1087-1189` no baseline P1503 contém o drain de caudas;
+`new_page:603-609` é apenas o ponto de chamada. Decisão interna: a emissão,
+z-order, rebase e avanço causado pelas caudas pertencem a
+`compiler/layout/cell_tail_commit.md`; este owner conserva a transição e
+invoca o hook após preparar o topo. O buffer continua em `compiler/layout.md`.
+
+## P1504 — colunas de página no owner Columns
+
+Medição: `cursor.rs:624-737` mantém fechar/fundir/iniciar colunas e
+`new_page:377-394,611-617` as chama. Decisão interna: os cinco métodos
+de coluna passam ao consumer `compiler/columns.md`; este owner conserva
+`new_page` e seus pontos de chamada. Hooks entre módulos usam no máximo
+`pub(super)`, sem estado duplicado, API pública ou fase nova.
+
+## P1504 — montagem de página separada
+
+Medição: no estado P1503 não commitado descrito em
+`00_nucleo/materialization/typst-passo-1504.md`,
+`cursor.rs:361-618` mistura transição de região, montagem de `Page` e reset
+do cursor seguinte. Decisão interna: `compiler/layout/page_commit.md` passa
+a possuir apenas a montagem da página já fechada (fixups, marginais, canvas,
+bleed e `Page`). Este owner conserva o cálculo de dimensões auto, a ordem de
+flush de floats/footnotes, a decisão de avanço, o reset do cursor e os
+hooks de região. A divisão não adiciona estado, não altera a ordem de
+emissão nem muda assinatura pública.
+
+## P1503 — transferência restrita de ownership
+
+Medição: no HEAD `0de5edabed197d23b647cfc68ebefda2f5c2a8d5`,
+`cursor.rs:406-1038` contém expansão, justificação e fechamento;
+`cursor.rs:1039-1764` contém transições, floats e replay. O mapa e a
+baseline estão em `00_nucleo/diagnosticos/typst-p1503-responsabilidades-cursor.md`.
+Decisão: somente os métodos de fechamento e o helper de justificação
+passam ao consumer de `compiler/layout/line_commit.md`. As cláusulas
+históricas deste documento sobre fórmulas internas de `flush_line`,
+`fr`/repeat, numeração no fechamento e carrier material são preservadas
+como registo de medição, **não** como segundo owner do código movido. As
+obrigações normativas do fechamento foram individualizadas no novo L0.
+Este owner conserva `new_page`, colunas, rollback/replay, guardas de fitting,
+`ensure_initial_baseline`, wrap/segmentação, floats, footnotes e cell tails.
+O fechamento pode chamar seus hooks privados sem mover estado, alargar
+visibilidade ou alterar a ordem do pipeline.
 
 ## Aceitação
 

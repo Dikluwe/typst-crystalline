@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0cf94eb3
+//! @prompt-hash d0e531cd
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-25
 
 pub mod counters;
 pub mod figure;
 pub mod image;
 pub mod outline;
 mod page_canvas;
+mod page_commit;
 mod page_geometry;
 mod page_run;
 mod page_running;
@@ -147,8 +148,13 @@ pub(crate) mod grid_placement;
 mod slicing;
 use crate::compiler::layout::helpers::{item_pos, resolve_pt, translate_frame_item};
 
-// Gestão de cursor: word/space, layout_word, flush_line, new_page.
+// Cursor: palavras/wrap, progressão de regiões e floats.
+mod cell_tail_commit;
 mod cursor;
+mod flow_suffix;
+// Fechamento de linha: expansão, justificação e commit (P1503).
+mod line_commit;
+mod word_segment;
 
 // Flush dos footnote bodies pendentes (P847 — extraído de `cursor.rs`).
 mod footnote_flush;

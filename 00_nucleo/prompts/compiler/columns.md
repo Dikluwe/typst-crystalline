@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
-Hash do Código: f13e786f
+Hash do Código: faec049b
 
 
 **Camada**: L1  
@@ -7,6 +7,19 @@ Hash do Código: f13e786f
 **Ficheiros adjacentes**: `01_core/src/compiler/layout/cursor.rs`, `01_core/src/compiler/layout/mod.rs`, `01_core/src/compiler/layout/footnote.rs`, `01_core/src/entities/elements/columns.rs`  
 **Origem**: P537 (colunas reais), P537b (`#set page(columns:)`), P552 (correcção de footnotes), P553 (correcção geométrica de largura de coluna)  
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização forma B), ADR-0054 (graded / scope-outs).
+
+## P1504 — operações de coluna física
+
+Medição: na working tree P1503 não commitada registrada em
+`00_nucleo/materialization/typst-passo-1504.md`,
+`compiler/layout/cursor.rs:624-737` contém fechamento, fusão e início das
+colunas físicas, enquanto `layout/columns.rs` já materializa Columns e
+consolida patterns segmentados. Decisão interna: este consumer passa a possuir
+`close_current_column`, `merge_column_items`, `finish_columns`,
+`start_next_column` e `start_column`, sem alterar a ordem causal de footnotes,
+consolidação P1415–P1419, fixups ou translação. O Cursor decide quando
+avançar; hooks de `new_page` têm somente visibilidade `pub(super)`.
+Nenhuma assinatura pública, estado, default ou fase muda.
 
 ## P1494 — espaço com origem newline não é conteúdo visível (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
 

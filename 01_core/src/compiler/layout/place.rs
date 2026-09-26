@@ -1,15 +1,18 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/place.md
-//! @prompt-hash 774e1e61
+//! @prompt-hash b18f753c
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-25
 //!
 //! Atomização (ADR-0109, P378): o layout de `Place` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
 //! camada de render). Content-preserving — a lógica é idêntica.
 
+#![allow(deprecated)] // P1504 — FrameItem::Text fallback no float diferido.
+
+use super::helpers::{item_pos, translate_frame_item};
 use crate::entities::elements::place::PlaceElem;
-use crate::entities::layout_types::{Align2D, Pt, VAlign};
+use crate::entities::layout_types::{Align2D, FrameItem, Pt, VAlign};
 
 use super::{DeferredFloat, FontMetrics, ImageSizer, Layouter};
 
@@ -252,5 +255,261 @@ fn realize_float_prefix<M: FontMetrics, S: ImageSizer>(
     if !height_auto && bottom_height > 0.0 {
         layouter.regions.current.height =
             (effective_page_h - bottom_height).max(margin.vertical());
+    }
+}
+
+/// Origem física vertical do frame local devolvido por `layout_sub_frame`.
+///
+/// A baseline inicial não coincide necessariamente com o top-edge semântico:
+/// com as métricas ratificadas, o sub-frame começa 2.596pt abaixo da origem
+/// física. A translação diferida precisa compensar apenas esse offset medido,
+/// não o ascender integral.
+fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> f64 {
+    fn item_origin<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
+        match item {
+            FrameItem::Text { pos, style, .. }
+            | FrameItem::TextShaped { pos, style, .. } => {
+                let (top, _) = metrics.text_edges(style.size, style);
+                Some(pos.y.0 - top.0)
+            }
+            FrameItem::Glyph { pos, size, style, .. } => {
+                let (top, _) = metrics.text_edges(*size, style);
+                Some(pos.y.0 - top.0)
+            }
+            FrameItem::Line { start, end, thickness, .. } => {
+                Some(start.y.0.min(end.y.0) - thickness / 2.0)
+            }
+            FrameItem::Shape { pos, .. }
+            | FrameItem::Group { pos, .. }
+            | FrameItem::Image { pos, .. } => Some(pos.y.0),
+            FrameItem::Link { items, .. } | FrameItem::Semantic { items, .. } => items
+                .iter()
+                .filter_map(|child| item_origin(child, metrics))
+                .reduce(f64::min),
+        }
+    }
+
+    items
+        .iter()
+        .filter_map(|item| item_origin(item, metrics))
+        .reduce(f64::min)
+        .unwrap_or(0.0)
+}
+
+impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    /// **P245 (M9d / M7+4)** — emite um `DeferredFloat` na posição
+    /// final calculada. Aplica `alignment.x` para posicionamento
+    /// horizontal dentro da largura útil da página. Translada items
+    /// locais (origem 0,0 + ascender) para coordenadas finais.
+    pub(super) fn translate_deferred_float(
+        &mut self,
+        f: &DeferredFloat,
+        target_y: f64,
+        margin: f64,
+        avail_w: f64,
+    ) {
+        use crate::entities::layout_types::{FrameItem, HAlign, Point};
+        // P1292-D v10 — alinhar a origem física local ao target calculado por
+        // Place. `layout_sub_frame` inicia na baseline e pode deixar um offset
+        // positivo entre o zero local e o top-edge semântico. Compensar esse
+        // offset medido (2.596pt no vetor selado), não o ascender integral
+        // refutado, que deslocava a tinta para 10.166pt.
+        let target_y_logical = target_y;
+        let target_y = target_y - deferred_frame_origin_y(&f.body_items, &self.metrics);
+        // Calcular X conforme alignment.x.
+        let x_offset = match f.alignment.h {
+            // rationale: P1064 Classe 1A — centragem horizontal de container ((avail_w - body_w) / 2.0)
+            Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
+            Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
+            _ => 0.0, // None / Left / Start default. // neutro: N16[α] — alignment None/Left/Start: x_offset = 0.0 (esgotamento de enum horizontal)
+        };
+        let target_x = margin + x_offset.max(0.0);
+
+        // **P908** — rebasear as entradas órfãs de `pending_align_*`
+        // carregadas por este `DeferredFloat` (um `Content::Align`/
+        // `Content::Place` aninhado dentro do body deste float, sob
+        // `width`/`height: auto`) com a MESMA translação `(target_x,
+        // target_y)` aplicada aos `body_items` reais abaixo. `path[0]`
+        // passa a apontar para a posição real em `current_items` (soma o
+        // comprimento actual, capturado ANTES do merge). Como
+        // `flush_pending_floats` corre sempre antes de
+        // `apply_pending_align_fixups` na mesma `new_page()`/`finish()`
+        // (ver `00_nucleo/prompts/compiler/layout.md` §P908), a entrada
+        // resolve-se contra a página correcta sem sequenciamento novo.
+        let insertion_base = self.regions.current.current_items.len();
+        for (mut path, count, align, content_w, origin_x, applied_x) in
+            f.orphaned_align_x.clone()
+        {
+            path[0] += insertion_base;
+            self.pending_align_centering.push((
+                path,
+                count,
+                align,
+                content_w,
+                origin_x + target_x,
+                applied_x + target_x,
+            ));
+        }
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+            f.orphaned_align_y.clone()
+        {
+            path[0] += insertion_base;
+            self.pending_align_v_centering.push((
+                path,
+                count,
+                align,
+                content_h,
+                origin_y + target_y_logical,
+                dy,
+                applied_y + target_y_logical,
+            ));
+        }
+
+        // Translate items: cada item ganha offset (target_x, target_y).
+        for item in &f.body_items {
+            let translated = match item.clone() {
+                FrameItem::Text { pos, text, style } => FrameItem::Text {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    text,
+                    style,
+                },
+                FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
+                    FrameItem::TextShaped {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyphs,
+                        style,
+                        text,
+                        units_per_em,
+                    }
+                }
+                FrameItem::Shape {
+                    pos,
+                    kind,
+                    width,
+                    height,
+                    fill,
+                    stroke,
+                    fill_rule,
+                    parent_bbox_at_emit,
+                } => FrameItem::Shape {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    kind,
+                    width,
+                    height,
+                    fill,
+                    stroke,
+                    fill_rule,
+                    parent_bbox_at_emit,
+                },
+                FrameItem::Group {
+                    pos,
+                    matrix,
+                    clip_mask,
+                    inner_width,
+                    inner_height,
+                    items,
+                } => FrameItem::Group {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    matrix,
+                    clip_mask,
+                    inner_width,
+                    inner_height,
+                    items,
+                },
+                FrameItem::Line { start, end, thickness, color, cap } => {
+                    FrameItem::Line {
+                        start: Point {
+                            x: start.x + Pt(target_x),
+                            y: start.y + Pt(target_y),
+                        },
+                        end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
+                        thickness,
+                        // P285: cursor reflector preserva cor (translação).
+                        color,
+                        cap,
+                    }
+                }
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+                    FrameItem::Glyph {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyph_id,
+                        x_advance,
+                        size,
+                        style,
+                        base_char,
+                    }
+                }
+                FrameItem::Image {
+                    pos,
+                    data,
+                    alt,
+                    width,
+                    height,
+                    intrinsic_width,
+                    intrinsic_height,
+                    orientation,
+                    ..
+                } => FrameItem::Image {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    alt,
+                    data,
+                    width,
+                    height,
+                    intrinsic_width,
+                    intrinsic_height,
+                    clip_rect: None,
+                    orientation,
+                },
+                FrameItem::Link { target, items, pos, size } => FrameItem::Link {
+                    target,
+                    items: items
+                        .into_iter()
+                        .map(|child| {
+                            let (ix, iy) = item_pos(&child);
+                            translate_frame_item(
+                                child,
+                                Pt(target_x + ix),
+                                Pt(target_y + iy),
+                            )
+                        })
+                        .collect(),
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    size,
+                },
+                FrameItem::Semantic { kind, placement, alt, mut items } => {
+                    for child in &mut items {
+                        crate::compiler::layout::helpers::offset_frame_item(
+                            child, target_x, target_y,
+                        );
+                    }
+                    FrameItem::Semantic { kind, placement, alt, items }
+                }
+            };
+            self.regions.current.current_items.push(translated);
+        }
+
+        // **P772x** — mesma translação para segmentos de decoração do body,
+        // reinseridos no collector ambiente SE ainda estiver activo neste
+        // ponto (best-effort — ver comentário em `DeferredFloat::deco_segments`,
+        // `mod.rs`: floats que só flusham muito depois do consumer
+        // `Underline`/`Strike`/`Overline` ter retornado não têm collector
+        // para reinserir e o segmento é descartado, não é um crash).
+        if let Some(coll) = self.decoration_lines_collector.as_mut() {
+            for seg in &f.deco_segments {
+                coll.push(super::DecoSegment {
+                    start_x: Pt(target_x + seg.start_x.val()),
+                    end_x: Pt(target_x + seg.end_x.val()),
+                    baseline_y: Pt(target_y + seg.baseline_y.val()),
+                });
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod p1504_tests {
+    #[test]
+    fn emissao_diferida_pertence_a_place() {
+        assert!(include_str!("place.rs").contains("fn deferred_frame_origin_y"));
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — motor geral de layout
-Hash do Código: bbfda1ff
+Hash do Código: 11160d3c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -9,6 +9,46 @@ Núcleos Tekt:
 **Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
 **Vanila ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
 **ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+
+## P1504 — registro da transação do sufixo
+
+Medição: `cursor.rs:361-372,753-808` no baseline P1503 contém a decisão
+de aceite/replay, enquanto este consumer possui o checkpoint P1292.
+Decisão interna: registrar `flow_suffix` como consumer da decisão; campos,
+captura/restauração e dispatcher permanecem aqui, sem nova fase.
+
+## P1504 — registro da segmentação de palavra
+
+Medição: `cursor.rs:1192-1303` no baseline P1503 contém helpers ICU/CJK.
+Decisão interna: registrar `word_segment` como consumer irmão, sem mover
+estado de região, dispatcher ou fase deste módulo.
+
+## P1504 — registro do owner de cell tails
+
+Medição: `cursor.rs:1087-1189` no baseline P1503 emite a fila de caudas.
+Decisão interna: registrar `cell_tail_commit` como consumer irmão; o buffer
+`pending_cell_tails` e o checkpoint permanecem neste módulo.
+
+## P1504 — registro do owner de montagem da página
+
+Medição: `compiler/layout/cursor.rs:396-572` contém a composição física
+da página no estado P1503. Decisão interna: registrar `page_commit` como
+consumer irmão de `cursor`, dono somente da montagem; este módulo conserva
+estado, checkpoint, dispatcher e cálculos de geometria já existentes.
+
+## P1503 — registro do owner de fechamento de linha
+
+Medição anterior à decisão: no HEAD
+`0de5edabed197d23b647cfc68ebefda2f5c2a8d5`,
+`compiler/layout/mod.rs:151` registra `cursor`, `:326-790` possui o
+estado do `Layouter` e `:797-1417` possui seu checkpoint. Os métodos de
+fechamento estão em `cursor.rs:406-1038`; o mapa de dependências está em
+`00_nucleo/diagnosticos/typst-p1503-responsabilidades-cursor.md`.
+
+Decisão interna: registrar `line_commit` como módulo irmão de `cursor`,
+com owner `compiler/layout/line_commit.md`. O estado e o dispatcher ficam
+neste consumer; a lógica de página/float permanece em `cursor`. Não criar
+vtable, novo campo, fase ou assinatura pública.
 
 ## P1494 — despacho da folha de espaço com origem newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
 
