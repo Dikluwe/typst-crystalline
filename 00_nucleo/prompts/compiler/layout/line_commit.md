@@ -1,98 +1,50 @@
-# Prompt L0 — fechamento de linha no layout paginado
-Hash do Código: 6cf28557
+# L0 — line commit
+Hash do Código: b99c576e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/line_commit.rs`
-**Vanilla ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/line_commit.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1503 — medição antes da decisão
+## Evidence before specification
 
-No HEAD limpo `0de5edabed197d23b647cfc68ebefda2f5c2a8d5`, antes de
-código P1503, `01_core/src/compiler/layout/cursor.rs:406-1038` contém
-`expand_fr_spacings`, `justify_current_line`, `flush_line`, o arm one-shot de
-wrap e `flush_line_with_outer_singleton`. O helper de justificação ocupa
-`:67-105`. O mesmo arquivo mantém transições em `:1039-1420`, floats/replay
-em `:1421-1764` e segmentação em `:1878-1985`; o estado/checkpoint fica em
-`compiler/layout/mod.rs:326-1417`. O diagnóstico
-`00_nucleo/diagnosticos/typst-p1503-responsabilidades-cursor.md` registra
-funções, dependências, hashes e baseline. Dois documentos com texto extraído
-equivalente mostram diferenças de tempo do comando completo, mas a medição
-interna de `repeat` atribui somente 0,705052 ms a todo layout; portanto não
-se infere ganho de performance desta extração.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/line_commit.rs:20`, `01_core/src/compiler/layout/line_commit.rs:66`, `01_core/src/compiler/layout/line_commit.rs:189`.
 
-## Decisão e ownership
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Esta unidade é dona exclusivamente do **commit da linha corrente**: expansão
-horizontal `fr`/repeat, justificação, ajuste de baseline/leading, emissão de
-decoração e numeração da linha, drenagem dos items, avanço do cursor e pedido
-de transição quando a tinta não cabe. Ela recebe o `Layouter` existente por
-referência e usa apenas estado já possuído pelo owner
-`compiler/layout.md`. Não cria novo estado, cópia de checkpoint, estrutura de
-documento, API pública, fase de pipeline ou dispatcher dinâmico.
+The initial-block no-typography regressions reach the empty-line flush in
+`01_core/src/compiler/layout/line_commit.rs:358`: text edges are requested even
+when material-line classification is false. The intermediate failure is preserved
+in `00_nucleo/diagnosticos/font-demand-geometry-study/green.stdout`.
+The empty flush still owns draining/resetting state; eliminating an unused font
+query does not authorize skipping that protocol.
 
-`compiler/layout/cursor.md` conserva a formação de palavra/chunk, wrap,
-baseline inicial, transições de página/coluna, coordenação de floats/replay,
-footnotes/cell tails e segmentação CJK. O pedido `new_page` é uma chamada ao
-owner Cursor; esta unidade não absorve nem duplica essa política.
-`compiler/layout/sequence.md`, `compiler/layout/repeat.md` e
-`compiler/layout/columns.md` continuam donos de suas decisões de preflight,
-materialização de repeat e consolidação de colunas. O dispatcher de
-`compiler/layout.md` permanece estático e exaustivo.
+## Ownership and contract
 
-As fórmulas de fechamento documentadas historicamente em
-`compiler/layout/cursor.md` (P1382, amendments P1389–P1408, P1414–P1419 e
-P1493) passam a ser obrigação desta unidade. Essas secções permanecem no
-antigo prompt como proveniência histórica, não como segundo owner produtivo.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## Contrato observável
+Own expansion of horizontal fractions/repeats, justification and physical line closure, including baseline/leading, causal decorations and line numbering. The hub retains buffers and checkpoints. Delegate region progress to `00_nucleo/prompts/compiler/layout/cursor.md`, repeat multiplication to `00_nucleo/prompts/compiler/layout/repeat.md`, and callback matching/final marginal-width adjustment to `00_nucleo/prompts/compiler/layout/par_line_callbacks.md`. Do not move page assembly or Sequence preflight here.
 
-- `flush_line` consome o arm one-shot do prefixo de wrap; fechamento explícito
-  certificado usa a mesma fórmula. Sem itens materiais, não acumula altura
-  nem cria página. Carrier HTML isolado não conta como tinta, mas é
-  transportado para extração.
-- Expansão horizontal distribui o espaço finito pelos pesos `fr` conforme a
-  fórmula já validada; soma/razão não finita dá parcela zero e limpa buffers
-  sem loop. `repeat` recebe somente a parcela associada à sua fronteira e
-  insere cópias antes do suffix, com índices ajustados uma vez. Largura
-  automática/infinita não expande. Justificação desloca items/links com seus
-  bounds e respeita RTL, sem inventar oportunidade depois do fim material.
-- A linha usa o máximo real de ascent/descent de texto e extensões inline;
-  tamanho misto toma próximo ascent e leading do estilo exterior. O
-  singleton validado de wrap conserva as exceções P1389/P1391/P1392.
-  Itens e collectors recebem a mesma translação vertical antes do drain.
-- Quando reserva de float torna a tinta incompatível com a região efetiva,
-  sinaliza rejeição ao checkpoint do owner `compiler/layout.md` ou pede a
-  transição ordinária ao Cursor. Não migra `current_line` isoladamente,
-  não antecipa conteúdo futuro e não duplica efeitos pós-marker.
-  Uma linha terminal fracionária cuja tinta cabe não fabrica página vazia
-  apenas pelo avanço hipotético da baseline seguinte.
-- Numeração de linha só nasce após estabilizar baseline e página causal;
-  flush vazio/subframe não incrementa contador. Patterns segmentados
-  registram candidatas diferidas no contexto já definido, callbacks seguem
-  seu caminho existente; margem/clearance/fixups e suppression overlay
-  preservam os resultados P1414–P1419. Este contrato **não** aprova uma
-  ampliação pública ainda pendente nos L0s históricos.
-- O commit drena `current_line` para `current_items`, limpa oportunidades de
-  justificação, registra avanço/descida causal e restaura `cursor_x` ao início
-  da linha. Página, colunas, floats e footnotes continuam nos seus owners.
+For a finite line, sum weights without requiring positive individual weights or a positive sum. Add provisional natural fractional-box widths back to distributable remaining space. A share is `max(weight / total * remaining, 0)` only when the ratio and remaining are finite; otherwise zero. Replace provisional occupancy by share-minus-natural-width; h(fr) has natural width zero. Associate a repeat with its actual boundary, shift its suffix once, insert copies before that suffix and repair later indices by the actual insertion. Infinite width/orphan state clears pending work defensively without looping.
 
-## Aceitação e limites
+Justification expands fractions first, then distributes only over opportunities before material content ends, preserving the present RTL behavior and link/semantic bounds. No opportunity is invented after the last material item.
 
-Caracterização anterior e posterior deve cobrir linha vazia/material,
-wrap, estilos mistos, singleton, `fr`/repeat, RTL, linha numerada, colunas,
-float/flush transacional, altura auto, carrier HTML e erro. Saída é
-comparada na língua: texto, morfologia, página, posição, estilo e diagnóstico
-onde observáveis; bytes PDF e `FrameItem` não são gates. A extração é
-content-preserving: uma diferença funcional exige passo/medição separados.
+Consume the validated-prefix one-shot arm at the first ordinary flush; explicit certified closure clears the arm and uses the same closing path. Empty/direct-marker-only lines drain carriers but add no typography or page. Material lines combine actual text and inline extents. Distinct text sizes, or multiple text items differing from the active outer style, select outer next-ascent/leading while retaining the current maximum/ascent/descent. Correct a positive difference from the assumed ascent by translating the entire line and collectors together.
 
-O critério arquitetural é o fechamento legível nesta unidade com chamadas
-explícitas aos owners vizinhos, sem alargamento de visibilidade, clone de
-estado nem lógica de paginação duplicada. Medir tempo/CPU/RAM com fonte e
-binário pinados antes/depois; não declarar ganho por tamanho do arquivo.
-Alteração de assinatura pública, default, fase ou compatibilidade exige
-paragem ADR-0127; a transferência interna de método segue L0 primeiro,
-RED arquitetural→GREEN e revalidação contínua.
+A certified larger singleton uses the outer next-ascent/leading; a certified smaller singleton keeps its own baseline/ascent/next-ascent and only substitutes outer leading. Ordinary singleton behavior is unchanged. When float reservation makes ink exceed the effective region, reject the hub transaction or request ordinary Cursor transition; never migrate only current_line. A terminal fractional line whose real ink fits does not create an empty page merely because a hypothetical next baseline does not.
+
+Number material non-subframe lines only after stabilizing baseline and causal page. Preserve document/page scope, none/absent neutrality, pattern formatting and Func request/realized-Content consumption without Func execution. Missing resolution records a request rather than inserting a provisional number. The last physical column uses the end margin; earlier columns retain the configured margin. Keep region-local greatest-width fixups, clearance, horizontal alignment and the existing overlay suppression/edge compensation. Under a segmented pattern context, buffer baseline/page/pattern/chain candidates without immediately incrementing or formatting; callbacks stay on their existing request path. Columns owns consolidation and shared-style capture.
+
+Drain the line in order into emitted items, clear justification opportunities, record causal baseline/advance/descent, reset cursor_x to line start and request any remaining necessary transition. Preserve typed style, visual position, content order and diagnostic behavior; Rust buffer shape and exported PDF bytes are not language-parity gates.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+When the expanded pending line has no material items, use neutral local text-edge
+values without consulting FontMetrics. Continue normal drain/reset and marker
+transport. Material lines retain current and next style-edge measurements and
+baseline/leading/overflow behavior. Initial-block tests in the image/shape owners
+exercise this shared path with an injected metrics provider that rejects font queries.

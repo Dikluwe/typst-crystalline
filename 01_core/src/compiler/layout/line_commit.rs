@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/line_commit.md
-//! @prompt-hash 13fb334a
+//! @prompt-hash c7614beb
 //! @layer L1
-//! @updated 2026-09-25
+//! @updated 2026-09-27
 //!
 //! Fechamento de linha: expansão horizontal, justificação, baseline e commit.
 #![allow(deprecated)] // FrameItem::Text fallback path legítimo
@@ -355,9 +355,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // produzidos. O avanço, porém, deve prever o ascent do estilo activo
         // da linha seguinte; reutilizar o maior fragmento corrente alongava
         // a distância quando um wrapper inline mudava o tamanho da fonte.
-        let (current_text_top, current_text_bottom) =
-            self.metrics.text_edges(max_font_size, &max_style);
-        let next_text_top = if mixed_text_sizes {
+        let (current_text_top, current_text_bottom) = if had_items {
+            self.metrics.text_edges(max_font_size, &max_style)
+        } else {
+            (Pt(0.0), Pt(0.0))
+        };
+        let next_text_top = if had_items && mixed_text_sizes {
             self.metrics.text_edges(self.style.size, &self.style).0
         } else {
             current_text_top

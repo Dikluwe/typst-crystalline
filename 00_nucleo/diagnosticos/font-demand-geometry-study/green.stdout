@@ -1,0 +1,27 @@
+
+running 4 tests
+test compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography ... FAILED
+test compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge ... ok
+test compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography ... FAILED
+test compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge ... ok
+
+failures:
+
+---- compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography stdout ----
+
+thread 'compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography' (166291) panicked at 01_core/src/compiler/layout/image.rs:528:66:
+unexpected text edges
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography stdout ----
+
+thread 'compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography' (166293) panicked at 01_core/src/compiler/layout/shape.rs:212:66:
+unexpected text edges
+
+
+failures:
+    compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography
+    compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 6284 filtered out; finished in 0.00s
+

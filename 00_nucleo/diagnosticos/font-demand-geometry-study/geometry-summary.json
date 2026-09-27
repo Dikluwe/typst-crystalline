@@ -1,0 +1,386 @@
+[
+  {
+    "stage": "before",
+    "fixture": "image",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "image",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -19.238
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "before",
+    "fixture": "image",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        0.762
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "before",
+    "fixture": "shape",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        8.0
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "shape",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        0.762
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "before",
+    "fixture": "shape",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        20.762
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "before",
+    "fixture": "placed_shape",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "placed_shape",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "placed_shape",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "image_then_text",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "before",
+    "fixture": "image_then_text",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -19.238
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "before",
+    "fixture": "image_then_text",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        0.762
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": false
+  },
+  {
+    "stage": "after",
+    "fixture": "image",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "image",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "image",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "shape",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        8.0
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "shape",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        8.0
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "shape",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        8.0
+      ],
+      "vanilla": [
+        8.0,
+        8.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "placed_shape",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "placed_shape",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "placed_shape",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        11.0,
+        13.0
+      ],
+      "vanilla": [
+        11.0,
+        13.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "image_then_text",
+    "edge": "default",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "image_then_text",
+    "edge": "0pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  },
+  {
+    "stage": "after",
+    "fixture": "image_then_text",
+    "edge": "20pt",
+    "object_translation_xy": {
+      "tekt": [
+        8.0,
+        -12.0
+      ],
+      "vanilla": [
+        8.0,
+        -12.0
+      ]
+    },
+    "equal": true
+  }
+]

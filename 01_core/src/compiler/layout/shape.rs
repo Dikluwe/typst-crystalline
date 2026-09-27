@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
-//! @prompt-hash 3c4b21a1
+//! @prompt-hash ae60b378
 //! @layer L1
-//! @updated 2026-07-15
+//! @updated 2026-09-27
 //!
 //! Atomização (ADR-0109, P377): o layout de `Shape` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -36,9 +36,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &ShapeElem,
 ) {
-    // **P751** — fixar a baseline inicial com o estilo activo antes de
-    // posicionar a primeira forma real.
-    if layouter.initial_baseline_pending {
+    // A fresh main-flow block has a geometric top, not a text baseline.
+    // Preserve typography-dependent placement for pending text and subframes.
+    let fresh_block = !layouter.is_sub_frame
+        && layouter.initial_baseline_pending
+        && layouter.regions.current.current_line.is_empty();
+    if fresh_block {
+        layouter.initial_baseline_pending = false;
+    } else if layouter.initial_baseline_pending {
         let (top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
         layouter.regions.current.cursor_y += top;
         layouter.initial_baseline_pending = false;
@@ -73,7 +78,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let font = layouter.style.size.val();
     let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
     let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
-    let cap_height = layouter.metrics.cap_height(layouter.style.size, &layouter.style);
+    let cap_height = if fresh_block {
+        Pt(0.0)
+    } else {
+        layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+    };
 
     if in_main_flow {
         // Colapso de margem com o bloco anterior (P250):
@@ -184,5 +193,70 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.block_chain_active = true;
     } else {
         layouter.regions.current.cursor_y += Pt(resolved_h);
+    }
+}
+
+#[cfg(test)]
+mod initial_nontext_block_regressions {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::layout_types::{TextEdge, TextStyle};
+    use comemo::Track;
+
+    struct NoTypography;
+    impl FontMetrics for NoTypography {
+        fn advance(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            panic!("unexpected text advance")
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            panic!("unexpected vertical metrics")
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            panic!("unexpected cap height")
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            panic!("unexpected text edges")
+        }
+    }
+
+    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>) {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut layouter = Layouter::new(metrics, NullImageSizer, 12.0, intr_dyn.track());
+        layouter.style.top_edge = edge;
+        let origin = layouter.regions.current.cursor_y.0;
+        let elem = crate::entities::elements::shape::ShapeElem {
+            kind: crate::entities::geometry::ShapeKind::Rect,
+            width: Some(Box::new(crate::entities::value::Value::Float(80.0))),
+            height: Some(Box::new(crate::entities::value::Value::Float(40.0))),
+            fill: None,
+            stroke: None,
+            fill_rule: Default::default(),
+        };
+        super::layout(&mut layouter, &elem);
+        let y = match &layouter.regions.current.current_items[0] {
+            FrameItem::Shape { pos, .. } => pos.y.0,
+            other => panic!("unexpected first block {other:?}"),
+        };
+        assert!((y - origin).abs() < 1e-9, "block top {y} != physical origin {origin}");
+        assert!(!layouter.initial_baseline_pending);
+        assert!(layouter.block_chain_active);
+    }
+
+    #[test]
+    fn initial_nontext_block_top_is_independent_of_text_edge() {
+        for edge in [
+            None,
+            Some(TextEdge::Length(Length::pt(0.0))),
+            Some(TextEdge::Length(Length::pt(20.0))),
+        ] {
+            check(FixedMetrics, edge);
+        }
+    }
+
+    #[test]
+    fn initial_nontext_block_does_not_acquire_typography() {
+        check(NoTypography, None);
     }
 }

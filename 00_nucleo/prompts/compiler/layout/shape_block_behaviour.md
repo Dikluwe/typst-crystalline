@@ -1,141 +1,42 @@
-# Prompt L0 — `compiler/layout/shape_block_behaviour` — `Content::Shape` como bloco que quebra parágrafo
-Hash do Código: af64b3ce
+# L0 — shape block behaviour
+Hash do Código: b4b592f5
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/shape.rs` (com impacto no dispatch de `Content::Shape` em `compiler/layout/mod.rs`)
-**Origem**: P767 — arqueologia de P763h.
-**ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva — medir antes de decidir), ADR-0109 (atomização forma B).
-**Prompts relacionados**: `entities/elements/shape.md`, `entities/geometry.md`, `compiler/layout/block.md`, `compiler/atomizacao_elementos.md` (padrão de atomização da implementação).
+## Evidence before specification
 
----
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/shape.rs:25`, `01_core/src/compiler/layout/shape.rs:35`.
 
-## Propósito
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Este prompt altera o **comportamento observável** de `Content::Shape` no cristalino para que coincida com o Typst vanilla: as primitivas de desenho (`rect`, `square`, `ellipse`, `circle`, `line`, `polygon`, `curve`) são elementos de **bloco** que **quebram o parágrafo corrente** antes e depois de si. Não se trata de alterar a geometria nem o exportador — apenas o posicionamento relativo a texto e outros conteúdos no fluxo do documento.
+The equivalent-input pinned SVG probes in
+`00_nucleo/diagnosticos/font-demand-geometry-study/results.json` show that an
+initial standalone non-text block moves when only text top-edge changes in
+Tekt, while the pinned vanilla position remains the region's physical top.
+This is observable geometry, not a requirement to copy upstream algorithms.
+Explicit Place controls remain invariant and do not authorize changing the
+subframe coordinate convention.
 
-## P1227 — preservação de fill Paint
+## Ownership and contract
 
-Medição: `01_core/src/compiler/layout/shape.rs:129` executa
-`fill.as_ref().map(|p| p.to_color())`; isto colapsa `Paint::Gradient` e
-`Paint::Tiling` na primeira cor antes da fronteira de exportação. Após a
-aprovação da mudança pública proposta em `entities/layout_types.md`, o layout
-deve copiar/clonar o `Paint` para `FrameItem::Shape.fill` sem sampling, fallback
-ou normalização. O dono confirmou a mudança pública em 2026-08-26. A fase
-permanece layout; somente a informação já calculada é transportada. O
-comportamento de bloco especificado neste prompt não muda.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1228 — forma isolada que ocupa exatamente a área útil
+Own Shape rendering in `shape.rs`. Resolve the current Rect/RoundedRect/Ellipse/Path dimensions or Line dx/dy, establish the initial typography reference, close pending text and retain the main-flow block-spacing/collapse protocol. Shape position follows the source's distinct first/post-block cap-height versus post-text baseline-plus-above branches; subframes use direct positioning without main-flow above/below. Request ordinary progress only from the candidate shape's actual bottom, so a fitting shape is not rejected by unrelated typographic leading. Resolve radius against effective size, preserve Paint, stroke, fill rule and parent bbox. Delegate supported content-backed tiling fills to `00_nucleo/prompts/compiler/layout/tiling.md`; when materialized, preserve the separate unfilled stroke shape and paint order; otherwise retain the declarative fill. Advance using the current shape extent/below protocol and leave parent state coherent. Do not rasterize, sample all paints into a single solid color, shift Place through a global scan or move this render logic into ShapeElem.
 
-Medição em working tree não commitada sobre `697eaf31e8ce6aaa4eef7d61d7808e377005c3c5`,
-em 2026-08-26: `#set page(width: 140pt, height: 50pt, margin: 5pt)` seguido de
-`#rect(width: 130pt, height: 40pt, fill: red)` produz somente o fundo no
-cristalino, enquanto a mesma forma com `height: 20pt` é emitida. Trocar a cor
-sólida por gradient, alpha ou stops coincidentes não altera essa fronteira.
+## Acceptance and limits
 
-Uma forma isolada cuja largura e altura são exatamente as dimensões da área
-útil deve permanecer na página corrente, com canto superior esquerdo na
-margem. O teste de overflow deve considerar a caixa real da forma e as margens;
-a baseline tipográfica inicial e o espaçamento reservado para conteúdo
-subsequente não podem provocar uma página nova antes dessa primeira forma.
-Esta obrigação vale para qualquer `Paint` e não autoriza tratamento especial de
-gradient, reconhecimento textual da fixture nem mudança no exportador.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-Base de evidência (P763h):
-- Em `lab/typst-original/crates/typst-layout/src/engine.rs:765-803`, todas as primitivas de desenho do vanilla são realizadas como `BlockElem::single_layouter`.
-- O vanilla emite `warning: block may not occur inside of a paragraph and was ignored` quando uma forma ocorre dentro de `#par[...]`.
-- No cristalino actual, `Content::Shape` é processado sequencialmente no mesmo fluxo de texto, o que produz AE 1864–7070 em documentos que misturam texto e formas.
+## Initial non-text block correction
 
----
-
-## 1. Contrato de comportamento
-
-Qualquer `Content::Shape` (independentemente do `ShapeKind`) deve comportar-se como um bloco auto-contido, equivalente a `BlockElem::single_layouter(...)` do vanilla:
-
-1. **Quebra de parágrafo implícita**: antes de posicionar a forma, o parágrafo/linha corrente é terminado; depois da forma, o conteúdo subsequente inicia um novo parágrafo/linha.
-2. **Não participa em linhas de texto**: uma forma nunca pode aparecer na mesma linha horizontal que texto circundante. Texto antes da forma fica na(s) linha(s) anterior(es); texto depois da forma começa abaixo dela.
-3. **Empilhamento vertical**: duas ou mais formas consecutivas (ou intercaladas com outros blocos) são empilhadas verticalmente, com espaçamento de bloco entre elas.
-4. **Posicionamento interno inalterado**: o canto superior-esquerdo da forma mantém-se alinhado a `cursor_x` (margem esquerda do contentor) e à baseline/altura de linha corrente, conforme já estabelecido em `shape.rs` (P748/P750). A mudança é apenas o contexto de fluxo em torno da forma.
-5. **Ancoramento vertical correto (P767c)**: quando uma forma sucede texto não-bloco no mesmo parágrafo, o vanilla ancora a *base* da forma em `baseline + above` e estende-a para cima; a próxima baseline do texto fica em `shape_top + below + cap_height`. Quando a forma sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo P767a (`shape_base = cursor_y − cap_height`, avanço `shape_base + height + below`).
-
-> **Proveniência da medição (citação em falta, acrescentada em P1031).** A afirmação do
-> ponto 5 sobre o vanilla **é** medida, e com proveniência completa — o que faltava era a
-> referência. Fonte:
-> `00_nucleo/diagnosticos/paridade-producao-p767c.md` (2026-07-15, base commit
-> `beb4d4e4f`), §1 "Metodologia" e §2:
->
-> - **Método**: extracção de coordenadas com `mutool trace` e comparação rasterizada com
->   `mutool draw` + ImageMagick `compare -metric AE`; documentos de teste em `temp_p767c/`;
->   vanilla invocado como `lab/typst-original/target/release/typst compile <in>.typ <out>.pdf`.
-> - **Números** (documento `A #rect(...) B`), coordenadas Y em pt:
->
->   | Elemento | Vanilla | Cristalino P767a (antes) | Cristalino P767c (depois) |
->   |---|---|---|---|
->   | baseline de "A" | 78,104 | 78,105 | 78,105 |
->   | base do `rect` | 91,304 | 85,250 | 91,300 |
->   | topo do `rect` | 113,981 | 107,930 | 113,980 |
->   | baseline de "B" | 134,419 | 128,369 | 134,419 |
->
->   O desvio de ~6,05 pt do modelo anterior desapareceu; as quatro coordenadas batem com o
->   vanilla dentro do arredondamento do `mutool` (±0,005 pt). §3 do mesmo relatório
->   generaliza para `rect`/`square`/`ellipse`/`circle`/`line`/`polygon`.
->
-> **Natureza**: medição directa contra o binário vanilla, não citação de documentação — o
-> ancoramento é geometria de layout e não tem enunciado na documentação da linguagem. A
-> aceitação aqui é ao nível do observável geométrico, que é o adequado para este construto.
-
-> **Decisão sobre aviso**: o vanilla emite aviso quando uma forma ocorre dentro de `#par[...]` explícito. O cristalino **não precisa de replicar essa mensagem** — basta que quebre o parágrafo silenciosamente, tal como já fazem outros elementos de bloco do cristalino quando encontrados no fluxo.
-
----
-
-## 2. Ponto de intercepção
-
-A implementação deve reutilizar a infraestrutura de blocos já existente no `Layouter`, em vez de inventar um mecanismo paralelo:
-
-- `Content::Block` em `01_core/src/compiler/layout/block.rs` já implementa terminamento de linha (`flush_line()`), espaçamento `above`/`below` e tracking de blocos consecutivos (`block_chain_active`, `prev_block_below_pending`).
-- `Content::Heading` em `01_core/src/compiler/layout/heading.rs` e `Content::ListItem`/`EnumItem` também terminam a linha em curso antes de se posicionarem.
-- A mudança pode ser feita **num dos seguintes pontos** (a escolher em P767a com base no menor impacto):
-  - **Opção A (preferida se viável)**: modificar `shape::layout` para invocar o mesmo protocolo de bloco que `block::layout` (flush, aplicação de `above`/`below`, flag `block_chain_active`).
-  - **Opção B**: no realizador ou no braço `Content::Shape` de `layout_content`, envolver implicitamente a forma num `BlockElem` com body vazio e emitir a forma como conteúdo do bloco. Isto reaproveita toda a lógica de `block::layout`, mas pode complicar `place()` e medições.
-  - **Opção C**: introduzir um estado "paragraph broken" no `Layouter` que force o início de uma nova linha/parágrafo após a forma. Só se A e B forem inviáveis.
-
-A escolha final deve ser justificada no relatório de P767a com medição de AE antes/depois.
-
----
-
-## 3. Espaçamento `above` / `below`
-
-O vanilla usa `BlockElem` com `spacing` por defeito igual a `1.2em` (`Em::new(1.2).into()`), que se propaga para `above` e `below` quando não especificados (`container.rs:342-354`).
-
-- As formas cristalinas devem aplicar o **mesmo espaçamento por defeito** entre si e entre texto/blocos adjacentes.
-- O valor concreto (1.2em) deve ser medido contra o vanilla num documento de teste simples (ex.: `#rect(...)#rect(...)`) antes de ser hardcoded.
-- Se o `Layouter` já tiver um mecanismo de `above`/`below` collapse (P250), reutilizá-lo. Não duplicar lógica de colapso.
-
----
-
-## 4. Impacto em `place()`
-
-Formas dentro de `place(...)` (posicionamento absoluto) **não são afectadas** por este L0:
-
-- `place()` foi corrigido em P763f; o caminho absoluto não passa pelo fluxo normal de parágrafo.
-- A verificação de P767a deve confirmar que documentos como `#place(top+left, rect(...))` mantêm AE baixo.
-
----
-
-## 5. Impacto nos testes de regressão de texto (P745–P762)
-
-Antes de implementar, executar uma busca nos testes de layout por documentos que misturem texto literal com formas no mesmo fluxo (ex.: `"A #rect(...) B"`).
-
-- Não foram encontrados testes deste tipo na base actual (`01_core/src/compiler/layout/tests.rs`).
-- Se algum teste futuro depender do comportamento actual (fluxo contínuo), esse teste deve ser actualizado consciente — não é uma regressão, é a correcção do modelo.
-- A validação de P767a inclui `cargo test --workspace` e repetição das medições de P763h (formas isoladas e misturadas com texto) para todas as primitivas, além do checklist de sub-layouts (grid, box, columns, place).
-
----
-
-## Critério de aceitação (para P767a)
-
-- [ ] Documentos com forma isolada mantêm AE próximo do baseline (5–300).
-- [ ] Documentos com texto misturado com formas passam a empilhar formas e texto como blocos, com AE próximo do baseline.
-- [ ] Formas dentro de `place()` não regressam.
-- [ ] `cargo test --workspace` verde.
-- [ ] `crystalline-lint .` zero violações (excepto V7 esperado).
-- [ ] Header `@prompt` / `@prompt-hash` actualizado em `shape.rs` (via `crystalline-lint --fix-hashes .`).
+When main-flow layout still has its initial baseline pending and no pending line,
+place the first block at the physical region origin without acquiring typography
+merely to add and subtract an artificial baseline. Mark that initial state handled;
+retain the existing post-block cursor/margin protocol so later text can request its
+own metrics. Explicit text top-edge must not move this block. Preserve pending-text
+and subframe paths, dimensions, clipping/paint and existing overflow behavior except
+that first-block fitting uses its actual geometric extent. Tests in this consumer
+must discriminate explicit top edges and prove this path needs no FontMetrics query.
+This internal parity repair does not change public API or pipeline phases.

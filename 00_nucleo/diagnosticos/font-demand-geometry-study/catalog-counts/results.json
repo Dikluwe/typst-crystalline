@@ -1,0 +1,194 @@
+[
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 0,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image-default-r0.pdf"
+    ],
+    "utc": "2026-09-27T19:21:09.174724+00:00",
+    "input_sha256": "5a5b5d33e90bc9575317878bd67d27bfb1103a3eaf1450f755586519bf2b6626",
+    "output_sha256": "99dc0ff2c5602a6cc02716857b3d0d04b7933c9170db460dda65283da67313e3"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 0,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/shape-default-r0.pdf"
+    ],
+    "utc": "2026-09-27T19:21:09.196147+00:00",
+    "input_sha256": "37fc8f2b69a4a5ac948eca106c5776fc3e88c9394176870aeff33f250fa5eedb",
+    "output_sha256": "088f36152452de43322528ee9a6c2b816c3e00c492e649b07d8ba465c0a19ca7"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+    "book_calls": 6,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 0,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/placed_shape-default-r0.pdf"
+    ],
+    "utc": "2026-09-27T19:21:11.495730+00:00",
+    "input_sha256": "82758ad5ab0583296a2ae03a465c22cc3a49020182d627fcb0322cda48e14e1c",
+    "output_sha256": "455e3783ce1fe0af638d7e617235ba83fb15a53c0ad29079191fbcc6b8306dca"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+    "book_calls": 14,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 0,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image_then_text-default-r0.pdf"
+    ],
+    "utc": "2026-09-27T19:21:13.830525+00:00",
+    "input_sha256": "76061a8ee19601ba6fd884c4284fb7471a716113cc34c943585a3b77b2515a3f",
+    "output_sha256": "73b324fea1c0440373e63cef60a2a963518cf0fa67a9bad83abd136dbfb1e54d"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 1,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image-default-r1.pdf"
+    ],
+    "utc": "2026-09-27T19:21:13.852316+00:00",
+    "input_sha256": "5a5b5d33e90bc9575317878bd67d27bfb1103a3eaf1450f755586519bf2b6626",
+    "output_sha256": "9627c5706c769598b4ce4ed2d4d8beb16841937c229fb5e8e8bb8cbdecc44fea"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 1,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/shape-default-r1.pdf"
+    ],
+    "utc": "2026-09-27T19:21:13.873267+00:00",
+    "input_sha256": "37fc8f2b69a4a5ac948eca106c5776fc3e88c9394176870aeff33f250fa5eedb",
+    "output_sha256": "51f32fc24300d737cdd79f5c2e33997ac9c0108bf298ad4ea9b1d48fc8e33ec8"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+    "book_calls": 6,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 1,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/placed_shape-default-r1.pdf"
+    ],
+    "utc": "2026-09-27T19:21:16.154974+00:00",
+    "input_sha256": "82758ad5ab0583296a2ae03a465c22cc3a49020182d627fcb0322cda48e14e1c",
+    "output_sha256": "a8fe5b1b34d4560ae1c6666e09c0d8e5d0a8a003944810d1ec4749a4c8dc9977"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+    "book_calls": 14,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 1,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image_then_text-default-r1.pdf"
+    ],
+    "utc": "2026-09-27T19:21:18.468539+00:00",
+    "input_sha256": "76061a8ee19601ba6fd884c4284fb7471a716113cc34c943585a3b77b2515a3f",
+    "output_sha256": "ab0af3f7c079e8f1c8b9e171ffb680602d990402b4e3ea5e76551544cde05822"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 2,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image-default-r2.pdf"
+    ],
+    "utc": "2026-09-27T19:21:18.490629+00:00",
+    "input_sha256": "5a5b5d33e90bc9575317878bd67d27bfb1103a3eaf1450f755586519bf2b6626",
+    "output_sha256": "d30b73190e0967cb1d267d864c145d4c2494289507d177503a5e46ae8e9b7bc6"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+    "book_calls": 0,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 2,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/shape-default-r2.pdf"
+    ],
+    "utc": "2026-09-27T19:21:18.511598+00:00",
+    "input_sha256": "37fc8f2b69a4a5ac948eca106c5776fc3e88c9394176870aeff33f250fa5eedb",
+    "output_sha256": "b52804693702588add43fa41a61cc49c790f7b35c2bcbb161eb3e490c1b49514"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+    "book_calls": 6,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 2,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/placed_shape-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/placed_shape-default-r2.pdf"
+    ],
+    "utc": "2026-09-27T19:21:20.815427+00:00",
+    "input_sha256": "82758ad5ab0583296a2ae03a465c22cc3a49020182d627fcb0322cda48e14e1c",
+    "output_sha256": "2375cd6c06c92d9a46c254d30c49a724f159472d5019c82d83c4a90806a5bf90"
+  },
+  {
+    "input": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+    "book_calls": 14,
+    "warnings": 0,
+    "functional_control_not_a_performance_run": true,
+    "round": 2,
+    "command": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/after/inputs/image_then_text-default.typ",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fonts",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/image_then_text-default-r2.pdf"
+    ],
+    "utc": "2026-09-27T19:21:23.127868+00:00",
+    "input_sha256": "76061a8ee19601ba6fd884c4284fb7471a716113cc34c943585a3b77b2515a3f",
+    "output_sha256": "5d65ec23feb90a1a14684bca8b3ba40ca9c460ae24f4a7bf3f8fc6a0d40a3d6c"
+  }
+]

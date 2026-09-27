@@ -1,0 +1,365 @@
+{
+  "global_errors": [],
+  "owned_results": [
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 133
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 520
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 68
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 69
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 555
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `FrameItem::Image { clip_rect: Some(rect), .. }` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 201
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 273
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`crate::entities::layout_types::FrameItem::Text { style, .. }\n                    | crate::entities::layout_types::FrameItem::TextShaped {\n                        style,\n                        ..\n                    }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 324
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`crate::entities::layout_types::FrameItem::Text { style, .. }\n                    | crate::entities::layout_types::FrameItem::TextShaped {\n                        style,\n                        ..\n                    }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 505
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::value::Value::Str(pattern))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 509
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(crate::entities::value::Value::Func(func))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 37,
+              "startLine": 564
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Text { pos, .. }\n                                    | FrameItem::TextShaped { pos, .. }\n                                    | FrameItem::Glyph { pos, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 584
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(length))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 29,
+              "startLine": 589
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`Some(Value::Align(Align2D {\n                                h: Some(HAlign::Right | HAlign::End),\n                                v: None,\n                            }))`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 29,
+              "startLine": 589
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 5 > 2 em `Some(Value::Align(Align2D {\n                                h: Some(HAlign::Right | HAlign::End),\n                                v: None,\n                            }))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 604
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 5 > 2 em `Some(Value::Align(Align2D { h: Some(h), v: None }))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/line_commit.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 616
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`(HAlign::Right, HAlign::Right | HAlign::End)`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 56
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 4 alternativas (`ShapeKind::Rect\n        | ShapeKind::RoundedRect { .. }\n        | ShapeKind::Ellipse\n        | ShapeKind::Path(_)`) \u2014 cobertura de bra\u00e7os subestima 4\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 141
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Paint::Tiling(tiling))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    }
+  ]
+}

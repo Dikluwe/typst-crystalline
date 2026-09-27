@@ -1,0 +1,36 @@
+{
+  "sha256": "ecd6d0b2497ba383bd8bb107e0565a419fb44571da12e61d820f10a6f4b4c2fd",
+  "cargo_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts#infra-font-demand-counts@0.1.0",
+    "manifest_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "infra-font-demand-counts",
+      "src_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/src/main.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts"
+    ],
+    "executable": "/repos/Antigravity/typst-crystalline/target/debug/infra-font-demand-counts",
+    "fresh": false
+  },
+  "functional_counts_only": true
+}

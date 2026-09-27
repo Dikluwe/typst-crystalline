@@ -1,0 +1,39 @@
+
+running 4 tests
+test compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography ... FAILED
+test compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge ... FAILED
+test compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography ... FAILED
+test compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge ... FAILED
+
+failures:
+
+---- compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography stdout ----
+
+thread 'compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography' (165122) panicked at 01_core/src/compiler/layout/image.rs:517:66:
+unexpected text edges
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge stdout ----
+
+thread 'compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge' (165123) panicked at 01_core/src/compiler/layout/image.rs:537:9:
+block top 63.166141732283464 != physical origin 70.86614173228347
+
+---- compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography stdout ----
+
+thread 'compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography' (165124) panicked at 01_core/src/compiler/layout/shape.rs:203:66:
+unexpected text edges
+
+---- compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge stdout ----
+
+thread 'compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge' (165125) panicked at 01_core/src/compiler/layout/shape.rs:223:9:
+block top 63.166141732283464 != physical origin 70.86614173228347
+
+
+failures:
+    compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography
+    compiler::layout::image::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge
+    compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_does_not_acquire_typography
+    compiler::layout::shape::initial_nontext_block_regressions::initial_nontext_block_top_is_independent_of_text_edge
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 6284 filtered out; finished in 0.00s
+

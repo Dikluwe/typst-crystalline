@@ -1,193 +1,46 @@
-# Prompt L0 — compiler/layout/image — `Content::Image` como bloco com ancoramento vertical
-Hash do Código: 0b28f0d8
+# L0 — image
+Hash do Código: d78ceada
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/image.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/image.rs`  
-**ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva), ADR-0109 (atomização forma B)  
-**Prompts relacionados**: `entities/elements/image.md`, `compiler/layout/shape_block_behaviour.md`
+## Evidence before specification
 
----
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/image.rs:18`, `01_core/src/compiler/layout/image.rs:22`, `01_core/src/compiler/layout/image.rs:25`.
 
-## Propósito
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Layout de `Content::Image` no fluxo do documento. Reproduz o comportamento do Typst vanilla: uma imagem é um elemento de **bloco** que quebra o parágrafo corrente, aplica espaçamento `above`/`below` por defeito, ancora verticalmente na grelha de linhas quando sucede texto não-bloco e resolve dimensões finais respeitando `fit` (cover/contain/stretch) e DPI padrão de 72.
+The equivalent-input pinned SVG probes in
+`00_nucleo/diagnosticos/font-demand-geometry-study/results.json` show that an
+initial standalone non-text block moves when only text top-edge changes in
+Tekt, while the pinned vanilla position remains the region's physical top.
+This is observable geometry, not a requirement to copy upstream algorithms.
+Explicit Place controls remain invariant and do not authorize changing the
+subframe coordinate convention.
 
-Base de evidência (P768/P770):
+## Ownership and contract
 
-- Em `lab/typst-original/crates/typst-layout/src/engine.rs`, `IMAGE_RULE` realiza `ImageElem` como `BlockElem::single_layouter`.
-- Em `lab/typst-original/crates/typst-layout/src/image.rs`, o vanilla resolve dimensões com `Image::DEFAULT_DPI = 72.0` e aplica `ImageFit` (`Cover`/`Contain`/`Stretch`) mesmo quando `width` e `height` são ambos fornecidos.
-- No cristalino, `Content::Image` chamava `flush_line()` mas não aplicava `above`/`below` nem ancorava na próxima baseline (corrigido em P769).
-- A escala px→pt e a lógica de `fit` divergiam do vanilla (corrigido em P770).
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
----
+Own the pure image dimension calculator and block-layout adapter. Read intrinsic pixels, DPI and EXIF orientation through injected ImageSizer, not a decoder or filesystem. Use DPI fallback 72 and convert by 72/dpi; metadata precedence is the sizer owner's responsibility. Preserve unknown-size fallback 100pt square. Orientations five through eight swap dimensions used for aspect/layout but retain original intrinsic pixel dimensions for export.
 
-## Contrato de comportamento
+Dimension overrides preserve the current Float/absolute-Length projection. With both axes, retain the target rectangle and fit: stretch uses it directly; cover/contain preserve aspect according to the current wide-image branch. Center the transformed image in the target, clip only cover, and use target height for cursor/fitting. One-axis overrides preserve aspect with no target clip; no overrides use converted intrinsic dimensions.
 
-1. **Quebra de parágrafo implícita**: antes de posicionar a imagem, termina a linha/parágrafo corrente.
-2. **Não participa em linhas de texto**: a imagem nunca aparece na mesma linha horizontal que texto circundante.
-3. **Espaçamento de bloco**: aplica `above`/`below` de `1.2em` por defeito (paridade `BlockElem::spacing` do vanilla), com colapso de margem entre blocos consecutivos via `Layouter.block_chain_active` / `prev_block_below_pending`.
-4. **Ancoramento vertical (P769)**:
-   - Quando a imagem sucede texto não-bloco no mesmo parágrafo, a *base* da imagem ancora em `baseline_before_flush + above`; o topo fica em `base + height`; a próxima baseline do texto fica em `top + below + cap_height`.
-   - Quando a imagem sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo de bloco: base da imagem em `cursor_y − cap_height`, avanço `base + height + below`.
-5. **Sub-layouts isolados**: dentro de `place(...)`, células de grid, etc. (`is_sub_frame == true`), preserva-se o posicionamento directo sem protocolo de bloco nem ancoramento especial.
-6. **Resolução de dimensões e target (P770/P771/P773)**:
-   - DPI padrão (fallback): **72** (`Image::DEFAULT_DPI` do vanilla).
-   - Se a imagem tiver metadados de DPI (EXIF, JFIF APP0, PNG `pHYs`), usar o valor real; prioridade EXIF > JFIF APP0 > PNG `pHYs` (paridade `typst_library::visualize::image::raster`).
-   - Conversão px→pt: `px * (72.0 / dpi)`; com fallback `dpi = 72` → `1 px = 1 pt`.
-   - `fit` default `"cover"`; valores válidos `"contain"`, `"cover"`, `"stretch"`.
-   - Quando `width` e `height` são ambos fornecidos:
-     - O rectângulo **target** é `(target_w, target_h) = (width, height)`.
-     - A transformação da imagem é ajustada conforme `fit`:
-       - `"stretch"` → `(target_w, target_h)`.
-       - `"cover"` / `"contain"` → preencher o target preservando aspect ratio (paridade `typst-layout/src/image.rs`).
-     - A imagem é **centralizada** dentro do target.
-     - O avanço do cursor usa a altura do **target**, não da transformação.
-     - O exportador PDF emite um `clip_path` com o rectângulo do target quando `fit == "cover"` (a transformação excede o target); `"contain"` e `"stretch"` não precisam de clip no vanilla.
-   - Quando apenas um eixo é fornecido, calcular o outro pelo aspect ratio (independente de `fit`); não há target, avanço usa a altura da transformação.
-   - Quando nenhum é fornecido, usar dimensões intrínsecas convertidas pelo DPI real ou fallback 72.
+Close pending text and apply the existing main-flow block spacing/collapse protocol, preserving the source's image spacing constant of 1.2em, matching the canonical default in `00_nucleo/prompts/compiler/layout/vanilla_defaults.md`. Keep the distinct post-text baseline anchor versus first/post-block cap-height anchor; subframes bypass this main-flow protocol. Preserve ordinary pre/post overflow requests and emit original bytes, intrinsic dimensions, orientation and alt without synthesis, keeping None distinct from Some(empty). Geometry follows the shared coordinate convention, not the old prose's upward-Y assertion. No renderer or PDF matrix policy is owned here.
 
----
+## Acceptance and limits
 
-## Constantes e tipos
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-```rust
-const PX_TO_PT: f64 = 1.0;  // 72 DPI padrão do vanilla: 1 px = 1 pt
+## Initial non-text block correction
 
-pub struct ImageDimensions {
-    /// Dimensões da transformação da imagem (podem exceder o target em cover).
-    pub width_pt:         f64,
-    pub height_pt:        f64,
-    /// Dimensões do rectângulo target pedido pelo utilizador.
-    /// `None` quando apenas um eixo ou nenhum é fornecido.
-    pub target_width:     Option<f64>,
-    pub target_height:    Option<f64>,
-    pub intrinsic_width:  Option<u32>,
-    pub intrinsic_height: Option<u32>,
-    /// Valor EXIF Orientation (1-8), se presente. O exportador PDF usa este
-    /// valor para aplicar a transformação via matriz `cm` (P776).
-    pub orientation:      u32,
-}
-```
-
-`intrinsic_width`/`intrinsic_height` evitam uma segunda chamada ao `ImageSizer` no layouter (DEBT-28).
-
----
-
-## `calculate_dimensions`
-
-```rust
-pub fn calculate_dimensions(
-    data:        &[u8],
-    user_width:  Option<&Value>,
-    user_height: Option<&Value>,
-    fit:         &str,
-    sizer:       &dyn ImageSizer,
-) -> ImageDimensions
-```
-
-1. Lê dimensões intrínsecas via `sizer.size(data)`; se `None`, fallback `100×100 pt`.
-2. Lê `orientation` via `sizer.orientation(data)`; fallback `1`.
-3. Para orientações EXIF 5-8 (rotação 90°/270°), troca as dimensões intrínsecas
-   usadas no cálculo do layout, replicando o `new_size` do vanilla
-   (`exif_transform`). As dimensões originais são ainda guardadas em
-   `intrinsic_width`/`intrinsic_height` para o XObject PDF.
-4. Calcula aspect ratio (`w / h`; fallback `1.0` se `h == 0`).
-5. Converte dimensões intrínsecas (já trocadas quando aplicável) para pt usando
-   `PX_TO_PT` (72 DPI padrão).
-6. Extrai `req_w`/`req_h` via `extract_pt`:
-   - `Value::Float(f)` → `Some(*f)`.
-   - `Value::Length(l)` → `Some(l.abs.to_pt())`.
-   - Outros → `None`.
-7. Resolve dimensões finais:
-   - `fit == "stretch"` e ambos fornecidos → `(image_w, image_h) = (req_w, req_h)`; `target = (req_w, req_h)`.
-   - `fit == "cover"` ou `"contain"` e ambos fornecidos → calcular `target = (req_w, req_h)`; ajustar a transformação para preencher o target preservando aspect ratio:
-     - `wide = aspect > target_w / target_h`.
-     - Se `wide == (fit == "contain")` → `(image_w, image_h) = (target_w, target_w / aspect)`.
-     - Caso contrário → `(image_w, image_h) = (target_h * aspect, target_h)`.
-   - Só `req_w` → `(image_w, image_h) = (req_w, req_w / aspect)`; sem target.
-   - Só `req_h` → `(image_w, image_h) = (req_h * aspect, req_h)`; sem target.
-   - Nenhum → `(image_w, image_h)` = dimensões intrínsecas convertidas (trocadas se orientação 5-8); sem target.
-8. Retorna `width_pt = image_w`, `height_pt = image_h`, `target_width`/`target_height` (quando ambos fornecidos), dimensões intrínsecas originais e `orientation`.
-
----
-
-## `layout`
-
-```rust
-pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
-    layouter: &mut Layouter<M, S>,
-    e:        &ImageElem,
-)
-```
-
-1. Chama `layouter.ensure_initial_baseline()`.
-2. Calcula dimensões via `calculate_dimensions(&e.data.0, e.width.as_deref(), e.height.as_deref(), &e.fit, &layouter.sizer)`.
-3. Guarda `baseline_before_flush = layouter.regions.current.cursor_y`.
-4. Executa `layouter.flush_line()`.
-5. Determina `had_text_line = cursor_y_after_flush.0 > baseline_before_flush.0 + epsilon`.
-6. Se `!is_sub_frame`:
-   - Aplica colapso de margem com o bloco anterior via `block_chain_active` / `prev_block_below_pending`.
-   - Calcula `above_pt` e `below_pt` a partir de `1.2em`.
-   - Alinha `cursor_x` a `line_start_x`.
-7. Verifica overflow de página; se necessário `new_page()`.
-8. Calcula `image_base` (base do **target** quando existe target, ou base da imagem quando não existe):
-   - `!in_main_flow` → `cursor_y`.
-   - `block_chain_active` → `cursor_y - cap_height`.
-   - `had_text_line` → `baseline_before_flush + above_pt`.
-   - caso contrário → `cursor_y - cap_height`.
-9. Se existe target, calcula o offset de centralização da imagem dentro do target:
-   - `offset_x = (target_width - image_width) / 2`.
-   - `offset_y = (target_height - image_height) / 2`.
-   - A posição de desenho da imagem é `Point { x: cursor_x + offset_x, y: image_base + offset_y }`.
-   - A altura usada no avanço do cursor é `target_height`.
-   - O `clip_rect` de `FrameItem::Image` é preenchido com o target (`x: cursor_x, y: image_base, w: target_width, h: target_height`) quando `fit == "cover"`; caso contrário `None`.
-10. Emite `FrameItem::Image` com `orientation` vinda de `ImageDimensions`. Se não existe target, a posição é `Point { x: cursor_x, y: image_base }` com `clip_rect: None`; avanço usa `image_height`.
-11. Avança o cursor:
-    - Em sub-frame: `cursor_y += height_usada`.
-    - No fluxo principal após bloco: `cursor_y = image_base + height_usada + below`.
-    - No fluxo principal após texto: `cursor_y = image_base + height_usada + below + cap_height`.
-11. Define `prev_block_below_pending = below_pt` e `block_chain_active = true` no fluxo principal.
-12. Verifica overflow de página novamente.
-
----
-
-## Invariantes
-
-- Zero dependências externas em L1 — `imagesize` nunca importado aqui.
-- Fallback `100×100` documentado.
-- Aspect ratio sempre preservado quando apenas um override é fornecido.
-- `fit` é aplicado mesmo quando ambos `width` e `height` são fornecidos.
-- O `FrameItem::Image.pos.y` é a base da *transformação* da imagem em coordenadas do Layouter (Y crescente para cima a partir da base da página); a imagem estende-se para cima pela sua altura.
-- Quando existe target, a imagem é centralizada no target; o avanço do cursor e o `clip_rect` usam o target.
-
----
-
-## Testes
-
-Manter os testes unitários existentes de `calculate_dimensions`. Adicionar testes que cubram:
-
-- `fit = "stretch"` com ambos os eixos forçados usa dimensões exactas.
-- `fit = "cover"`/`"contain"` com ambos os eixos forçados preserva aspect ratio.
-- Conversão px→pt com `PX_TO_PT = 1.0` (72 DPI).
-- Layout de `Content::Image` no fluxo principal, isolada e após texto.
-
----
-
-## Critério de aceitação
-
-- Imagens sem dimensões explícitas: dimensões da transformação igualam o vanilla (100×80pt no caso de teste P770); `A #image(...) B` alinha-se ao vanilla (ΔY ≈ 0 em A e B).
-- Imagens com dimensões explícitas: transformação, centralização no target, `clip_path` (quando cover) e avanço de cursor igualam o vanilla; `A #image(width:2cm,height:1.5cm) B` alinha-se ao vanilla (ΔY ≈ 0 em A e B).
-- Imagens isoladas e em sub-layouts não regressam.
-- `cargo test --workspace` verde.
-- `crystalline-lint .` zero violações (excepto V7 esperado).
-- Header `@prompt` / `@prompt-hash` actualizado em `image.rs`.
-
-## P1481 — transporte de alt até o frame (IMPLEMENTADO; confirmado em 2026-09-23)
-
-O vanilla preserva `ImageElem.alt` para o nó Figure; o cristalino
-`layout/image.rs` construía `FrameItem::Image` sem esse campo.
-Com os campos L1 confirmados de `entities/elements/image.md` e
-`entities/layout_types.md`, copiar `alt` sem síntese, sem afetar
-dimensões, paginação, rasterização ou render dos outros targets.
-`None` continua distinguível de `Some("")`. Gate ADR-0127
-satisfeito para os campos públicos; este owner não adiciona assinatura pública.
+When main-flow layout still has its initial baseline pending and no pending line,
+place the first block at the physical region origin without acquiring typography
+merely to add and subtract an artificial baseline. Mark that initial state handled;
+retain the existing post-block cursor/margin protocol so later text can request its
+own metrics. Explicit text top-edge must not move this block. Preserve pending-text
+and subframe paths, dimensions, clipping/paint and existing overflow behavior except
+that first-block fitting uses its actual geometric extent. Tests in this consumer
+must discriminate explicit top edges and prove this path needs no FontMetrics query.
+This internal parity repair does not change public API or pipeline phases.

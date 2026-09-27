@@ -1,0 +1,6 @@
+error: unknown variable `ascender`
+  ┌─ 00_nucleo/diagnosticos/font-demand-geometry-study/inputs/placed_shape-ascender.typ:2:20
+  │
+2 │ #set text(top-edge: ascender)
+  │                     ^^^^^^^^
+

@@ -1,0 +1,17 @@
+{
+  "01_core/src/compiler/layout/image.rs": {
+    "prompt": "00_nucleo/prompts/compiler/layout-image.md",
+    "prompt_hash": "b2b72ff5",
+    "code_hash": "d78ceada"
+  },
+  "01_core/src/compiler/layout/shape.rs": {
+    "prompt": "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md",
+    "prompt_hash": "ae60b378",
+    "code_hash": "b4b592f5"
+  },
+  "01_core/src/compiler/layout/line_commit.rs": {
+    "prompt": "00_nucleo/prompts/compiler/layout/line_commit.md",
+    "prompt_hash": "c7614beb",
+    "code_hash": "b99c576e"
+  }
+}
