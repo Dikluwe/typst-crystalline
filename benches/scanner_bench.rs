@@ -3,10 +3,13 @@
 //! Mede o tempo de tokenização de 5 inputs representativos,
 //! reportando ns/byte por input.
 
+#[path = "support/profile.rs"]
+mod profile;
+
 use std::fs;
 use std::path::PathBuf;
 
-use criterion::{criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 use typst_core::compiler::lexer::Lexer;
 use typst_core::entities::syntax_mode::SyntaxMode;
 
@@ -22,12 +25,14 @@ fn load_corpus(name: &str) -> String {
 /// Tokeniza `src` completamente no modo dado.
 fn lex_all(src: &str, mode: SyntaxMode) {
     let mut lexer = Lexer::new(src, mode);
-    while lexer.next().0 != typst_core::entities::syntax_kind::SyntaxKind::End {
+    while black_box(lexer.next()).0 != typst_core::entities::syntax_kind::SyntaxKind::End
+    {
         // consumir tokens
     }
 }
 
 fn bench_scanner(c: &mut Criterion) {
+    profile::require_optimized();
     let inputs = [
         ("b1_hello", "b1_hello.typ", SyntaxMode::Markup),
         ("b2_text", "b2_text.typ", SyntaxMode::Markup),
@@ -42,7 +47,7 @@ fn bench_scanner(c: &mut Criterion) {
         let mut group = c.benchmark_group("scanner");
         group.throughput(Throughput::Bytes(len));
         group.bench_function(id, |b| {
-            b.iter(|| lex_all(&src, mode));
+            b.iter(|| lex_all(black_box(&src), black_box(mode)));
         });
         group.finish();
     }
