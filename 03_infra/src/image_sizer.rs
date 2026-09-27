@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/image-sizer.md
-//! @prompt-hash 86a17fd3
+//! @prompt-hash b94d8a37
 //! @layer L3
-//! @updated 2026-04-19
+//! @updated 2026-09-27
 
 use typst_core::entities::image_sizer::ImageSizer;
 
@@ -113,7 +113,7 @@ fn jfif_dpi(data: &[u8]) -> Option<f64> {
         }
         let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
         let seg_end = i + 2 + seg_len;
-        if seg_end > data.len() {
+        if seg_len < 2 || seg_end > data.len() {
             break;
         }
 
@@ -177,7 +177,7 @@ fn exif_dpi(data: &[u8]) -> Option<f64> {
 
             let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
             let seg_end = i + 2 + seg_len;
-            if seg_end > data.len() {
+            if seg_len < 2 || seg_end > data.len() {
                 break;
             }
 
@@ -238,7 +238,7 @@ fn exif_orientation(data: &[u8]) -> Option<u32> {
 
             let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
             let seg_end = i + 2 + seg_len;
-            if seg_end > data.len() {
+            if seg_len < 2 || seg_end > data.len() {
                 break;
             }
 
@@ -553,5 +553,20 @@ mod tests {
             0x00, 0x00, 0x00,
         ];
         assert_eq!(parse_tiff_orientation(tiff_be), Some(8));
+    }
+}
+
+#[cfg(test)]
+mod infra_review_regressions {
+    use super::*;
+    #[test]
+    fn infra_review_short_jpeg_segments_do_not_panic() {
+        for marker in [0xe0, 0xe1] {
+            for length in [0u8, 1] {
+                let data = [0xff, 0xd8, 0xff, marker, 0, length];
+                assert_eq!(ImageSizeImageSizer.dpi(&data), None);
+                assert_eq!(ImageSizeImageSizer.orientation(&data), None);
+            }
+        }
     }
 }

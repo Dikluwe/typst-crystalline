@@ -1,0 +1,12 @@
+{
+  "global_error_results": [],
+  "owned_results": [],
+  "new_owned_messages": [],
+  "global_warning_rules": [
+    "V12",
+    "V16",
+    "V17",
+    "V18",
+    "V5"
+  ]
+}

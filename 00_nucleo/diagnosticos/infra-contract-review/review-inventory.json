@@ -1,0 +1,380 @@
+[
+  {
+    "consumer": "03_infra/src/embedded_fonts.rs",
+    "owner": "00_nucleo/prompts/infra/embedded_fonts.md",
+    "owner_exists": true,
+    "family": "embedded_fonts",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/fallback_fonts.rs",
+    "owner": "00_nucleo/prompts/infra/fallback_fonts.md",
+    "owner_exists": true,
+    "family": "fallback_fonts",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics/basic.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics/basic.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics/caches.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics/caches.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics/fallback.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics/fallback.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics/math.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics/math.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics/resolution.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics/resolution.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/font_metrics.rs",
+    "owner": "00_nucleo/prompts/infra/font_metrics.md",
+    "owner_exists": true,
+    "family": "font_metrics",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/font_variant.rs",
+    "owner": "00_nucleo/prompts/infra/font_variant.md",
+    "owner_exists": true,
+    "family": "font_variant",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/fontdb.rs",
+    "owner": "00_nucleo/prompts/infra/fontdb.md",
+    "owner_exists": true,
+    "family": "fontdb",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/fonts.rs",
+    "owner": "00_nucleo/prompts/infra/fonts.md",
+    "owner_exists": true,
+    "family": "fonts",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/image_sizer.rs",
+    "owner": "00_nucleo/prompts/infra/image-sizer.md",
+    "owner_exists": true,
+    "family": "image_sizer",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/integration_tests.rs",
+    "owner": "00_nucleo/prompts/infra/integration_tests.md",
+    "owner_exists": true,
+    "family": "integration_tests",
+    "review_status": "ownership inventory; unchanged; not a complete behavioral audit"
+  },
+  {
+    "consumer": "03_infra/src/layout.rs",
+    "owner": "00_nucleo/prompts/infra/layout.md",
+    "owner_exists": true,
+    "family": "layout",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/layout_bidi.rs",
+    "owner": "00_nucleo/prompts/infra/layout_bidi.md",
+    "owner_exists": true,
+    "family": "layout_bidi",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/lib.rs",
+    "owner": "00_nucleo/prompts/infra.md",
+    "owner_exists": true,
+    "family": "lib",
+    "review_status": "ownership inventory; unchanged; not a complete behavioral audit"
+  },
+  {
+    "consumer": "03_infra/src/measurements.rs",
+    "owner": "00_nucleo/prompts/infra/measurements.md",
+    "owner_exists": true,
+    "family": "measurements",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/p307b_snapshot_tests.rs",
+    "owner": "00_nucleo/prompts/infra/export-fixtures.md",
+    "owner_exists": true,
+    "family": "p307b_snapshot_tests",
+    "review_status": "ownership inventory; unchanged; not a complete behavioral audit"
+  },
+  {
+    "consumer": "03_infra/src/package_downloader.rs",
+    "owner": "00_nucleo/prompts/infra/package_downloader.md",
+    "owner_exists": true,
+    "family": "package_downloader",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/bundle.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "partial contract/consumer inspection; deeper discriminating audit pending"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/context_stabilization.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "partial contract/consumer inspection; deeper discriminating audit pending"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/html.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/paged.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/pdf.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/pdf.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/raster.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/raster.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/resources.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/resources.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/svg.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/svg.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline/tests.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline/tests.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/pipeline.rs",
+    "owner": "00_nucleo/prompts/infra/pipeline.md",
+    "owner_exists": true,
+    "family": "pipeline",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host/execution.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host/execution.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host/loading.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host/loading.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host/snapshot.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host/snapshot.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host/tests.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host/tests.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host/typst_env.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host/typst_env.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/plugin_host.rs",
+    "owner": "00_nucleo/prompts/infra/plugin_host.md",
+    "owner_exists": true,
+    "family": "plugin_host",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/project_init.rs",
+    "owner": "00_nucleo/prompts/shell/init.md",
+    "owner_exists": true,
+    "family": "project_init",
+    "review_status": "ownership inventory; unchanged; not a complete behavioral audit"
+  },
+  {
+    "consumer": "03_infra/src/query_helpers.rs",
+    "owner": "00_nucleo/prompts/infra/query-helpers.md",
+    "owner_exists": true,
+    "family": "query_helpers",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/runtime_info.rs",
+    "owner": "00_nucleo/prompts/infra/runtime_info.md",
+    "owner_exists": true,
+    "family": "runtime_info",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/shaper/bidi.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/bidi.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/cache.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/cache.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/font_selection.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/font_selection.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/reconciliation.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/reconciliation.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/shaping.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/shaping.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/tests.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/tests.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper/traversal.rs",
+    "owner": "00_nucleo/prompts/infra/shaper/traversal.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/shaper.rs",
+    "owner": "00_nucleo/prompts/infra/shaper.md",
+    "owner_exists": true,
+    "family": "shaper",
+    "review_status": "prior sealed shaper audit"
+  },
+  {
+    "consumer": "03_infra/src/watch.rs",
+    "owner": "00_nucleo/prompts/shell/watch.md",
+    "owner_exists": true,
+    "family": "watch",
+    "review_status": "ownership inventory; unchanged; not a complete behavioral audit"
+  },
+  {
+    "consumer": "03_infra/src/world/cache.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/cache.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/world/fonts.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/fonts.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/world/packages.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/packages.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/world/paths.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/paths.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/world/tests.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/tests.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "regression-tested correction"
+  },
+  {
+    "consumer": "03_infra/src/world/world_impl.rs",
+    "owner": "00_nucleo/prompts/infra/system-world/world_impl.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  },
+  {
+    "consumer": "03_infra/src/world.rs",
+    "owner": "00_nucleo/prompts/infra/system-world.md",
+    "owner_exists": true,
+    "family": "world",
+    "review_status": "contract/consumer inspection; no new parity proof"
+  }
+]

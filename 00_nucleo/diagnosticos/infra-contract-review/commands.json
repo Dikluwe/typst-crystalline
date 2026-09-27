@@ -1,0 +1,19 @@
+{
+  "red": [
+    "cargo test -p typst-infra --lib infra_review_explicit_size --offline -- --test-threads=1 (size-red and shaped-size-red)"
+  ],
+  "green": [
+    "cargo test -p typst-infra --lib infra_review --offline -- --test-threads=1"
+  ],
+  "suite": [
+    "cargo test -p typst-infra --lib --offline -- --test-threads=1 (interrupted with SIGTERM)",
+    "cargo test -p typst-infra --lib --offline -- --test-threads=1 --skip export::"
+  ],
+  "format": "rustfmt --edition 2021 --config skip_children=true 03_infra/src/font_metrics/caches.rs 03_infra/src/font_metrics/fallback.rs 03_infra/src/world/cache.rs 03_infra/src/world/tests.rs 03_infra/src/image_sizer.rs 03_infra/src/fonts.rs",
+  "build": "cargo build --offline",
+  "lint": "/home/dikluwe/.cargo/bin/crystalline-lint . --format sarif",
+  "local_seal": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/infra-contract-review/seal_scope.py",
+  "preservation": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/infra-contract-review/record_review.py",
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "earlier_red_capture": "Earlier preparation, math/world/image RED and embedded-font RED retain raw logs and before-images; exact shell invocations were not independently retained in a command receipt."
+}

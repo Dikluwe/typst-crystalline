@@ -1,0 +1,34 @@
+
+running 3 tests
+test font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh ... FAILED
+test image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic ... FAILED
+test world::tests::infra_review_concurrent_registration_has_one_identity ... FAILED
+
+failures:
+
+---- font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh stdout ----
+
+thread 'font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh' (13700) panicked at 03_infra/src/font_metrics/caches.rs:340:173:
+assertion `left != right` failed: must discriminate
+  left: Pt(7.2)
+ right: Pt(7.2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic stdout ----
+
+thread 'image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic' (13701) panicked at 03_infra/src/image_sizer.rs:121:33:
+slice index starts at 6 but ends at 4
+
+---- world::tests::infra_review_concurrent_registration_has_one_identity stdout ----
+
+thread 'world::tests::infra_review_concurrent_registration_has_one_identity' (13702) panicked at 03_infra/src/world/tests.rs:602:9:
+one path acquired multiple IDs: [FileId(4), FileId(6), FileId(13), FileId(16), FileId(10), FileId(7), FileId(4), FileId(17), FileId(24), FileId(3), FileId(26), FileId(14), FileId(28), FileId(8), FileId(2), FileId(2), FileId(9), FileId(14), FileId(22), FileId(12), FileId(27), FileId(25), FileId(4), FileId(21), FileId(29), FileId(20), FileId(11), FileId(19), FileId(18), FileId(23), FileId(5), FileId(15)]
+
+
+failures:
+    font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh
+    image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic
+    world::tests::infra_review_concurrent_registration_has_one_identity
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 1108 filtered out; finished in 0.03s
+

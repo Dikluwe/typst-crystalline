@@ -1,0 +1,9 @@
+
+running 4 tests
+test font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh ... ok
+test fonts::infra_review_regressions::infra_review_embedded_slot_rejects_invalid_face_index ... ok
+test image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic ... ok
+test world::tests::infra_review_concurrent_registration_has_one_identity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 1108 filtered out; finished in 0.11s
+

@@ -1,0 +1,461 @@
+--- before/00_nucleo/prompts/infra/font_metrics/caches.md
++++ after/00_nucleo/prompts/infra/font_metrics/caches.md
+@@ -19,7 +19,8 @@
+ 
+ - Own CachedFace, ShapedWidthKey/AdvanceWidthKey and cache helpers. Font bytes own the face lifetime; preserve the existing encapsulated unsafe and Arc sharing.
+ - Load faces lazily by slot and share successful parses across clones. Failed reads/parses are not cached. Never replace per-instance state with a global cache.
+-- Width keys preserve text, size bits, family, bold/italic/weight, direction, language and variation hash; advance keys additionally distinguish math, TextItem provenance and math size.
++- Width keys preserve text, effective measurement size bits, family, bold/italic/weight, direction, language, variation hash and explicit math mode (which changes the primary/fallback chain); advance keys additionally distinguish math, TextItem provenance and math size.
++- Advance cache helpers receive the explicit `FontMetrics::advance` size; never substitute `style.size` for that argument. Shaped keys use the effective style supplied by the fallback owner.
+ - Preserve tracking bypass in shaped-width caching; None results are not inserted. Read under the original lock scope, compute outside it and insert afterward; do not alter lock order or failure retry behavior.
+ 
+ ## Verification and boundary
+--- before/03_infra/src/font_metrics/caches.rs
++++ after/03_infra/src/font_metrics/caches.rs
+@@ -65,6 +65,7 @@
+     dir: u8,
+     lang: Option<typst_core::entities::lang::Lang>,
+     axis_hash: u64,
++    math: bool,
+ }
+ 
+ /// **P677** — chave para cache de `advance` (caminho rápido não-shaped).
+@@ -146,6 +147,7 @@
+             dir,
+             lang: style.lang,
+             axis_hash,
++            math: style.math,
+         })
+     }
+ 
+@@ -178,6 +180,7 @@
+     /// **P677** — constrói uma chave de cache para `advance`.
+     pub(super) fn advance_width_key(
+         text: &str,
++        size: Pt,
+         style: &TextStyle,
+     ) -> Option<AdvanceWidthKey> {
+         use std::collections::hash_map::DefaultHasher;
+@@ -217,7 +220,7 @@
+ 
+         Some(AdvanceWidthKey {
+             text: text.to_string(),
+-            size_bits: style.size.0.to_bits(),
++            size_bits: size.0.to_bits(),
+             font_hash,
+             bold: style.bold,
+             italic: style.italic,
+@@ -235,10 +238,11 @@
+     pub(super) fn cached_advance_width(
+         &self,
+         text: &str,
++        size: Pt,
+         style: &TextStyle,
+         compute: impl FnOnce() -> Pt,
+     ) -> Pt {
+-        let key = match Self::advance_width_key(text, style) {
++        let key = match Self::advance_width_key(text, size, style) {
+             Some(k) => k,
+             None => return compute(),
+         };
+@@ -305,9 +309,179 @@
+         };
+         let textitem_style = TextStyle { math_text_item: true, ..glyph_style.clone() };
+ 
+-        let glyph = FallbackFontMetrics::advance_width_key("x", &glyph_style).unwrap();
+-        let textitem =
+-            FallbackFontMetrics::advance_width_key("x", &textitem_style).unwrap();
++        let glyph =
++            FallbackFontMetrics::advance_width_key("x", glyph_style.size, &glyph_style)
++                .unwrap();
++        let textitem = FallbackFontMetrics::advance_width_key(
++            "x",
++            textitem_style.size,
++            &textitem_style,
++        )
++        .unwrap();
+         assert_ne!(glyph, textitem, "a cache não pode colidir entre glifo e TextItem");
+     }
+ }
++
++#[cfg(test)]
++mod infra_review_regressions {
++    use super::*;
++    use typst_core::{
++        compiler::layout::FontMetrics,
++        contracts::world::World,
++        entities::{
++            duration::Duration,
++            file_id::FileId,
++            font_book::{FontBook, FontVariant},
++            font_list::FontList,
++            source::Source,
++            world_types::{Bytes, Datetime, FileResult, Library},
++        },
++    };
++    struct TestWorld {
++        book: FontBook,
++        fonts: Vec<Font>,
++        library: Library,
++    }
++    impl World for TestWorld {
++        fn library(&self) -> &Library {
++            &self.library
++        }
++        fn book(&self) -> &FontBook {
++            &self.book
++        }
++        fn main(&self) -> FileId {
++            panic!("not exercised")
++        }
++        fn source(&self, _: FileId) -> FileResult<Source> {
++            panic!("not exercised")
++        }
++        fn file(&self, _: FileId) -> FileResult<Bytes> {
++            panic!("not exercised")
++        }
++        fn font(&self, i: usize) -> Option<Font> {
++            self.fonts.get(i).cloned()
++        }
++        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
++            None
++        }
++    }
++    fn bytes(family: &str) -> Vec<u8> {
++        typst_assets::fonts()
++            .find(|data| {
++                crate::fonts::font_info_from_bytes(data, 0).is_some_and(|info| {
++                    info.family == family && info.variant == FontVariant::default()
++                })
++            })
++            .expect("mandatory embedded font")
++            .to_vec()
++    }
++    #[test]
++    fn infra_review_math_shaped_width_matches_fresh() {
++        let data = [
++            bytes("Libertinus Serif"),
++            bytes("DejaVu Sans Mono"),
++            bytes("New Computer Modern Math"),
++        ];
++        let faces: Vec<_> =
++            data.iter().map(|d| ttf_parser::Face::parse(d, 0).unwrap()).collect();
++        let c = (0x2200..=0x2bff)
++            .filter_map(char::from_u32)
++            .find(|&c| {
++                if faces[0].glyph_index(c).is_some() {
++                    return false;
++                }
++                let (Some(a), Some(b)) =
++                    (faces[1].glyph_index(c), faces[2].glyph_index(c))
++                else {
++                    return false;
++                };
++                faces[1].glyph_hor_advance(a).unwrap() as f64
++                    / faces[1].units_per_em() as f64
++                    != faces[2].glyph_hor_advance(b).unwrap() as f64
++                        / faces[2].units_per_em() as f64
++            })
++            .expect("distinct math/nonmath fallback advances");
++        let mut book = FontBook::new();
++        let flags = crate::fonts::font_info_from_bytes(&data[0], 0).unwrap().flags;
++        for (i, d) in data.iter().enumerate() {
++            let mut info = crate::fonts::font_info_from_bytes(d, 0).unwrap();
++            info.family =
++                ["Primary", "Primary Backup", "New Computer Modern Math"][i].into();
++            info.flags = flags;
++            info.coverage = crate::fonts::extract_coverage(&faces[i]);
++            book.push(info);
++        }
++        assert_eq!(
++            book.select_fallback(Some(&book.infos()[0]), &FontVariant::default(), [1, 2]),
++            Some(1)
++        );
++        let w = TestWorld {
++            book,
++            fonts: data.into_iter().map(Font::from_data).collect(),
++            library: Library::new(),
++        };
++        let a = TextStyle {
++            font: Some(FontList::single("Primary".into())),
++            size: Pt(12.0),
++            ..Default::default()
++        };
++        let b = TextStyle { math: true, ..a.clone() };
++        let text = c.to_string();
++        let fresh_a = FallbackFontMetrics::new(&w)
++            .advance_shaped(&text, a.size, &a)
++            .unwrap();
++        let fresh_b = FallbackFontMetrics::new(&w)
++            .advance_shaped(&text, b.size, &b)
++            .unwrap();
++        assert_ne!(fresh_a, fresh_b, "must discriminate");
++        for styles in [[&a, &b], [&b, &a]] {
++            let shared = FallbackFontMetrics::new(&w);
++            for style in styles {
++                let fresh = if style.math { fresh_b } else { fresh_a };
++                assert_eq!(shared.advance_shaped(&text, style.size, style), Some(fresh));
++            }
++        }
++    }
++    #[test]
++    fn infra_review_explicit_size_matches_fresh() {
++        let data = bytes("Libertinus Serif");
++        let mut book = FontBook::new();
++        book.push(crate::fonts::font_info_from_bytes(&data, 0).unwrap());
++        let w = TestWorld {
++            book,
++            fonts: vec![Font::from_data(data)],
++            library: Library::new(),
++        };
++        let style = TextStyle {
++            font: Some(FontList::single("Libertinus Serif".into())),
++            ..TextStyle::regular(Pt(12.0))
++        };
++        for shaped in [false, true] {
++            let measure = |metrics: &FallbackFontMetrics<'_>, size: Pt| {
++                if shaped {
++                    metrics.advance_shaped("AV", size, &style).unwrap()
++                } else {
++                    metrics.advance("AV", size, &style)
++                }
++            };
++            let small = measure(&FallbackFontMetrics::new(&w), Pt(12.0));
++            let large = measure(&FallbackFontMetrics::new(&w), Pt(24.0));
++            assert_eq!(
++                large,
++                small * 2.0,
++                "explicit size must govern scaling; shaped={shaped}"
++            );
++            for sizes in [[Pt(12.0), Pt(24.0)], [Pt(24.0), Pt(12.0)]] {
++                let shared = FallbackFontMetrics::new(&w);
++                for size in sizes {
++                    assert_eq!(
++                        measure(&shared, size),
++                        if size == Pt(12.0) { small } else { large },
++                        "cached width must match fresh; shaped={shaped}"
++                    );
++                }
++            }
++        }
++        assert_eq!(style.size, Pt(12.0));
++    }
++}
+--- before/00_nucleo/prompts/infra/system-world/cache.md
++++ after/00_nucleo/prompts/infra/system-world/cache.md
+@@ -18,7 +18,7 @@
+ ## Owned contract
+ 
+ - Own SourceSlot/OnceLock, file registration, dependency enumeration and byte/source cache helpers; per-world storage remains in the facade.
+-- Synthetic sources are already loaded; physical sources load lazily except main. OnceLock memoizes the first Source result, including errors. Canonicalize registration when possible, otherwise retain the original path; preserve id allocation/wrapping and lock order.
++- Synthetic sources are already loaded; physical sources load lazily except main. OnceLock memoizes the first Source result, including errors. Canonicalize registration when possible, otherwise retain the original path; preserve id allocation/wrapping. Registration must atomically associate one canonical path with its FileId and initialized slot under concurrent calls; keep the existing fast lookup and serialize the publication under next_id → path_to_id → slots, rechecking identity after acquiring the allocation lock.
+ - Successful byte reads share Arc by canonical FileId across path/id access. Do not cache failed byte reads, so they may retry; failed Source reads remain memoized. Preserve FileError/Bytes conversion behavior.
+ - Dependencies are sorted and unique and include main, sources, assets and failed attempts, not system fonts. Equivalent physical paths share identity without an independent cache.
+ 
+--- before/03_infra/src/world/cache.rs
++++ after/03_infra/src/world/cache.rs
+@@ -64,6 +64,10 @@
+         }
+ 
+         let mut next = self.next_id.lock().unwrap();
++        let mut identities = self.path_to_id.lock().unwrap();
++        if let Some(&id) = identities.get(&canon) {
++            return id;
++        }
+         let raw = *next;
+         *next = next.wrapping_add(1);
+         if *next == 0 {
+@@ -72,7 +76,7 @@
+         let id =
+             FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
+ 
+-        self.path_to_id.lock().unwrap().insert(canon.clone(), id);
++        identities.insert(canon.clone(), id);
+         self.slots
+             .lock()
+             .unwrap()
+--- before/00_nucleo/prompts/infra/system-world/tests.md
++++ after/00_nucleo/prompts/infra/system-world/tests.md
+@@ -18,7 +18,7 @@
+ ## Owned contract
+ 
+ - Own World mocks, filesystem/font/path/bibliography/package fixtures and unit cases under world::tests, not production implementations.
+-- Characterize synthetic main without I/O, memoized source/error, path/id shared successful bytes, retry after byte error, canonical identity/dependencies, lexical-escape rejection and book coverage without source access.
++- Characterize synthetic main without I/O, memoized source/error, path/id shared successful bytes, retry after byte error, canonical identity/dependencies (including concurrent registration of the same path), lexical-escape rejection and book coverage without source access.
+ - Characterize a valid project font added after configuring the world and before its first catalog request, retained catalog identity under later/concurrent requests, and old coverage cleared when replacing a configuration. Keep the precomputed-coverage-without-font-bytes regression.
+ - Use local deterministic temporary fixtures and no network. Execute serially because a legacy test mutates XDG_DATA_HOME. Arc-identity assertions characterize cache mechanics, not language parity.
+ 
+--- before/03_infra/src/world/tests.rs
++++ after/03_infra/src/world/tests.rs
+@@ -585,3 +585,32 @@
+     assert!(world.book().is_empty());
+     assert!(world.candidates_for_char('A').is_empty());
+ }
++
++#[test]
++fn infra_review_concurrent_registration_has_one_identity() {
++    let world = SystemWorld::for_eval(std::env::temp_dir());
++    for iteration in 0..32 {
++        let path = std::env::temp_dir()
++            .join(format!("infra-registration-{}-{iteration}", std::process::id()));
++        let barrier = std::sync::Barrier::new(32);
++        let ids = std::thread::scope(|scope| {
++            let handles: Vec<_> = (0..32)
++                .map(|_| {
++                    let w = &world;
++                    let p = &path;
++                    let b = &barrier;
++                    scope.spawn(move || {
++                        b.wait();
++                        w.register_file(p.clone())
++                    })
++                })
++                .collect();
++            handles.into_iter().map(|h| h.join().unwrap()).collect::<Vec<_>>()
++        });
++        assert!(
++            ids.iter().all(|id| *id == ids[0]),
++            "one path acquired multiple IDs: {ids:?}"
++        );
++        assert!(world.slots.lock().unwrap().contains_key(&ids[0]));
++    }
++}
+--- before/00_nucleo/prompts/infra/image-sizer.md
++++ after/00_nucleo/prompts/infra/image-sizer.md
+@@ -16,7 +16,7 @@
+ 
+ Own metadata inspection of already supplied image bytes. Preserve the existing ImageSizer trait implementation and Clone/Copy adapter; do not read paths, load World resources, decode pixels, rotate/re-encode bytes or expose external image-library types to L1. `imagesize::blob_size` yields dimensions as `Option<(u32,u32)>`; invalid/unsupported bytes return `None`.
+ 
+-For PNG DPI, prefer EXIF then pHYs; for JPEG, prefer EXIF then JFIF; other formats return `None`. pHYs uses 0.0254 for pixels/metre and the existing 2.54 conversion for unit 2. JFIF supports unit 1 with positive horizontal density. TIFF XResolution supports Rational/SRational with nonzero positive denominator; preserve current parser bounds and conversion. Do not assert a uniform positivity filter: zero PNG/EXIF density can currently be `Some(0.0)`, unlike zero JFIF density. This discrepancy from the old upstream citation remains pending in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`.
++For PNG DPI, prefer EXIF then pHYs; for JPEG, prefer EXIF then JFIF; other formats return `None`. pHYs uses 0.0254 for pixels/metre and the existing 2.54 conversion for unit 2. JFIF supports unit 1 with positive horizontal density. JPEG segment lengths must include the two length bytes: values below two or beyond the remaining buffer return None without slicing an inverted range, in both DPI and orientation scans. TIFF XResolution supports Rational/SRational with nonzero positive denominator; preserve current parser bounds and conversion. Do not assert a uniform positivity filter: zero PNG/EXIF density can currently be `Some(0.0)`, unlike zero JFIF density. This discrepancy from the old upstream citation remains pending in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`.
+ 
+ Parse TIFF II/MM byte order, marker 42 and IFD0 from the existing PNG/JPEG EXIF containers. Orientation is tag 0x0112, count one, using the accepted BYTE/SHORT/LONG inline forms. Return only values 1 through 8; malformed/absent/unsupported values return `None`. Preserve bounds checking and no new EXIF dependency.
+ 
+--- before/03_infra/src/image_sizer.rs
++++ after/03_infra/src/image_sizer.rs
+@@ -113,7 +113,7 @@
+         }
+         let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
+         let seg_end = i + 2 + seg_len;
+-        if seg_end > data.len() {
++        if seg_len < 2 || seg_end > data.len() {
+             break;
+         }
+ 
+@@ -177,7 +177,7 @@
+ 
+             let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
+             let seg_end = i + 2 + seg_len;
+-            if seg_end > data.len() {
++            if seg_len < 2 || seg_end > data.len() {
+                 break;
+             }
+ 
+@@ -238,7 +238,7 @@
+ 
+             let seg_len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
+             let seg_end = i + 2 + seg_len;
+-            if seg_end > data.len() {
++            if seg_len < 2 || seg_end > data.len() {
+                 break;
+             }
+ 
+@@ -555,3 +555,18 @@
+         assert_eq!(parse_tiff_orientation(tiff_be), Some(8));
+     }
+ }
++
++#[cfg(test)]
++mod infra_review_regressions {
++    use super::*;
++    #[test]
++    fn infra_review_short_jpeg_segments_do_not_panic() {
++        for marker in [0xe0, 0xe1] {
++            for length in [0u8, 1] {
++                let data = [0xff, 0xd8, 0xff, marker, 0, length];
++                assert_eq!(ImageSizeImageSizer.dpi(&data), None);
++                assert_eq!(ImageSizeImageSizer.orientation(&data), None);
++            }
++        }
++    }
++}
+--- before/00_nucleo/prompts/infra/fonts.md
++++ after/00_nucleo/prompts/infra/fonts.md
+@@ -17,7 +17,7 @@
+ 
+ Own `FontSlot`, explicit-path discovery, metadata extraction, collection-face reconstruction, the exact-coverage extraction helper and the inventory DTO. Font selection/scoring belongs to FontBook and its infrastructure adapters, not to this loader. External parser types do not cross into L1 contracts.
+ 
+-`FontSlot` retains public `path` and `index` and private embedded bytes, lazy mmap and final-font `OnceLock<Option<Font>>`. `new_embedded` uses index zero and treats the path as display information only. Source bytes prefer embedded bytes to a shared lazy file mapping. Loading/validation is idempotent per slot, including failure. Invalid or unreadable bytes and invalid face indices return `None`; mapping failures are not silently converted to a new eager-read policy. Simple fonts retain opaque mmap storage; reconstructed collection faces use independently owned bytes.
++`FontSlot` retains public `path` and `index` and private embedded bytes, lazy mmap and final-font `OnceLock<Option<Font>>`. `new_embedded` uses index zero and treats the path as display information only. Source bytes prefer embedded bytes to a shared lazy file mapping. Loading/validation is idempotent per slot, including failure. Invalid or unreadable bytes and invalid face indices return `None`; validate the requested index against the original source before reconstructing a collection or parsing the normalized index-zero result, including embedded slots whose public index has been changed; mapping failures are not silently converted to a new eager-read policy. Simple fonts retain opaque mmap storage; reconstructed collection faces use independently owned bytes.
+ 
+ For a supported multi-face collection, rebuild the selected sfnt header/table directory, copy tables from collection-absolute offsets, rewrite offsets with alignment and recompute `head.checkSumAdjustment`. Preserve the existing no-extraction branch for noncollections and collections with at most one face; this document does not broaden collection support.
+ 
+--- before/03_infra/src/fonts.rs
++++ after/03_infra/src/fonts.rs
+@@ -154,6 +154,7 @@
+         self.font
+             .get_or_init(|| {
+                 if let Some(bytes) = &self.embedded {
++                    ttf_parser::Face::parse(bytes, self.index).ok()?;
+                     let data = bytes.clone();
+                     let data = extract_collection_face(&data, self.index).unwrap_or(data);
+                     ttf_parser::Face::parse(&data, 0).ok()?;
+@@ -1489,3 +1490,21 @@
+         assert_eq!(font.as_slice().len(), data.len());
+     }
+ }
++
++#[cfg(test)]
++mod infra_review_regressions {
++    use super::*;
++    #[test]
++    fn infra_review_embedded_slot_rejects_invalid_face_index() {
++        let bytes = typst_assets::fonts()
++            .find(|data| ttf_parser::fonts_in_collection(data).is_none())
++            .expect("embedded sfnt fixture")
++            .to_vec();
++        let valid = FontSlot::new_embedded(PathBuf::from("<test>"), bytes.clone());
++        assert!(valid.get().is_some());
++        let mut invalid = FontSlot::new_embedded(PathBuf::from("<test>"), bytes);
++        invalid.index = 1;
++        assert!(invalid.get().is_none());
++        assert!(invalid.get().is_none());
++    }
++}
+--- before/00_nucleo/prompts/infra/font_metrics/fallback.md
++++ after/00_nucleo/prompts/infra/font_metrics/fallback.md
+@@ -25,6 +25,7 @@
+ ## Owned contract
+ 
+ - Own FontMetrics for FallbackFontMetrics and face_kerning, using the resolution/cache children. Resolve per character and apply style variations to a cloned face, never mutate the cached base.
++- The explicit `FontMetrics` size argument governs advance and shaped advance, including scaling and cache identity. For shaping, use a local style with that size when it differs from `style.size`; preserve all other style fields and the caller's style.
+ - Preserve legacy kern then kerx within one face, not cross-font kerning or a new GPOS path. advance_shaped delegates to the shaper with the shared face cache.
+ - Preserve FixedMetrics/0.6 defaults for unresolved vertical/ink/bbox metrics. Apply canonical math/ssty and TextItem predicates; never remap ink codepoints.
+ - Math constants come from the first applicable primary with MATH, while variants/assemblies/kern/italic-correction/attachments use the active face. Keep fallback behavior and neutral L1 return types.
+--- before/03_infra/src/font_metrics/fallback.rs
++++ after/03_infra/src/font_metrics/fallback.rs
+@@ -46,7 +46,7 @@
+     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+         // **P677** — cache de `advance` por (texto, estilo). Evita re-medir
+         // palavras e espaços repetidos no layout de documentos extensos.
+-        self.cached_advance_width(text, style, || {
++        self.cached_advance_width(text, size, style, || {
+             let variant = text_style_to_font_variant(style);
+             // P890 — injecção de fallback matemático (P784) via helper
+             // partilhado com `text_ink_bounds`. Antes deste passo, `advance`
+@@ -165,7 +165,14 @@
+     /// **P591** — para scripts contextuais (árabe, síriaco, etc.), usa o
+     /// shaper para obter a largura real com formas ligadas. Para os restantes
+     /// scripts, mantém o caminho rápido `advance`.
+-    fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
++    fn advance_shaped(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
++        let effective_style;
++        let style = if size.0.to_bits() == style.size.0.to_bits() {
++            style
++        } else {
++            effective_style = TextStyle { size, ..style.clone() };
++            &effective_style
++        };
+         // **P1104** — Usar o shaper (rustybuzz com GPOS kerning) para medição precisa de extensão de texto
+         let world = self.world;
+         let mut face_cache = self.shaper_face_cache.lock().unwrap();

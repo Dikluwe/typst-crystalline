@@ -1,0 +1,137 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/system-world/cache.md
+//! @prompt-hash 4c5b3813
+//! @layer L3
+//! @updated 2026-09-26
+
+use super::SystemWorld;
+use std::num::NonZeroU16;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, OnceLock};
+use typst_core::entities::file_id::FileId;
+use typst_core::entities::source::Source;
+use typst_core::entities::world_types::{Bytes, FileError, FileResult};
+
+/// Slot de source com carregamento lazy e thread-safe.
+///
+/// `OnceLock` garante que o ficheiro é lido no máximo uma vez,
+/// mesmo com acessos concorrentes. TOCTOU-safe: a leitura acontece
+/// dentro do `get_or_init` sem race condition.
+pub(super) struct SourceSlot {
+    id: FileId,
+    pub(super) path: PathBuf,
+    source: OnceLock<FileResult<Source>>,
+}
+
+impl SourceSlot {
+    pub(super) fn new(id: FileId, path: PathBuf) -> Self {
+        Self { id, path, source: OnceLock::new() }
+    }
+
+    pub(super) fn synthetic(id: FileId, path: PathBuf, text: String) -> Self {
+        Self {
+            id,
+            path,
+            source: OnceLock::from(Ok(Source::new(id, text))),
+        }
+    }
+
+    /// Carrega o source do disco (apenas na primeira chamada).
+    pub(super) fn get(&self) -> FileResult<Source> {
+        self.source
+            .get_or_init(|| {
+                let text = std::fs::read_to_string(&self.path).map_err(|e| {
+                    if e.kind() == std::io::ErrorKind::NotFound {
+                        FileError::NotFound
+                    } else {
+                        FileError::Other(e.to_string())
+                    }
+                })?;
+                Ok(Source::new(self.id, text))
+            })
+            .clone()
+    }
+}
+impl SystemWorld {
+    /// Regista um path e retorna o `FileId` correspondente
+    /// (cria novo slot se o path ainda não estava registado).
+    pub fn register_file(&self, path: PathBuf) -> FileId {
+        let canon = path.canonicalize().unwrap_or(path.clone());
+
+        let existing = self.path_to_id.lock().unwrap().get(&canon).copied();
+        if let Some(id) = existing {
+            return id;
+        }
+
+        let mut next = self.next_id.lock().unwrap();
+        let raw = *next;
+        *next = next.wrapping_add(1);
+        if *next == 0 {
+            *next = 1;
+        }
+        let id =
+            FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
+
+        self.path_to_id.lock().unwrap().insert(canon.clone(), id);
+        self.slots
+            .lock()
+            .unwrap()
+            .insert(id, Arc::new(SourceSlot::new(id, canon)));
+        id
+    }
+
+    /// Returns the filesystem dependencies registered while compiling.
+    ///
+    /// The set contains the main source and every source/asset resolved through
+    /// this world. Sorting makes the inventory deterministic for watch mode.
+    pub fn dependencies(&self) -> Vec<PathBuf> {
+        let mut paths =
+            self.path_to_id.lock().unwrap().keys().cloned().collect::<Vec<_>>();
+        paths.sort();
+        paths.dedup();
+        paths
+    }
+
+    /// **P876** — Lê bytes do disco e embrulha o erro no formato usado por
+    /// `file()` (vanilla `FileError`).
+    fn load_file_bytes(&self, path: &Path) -> FileResult<Arc<Vec<u8>>> {
+        let data = std::fs::read(path).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                FileError::NotFound
+            } else {
+                FileError::Other(e.to_string())
+            }
+        })?;
+        Ok(Arc::new(data))
+    }
+
+    /// **P876** — Devolve os bytes de `id` a partir do cache `read_cache`,
+    /// lendo do disco apenas na primeira vez.
+    pub(super) fn read_bytes_cached(&self, id: FileId) -> FileResult<Arc<Vec<u8>>> {
+        let mut cache = self.read_cache.lock().unwrap();
+        if let Some(arc) = cache.get(&id) {
+            return Ok(Arc::clone(arc));
+        }
+        let path = self
+            .slots
+            .lock()
+            .unwrap()
+            .get(&id)
+            .map(|s| s.path.clone())
+            .ok_or(FileError::NotFound)?;
+        let arc = self.load_file_bytes(&path)?;
+        cache.insert(id, Arc::clone(&arc));
+        Ok(arc)
+    }
+
+    pub(super) fn world_source(&self, id: FileId) -> FileResult<Source> {
+        let slot = self.slots.lock().unwrap().get(&id).cloned();
+        slot.ok_or(FileError::NotFound)?.get()
+    }
+
+    pub(super) fn world_file(&self, id: FileId) -> FileResult<Bytes> {
+        // P876 — usa o cache de bytes para evitar releituras do disco.
+        let arc = self.read_bytes_cached(id)?;
+        Ok(Bytes::new(arc.as_ref().clone()))
+    }
+}

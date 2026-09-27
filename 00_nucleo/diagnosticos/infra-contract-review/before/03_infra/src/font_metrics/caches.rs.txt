@@ -1,0 +1,313 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/font_metrics/caches.md
+//! @prompt-hash 1c521acf
+//! @layer L3
+//! @updated 2026-09-26
+
+use super::FallbackFontMetrics;
+use crate::font_variant::{axis_variations_for_text_style, text_style_to_font_variant};
+use std::sync::Arc;
+use ttf_parser::Face;
+use typst_core::entities::layout_types::{Pt, TextStyle};
+use typst_core::entities::world_types::Font;
+
+/// Face parseada e bytes correspondentes, alocada em `Arc` para garantir
+/// que os bytes não se movem depois de o `Face` ser criado.
+///
+/// Segue o mesmo padrão do Typst vanilla: o `Face` empresta internamente
+/// dos bytes via um slice `'static` obtido com `from_raw_parts`. O campo
+/// `data` nunca é movido porque a struct vive dentro de `Arc`.
+pub(super) struct CachedFace {
+    // `data` é lido implicitamente pelo `Face`; mantém os bytes vivos.
+    #[allow(dead_code)]
+    data: Font,
+    face: Face<'static>,
+}
+
+impl CachedFace {
+    /// Parseia uma fonte e devolve a face cacheada.
+    pub(super) fn new(data: Font) -> Option<Arc<Self>> {
+        // Safety: `data` é owned e não será movido (a struct fica em Arc no
+        // heap). O slice `'static` é apenas um artefacto para satisfazer o
+        // lifetime do `Face`; nunca escapa como `'static` para fora deste
+        // módulo.
+        let slice: &'static [u8] = unsafe {
+            std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
+        };
+        let face = Face::parse(slice, 0).ok()?;
+        Some(Arc::new(Self { data, face }))
+    }
+
+    pub(super) fn face(&self) -> &Face<'_> {
+        &self.face
+    }
+}
+
+/// **P544** — Métricas de fonte com fallback multi-script.
+///
+/// Dado um `World`, resolve a fonte real (primárias do `TextStyle` + fallback
+/// global do `FontBook`) para medir cada caractere com a face correcta,
+/// em vez de usar uma largura fixa monoespaçada.
+/// **P591** — chave para cache de `advance_shaped`. Inclui os campos do
+/// `TextStyle` que afectam a largura shaped; campos puramente visuais
+/// (fill, highlight, etc.) são omitidos porque não alteram métricas.
+/// **P659** — adicionado `axis_hash` para incluir variações de eixo OpenType
+/// (weight, width, italic slant, etc.) na chave, evitando colisões entre
+/// estilos com o mesmo texto/tamanho mas eixos diferentes.
+#[derive(Debug, Hash, Eq, PartialEq)]
+pub(super) struct ShapedWidthKey {
+    text: String,
+    size_bits: u64,
+    font_hash: u64,
+    bold: bool,
+    italic: bool,
+    weight: Option<u16>,
+    dir: u8,
+    lang: Option<typst_core::entities::lang::Lang>,
+    axis_hash: u64,
+}
+
+/// **P677** — chave para cache de `advance` (caminho rápido não-shaped).
+/// Inclui os mesmos campos de estilo que `ShapedWidthKey`; `tracking` é
+/// aplicado fora do cache em `text_width`, pelo que não entra na chave.
+#[derive(Debug, Hash, Eq, PartialEq)]
+pub(super) struct AdvanceWidthKey {
+    text: String,
+    size_bits: u64,
+    font_hash: u64,
+    bold: bool,
+    italic: bool,
+    weight: Option<u16>,
+    dir: u8,
+    lang: Option<typst_core::entities::lang::Lang>,
+    axis_hash: u64,
+    /// **P975** — o termo de italics correction depende de `style.math`;
+    /// sem este campo, uma medição em prosa e outra em math com o mesmo
+    /// texto/estilo colidiam na cache.
+    math: bool,
+    /// **P1293** — em math, `TextItem` e `GlyphFragment` partilham fonte e
+    /// tamanho, mas somente o segundo recebe italics correction.
+    math_text_item: bool,
+    /// **P977** — o advance muda por nível MathSize (variante ssty).
+    math_size: u8,
+}
+
+impl FallbackFontMetrics<'_> {
+    /// **P591** — constrói uma chave de cache para `advance_shaped`.
+    pub(super) fn shaped_width_key(
+        text: &str,
+        style: &TextStyle,
+    ) -> Option<ShapedWidthKey> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        use typst_core::entities::dir::Dir;
+
+        let dir = style
+            .dir
+            .map(|d| match d {
+                Dir::LTR => 1u8,
+                Dir::RTL => 2,
+                Dir::TTB => 3,
+                Dir::BTT => 4,
+            })
+            .unwrap_or(0);
+
+        let font_hash = style
+            .font
+            .as_ref()
+            .map(|fl| {
+                let mut h = DefaultHasher::new();
+                fl.hash(&mut h);
+                h.finish()
+            })
+            .unwrap_or(0);
+
+        // P659 — incluir variações de eixo OpenType na chave. O mesmo texto,
+        // tamanho e peso nominal pode ter larguras diferentes se os eixos
+        // (wdth, wght real, etc.) divergirem.
+        let variant = text_style_to_font_variant(style);
+        let axis_vars = axis_variations_for_text_style(style);
+        let axis_hash = {
+            let mut h = DefaultHasher::new();
+            for v in &axis_vars {
+                v.tag.hash(&mut h);
+                v.value.to_bits().hash(&mut h);
+            }
+            h.finish()
+        };
+
+        Some(ShapedWidthKey {
+            text: text.to_string(),
+            size_bits: style.size.0.to_bits(),
+            font_hash,
+            bold: style.bold,
+            italic: style.italic,
+            weight: style.weight,
+            dir,
+            lang: style.lang,
+            axis_hash,
+        })
+    }
+
+    /// **P591** — cache lookup/inserção para `advance_shaped`.
+    pub(super) fn cached_shaped_width(
+        &self,
+        text: &str,
+        style: &TextStyle,
+        compute: impl FnOnce() -> Option<Pt>,
+    ) -> Option<Pt> {
+        // Não cachear quando tracking ou outros ajustes de largura estão
+        // activos, para evitar valores incorrectos.
+        if style.tracking.is_some() {
+            return compute();
+        }
+
+        let key = Self::shaped_width_key(text, style)?;
+        {
+            let cache = self.shaped_width_cache.lock().unwrap();
+            if let Some(&value) = cache.get(&key) {
+                return Some(value);
+            }
+        }
+
+        let value = compute()?;
+        self.shaped_width_cache.lock().unwrap().insert(key, value);
+        Some(value)
+    }
+
+    /// **P677** — constrói uma chave de cache para `advance`.
+    pub(super) fn advance_width_key(
+        text: &str,
+        style: &TextStyle,
+    ) -> Option<AdvanceWidthKey> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        use typst_core::entities::dir::Dir;
+
+        let dir = style
+            .dir
+            .map(|d| match d {
+                Dir::LTR => 1u8,
+                Dir::RTL => 2,
+                Dir::TTB => 3,
+                Dir::BTT => 4,
+            })
+            .unwrap_or(0);
+
+        let font_hash = style
+            .font
+            .as_ref()
+            .map(|fl| {
+                let mut h = DefaultHasher::new();
+                fl.hash(&mut h);
+                h.finish()
+            })
+            .unwrap_or(0);
+
+        let variant = text_style_to_font_variant(style);
+        let axis_vars = axis_variations_for_text_style(style);
+        let axis_hash = {
+            let mut h = DefaultHasher::new();
+            for v in &axis_vars {
+                v.tag.hash(&mut h);
+                v.value.to_bits().hash(&mut h);
+            }
+            h.finish()
+        };
+
+        Some(AdvanceWidthKey {
+            text: text.to_string(),
+            size_bits: style.size.0.to_bits(),
+            font_hash,
+            bold: style.bold,
+            italic: style.italic,
+            weight: style.weight,
+            dir,
+            lang: style.lang,
+            axis_hash,
+            math: style.math,
+            math_text_item: style.math_text_item,
+            math_size: style.math_size as u8,
+        })
+    }
+
+    /// **P677** — cache lookup/inserção para `advance`.
+    pub(super) fn cached_advance_width(
+        &self,
+        text: &str,
+        style: &TextStyle,
+        compute: impl FnOnce() -> Pt,
+    ) -> Pt {
+        let key = match Self::advance_width_key(text, style) {
+            Some(k) => k,
+            None => return compute(),
+        };
+        {
+            let cache = self.advance_width_cache.lock().unwrap();
+            if let Some(&value) = cache.get(&key) {
+                return value;
+            }
+        }
+
+        let value = compute();
+        self.advance_width_cache.lock().unwrap().insert(key, value);
+        value
+    }
+
+    /// Devolve a face cacheada para `slot_idx`, criando-a se necessário.
+    pub(super) fn cached_face(&self, slot_idx: usize) -> Option<Arc<CachedFace>> {
+        if let Some(cached) = self.cache.lock().unwrap().get(&slot_idx).cloned() {
+            return Some(cached);
+        }
+        let font = self.world.font(slot_idx)?;
+        let cached = CachedFace::new(font)?;
+        self.cache.lock().unwrap().insert(slot_idx, cached.clone());
+        Some(cached)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FallbackFontMetrics;
+    use typst_core::entities::layout_types::{Pt, TextStyle};
+
+    // P659 — a chave de cache de shaped_width deve distinguir variações de eixo
+    // OpenType. O mesmo texto, tamanho e peso nominal pode ter larguras shaped
+    // diferentes se o eixo efectivo (ex.: wght) divergir.
+    #[test]
+    fn p659_shaped_width_key_distingue_variacoes_de_eixo() {
+        let mut style_a = TextStyle::default();
+        style_a.weight = Some(400);
+
+        let mut style_b = TextStyle::default();
+        style_b.weight = Some(700);
+
+        let key_a = FallbackFontMetrics::shaped_width_key("abc", &style_a).unwrap();
+        let key_b = FallbackFontMetrics::shaped_width_key("abc", &style_b).unwrap();
+
+        assert_ne!(
+            key_a.axis_hash, key_b.axis_hash,
+            "pesos 400 e 700 devem produzir axis_hash diferentes"
+        );
+        assert_ne!(key_a, key_b, "ShapedWidthKey de 400 e 700 deve ser distinta");
+
+        // Dois estilos com o mesmo peso devem colidir em axis_hash.
+        let key_a2 = FallbackFontMetrics::shaped_width_key("abc", &style_a).unwrap();
+        assert_eq!(key_a.axis_hash, key_a2.axis_hash);
+    }
+
+    #[test]
+    fn p1293_advance_width_key_distingue_proveniencia_textitem() {
+        let glyph_style = TextStyle {
+            math: true,
+            math_text_item: false,
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let textitem_style = TextStyle { math_text_item: true, ..glyph_style.clone() };
+
+        let glyph = FallbackFontMetrics::advance_width_key("x", &glyph_style).unwrap();
+        let textitem =
+            FallbackFontMetrics::advance_width_key("x", &textitem_style).unwrap();
+        assert_ne!(glyph, textitem, "a cache não pode colidir entre glifo e TextItem");
+    }
+}

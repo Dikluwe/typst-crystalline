@@ -1,0 +1,34 @@
+
+running 3 tests
+test font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh ... FAILED
+test image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic ... FAILED
+test world::tests::infra_review_concurrent_registration_has_one_identity ... FAILED
+
+failures:
+
+---- font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh stdout ----
+
+thread 'font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh' (14811) panicked at 03_infra/src/font_metrics/caches.rs:340:173:
+assertion `left != right` failed: must discriminate
+  left: Pt(7.992)
+ right: Pt(7.992)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic stdout ----
+
+thread 'image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic' (14812) panicked at 03_infra/src/image_sizer.rs:121:33:
+slice index starts at 6 but ends at 4
+
+---- world::tests::infra_review_concurrent_registration_has_one_identity stdout ----
+
+thread 'world::tests::infra_review_concurrent_registration_has_one_identity' (14813) panicked at 03_infra/src/world/tests.rs:602:9:
+one path acquired multiple IDs: [FileId(5), FileId(2), FileId(7), FileId(2), FileId(7), FileId(2), FileId(3), FileId(3), FileId(3), FileId(3), FileId(3), FileId(5), FileId(2), FileId(4), FileId(4), FileId(2), FileId(7), FileId(5), FileId(6), FileId(2), FileId(3), FileId(5), FileId(7), FileId(7), FileId(7), FileId(7), FileId(3), FileId(7), FileId(3), FileId(7), FileId(2), FileId(7)]
+
+
+failures:
+    font_metrics::caches::infra_review_regressions::infra_review_math_shaped_width_matches_fresh
+    image_sizer::infra_review_regressions::infra_review_short_jpeg_segments_do_not_panic
+    world::tests::infra_review_concurrent_registration_has_one_identity
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 1108 filtered out; finished in 0.02s
+

@@ -1,122 +1,27 @@
-# Prompt L0 — infra/image_sizer
-Hash do Código: f7916d20
+# L0 — Image byte metadata adapter
+Hash do Código: 074d77bc
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/image_sizer.rs`
-**ADRs relevantes**: ADR-0029 (pureza física — I/O em L3)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/image_sizer.rs`
 
-## Contexto
+## Current evidence
 
-Implementação de `ImageSizer` usando a crate `imagesize`. Lê apenas o cabeçalho
-do ficheiro (não descodifica píxeis) — eficiente para grandes imagens.
+- `03_infra/src/image_sizer.rs` — `ImageSizeImageSizer`, dimensions/DPI/orientation adapters and TIFF metadata readers.
+- `01_core/src/compiler/layout/image.rs` — the L1 sizing consumer of ImageSizer.
+- `03_infra/src/export/images.rs` — a separate PDF payload facade, outside this prompt's ownership.
 
-A crate `imagesize` não entra em L1 — V14 não dispara. Pertence apenas ao
-`Cargo.toml` de L3.
+These are current local source anchors, not a new upstream parity measurement.
 
-## Tipos públicos
+## Contract
 
-```rust
-pub struct ImageSizeImageSizer;
+Own metadata inspection of already supplied image bytes. Preserve the existing ImageSizer trait implementation and Clone/Copy adapter; do not read paths, load World resources, decode pixels, rotate/re-encode bytes or expose external image-library types to L1. `imagesize::blob_size` yields dimensions as `Option<(u32,u32)>`; invalid/unsupported bytes return `None`.
 
-impl ImageSizer for ImageSizeImageSizer {
-    fn size(&self, data: &[u8]) -> Option<(u32, u32)>;
+For PNG DPI, prefer EXIF then pHYs; for JPEG, prefer EXIF then JFIF; other formats return `None`. pHYs uses 0.0254 for pixels/metre and the existing 2.54 conversion for unit 2. JFIF supports unit 1 with positive horizontal density. JPEG segment lengths must include the two length bytes: values below two or beyond the remaining buffer return None without slicing an inverted range, in both DPI and orientation scans. TIFF XResolution supports Rational/SRational with nonzero positive denominator; preserve current parser bounds and conversion. Do not assert a uniform positivity filter: zero PNG/EXIF density can currently be `Some(0.0)`, unlike zero JFIF density. This discrepancy from the old upstream citation remains pending in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`.
 
-    fn dpi(&self, data: &[u8]) -> Option<f64>;
+Parse TIFF II/MM byte order, marker 42 and IFD0 from the existing PNG/JPEG EXIF containers. Orientation is tag 0x0112, count one, using the accepted BYTE/SHORT/LONG inline forms. Return only values 1 through 8; malformed/absent/unsupported values return `None`. Preserve bounds checking and no new EXIF dependency.
 
-    fn orientation(&self, data: &[u8]) -> Option<u32>;
-}
-```
+The existing L1 image layout owner interprets absent DPI/default sizing and orientation transforms. `00_nucleo/prompts/infra/system-world/paths.md` owns World byte acquisition; `00_nucleo/prompts/infra/pipeline/paged.md` owns the pre-export validation call; the excluded `00_nucleo/prompts/infra/export/images.md` and its children own validation/decoding/PDF payloads. This adapter does not duplicate their contracts.
 
-Delega `size` para `imagesize::blob_size(data)`, convertendo `ImageSize` para
-`(u32, u32)`.
+## Verification boundary
 
-Delega `dpi` para parsing manual dos metadados da imagem, sem descodificar
-píxeis. A prioridade de leitura é **EXIF > JFIF APP0 > PNG `pHYs`** (paridade
-com `typst_library::visualize::image::raster` — `file:line` no bloco P1031
-abaixo). O fallback 72 DPI é aplicado
-pelo consumidor em L1.
-
-Delega `orientation` para parsing manual do segmento EXIF (APP1 em JPEG,
-chunk `eXIf` em PNG), lendo a tag `Orientation` (`0x0112`) do IFD 0,
-suportando TIFF little-endian (`II`) e big-endian (`MM`).
-
-### Fontes de DPI
-
-- **EXIF**: segmento APP1 em JPEG (`Exif\0\0`) ou chunk `eXIf` em PNG.
-  Lê a tag `XResolution` (0x011A) do IFD 0, suportando TIFF little-endian
-  (`II`) e big-endian (`MM`).
-- **JFIF APP0**: segmento APP0 com identificador `JFIF\0` e `units == 1`
-  (DPI); usa `Xdensity`.
-- **PNG `pHYs`**: chunk `pHYs` com `unit == 1` (metro) ou `unit == 2`
-  (centímetro); converte pixels por unidade para DPI.
-
-> **Fonte de paridade (P1031)** — o `file:line` do vanilla que faltava. Vanilla ratificado
-> (`e0e8ca4d`), `crates/typst-library/src/visualize/image/raster.rs:363-375`:
->
-> ```rust
-> /// Try to determine the DPI (dots per inch) of the image.
-> ///
-> /// This is guaranteed to be a positive value, or `None` if invalid or unspecified.
-> fn determine_dpi(data: &[u8], exif: Option<&exif::Exif>) -> Option<f64> {
->     // Try to extract the DPI from the EXIF metadata. If that doesn't yield
->     // anything, fall back to specialized procedures for extracting JPEG or PNG
->     // DPI metadata. GIF does not have any.
->     exif.and_then(exif_dpi)
->         .or_else(|| jpeg_dpi(data))
->         .or_else(|| png_dpi(data))
->         .filter(|&dpi| dpi > 0.0)
-> }
-> ```
->
-> **Citação literal** da prioridade **EXIF > JFIF APP0 > PNG `pHYs`** — a cadeia de
-> `or_else` fixa exactamente essa ordem, e o comentário do vanilla nomeia-a por extenso.
-> Detalhes das três fontes, também no vanilla:
->
-> - `exif_dpi` — `raster.rs:378` e seguintes; lê a tag pelo `exif::In::PRIMARY` (IFD 0).
-> - `jpeg_dpi` — `raster.rs:393-405`: valida `\xFF\xD8\xFF\xE0\0` no offset 0, `b"JFIF\0"`
->   no offset 6 e `\x01` (units == 1, DPI) no offset 11 — os mesmos três predicados que este
->   L0 descreve.
-> - `png_dpi` — `raster.rs:423` e seguintes; decodifica em streaming e pára ao primeiro
->   `IDAT`, isto é, lê o `pHYs` sem descodificar píxeis — o mesmo requisito deste contrato.
-> - **Positividade**: `.filter(|&dpi| dpi > 0.0)` — um DPI ≤ 0 é tratado como ausente.
->   Requisito que este L0 não regista explicitamente; vale como nota de implementação a
->   confirmar no lado do cristalino.
->
-> **Fallback 72 DPI** — também literal: `crates/typst-library/src/visualize/image/mod.rs:431`
-> (`pub const DEFAULT_DPI: f64 = 72.0;`) aplicado em `crates/typst-layout/src/image.rs:47`
-> (`let dpi = image.dpi().unwrap_or(Image::DEFAULT_DPI);`). Nota: o vanilla usa **96.0**
-> para SVG (`USVG_DEFAULT_DPI`, `mod.rs:434` e `:492`), não 72 — distinção que este L0 não
-> faz e que só importa quando o sizer passar a tratar SVG.
->
-> **Natureza**: literal para a prioridade, para os predicados de cada formato e para o
-> fallback. Não é afirmação sobre a linguagem Typst (não há superfície de linguagem para
-> prioridade de metadados) — é paridade de comportamento de infraestrutura, e a prova
-> adequada é o `file:line` do vanilla, não `typst.app/docs`.
-
-### Rotação EXIF (P776)
-
-A orientação EXIF **não** é aplicada aos pixels neste módulo. O contrato
-`ImageSizer::orientation` apenas lê o valor da tag `Orientation` (0x0112) e
-entrega-o a L1. A transformação visual é aplicada mais tarde, no exportador
-PDF, através da matriz `cm` do operador `Do` — replicando o mecanismo do
-vanilla (`typst-pdf/src/image.rs::exif_transform`), que preserva os bytes
-originais do JPEG em vez de os recodificar.
-
-O mapeamento dos valores 1-8 (semântica EXIF):
-- 1: inalterado
-- 2: flip horizontal
-- 3: rotação 180°
-- 4: flip vertical
-- 5: flip horizontal + rotação 270° (transpose)
-- 6: rotação 90°
-- 7: flip horizontal + rotação 90° (transverse)
-- 8: rotação 270°
-
-## Invariantes
-
-- `imagesize` declarado apenas em `03_infra/Cargo.toml`.
-- `ImageSizeImageSizer` implementa o trait L1 — não adiciona API própria.
-- Parsing de metadados não usa crates EXIF externas; depende apenas de
-  `imagesize` e da stdlib.
-- Este módulo **não** descodifica nem recodifica pixels para aplicar orientação
-  EXIF; os bytes originais do JPEG/PNG são preservados.
+Existing byte fixtures control dimensions, density precedence and legal/invalid orientation. Optional `/tmp/p773-dpi300.png` and `.jpg` probes are environmental legacy inputs, not required persistent fixtures or proof when absent. No replacement is assumed.

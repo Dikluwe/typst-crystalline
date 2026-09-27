@@ -1,0 +1,29 @@
+# L0 — infra/system-world/tests
+Hash do Código: 17283d8a
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/world/tests.rs`
+
+## Current evidence
+
+- `03_infra/src/world/tests.rs:18` — `MockWorld`.
+- `03_infra/src/world/tests.rs:26` — `new`.
+- `03_infra/src/world/tests.rs:38` — `library`.
+- `03_infra/src/world/tests.rs:41` — `book`.
+- `03_infra/src/world/tests.rs:44` — `main`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/world/tests.rs`.
+
+## Owned contract
+
+- Own World mocks, filesystem/font/path/bibliography/package fixtures and unit cases under world::tests, not production implementations.
+- Characterize synthetic main without I/O, memoized source/error, path/id shared successful bytes, retry after byte error, canonical identity/dependencies, lexical-escape rejection and book coverage without source access.
+- Characterize a valid project font added after configuring the world and before its first catalog request, retained catalog identity under later/concurrent requests, and old coverage cleared when replacing a configuration. Keep the precomputed-coverage-without-font-bytes regression.
+- Use local deterministic temporary fixtures and no network. Execute serially because a legacy test mutates XDG_DATA_HOME. Arc-identity assertions characterize cache mechanics, not language parity.
+
+## Verification and boundary
+
+Run `cargo test -p typst-infra --lib world::tests -- --test-threads=1` when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

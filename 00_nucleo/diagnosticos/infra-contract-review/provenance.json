@@ -1,0 +1,19 @@
+{
+  "start_utc": "2026-09-27T17:10:30.228285+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "initial_fix_scope": [
+    "00_nucleo/prompts/infra/font_metrics/caches.md",
+    "03_infra/src/font_metrics/caches.rs",
+    "00_nucleo/prompts/infra/system-world/cache.md",
+    "03_infra/src/world/cache.rs",
+    "00_nucleo/prompts/infra/system-world/tests.md",
+    "03_infra/src/world/tests.rs",
+    "00_nucleo/prompts/infra/image-sizer.md",
+    "03_infra/src/image_sizer.rs",
+    "00_nucleo/prompts/infra/fonts.md",
+    "03_infra/src/fonts.rs",
+    "00_nucleo/prompts/infra/font_metrics/fallback.md",
+    "03_infra/src/font_metrics/fallback.rs"
+  ],
+  "export_scope": "Awaiting user clarification; previous export exclusion retained"
+}

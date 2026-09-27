@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 4db12b47
+//! @prompt-hash a8b435df
 //! @layer L3
-//! @updated 2026-07-31
+//! @updated 2026-09-27
 
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
@@ -154,6 +154,7 @@ impl FontSlot {
         self.font
             .get_or_init(|| {
                 if let Some(bytes) = &self.embedded {
+                    ttf_parser::Face::parse(bytes, self.index).ok()?;
                     let data = bytes.clone();
                     let data = extract_collection_face(&data, self.index).unwrap_or(data);
                     ttf_parser::Face::parse(&data, 0).ok()?;
@@ -1487,5 +1488,23 @@ mod tests {
             Font::Mmap(_) => {}
         }
         assert_eq!(font.as_slice().len(), data.len());
+    }
+}
+
+#[cfg(test)]
+mod infra_review_regressions {
+    use super::*;
+    #[test]
+    fn infra_review_embedded_slot_rejects_invalid_face_index() {
+        let bytes = typst_assets::fonts()
+            .find(|data| ttf_parser::fonts_in_collection(data).is_none())
+            .expect("embedded sfnt fixture")
+            .to_vec();
+        let valid = FontSlot::new_embedded(PathBuf::from("<test>"), bytes.clone());
+        assert!(valid.get().is_some());
+        let mut invalid = FontSlot::new_embedded(PathBuf::from("<test>"), bytes);
+        invalid.index = 1;
+        assert!(invalid.get().is_none());
+        assert!(invalid.get().is_none());
     }
 }
