@@ -1,0 +1,222 @@
+--- before/01_core/src/compiler/layout/image.rs
++++ 01_core/src/compiler/layout/image.rs
+@@ -1,6 +1,6 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/compiler/layout-image.md
+-//! @prompt-hash b2b72ff5
++//! @prompt-hash b4d43a0e
+ //! @layer L1
+ //! @updated 2026-09-27
+ 
+@@ -183,7 +183,7 @@
+     let font = layouter.style.size.val();
+     let above_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
+     let below_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
+-    let cap_height = if fresh_block {
++    let cap_height = if fresh_block || !in_main_flow {
+         Pt(0.0)
+     } else {
+         layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+@@ -536,11 +536,13 @@
+         }
+     }
+ 
+-    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>) {
++    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>, subframe: bool) {
+         let intr = crate::entities::introspector::TagIntrospector::empty();
+         let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+         let mut layouter = Layouter::new(metrics, NullImageSizer, 12.0, intr_dyn.track());
+         layouter.style.top_edge = edge;
++        layouter.is_sub_frame = subframe;
++        layouter.initial_baseline_pending = !subframe;
+         let origin = layouter.regions.current.cursor_y.0;
+         let elem = crate::entities::elements::image::ImageElem {
+             path: String::new(),
+@@ -557,7 +559,7 @@
+         };
+         assert!((y - origin).abs() < 1e-9, "block top {y} != physical origin {origin}");
+         assert!(!layouter.initial_baseline_pending);
+-        assert!(layouter.block_chain_active);
++        assert_eq!(layouter.block_chain_active, !subframe);
+     }
+ 
+     #[test]
+@@ -567,12 +569,17 @@
+             Some(TextEdge::Length(Length::pt(0.0))),
+             Some(TextEdge::Length(Length::pt(20.0))),
+         ] {
+-            check(FixedMetrics, edge);
++            check(FixedMetrics, edge, false);
+         }
+     }
+ 
+     #[test]
+     fn initial_nontext_block_does_not_acquire_typography() {
+-        check(NoTypography, None);
+-    }
+-}
++        check(NoTypography, None, false);
++    }
++    #[test]
++    fn ordinary_subframe_block_does_not_query_unused_typography() {
++        check(NoTypography, None, true);
++    }
++
++}
+--- before/00_nucleo/prompts/compiler/layout-image.md
++++ 00_nucleo/prompts/compiler/layout-image.md
+@@ -1,5 +1,5 @@
+ # L0 — image
+-Hash do Código: d78ceada
++Hash do Código: d19e6b0b
+ 
+ **Layer:** L1
+ **Exclusive consumer:** `01_core/src/compiler/layout/image.rs`
+@@ -18,6 +18,13 @@
+ This is observable geometry, not a requirement to copy upstream algorithms.
+ Explicit Place controls remain invariant and do not authorize changing the
+ subframe coordinate convention.
++
++Inspection of the subframe path in the owned consumer shows that cap-height is
++queried before a branch whose ordinary positioning uses cursor_y directly.
++`00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/results.json`
++records remaining actual Place catalog access; it does not prove every accessor
++call is a catalog scan. The no-typography descendant controls discriminate the
++unused query from the shared subframe's actual origin acquisition.
+ 
+ ## Ownership and contract
+ 
+@@ -44,3 +51,13 @@
+ that first-block fitting uses its actual geometric extent. Tests in this consumer
+ must discriminate explicit top edges and prove this path needs no FontMetrics query.
+ This internal parity repair does not change public API or pipeline phases.
++
++## Subframe metric demand
++
++Ordinary subframe block positioning must not query cap-height when the result is
++unused. Preserve the current subframe origin and cursor/extent protocol. For a
++shape whose actual extent triggers the existing new-page branch, resolve the
++needed cap-height before transitioning pages, preserving its original style and
++fallback coordinates. Image subframe positioning/extent does not use cap-height.
++Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
++queries, not the subframe owner's initial catalog demand; no speedup is asserted.
+--- before/01_core/src/compiler/layout/shape.rs
++++ 01_core/src/compiler/layout/shape.rs
+@@ -1,6 +1,6 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
+-//! @prompt-hash ae60b378
++//! @prompt-hash 8f6a6e95
+ //! @layer L1
+ //! @updated 2026-09-27
+ //!
+@@ -78,7 +78,7 @@
+     let font = layouter.style.size.val();
+     let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
+     let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
+-    let cap_height = if fresh_block {
++    let cap_height = if fresh_block || !in_main_flow {
+         Pt(0.0)
+     } else {
+         layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+@@ -124,11 +124,17 @@
+     let page_bottom =
+         layouter.regions.current.height - layouter.page_config.margin.bottom;
+     let shape_base = if candidate_shape_base.0 + resolved_h > page_bottom {
++        // A subframe needs cap-height only for this actual page transition.
++        let page_cap_height = if in_main_flow {
++            cap_height
++        } else {
++            layouter.metrics.cap_height(layouter.style.size, &layouter.style)
++        };
+         layouter.new_page();
+         // A quebra descarta a baseline e o espaçamento do fluxo anterior. Na
+         // página fresca, a forma começa no topo da área útil, tal como uma
+         // forma isolada; isto também permite o exact-fit altura útil == forma.
+-        layouter.regions.current.cursor_y - cap_height
++        layouter.regions.current.cursor_y - page_cap_height
+     } else {
+         candidate_shape_base
+     };
+@@ -220,11 +226,13 @@
+         }
+     }
+ 
+-    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>) {
++    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>, subframe: bool) {
+         let intr = crate::entities::introspector::TagIntrospector::empty();
+         let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+         let mut layouter = Layouter::new(metrics, NullImageSizer, 12.0, intr_dyn.track());
+         layouter.style.top_edge = edge;
++        layouter.is_sub_frame = subframe;
++        layouter.initial_baseline_pending = !subframe;
+         let origin = layouter.regions.current.cursor_y.0;
+         let elem = crate::entities::elements::shape::ShapeElem {
+             kind: crate::entities::geometry::ShapeKind::Rect,
+@@ -241,7 +249,7 @@
+         };
+         assert!((y - origin).abs() < 1e-9, "block top {y} != physical origin {origin}");
+         assert!(!layouter.initial_baseline_pending);
+-        assert!(layouter.block_chain_active);
++        assert_eq!(layouter.block_chain_active, !subframe);
+     }
+ 
+     #[test]
+@@ -251,12 +259,17 @@
+             Some(TextEdge::Length(Length::pt(0.0))),
+             Some(TextEdge::Length(Length::pt(20.0))),
+         ] {
+-            check(FixedMetrics, edge);
++            check(FixedMetrics, edge, false);
+         }
+     }
+ 
+     #[test]
+     fn initial_nontext_block_does_not_acquire_typography() {
+-        check(NoTypography, None);
+-    }
++        check(NoTypography, None, false);
++    }
++    #[test]
++    fn ordinary_subframe_block_does_not_query_unused_typography() {
++        check(NoTypography, None, true);
++    }
++
+ }
+--- before/00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
++++ 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
+@@ -1,5 +1,5 @@
+ # L0 — shape block behaviour
+-Hash do Código: b4b592f5
++Hash do Código: 210e4958
+ 
+ **Layer:** L1
+ **Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
+@@ -18,6 +18,13 @@
+ This is observable geometry, not a requirement to copy upstream algorithms.
+ Explicit Place controls remain invariant and do not authorize changing the
+ subframe coordinate convention.
++
++Inspection of the subframe path in the owned consumer shows that cap-height is
++queried before a branch whose ordinary positioning uses cursor_y directly.
++`00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/results.json`
++records remaining actual Place catalog access; it does not prove every accessor
++call is a catalog scan. The no-typography descendant controls discriminate the
++unused query from the shared subframe's actual origin acquisition.
+ 
+ ## Ownership and contract
+ 
+@@ -40,3 +47,13 @@
+ that first-block fitting uses its actual geometric extent. Tests in this consumer
+ must discriminate explicit top edges and prove this path needs no FontMetrics query.
+ This internal parity repair does not change public API or pipeline phases.
++
++## Subframe metric demand
++
++Ordinary subframe block positioning must not query cap-height when the result is
++unused. Preserve the current subframe origin and cursor/extent protocol. For a
++shape whose actual extent triggers the existing new-page branch, resolve the
++needed cap-height before transitioning pages, preserving its original style and
++fallback coordinates. Image subframe positioning/extent does not use cap-height.
++Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
++queries, not the subframe owner's initial catalog demand; no speedup is asserted.

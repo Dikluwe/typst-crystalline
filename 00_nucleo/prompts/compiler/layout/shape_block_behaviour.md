@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: b4b592f5
+Hash do Código: 210e4958
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
@@ -18,6 +18,13 @@ Tekt, while the pinned vanilla position remains the region's physical top.
 This is observable geometry, not a requirement to copy upstream algorithms.
 Explicit Place controls remain invariant and do not authorize changing the
 subframe coordinate convention.
+
+Inspection of the subframe path in the owned consumer shows that cap-height is
+queried before a branch whose ordinary positioning uses cursor_y directly.
+`00_nucleo/diagnosticos/font-demand-geometry-study/catalog-counts/results.json`
+records remaining actual Place catalog access; it does not prove every accessor
+call is a catalog scan. The no-typography descendant controls discriminate the
+unused query from the shared subframe's actual origin acquisition.
 
 ## Ownership and contract
 
@@ -40,3 +47,13 @@ and subframe paths, dimensions, clipping/paint and existing overflow behavior ex
 that first-block fitting uses its actual geometric extent. Tests in this consumer
 must discriminate explicit top edges and prove this path needs no FontMetrics query.
 This internal parity repair does not change public API or pipeline phases.
+
+## Subframe metric demand
+
+Ordinary subframe block positioning must not query cap-height when the result is
+unused. Preserve the current subframe origin and cursor/extent protocol. For a
+shape whose actual extent triggers the existing new-page branch, resolve the
+needed cap-height before transitioning pages, preserving its original style and
+fallback coordinates. Image subframe positioning/extent does not use cap-height.
+Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
+queries, not the subframe owner's initial catalog demand; no speedup is asserted.

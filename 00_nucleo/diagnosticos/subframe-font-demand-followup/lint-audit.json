@@ -1,0 +1,125 @@
+{
+  "global_errors": [],
+  "owned_results": [
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 133
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 68
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 69
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 557
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `FrameItem::Image { clip_rect: Some(rect), .. }` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 56
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 4 alternativas (`ShapeKind::Rect\n        | ShapeKind::RoundedRect { .. }\n        | ShapeKind::Ellipse\n        | ShapeKind::Path(_)`) \u2014 cobertura de bra\u00e7os subestima 4\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 147
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Paint::Tiling(tiling))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "01_core/src/compiler/layout/image.rs": {
+    "prompt": "00_nucleo/prompts/compiler/layout-image.md",
+    "prompt_hash": "b4d43a0e",
+    "code_hash": "d19e6b0b"
+  },
+  "01_core/src/compiler/layout/shape.rs": {
+    "prompt": "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md",
+    "prompt_hash": "8f6a6e95",
+    "code_hash": "210e4958"
+  }
+}

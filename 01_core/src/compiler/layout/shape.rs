@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
-//! @prompt-hash ae60b378
+//! @prompt-hash 8f6a6e95
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -78,7 +78,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let font = layouter.style.size.val();
     let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
     let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
-    let cap_height = if fresh_block {
+    let cap_height = if fresh_block || !in_main_flow {
         Pt(0.0)
     } else {
         layouter.metrics.cap_height(layouter.style.size, &layouter.style)
@@ -124,11 +124,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let page_bottom =
         layouter.regions.current.height - layouter.page_config.margin.bottom;
     let shape_base = if candidate_shape_base.0 + resolved_h > page_bottom {
+        // A subframe needs cap-height only for this actual page transition.
+        let page_cap_height = if in_main_flow {
+            cap_height
+        } else {
+            layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+        };
         layouter.new_page();
         // A quebra descarta a baseline e o espaçamento do fluxo anterior. Na
         // página fresca, a forma começa no topo da área útil, tal como uma
         // forma isolada; isto também permite o exact-fit altura útil == forma.
-        layouter.regions.current.cursor_y - cap_height
+        layouter.regions.current.cursor_y - page_cap_height
     } else {
         candidate_shape_base
     };
@@ -220,11 +226,13 @@ mod initial_nontext_block_regressions {
         }
     }
 
-    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>) {
+    fn check<M: FontMetrics>(metrics: M, edge: Option<TextEdge>, subframe: bool) {
         let intr = crate::entities::introspector::TagIntrospector::empty();
         let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
         let mut layouter = Layouter::new(metrics, NullImageSizer, 12.0, intr_dyn.track());
         layouter.style.top_edge = edge;
+        layouter.is_sub_frame = subframe;
+        layouter.initial_baseline_pending = !subframe;
         let origin = layouter.regions.current.cursor_y.0;
         let elem = crate::entities::elements::shape::ShapeElem {
             kind: crate::entities::geometry::ShapeKind::Rect,
@@ -241,7 +249,7 @@ mod initial_nontext_block_regressions {
         };
         assert!((y - origin).abs() < 1e-9, "block top {y} != physical origin {origin}");
         assert!(!layouter.initial_baseline_pending);
-        assert!(layouter.block_chain_active);
+        assert_eq!(layouter.block_chain_active, !subframe);
     }
 
     #[test]
@@ -251,12 +259,17 @@ mod initial_nontext_block_regressions {
             Some(TextEdge::Length(Length::pt(0.0))),
             Some(TextEdge::Length(Length::pt(20.0))),
         ] {
-            check(FixedMetrics, edge);
+            check(FixedMetrics, edge, false);
         }
     }
 
     #[test]
     fn initial_nontext_block_does_not_acquire_typography() {
-        check(NoTypography, None);
+        check(NoTypography, None, false);
     }
+    #[test]
+    fn ordinary_subframe_block_does_not_query_unused_typography() {
+        check(NoTypography, None, true);
+    }
+
 }

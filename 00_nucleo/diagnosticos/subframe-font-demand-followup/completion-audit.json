@@ -1,0 +1,145 @@
+{
+  "utc": "2026-09-27T19:35:44.550511+00:00",
+  "head": "f1ff689fe4f3c26d102011136d77b11d6e00d17f",
+  "report_sha256": "66e0565553c049dc468075015ad94b1abeb476b2d6a108e8ba01ca8b14c3cbd5",
+  "changed_files": [
+    "00_nucleo/prompts/compiler/layout-image.md",
+    "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md",
+    "01_core/src/compiler/layout/image.rs",
+    "01_core/src/compiler/layout/shape.rs"
+  ],
+  "outside_inventoried_sources_preserved": true,
+  "red_failed": 2,
+  "layout_passed": 938,
+  "layout_failed": 0,
+  "build_passed": true,
+  "lint_errors": 0,
+  "owned_lint_results": [
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 133
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 68
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 69
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some((pw, ph))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/image.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 557
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `FrameItem::Image { clip_rect: Some(rect), .. }` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 56
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 4 alternativas (`ShapeKind::Rect\n        | ShapeKind::RoundedRect { .. }\n        | ShapeKind::Ellipse\n        | ShapeKind::Path(_)`) \u2014 cobertura de bra\u00e7os subestima 4\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/layout/shape.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 147
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Paint::Tiling(tiling))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    }
+  ],
+  "source_after": {
+    "01_core/src/compiler/layout/image.rs": "89a522c2109014911dd22a6412e672fc5493c09ea9c82e273e8ae2c49f7202f4",
+    "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md": "3e2e3e2f48d40ca66e093f4ae8ed8e5f53b6813da1f1ea310076d9534a63db61",
+    "01_core/src/compiler/layout/shape.rs": "377fb89b58d243f7c9e492f9830b872cd672ed08d39c978c17665acaf10a1718",
+    "00_nucleo/prompts/compiler/layout-image.md": "86367bec35e1dd0f7709497ef67c6b19fa11a5a93c9f932abef9e71eb33b5ca5"
+  }
+}

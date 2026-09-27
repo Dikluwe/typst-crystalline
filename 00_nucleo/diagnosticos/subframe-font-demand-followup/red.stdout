@@ -1,0 +1,25 @@
+
+running 2 tests
+test compiler::layout::image::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography ... FAILED
+test compiler::layout::shape::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography ... FAILED
+
+failures:
+
+---- compiler::layout::image::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography stdout ----
+
+thread 'compiler::layout::image::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography' (195021) panicked at 01_core/src/compiler/layout/image.rs:532:13:
+unexpected cap height
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::layout::shape::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography stdout ----
+
+thread 'compiler::layout::shape::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography' (195022) panicked at 01_core/src/compiler/layout/shape.rs:216:13:
+unexpected cap height
+
+
+failures:
+    compiler::layout::image::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography
+    compiler::layout::shape::initial_nontext_block_regressions::ordinary_subframe_block_does_not_query_unused_typography
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 6288 filtered out; finished in 0.00s
+
