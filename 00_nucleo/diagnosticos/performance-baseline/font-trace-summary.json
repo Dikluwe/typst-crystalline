@@ -1,0 +1,22 @@
+{
+  "context.typ": {
+    "discover fonts": 126.02793172222222,
+    "scan system fonts": 124.85031922222223
+  },
+  "image.typ": {
+    "discover fonts": 0,
+    "scan system fonts": 0
+  },
+  "pipeline-single-font.typ": {
+    "discover fonts": 123.35765672222222,
+    "scan system fonts": 122.23775222222223
+  },
+  "shapes.typ": {
+    "discover fonts": 0,
+    "scan system fonts": 0
+  },
+  "text-dense.typ": {
+    "discover fonts": 119.44150411111112,
+    "scan system fonts": 118.32604422222222
+  }
+}

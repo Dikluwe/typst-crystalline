@@ -1,0 +1,16 @@
+Benchmarking pipeline/raster/document_ppi
+Benchmarking pipeline/raster/document_ppi: Warming up for 500.00 ms
+Benchmarking pipeline/raster/document_ppi: Collecting 30 samples in estimated 1.6929 s (930 iterations)
+Benchmarking pipeline/raster/document_ppi: Analyzing
+pipeline/raster/document_ppi
+                        time:   [1.8292 ms 1.8396 ms 1.8488 ms]
+Benchmarking pipeline/raster/override_144
+Benchmarking pipeline/raster/override_144: Warming up for 500.00 ms
+Benchmarking pipeline/raster/override_144: Collecting 30 samples in estimated 1.9450 s (930 iterations)
+Benchmarking pipeline/raster/override_144: Analyzing
+pipeline/raster/override_144
+                        time:   [1.9908 ms 2.0461 ms 2.1122 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) low mild
+  1 (3.33%) high severe
+

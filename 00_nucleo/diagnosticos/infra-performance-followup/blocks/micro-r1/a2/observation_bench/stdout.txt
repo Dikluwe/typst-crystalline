@@ -1,0 +1,62 @@
+
+running 1 test
+test compiler::eval::observation::benchmarks::observation_microbenchmarks ... observation/values/equal
+                        time:   [393.80 ns 407.73 ns 421.52 ns]
+observation/values/early_difference
+                        time:   [435.10 ns 437.52 ns 439.66 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+observation/values/late_difference
+                        time:   [428.59 ns 442.86 ns 453.97 ns]
+
+observation/content/tree_equal
+                        time:   [1.3905 µs 1.4091 µs 1.4245 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high severe
+observation/content/tree_late_difference
+                        time:   [1.2195 µs 1.2424 µs 1.2699 µs]
+
+observation/style/equal time:   [15.295 ns 15.572 ns 15.785 ns]
+observation/style/different
+                        time:   [16.391 ns 16.587 ns 16.790 ns]
+observation/style/direction
+                        time:   [1.1934 ns 1.2266 ns 1.2599 ns]
+
+observation/geometry/equal
+                        time:   [1.5957 ns 1.6596 ns 1.7304 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+observation/geometry/different
+                        time:   [1.7680 ns 1.7906 ns 1.8095 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+
+observation/math/equal  time:   [20.374 ns 21.073 ns 21.837 ns]
+observation/math/different
+                        time:   [17.029 ns 17.754 ns 18.719 ns]
+Found 8 outliers among 30 measurements (26.67%)
+  6 (20.00%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high severe
+
+observation/page/equal  time:   [1.2062 ns 1.2255 ns 1.2484 ns]
+observation/page/different
+                        time:   [1.0579 ns 1.1049 ns 1.1479 ns]
+
+observation/elements/equal
+                        time:   [8.6067 ns 8.8439 ns 9.0703 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) low mild
+observation/elements/different
+                        time:   [4.8082 ns 4.9212 ns 5.0445 ns]
+
+observation/value_content
+                        time:   [1.0361 µs 1.0895 µs 1.1434 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6283 filtered out; finished in 12.11s
+

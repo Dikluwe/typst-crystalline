@@ -1,0 +1,15 @@
+Benchmarking content/morphology/canonicalize_mixed_tree
+Benchmarking content/morphology/canonicalize_mixed_tree: Warming up for 500.00 ms
+Benchmarking content/morphology/canonicalize_mixed_tree: Collecting 30 samples in estimated 1.5063 s (74k iterations)
+Benchmarking content/morphology/canonicalize_mixed_tree: Analyzing
+content/morphology/canonicalize_mixed_tree
+                        time:   [27.538 µs 28.641 µs 29.360 µs]
+Benchmarking content/morphology/canonicalize_catalog
+Benchmarking content/morphology/canonicalize_catalog: Warming up for 500.00 ms
+Benchmarking content/morphology/canonicalize_catalog: Collecting 30 samples in estimated 1.5011 s (478k iterations)
+Benchmarking content/morphology/canonicalize_catalog: Analyzing
+content/morphology/canonicalize_catalog
+                        time:   [3.0472 µs 3.0807 µs 3.1150 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+

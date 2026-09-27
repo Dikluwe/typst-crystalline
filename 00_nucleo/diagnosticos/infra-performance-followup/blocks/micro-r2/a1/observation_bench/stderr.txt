@@ -1,0 +1,70 @@
+    Finished `release` profile [optimized] target(s) in 0.22s
+Verified optimized core executable: /repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd
+Benchmarking observation/values/equal
+Benchmarking observation/values/equal: Warming up for 150.00 ms
+Benchmarking observation/values/equal: Collecting 30 samples in estimated 300.09 ms (664k iterations)
+Benchmarking observation/values/equal: Analyzing
+Benchmarking observation/values/early_difference
+Benchmarking observation/values/early_difference: Warming up for 150.00 ms
+Benchmarking observation/values/early_difference: Collecting 30 samples in estimated 300.13 ms (754k iterations)
+Benchmarking observation/values/early_difference: Analyzing
+Benchmarking observation/values/late_difference
+Benchmarking observation/values/late_difference: Warming up for 150.00 ms
+Benchmarking observation/values/late_difference: Collecting 30 samples in estimated 300.19 ms (688k iterations)
+Benchmarking observation/values/late_difference: Analyzing
+Benchmarking observation/content/tree_equal
+Benchmarking observation/content/tree_equal: Warming up for 150.00 ms
+Benchmarking observation/content/tree_equal: Collecting 30 samples in estimated 300.59 ms (224k iterations)
+Benchmarking observation/content/tree_equal: Analyzing
+Benchmarking observation/content/tree_late_difference
+Benchmarking observation/content/tree_late_difference: Warming up for 150.00 ms
+Benchmarking observation/content/tree_late_difference: Collecting 30 samples in estimated 300.16 ms (238k iterations)
+Benchmarking observation/content/tree_late_difference: Analyzing
+Benchmarking observation/style/equal
+Benchmarking observation/style/equal: Warming up for 150.00 ms
+Benchmarking observation/style/equal: Collecting 30 samples in estimated 300.00 ms (17M iterations)
+Benchmarking observation/style/equal: Analyzing
+Benchmarking observation/style/different
+Benchmarking observation/style/different: Warming up for 150.00 ms
+Benchmarking observation/style/different: Collecting 30 samples in estimated 300.00 ms (18M iterations)
+Benchmarking observation/style/different: Analyzing
+Benchmarking observation/style/direction
+Benchmarking observation/style/direction: Warming up for 150.00 ms
+Benchmarking observation/style/direction: Collecting 30 samples in estimated 300.00 ms (237M iterations)
+Benchmarking observation/style/direction: Analyzing
+Benchmarking observation/geometry/equal
+Benchmarking observation/geometry/equal: Warming up for 150.00 ms
+Benchmarking observation/geometry/equal: Collecting 30 samples in estimated 300.00 ms (176M iterations)
+Benchmarking observation/geometry/equal: Analyzing
+Benchmarking observation/geometry/different
+Benchmarking observation/geometry/different: Warming up for 150.00 ms
+Benchmarking observation/geometry/different: Collecting 30 samples in estimated 300.00 ms (168M iterations)
+Benchmarking observation/geometry/different: Analyzing
+Benchmarking observation/math/equal
+Benchmarking observation/math/equal: Warming up for 150.00 ms
+Benchmarking observation/math/equal: Collecting 30 samples in estimated 300.00 ms (16M iterations)
+Benchmarking observation/math/equal: Analyzing
+Benchmarking observation/math/different
+Benchmarking observation/math/different: Warming up for 150.00 ms
+Benchmarking observation/math/different: Collecting 30 samples in estimated 300.01 ms (16M iterations)
+Benchmarking observation/math/different: Analyzing
+Benchmarking observation/page/equal
+Benchmarking observation/page/equal: Warming up for 150.00 ms
+Benchmarking observation/page/equal: Collecting 30 samples in estimated 300.00 ms (241M iterations)
+Benchmarking observation/page/equal: Analyzing
+Benchmarking observation/page/different
+Benchmarking observation/page/different: Warming up for 150.00 ms
+Benchmarking observation/page/different: Collecting 30 samples in estimated 300.00 ms (251M iterations)
+Benchmarking observation/page/different: Analyzing
+Benchmarking observation/elements/equal
+Benchmarking observation/elements/equal: Warming up for 150.00 ms
+Benchmarking observation/elements/equal: Collecting 30 samples in estimated 300.00 ms (37M iterations)
+Benchmarking observation/elements/equal: Analyzing
+Benchmarking observation/elements/different
+Benchmarking observation/elements/different: Warming up for 150.00 ms
+Benchmarking observation/elements/different: Collecting 30 samples in estimated 300.00 ms (61M iterations)
+Benchmarking observation/elements/different: Analyzing
+Benchmarking observation/value_content
+Benchmarking observation/value_content: Warming up for 150.00 ms
+Benchmarking observation/value_content: Collecting 30 samples in estimated 300.22 ms (171k iterations)
+Benchmarking observation/value_content: Analyzing

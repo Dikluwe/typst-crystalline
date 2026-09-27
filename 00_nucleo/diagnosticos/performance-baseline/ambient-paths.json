@@ -1,0 +1,15 @@
+{
+  "FONTCONFIG_FILE": null,
+  "FONTCONFIG_PATH": null,
+  "FONTCONFIG_SYSROOT": null,
+  "XDG_CONFIG_HOME": null,
+  "XDG_DATA_HOME": null,
+  "XDG_CACHE_HOME": null,
+  "HOME": "/home/dikluwe",
+  "RUSTC_WRAPPER": null,
+  "RUSTC_WORKSPACE_WRAPPER": null,
+  "CARGO_TARGET_DIR": null,
+  "LD_PRELOAD": null,
+  "LD_LIBRARY_PATH": null,
+  "user_fontconfig_exists": false
+}

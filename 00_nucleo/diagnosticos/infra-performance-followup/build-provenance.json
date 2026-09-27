@@ -1,0 +1,416 @@
+{
+  "commands": [
+    {
+      "label": "cli",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--locked",
+        "--message-format=json"
+      ],
+      "start_utc": "2026-09-27T17:50:35.082606+00:00",
+      "end_utc": "2026-09-27T17:52:56.600800+00:00",
+      "exit_code": 0
+    },
+    {
+      "label": "benches",
+      "command": [
+        "cargo",
+        "bench",
+        "--manifest-path",
+        "benches/Cargo.toml",
+        "--no-run",
+        "--offline",
+        "--locked",
+        "--message-format=json"
+      ],
+      "start_utc": "2026-09-27T17:52:56.747516+00:00",
+      "end_utc": "2026-09-27T17:54:01.598986+00:00",
+      "exit_code": 0
+    },
+    {
+      "label": "core-tests",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "typst-core",
+        "--release",
+        "--lib",
+        "--no-run",
+        "--offline",
+        "--locked",
+        "--message-format=json"
+      ],
+      "start_utc": "2026-09-27T17:54:01.984972+00:00",
+      "end_utc": "2026-09-27T17:54:02.358273+00:00",
+      "exit_code": 0
+    },
+    {
+      "label": "fontbench",
+      "command": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fontbench/Cargo.toml",
+        "--release",
+        "--offline",
+        "--locked",
+        "--target-dir",
+        "/repos/Antigravity/typst-crystalline/target",
+        "--message-format=json"
+      ],
+      "start_utc": "2026-09-27T17:54:02.558115+00:00",
+      "end_utc": "2026-09-27T17:56:24.980511+00:00",
+      "exit_code": 0
+    }
+  ],
+  "artifacts": {
+    "typst": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/typst",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "9f16ed26379de7484ef1ab6226911537b4620526c106faf30656c0bbc972ec5c",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": false
+      },
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "typst",
+        "src_path": "/repos/Antigravity/typst-crystalline/04_wiring/src/main.rs",
+        "edition": "2021",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "features": []
+    },
+    "pdf_builder_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/pdf_builder_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/pdf_builder_bench-de02a96dbc3a0897",
+      "sha256": "9ec5fb13b1768cfa9e172df5fde702ae3588bcd8d0ec28e65fe6e8518f0dca27",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "pdf_builder_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/pdf_builder_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "stdlib_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/stdlib_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/stdlib_bench-f2f08a9c949e92b0",
+      "sha256": "a033b00851759883019e41534c70e675b53d3ec2e6073d9029da5a6f1caf7cd3",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "stdlib_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/stdlib_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "pipeline_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/pipeline_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/pipeline_bench-011e2cabd8b95865",
+      "sha256": "fc431fc9395ad2ccebf22899584ad9a4bfd07e9ae023736f4321888c34b76f85",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "pipeline_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/pipeline_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "content_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/content_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/content_bench-0dff3e06c05c842a",
+      "sha256": "7c6a96c9a79a7622924e2836ca047e9dd0277403c4fe51583ca53f4dc1b2ca8d",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "content_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/content_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "observation_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/observation_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/observation_bench-4ff173dd2e1b9bdc",
+      "sha256": "95a2e62f29aa0c35a16aa10fdd19e9e2c372c86374b659877cb3376e14f1a83c",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "observation_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/observation_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "layout_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/layout_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/layout_bench-de12bc89ebddd26c",
+      "sha256": "d476989cdebd24b110f0a595eb5062b8beb04b87a146a47c0c63edda9abee15f",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "layout_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/layout_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "stream_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/stream_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/stream_bench-df235584fc1761e5",
+      "sha256": "cb42244b919be816aa9233571d4b32a493cd04fb1a8fda200d110def22e9d87f",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "stream_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/stream_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "scanner_bench": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/scanner_bench",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/scanner_bench-542d3e6e4be47a19",
+      "sha256": "7020c720862dac8ed006f45edd29d2dd7dd89e1330679b3e6a13dc410bde20f1",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "bench"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "scanner_bench",
+        "src_path": "/repos/Antigravity/typst-crystalline/benches/scanner_bench.rs",
+        "edition": "2021",
+        "doc": false,
+        "doctest": false,
+        "test": false
+      },
+      "features": []
+    },
+    "core-benchmark-tests": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/core-benchmark-tests",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd",
+      "sha256": "3f4c68b0bde4f0ed2f2f5cd1a2950c80fe5c55f74f1d7592804cb652a4db7c55",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "target": {
+        "kind": [
+          "lib"
+        ],
+        "crate_types": [
+          "lib"
+        ],
+        "name": "typst_core",
+        "src_path": "/repos/Antigravity/typst-crystalline/01_core/src/lib.rs",
+        "edition": "2021",
+        "doc": true,
+        "doctest": true,
+        "test": true
+      },
+      "features": []
+    },
+    "language_probe": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/language_probe",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/language_probe",
+      "sha256": "70169df319995114b45b51e26f164d78e3efdf67e0e36d30364f2c7886c96f59",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": false
+      },
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "language_probe",
+        "src_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fontbench/src/bin/language_probe.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "features": []
+    },
+    "infra-font-followup": {
+      "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/infra-font-followup",
+      "built_path": "/repos/Antigravity/typst-crystalline/target/release/infra-font-followup",
+      "sha256": "67eda0a67b4d900761ebc7a583e48eaf6feac6886aa0162fe456984d0bdf5782",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": false
+      },
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "infra-font-followup",
+        "src_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/fontbench/src/main.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "features": []
+    }
+  },
+  "machine": {
+    "system": "Linux",
+    "node": "Dell-G15-Linuxmint",
+    "release": "6.17.0-42-generic",
+    "version": "#42-Ubuntu SMP PREEMPT_DYNAMIC Thu Jul 23 19:56:28 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           48 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 5800H with Radeon Graphics\nCPU family:                              25\nModel:                                   80\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      86%\nCPU max MHz:                             4465.2612\nCPU min MHz:                             403.4880\nBogoMIPS:                                6387.67\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk clzero irperf xsaveerptr rdpru wbnoinvd cppc arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm debug_swap\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                16 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Mitigation; Clear CPU buffers\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+  "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)\n",
+  "environment": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "CARGO_BUILD_JOBS": "1",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  }
+}

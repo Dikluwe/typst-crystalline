@@ -1,0 +1,14 @@
+{
+  "utc": "2026-09-27T03:17:24.602125+00:00",
+  "command": [
+    "fc-list",
+    ":family=Libertinus Serif",
+    "--format",
+    "%{file}\n"
+  ],
+  "system_family_candidates": [],
+  "project_family": "Baseline Math",
+  "qualified_text_family": "Libertinus Serif",
+  "embedded_identity_evidence": "embedded-fonts.json",
+  "pdf_selection_evidence": "output-validation.json; generated after accepted collection"
+}

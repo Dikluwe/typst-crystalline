@@ -1,0 +1,6 @@
+error: função 'math.equation' não é um tipo de nó suportado como selector. Tipos suportados: heading, figure, strong, emph, raw, underline, strike, overline, smallcaps, sub, super, link, quote, list, enum, par.
+  ┌─ 00_nucleo/diagnosticos/performance-baseline/fixtures/math.typ:1:6
+  │
+1 │ #show math.equation: set text(font: "Baseline Math")
+  │       ^^^^^^^^^^^^^
+

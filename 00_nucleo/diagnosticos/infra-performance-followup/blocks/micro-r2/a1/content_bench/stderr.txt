@@ -1,0 +1,140 @@
+Benchmarking content/construction/text
+Benchmarking content/construction/text: Warming up for 200.00 ms
+Benchmarking content/construction/text: Collecting 30 samples in estimated 600.02 ms (7.7M iterations)
+Benchmarking content/construction/text: Analyzing
+Benchmarking content/construction/styled
+Benchmarking content/construction/styled: Warming up for 200.00 ms
+Benchmarking content/construction/styled: Collecting 30 samples in estimated 600.04 ms (1.9M iterations)
+Benchmarking content/construction/styled: Analyzing
+Benchmarking content/construction/heading
+Benchmarking content/construction/heading: Warming up for 200.00 ms
+Benchmarking content/construction/heading: Collecting 30 samples in estimated 600.02 ms (3.1M iterations)
+Benchmarking content/construction/heading: Analyzing
+Benchmarking content/construction/math_frac
+Benchmarking content/construction/math_frac: Warming up for 200.00 ms
+Benchmarking content/construction/math_frac: Collecting 30 samples in estimated 600.10 ms (2.1M iterations)
+Benchmarking content/construction/math_frac: Analyzing
+Benchmarking content/representation/clone_leaf
+Benchmarking content/representation/clone_leaf: Warming up for 200.00 ms
+Benchmarking content/representation/clone_leaf: Collecting 30 samples in estimated 600.00 ms (41M iterations)
+Benchmarking content/representation/clone_leaf: Analyzing
+Benchmarking content/representation/clone_sequence
+Benchmarking content/representation/clone_sequence: Warming up for 200.00 ms
+Benchmarking content/representation/clone_sequence: Collecting 30 samples in estimated 600.01 ms (41M iterations)
+Benchmarking content/representation/clone_sequence: Analyzing
+Benchmarking content/representation/equality_sequence_equal
+Benchmarking content/representation/equality_sequence_equal: Warming up for 200.00 ms
+Benchmarking content/representation/equality_sequence_equal: Collecting 30 samples in estimated 600.76 ms (259k iterations)
+Benchmarking content/representation/equality_sequence_equal: Analyzing
+Benchmarking content/representation/equality_sequence_late_difference
+Benchmarking content/representation/equality_sequence_late_difference: Warming up for 200.00 ms
+Benchmarking content/representation/equality_sequence_late_difference: Collecting 30 samples in estimated 600.66 ms (297k iterations)
+Benchmarking content/representation/equality_sequence_late_difference: Analyzing
+Benchmarking content/representation/rust_hash_sequence
+Benchmarking content/representation/rust_hash_sequence: Warming up for 200.00 ms
+Benchmarking content/representation/rust_hash_sequence: Collecting 30 samples in estimated 600.37 ms (46k iterations)
+Benchmarking content/representation/rust_hash_sequence: Analyzing
+Benchmarking content/representation/clone_catalog
+Benchmarking content/representation/clone_catalog: Warming up for 200.00 ms
+Benchmarking content/representation/clone_catalog: Collecting 30 samples in estimated 600.16 ms (1.2M iterations)
+Benchmarking content/representation/clone_catalog: Analyzing
+Benchmarking content/representation/equality_catalog_equal
+Benchmarking content/representation/equality_catalog_equal: Warming up for 200.00 ms
+Benchmarking content/representation/equality_catalog_equal: Collecting 30 samples in estimated 600.02 ms (6.7M iterations)
+Benchmarking content/representation/equality_catalog_equal: Analyzing
+Benchmarking content/representation/rust_hash_catalog
+Benchmarking content/representation/rust_hash_catalog: Warming up for 200.00 ms
+Benchmarking content/representation/rust_hash_catalog: Collecting 30 samples in estimated 602.82 ms (49k iterations)
+Benchmarking content/representation/rust_hash_catalog: Analyzing
+Benchmarking content/sequence/normalize/0
+Benchmarking content/sequence/normalize/0: Warming up for 200.00 ms
+Benchmarking content/sequence/normalize/0: Collecting 30 samples in estimated 600.01 ms (8.8M iterations)
+Benchmarking content/sequence/normalize/0: Analyzing
+Benchmarking content/sequence/normalize/1
+Benchmarking content/sequence/normalize/1: Warming up for 200.00 ms
+Benchmarking content/sequence/normalize/1: Collecting 30 samples in estimated 600.02 ms (6.0M iterations)
+Benchmarking content/sequence/normalize/1: Analyzing
+Benchmarking content/sequence/normalize/32
+Benchmarking content/sequence/normalize/32: Warming up for 200.00 ms
+Benchmarking content/sequence/normalize/32: Collecting 30 samples in estimated 600.09 ms (227k iterations)
+Benchmarking content/sequence/normalize/32: Analyzing
+Benchmarking content/sequence/normalize/256
+Benchmarking content/sequence/normalize/256: Warming up for 200.00 ms
+Benchmarking content/sequence/normalize/256: Collecting 30 samples in estimated 604.19 ms (28k iterations)
+Benchmarking content/sequence/normalize/256: Analyzing
+Benchmarking content/identity/elem_name_catalog
+Benchmarking content/identity/elem_name_catalog: Warming up for 200.00 ms
+Benchmarking content/identity/elem_name_catalog: Collecting 30 samples in estimated 600.01 ms (12M iterations)
+Benchmarking content/identity/elem_name_catalog: Analyzing
+Benchmarking content/identity/debug_catalog
+Benchmarking content/identity/debug_catalog: Warming up for 200.00 ms
+Benchmarking content/identity/debug_catalog: Collecting 30 samples in estimated 602.57 ms (67k iterations)
+Benchmarking content/identity/debug_catalog: Analyzing
+Benchmarking content/traversal/map_content_noop_wide
+Benchmarking content/traversal/map_content_noop_wide: Warming up for 200.00 ms
+Benchmarking content/traversal/map_content_noop_wide: Collecting 30 samples in estimated 605.69 ms (45k iterations)
+Benchmarking content/traversal/map_content_noop_wide: Analyzing
+Benchmarking content/traversal/map_content_noop_deep
+Benchmarking content/traversal/map_content_noop_deep: Warming up for 200.00 ms
+Benchmarking content/traversal/map_content_noop_deep: Collecting 30 samples in estimated 600.25 ms (200k iterations)
+Benchmarking content/traversal/map_content_noop_deep: Analyzing
+Benchmarking content/traversal/map_text_identity_wide
+Benchmarking content/traversal/map_text_identity_wide: Warming up for 200.00 ms
+Benchmarking content/traversal/map_text_identity_wide: Collecting 30 samples in estimated 601.31 ms (65k iterations)
+Benchmarking content/traversal/map_text_identity_wide: Analyzing
+Benchmarking content/traversal/map_text_transform_wide
+Benchmarking content/traversal/map_text_transform_wide: Warming up for 200.00 ms
+Benchmarking content/traversal/map_text_transform_wide: Collecting 30 samples in estimated 602.37 ms (60k iterations)
+Benchmarking content/traversal/map_text_transform_wide: Analyzing
+Benchmarking content/traversal/map_content_noop_catalog
+Benchmarking content/traversal/map_content_noop_catalog: Warming up for 200.00 ms
+Benchmarking content/traversal/map_content_noop_catalog: Collecting 30 samples in estimated 600.60 ms (250k iterations)
+Benchmarking content/traversal/map_content_noop_catalog: Analyzing
+Benchmarking content/traversal/map_text_identity_catalog
+Benchmarking content/traversal/map_text_identity_catalog: Warming up for 200.00 ms
+Benchmarking content/traversal/map_text_identity_catalog: Collecting 30 samples in estimated 600.02 ms (424k iterations)
+Benchmarking content/traversal/map_text_identity_catalog: Analyzing
+Benchmarking content/morphology/canonicalize_mixed_tree
+Benchmarking content/morphology/canonicalize_mixed_tree: Warming up for 200.00 ms
+Benchmarking content/morphology/canonicalize_mixed_tree: Collecting 30 samples in estimated 600.97 ms (33k iterations)
+Benchmarking content/morphology/canonicalize_mixed_tree: Analyzing
+Benchmarking content/morphology/canonicalize_catalog
+Benchmarking content/morphology/canonicalize_catalog: Warming up for 200.00 ms
+Benchmarking content/morphology/canonicalize_catalog: Collecting 30 samples in estimated 600.41 ms (295k iterations)
+Benchmarking content/morphology/canonicalize_catalog: Analyzing
+Benchmarking content/projections/is_empty_deep
+Benchmarking content/projections/is_empty_deep: Warming up for 200.00 ms
+Benchmarking content/projections/is_empty_deep: Collecting 30 samples in estimated 600.01 ms (4.9M iterations)
+Benchmarking content/projections/is_empty_deep: Analyzing
+Benchmarking content/projections/plain_text_wide
+Benchmarking content/projections/plain_text_wide: Warming up for 200.00 ms
+Benchmarking content/projections/plain_text_wide: Collecting 30 samples in estimated 600.95 ms (49k iterations)
+Benchmarking content/projections/plain_text_wide: Analyzing
+Benchmarking content/projections/get_field_hit
+Benchmarking content/projections/get_field_hit: Warming up for 200.00 ms
+Benchmarking content/projections/get_field_hit: Collecting 30 samples in estimated 600.01 ms (17M iterations)
+Benchmarking content/projections/get_field_hit: Analyzing
+Benchmarking content/projections/get_field_miss
+Benchmarking content/projections/get_field_miss: Warming up for 200.00 ms
+Benchmarking content/projections/get_field_miss: Collecting 30 samples in estimated 600.01 ms (20M iterations)
+Benchmarking content/projections/get_field_miss: Analyzing
+Benchmarking content/projections/is_empty_catalog
+Benchmarking content/projections/is_empty_catalog: Warming up for 200.00 ms
+Benchmarking content/projections/is_empty_catalog: Collecting 30 samples in estimated 600.02 ms (5.2M iterations)
+Benchmarking content/projections/is_empty_catalog: Analyzing
+Benchmarking content/projections/plain_text_catalog
+Benchmarking content/projections/plain_text_catalog: Warming up for 200.00 ms
+Benchmarking content/projections/plain_text_catalog: Collecting 30 samples in estimated 600.00 ms (429k iterations)
+Benchmarking content/projections/plain_text_catalog: Analyzing
+Benchmarking content/projections/get_field_miss_catalog
+Benchmarking content/projections/get_field_miss_catalog: Warming up for 200.00 ms
+Benchmarking content/projections/get_field_miss_catalog: Collecting 30 samples in estimated 600.03 ms (1.6M iterations)
+Benchmarking content/projections/get_field_miss_catalog: Analyzing
+Benchmarking content/page_structure/wrap_columns_fast_path
+Benchmarking content/page_structure/wrap_columns_fast_path: Warming up for 200.00 ms
+Benchmarking content/page_structure/wrap_columns_fast_path: Collecting 30 samples in estimated 603.27 ms (64k iterations)
+Benchmarking content/page_structure/wrap_columns_fast_path: Analyzing
+Benchmarking content/page_structure/wrap_columns_rewrite
+Benchmarking content/page_structure/wrap_columns_rewrite: Warming up for 200.00 ms
+Benchmarking content/page_structure/wrap_columns_rewrite: Collecting 30 samples in estimated 604.52 ms (39k iterations)
+Benchmarking content/page_structure/wrap_columns_rewrite: Analyzing

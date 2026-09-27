@@ -1,0 +1,12 @@
+micro-r1-scanner_bench VALID
+micro-r1-content_bench DISCARDED
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 255, in <module>
+    elif a.action=='micro':micro(a.rounds)
+                           ^^^^^^^^^^^^^^^
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 242, in micro
+    monitored(cmd,f'micro-r{run}-{name}',True,{'CRITERION_HOME':str(destination)})
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 167, in monitored
+    if not result['valid']: raise RuntimeError('Invalid result; raw log retained: '+label)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Invalid result; raw log retained: micro-r1-content_bench

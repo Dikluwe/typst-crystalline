@@ -1,0 +1,274 @@
+Benchmarking content/construction/text
+Benchmarking content/construction/text: Warming up for 500.00 ms
+Benchmarking content/construction/text: Collecting 30 samples in estimated 1.5000 s (17M iterations)
+Benchmarking content/construction/text: Analyzing
+content/construction/text
+                        time:   [31.731 ns 31.979 ns 32.172 ns]
+Benchmarking content/construction/styled
+Benchmarking content/construction/styled: Warming up for 500.00 ms
+Benchmarking content/construction/styled: Collecting 30 samples in estimated 1.5000 s (5.7M iterations)
+Benchmarking content/construction/styled: Analyzing
+content/construction/styled
+                        time:   [71.909 ns 72.986 ns 73.756 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking content/construction/heading
+Benchmarking content/construction/heading: Warming up for 500.00 ms
+Benchmarking content/construction/heading: Collecting 30 samples in estimated 1.5001 s (9.4M iterations)
+Benchmarking content/construction/heading: Analyzing
+content/construction/heading
+                        time:   [27.224 ns 27.747 ns 28.175 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking content/construction/math_frac
+Benchmarking content/construction/math_frac: Warming up for 500.00 ms
+Benchmarking content/construction/math_frac: Collecting 30 samples in estimated 1.5001 s (6.2M iterations)
+Benchmarking content/construction/math_frac: Analyzing
+content/construction/math_frac
+                        time:   [39.542 ns 40.585 ns 41.497 ns]
+
+Benchmarking content/representation/clone_leaf
+Benchmarking content/representation/clone_leaf: Warming up for 500.00 ms
+Benchmarking content/representation/clone_leaf: Collecting 30 samples in estimated 1.5000 s (131M iterations)
+Benchmarking content/representation/clone_leaf: Analyzing
+content/representation/clone_leaf
+                        time:   [11.458 ns 11.494 ns 11.536 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking content/representation/clone_sequence
+Benchmarking content/representation/clone_sequence: Warming up for 500.00 ms
+Benchmarking content/representation/clone_sequence: Collecting 30 samples in estimated 1.5000 s (131M iterations)
+Benchmarking content/representation/clone_sequence: Analyzing
+content/representation/clone_sequence
+                        time:   [11.371 ns 13.068 ns 15.568 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) high mild
+  3 (10.00%) high severe
+Benchmarking content/representation/equality_sequence_equal
+Benchmarking content/representation/equality_sequence_equal: Warming up for 500.00 ms
+Benchmarking content/representation/equality_sequence_equal: Collecting 30 samples in estimated 1.5006 s (600k iterations)
+Benchmarking content/representation/equality_sequence_equal: Analyzing
+content/representation/equality_sequence_equal
+                        time:   [1.8488 µs 2.0067 µs 2.1984 µs]
+Benchmarking content/representation/equality_sequence_late_difference
+Benchmarking content/representation/equality_sequence_late_difference: Warming up for 500.00 ms
+Benchmarking content/representation/equality_sequence_late_difference: Collecting 30 samples in estimated 1.5007 s (941k iterations)
+Benchmarking content/representation/equality_sequence_late_difference: Analyzing
+content/representation/equality_sequence_late_difference
+                        time:   [1.6289 µs 1.6338 µs 1.6398 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  2 (6.67%) high severe
+Benchmarking content/representation/rust_hash_sequence
+Benchmarking content/representation/rust_hash_sequence: Warming up for 500.00 ms
+Benchmarking content/representation/rust_hash_sequence: Collecting 30 samples in estimated 1.5016 s (134k iterations)
+Benchmarking content/representation/rust_hash_sequence: Analyzing
+content/representation/rust_hash_sequence
+                        time:   [10.765 µs 10.797 µs 10.841 µs]
+Benchmarking content/representation/clone_catalog
+Benchmarking content/representation/clone_catalog: Warming up for 500.00 ms
+Benchmarking content/representation/clone_catalog: Collecting 30 samples in estimated 1.5001 s (3.7M iterations)
+Benchmarking content/representation/clone_catalog: Analyzing
+content/representation/clone_catalog
+                        time:   [398.78 ns 399.76 ns 400.66 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking content/representation/equality_catalog_equal
+Benchmarking content/representation/equality_catalog_equal: Warming up for 500.00 ms
+Benchmarking content/representation/equality_catalog_equal: Collecting 30 samples in estimated 1.5000 s (20M iterations)
+Benchmarking content/representation/equality_catalog_equal: Analyzing
+content/representation/equality_catalog_equal
+                        time:   [75.831 ns 76.093 ns 76.396 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+Benchmarking content/representation/rust_hash_catalog
+Benchmarking content/representation/rust_hash_catalog: Warming up for 500.00 ms
+Benchmarking content/representation/rust_hash_catalog: Collecting 30 samples in estimated 1.5015 s (154k iterations)
+Benchmarking content/representation/rust_hash_catalog: Analyzing
+content/representation/rust_hash_catalog
+                        time:   [9.8978 µs 10.332 µs 10.742 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high severe
+
+Benchmarking content/sequence/normalize/0
+Benchmarking content/sequence/normalize/0: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/0: Collecting 30 samples in estimated 1.5000 s (21M iterations)
+Benchmarking content/sequence/normalize/0: Analyzing
+content/sequence/normalize/0
+                        time:   [10.109 ns 10.666 ns 11.039 ns]
+Benchmarking content/sequence/normalize/1
+Benchmarking content/sequence/normalize/1: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/1: Collecting 30 samples in estimated 1.5001 s (9.9M iterations)
+Benchmarking content/sequence/normalize/1: Analyzing
+content/sequence/normalize/1
+                        time:   [31.491 ns 33.611 ns 35.303 ns]
+                        thrpt:  [28.326 Melem/s 29.752 Melem/s 31.755 Melem/s]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+Benchmarking content/sequence/normalize/32
+Benchmarking content/sequence/normalize/32: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/32: Collecting 30 samples in estimated 1.5003 s (629k iterations)
+Benchmarking content/sequence/normalize/32: Analyzing
+content/sequence/normalize/32
+                        time:   [223.14 ns 250.13 ns 269.30 ns]
+                        thrpt:  [118.83 Melem/s 127.93 Melem/s 143.41 Melem/s]
+Benchmarking content/sequence/normalize/256
+Benchmarking content/sequence/normalize/256: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/256: Collecting 30 samples in estimated 1.5020 s (86k iterations)
+Benchmarking content/sequence/normalize/256: Analyzing
+content/sequence/normalize/256
+                        time:   [1.5072 µs 1.6928 µs 1.8189 µs]
+                        thrpt:  [140.74 Melem/s 151.23 Melem/s 169.85 Melem/s]
+
+Benchmarking content/identity/elem_name_catalog
+Benchmarking content/identity/elem_name_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/elem_name_catalog: Collecting 30 samples in estimated 1.5000 s (28M iterations)
+Benchmarking content/identity/elem_name_catalog: Analyzing
+content/identity/elem_name_catalog
+                        time:   [60.141 ns 60.829 ns 61.433 ns]
+Benchmarking content/identity/debug_catalog
+Benchmarking content/identity/debug_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/debug_catalog: Collecting 30 samples in estimated 1.5009 s (206k iterations)
+Benchmarking content/identity/debug_catalog: Analyzing
+content/identity/debug_catalog
+                        time:   [7.3965 µs 7.4272 µs 7.4508 µs]
+
+Benchmarking content/traversal/map_content_noop_wide
+Benchmarking content/traversal/map_content_noop_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_wide: Collecting 30 samples in estimated 1.5010 s (140k iterations)
+Benchmarking content/traversal/map_content_noop_wide: Analyzing
+content/traversal/map_content_noop_wide
+                        time:   [10.858 µs 11.026 µs 11.193 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+Benchmarking content/traversal/map_content_noop_deep
+Benchmarking content/traversal/map_content_noop_deep: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_deep: Collecting 30 samples in estimated 1.5006 s (626k iterations)
+Benchmarking content/traversal/map_content_noop_deep: Analyzing
+content/traversal/map_content_noop_deep
+                        time:   [2.3798 µs 2.3942 µs 2.4129 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+Benchmarking content/traversal/map_text_identity_wide
+Benchmarking content/traversal/map_text_identity_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_identity_wide: Collecting 30 samples in estimated 1.5032 s (197k iterations)
+Benchmarking content/traversal/map_text_identity_wide: Analyzing
+content/traversal/map_text_identity_wide
+                        time:   [7.6723 µs 7.7402 µs 7.7903 µs]
+Benchmarking content/traversal/map_text_transform_wide
+Benchmarking content/traversal/map_text_transform_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_transform_wide: Collecting 30 samples in estimated 1.5015 s (185k iterations)
+Benchmarking content/traversal/map_text_transform_wide: Analyzing
+content/traversal/map_text_transform_wide
+                        time:   [8.1667 µs 8.1902 µs 8.2084 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low severe
+  1 (3.33%) low mild
+Benchmarking content/traversal/map_content_noop_catalog
+Benchmarking content/traversal/map_content_noop_catalog: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_catalog: Collecting 30 samples in estimated 1.5000 s (778k iterations)
+Benchmarking content/traversal/map_content_noop_catalog: Analyzing
+content/traversal/map_content_noop_catalog
+                        time:   [1.9460 µs 1.9752 µs 2.0267 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking content/traversal/map_text_identity_catalog
+Benchmarking content/traversal/map_text_identity_catalog: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_identity_catalog: Collecting 30 samples in estimated 1.5004 s (1.2M iterations)
+Benchmarking content/traversal/map_text_identity_catalog: Analyzing
+content/traversal/map_text_identity_catalog
+                        time:   [1.1948 µs 1.2012 µs 1.2076 µs]
+
+Benchmarking content/morphology/canonicalize_mixed_tree
+Benchmarking content/morphology/canonicalize_mixed_tree: Warming up for 500.00 ms
+Benchmarking content/morphology/canonicalize_mixed_tree: Collecting 30 samples in estimated 1.5051 s (86k iterations)
+Benchmarking content/morphology/canonicalize_mixed_tree: Analyzing
+content/morphology/canonicalize_mixed_tree
+                        time:   [17.823 µs 17.833 µs 17.843 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking content/morphology/canonicalize_catalog
+Benchmarking content/morphology/canonicalize_catalog: Warming up for 500.00 ms
+Benchmarking content/morphology/canonicalize_catalog: Collecting 30 samples in estimated 1.5002 s (807k iterations)
+Benchmarking content/morphology/canonicalize_catalog: Analyzing
+content/morphology/canonicalize_catalog
+                        time:   [1.8516 µs 1.8611 µs 1.8743 µs]
+
+Benchmarking content/projections/is_empty_deep
+Benchmarking content/projections/is_empty_deep: Warming up for 500.00 ms
+Benchmarking content/projections/is_empty_deep: Collecting 30 samples in estimated 1.5000 s (13M iterations)
+Benchmarking content/projections/is_empty_deep: Analyzing
+content/projections/is_empty_deep
+                        time:   [113.41 ns 113.50 ns 113.61 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+Benchmarking content/projections/plain_text_wide
+Benchmarking content/projections/plain_text_wide: Warming up for 500.00 ms
+Benchmarking content/projections/plain_text_wide: Collecting 30 samples in estimated 1.5027 s (135k iterations)
+Benchmarking content/projections/plain_text_wide: Analyzing
+content/projections/plain_text_wide
+                        time:   [11.243 µs 11.268 µs 11.290 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+Benchmarking content/projections/get_field_hit
+Benchmarking content/projections/get_field_hit: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_hit: Collecting 30 samples in estimated 1.5000 s (46M iterations)
+Benchmarking content/projections/get_field_hit: Analyzing
+content/projections/get_field_hit
+                        time:   [32.779 ns 32.920 ns 33.171 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking content/projections/get_field_miss
+Benchmarking content/projections/get_field_miss: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_miss: Collecting 30 samples in estimated 1.5000 s (53M iterations)
+Benchmarking content/projections/get_field_miss: Analyzing
+content/projections/get_field_miss
+                        time:   [28.666 ns 29.145 ns 29.953 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+Benchmarking content/projections/is_empty_catalog
+Benchmarking content/projections/is_empty_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/is_empty_catalog: Collecting 30 samples in estimated 1.5000 s (11M iterations)
+Benchmarking content/projections/is_empty_catalog: Analyzing
+content/projections/is_empty_catalog
+                        time:   [126.66 ns 127.04 ns 127.52 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+Benchmarking content/projections/plain_text_catalog
+Benchmarking content/projections/plain_text_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/plain_text_catalog: Collecting 30 samples in estimated 1.5005 s (1.1M iterations)
+Benchmarking content/projections/plain_text_catalog: Analyzing
+content/projections/plain_text_catalog
+                        time:   [1.3117 µs 1.3295 µs 1.3527 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking content/projections/get_field_miss_catalog
+Benchmarking content/projections/get_field_miss_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_miss_catalog: Collecting 30 samples in estimated 1.5002 s (4.1M iterations)
+Benchmarking content/projections/get_field_miss_catalog: Analyzing
+content/projections/get_field_miss_catalog
+                        time:   [354.38 ns 358.32 ns 362.82 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+
+Benchmarking content/page_structure/wrap_columns_fast_path
+Benchmarking content/page_structure/wrap_columns_fast_path: Warming up for 500.00 ms
+Benchmarking content/page_structure/wrap_columns_fast_path: Collecting 30 samples in estimated 1.5020 s (159k iterations)
+Benchmarking content/page_structure/wrap_columns_fast_path: Analyzing
+content/page_structure/wrap_columns_fast_path
+                        time:   [4.4492 µs 4.5557 µs 4.6303 µs]
+Benchmarking content/page_structure/wrap_columns_rewrite
+Benchmarking content/page_structure/wrap_columns_rewrite: Warming up for 500.00 ms
+Benchmarking content/page_structure/wrap_columns_rewrite: Collecting 30 samples in estimated 1.5033 s (124k iterations)
+Benchmarking content/page_structure/wrap_columns_rewrite: Analyzing
+content/page_structure/wrap_columns_rewrite
+                        time:   [11.469 µs 12.456 µs 13.365 µs]
+

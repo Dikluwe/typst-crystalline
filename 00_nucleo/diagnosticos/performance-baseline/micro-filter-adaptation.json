@@ -1,0 +1,7 @@
+{
+  "utc": "2026-09-27T03:44:27.640318+00:00",
+  "own_pids_stopped": [
+    3403967
+  ],
+  "reason": "Run unchanged short targets before Content; collect Content through existing Criterion group filters with separate receipts."
+}

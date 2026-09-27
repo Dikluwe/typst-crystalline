@@ -1,0 +1,147 @@
+    Finished `release` profile [optimized] target(s) in 0.66s
+Verified optimized core executable: /repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd
+
+running 1 test
+test compiler::eval::observation::benchmarks::observation_microbenchmarks ... Benchmarking observation/values/equal
+Benchmarking observation/values/equal: Warming up for 150.00 ms
+Benchmarking observation/values/equal: Collecting 30 samples in estimated 300.04 ms (917k iterations)
+Benchmarking observation/values/equal: Analyzing
+observation/values/equal
+                        time:   [323.52 ns 323.98 ns 324.56 ns]
+Benchmarking observation/values/early_difference
+Benchmarking observation/values/early_difference: Warming up for 150.00 ms
+Benchmarking observation/values/early_difference: Collecting 30 samples in estimated 300.14 ms (945k iterations)
+Benchmarking observation/values/early_difference: Analyzing
+observation/values/early_difference
+                        time:   [316.44 ns 316.67 ns 316.95 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low mild
+  3 (10.00%) high mild
+Benchmarking observation/values/late_difference
+Benchmarking observation/values/late_difference: Warming up for 150.00 ms
+Benchmarking observation/values/late_difference: Collecting 30 samples in estimated 300.05 ms (946k iterations)
+Benchmarking observation/values/late_difference: Analyzing
+observation/values/late_difference
+                        time:   [314.28 ns 314.54 ns 314.80 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking observation/content/tree_equal
+Benchmarking observation/content/tree_equal: Warming up for 150.00 ms
+Benchmarking observation/content/tree_equal: Collecting 30 samples in estimated 300.39 ms (279k iterations)
+Benchmarking observation/content/tree_equal: Analyzing
+observation/content/tree_equal
+                        time:   [1.0006 µs 1.0639 µs 1.1508 µs]
+Benchmarking observation/content/tree_late_difference
+Benchmarking observation/content/tree_late_difference: Warming up for 150.00 ms
+Benchmarking observation/content/tree_late_difference: Collecting 30 samples in estimated 300.12 ms (334k iterations)
+Benchmarking observation/content/tree_late_difference: Analyzing
+observation/content/tree_late_difference
+                        time:   [976.42 ns 985.40 ns 995.39 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) low severe
+  2 (6.67%) low mild
+  1 (3.33%) high mild
+
+Benchmarking observation/style/equal
+Benchmarking observation/style/equal: Warming up for 150.00 ms
+Benchmarking observation/style/equal: Collecting 30 samples in estimated 300.00 ms (23M iterations)
+Benchmarking observation/style/equal: Analyzing
+observation/style/equal time:   [13.309 ns 14.156 ns 15.106 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) high mild
+  3 (10.00%) high severe
+Benchmarking observation/style/different
+Benchmarking observation/style/different: Warming up for 150.00 ms
+Benchmarking observation/style/different: Collecting 30 samples in estimated 300.00 ms (23M iterations)
+Benchmarking observation/style/different: Analyzing
+observation/style/different
+                        time:   [12.563 ns 12.671 ns 12.761 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+Benchmarking observation/style/direction
+Benchmarking observation/style/direction: Warming up for 150.00 ms
+Benchmarking observation/style/direction: Collecting 30 samples in estimated 300.00 ms (342M iterations)
+Benchmarking observation/style/direction: Analyzing
+observation/style/direction
+                        time:   [879.76 ps 884.43 ps 888.50 ps]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+
+Benchmarking observation/geometry/equal
+Benchmarking observation/geometry/equal: Warming up for 150.00 ms
+Benchmarking observation/geometry/equal: Collecting 30 samples in estimated 300.00 ms (229M iterations)
+Benchmarking observation/geometry/equal: Analyzing
+observation/geometry/equal
+                        time:   [1.3188 ns 1.3821 ns 1.4516 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high severe
+Benchmarking observation/geometry/different
+Benchmarking observation/geometry/different: Warming up for 150.00 ms
+Benchmarking observation/geometry/different: Collecting 30 samples in estimated 300.00 ms (238M iterations)
+Benchmarking observation/geometry/different: Analyzing
+observation/geometry/different
+                        time:   [1.2820 ns 1.2921 ns 1.3046 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking observation/math/equal
+Benchmarking observation/math/equal: Warming up for 150.00 ms
+Benchmarking observation/math/equal: Collecting 30 samples in estimated 300.00 ms (20M iterations)
+Benchmarking observation/math/equal: Analyzing
+observation/math/equal  time:   [14.155 ns 14.278 ns 14.408 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking observation/math/different
+Benchmarking observation/math/different: Warming up for 150.00 ms
+Benchmarking observation/math/different: Collecting 30 samples in estimated 300.00 ms (21M iterations)
+Benchmarking observation/math/different: Analyzing
+observation/math/different
+                        time:   [13.981 ns 14.079 ns 14.178 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+
+Benchmarking observation/page/equal
+Benchmarking observation/page/equal: Warming up for 150.00 ms
+Benchmarking observation/page/equal: Collecting 30 samples in estimated 300.00 ms (325M iterations)
+Benchmarking observation/page/equal: Analyzing
+observation/page/equal  time:   [944.10 ps 962.20 ps 980.47 ps]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking observation/page/different
+Benchmarking observation/page/different: Warming up for 150.00 ms
+Benchmarking observation/page/different: Collecting 30 samples in estimated 300.00 ms (344M iterations)
+Benchmarking observation/page/different: Analyzing
+observation/page/different
+                        time:   [880.72 ps 896.48 ps 911.47 ps]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking observation/elements/equal
+Benchmarking observation/elements/equal: Warming up for 150.00 ms
+Benchmarking observation/elements/equal: Collecting 30 samples in estimated 300.00 ms (51M iterations)
+Benchmarking observation/elements/equal: Analyzing
+observation/elements/equal
+                        time:   [6.1106 ns 6.1662 ns 6.2245 ns]
+Benchmarking observation/elements/different
+Benchmarking observation/elements/different: Warming up for 150.00 ms
+Benchmarking observation/elements/different: Collecting 30 samples in estimated 300.00 ms (83M iterations)
+Benchmarking observation/elements/different: Analyzing
+observation/elements/different
+                        time:   [3.4401 ns 3.4980 ns 3.5723 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking observation/value_content
+Benchmarking observation/value_content: Warming up for 150.00 ms
+Benchmarking observation/value_content: Collecting 30 samples in estimated 300.19 ms (352k iterations)
+Benchmarking observation/value_content: Analyzing
+observation/value_content
+                        time:   [930.29 ns 951.42 ns 967.41 ns]
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6281 filtered out; finished in 11.23s
+

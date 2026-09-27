@@ -1,0 +1,1885 @@
+[
+  {
+    "original": "state/build-benches-after.json",
+    "original_sha256": "f491c4aa8a2f96dc2113f9a0c4e7e9ba126191200c2869486662f453e8614518",
+    "stored": "state/build-benches-after.json.gz",
+    "stored_sha256": "494efa7c220cad82a4c053fb5a896dc33ad2dddba94b8adfe0cbb629f59c16ec",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-benches-before.json",
+    "original_sha256": "4a23c36ec56017ea29edafda02857ad9a02e8c3ddc55396e215697c3236a3506",
+    "stored": "state/build-benches-before.json.gz",
+    "stored_sha256": "de605dff461aeeac8ddde02f8d433e8c3e13e5337bc8ee526ca9d4c2a2410d6f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-cli-after.json",
+    "original_sha256": "4b22aa39662f16d0a8bf2c0823dc919da9ebbf09795eaee907f6a5ac45a0b22b",
+    "stored": "state/build-cli-after.json.gz",
+    "stored_sha256": "de13aceb4fa2e42643fb98a9523576d6072094ba64f17da3fcd50db3080663ba",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-cli-before.json",
+    "original_sha256": "d44cc811097c5b9cc4a8a7b44bff61c4f02a97aaa4ee0f639e4711990ec4b040",
+    "stored": "state/build-cli-before.json.gz",
+    "stored_sha256": "84e854c631b0ad6fc247bfd5a3f36cd8f5f0debb53f249a34b340b282ef91cfd",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-inventory-content_bench-after.json",
+    "original_sha256": "9382a63040d202db82dd82f83e994749c00a33150ade78423a5fc36db2cac188",
+    "stored": "state/build-inventory-content_bench-after.json.gz",
+    "stored_sha256": "81b87193d68f40ef692aa85994660a2c6c37893c8442ebdcc74a314d1b02eae3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-inventory-content_bench-before.json",
+    "original_sha256": "b225779f1ec206631045b87d6a3b2629a24a907549007bac6b54b5cad09e0e63",
+    "stored": "state/build-inventory-content_bench-before.json.gz",
+    "stored_sha256": "5a26e5e84926bdbffb5e12ada14e457497c5cc5530fe1fabd41a0680735889a2",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-inventory-pipeline_bench-after.json",
+    "original_sha256": "6bcd317b68b3eab4c73eeb08d9db08dae06436e2b901d9ca47b0d14dc99d3cda",
+    "stored": "state/build-inventory-pipeline_bench-after.json.gz",
+    "stored_sha256": "a12fb0d7d77aa9f4b478086023e74f223222b2eb3e1eec7f9c15390522adeb03",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-inventory-pipeline_bench-before.json",
+    "original_sha256": "e50f5668e487e251af7254a3ca65da9b34bb8f073e317fadbe75362eca96f60f",
+    "stored": "state/build-inventory-pipeline_bench-before.json.gz",
+    "stored_sha256": "2dbd1ad2cb251c3cfaa2cc2f37b5361371cffc46839d907a0a61039e752a2cd0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-private-after.json",
+    "original_sha256": "5136b94f094aa53cf91da4c546ec0bde84aa785e7d7bbcba0f620d6f009e9011",
+    "stored": "state/build-private-after.json.gz",
+    "stored_sha256": "9844484c0523eb79103a649cf9ba29884441d4b6aba21b431f832ec09f5a3172",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/build-private-before.json",
+    "original_sha256": "958679dfbecdbcbf259b1c77bb55296bf8a32b615f0ae94afd03f1e25cba8f1a",
+    "stored": "state/build-private-before.json.gz",
+    "stored_sha256": "d43850142d005111395e4ff0c42706b084f441fcf4280ebe682522a5ba4e43d5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-context-after.json",
+    "original_sha256": "f258af5f0a2035969e68433f2244f43316a6ea0ae4c0d8b2c8b885b70cf78eb5",
+    "stored": "state/e2e-instrumented-r1-context-after.json.gz",
+    "stored_sha256": "5b876380c7e960a42775e69db11c742ee98b491ba80863a74f4fd873b34b70f7",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-context-before.json",
+    "original_sha256": "be4dbd2198c50af3ee9ce52bfc9de675ff7472695acf2a103ab7edb26d5d353c",
+    "stored": "state/e2e-instrumented-r1-context-before.json.gz",
+    "stored_sha256": "c7fc4bb7d06a3b06eb7d716ad04443257932d6756e926e47422812ad1a0f796b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-image-after.json",
+    "original_sha256": "22a5a8d8d69fbc49d6d357c26f6f74969bdc4770a007ab934835fbb31e309abd",
+    "stored": "state/e2e-instrumented-r1-image-after.json.gz",
+    "stored_sha256": "7b9d9827da77db25a8f31471c5cc42ab9094bd492c86dc9b022a1bbdd7a30917",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-image-before.json",
+    "original_sha256": "5f7397130426944a1d3f7d45238c002bed0bd53a7905554522a2ce91cd0494f9",
+    "stored": "state/e2e-instrumented-r1-image-before.json.gz",
+    "stored_sha256": "62b501a7b5583cec7990ac1c332545582bfffbfbad1e9b2931034cb83bd12e03",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-pipeline-single-font-after.json",
+    "original_sha256": "086eaa62f9ead265484536e0588fe58059adda748a91605d58399987b9a8c1a6",
+    "stored": "state/e2e-instrumented-r1-pipeline-single-font-after.json.gz",
+    "stored_sha256": "b4aed59f7e49d5d8b225c6a631b13d0bf655a573fd1b41a3ff958034f2d405b6",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-pipeline-single-font-before.json",
+    "original_sha256": "361b5b50050cc91100326f28660739087cce159c419b9c1158e6b00f31f59b75",
+    "stored": "state/e2e-instrumented-r1-pipeline-single-font-before.json.gz",
+    "stored_sha256": "b2000068a623ffe7afa790b70e597a2b3c92478383e2dfbfabb4418487e0ff40",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-shapes-after.json",
+    "original_sha256": "feb74c0746d17e8d8bd786297d01c88f0a84133a7ab516c13f2d5f6aba6af3dd",
+    "stored": "state/e2e-instrumented-r1-shapes-after.json.gz",
+    "stored_sha256": "1a475d2cf2c3b2c179acdfce27bba6a2697112e9c1962224d54689917e1948d8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-shapes-before.json",
+    "original_sha256": "557b5adc3928957689c4a811f4f50db6a083903feed6d227ee6dc18cb2264fc4",
+    "stored": "state/e2e-instrumented-r1-shapes-before.json.gz",
+    "stored_sha256": "c0225aecfc143a717299af2af3c7e19a87dd0289847a5153517444e4e6b59d57",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-text-dense-after.json",
+    "original_sha256": "0b388958bdf2b9e12bbd8feb42463457d224ad30e9d515131af4dacc839a04a4",
+    "stored": "state/e2e-instrumented-r1-text-dense-after.json.gz",
+    "stored_sha256": "f4b0dc19cbc3817e3bc8b9ca82643e7005aafab663eca7a751cf320b6a22d0a8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r1-text-dense-before.json",
+    "original_sha256": "e4f84b9cdda4a1f500006002cf342009101272bcf37280fc4dcb230ecb5cbdbf",
+    "stored": "state/e2e-instrumented-r1-text-dense-before.json.gz",
+    "stored_sha256": "29ab96496583daae6cca6e4391964076b2d9b2fd3e92c1b4d1866d3b480e5c5c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-context-after.json",
+    "original_sha256": "2bcea7410c2917082e35375e138ee45a8f198da3b8843cfebdb6664fab53e1d4",
+    "stored": "state/e2e-instrumented-r2-context-after.json.gz",
+    "stored_sha256": "abb6ca6a9f34f7db55b347a9f036381c2274381cad785a98b97ead934b65792c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-context-before.json",
+    "original_sha256": "6437a4b38e6bcee33c54fbdb9d53ecf16ea390b7ea875f945b5b90b69d1bdddb",
+    "stored": "state/e2e-instrumented-r2-context-before.json.gz",
+    "stored_sha256": "bff494a622220d8e9b9e30701d635af5bc6e5bdf085b774d3f4977826d1d0463",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-image-after.json",
+    "original_sha256": "6bf6efc35335fd5b3a0a95034c5e60e24d7880f866c38797e6fc63886eee0b2a",
+    "stored": "state/e2e-instrumented-r2-image-after.json.gz",
+    "stored_sha256": "dbf14e570e8c5616d34203df032bc5afbd49b2196299e0fd34ba83f8705842b0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-image-before.json",
+    "original_sha256": "ffd4d60466852346df393fc4c5d660558bd912964e147e238b42f4d7157289b3",
+    "stored": "state/e2e-instrumented-r2-image-before.json.gz",
+    "stored_sha256": "6a7b7bf72e42454caa28c244d20d170c567baf0ca0b5528260fce37de7652e18",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-pipeline-single-font-after.json",
+    "original_sha256": "571b9017b19450d11ab9ea7a129902f6fbc53c78bad39527c907dc3be389bf8c",
+    "stored": "state/e2e-instrumented-r2-pipeline-single-font-after.json.gz",
+    "stored_sha256": "e371e9f152c912e3cb7b183a56ee75a06cbef57fcace0872121953494334e904",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-pipeline-single-font-before.json",
+    "original_sha256": "7c1653d7f3069af7e4ad1e096d6fc039454d7c88013a02236cb84506acf0bdb1",
+    "stored": "state/e2e-instrumented-r2-pipeline-single-font-before.json.gz",
+    "stored_sha256": "41f8456715de00fe7406ddf78b127ac51436e0d4384e4b90de173b43888697f1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-shapes-after.json",
+    "original_sha256": "42c2be22d5c09f619d085ed1a93a05e4f25423f10387fa2905d3b65acbb3f2c7",
+    "stored": "state/e2e-instrumented-r2-shapes-after.json.gz",
+    "stored_sha256": "2e99d2b0985a3f1853c0737142491720f11390f1e8788b5f2eabb74d84ec66f8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-shapes-before.json",
+    "original_sha256": "4bdc1641103c45f83d5da9faa51529ed92edb0f010f1cea0b28cf1434dc46e02",
+    "stored": "state/e2e-instrumented-r2-shapes-before.json.gz",
+    "stored_sha256": "ea4873b1e5165a2198c4cb618fbe920545941dddcfc9eab19d30b4704533e8c4",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-text-dense-after.json",
+    "original_sha256": "66cc3a10fc7faba6a6e5acdc4ee96df4f5559c448942d4566c3b795d02d041df",
+    "stored": "state/e2e-instrumented-r2-text-dense-after.json.gz",
+    "stored_sha256": "99ec0b9248c71ec3d8fc60eb7bae63f1fea5c853134beafb16ec760e6bc20230",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r2-text-dense-before.json",
+    "original_sha256": "b134a1320d9ef37fd230054743ec8c6d816e3519d7bb6e63c1d4fe2fcbb6dbc2",
+    "stored": "state/e2e-instrumented-r2-text-dense-before.json.gz",
+    "stored_sha256": "354e46fae8c715829bcf366ec87316916697a73193a6d1fae6d0bb24bccca372",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-context-after.json",
+    "original_sha256": "006e3f084ef8a7976ed4e464182503b8cd31656ed91a2f76bf8aaaf89a8ab237",
+    "stored": "state/e2e-instrumented-r3-context-after.json.gz",
+    "stored_sha256": "a2295f18c2a185d5c28f8424f0056a1f1232843a312e926aadfd3691316d93c0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-context-before.json",
+    "original_sha256": "b5d705ebc22217efcff593cb655d2371d169e7e7b533611b80041947d31fae07",
+    "stored": "state/e2e-instrumented-r3-context-before.json.gz",
+    "stored_sha256": "a92cc4b587b50280c89b62c8cca5400b143663dae89c095fae6cbb4d926d2a7d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-image-after.json",
+    "original_sha256": "15219d6de5093bdf02974be1ec99ef0eaefa561e38a2864b2abd387e5f394d8d",
+    "stored": "state/e2e-instrumented-r3-image-after.json.gz",
+    "stored_sha256": "80a2ebcfd62db4e9f747de2642af05ba1d95d262455fdda9f4c7e504f6ec2c7c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-image-before.json",
+    "original_sha256": "b2d86ae7a75fede92b5135f716649c2b6bbd014d99d2470e140fdef54dac078c",
+    "stored": "state/e2e-instrumented-r3-image-before.json.gz",
+    "stored_sha256": "4cfff745b3f816225257a7266633ceece7ea6808e92981aed32405ab195b0d9c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-pipeline-single-font-after.json",
+    "original_sha256": "c05073ad0a2073f8b20dd045e58ecef0466fc8f771c8d24b5bf70ae85d123f56",
+    "stored": "state/e2e-instrumented-r3-pipeline-single-font-after.json.gz",
+    "stored_sha256": "956e34f91a2165d46cb29e3fb7893a2f93c5a8fba81ac87eb6ea7a36d3a483df",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-pipeline-single-font-before.json",
+    "original_sha256": "6b56d70e5a0915c2d7b8ee88581fada436f690c2fd10de4a0f29085398525ffe",
+    "stored": "state/e2e-instrumented-r3-pipeline-single-font-before.json.gz",
+    "stored_sha256": "90ed6bb5ee72adb3100fb427c34ab26e578cd63982b32844c1517342a1b3e4c5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-shapes-after.json",
+    "original_sha256": "e8d7773ca909e4a06e85ea10ec9b75dfd5bc47eee7171133b833db015334e27e",
+    "stored": "state/e2e-instrumented-r3-shapes-after.json.gz",
+    "stored_sha256": "1ea65401c71101eb69b8e538581c8fc3d3a6209b7161daa6cfe0e64ede9af85b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-shapes-before.json",
+    "original_sha256": "eb67a6b45edaa75a1ac7bc5fcedde2bb9bec1387307e976e738a7442445accf3",
+    "stored": "state/e2e-instrumented-r3-shapes-before.json.gz",
+    "stored_sha256": "f0c0246601bdab89dabc5510593a90e4d96136424be2705c024e54246ea3aacf",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-text-dense-after.json",
+    "original_sha256": "2c866ff42d608c3b66983727755953ef0323bdc85daaea8d110a6d9364484d31",
+    "stored": "state/e2e-instrumented-r3-text-dense-after.json.gz",
+    "stored_sha256": "8060b559fc9f076e51a2f84e199389d00e762e056966890f72a6d80216f79ebd",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-instrumented-r3-text-dense-before.json",
+    "original_sha256": "b686cc67e24c124b1aa3f47a7d55e75dc110526732f8a6e17bb4647f248e9aa8",
+    "stored": "state/e2e-instrumented-r3-text-dense-before.json.gz",
+    "stored_sha256": "b8fb6aa32aee1196e88db28fed8b50b964452d044d34ffc92ec087f86cb421f3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-context-after.json",
+    "original_sha256": "1663c73c9088dc8649fdacd81a45d55f1e1482061b0a7817ec6ccd3f772067c3",
+    "stored": "state/e2e-plain-r1-context-after.json.gz",
+    "stored_sha256": "ab5baf9dc4aa2dc515b21d36644eb3b2505a76cc037cf032ac88bcd4c81362f7",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-context-before.json",
+    "original_sha256": "df6a768c0f144ac6b26be7571d2dba13340d5fb0b76ef13ef0bf56db25c0a2f9",
+    "stored": "state/e2e-plain-r1-context-before.json.gz",
+    "stored_sha256": "bb9442a1327c31b2cd34eb17fd7f835a9099b88332ddff81a74e9df89bcb7b1c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-image-after.json",
+    "original_sha256": "7922a360bfd4b2f86c657b0698d020224f6c59c974c3af3b1aa7f70083ebcb78",
+    "stored": "state/e2e-plain-r1-image-after.json.gz",
+    "stored_sha256": "58b47486f36dc043e6b1b2f065c95789ea6ce4aafe9fc0641caf98e37471dec1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-image-before.json",
+    "original_sha256": "560c8c09def89e3fed857c0a0a8f9ce98691568cbceff2fdbdff20fff96b79cf",
+    "stored": "state/e2e-plain-r1-image-before.json.gz",
+    "stored_sha256": "ebfbd37672a907bf873109de2cef337ba1f0ec35bdb3d2e713c0a0714249cf79",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-pipeline-single-font-after.json",
+    "original_sha256": "d9125934e5fedfd1b903b3eb9dd415093e9cebacb58e8860d54acbaf9b720823",
+    "stored": "state/e2e-plain-r1-pipeline-single-font-after.json.gz",
+    "stored_sha256": "80d3a814784fce1056b0e20d89e5e8e6f4ae8f436aaaecca0f471223a6d9406c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-pipeline-single-font-before.json",
+    "original_sha256": "58c0a35ad2c945686d8eb1a12cb661636653cd50163131a01a254c83c504d70d",
+    "stored": "state/e2e-plain-r1-pipeline-single-font-before.json.gz",
+    "stored_sha256": "907f6ac36a015d34bbe4b238d59f206a68f10928698eaf14a0355cd9e7e33d8b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-shapes-after.json",
+    "original_sha256": "397ee6196935d78f242912d4cbdfa5ce403816f70394086c7990ffaa137da22d",
+    "stored": "state/e2e-plain-r1-shapes-after.json.gz",
+    "stored_sha256": "5e2181586d9def2550476dac255b81a5ca96b6d640d77a7843debd4024fe1b1e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-shapes-before.json",
+    "original_sha256": "aab3d970e9407645214d60b4297e7ded3d83af809b007f01022d3caba22de6d7",
+    "stored": "state/e2e-plain-r1-shapes-before.json.gz",
+    "stored_sha256": "7270d955cece9fba412052b26c6139c6ac3d58e40ac895d254f5ba214a2d45c8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-text-dense-after.json",
+    "original_sha256": "50b187a7b853411c0e23db45db1b5f9933cbe30117c19c48f63c23897e1daaf0",
+    "stored": "state/e2e-plain-r1-text-dense-after.json.gz",
+    "stored_sha256": "35d01417d1a31cfbc3cc28291b2cf691dcb63e99a8e830b673f4161d0b42ae0e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r1-text-dense-before.json",
+    "original_sha256": "6ddb9bd0717177df02444fc501b2f6ca29344bd77cd77dd419688cc78671064c",
+    "stored": "state/e2e-plain-r1-text-dense-before.json.gz",
+    "stored_sha256": "3d3630ca9167456fe68f1969696cf1e60fa9b868b9a842cd8c537c7de9e11b73",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-context-after.json",
+    "original_sha256": "0aa2dcee78dc701b2c3c977ad898d16e53f57e38a04e9a5d2bdb370c4a3f8f62",
+    "stored": "state/e2e-plain-r2-context-after.json.gz",
+    "stored_sha256": "7a0f067fe769c48fb93414782373ef2ec82b3d3d5f8a6693a93a9a34f54fce9a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-context-before.json",
+    "original_sha256": "19fb1f573897b42884dd5140e572f0cf8b334a81d405247cedd0142b4d8063ba",
+    "stored": "state/e2e-plain-r2-context-before.json.gz",
+    "stored_sha256": "caba9bd7c43a79a11e9fbc1c93612aa909d2b6c3489a7ce572987d9c67371303",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-image-after.json",
+    "original_sha256": "1fb37f2a41378636ec4eb6556265ab3a8f918c68630e5c2daf7fb8c77056ec46",
+    "stored": "state/e2e-plain-r2-image-after.json.gz",
+    "stored_sha256": "677927d304778ff20240f77f26792bfb032e043711dddb418a1cc330d5d6ef27",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-image-before.json",
+    "original_sha256": "5ad15e8eda05ed6b63bbf4fb4b97a3957795d1023fd6fea93004e22f8b157b98",
+    "stored": "state/e2e-plain-r2-image-before.json.gz",
+    "stored_sha256": "b9c6ef357f635f6dd7da3a8a614c54376ffa5627be8c9525159d7c116c16f8c8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-pipeline-single-font-after.json",
+    "original_sha256": "bf7df61477115c4dee8cd4673506f4ddb7be57965d3dde31e740c1be02cd6a8f",
+    "stored": "state/e2e-plain-r2-pipeline-single-font-after.json.gz",
+    "stored_sha256": "a4bafaca97f2273501be6f316555d2a9b4fd7ac1f9e7961c13324007083058ab",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-pipeline-single-font-before.json",
+    "original_sha256": "d1834601e9363235a9f6e9cbc6faeb90247fad496314672733e9e0a641cb9661",
+    "stored": "state/e2e-plain-r2-pipeline-single-font-before.json.gz",
+    "stored_sha256": "5b6184ad494c1c637982bde2d9116fcba7498f25c93f3eb4da7d33bfb63d199d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-shapes-after.json",
+    "original_sha256": "9aabcdb6ec6fc148f9c094f3a544de96f07b8ee06ffcf3467d05b869d29f90f1",
+    "stored": "state/e2e-plain-r2-shapes-after.json.gz",
+    "stored_sha256": "4eb6d72355d15d3bc67a75191f2d0c03e3abf0e1ea9ca34f7cffd65e470baef9",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-shapes-before.json",
+    "original_sha256": "13d167c7096a9b56f32a7b2617192a796bfbd7d71f74186993a6f7764bbc3d96",
+    "stored": "state/e2e-plain-r2-shapes-before.json.gz",
+    "stored_sha256": "f270fbe145ce9320d6b3971045a3e62e0913491b5f5b5e1d65471258e8f0e14b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-text-dense-after.json",
+    "original_sha256": "a3cedc5da2a99dd87146d857ac79d71dc6a0f0af92b00b9af4f57fcec4b7b3df",
+    "stored": "state/e2e-plain-r2-text-dense-after.json.gz",
+    "stored_sha256": "5fcbf3fadc56ca4ba4ad0c20ae4eaa23bf443e2d5315f1883c86e75b1cfbeaed",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r2-text-dense-before.json",
+    "original_sha256": "7e5472a439a452747636533b299e445d81145ebf2348ad53c8337c4a7819f85a",
+    "stored": "state/e2e-plain-r2-text-dense-before.json.gz",
+    "stored_sha256": "3ec0311edfe78ba179f7336f8354e65717a6497c50fd04599b22e7e8af2cc8d8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-context-after.json",
+    "original_sha256": "7cceff04981eca5e5ed9b94dad055957406f714fece6660947b706e18c8243ef",
+    "stored": "state/e2e-plain-r3-context-after.json.gz",
+    "stored_sha256": "1f955d55fdffc554077d85356146e18123d850b4895b43721851cd96e42ec565",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-context-before.json",
+    "original_sha256": "a945e7a75c83c2ee2cbf031d0a85756f40123d4fa74bb3545a0586b0479c8589",
+    "stored": "state/e2e-plain-r3-context-before.json.gz",
+    "stored_sha256": "4c6ae0560411aaf07b9c0eea0c9cb8a766143ba3672f730ad3a2d624332b2709",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-image-after.json",
+    "original_sha256": "3e77c83149f8bb425ca796e1bf37044dd40318014970c997d0e51a1953ce83ea",
+    "stored": "state/e2e-plain-r3-image-after.json.gz",
+    "stored_sha256": "865103cb10d961c6155a0ab16d7689b9cbc7b7b8f147059094ee75e0c6ef620d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-image-before.json",
+    "original_sha256": "f6bca8422b3e031992fdea782376594911878b09e48eac7c40cc8cf28382d7b4",
+    "stored": "state/e2e-plain-r3-image-before.json.gz",
+    "stored_sha256": "48f37d789c8f194f4d22b044ae8329f972dfe3adc6c37a672f0b39b80284fb5a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-pipeline-single-font-after.json",
+    "original_sha256": "9113200a12af6928f1ef466b684b7a1ea267ad7985534fbe7a291b0a27ecf770",
+    "stored": "state/e2e-plain-r3-pipeline-single-font-after.json.gz",
+    "stored_sha256": "24b429dece83b9a2cd638db348ccfbb15905a82dfebc1a5de0040de8ed051f3d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-pipeline-single-font-before.json",
+    "original_sha256": "b8f0107722585d84734219a5ba741c0e21f3a289f9eab8c24e3daae07b7ca551",
+    "stored": "state/e2e-plain-r3-pipeline-single-font-before.json.gz",
+    "stored_sha256": "adc380c5661f2eaaad289e0e949e8e2db975d829969abfcdc4dd72aea39eb5a3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-shapes-after.json",
+    "original_sha256": "8a8d9379f29038af3117364c922257e919d66d87d6527a51a0f4b2d883817089",
+    "stored": "state/e2e-plain-r3-shapes-after.json.gz",
+    "stored_sha256": "0042eeff08346af67d5304cb9749a279ef5a2eddc8d23894b82ed8710d14a4dc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-shapes-before.json",
+    "original_sha256": "684355a654681f21e4ae67c776cf57e2cfb8575804750df7710e406786ade571",
+    "stored": "state/e2e-plain-r3-shapes-before.json.gz",
+    "stored_sha256": "712274591e53fbf9ea4114189a47e1c0994d9c1386494e60200880f80e9183cb",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-text-dense-after.json",
+    "original_sha256": "6c5cc54efd622131088f3853002afd3bbae1f5fcaf94208fc948d89dce9531d2",
+    "stored": "state/e2e-plain-r3-text-dense-after.json.gz",
+    "stored_sha256": "4584c70808db6e9f7927488b3777dbfbf0b93c87ff9ca3743c5ace30936bd556",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/e2e-plain-r3-text-dense-before.json",
+    "original_sha256": "5a0f684c8b1c64480df6d27c0bdb440bcbfcd0fde5a94c3ddb15d56eaa830ef0",
+    "stored": "state/e2e-plain-r3-text-dense-before.json.gz",
+    "stored_sha256": "0e9e7d26db110e417e32dd8e53c0cb7c351168b39db759396bb5435757f5f2e2",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/math-qualification-after.json",
+    "original_sha256": "2c3644a491c780e158335a6e79a01c71ac87635a10b0a0827120086d30737500",
+    "stored": "state/math-qualification-after.json.gz",
+    "stored_sha256": "4f0040ea25cc844b362522d534b25edd69101fd211d5eadb8bd771f6647e525f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/math-qualification-before.json",
+    "original_sha256": "a7cc59edfe4a63dd05b9987f5ca66fe29158330c469c7e8cbf3f2d752fcaf79e",
+    "stored": "state/math-qualification-before.json.gz",
+    "stored_sha256": "1a50e2a5cbb1987d532bfdd124097138e023fee51eccd2d5af6dfbbb9a58e30d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-after.json",
+    "original_sha256": "e09200d73f966634db3bbf95bd6e120032459c0e7c0d363b84f63ea116763c83",
+    "stored": "state/micro-r1-content_bench-after.json.gz",
+    "stored_sha256": "4e41e83be9a37b1a264f5696a379f45b7c0357f84c3fe20e503e0dbfa2860df8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-before.json",
+    "original_sha256": "ea5d018401ae3a4b5ad4d575d62a3038b9fa8b8f21b0e0d41e7ccb21c7b86bdf",
+    "stored": "state/micro-r1-content_bench-before.json.gz",
+    "stored_sha256": "f47768351e5d762d8b5505d6189a746e6863a5a1e3ec956f02a6c3ed7f9f28f3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_construction-after.json",
+    "original_sha256": "b617d992334c740196ccdf7efd8ae9130f168f7856c4b5e0f08a43baa63f0a3b",
+    "stored": "state/micro-r1-content_bench-content_construction-after.json.gz",
+    "stored_sha256": "c00ec909edd1d4cd8f53fa1d94d09d4b7645958efa87a5eea61caeb4e007010d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_construction-before.json",
+    "original_sha256": "ad24c066c2d55ff07a1be18f739cee0dd9d600ff26a8abe4d70a2dd734404d24",
+    "stored": "state/micro-r1-content_bench-content_construction-before.json.gz",
+    "stored_sha256": "1d5e6e619de26b7359e1dfc13154997aba681ec844b71ff6c917c8de88ec9aa8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_identity-after.json",
+    "original_sha256": "da084a23ee732f4414f511188e5048add6ab5aa389255c9758c5ff0639c75707",
+    "stored": "state/micro-r1-content_bench-content_identity-after.json.gz",
+    "stored_sha256": "431555d102e8f7da9ac422db2b36f1d20193b485c231c4c0934ab2fc25725ccd",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_identity-before.json",
+    "original_sha256": "3f4be5ec54fded58ea1482b71a851e558df875ffe93641814a24fe32c3811810",
+    "stored": "state/micro-r1-content_bench-content_identity-before.json.gz",
+    "stored_sha256": "e7d42b4af6f2152ee8acaaf277a7a5e206f806e0c370c82764fb3379d9e702ea",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_morphology-after.json",
+    "original_sha256": "f05cf20e7e65b725d7a27f33d71c458afefa7fc06f6654f35c3d413f580f79ec",
+    "stored": "state/micro-r1-content_bench-content_morphology-after.json.gz",
+    "stored_sha256": "e04242341b4881c58bd1f1b8988602758a90d12e47dc5d5214b51d788926ed85",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_morphology-before.json",
+    "original_sha256": "e8e7121d405c309cd00aace825150cdf3013f18fb5ed909a0af77365f94c4d1d",
+    "stored": "state/micro-r1-content_bench-content_morphology-before.json.gz",
+    "stored_sha256": "98a43b4335c706dbe9fc6f7a0353175aa9243798a2387763c6b24e2ab8aa0d33",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_page_structure-after.json",
+    "original_sha256": "a079959e1872e61e3523c1fbf67007a4b336e8633ec77b720fb000378e42f80c",
+    "stored": "state/micro-r1-content_bench-content_page_structure-after.json.gz",
+    "stored_sha256": "d0ea5646c5b33b6e55e51fae9d4763671a22e01ca95ce81ce3a2374542123731",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_page_structure-before.json",
+    "original_sha256": "8043bfb3657869078a02aa4d96c4fb16dc1c95acdc4aa27501ca568e532a78c1",
+    "stored": "state/micro-r1-content_bench-content_page_structure-before.json.gz",
+    "stored_sha256": "b2b14b951542b9c82fe19a156996025b2e7dae207aa508a5397911181184edf8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_projections-after.json",
+    "original_sha256": "9d31e7d35aa3413c02349e0ed536f49208c560cc0724d9676ee67a7f41972804",
+    "stored": "state/micro-r1-content_bench-content_projections-after.json.gz",
+    "stored_sha256": "0d5da936cdcb53f9bb515c709c262b36a7882e13ac726f3896c5322c524a1d73",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_projections-before.json",
+    "original_sha256": "f5fef17f3789173c117b231cef85fae922ff0dcf0ee738e17f62f160dbae7a83",
+    "stored": "state/micro-r1-content_bench-content_projections-before.json.gz",
+    "stored_sha256": "3c56360c206e526af469a4ad4fcc58525fa331977bfb73a23812772df6af6b5f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_representation-after.json",
+    "original_sha256": "3d8ccad3070f283179fd17e7b6c3c58d74bf9f22de3a721902615766f946be0f",
+    "stored": "state/micro-r1-content_bench-content_representation-after.json.gz",
+    "stored_sha256": "128a0c8a2cb8d311a141b7c0a8c0048bc3fdb16ef442815b2bc45087cb5ec370",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_representation-before.json",
+    "original_sha256": "6e7b0a038e34147e711b4ba630e95d269171af198fbde8c3f95ce1f912fb7b2a",
+    "stored": "state/micro-r1-content_bench-content_representation-before.json.gz",
+    "stored_sha256": "4a565f0ec570d1a57c50ab8f7cae03a8b2fba0ee8c56b7485ad65c0f0f1d1c4c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_sequence-after.json",
+    "original_sha256": "c6d9c3fe7139d846abbe300a49e7bab509df6faa9fe416d1599296106e9d0a36",
+    "stored": "state/micro-r1-content_bench-content_sequence-after.json.gz",
+    "stored_sha256": "9f2560fd2dff86fb663c2148bada2553010fc218c603c684f2f0c83da750d2bd",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_sequence-before.json",
+    "original_sha256": "6e52cd8e9484f8c88cb0b4ec89bd2ed2334f012fd9664f33a0b1fb2ab1144578",
+    "stored": "state/micro-r1-content_bench-content_sequence-before.json.gz",
+    "stored_sha256": "de831f1eee4989a070b14db68db5d33cf31836bd9c12116be89ec3467298bf1b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_traversal-after.json",
+    "original_sha256": "2f00bde1f5d0f006d798326a215a47e66193b45b4ce8e2c8c34e51170f690af9",
+    "stored": "state/micro-r1-content_bench-content_traversal-after.json.gz",
+    "stored_sha256": "4d970e1c1df36071eda6648e3f448df89efcb483a10e7e30ec45180532191279",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-content_bench-content_traversal-before.json",
+    "original_sha256": "f4d23a6eed88f470d0f85a8c2148e0ac37b7d7bde2b86bffb8c8150c14afac67",
+    "stored": "state/micro-r1-content_bench-content_traversal-before.json.gz",
+    "stored_sha256": "666a6e63e9b5795ee65c6391ee92ec4e06569c71edb6859961482013646f7b9a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-layout_bench-after.json",
+    "original_sha256": "3fd49c05d572283cc583a5c320032655fab35e0f11bef2196ee2f41dfdd2d0a7",
+    "stored": "state/micro-r1-layout_bench-after.json.gz",
+    "stored_sha256": "9c32e9b46f92e003497200ba8e5f1ecedf20e8727b9610682d4729afafd50f7b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-layout_bench-before.json",
+    "original_sha256": "5c956aafcbaa1dab61de5a3db7ef47be00c38fcb41e41346ebb9a7b5e066f992",
+    "stored": "state/micro-r1-layout_bench-before.json.gz",
+    "stored_sha256": "9af063e4ab7ca1085e4980f7b357116349b1c810759332f5cf85f17ecae4c24d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-observation_bench-after.json",
+    "original_sha256": "36794239ba728239a83c2cee09e5232b89c9baac1c80800a343174e580f10b5d",
+    "stored": "state/micro-r1-observation_bench-after.json.gz",
+    "stored_sha256": "91e94a341d8701a7b404d600669f0d1edbc8394591d7d8ef6140b5c67cce5029",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-observation_bench-before.json",
+    "original_sha256": "c9dd3c95176e439ebf6057e6c8f14bd4887cb28c098eccf78cfa48541c9c095f",
+    "stored": "state/micro-r1-observation_bench-before.json.gz",
+    "stored_sha256": "4b81f0bbbcd6379c9af8cff77b5e133e6e8f7024822cf8a91b6df00c00e86091",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pdf_builder_bench-after.json",
+    "original_sha256": "1f5c6dd01506097f16e8e5cd5ff8200f2689c3ce6c3473f8281f0fbc5e6eff9b",
+    "stored": "state/micro-r1-pdf_builder_bench-after.json.gz",
+    "stored_sha256": "1c8d92eeb4e633aba6a0fc24a12dec58fa721c9d4dd1018402a285fe600cc081",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pdf_builder_bench-before.json",
+    "original_sha256": "b3c511e51cfb2af16fac7198e31fd24064fff3c194bfbe28f13fbda06f901e05",
+    "stored": "state/micro-r1-pdf_builder_bench-before.json.gz",
+    "stored_sha256": "8a66edb035c49969d367ef82f8ff88b9dc965a57050731656be2e4ca7e5e4588",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-after.json",
+    "original_sha256": "b4646434bdb1c5b8b74da7cc72f8d5c3360f1c69f2ab5c272b797b7e1d10508c",
+    "stored": "state/micro-r1-pipeline_bench-after.json.gz",
+    "stored_sha256": "10161457d2a29279292490fcfbbfbe0f7c383f9cae51ac3d46764f3a3da9c236",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-before.json",
+    "original_sha256": "9a56ae482d91b0e60eb1328dd36462884b76f92bf544974c5b96d50c1dd4fee5",
+    "stored": "state/micro-r1-pipeline_bench-before.json.gz",
+    "stored_sha256": "5fdf7ecc0dd58463e8d01dc2937cc9f8789fe6fdc4de0fbf2d510e1e5cf716f6",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_bundle-after.json",
+    "original_sha256": "e82b46e7b157616619e11dbfa1ec01c61a72254c38db461ec36be5d7948bb86e",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_bundle-after.json.gz",
+    "stored_sha256": "b6bad3ac8b985030c69318f6f8f57f5e8cf13f798e0c635dc1fe1407a4dd647d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_bundle-before.json",
+    "original_sha256": "2d5c6a6c76147f900cfe2761b7f3dd13753d5040894245108e9f8a8dc72ae20e",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_bundle-before.json.gz",
+    "stored_sha256": "57f1804ad95524a9a2090ff32ab702afccdacb840b5ed371b819721574ca444d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_html-after.json",
+    "original_sha256": "cc0a20a4f0a85670455b681d67e9e7c7b8071637afc1ea34f38f1cbdbaedde93",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_html-after.json.gz",
+    "stored_sha256": "7dd0b019a7b397f2710596efcac50df9ae3940d73056b67ba325935a17989dd6",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_html-before.json",
+    "original_sha256": "28a30d75c60088ba38c19431841dd8133cb5638b483194f251ee913c56f5e9e6",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_html-before.json.gz",
+    "stored_sha256": "968ac9dfac0d0509213bff36d14dbfac67e9aac6291d69b504b68e9ae1e36c77",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_pdf-after.json",
+    "original_sha256": "63daf99f0d73e3761fbc4f2ca9246948c3f977aa0a563709053a7db932c8bab3",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_pdf-after.json.gz",
+    "stored_sha256": "45fa7e43f1f8df592a463b2b5d58e25bf70836b0a15d5021ba40ed2feb6e5bdb",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_pdf-before.json",
+    "original_sha256": "0b2df26c95d9a94b9a590e9647f35b9ac41ef359ac44ae9d45967a6e1a39dd46",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_pdf-before.json.gz",
+    "stored_sha256": "e2483e4614a84308198d4f376d766332e16690cdae6bed888e1f591e667c346f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_raster-after.json",
+    "original_sha256": "0009cc72224003c84a827d03fef3fbc93369499406c2020e6e194ae5233c025d",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_raster-after.json.gz",
+    "stored_sha256": "31515b9764f292e2b632ed670e03bd68f7a0eea1efbdfad76b7f4896565fae6b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_raster-before.json",
+    "original_sha256": "e657bf1a2d48eb275c62a3a369ed14bb6d4bbb105cd403b4ed3e4ba7bb4f1e58",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_raster-before.json.gz",
+    "stored_sha256": "35700e8dc21ccc318650a0f3c0da7f4d3cf8035efdee5863805f36db3c843c7f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_svg-after.json",
+    "original_sha256": "df8347904a419bd7de7c339a42d6c076d1aaf5c949e02fe620ffaa0ad6d6be89",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_svg-after.json.gz",
+    "stored_sha256": "576e7115d49686b2a308bf7b8ca2d01af4f231d0f9c12a69cce34f41873ab903",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-pipeline_bench-pipeline_svg-before.json",
+    "original_sha256": "0431c8d6f40409fc5d058ea23f360d6024cd2915be0941312a5d0864ffcb9414",
+    "stored": "state/micro-r1-pipeline_bench-pipeline_svg-before.json.gz",
+    "stored_sha256": "c8c5786b3b753435cdb955677cc89122f6f8358a3e4bf72eb576b25f9404c1f5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-scanner_bench-after.json",
+    "original_sha256": "917e2470d520f66712fb822afda90b07e6cc217f1e3b4d26ad3569bf1746f255",
+    "stored": "state/micro-r1-scanner_bench-after.json.gz",
+    "stored_sha256": "dc0188ab78535265a0aa644ddcfd3c37dba951851096e0013ffbaf21b2e2fb25",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-scanner_bench-before.json",
+    "original_sha256": "03fa14c25ee63ef2b78b452e254769e564a05cb2c681929a9575b8b4f6f278ec",
+    "stored": "state/micro-r1-scanner_bench-before.json.gz",
+    "stored_sha256": "600487c6187962edc2d01254f0593b8fa23e79060f5e475355c4dab9ac939e14",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-stdlib_bench-after.json",
+    "original_sha256": "4a8fb5448a386ff5e7c7e524854754d819481e8760cfe2473957b4f49daf8a83",
+    "stored": "state/micro-r1-stdlib_bench-after.json.gz",
+    "stored_sha256": "bd5b885ac3b05bdbc28e4b8f6dda9f91bf05681c782bd1e36e4baec7b2f4ea13",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-stdlib_bench-before.json",
+    "original_sha256": "42da82a00be8c7a4674af4e50ccbc4aeb1682969e05f929a9fd02df6e4959bcf",
+    "stored": "state/micro-r1-stdlib_bench-before.json.gz",
+    "stored_sha256": "a06274a80c363b77a23425fa226a424184aa494c0567de875fa8762d066cbc65",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-stream_bench-after.json",
+    "original_sha256": "d645b1cc04d95025c4b7775391cca80590ead5996d5a819fcbe76908b8e15899",
+    "stored": "state/micro-r1-stream_bench-after.json.gz",
+    "stored_sha256": "0498b0556e30de8ead7cf4b78c43f499aa55f8b3c6dc8d3096345e503f74ef9d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r1-stream_bench-before.json",
+    "original_sha256": "69dec2b3033a6e694b7d605df9d97605ab530e6db8e93821374514ef40a62995",
+    "stored": "state/micro-r1-stream_bench-before.json.gz",
+    "stored_sha256": "933d66837f145ea3df67eeec4119bd08bdf9d6ff0aa83ec4d3182cd6aa952b45",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_construction-after.json",
+    "original_sha256": "7bbe523b65f2440d7714000afc746101d9b6094febedbee552742eda94254acd",
+    "stored": "state/micro-r2-content_bench-content_construction-after.json.gz",
+    "stored_sha256": "0decb7a82a7a1e14edbc0ea087ed7e03a9deecace49935b0c415196af42b0942",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_construction-before.json",
+    "original_sha256": "0d3e510b7a28016542ec9cd391395860bbab31bdfb2a25dc28cdb391b8c9a8c6",
+    "stored": "state/micro-r2-content_bench-content_construction-before.json.gz",
+    "stored_sha256": "f34f936014ef970226d394ae7165f9e7e18d5d7aea424ed849f5cc6335174542",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_identity-after.json",
+    "original_sha256": "18671c6bf89aafeb552caf36f1b4a0785702ecb8b0b248d22fb8469228323398",
+    "stored": "state/micro-r2-content_bench-content_identity-after.json.gz",
+    "stored_sha256": "53453206ce62ea2c614a3b7c2f4e7eac1a5a8b3af9c8c039a9238d9d37cfb798",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_identity-before.json",
+    "original_sha256": "cc1c3993c0723920ce736d9fd7c9f8d6071c6eb36b27b3441767c273897db520",
+    "stored": "state/micro-r2-content_bench-content_identity-before.json.gz",
+    "stored_sha256": "b672c81254fa0e90d60b2de54c4246ba85de49c2ff60c6a48c5622a83e39b371",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_morphology-after.json",
+    "original_sha256": "18af0469cb50fb15ce1a0e05f09d9f18937fba9958b0b276a05710f1fba152d3",
+    "stored": "state/micro-r2-content_bench-content_morphology-after.json.gz",
+    "stored_sha256": "0bedd782678a756b06abe49b9dfa09c3e8f34a3a789cd24bbf52aab5b8bc28f0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_morphology-before.json",
+    "original_sha256": "49daa25be356ef4e6f3598ac63a4ad7c5f4cc0728bee62588e291d3128e61422",
+    "stored": "state/micro-r2-content_bench-content_morphology-before.json.gz",
+    "stored_sha256": "43256b768968ef5413fbc460b02cde302af541c50c298bb28c8200f2b147fbbf",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_page_structure-after.json",
+    "original_sha256": "40751bfe221719c7118d3295b1a7f4c176642b99a9d0cdbff6597e565a2f8799",
+    "stored": "state/micro-r2-content_bench-content_page_structure-after.json.gz",
+    "stored_sha256": "3161397ff849291fe18ad1fccf48498baee036e7dc462b004c8b5b7b6a395ebf",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_page_structure-before.json",
+    "original_sha256": "8ffa98e18c678c5f5e01a0f2937881ccd9ac8718b0e1e78cc57a04b0326cc5cd",
+    "stored": "state/micro-r2-content_bench-content_page_structure-before.json.gz",
+    "stored_sha256": "d80fa36db44deeaca689ed6c2ec863b65bcade39ef128b6f354cee8e37dbe45b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_projections-after.json",
+    "original_sha256": "e24271cfe18f32d0f7403664d88376068e314ca2336dd8561515bde724c4f62f",
+    "stored": "state/micro-r2-content_bench-content_projections-after.json.gz",
+    "stored_sha256": "8c4bdb2d988271ed18882b4b61b671c9e2c7577c95d4f422737aa994a5a75c3e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_projections-before.json",
+    "original_sha256": "5bd48abc039c9cce41ced362c088757fad8819e7ed150ab6af427f417e8d6f73",
+    "stored": "state/micro-r2-content_bench-content_projections-before.json.gz",
+    "stored_sha256": "ecb0cb612f359b91dcb9cdda3f045b476456cfeec1007c4056b4b83526f1949f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_representation-after.json",
+    "original_sha256": "d2b768428088d80480deab8fb59710229101ad0bd430d8285f2804c8a9e843ab",
+    "stored": "state/micro-r2-content_bench-content_representation-after.json.gz",
+    "stored_sha256": "de9eaa1a12e7327bbcb8e527faa36b9e45d675256a67549c59da7d00b96c40ed",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_representation-before.json",
+    "original_sha256": "a662a494443f605107dee9bd73b10448909ecd5aac706f050f974e068cb880f4",
+    "stored": "state/micro-r2-content_bench-content_representation-before.json.gz",
+    "stored_sha256": "bde6dda185ec696376597731b2a2525cc00a52c3827344fd6b78e9c5fedf1dc9",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_sequence-after.json",
+    "original_sha256": "defe7c9c8505679be8901f78e9eddcd1aa2193faeff9b64c2953126d4feeb9f3",
+    "stored": "state/micro-r2-content_bench-content_sequence-after.json.gz",
+    "stored_sha256": "f223488738114ce3ed49767c681057d0b5752629ec9568b6e52e8923525aceb2",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_sequence-before.json",
+    "original_sha256": "ab8b1b41df762d3131b11b2b453d807c6caedf407c721be1c50cbf6deb9e0f58",
+    "stored": "state/micro-r2-content_bench-content_sequence-before.json.gz",
+    "stored_sha256": "2757ec4c74321c79fef50fca7ee40e2323499650a838060ffe767aa496a222d4",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_traversal-after.json",
+    "original_sha256": "016dae8213e885c4422f4a8b1413b64a78fb5639c8e427c39ba2d9ef31804289",
+    "stored": "state/micro-r2-content_bench-content_traversal-after.json.gz",
+    "stored_sha256": "c2501d2dd8c6018d2ba10c0cc8b4b8e4e9bc627267a32bf57a1cf1a0d3d7a907",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-content_bench-content_traversal-before.json",
+    "original_sha256": "dda37e0a42ce564334d26b40f84b7c0ea819e0f906ae4f1c9e56bc8dbb58e074",
+    "stored": "state/micro-r2-content_bench-content_traversal-before.json.gz",
+    "stored_sha256": "87c3bc444468fbce0c6e9a8d802054bf2b60ec32618067b95697ae7feff75b75",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-layout_bench-after.json",
+    "original_sha256": "95a7daa4366f76dbf3999ec114b964bfb910518c4d2370e01b8c741f2ec7642a",
+    "stored": "state/micro-r2-layout_bench-after.json.gz",
+    "stored_sha256": "b808a095d2c8d4859bc1c5aea90fe09da417092fd5101d7258d1807cef757b3b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-layout_bench-before.json",
+    "original_sha256": "1479182029c76ec39a449cb928dc972fa41f820a3544a9f4e544087b8a9ca3d2",
+    "stored": "state/micro-r2-layout_bench-before.json.gz",
+    "stored_sha256": "55d2edd932b73ad974569b2a8346e7553ddb17bdc1a3687558639f052eddecf8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-observation_bench-after.json",
+    "original_sha256": "f4df4c12cf3529d98502f08bf446adba169819f84333175c5f2249c380cbecbb",
+    "stored": "state/micro-r2-observation_bench-after.json.gz",
+    "stored_sha256": "b2eef25e0adac64523432c17e5309721953e497d8b342830b66465e8b7eb943c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-observation_bench-before.json",
+    "original_sha256": "3488512a7fa4973053c7d5686170933f1662cabbb5e82c50eb54a3711c9b54b6",
+    "stored": "state/micro-r2-observation_bench-before.json.gz",
+    "stored_sha256": "02593f1c9f60f7104bd2c227ad39f67d36b89af61b1e65725bbe82046cc9a7b6",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pdf_builder_bench-after.json",
+    "original_sha256": "22bc00b7cbbad6dcdc1d8705d1fd32202961d1e1d83ab3c656cfc4e2f937a462",
+    "stored": "state/micro-r2-pdf_builder_bench-after.json.gz",
+    "stored_sha256": "edd6065eddf2fce56333bf51c87f773594768c2f9635e5c171873f81aa80a319",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pdf_builder_bench-before.json",
+    "original_sha256": "b683e520456703a949899e79841009bc404bf7efa06f16c84c513b94779f8cea",
+    "stored": "state/micro-r2-pdf_builder_bench-before.json.gz",
+    "stored_sha256": "8c850093eed8adceeab7d90f55a6fe1212c35625d360dc2fd9661df0a4c6ba9e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_bundle-after.json",
+    "original_sha256": "76777b74eb1241d05d0c20e576ca702c901b884f1b67a3fc85b9ce3f668ff825",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_bundle-after.json.gz",
+    "stored_sha256": "b35ab2caa53336c13b21e539841170c2a3c420da59c9860f3b1ad74ea14123cd",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_bundle-before.json",
+    "original_sha256": "2e38069ef1bcc71d3bbcbb835428d75a4b65e1a23380d446a940d609742fee5a",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_bundle-before.json.gz",
+    "stored_sha256": "98ac8346de980948200efe03438cdcd854e2da646b6fc20ff490a0953bbb3a1e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_html-after.json",
+    "original_sha256": "298ae32288ce8727363b331a903eb38e644175d3d885dd4e19609c00e4b9b33a",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_html-after.json.gz",
+    "stored_sha256": "4544db3d3a627ed75201c34461617b4c7878960c21019b3e7026f729fef5aa60",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_html-before.json",
+    "original_sha256": "787c201d9218b2f0c71b3c322755253cb276b2c9524bf2c57ea96a9065d22d81",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_html-before.json.gz",
+    "stored_sha256": "6820a32e41911b370e1346751d39af9e9270dd476d76efbc3a9e7d8f8dd24a59",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_pdf-after.json",
+    "original_sha256": "3dc36435d13a59caa5bf36031c15b969915cc0403ecd7729a855502e1cd1182e",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_pdf-after.json.gz",
+    "stored_sha256": "d9681531be58bddf526f4526deddf63b3dc8d108d16ccf235fd099836f63e3e5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_pdf-before.json",
+    "original_sha256": "f463dad2417453e10b3f936b9a2011066c10a74f10473fc1c41e8d00c4941862",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_pdf-before.json.gz",
+    "stored_sha256": "c055a2ddcd8e75fe87699c76413d584b05f1922e8530d35fbccc4ae3fcbf0491",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_raster-after.json",
+    "original_sha256": "852a469f379ed0296e0663bfd017bee44c98cc8cbf9b5cabb8c1a605db3bb1ed",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_raster-after.json.gz",
+    "stored_sha256": "46f266005dcd07755b23d6c035dec3cbeecf070c5b992bbe5a140d5998246174",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_raster-before.json",
+    "original_sha256": "8a4502632c5e79e25cfac54288337059fc7b7b6c6591cbc77b4044f8cdaa6f7c",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_raster-before.json.gz",
+    "stored_sha256": "9ec2432183303e45bad9a3c75c77eed09da6634ea0114c6c1b237c8aaa93e5bc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_svg-after.json",
+    "original_sha256": "0b087f3083e1a82efadc3f355b8ca6a680adfb0bad92cfa5dfa467376d7ddc53",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_svg-after.json.gz",
+    "stored_sha256": "a3edee49ed9f0350d4bfe6f68da528d9a2eb7267aa82b9dfac91bb8bb12994da",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-pipeline_bench-pipeline_svg-before.json",
+    "original_sha256": "af91fbe8b09230fd820edff171701a04826c4d9b495bae98f0657096dae258dc",
+    "stored": "state/micro-r2-pipeline_bench-pipeline_svg-before.json.gz",
+    "stored_sha256": "863c71e35f4836c53a2dbedb0a78d6622f6944c08e385db232db89d5deeee14a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-scanner_bench-after.json",
+    "original_sha256": "ffca0d7b66bbb064b5dbcd86e818f5fafb98fd7f264dd8e4b7650e6291732447",
+    "stored": "state/micro-r2-scanner_bench-after.json.gz",
+    "stored_sha256": "de35f480125fc1c66675544c77f3b07dd926c88a4a3166a424a0f8e6aec619d8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-scanner_bench-before.json",
+    "original_sha256": "c77ef19dd3b3a3c33b157a5278b1ad58952b8bd630a57b8be350c2e60a09569f",
+    "stored": "state/micro-r2-scanner_bench-before.json.gz",
+    "stored_sha256": "eec4590157e6fb25efe345fafab7bbb025573fcb46c5fe585de6f11336327856",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-stdlib_bench-after.json",
+    "original_sha256": "a18bcb0fec23c6da7ccb50c94d7db7a5a7cd1b34f4ffa2fd1a3ea90241a0c6ed",
+    "stored": "state/micro-r2-stdlib_bench-after.json.gz",
+    "stored_sha256": "6c4b6f58f3216c840e604b822f2da2a6accfb283e4facade060f9668043da3b8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-stdlib_bench-before.json",
+    "original_sha256": "09f5d31578bb1055ec613f6c998b32dece111e13f3c1200bfea616f4069b5091",
+    "stored": "state/micro-r2-stdlib_bench-before.json.gz",
+    "stored_sha256": "8fa7c7e43b6b5d8c699b4cdfb35b027cd2f6f3d1724c7deeebcb695d4f0ff577",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-stream_bench-after.json",
+    "original_sha256": "db0f38fe7750ae35bbdd0e0c8868ceb726eb896df183e98bb8f0c1f9c1523dcb",
+    "stored": "state/micro-r2-stream_bench-after.json.gz",
+    "stored_sha256": "a1312d6859577e192e933c147b1e9103a80ddd3236c525dc12def8a50f97aed9",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r2-stream_bench-before.json",
+    "original_sha256": "602c1ae1820af902bee72d487dbc4ac0628a4d076ba1c8934a9d33dfc74134eb",
+    "stored": "state/micro-r2-stream_bench-before.json.gz",
+    "stored_sha256": "03639c63d64d468014115fb8361c489d63ff9ad6469901341a19d42259e41cf7",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_construction-after.json",
+    "original_sha256": "fa61aa79ccd43013b4200f2c3dee00b7404e4c83f44abd1028bc4a7b11098c26",
+    "stored": "state/micro-r3-content_bench-content_construction-after.json.gz",
+    "stored_sha256": "70be19f07418013e281034162be8229e0c2b277e5495626a7dfaaa536d75aab7",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_construction-before.json",
+    "original_sha256": "98b040a7e46c40fbbd1d164f4a0aa694d75c2795e4e0f0bd7b5442b24c71dc63",
+    "stored": "state/micro-r3-content_bench-content_construction-before.json.gz",
+    "stored_sha256": "c8b64adfb4a87e08fa9159a29b21b6b9d62d5af3464fe70d0f77713689855f23",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_identity-after.json",
+    "original_sha256": "8a264d6ac34df9fc16a4c0382e262f4b429fee2c0c8a7e2aedf0568dd0e4d81d",
+    "stored": "state/micro-r3-content_bench-content_identity-after.json.gz",
+    "stored_sha256": "fb1f2e3d68e5e9d1b8bdaf9be8b6a6d8000f66ae8e8ae37e8f126ba0e1fce4e5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_identity-before.json",
+    "original_sha256": "4faf1df6d72d2eb7430bf52f10e6d354d2cefe53bdf320cec2bab2af14487281",
+    "stored": "state/micro-r3-content_bench-content_identity-before.json.gz",
+    "stored_sha256": "bd706201d17d2779b1e3e4eaebbc332c3eb249cd17dfeb450e484ac24ee5e2cf",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_morphology-after.json",
+    "original_sha256": "5611f2a9ef0ae4e00ce4111b33d72aaf7ddf7ded551d6ab3af6c8f08f8a3d2e2",
+    "stored": "state/micro-r3-content_bench-content_morphology-after.json.gz",
+    "stored_sha256": "6a0cc500993d4a4bec29092889927756af2b1d8cb739168cfd9b9c3c4f9c2f45",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_morphology-before.json",
+    "original_sha256": "71096440c1cbb324f601eab298f8157d0f2d7ed4a900719f049f02295b905bb9",
+    "stored": "state/micro-r3-content_bench-content_morphology-before.json.gz",
+    "stored_sha256": "a7cd944d0c4e132a47f2a0d598e2dd42dfde626fde0187490660ebbe8afaf4bc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_page_structure-after.json",
+    "original_sha256": "fb704bbc3e90f533a0636bc5c369c7c5d11cc156c7f1d19a8dc2775de0c8d9b8",
+    "stored": "state/micro-r3-content_bench-content_page_structure-after.json.gz",
+    "stored_sha256": "a32b766a3282a5fe4022bdb57906ae77db4b46874e103bfcc1f4fd60f5dd5c82",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_page_structure-before.json",
+    "original_sha256": "b4abae20b7aae332a2520f0a2d8c1b522eca2ac2e46d21cb034ecb71401dceab",
+    "stored": "state/micro-r3-content_bench-content_page_structure-before.json.gz",
+    "stored_sha256": "5f664f9213793f2e8573a11f60a830f714bde35913b7a0949e74e329c9dc0afa",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_projections-after.json",
+    "original_sha256": "20ffce16e783a6bf8768fbfbea5d111ac899723997fd6a96996197e5313cf5c8",
+    "stored": "state/micro-r3-content_bench-content_projections-after.json.gz",
+    "stored_sha256": "5a58384d56c9cbc62140ee8886d45ad54805e94de0ea6875134b50cdf22ed520",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_projections-before.json",
+    "original_sha256": "2763b594ba939c7b3b2de40f37cece0eb890c1d21f6c359050c2d77627510671",
+    "stored": "state/micro-r3-content_bench-content_projections-before.json.gz",
+    "stored_sha256": "2fab26e65d75c631169c4fe633f1378556c6f405544028d64ad1edf631aebea8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_representation-after.json",
+    "original_sha256": "0f6d6be53af1cf265aec5e0a710d939dec75a300db65800252be788c78ad2546",
+    "stored": "state/micro-r3-content_bench-content_representation-after.json.gz",
+    "stored_sha256": "b9732fc6cbc539e447ae1945499e55b4e1599a40d49fe975ab61c281fbaa2565",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_representation-before.json",
+    "original_sha256": "bc4a2684c88aa1a2c63ec92c83b68130f9429fe3c9d7f5676ce7b350fb901167",
+    "stored": "state/micro-r3-content_bench-content_representation-before.json.gz",
+    "stored_sha256": "202f5e38e2595089e601e462460e889022e3708d4e572b46b3b2482184a0a4f2",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_sequence-after.json",
+    "original_sha256": "2f06e8da23230a21c86658882267cfc16141602552f924ca9f189d07ffcf44c9",
+    "stored": "state/micro-r3-content_bench-content_sequence-after.json.gz",
+    "stored_sha256": "6be6f814e62e13152d37a6c569fd2cd816133cbfb30800c8e77642fcc206fb85",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_sequence-before.json",
+    "original_sha256": "eb1e7ee3b78d66952e60b1f778e0d510edd771fea088fab0d9bddbe9056757f1",
+    "stored": "state/micro-r3-content_bench-content_sequence-before.json.gz",
+    "stored_sha256": "5c786aaba69a6c9a35cfd8835ca49a8909e09909e3e85b4b706d138f27620508",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_traversal-after.json",
+    "original_sha256": "55c90b96ad4e444f324e7cb35fddb3977b311ba0b12aad3af46049033bdff054",
+    "stored": "state/micro-r3-content_bench-content_traversal-after.json.gz",
+    "stored_sha256": "f21ac7494c5285d4fa0f17b2d01c86ea323f3fd23ec3a33fb4cd01fe5598df2c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-content_bench-content_traversal-before.json",
+    "original_sha256": "c63d620fb4802d43ca149c994040f77a6b2bd15e9bf54582b6f6d59bbf40253f",
+    "stored": "state/micro-r3-content_bench-content_traversal-before.json.gz",
+    "stored_sha256": "75b7c0f35b12665918da5406592e9380bc1b6014829fdd2fa24173e3f03f39a1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-layout_bench-after.json",
+    "original_sha256": "2140b304f641618513c41412e70ac925337ec8b147e280d2dce7e5f4baa32087",
+    "stored": "state/micro-r3-layout_bench-after.json.gz",
+    "stored_sha256": "6ffdd1043a2a3cd093e464d0d0eac67459b4149b56b93c81ae8d9597f15bde0c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-layout_bench-before.json",
+    "original_sha256": "eb1ae9aea86a514d4b5cc69796e297fe375ce08bfd7d803ba76f42e4b1c1b448",
+    "stored": "state/micro-r3-layout_bench-before.json.gz",
+    "stored_sha256": "fb93c38d05c92a5bdb3b5e8e7a594aae9221b43cbf1778ba489ced5524747d79",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-observation_bench-after.json",
+    "original_sha256": "90171150e12f96b4dbe26083bf2d768b07cb4853d8222f13654dbb760500b5a0",
+    "stored": "state/micro-r3-observation_bench-after.json.gz",
+    "stored_sha256": "d751108d8ad079a63ba4f9cee53b10a261aaea3e971b7d164e3a0cc6c086aebc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-observation_bench-before.json",
+    "original_sha256": "3b3e6d75df7c838f39ebb4e2155bd4cb69c1806073e72c5d976966046a823f2e",
+    "stored": "state/micro-r3-observation_bench-before.json.gz",
+    "stored_sha256": "8110e1e9251425ca4cf966c4bcba629f90235c2f6525a92845916c0aab415b43",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pdf_builder_bench-after.json",
+    "original_sha256": "cfa63beeb4a147149fcb249eb2ca8a6ce7a09c3523c7b1519190e923d13941ae",
+    "stored": "state/micro-r3-pdf_builder_bench-after.json.gz",
+    "stored_sha256": "bd20cea4dd294f8c5fa064add578011dfda68dbaa1087b9e844df362f9669aa9",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pdf_builder_bench-before.json",
+    "original_sha256": "7aff1844cf57ce99afd6cfa2468b9a147bc4c924136e643a20a78ee586a5e309",
+    "stored": "state/micro-r3-pdf_builder_bench-before.json.gz",
+    "stored_sha256": "cbc8f1bb0a7712fcfb092b50a412a8fac41d0aa78134921837d11f676f974a01",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_bundle-after.json",
+    "original_sha256": "eaad5a6fba18c551ae8945a3587ad0a407e1b54039d821d9c5a795e4c4ad72a5",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_bundle-after.json.gz",
+    "stored_sha256": "fbd125eb48fedadbd16bf18e7b3ee44c46cc52c373a81435a16d896ac83226f8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_bundle-before.json",
+    "original_sha256": "8f5899b4c52ba0b475b93f8d61e0f66a571b161c92a72d2910b506f4fae35242",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_bundle-before.json.gz",
+    "stored_sha256": "b7ff8496be53c00a2b3f21bd1f0f4df95cd03f9d588056d92bd9aac61d17794b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_html-after.json",
+    "original_sha256": "a1670e916728fe0652766b52088a0d5748a6873e447a76176de339e20e55b775",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_html-after.json.gz",
+    "stored_sha256": "502bb9880ae9cacfd762219d75dd3c3a01954ec7634a982501e831ba30d0c011",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_html-before.json",
+    "original_sha256": "0218ffaa8179308d2f92786c335d62c3ff701a8950f8ad2b0bfc070cbad9acea",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_html-before.json.gz",
+    "stored_sha256": "eefeb782b781ba3d51313d5751f6ef06be088b3211744718f1954af1fd045fb3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_pdf-after.json",
+    "original_sha256": "5719082de34722e0aeebbcf6426dd574b3e768ef22da2011985a504483f081ca",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_pdf-after.json.gz",
+    "stored_sha256": "d4948655dd607bd51a51cb95ac81ec5d67e2f6e8485fe7fe1a31e34fa9c9b65e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_pdf-before.json",
+    "original_sha256": "d025fc0746a5ed75566d52161f499fbf409af2057401a5eeb7ff4a920b387672",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_pdf-before.json.gz",
+    "stored_sha256": "56d4603f25015dcf06be2babb79e579164ff73cbada1758a24ea3e3f7f2436d1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_raster-after.json",
+    "original_sha256": "e3aa09abf831849fb249cb17001b231ab96004064bcfb26126cf8d7dc7fbc705",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_raster-after.json.gz",
+    "stored_sha256": "c518966e6bf7bef4ebac9b864910577d48a49a529bfca653df8537e7f8dc5814",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_raster-before.json",
+    "original_sha256": "bd4b980eae14be58ba1d4af36682bdbab6a5c8c4b9c55d7565bcdff6511dcd91",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_raster-before.json.gz",
+    "stored_sha256": "fa4cbc60de337f46147e0150b4926e6762655e205b6a294cf934faace422213a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_svg-after.json",
+    "original_sha256": "03dad86e5bb55d62b56292f4b4570529414fbc68bf230415954fcf3d3683d7e4",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_svg-after.json.gz",
+    "stored_sha256": "c522af7b3c4c736e9692f1fc745a12c75383705d7fc6be9d900c6c76984dd584",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-pipeline_bench-pipeline_svg-before.json",
+    "original_sha256": "3e6d66861a9166f85cb922d07ee065ceb1c61a4d111d5cb52560a3b4ec8b60ea",
+    "stored": "state/micro-r3-pipeline_bench-pipeline_svg-before.json.gz",
+    "stored_sha256": "f9e6603ce6e6aceab51c8d73e90b39fd13738d8644c29255ec5e572dd28767a8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-scanner_bench-after.json",
+    "original_sha256": "aaa277e7a4e98a78af7115f31c25a6c3396deb03d6d8c567f80b1a4b5b3aae83",
+    "stored": "state/micro-r3-scanner_bench-after.json.gz",
+    "stored_sha256": "5d7136b2c69bb87c15e98c1b5c970620d1be6d55bf4fce47ebd40deef2146367",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-scanner_bench-before.json",
+    "original_sha256": "08d480d71c73b7997f2afd1c3b92bdc6b7be30d52df94b9f0e355bcb5863e6dc",
+    "stored": "state/micro-r3-scanner_bench-before.json.gz",
+    "stored_sha256": "007383f1e127456d3e594a4b6c939103ec9f60d619f42ba29e902d7fa752d1aa",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-stdlib_bench-after.json",
+    "original_sha256": "36097ffd95ae26fc358345e562ddaf6b7afea074fe1a21ba14f94180d38128a9",
+    "stored": "state/micro-r3-stdlib_bench-after.json.gz",
+    "stored_sha256": "30bb0f7eeae174a1409e0922fbc3214ff8920141e94d7e33c6d3c6c202f34a1c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-stdlib_bench-before.json",
+    "original_sha256": "56a89950f075987dd557c68cd8f8090875280659e17ff9ecd3070db99ebbd4e8",
+    "stored": "state/micro-r3-stdlib_bench-before.json.gz",
+    "stored_sha256": "40ca869b6748d2adb0395328346a68a59c37e69d6bae1c7232b0c25e533431ea",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-stream_bench-after.json",
+    "original_sha256": "911a044618ca1978a99a87d3b4cfdbaba17b030d7c38db91769b7a57b16f716a",
+    "stored": "state/micro-r3-stream_bench-after.json.gz",
+    "stored_sha256": "8329a9ad48c87c35db16a2810d97c2d8fcd78ff72e563cc9e4f6c84651feb414",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/micro-r3-stream_bench-before.json",
+    "original_sha256": "b9607bec2324431eac3dfd2889cf22102688ad0d890b08cc903c58a2bc6bcfa9",
+    "stored": "state/micro-r3-stream_bench-before.json.gz",
+    "stored_sha256": "8129372ef6457414a10c208fe81f4ad95bec1f71159e9a2f521c39ad7c4aed50",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/qualification-after.json",
+    "original_sha256": "bc62104a55135021e2a284c4ab985af1f3a93a957266b8280b14f74321242d0b",
+    "stored": "state/qualification-after.json.gz",
+    "stored_sha256": "5b3b29db3851445b33a0e3831fe343e73e44c99c11a9aeea162b856f1dc52653",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/qualification-before.json",
+    "original_sha256": "bd10a08a6731a11184b63eda08c18b1b904f9d4ea4d8a073fb5efe05a6032fda",
+    "stored": "state/qualification-before.json.gz",
+    "stored_sha256": "74e7b2b7776fb0594773d74c5f11e02140cc5f9a927bf3e2d43979eb5a56eba1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790474574818522209.json",
+    "original_sha256": "8c8e42955cef3648b33016d61efc3740d1cbb84bbf63a8ae8b442cb4d10d4a55",
+    "stored": "state/quiet-1790474574818522209.json.gz",
+    "stored_sha256": "32e958ab6bf8b934f928a593ae1644f17504c0f1bf9d896d835e19251e3414af",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790474758270667318.json",
+    "original_sha256": "3ef661781a8bf7d9dae229dd292e26adbd4d5719c5b06cc363d65481c2c53c53",
+    "stored": "state/quiet-1790474758270667318.json.gz",
+    "stored_sha256": "3b73dc4a46237a2d4105a7947e3614f15c5e9ee49120882869e0781d2fe2b393",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790474863455684767.json",
+    "original_sha256": "5c0b558467210fe9fe7e7ad01ecffc381570efdfb018a3c603d6cf88a5f4871d",
+    "stored": "state/quiet-1790474863455684767.json.gz",
+    "stored_sha256": "bf53aaf796b256b7221dce5c3034ea1da5681a1aa69318ec244507b1b3409886",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790474897443966216.json",
+    "original_sha256": "2fdcbba295cdbd1202746d6965c91b0afd5e14445c686626b3a27e78512f1139",
+    "stored": "state/quiet-1790474897443966216.json.gz",
+    "stored_sha256": "d20c159b1ae4c7496de463ee2ee0cf9009011dff9658ad93cafe267e179d64c0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790474931183845947.json",
+    "original_sha256": "5d077bde77529bb65064431c13519d5219335948d47f4d1826dcc532e9c2c73f",
+    "stored": "state/quiet-1790474931183845947.json.gz",
+    "stored_sha256": "e92becfaa22c4823d3bfe8bf9cdc82a7eb40d069956ef018982cbcfbaf8f8e39",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475007392327158.json",
+    "original_sha256": "cfe8a3eab7099c94953755dd4fa605923524bfa709fcf0bd1af78338446f9928",
+    "stored": "state/quiet-1790475007392327158.json.gz",
+    "stored_sha256": "42fc4147c7e6f7534194fbe4823a0b4345ab594e7121032d99e83015efce37d1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475043069729058.json",
+    "original_sha256": "f31f0fc6770eb4af9f0b45da3193c7b21ddaabdd131cb59ec999a80ade0c8fc8",
+    "stored": "state/quiet-1790475043069729058.json.gz",
+    "stored_sha256": "303daa9e26aad2d849fd234a84b0a55c32c9818343d86eb1c35afb337a2c1dc2",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475077571631381.json",
+    "original_sha256": "957d230c8ab391b533621c33cb688305ecd97bf6873289290c66126e199d8753",
+    "stored": "state/quiet-1790475077571631381.json.gz",
+    "stored_sha256": "29167ecb8e509c7fb03c965939202bb53c11e62ffc7836aebc9a2ea70efa9f72",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475115419589449.json",
+    "original_sha256": "9108e1fa057208d3d89f01e6859f7e88bc1a890c497a31945e05c838620c6068",
+    "stored": "state/quiet-1790475115419589449.json.gz",
+    "stored_sha256": "97f21c39e54ef2ea15eda599601446c03b47b97c3e2e78c63309950576f4314a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475152324293201.json",
+    "original_sha256": "c788e35cfbf76bf916d0e871ea48aa705ffbe4541b6f722478c1a43a1dbb4e4f",
+    "stored": "state/quiet-1790475152324293201.json.gz",
+    "stored_sha256": "9203cabc9c7116e9f5db5f983615ccf74e9a1c1d8a23843d4ac85d6182435c6e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475189167734799.json",
+    "original_sha256": "b3fd0933f6fac324e0aaa715caa28b28199005c9725ac2fe2594035c68e3fce4",
+    "stored": "state/quiet-1790475189167734799.json.gz",
+    "stored_sha256": "3e427b81de0f5ea37c190c0794c40042f6b843f0091209243d6be40be897d02e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475225622687790.json",
+    "original_sha256": "0aaf24c4bae943c6afcae1e26640c48fcb0383963a8ec992841bfb512ad835f4",
+    "stored": "state/quiet-1790475225622687790.json.gz",
+    "stored_sha256": "7f8d1c1b8e42751fc0f5502ee976f7e4bafd208dcd7bae4f3c99ca78c4f3e19d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475264367895422.json",
+    "original_sha256": "57a6a20c8edebe9f5e89f5d5dfb8ac7e1f14988f63bc607de6c764ba26ea763e",
+    "stored": "state/quiet-1790475264367895422.json.gz",
+    "stored_sha256": "3bdd68378b34cbf80d7e413e338dae67edbea212d3c6b973c3c39142e6fc9abc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475302545971898.json",
+    "original_sha256": "cbaa29154f5695c673cc487dc01c6a4489dce19d03788b1d73bae03d16951017",
+    "stored": "state/quiet-1790475302545971898.json.gz",
+    "stored_sha256": "e03769868a6f5475d484e63b5ebc31763835effcef52303957cb9a44cb094179",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475340931002463.json",
+    "original_sha256": "67262da7fa29cccada6679e9ad554caeac45ad879be2389a267df2446e038fdf",
+    "stored": "state/quiet-1790475340931002463.json.gz",
+    "stored_sha256": "bc485d3bdbbbbc6b648bfaae29d51e1a0bc11e0be31da7f1d8efb84ca42730b4",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475377850339004.json",
+    "original_sha256": "1d7c8efbcd06a51e447c03dd693c83c3b2c0e325bafc9f23aec9eec65a816edd",
+    "stored": "state/quiet-1790475377850339004.json.gz",
+    "stored_sha256": "0f304881b876ce0110bea8cbf89641f9407d9a402204a7c336766740c39a82dc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475417121575011.json",
+    "original_sha256": "fa82f80434c9533a01640fde8b60bfe4ea51fc55604ba145dd8653d6748d0941",
+    "stored": "state/quiet-1790475417121575011.json.gz",
+    "stored_sha256": "feb45fca4cc431cbab6ee78c10941c964f07a5e27f54709a1b584ab49beaa0be",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475454104754556.json",
+    "original_sha256": "97fdb402f2765610bc500f43c672cf1825ed781476c70b5afc74c023ebdcbc9a",
+    "stored": "state/quiet-1790475454104754556.json.gz",
+    "stored_sha256": "594b1fa152bd7e985e342a4a5f780623d9b60d31447878d922ade451d24a15ed",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475491762094568.json",
+    "original_sha256": "456bab8249f4d1afc1a64024b03e4b80a4eb4062666f1304496a4ba061ea6cec",
+    "stored": "state/quiet-1790475491762094568.json.gz",
+    "stored_sha256": "3c656398a18085799f033db8746ebe952fd1851e908c0afb2169dfe7f7add9b1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475530285776277.json",
+    "original_sha256": "6c4ccd81feef6136f15fc87811e4c6a0f418c356e7a13919c4211bc20fa99ecf",
+    "stored": "state/quiet-1790475530285776277.json.gz",
+    "stored_sha256": "ec60775ddad2525b14cdea6e688b743638e17b9ea35657c612913a8f0457921a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475570173323248.json",
+    "original_sha256": "d81c8a7af223a251e808bba0a76f93e06d78b24c197fe86da579f07d4fed4977",
+    "stored": "state/quiet-1790475570173323248.json.gz",
+    "stored_sha256": "7452c131c3ceb574e63c251240220190adb51c8b74407855c202d66d2d97690f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475607737052006.json",
+    "original_sha256": "5783e7a5884db699bce564a30dfeeb97dfc23df41cbb82ea90f60f198ec8a18f",
+    "stored": "state/quiet-1790475607737052006.json.gz",
+    "stored_sha256": "8d67de3f23bd4b892e0538f11bed99c2140c10b4226e687b76f5df1af72cfffc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790475644926218668.json",
+    "original_sha256": "18bc4d16404fbb57bf4623cdfb7212e2b7dea01eb4fc7140526cb7fe69c3b870",
+    "stored": "state/quiet-1790475644926218668.json.gz",
+    "stored_sha256": "35054a5a27f140e064d686a60d5d7733c12dc7226483261124bc63c187376f05",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790476092605945628.json",
+    "original_sha256": "7c66eb73aa02255953c19795118220be6b3e07607860080ab8fb42adc8b072d2",
+    "stored": "state/quiet-1790476092605945628.json.gz",
+    "stored_sha256": "191cc3298376edef63add5154a16d7261c61a892ed5982f152cb99e2152d54f3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477361414850935.json",
+    "original_sha256": "d15fdc2ea32fcfd2981a135efe61a44f783a2600c884e45fb913db65d88a7766",
+    "stored": "state/quiet-1790477361414850935.json.gz",
+    "stored_sha256": "a74544ff1b5638f82fa3e18ca4ee3ada7607ad1742f79d9f18c3065067302d1f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477459806480435.json",
+    "original_sha256": "df931d35cde5fc8044674d727ea82d9b82e15b43db591ba39a6b998685bcc5c6",
+    "stored": "state/quiet-1790477459806480435.json.gz",
+    "stored_sha256": "38aaff9039a00c3cb3988534501ae5f9f5032914b75f70b75881a2fed0bf151e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477523477878698.json",
+    "original_sha256": "0f225e6dd57f7761eca214d6384c764896ecc8e0eae8d08073d6ec2b7d4d5b39",
+    "stored": "state/quiet-1790477523477878698.json.gz",
+    "stored_sha256": "851c14010d775bf5ba72bc6155d18aa6643fb00e34303c6b3f8210aec73073dc",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477586954528442.json",
+    "original_sha256": "6f77f0a3865de755136eb146ea0014a7fc816222d17914a2d47467158d05ffb0",
+    "stored": "state/quiet-1790477586954528442.json.gz",
+    "stored_sha256": "4179645bc4bc5d6bae2e41829fb75735459a6971bcc762f53afedaf7c0f442e1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477738954234601.json",
+    "original_sha256": "05ac1de0175426626447fa5da1162fdcbc099f28a030ba957bb47d3076294712",
+    "stored": "state/quiet-1790477738954234601.json.gz",
+    "stored_sha256": "40da2051ca0b621301c493eb5dafa88baa26078ba7ed7449aac3c694534300e7",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477802716209374.json",
+    "original_sha256": "cc9ff9405db5b745b8a234e949fd29b2e724d04b586e9cab209f145f86b4922a",
+    "stored": "state/quiet-1790477802716209374.json.gz",
+    "stored_sha256": "01249ae2bf67342d940e2d42db7aecc72b8ca55462ea941a40452d4e42a8148c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477867140447836.json",
+    "original_sha256": "294bd8df5d79d7952c0118448759e819dcc78d8c26b91dbc3555dab28b5184f1",
+    "stored": "state/quiet-1790477867140447836.json.gz",
+    "stored_sha256": "f647dcd67587ded2fa5945f55bb46fcb730d8d1fd4c331950183705121873771",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790477930828177187.json",
+    "original_sha256": "af30285c34c1bba90854e997d1684375017f64a20d1cc99e4753a5bcb01612ae",
+    "stored": "state/quiet-1790477930828177187.json.gz",
+    "stored_sha256": "90f15ea57f8ecd12a7d8e7657fb07e84d1be72cc6981136e5eed30897747446b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478069197309996.json",
+    "original_sha256": "bb398057719fc1889aab6824d14a1a767604ae3ba575df3e846accc59f404361",
+    "stored": "state/quiet-1790478069197309996.json.gz",
+    "stored_sha256": "d1e7d31ad1f4d5df4e71447e3987d5decdbcd750c6ad2a0766f32b768b95895d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478132796919474.json",
+    "original_sha256": "37d2dd1aec30a39587277c4cb324de3f67e81c0d474b5dab56a097b15801b5ff",
+    "stored": "state/quiet-1790478132796919474.json.gz",
+    "stored_sha256": "075ff99f25d119141b169fd541538813cd9261291c33042573f883d1024b5338",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478231715750957.json",
+    "original_sha256": "1e28f794ee22ef8328e5d0ad392544ff18ed922020114bbd500cb5a64945bd00",
+    "stored": "state/quiet-1790478231715750957.json.gz",
+    "stored_sha256": "f2072bbb347a973f591d050e3b5f62400da2c601c25714a1d06cd190b11374b4",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478295859178643.json",
+    "original_sha256": "d6efaea04e2e170f5002d643a075e447507f81bc836b4f412fbddd502b36e47d",
+    "stored": "state/quiet-1790478295859178643.json.gz",
+    "stored_sha256": "561af3b838a83f25a67b06b21001cc7cda6ebbcb69ff91fe38e4ef3ed717a022",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478359551993830.json",
+    "original_sha256": "e32bc10767eb4d1f225beadf09d804d797de8d27714afbfd219c9208b23a4736",
+    "stored": "state/quiet-1790478359551993830.json.gz",
+    "stored_sha256": "ed3860d2d3ed4dc473bda35873337f3e37c9951d98c2dbfb763bc58ebb823713",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478423129350470.json",
+    "original_sha256": "af05fee6b88e0582c28363b3bb4921860ddc328b39ba40dc2be2a3a95dddb6d5",
+    "stored": "state/quiet-1790478423129350470.json.gz",
+    "stored_sha256": "81fa8a9520534eea79fabb4c6d8c81327beeb40eca179763d91840c30d355708",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478500359076585.json",
+    "original_sha256": "cd488dc2afe6908420975f6947ddac2e1bcc2f5f4f1d287d0f43c4707926fb56",
+    "stored": "state/quiet-1790478500359076585.json.gz",
+    "stored_sha256": "0d51c71238977341c4794ed74d28abb8a0127fd0127b5650b3ea069679514e4b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478564005463561.json",
+    "original_sha256": "f764b63ea762d51ab06053a6f6a3f211460957d8ccd28d8ae13b408cb0a81bf6",
+    "stored": "state/quiet-1790478564005463561.json.gz",
+    "stored_sha256": "bc4508b092369533fb1dbc0fa116eafe651532b6fc7ab0bd26eac3b74c887d62",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478619204553972.json",
+    "original_sha256": "908cbe9428b719c135df49074063196c8e15eb516c3217cb3fe7d5cce87354b5",
+    "stored": "state/quiet-1790478619204553972.json.gz",
+    "stored_sha256": "7b06a1139a39fdb5b060ad004a1195615ac161d7eb89b0a346f6390040ca1ac8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478726738234692.json",
+    "original_sha256": "4ad4672e2e2ae73a47d96e43e844d50ef6ec4ce1da8a91f935b89ab87626b3a6",
+    "stored": "state/quiet-1790478726738234692.json.gz",
+    "stored_sha256": "0b311544778cc8b77198f44e348cc43959aef1ca1d69eb434bf772e6995e641a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478883848660500.json",
+    "original_sha256": "fb9de65131b4fc37bd14f7718e4f7544665b79df393f51f70433d7a0867526e4",
+    "stored": "state/quiet-1790478883848660500.json.gz",
+    "stored_sha256": "2d52c6120e72eee14c79e748a3b5bac8815764c6174a3e5134ea2f29e519abaf",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790478979332736130.json",
+    "original_sha256": "1ea77df04811e163d4dd71df63301ca9f1954874a364ef2aee0bdad0f0778a72",
+    "stored": "state/quiet-1790478979332736130.json.gz",
+    "stored_sha256": "9ecca42ab8c6bcdd66debf3628d4b5fd7315862728fef5029ab579025237337d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479043571031916.json",
+    "original_sha256": "852109a766a4249196bdc6fe49e0cd440848820b4244cf25ac9e658c103c853b",
+    "stored": "state/quiet-1790479043571031916.json.gz",
+    "stored_sha256": "f01ffad9b1749320f9aec58716005bdbc5c726ebd9171b41e37081bf7200b3e3",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479107257152872.json",
+    "original_sha256": "65b67354e6980a3486cc639dccb2e395c690ce8696354a3c06bd2b78a4fe9da2",
+    "stored": "state/quiet-1790479107257152872.json.gz",
+    "stored_sha256": "f6d4664bab171a334a482f7ad096640e41a76e5697016fb8d89f29964980cb8f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479307458284196.json",
+    "original_sha256": "29900b6a28d8bad6e472d7315b7ca4d78c0fd326e84afeed0f5c7b94bc98949e",
+    "stored": "state/quiet-1790479307458284196.json.gz",
+    "stored_sha256": "905dea1c9b7f29e505792dd8fcebac67f9cc34ff372f024d4360f33a33eef58d",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479371532741081.json",
+    "original_sha256": "16f23aa371ac6adaa862d8e955f374816c9f7349f94542d2b84b689642629f5c",
+    "stored": "state/quiet-1790479371532741081.json.gz",
+    "stored_sha256": "686e85ad7d7de0da4a7f3a8de8e72475a2b141e647e1fe342c70e61a85caf439",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479435118319636.json",
+    "original_sha256": "6362158165e7363ebd7a23a85d8c8002b9dd03609b1d5eea040708e6df2ded6f",
+    "stored": "state/quiet-1790479435118319636.json.gz",
+    "stored_sha256": "620b1ee48ade0c3d929b2ee38ddf5cc4169609e4132787799cd9e57b81331406",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479498766843941.json",
+    "original_sha256": "3ac5c82bb0a2bf6a485d95914382023968d2db31883a4c0314741f4dcadee7bd",
+    "stored": "state/quiet-1790479498766843941.json.gz",
+    "stored_sha256": "26607a7ae938fe09229edc2d8061152462bcbddd84a785c5fa39c6dc2cb29994",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479563304937020.json",
+    "original_sha256": "a65ef96d0c92229a25cc2115720458fba59597101e4311618df2b6ff76551aa3",
+    "stored": "state/quiet-1790479563304937020.json.gz",
+    "stored_sha256": "dffedceabe42ee3550fad4209841d533ca6b0c8e2d89cbc8a87e61258b499f0c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479629055292717.json",
+    "original_sha256": "7a715671ba41cdc274660748a98f04864aa5a5bd5ad11c23a7803a50e26b1f3c",
+    "stored": "state/quiet-1790479629055292717.json.gz",
+    "stored_sha256": "d2ad718bec3f1b0949786c51030edb2c296abb40ef53586a18abf1a7baa5fe8e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479693301651022.json",
+    "original_sha256": "6c9aec58b2be203691b9d8ae904254e1c41134f1de9f86bb3d8fe5f68257eb2a",
+    "stored": "state/quiet-1790479693301651022.json.gz",
+    "stored_sha256": "eccf6e4f29df577179df01f9a4a1dd0f4213596117b230234038085e290f745c",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479756951932545.json",
+    "original_sha256": "d5415ad6f7e68d22d662aa2e6585ad1bd3c56b7104a25debaf2e719e8adb7d09",
+    "stored": "state/quiet-1790479756951932545.json.gz",
+    "stored_sha256": "ce4b123bf406b875a5a6e4fe3185be7ad3596a5bb702b6bae50ca23b58fcec60",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479820775435101.json",
+    "original_sha256": "defccdc6adf979dc3e28703bc3456860be364d732039c6ea136ac59311907129",
+    "stored": "state/quiet-1790479820775435101.json.gz",
+    "stored_sha256": "335c87cffef67c785bde8705aab8bd23fa5fdc64edc8e1e489b6fc276b259018",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790479884312128929.json",
+    "original_sha256": "7e6229fa8650333839270f6c51b93daf4efd5148ad65e067ff8145fddbc05a45",
+    "stored": "state/quiet-1790479884312128929.json.gz",
+    "stored_sha256": "1bfae01718a6bc8fc00f697275e04a19587cf1e0c681704488ecd4165202ae4a",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480093332935570.json",
+    "original_sha256": "6139dc1fb26efeaa9217fcfd34f043843f9cac5562655e0a8829edc9da6f822a",
+    "stored": "state/quiet-1790480093332935570.json.gz",
+    "stored_sha256": "c883b66b4ef298c93caba57166561813849b6e6cefbec0fbff15b4922da1b4ba",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480156792740378.json",
+    "original_sha256": "04312d698c5331c1902c33a8b487cd48af334e931dfef9ac7128688b46092eb1",
+    "stored": "state/quiet-1790480156792740378.json.gz",
+    "stored_sha256": "884e3b65f3778f22df05618ab051f42663863207277fa664a5659c04c84bb422",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480457782179410.json",
+    "original_sha256": "e9ecfdf5991103b9d47490fe30e240c0fd146ecaad117e3f66bad3b780806eb9",
+    "stored": "state/quiet-1790480457782179410.json.gz",
+    "stored_sha256": "bb3d3f1ce21007df252a3fb183eee42511bb191b3402b9481094d6ea8a5c738b",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480574855391544.json",
+    "original_sha256": "bca1973cc65f3864e646fc0e3e3cdb5eb95ed10ec964896847340aff23602acb",
+    "stored": "state/quiet-1790480574855391544.json.gz",
+    "stored_sha256": "b77c12eb8fca8b74a52a6941542e243b618672c154b990d61fa42041c3808cea",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480638600676274.json",
+    "original_sha256": "824ceb21b2b8e96750eab8a1752090cdd239b4a906f30d60a2e5f356437b3e5c",
+    "stored": "state/quiet-1790480638600676274.json.gz",
+    "stored_sha256": "34e7af6ba50e14cd7a0baed51e4b8cf362cb2c1d5d3732064b2b603a800f43c0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480701314147663.json",
+    "original_sha256": "2d40795af82ff9e84db522471ef9fa8a6303f1b160d050997641db5c840f31d5",
+    "stored": "state/quiet-1790480701314147663.json.gz",
+    "stored_sha256": "a2b7208a183f9a0002e20e99937c56a58c27770b91728ccc044cf2384bb4ed87",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790480917326280133.json",
+    "original_sha256": "1d25b1dc34f32e2b861ad2623296aa908f70fc731c85c7aec60b88dbb2cf89bd",
+    "stored": "state/quiet-1790480917326280133.json.gz",
+    "stored_sha256": "a0dee1c05935a7345c56bae41842f4fdd2c7de7cee9d64ac5a46349aad3ebeb1",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481019637346042.json",
+    "original_sha256": "69266c91c8a41c03e68f4ef1036319382b62cadbeb3bc8080b435002e3c20b66",
+    "stored": "state/quiet-1790481019637346042.json.gz",
+    "stored_sha256": "45800cb0fe1c0a058ee88d301b7f28fc48665a9e5569f3e227d72914c5f4abe0",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481083208374600.json",
+    "original_sha256": "ce2fa63b9b5f53b5c5cc00871865d53eab4ebb6ad37aa43691932315de71172f",
+    "stored": "state/quiet-1790481083208374600.json.gz",
+    "stored_sha256": "8ebba070e259a2a9fb5d78c1689ddb1be76b014d227e53516c242f87f78379c8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481192328432743.json",
+    "original_sha256": "3674df0b99d185d7175d8a56e3523a85858acea8a578e955ea2fa22e1d645b04",
+    "stored": "state/quiet-1790481192328432743.json.gz",
+    "stored_sha256": "f79451b2f9805c58052aaad81c79b723b84ed1b45114474b6cacf85a592c3b3e",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481370795116629.json",
+    "original_sha256": "86f33cbda99c0d00880c563c8ef53028075c5a82a160023ca7ec10dccb7e1f69",
+    "stored": "state/quiet-1790481370795116629.json.gz",
+    "stored_sha256": "6973edcd67bccb4717cd44a1ea82d22b5e3d9c5bf869553b31c51c8a04b3b447",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481588763229578.json",
+    "original_sha256": "0a5fc6bb9a9f3a49321ff480cccc7a9c3f689ff29d65eed89c296df97810b4de",
+    "stored": "state/quiet-1790481588763229578.json.gz",
+    "stored_sha256": "3eadda36aa13206b281a8decad546ef6e8ddad9f9998641e939480f937df81e8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481652330888195.json",
+    "original_sha256": "257688db15a092dac444764ec53450041586b9413860d5054a7bb671b4acd1a6",
+    "stored": "state/quiet-1790481652330888195.json.gz",
+    "stored_sha256": "255592cf99086d34d820f4344ee6d9e8ece2727ca2f8ed9324f851dbe11a0571",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790481818511054451.json",
+    "original_sha256": "ad38be128d0ed5168619424157bc303a06b8845eb0d16a0494ef2739d5d96baa",
+    "stored": "state/quiet-1790481818511054451.json.gz",
+    "stored_sha256": "3114d5b097bb1c73e57a960fde9779ac3fe866fa30b582cea81b682e274ddf93",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/quiet-1790482413259076065.json",
+    "original_sha256": "bea10a98c686d6f97b51ab329047c172818352220b4eaf00aa0694df6455364a",
+    "stored": "state/quiet-1790482413259076065.json.gz",
+    "stored_sha256": "a31421f4452e4ee12d26632d94c9d95926f117c37119e1d1a2517d785f2328d8",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/rejected-attempt1-build-benches-after.json",
+    "original_sha256": "026872494adaab446bef80f3dd86b2341068fe1d329a5c7380c0356496f5db74",
+    "stored": "state/rejected-attempt1-build-benches-after.json.gz",
+    "stored_sha256": "0a0400bc1aa94247c6dd4e253c7125b752d3284b82f82d01e9afdcc1e93f1660",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/rejected-attempt1-build-benches-before.json",
+    "original_sha256": "3bb9f18b407921500bb291c0a29d824d9c9146069f55fa46a46f0343bd6b8795",
+    "stored": "state/rejected-attempt1-build-benches-before.json.gz",
+    "stored_sha256": "78002972227461461f0e9c528a16f7a36e1550902941d62bdc7ee54639ddfe37",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/rejected-attempt2-build-cli-after.json",
+    "original_sha256": "8c23525554f9313d613a7399d952b2e8d9e397f4cf3801ee209bc581d0780a62",
+    "stored": "state/rejected-attempt2-build-cli-after.json.gz",
+    "stored_sha256": "cf8f09495e60f3a0a951f7e23729951d7d58b9f7cb3396e8d75fa13a9d679d89",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/rejected-attempt2-build-cli-before.json",
+    "original_sha256": "1d89257d136c8e98b3a75c53c3f6086ec556d641096ecf47e597854a0736a6df",
+    "stored": "state/rejected-attempt2-build-cli-before.json.gz",
+    "stored_sha256": "d7ed056dc3ea6a572212cf66a4fec44064d610cbd93f86334d32a9f30a9e738f",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/shapes-qualification-after.json",
+    "original_sha256": "7cf4abab75a624af7237c305a1d9f7b606ecbc5e9fe7273ba220e1f20470f318",
+    "stored": "state/shapes-qualification-after.json.gz",
+    "stored_sha256": "02f4145196f8b1b674c6bcd3c098b847f1ca0baef52a9d415602e0cb126ad5c6",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  },
+  {
+    "original": "state/shapes-qualification-before.json",
+    "original_sha256": "43d224b3714c56e7083049c8e668b68693d4005bfa2b6799abe766b1b67abd31",
+    "stored": "state/shapes-qualification-before.json.gz",
+    "stored_sha256": "c5d76e8766043f2a30ad102049442222c71077e7dbd22da46cc554acab5101d5",
+    "encoding": "gzip; decompress to recover exact original bytes"
+  }
+]

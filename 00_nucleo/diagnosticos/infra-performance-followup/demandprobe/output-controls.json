@@ -1,0 +1,191 @@
+[
+  {
+    "fixture": "shapes",
+    "round": 1,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      },
+      "False": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "shapes",
+    "round": 2,
+    "equal": true,
+    "outputs": {
+      "False": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      },
+      "True": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "shapes",
+    "round": 3,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      },
+      "False": {
+        "text": "",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       400 x 600 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 1,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      },
+      "False": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 2,
+    "equal": true,
+    "outputs": {
+      "False": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      },
+      "True": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 3,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      },
+      "False": {
+        "text": "Hello",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       64 x 64 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "context",
+    "round": 1,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      },
+      "False": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "context",
+    "round": 2,
+    "equal": true,
+    "outputs": {
+      "False": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      },
+      "True": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      }
+    }
+  },
+  {
+    "fixture": "context",
+    "round": 3,
+    "equal": true,
+    "outputs": {
+      "True": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      },
+      "False": {
+        "text": "Page 1",
+        "page_fields": [
+          "Pages:           1",
+          "Page size:       128 x 64 pts"
+        ]
+      }
+    }
+  }
+]

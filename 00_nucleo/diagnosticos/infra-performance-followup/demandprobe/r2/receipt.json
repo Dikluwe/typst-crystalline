@@ -1,0 +1,21 @@
+{
+  "valid": true,
+  "start_utc": "2026-09-27T18:31:00.186146+00:00",
+  "end_utc": "2026-09-27T18:31:08.629061+00:00",
+  "before": "cf17c505d750ed3415eeffdb3ff086bad75155e50030bf3eae4a03db0e2fba7b",
+  "after": "cf17c505d750ed3415eeffdb3ff086bad75155e50030bf3eae4a03db0e2fba7b",
+  "contamination": [],
+  "executable_sha256": "92d69568624f05a7f7f5f0d37cbd366b8785be3b2c93ebde24707a7bd8657820",
+  "probe_sources_before": {
+    "Cargo.toml": "012f8b03fa2f85477b5d3ef64ae186249b40b059b1a475b15faec8c8c4bd3140",
+    "Cargo.lock": "f29fbc587f3c1894369e2f9d4170ff9756b0ebabff0e5b1959824e63e336aaae",
+    "src/main.rs": "9c2e9cde884cd1e3b408b49dadd5659cdfe0b0b23d8b9bc10f946ca0040f10d7",
+    "run.py": "d161238ff60a3449c93163944767e42a880f31d8ddf716ebb46b356e49f6071c"
+  },
+  "probe_sources_after": {
+    "Cargo.toml": "012f8b03fa2f85477b5d3ef64ae186249b40b059b1a475b15faec8c8c4bd3140",
+    "Cargo.lock": "f29fbc587f3c1894369e2f9d4170ff9756b0ebabff0e5b1959824e63e336aaae",
+    "src/main.rs": "9c2e9cde884cd1e3b408b49dadd5659cdfe0b0b23d8b9bc10f946ca0040f10d7",
+    "run.py": "d161238ff60a3449c93163944767e42a880f31d8ddf716ebb46b356e49f6071c"
+  }
+}

@@ -1,0 +1,42 @@
+layout/measurement/real/text_short
+                        time:   [3.5492 µs 3.6540 µs 3.7744 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+layout/measurement/real/text_long
+                        time:   [740.09 µs 767.72 µs 792.24 µs]
+layout/measurement/real/sequence_64
+                        time:   [53.860 µs 56.139 µs 58.407 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+layout/measurement/real/nested_strong_16
+                        time:   [18.968 µs 19.817 µs 20.808 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  4 (13.33%) low mild
+  2 (6.67%) high mild
+layout/measurement/real/vertical_stack_64
+                        time:   [133.30 µs 136.11 µs 139.05 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+
+layout/style_scope/plain
+                        time:   [4.0823 µs 4.1837 µs 4.2772 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+layout/style_scope/strong
+                        time:   [6.1374 µs 6.4827 µs 6.8052 µs]
+layout/style_scope/emph time:   [5.7384 µs 5.9681 µs 6.1873 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low severe
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+layout/style_scope/smallcaps
+                        time:   [4.2969 µs 4.4062 µs 4.4962 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+layout/style_scope/styled_once
+                        time:   [4.9303 µs 5.1389 µs 5.3554 µs]
+layout/style_scope/styled_nested_8
+                        time:   [12.118 µs 12.499 µs 12.801 µs]
+layout/style_scope/styled_nested_32
+                        time:   [46.965 µs 48.783 µs 50.793 µs]
+

@@ -1,0 +1,402 @@
+[
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/generic_constructor/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/generic_constructor/vanilla_public",
+    "ratios_per_round": [
+      0.41120584879000327,
+      0.37493985013771003,
+      0.36288419911291564
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/clone_and_generic/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/clone_and_generic/vanilla_public",
+    "ratios_per_round": [
+      0.3836994942968342,
+      0.3809292072262229,
+      0.3842419926586622
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/metadata_and_coverage/tekt_composed",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/metadata_and_coverage/vanilla_public",
+    "ratios_per_round": [
+      1.183573996829041,
+      1.6871624462982255,
+      1.6896624278424461
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/contains_hit_early/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/contains_hit_early/vanilla_public",
+    "ratios_per_round": [
+      0.8583391861142263,
+      1.0712369985905577,
+      0.8733182464933216
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/contains_hit_middle/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/contains_hit_middle/vanilla_public",
+    "ratios_per_round": [
+      1.2173033769048074,
+      0.798924624813561,
+      0.9671740134823446
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/contains_hit_late/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/contains_hit_late/vanilla_public",
+    "ratios_per_round": [
+      0.9550286931270908,
+      0.8782602326684852,
+      0.869266797026283
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/contains_miss_after/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/contains_miss_after/vanilla_public",
+    "ratios_per_round": [
+      1.397465361167424,
+      0.8821285075611386,
+      1.2527623012918816
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/contains_miss_gap/tekt_public",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/contains_miss_gap/vanilla_public",
+    "ratios_per_round": [
+      0.8969574962699277,
+      0.860717917055965,
+      0.7261705444586573
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/first_font/tekt_slot",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/first_font/vanilla_store",
+    "ratios_per_round": [
+      0.4123309939889975,
+      0.1539394433129949,
+      0.400597392581455
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/LibertinusSerif-Regular/retained_font/tekt_slot",
+    "vanilla_case": "fonts/LibertinusSerif-Regular/retained_font/vanilla_store",
+    "ratios_per_round": [
+      0.9207153180026579,
+      1.0072129644684606,
+      0.9975376453019137
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/generic_constructor/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/generic_constructor/vanilla_public",
+    "ratios_per_round": [
+      0.44378268063169585,
+      0.33695838253244875,
+      0.315063213226305
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/clone_and_generic/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/clone_and_generic/vanilla_public",
+    "ratios_per_round": [
+      0.4918743045523878,
+      0.3217606839881479,
+      0.32907128080947307
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/metadata_and_coverage/tekt_composed",
+    "vanilla_case": "fonts/NewCMMath-Regular/metadata_and_coverage/vanilla_public",
+    "ratios_per_round": [
+      1.570259507306764,
+      1.6762549692466215,
+      1.7876817140565024
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/contains_hit_early/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/contains_hit_early/vanilla_public",
+    "ratios_per_round": [
+      0.7781884609567219,
+      1.0329706763203779,
+      1.049484273404738
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/contains_hit_middle/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/contains_hit_middle/vanilla_public",
+    "ratios_per_round": [
+      0.9827338444021849,
+      0.819672607330325,
+      0.844345457523435
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/contains_hit_late/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/contains_hit_late/vanilla_public",
+    "ratios_per_round": [
+      0.8754912690562218,
+      0.8769811481143297,
+      0.8668184125212718
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/contains_miss_after/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/contains_miss_after/vanilla_public",
+    "ratios_per_round": [
+      0.9590120062130287,
+      0.8570109469193301,
+      0.8926327195300297
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/contains_miss_gap/tekt_public",
+    "vanilla_case": "fonts/NewCMMath-Regular/contains_miss_gap/vanilla_public",
+    "ratios_per_round": [
+      0.7446985047218876,
+      0.8043160353761987,
+      0.855705698965724
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/first_font/tekt_slot",
+    "vanilla_case": "fonts/NewCMMath-Regular/first_font/vanilla_store",
+    "ratios_per_round": [
+      0.2905616921135213,
+      0.26140597846172486,
+      0.2423648998389117
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NewCMMath-Regular/retained_font/tekt_slot",
+    "vanilla_case": "fonts/NewCMMath-Regular/retained_font/vanilla_store",
+    "ratios_per_round": [
+      1.058861247458078,
+      1.0072167306394495,
+      0.9711383907050437
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/generic_constructor/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/generic_constructor/vanilla_public",
+    "ratios_per_round": [
+      0.38212632305556943,
+      0.29196308182209463,
+      0.2881705248057762
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/clone_and_generic/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/clone_and_generic/vanilla_public",
+    "ratios_per_round": [
+      0.41685396572131955,
+      0.3042734627238141,
+      0.30273001732429605
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/metadata_and_coverage/tekt_composed",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/metadata_and_coverage/vanilla_public",
+    "ratios_per_round": [
+      1.5757688699640786,
+      1.637273872850702,
+      1.5915300503709962
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/contains_hit_early/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/contains_hit_early/vanilla_public",
+    "ratios_per_round": [
+      0.8328044251885599,
+      1.031368722391935,
+      1.3361656883655328
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/contains_hit_middle/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/contains_hit_middle/vanilla_public",
+    "ratios_per_round": [
+      0.9582368906710835,
+      0.8695522739699377,
+      0.8527280742280768
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/contains_hit_late/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/contains_hit_late/vanilla_public",
+    "ratios_per_round": [
+      0.9665483299914089,
+      0.8799304332479475,
+      0.8720298444893042
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/contains_miss_after/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/contains_miss_after/vanilla_public",
+    "ratios_per_round": [
+      0.9448445244595017,
+      0.8807337964784115,
+      0.8812594035113828
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/contains_miss_gap/tekt_public",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/contains_miss_gap/vanilla_public",
+    "ratios_per_round": [
+      0.8930208226484352,
+      0.8663864476334379,
+      1.1781554142724948
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/first_font/tekt_slot",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/first_font/vanilla_store",
+    "ratios_per_round": [
+      4.385355821891037,
+      2.2181052753245987,
+      4.500480727743619
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansCJK-Regular/retained_font/tekt_slot",
+    "vanilla_case": "fonts/NotoSansCJK-Regular/retained_font/vanilla_store",
+    "ratios_per_round": [
+      0.9981615326157082,
+      1.0016135404528697,
+      0.9873488004813271
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/generic_constructor/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/generic_constructor/vanilla_public",
+    "ratios_per_round": [
+      0.5197169495147028,
+      0.37619132121948207,
+      0.4594416230098609
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/clone_and_generic/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/clone_and_generic/vanilla_public",
+    "ratios_per_round": [
+      0.5420038036862737,
+      0.4740870724391189,
+      0.36912385239220535
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/metadata_and_coverage/tekt_composed",
+    "vanilla_case": "fonts/NotoSansMath-Regular/metadata_and_coverage/vanilla_public",
+    "ratios_per_round": [
+      1.4934929027731183,
+      1.5406481232403244,
+      1.4974594763969846
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/contains_hit_early/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/contains_hit_early/vanilla_public",
+    "ratios_per_round": [
+      0.7428388263314464,
+      1.0499223890568226,
+      0.9039078758194001
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/contains_hit_middle/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/contains_hit_middle/vanilla_public",
+    "ratios_per_round": [
+      0.9660638771557094,
+      0.8531210383745321,
+      0.8686330067109541
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/contains_hit_late/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/contains_hit_late/vanilla_public",
+    "ratios_per_round": [
+      0.9706728083985424,
+      0.8760521757318454,
+      0.8748357919477435
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/contains_miss_after/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/contains_miss_after/vanilla_public",
+    "ratios_per_round": [
+      0.9614321653204191,
+      0.9064476438531603,
+      0.8335866928193377
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/contains_miss_gap/tekt_public",
+    "vanilla_case": "fonts/NotoSansMath-Regular/contains_miss_gap/vanilla_public",
+    "ratios_per_round": [
+      0.8333061834432596,
+      0.8652479588632309,
+      0.8509939918509936
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/first_font/tekt_slot",
+    "vanilla_case": "fonts/NotoSansMath-Regular/first_font/vanilla_store",
+    "ratios_per_round": [
+      0.22353987873314005,
+      0.24858980786529658,
+      0.21840753605012586
+    ],
+    "both_stable": false
+  },
+  {
+    "tekt_case": "fonts/NotoSansMath-Regular/retained_font/tekt_slot",
+    "vanilla_case": "fonts/NotoSansMath-Regular/retained_font/vanilla_store",
+    "ratios_per_round": [
+      1.008419094882406,
+      0.9860372877260776,
+      0.9975459634979352
+    ],
+    "both_stable": false
+  }
+]

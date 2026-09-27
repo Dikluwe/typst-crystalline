@@ -1,0 +1,3 @@
+    Finished `release` profile [optimized] target(s) in 0.31s
+Verified optimized core executable: /repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd
+Verified benchmark: compiler::stdlib::registry::microbenchmarks::benchmarks::stdlib_microbenchmarks (no measurements)

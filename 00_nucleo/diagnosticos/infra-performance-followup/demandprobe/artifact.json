@@ -1,0 +1,44 @@
+{
+  "sha256": "92d69568624f05a7f7f5f0d37cbd366b8785be3b2c93ebde24707a7bd8657820",
+  "cargo_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/demandprobe#infra-font-demand-control@0.1.0",
+    "manifest_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/demandprobe/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "infra-font-demand-control",
+      "src_path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/demandprobe/src/main.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/repos/Antigravity/typst-crystalline/target/release/infra-font-demand-control"
+    ],
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/infra-font-demand-control",
+    "fresh": false
+  },
+  "runtime_environment": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "CARGO_BUILD_JOBS": "1",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  }
+}

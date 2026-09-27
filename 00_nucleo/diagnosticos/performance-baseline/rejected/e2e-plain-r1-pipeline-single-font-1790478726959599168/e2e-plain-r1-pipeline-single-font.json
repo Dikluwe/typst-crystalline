@@ -1,0 +1,604 @@
+{
+  "valid": false,
+  "source_stable": true,
+  "contamination": [
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 34
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 34
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 34
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 34
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 34
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 38
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 38
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 38
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 41
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 41
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 41
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 41
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 44
+    },
+    {
+      "pid": 3319114,
+      "ppid": 2981477,
+      "comm": "go",
+      "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+      "script": null,
+      "ticks": 45
+    }
+  ],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T03:10:49.067977+00:00",
+      "loadavg": "2.45 2.89 5.09 3/4015 3319033",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:49.242659+00:00",
+      "loadavg": "2.45 2.89 5.09 4/4016 3319034",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:49.417353+00:00",
+      "loadavg": "2.34 2.86 5.07 11/4017 3319035",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:49.610947+00:00",
+      "loadavg": "2.34 2.86 5.07 3/4015 3319049",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:49.781481+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4014 3319063",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:49.951474+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4013 3319063",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.126349+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4014 3319064",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.297217+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4014 3319064",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.468997+00:00",
+      "loadavg": "2.34 2.86 5.07 3/4013 3319064",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.636634+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319068",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.808007+00:00",
+      "loadavg": "2.34 2.86 5.07 4/4009 3319069",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:50.978221+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319080",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:51.149941+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319080",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:51.320386+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319081",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:51.494198+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319082",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:51.665504+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319082",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:51.834479+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319083",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.003495+00:00",
+      "loadavg": "2.34 2.86 5.07 4/4009 3319083",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.173722+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319083",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.345587+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319084",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.515855+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319084",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.685327+00:00",
+      "loadavg": "2.34 2.86 5.07 4/4010 3319085",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:52.854331+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319085",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.022247+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319096",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.191157+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319096",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.363432+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4009 3319096",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.531932+00:00",
+      "loadavg": "2.34 2.86 5.07 2/4010 3319097",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.701519+00:00",
+      "loadavg": "2.34 2.86 5.07 3/4009 3319097",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:53.875443+00:00",
+      "loadavg": "2.34 2.86 5.07 3/4009 3319097",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:54.045526+00:00",
+      "loadavg": "2.34 2.86 5.07 4/4009 3319098",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:54.215493+00:00",
+      "loadavg": "2.34 2.86 5.07 3/4009 3319098",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:54.387981+00:00",
+      "loadavg": "2.39 2.86 5.06 2/4009 3319099",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:54.563129+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4026 3319136",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:54.734535+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4044 3319176",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 34
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:54.912317+00:00",
+      "loadavg": "2.39 2.86 5.06 4/4043 3319186",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 34
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:55.085640+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4043 3319202",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 34
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:55.352099+00:00",
+      "loadavg": "2.39 2.86 5.06 19/4045 3319205",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 34
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:55.558316+00:00",
+      "loadavg": "2.39 2.86 5.06 4/4060 3319221",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 34
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:55.744644+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4064 3319244",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 38
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:55.929096+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4068 3319263",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 38
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:56.108624+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4070 3319266",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 38
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:56.297570+00:00",
+      "loadavg": "2.39 2.86 5.06 5/4071 3319329",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 41
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:56.479430+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4067 3319335",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 41
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:56.658697+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4071 3319339",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 41
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:56.926900+00:00",
+      "loadavg": "2.39 2.86 5.06 19/4059 3319359",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 41
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:57.108927+00:00",
+      "loadavg": "2.39 2.86 5.06 5/4059 3319400",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 44
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:57.286363+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4054 3319446",
+      "blockers": [
+        {
+          "pid": 3319114,
+          "ppid": 2981477,
+          "comm": "go",
+          "exe": "/home/linuxbrew/.linuxbrew/Cellar/go/1.26.5/libexec/bin/go",
+          "script": null,
+          "ticks": 45
+        }
+      ]
+    },
+    {
+      "utc": "2026-09-27T03:10:57.477069+00:00",
+      "loadavg": "2.39 2.86 5.06 5/4023 3319458",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:57.681061+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4019 3319458",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:57.859658+00:00",
+      "loadavg": "2.39 2.86 5.06 5/4020 3319459",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.042406+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4027 3319468",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.226018+00:00",
+      "loadavg": "2.39 2.86 5.06 10/4030 3319471",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.412579+00:00",
+      "loadavg": "2.39 2.86 5.06 7/4029 3319471",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.590820+00:00",
+      "loadavg": "2.39 2.86 5.06 3/4030 3319474",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.762824+00:00",
+      "loadavg": "2.39 2.86 5.06 2/4031 3319475",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:58.939863+00:00",
+      "loadavg": "2.39 2.86 5.06 6/4031 3319481",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:59.112747+00:00",
+      "loadavg": "2.39 2.86 5.06 4/4032 3319503",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:59.284128+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4032 3319503",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:59.479220+00:00",
+      "loadavg": "2.52 2.88 5.05 5/4040 3319528",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:59.654719+00:00",
+      "loadavg": "2.52 2.88 5.05 13/4041 3319543",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:10:59.830887+00:00",
+      "loadavg": "2.52 2.88 5.05 5/4041 3319544",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.002262+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4041 3319544",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.173555+00:00",
+      "loadavg": "2.52 2.88 5.05 2/4041 3319545",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.345463+00:00",
+      "loadavg": "2.52 2.88 5.05 2/4030 3319545",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.515673+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4031 3319546",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.687985+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4030 3319546",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:00.865275+00:00",
+      "loadavg": "2.52 2.88 5.05 4/4031 3319547",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:01.053836+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4032 3319558",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:01.226313+00:00",
+      "loadavg": "2.52 2.88 5.05 3/4031 3319558",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:01.399788+00:00",
+      "loadavg": "2.52 2.88 5.05 2/4033 3319560",
+      "blockers": []
+    },
+    {
+      "utc": "2026-09-27T03:11:01.574909+00:00",
+      "loadavg": "2.52 2.88 5.05 1/4035 3319563",
+      "blockers": []
+    }
+  ],
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "fingerprint_before": "84fe8cd7336862b4b1754b3c6af11d24626cc12b34fa975ac4d03dd028a1aff7",
+  "fingerprint_after": "84fe8cd7336862b4b1754b3c6af11d24626cc12b34fa975ac4d03dd028a1aff7"
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 251, in <module>
+    elif a.action=='micro':micro(a.rounds)
+                           ^^^^^^^^^^^^^^^
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 229, in micro
+    quiet(); artifacts=identity_check()
+    ^^^^^^^
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 119, in quiet
+    if a['sha256']!=b['sha256'] or a['head']!=b['head'] or seen: raise RuntimeError('No stable/idle 30-second gate; try again after other work stops')
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: No stable/idle 30-second gate; try again after other work stops

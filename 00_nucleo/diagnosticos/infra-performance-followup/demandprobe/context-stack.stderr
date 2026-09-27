@@ -1,0 +1,22 @@
+FIRST BOOK DEMAND:
+   0: <infra_font_demand_control::Observed as typst_core::contracts::world::World>::book
+   1: typst_core::compiler::eval::rules::eval_set_rule
+   2: typst_core::compiler::eval::eval_expr
+   3: typst_core::compiler::eval::eval_markup_impl
+   4: typst_core::compiler::eval::eval_with_full_error_target_and_features::{{closure}}
+   5: typst_core::compiler::eval::eval_with_full_error_target_and_features
+   6: typst_infra::pipeline::eval_to_module_with_sink_target_features
+   7: typst_infra::pipeline::paged::compile_to_paged_document_full_error_and_features_with_introspector
+   8: typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl
+   9: typst_infra::pipeline::pdf::compile_to_pdf_bytes_with_timings
+  10: infra_font_demand_control::main
+  11: std::sys::backtrace::__rust_begin_short_backtrace
+  12: std::rt::lang_start::{{closure}}
+  13: std::rt::lang_start_internal
+  14: main
+  15: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  16: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  17: _start
+

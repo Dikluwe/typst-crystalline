@@ -1,0 +1,93 @@
+
+running 1 test
+test compiler::stdlib::registry::microbenchmarks::benchmarks::stdlib_microbenchmarks ... stdlib/registry/html0_a11y0_bundle0
+                        time:   [1.0001 ms 1.0573 ms 1.1086 ms]
+stdlib/registry/html1_a11y0_bundle0
+                        time:   [948.51 µs 991.76 µs 1.0390 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) low mild
+stdlib/registry/html0_a11y1_bundle0
+                        time:   [1.0767 ms 1.0918 ms 1.1117 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+stdlib/registry/html1_a11y1_bundle0
+                        time:   [1.0153 ms 1.0393 ms 1.0625 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) low mild
+  1 (3.33%) high mild
+stdlib/registry/html0_a11y0_bundle1
+                        time:   [1.0230 ms 1.0570 ms 1.0935 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+stdlib/registry/html1_a11y0_bundle1
+                        time:   [975.49 µs 1.0105 ms 1.0455 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+stdlib/registry/html0_a11y1_bundle1
+                        time:   [985.98 µs 1.0176 ms 1.0538 ms]
+stdlib/registry/html1_a11y1_bundle1
+                        time:   [982.27 µs 1.0331 ms 1.0865 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+
+stdlib/inputs/0         time:   [1.0864 ms 1.1088 ms 1.1283 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  2 (6.67%) high severe
+stdlib/inputs/16        time:   [1.0441 ms 1.0662 ms 1.0957 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  1 (3.33%) low mild
+  2 (6.67%) high severe
+stdlib/inputs/256       time:   [1.0699 ms 1.1014 ms 1.1319 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+
+stdlib/lookup/upper     time:   [11.879 ns 12.119 ns 12.349 ns]
+stdlib/lookup/not-a-binding
+                        time:   [6.5573 ns 6.6645 ns 6.7718 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+stdlib/lookup/calc_abs  time:   [10.989 ns 11.278 ns 11.660 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+stdlib/native/calc_abs/int
+                        time:   [25.356 ns 25.680 ns 25.939 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+stdlib/native/calc_abs/float
+                        time:   [25.693 ns 26.071 ns 26.412 ns]
+stdlib/native/calc_abs/overflow
+                        time:   [41.321 ns 43.033 ns 44.908 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high mild
+stdlib/native/upper/ascii
+                        time:   [114.05 ns 115.96 ns 118.35 ns]
+stdlib/native/upper/unicode
+                        time:   [167.49 ns 170.80 ns 173.72 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+stdlib/native/upper/wrong_type
+                        time:   [66.653 ns 67.144 ns 67.671 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+stdlib/native/upper/missing_arg
+                        time:   [41.437 ns 42.935 ns 44.103 ns]
+stdlib/native/upper/extra_arg
+                        time:   [40.131 ns 41.637 ns 43.592 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+stdlib/native/upper/named_arg
+                        time:   [66.821 ns 68.212 ns 69.910 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6283 filtered out; finished in 18.60s
+

@@ -1,0 +1,1039 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "-p",
+    "typst-wiring",
+    "--offline",
+    "--locked",
+    "--message-format=json"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T02:28:20.535829+00:00",
+  "end_utc": "2026-09-27T02:28:39.182486+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 17088.897631,
+  "exit_code": 0,
+  "valid": false,
+  "source_stable": true,
+  "contamination": [
+    {
+      "pid": 3189515,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3189526,
+      "ppid": 3189515,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 14
+    },
+    {
+      "pid": 3189515,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3189526,
+      "ppid": 3189515,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 53
+    },
+    {
+      "pid": 3189515,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3189526,
+      "ppid": 3189515,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 93
+    },
+    {
+      "pid": 3189515,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3189526,
+      "ppid": 3189515,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 136
+    },
+    {
+      "pid": 3189515,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3189526,
+      "ppid": 3189515,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 289
+    },
+    {
+      "pid": 3189832,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 6
+    },
+    {
+      "pid": 3189844,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 33
+    },
+    {
+      "pid": 3189845,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 35
+    },
+    {
+      "pid": 3189832,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 6
+    },
+    {
+      "pid": 3189844,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 71
+    },
+    {
+      "pid": 3189845,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 73
+    },
+    {
+      "pid": 3189832,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 6
+    },
+    {
+      "pid": 3189844,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 113
+    },
+    {
+      "pid": 3189845,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 164
+    },
+    {
+      "pid": 3189832,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 6
+    },
+    {
+      "pid": 3189844,
+      "ppid": 3189832,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 272
+    },
+    {
+      "pid": 3189832,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 6
+    },
+    {
+      "pid": 3190232,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3190251,
+      "ppid": 3190232,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 21
+    },
+    {
+      "pid": 3190232,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 5
+    },
+    {
+      "pid": 3190251,
+      "ppid": 3190232,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 59
+    },
+    {
+      "pid": 3190278,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 3
+    },
+    {
+      "pid": 3190290,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 43
+    },
+    {
+      "pid": 3190291,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 45
+    },
+    {
+      "pid": 3190278,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 3
+    },
+    {
+      "pid": 3190290,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 84
+    },
+    {
+      "pid": 3190291,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 85
+    },
+    {
+      "pid": 3190278,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 3
+    },
+    {
+      "pid": 3190290,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 219
+    },
+    {
+      "pid": 3190291,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 225
+    },
+    {
+      "pid": 3190278,
+      "ppid": 3189496,
+      "comm": "cargo",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "script": null,
+      "ticks": 4
+    },
+    {
+      "pid": 3190594,
+      "ppid": 3190278,
+      "comm": "rustc",
+      "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "script": null,
+      "ticks": 7
+    }
+  ],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T02:28:20.661024+00:00",
+      "loadavg": "9.97 11.85 11.47 11/3898 3189329",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691672 8484 571667 23659974 334894 0 4508 0 0 0",
+        "cpu5 1027966 7028 270298 24986662 63440 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:21.072913+00:00",
+      "loadavg": "9.97 11.85 11.47 12/3922 3189360",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691709 8484 571672 23659974 334894 0 4508 0 0 0",
+        "cpu5 1027980 7028 270305 24986682 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:21.476242+00:00",
+      "loadavg": "9.97 11.85 11.47 14/3904 3189373",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691736 8484 571678 23659981 334894 0 4508 0 0 0",
+        "cpu5 1027991 7028 270309 24986706 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:21.857936+00:00",
+      "loadavg": "9.97 11.85 11.47 14/3904 3189383",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691772 8484 571679 23659981 334894 0 4508 0 0 0",
+        "cpu5 1028005 7028 270312 24986727 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:22.267810+00:00",
+      "loadavg": "9.97 11.85 11.47 12/3904 3189383",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691795 8484 571681 23659995 334895 0 4508 0 0 0",
+        "cpu5 1028027 7028 270315 24986741 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:22.627847+00:00",
+      "loadavg": "9.97 11.85 11.47 15/3897 3189390",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691829 8484 571683 23659996 334895 0 4508 0 0 0",
+        "cpu5 1028050 7028 270317 24986752 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:22.990838+00:00",
+      "loadavg": "9.97 11.85 11.47 16/3900 3189397",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691864 8484 571684 23659996 334895 0 4508 0 0 0",
+        "cpu5 1028081 7028 270322 24986752 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:23.358633+00:00",
+      "loadavg": "9.97 11.85 11.47 10/3893 3189413",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691901 8484 571684 23659996 334895 0 4508 0 0 0",
+        "cpu5 1028115 7028 270325 24986752 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:23.763750+00:00",
+      "loadavg": "9.97 11.85 11.47 12/3895 3189417",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691931 8484 571689 23660001 334895 0 4508 0 0 0",
+        "cpu5 1028153 7028 270327 24986752 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:24.181596+00:00",
+      "loadavg": "10.29 11.89 11.48 11/3894 3189427",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691942 8485 571692 23660028 334895 0 4508 0 0 0",
+        "cpu5 1028192 7028 270330 24986752 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:24.576349+00:00",
+      "loadavg": "10.29 11.89 11.48 10/3893 3189428",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1691962 8485 571694 23660046 334895 0 4508 0 0 0",
+        "cpu5 1028223 7028 270332 24986758 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:24.983817+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3893 3189434",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692000 8485 571695 23660048 334895 0 4508 0 0 0",
+        "cpu5 1028252 7028 270334 24986767 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:25.399880+00:00",
+      "loadavg": "10.29 11.89 11.48 10/3893 3189439",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692023 8485 571699 23660062 334895 0 4508 0 0 0",
+        "cpu5 1028276 7028 270340 24986778 63441 0 4876 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:25.762972+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3893 3189445",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692036 8485 571707 23660077 334895 0 4508 0 0 0",
+        "cpu5 1028310 7028 270343 24986778 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:26.162582+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3892 3189457",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692064 8485 571710 23660086 334895 0 4508 0 0 0",
+        "cpu5 1028329 7028 270345 24986796 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:26.520351+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3892 3189465",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692097 8485 571713 23660086 334895 0 4508 0 0 0",
+        "cpu5 1028346 7029 270348 24986811 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:26.915287+00:00",
+      "loadavg": "10.29 11.89 11.48 14/3893 3189466",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692134 8485 571715 23660086 334895 0 4508 0 0 0",
+        "cpu5 1028384 7029 270349 24986811 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:27.333097+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3894 3189514",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692170 8485 571718 23660088 334895 0 4508 0 0 0",
+        "cpu5 1028411 7029 270353 24986821 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:27.773239+00:00",
+      "loadavg": "10.29 11.89 11.48 29/3902 3189548",
+      "blockers": [
+        {
+          "pid": 3189515,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3189526,
+          "ppid": 3189515,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 14
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692211 8485 571721 23660088 334895 0 4508 0 0 0",
+        "cpu5 1028454 7029 270354 24986821 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:28.175195+00:00",
+      "loadavg": "10.29 11.89 11.48 13/3900 3189574",
+      "blockers": [
+        {
+          "pid": 3189515,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3189526,
+          "ppid": 3189515,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 53
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692238 8485 571722 23660099 334895 0 4508 0 0 0",
+        "cpu5 1028491 7029 270357 24986821 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:28.587064+00:00",
+      "loadavg": "10.29 11.89 11.48 12/3899 3189590",
+      "blockers": [
+        {
+          "pid": 3189515,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3189526,
+          "ppid": 3189515,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 93
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692252 8485 571727 23660121 334895 0 4508 0 0 0",
+        "cpu5 1028532 7029 270357 24986821 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:28.990286+00:00",
+      "loadavg": "10.75 11.96 11.51 16/3902 3189626",
+      "blockers": [
+        {
+          "pid": 3189515,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3189526,
+          "ppid": 3189515,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 136
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692284 8485 571728 23660127 334895 0 4509 0 0 0",
+        "cpu5 1028551 7029 270360 24986839 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:29.446212+00:00",
+      "loadavg": "10.75 11.96 11.51 14/3896 3189786",
+      "blockers": [
+        {
+          "pid": 3189515,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3189526,
+          "ppid": 3189515,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 289
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692324 8485 571731 23660129 334895 0 4509 0 0 0",
+        "cpu5 1028592 7029 270364 24986839 63441 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:29.820281+00:00",
+      "loadavg": "10.75 11.96 11.51 15/3890 3189840",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692342 8485 571738 23660140 334895 0 4509 0 0 0",
+        "cpu5 1028623 7029 270367 24986843 63442 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:30.225301+00:00",
+      "loadavg": "10.75 11.96 11.51 20/3902 3189862",
+      "blockers": [
+        {
+          "pid": 3189832,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 6
+        },
+        {
+          "pid": 3189844,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 33
+        },
+        {
+          "pid": 3189845,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 35
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692359 8485 571743 23660157 334896 0 4509 0 0 0",
+        "cpu5 1028661 7029 270369 24986843 63442 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:30.611219+00:00",
+      "loadavg": "10.75 11.96 11.51 17/3902 3189863",
+      "blockers": [
+        {
+          "pid": 3189832,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 6
+        },
+        {
+          "pid": 3189844,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 71
+        },
+        {
+          "pid": 3189845,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 73
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692388 8485 571744 23660165 334896 0 4509 0 0 0",
+        "cpu5 1028698 7029 270371 24986843 63442 0 4877 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:31.014501+00:00",
+      "loadavg": "10.75 11.96 11.51 27/3920 3189896",
+      "blockers": [
+        {
+          "pid": 3189832,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 6
+        },
+        {
+          "pid": 3189844,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 113
+        },
+        {
+          "pid": 3189845,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 164
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692417 8485 571747 23660174 334896 0 4509 0 0 0",
+        "cpu5 1028735 7029 270373 24986843 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:31.482143+00:00",
+      "loadavg": "10.75 11.96 11.51 23/3917 3190090",
+      "blockers": [
+        {
+          "pid": 3189832,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 6
+        },
+        {
+          "pid": 3189844,
+          "ppid": 3189832,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 272
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692455 8485 571753 23660175 334896 0 4509 0 0 0",
+        "cpu5 1028773 7029 270380 24986845 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:31.846394+00:00",
+      "loadavg": "10.75 11.96 11.51 15/3902 3190212",
+      "blockers": [
+        {
+          "pid": 3189832,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 6
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692470 8485 571758 23660191 334896 0 4509 0 0 0",
+        "cpu5 1028808 7029 270381 24986845 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:32.202346+00:00",
+      "loadavg": "10.75 11.96 11.51 12/3901 3190257",
+      "blockers": [
+        {
+          "pid": 3190232,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3190251,
+          "ppid": 3190232,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 21
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692485 8485 571764 23660205 334897 0 4509 0 0 0",
+        "cpu5 1028835 7029 270382 24986852 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:32.593700+00:00",
+      "loadavg": "10.75 11.96 11.51 10/3898 3190275",
+      "blockers": [
+        {
+          "pid": 3190232,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 5
+        },
+        {
+          "pid": 3190251,
+          "ppid": 3190232,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 59
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692524 8485 571764 23660205 334897 0 4509 0 0 0",
+        "cpu5 1028843 7029 270386 24986879 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:32.995848+00:00",
+      "loadavg": "10.75 11.96 11.51 14/3903 3190298",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692554 8485 571769 23660210 334897 0 4509 0 0 0",
+        "cpu5 1028869 7029 270388 24986891 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:33.378793+00:00",
+      "loadavg": "10.75 11.96 11.51 15/3903 3190300",
+      "blockers": [
+        {
+          "pid": 3190278,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 3
+        },
+        {
+          "pid": 3190290,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 43
+        },
+        {
+          "pid": 3190291,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 45
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692575 8485 571776 23660220 334897 0 4509 0 0 0",
+        "cpu5 1028906 7029 270389 24986891 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:33.781258+00:00",
+      "loadavg": "10.77 11.94 11.51 12/3904 3190306",
+      "blockers": [
+        {
+          "pid": 3190278,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 3
+        },
+        {
+          "pid": 3190290,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 84
+        },
+        {
+          "pid": 3190291,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 85
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692590 8486 571781 23660240 334897 0 4509 0 0 0",
+        "cpu5 1028945 7029 270391 24986891 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:34.262750+00:00",
+      "loadavg": "10.77 11.94 11.51 30/3916 3190403",
+      "blockers": [
+        {
+          "pid": 3190278,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 3
+        },
+        {
+          "pid": 3190290,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 219
+        },
+        {
+          "pid": 3190291,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 225
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692628 8486 571785 23660245 334897 0 4509 0 0 0",
+        "cpu5 1028990 7029 270394 24986891 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:34.617489+00:00",
+      "loadavg": "10.77 11.94 11.51 8/3892 3190644",
+      "blockers": [
+        {
+          "pid": 3190278,
+          "ppid": 3189496,
+          "comm": "cargo",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+          "script": null,
+          "ticks": 4
+        },
+        {
+          "pid": 3190594,
+          "ppid": 3190278,
+          "comm": "rustc",
+          "exe": "/home/dikluwe/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+          "script": null,
+          "ticks": 7
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1692644 8486 571791 23660260 334897 0 4509 0 0 0",
+        "cpu5 1029021 7029 270397 24986892 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:34.973027+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3885 3190665",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692657 8486 571793 23660279 334897 0 4509 0 0 0",
+        "cpu5 1029030 7029 270399 24986915 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:35.316516+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3885 3190670",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692665 8487 571794 23660303 334897 0 4509 0 0 0",
+        "cpu5 1029039 7030 270400 24986940 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:35.649739+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3885 3190678",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692678 8487 571796 23660321 334897 0 4509 0 0 0",
+        "cpu5 1029045 7030 270401 24986965 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:35.994961+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3887 3190692",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692695 8487 571797 23660336 334897 0 4509 0 0 0",
+        "cpu5 1029059 7030 270402 24986984 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:36.336837+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3887 3190693",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692706 8487 571799 23660358 334897 0 4509 0 0 0",
+        "cpu5 1029065 7031 270404 24987010 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:36.685369+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3886 3190696",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692718 8488 571801 23660379 334897 0 4509 0 0 0",
+        "cpu5 1029070 7032 270405 24987038 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:37.025411+00:00",
+      "loadavg": "10.77 11.94 11.51 7/3883 3190703",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692727 8489 571802 23660402 334897 0 4509 0 0 0",
+        "cpu5 1029077 7032 270406 24987063 63442 0 4878 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:28:37.374289+00:00",
+      "loadavg": "10.77 11.94 11.51 9/3899 3190725",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1692732 8489 571804 23660429 334897 0 4509 0 0 0",
+        "cpu5 1029083 7033 270408 24987089 63442 0 4878 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "092aa787db451efddfef77845172cc4e3cce12b873ad072c426b76e98507cb35",
+  "fingerprint_after": "092aa787db451efddfef77845172cc4e3cce12b873ad072c426b76e98507cb35",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null
+}

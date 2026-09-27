@@ -1,0 +1,201 @@
+    Finished `release` profile [optimized] target(s) in 0.20s
+Verified optimized core executable: /repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd
+
+running 1 test
+test compiler::stdlib::registry::microbenchmarks::benchmarks::stdlib_microbenchmarks ... Benchmarking stdlib/registry/html0_a11y0_bundle0
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 383.6ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Collecting 30 samples in estimated 383.61 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Analyzing
+stdlib/registry/html0_a11y0_bundle0
+                        time:   [798.38 µs 808.27 µs 820.65 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+Benchmarking stdlib/registry/html1_a11y0_bundle0
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 372.5ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Collecting 30 samples in estimated 372.53 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Analyzing
+stdlib/registry/html1_a11y0_bundle0
+                        time:   [782.61 µs 786.94 µs 792.60 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking stdlib/registry/html0_a11y1_bundle0
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 410.4ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Collecting 30 samples in estimated 410.45 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Analyzing
+stdlib/registry/html0_a11y1_bundle0
+                        time:   [810.76 µs 849.50 µs 892.97 µs]
+Benchmarking stdlib/registry/html1_a11y1_bundle0
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 387.2ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Collecting 30 samples in estimated 387.19 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Analyzing
+stdlib/registry/html1_a11y1_bundle0
+                        time:   [832.07 µs 870.44 µs 904.74 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+Benchmarking stdlib/registry/html0_a11y0_bundle1
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 417.1ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Collecting 30 samples in estimated 417.12 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Analyzing
+stdlib/registry/html0_a11y0_bundle1
+                        time:   [814.41 µs 839.41 µs 872.60 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) high mild
+  1 (3.33%) high severe
+Benchmarking stdlib/registry/html1_a11y0_bundle1
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 430.7ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Collecting 30 samples in estimated 430.73 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Analyzing
+stdlib/registry/html1_a11y0_bundle1
+                        time:   [840.31 µs 925.52 µs 1.0082 ms]
+Benchmarking stdlib/registry/html0_a11y1_bundle1
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 439.5ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Collecting 30 samples in estimated 439.54 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Analyzing
+stdlib/registry/html0_a11y1_bundle1
+                        time:   [925.70 µs 987.23 µs 1.0461 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+Benchmarking stdlib/registry/html1_a11y1_bundle1
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 463.4ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Collecting 30 samples in estimated 463.44 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Analyzing
+stdlib/registry/html1_a11y1_bundle1
+                        time:   [905.31 µs 969.91 µs 1.0451 ms]
+
+Benchmarking stdlib/inputs/0
+Benchmarking stdlib/inputs/0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 502.3ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/0: Collecting 30 samples in estimated 502.31 ms (465 iterations)
+Benchmarking stdlib/inputs/0: Analyzing
+stdlib/inputs/0         time:   [893.12 µs 925.48 µs 957.66 µs]
+Benchmarking stdlib/inputs/16
+Benchmarking stdlib/inputs/16: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 468.2ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/16: Collecting 30 samples in estimated 468.23 ms (465 iterations)
+Benchmarking stdlib/inputs/16: Analyzing
+stdlib/inputs/16        time:   [1.0256 ms 1.0783 ms 1.1353 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking stdlib/inputs/256
+Benchmarking stdlib/inputs/256: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 407.1ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/256: Collecting 30 samples in estimated 407.10 ms (465 iterations)
+Benchmarking stdlib/inputs/256: Analyzing
+stdlib/inputs/256       time:   [1.0243 ms 1.0408 ms 1.0529 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) low mild
+
+Benchmarking stdlib/lookup/upper
+Benchmarking stdlib/lookup/upper: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/upper: Collecting 30 samples in estimated 300.00 ms (28M iterations)
+Benchmarking stdlib/lookup/upper: Analyzing
+stdlib/lookup/upper     time:   [9.7526 ns 10.289 ns 10.783 ns]
+Benchmarking stdlib/lookup/not-a-binding
+Benchmarking stdlib/lookup/not-a-binding: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/not-a-binding: Collecting 30 samples in estimated 300.00 ms (58M iterations)
+Benchmarking stdlib/lookup/not-a-binding: Analyzing
+stdlib/lookup/not-a-binding
+                        time:   [5.4801 ns 5.6762 ns 5.8760 ns]
+Benchmarking stdlib/lookup/calc_abs
+Benchmarking stdlib/lookup/calc_abs: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/calc_abs: Collecting 30 samples in estimated 300.00 ms (29M iterations)
+Benchmarking stdlib/lookup/calc_abs: Analyzing
+stdlib/lookup/calc_abs  time:   [9.5376 ns 10.078 ns 10.873 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+
+Benchmarking stdlib/native/calc_abs/int
+Benchmarking stdlib/native/calc_abs/int: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/int: Collecting 30 samples in estimated 300.00 ms (11M iterations)
+Benchmarking stdlib/native/calc_abs/int: Analyzing
+stdlib/native/calc_abs/int
+                        time:   [30.022 ns 30.595 ns 31.401 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking stdlib/native/calc_abs/float
+Benchmarking stdlib/native/calc_abs/float: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/float: Collecting 30 samples in estimated 300.01 ms (13M iterations)
+Benchmarking stdlib/native/calc_abs/float: Analyzing
+stdlib/native/calc_abs/float
+                        time:   [27.188 ns 27.433 ns 27.785 ns]
+Benchmarking stdlib/native/calc_abs/overflow
+Benchmarking stdlib/native/calc_abs/overflow: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/overflow: Collecting 30 samples in estimated 300.02 ms (7.7M iterations)
+Benchmarking stdlib/native/calc_abs/overflow: Analyzing
+stdlib/native/calc_abs/overflow
+                        time:   [38.780 ns 39.119 ns 39.464 ns]
+Benchmarking stdlib/native/upper/ascii
+Benchmarking stdlib/native/upper/ascii: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/ascii: Collecting 30 samples in estimated 300.01 ms (2.9M iterations)
+Benchmarking stdlib/native/upper/ascii: Analyzing
+stdlib/native/upper/ascii
+                        time:   [103.78 ns 104.22 ns 104.86 ns]
+Benchmarking stdlib/native/upper/unicode
+Benchmarking stdlib/native/upper/unicode: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/unicode: Collecting 30 samples in estimated 300.04 ms (1.9M iterations)
+Benchmarking stdlib/native/upper/unicode: Analyzing
+stdlib/native/upper/unicode
+                        time:   [165.75 ns 167.34 ns 168.81 ns]
+Benchmarking stdlib/native/upper/wrong_type
+Benchmarking stdlib/native/upper/wrong_type: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/wrong_type: Collecting 30 samples in estimated 300.01 ms (5.2M iterations)
+Benchmarking stdlib/native/upper/wrong_type: Analyzing
+stdlib/native/upper/wrong_type
+                        time:   [57.954 ns 58.447 ns 58.970 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+Benchmarking stdlib/native/upper/missing_arg
+Benchmarking stdlib/native/upper/missing_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/missing_arg: Collecting 30 samples in estimated 300.02 ms (7.5M iterations)
+Benchmarking stdlib/native/upper/missing_arg: Analyzing
+stdlib/native/upper/missing_arg
+                        time:   [39.540 ns 40.094 ns 40.739 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking stdlib/native/upper/extra_arg
+Benchmarking stdlib/native/upper/extra_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/extra_arg: Collecting 30 samples in estimated 300.01 ms (7.6M iterations)
+Benchmarking stdlib/native/upper/extra_arg: Analyzing
+stdlib/native/upper/extra_arg
+                        time:   [38.893 ns 39.612 ns 40.329 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking stdlib/native/upper/named_arg
+Benchmarking stdlib/native/upper/named_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/named_arg: Collecting 30 samples in estimated 300.02 ms (4.7M iterations)
+Benchmarking stdlib/native/upper/named_arg: Analyzing
+stdlib/native/upper/named_arg
+                        time:   [67.429 ns 69.070 ns 70.985 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6281 filtered out; finished in 17.10s
+

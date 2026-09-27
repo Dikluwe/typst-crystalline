@@ -1,0 +1,14 @@
+{
+  "valid": false,
+  "quiet_gate_rejected": [
+    {
+      "pid": 84470,
+      "ppid": 2981477,
+      "comm": "python3",
+      "exe": "/usr/bin/python3.12",
+      "script": "test_*.py",
+      "ticks": 43
+    }
+  ],
+  "start_utc": "2026-09-27T17:58:03.127329+00:00"
+}

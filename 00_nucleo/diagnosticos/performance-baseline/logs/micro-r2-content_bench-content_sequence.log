@@ -1,0 +1,32 @@
+Benchmarking content/sequence/normalize/0
+Benchmarking content/sequence/normalize/0: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/0: Collecting 30 samples in estimated 1.5000 s (15M iterations)
+Benchmarking content/sequence/normalize/0: Analyzing
+content/sequence/normalize/0
+                        time:   [20.635 ns 21.134 ns 21.570 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) low mild
+Benchmarking content/sequence/normalize/1
+Benchmarking content/sequence/normalize/1: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/1: Collecting 30 samples in estimated 1.5000 s (6.5M iterations)
+Benchmarking content/sequence/normalize/1: Analyzing
+content/sequence/normalize/1
+                        time:   [59.291 ns 62.065 ns 64.837 ns]
+                        thrpt:  [15.423 Melem/s 16.112 Melem/s 16.866 Melem/s]
+Benchmarking content/sequence/normalize/32
+Benchmarking content/sequence/normalize/32: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/32: Collecting 30 samples in estimated 1.5017 s (339k iterations)
+Benchmarking content/sequence/normalize/32: Analyzing
+content/sequence/normalize/32
+                        time:   [536.35 ns 563.81 ns 588.44 ns]
+                        thrpt:  [54.381 Melem/s 56.756 Melem/s 59.663 Melem/s]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+Benchmarking content/sequence/normalize/256
+Benchmarking content/sequence/normalize/256: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/256: Collecting 30 samples in estimated 1.5134 s (49k iterations)
+Benchmarking content/sequence/normalize/256: Analyzing
+content/sequence/normalize/256
+                        time:   [3.5067 µs 3.7269 µs 3.9159 µs]
+                        thrpt:  [65.374 Melem/s 68.690 Melem/s 73.004 Melem/s]
+

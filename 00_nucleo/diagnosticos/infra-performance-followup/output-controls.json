@@ -1,0 +1,332 @@
+[
+  {
+    "fixture": "context",
+    "round": 1,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "context",
+    "round": 2,
+    "outputs": {
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      },
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "context",
+    "round": 3,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 64 pts"
+        },
+        "normalized_text": "Page 1"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "image",
+    "round": 1,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "image",
+    "round": 2,
+    "outputs": {
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      },
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "image",
+    "round": 3,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "128 x 128 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 1,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 2,
+    "outputs": {
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      },
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "pipeline-single-font",
+    "round": 3,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "64 x 64 pts"
+        },
+        "normalized_text": "Hello"
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "shapes",
+    "round": 1,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "shapes",
+    "round": 2,
+    "outputs": {
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      },
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "shapes",
+    "round": 3,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "1",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": ""
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "text-dense",
+    "round": 1,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "text-dense",
+    "round": 2,
+    "outputs": {
+      "tekt": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      },
+      "vanilla": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  },
+  {
+    "fixture": "text-dense",
+    "round": 3,
+    "outputs": {
+      "vanilla": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      },
+      "tekt": {
+        "fields": {
+          "Pages": "2",
+          "Page size": "400 x 600 pts"
+        },
+        "normalized_text": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+      }
+    },
+    "page_fields_equal": true,
+    "text_equal": true
+  }
+]

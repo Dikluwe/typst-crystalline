@@ -1,0 +1,45 @@
+{
+  "command": [
+    "/repos/Antigravity/typst-crystalline/target/release/deps/content_bench-0dff3e06c05c842a",
+    "--bench",
+    "--list"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T04:03:03.123885+00:00",
+  "end_utc": "2026-09-27T04:03:04.991275+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 323.224693,
+  "exit_code": 0,
+  "valid": true,
+  "measurement": false,
+  "concurrent_preparation": false,
+  "source_stable": true,
+  "contamination": [],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T04:03:03.196787+00:00",
+      "loadavg": "3.98 3.41 3.67 3/3755 3448095",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1871905 8734 608994 24003924 336532 0 4717 0 0 0",
+        "cpu5 1113547 7262 291723 25441174 65195 0 5752 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "84fe8cd7336862b4b1754b3c6af11d24626cc12b34fa975ac4d03dd028a1aff7",
+  "fingerprint_after": "84fe8cd7336862b4b1754b3c6af11d24626cc12b34fa975ac4d03dd028a1aff7",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null,
+  "additional_driver_input": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/finish_micro.py",
+    "sha256_before": "f793b98e1eb5e0ff3122b7fc889a526a946ab146a679ceab93b417044e7dfb72",
+    "sha256_after": "f793b98e1eb5e0ff3122b7fc889a526a946ab146a679ceab93b417044e7dfb72"
+  }
+}

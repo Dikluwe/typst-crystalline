@@ -1,0 +1,32 @@
+{
+  "utc": "2026-09-27T04:03:01.543647+00:00",
+  "target": "pipeline_bench",
+  "executable_sha256": "b90505f2d87cc50dd69298a71b537330bd72656f6eb85ff763e2591bca813af9",
+  "driver_sha256": "f793b98e1eb5e0ff3122b7fc889a526a946ab146a679ceab93b417044e7dfb72",
+  "cases": [
+    "pipeline/bundle/mixed",
+    "pipeline/bundle/one",
+    "pipeline/bundle/several",
+    "pipeline/html/frame",
+    "pipeline/html/semantic",
+    "pipeline/pdf/context_stable",
+    "pipeline/pdf/fallback",
+    "pipeline/pdf/line_callback",
+    "pipeline/pdf/multifont",
+    "pipeline/pdf/single_font",
+    "pipeline/pdf/tagged",
+    "pipeline/raster/document_ppi",
+    "pipeline/raster/override_144",
+    "pipeline/svg/destination",
+    "pipeline/svg/glyphs",
+    "pipeline/svg/with_fonts",
+    "pipeline/svg/without_fonts"
+  ],
+  "groups": [
+    "pipeline/bundle",
+    "pipeline/html",
+    "pipeline/pdf",
+    "pipeline/raster",
+    "pipeline/svg"
+  ]
+}

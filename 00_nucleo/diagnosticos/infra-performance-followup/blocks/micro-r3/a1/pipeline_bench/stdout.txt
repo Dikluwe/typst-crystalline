@@ -1,0 +1,86 @@
+pipeline/pdf/fallback   time:   [2.6042 ms 2.6887 ms 2.7755 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+pipeline/pdf/single_font
+                        time:   [2.8564 ms 2.9417 ms 3.0295 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) low mild
+  2 (6.67%) high mild
+pipeline/pdf/multifont  time:   [3.8603 ms 3.9601 ms 4.0590 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pipeline/pdf/tagged     time:   [3.7031 ms 3.9143 ms 4.1481 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+pipeline/pdf/context_stable
+                        time:   [2.2572 ms 2.3114 ms 2.3729 ms]
+pipeline/pdf/line_callback
+                        time:   [3.2532 ms 3.3218 ms 3.4071 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+
+pipeline/html/semantic  time:   [1.9473 ms 2.0030 ms 2.0589 ms]
+Found 8 outliers among 30 measurements (26.67%)
+  4 (13.33%) low mild
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+pipeline/html/frame     time:   [2.1364 ms 2.1986 ms 2.2521 ms]
+Found 7 outliers among 30 measurements (23.33%)
+  1 (3.33%) low severe
+  1 (3.33%) low mild
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+
+pipeline/raster/document_ppi
+                        time:   [2.3081 ms 2.4644 ms 2.6856 ms]
+Found 8 outliers among 30 measurements (26.67%)
+  1 (3.33%) low severe
+  2 (6.67%) low mild
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+pipeline/raster/override_144
+                        time:   [2.2850 ms 2.3404 ms 2.3871 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+
+pipeline/svg/without_fonts
+                        time:   [2.1175 ms 2.1746 ms 2.2271 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+pipeline/svg/with_fonts time:   [2.2850 ms 2.3636 ms 2.4458 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pipeline/svg/glyphs     time:   [4.2757 ms 4.3878 ms 4.5154 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+pipeline/svg/destination
+                        time:   [2.6729 ms 2.7434 ms 2.8206 ms]
+Found 9 outliers among 30 measurements (30.00%)
+  2 (6.67%) low severe
+  3 (10.00%) low mild
+  1 (3.33%) high mild
+  3 (10.00%) high severe
+
+pipeline/bundle/one     time:   [1.9740 ms 2.0258 ms 2.0683 ms]
+Found 6 outliers among 30 measurements (20.00%)
+  1 (3.33%) low severe
+  2 (6.67%) low mild
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+pipeline/bundle/several time:   [2.0417 ms 2.0965 ms 2.1461 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) low severe
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+pipeline/bundle/mixed   time:   [2.9274 ms 3.0739 ms 3.2545 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+

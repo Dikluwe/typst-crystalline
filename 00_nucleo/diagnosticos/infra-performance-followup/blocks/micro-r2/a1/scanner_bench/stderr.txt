@@ -1,0 +1,20 @@
+Benchmarking scanner/b1_hello
+Benchmarking scanner/b1_hello: Warming up for 200.00 ms
+Benchmarking scanner/b1_hello: Collecting 30 samples in estimated 600.01 ms (7.2M iterations)
+Benchmarking scanner/b1_hello: Analyzing
+Benchmarking scanner/b2_text
+Benchmarking scanner/b2_text: Warming up for 200.00 ms
+Benchmarking scanner/b2_text: Collecting 30 samples in estimated 604.04 ms (37k iterations)
+Benchmarking scanner/b2_text: Analyzing
+Benchmarking scanner/b3_math
+Benchmarking scanner/b3_math: Warming up for 200.00 ms
+Benchmarking scanner/b3_math: Collecting 30 samples in estimated 607.29 ms (19k iterations)
+Benchmarking scanner/b3_math: Analyzing
+Benchmarking scanner/b4_code
+Benchmarking scanner/b4_code: Warming up for 200.00 ms
+Benchmarking scanner/b4_code: Collecting 30 samples in estimated 613.29 ms (12k iterations)
+Benchmarking scanner/b4_code: Analyzing
+Benchmarking scanner/b5_utf8
+Benchmarking scanner/b5_utf8: Warming up for 200.00 ms
+Benchmarking scanner/b5_utf8: Collecting 30 samples in estimated 601.34 ms (35k iterations)
+Benchmarking scanner/b5_utf8: Analyzing

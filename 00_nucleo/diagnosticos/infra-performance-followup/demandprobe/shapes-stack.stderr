@@ -1,0 +1,34 @@
+FIRST BOOK DEMAND:
+   0: <infra_font_demand_control::Observed as typst_core::contracts::world::World>::book
+   1: typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary
+   2: typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::vertical_metrics
+   3: typst_core::compiler::layout::sub_frame::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_sub_frame
+   4: typst_core::compiler::layout::placement::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_place
+   5: typst_core::compiler::layout::place::layout
+   6: typst_core::compiler::layout::Layouter<M,S>::layout_content_once
+   7: typst_core::compiler::layout::Layouter<M,S>::layout_content
+   8: typst_core::compiler::layout::sequence::layout_parts
+   9: typst_core::compiler::layout::Layouter<M,S>::layout_content_once
+  10: typst_core::compiler::layout::Layouter<M,S>::layout_content
+  11: typst_core::compiler::layout::style_scope::layout_styled
+  12: typst_core::compiler::layout::Layouter<M,S>::layout_content_once
+  13: typst_core::compiler::layout::Layouter<M,S>::layout_content
+  14: typst_core::compiler::layout::sequence::layout_parts
+  15: typst_core::compiler::layout::Layouter<M,S>::layout_content_once
+  16: typst_core::compiler::layout::Layouter<M,S>::layout_content
+  17: typst_core::compiler::layout::layout_with_introspector_and_metrics_and_callbacks_from
+  18: typst_infra::pipeline::paged::layout_with_realized_math_callbacks_from
+  19: typst_infra::pipeline::paged::compile_to_paged_document_full_error_and_features_with_introspector
+  20: typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl
+  21: typst_infra::pipeline::pdf::compile_to_pdf_bytes_with_timings
+  22: infra_font_demand_control::main
+  23: std::sys::backtrace::__rust_begin_short_backtrace
+  24: std::rt::lang_start::{{closure}}
+  25: std::rt::lang_start_internal
+  26: main
+  27: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  28: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  29: _start
+

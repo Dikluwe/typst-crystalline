@@ -1,0 +1,22 @@
+Creator:         typst-crystalline
+CreationDate:    Wed Dec 31 21:00:00 1969 -03
+ModDate:         Wed Dec 31 21:00:00 1969 -03
+Custom Metadata: no
+Metadata Stream: yes
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           1
+Encrypted:       no
+Page size:       64 x 64 pts
+Page rot:        0
+MediaBox:            0.00     0.00    64.00    64.00
+CropBox:             0.00     0.00    64.00    64.00
+BleedBox:            0.00     0.00    64.00    64.00
+TrimBox:             0.00     0.00    64.00    64.00
+ArtBox:              0.00     0.00    64.00    64.00
+File size:       4513 bytes
+Optimized:       no
+PDF version:     1.7

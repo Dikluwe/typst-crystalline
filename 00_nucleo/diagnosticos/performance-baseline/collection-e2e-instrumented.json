@@ -1,0 +1,170 @@
+[
+  {
+    "start_utc": "2026-09-27T03:21:13.014005+00:00",
+    "end_utc": "2026-09-27T03:21:47.672880+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479273014039660.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:22:17.674039+00:00",
+    "end_utc": "2026-09-27T03:22:51.629035+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479337674128471.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:23:21.629544+00:00",
+    "end_utc": "2026-09-27T03:23:55.198683+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479401629661521.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:24:25.199161+00:00",
+    "end_utc": "2026-09-27T03:24:58.881822+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479465199254657.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:25:28.882523+00:00",
+    "end_utc": "2026-09-27T03:26:03.416455+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479528882649931.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:26:33.417645+00:00",
+    "end_utc": "2026-09-27T03:27:09.149592+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479593417767939.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:27:39.150165+00:00",
+    "end_utc": "2026-09-27T03:28:13.392777+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479659150259404.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:28:43.393366+00:00",
+    "end_utc": "2026-09-27T03:29:17.029136+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479723393454775.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:29:47.029697+00:00",
+    "end_utc": "2026-09-27T03:30:20.860078+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479787029778786.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:30:50.860715+00:00",
+    "end_utc": "2026-09-27T03:33:49.981387+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790479850860809969.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:34:19.982074+00:00",
+    "end_utc": "2026-09-27T03:34:53.414812+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-e2e-instrumented-1790480059982167666.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:35:23.415562+00:00",
+    "end_utc": "2026-09-27T03:36:06.642842+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "e2e",
+      "--instrumented"
+    ],
+    "exit_code": 0,
+    "log": "logs/collect-e2e-instrumented-1790480123415672441.log",
+    "measurement": false
+  }
+]

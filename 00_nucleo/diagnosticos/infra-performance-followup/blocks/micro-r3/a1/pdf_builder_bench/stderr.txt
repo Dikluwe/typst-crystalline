@@ -1,0 +1,50 @@
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Collecting 30 samples in estimated 736.17 ms (2325 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Analyzing
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Collecting 30 samples in estimated 650.97 ms (3720 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Analyzing
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 886.5ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Collecting 30 samples in estimated 886.53 ms (465 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Analyzing
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Collecting 30 samples in estimated 801.03 ms (1395 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Analyzing
+Benchmarking pdf_export_cohorts/builder/empty_pages/1
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Collecting 30 samples in estimated 601.99 ms (72k iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Analyzing
+Benchmarking pdf_export_cohorts/builder/empty_pages/16
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Collecting 30 samples in estimated 604.83 ms (17k iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Analyzing
+Benchmarking pdf_export_cohorts/builder/empty_pages/64
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Collecting 30 samples in estimated 626.26 ms (5115 iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Analyzing
+Benchmarking pdf_export_cohorts/builder/metadata
+Benchmarking pdf_export_cohorts/builder/metadata: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/metadata: Collecting 30 samples in estimated 649.14 ms (2325 iterations)
+Benchmarking pdf_export_cohorts/builder/metadata: Analyzing
+Benchmarking pdf_export_cohorts/builder/navigation
+Benchmarking pdf_export_cohorts/builder/navigation: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/navigation: Collecting 30 samples in estimated 693.81 ms (210 iterations)
+Benchmarking pdf_export_cohorts/builder/navigation: Analyzing
+Benchmarking pdf_export_cohorts/builder/resources
+Benchmarking pdf_export_cohorts/builder/resources: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/resources: Collecting 30 samples in estimated 700.97 ms (1395 iterations)
+Benchmarking pdf_export_cohorts/builder/resources: Analyzing
+Benchmarking pdf_export_cohorts/builder/fonts/single
+Benchmarking pdf_export_cohorts/builder/fonts/single: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/fonts/single: Collecting 30 samples in estimated 710.94 ms (90 iterations)
+Benchmarking pdf_export_cohorts/builder/fonts/single: Analyzing
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Collecting 30 samples in estimated 632.29 ms (60 iterations)
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Analyzing

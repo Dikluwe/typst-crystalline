@@ -1,0 +1,16 @@
+Benchmarking content/identity/elem_name_catalog
+Benchmarking content/identity/elem_name_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/elem_name_catalog: Collecting 30 samples in estimated 1.5000 s (33M iterations)
+Benchmarking content/identity/elem_name_catalog: Analyzing
+content/identity/elem_name_catalog
+                        time:   [45.483 ns 45.577 ns 45.680 ns]
+Benchmarking content/identity/debug_catalog
+Benchmarking content/identity/debug_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/debug_catalog: Collecting 30 samples in estimated 1.5022 s (197k iterations)
+Benchmarking content/identity/debug_catalog: Analyzing
+content/identity/debug_catalog
+                        time:   [7.6126 µs 7.6337 µs 7.6542 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) high mild
+  3 (10.00%) high severe
+

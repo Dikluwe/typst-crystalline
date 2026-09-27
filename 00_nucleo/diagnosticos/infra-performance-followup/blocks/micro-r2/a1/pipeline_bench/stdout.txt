@@ -1,0 +1,56 @@
+pipeline/pdf/fallback   time:   [3.2114 ms 3.3427 ms 3.4957 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+pipeline/pdf/single_font
+                        time:   [3.4159 ms 3.4845 ms 3.5524 ms]
+pipeline/pdf/multifont  time:   [4.9555 ms 5.0498 ms 5.1383 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  4 (13.33%) low mild
+  1 (3.33%) high mild
+pipeline/pdf/tagged     time:   [6.0196 ms 6.3595 ms 6.7059 ms]
+pipeline/pdf/context_stable
+                        time:   [4.8013 ms 4.9873 ms 5.1692 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+pipeline/pdf/line_callback
+                        time:   [6.3148 ms 6.4870 ms 6.6718 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+
+pipeline/html/semantic  time:   [2.6178 ms 2.7063 ms 2.8013 ms]
+pipeline/html/frame     time:   [3.7903 ms 3.9383 ms 4.0969 ms]
+
+pipeline/raster/document_ppi
+                        time:   [3.3839 ms 3.6037 ms 3.8433 ms]
+Found 6 outliers among 30 measurements (20.00%)
+  5 (16.67%) high mild
+  1 (3.33%) high severe
+pipeline/raster/override_144
+                        time:   [3.9877 ms 4.0666 ms 4.1419 ms]
+
+pipeline/svg/without_fonts
+                        time:   [3.2166 ms 3.2807 ms 3.3572 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+pipeline/svg/with_fonts time:   [3.9382 ms 4.0114 ms 4.0956 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pipeline/svg/glyphs     time:   [9.0474 ms 9.3676 ms 9.6595 ms]
+Found 7 outliers among 30 measurements (23.33%)
+  5 (16.67%) low severe
+  2 (6.67%) high mild
+pipeline/svg/destination
+                        time:   [5.2506 ms 5.5705 ms 5.9219 ms]
+
+pipeline/bundle/one     time:   [2.8106 ms 3.0085 ms 3.2650 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high severe
+pipeline/bundle/several time:   [2.7273 ms 2.7749 ms 2.8336 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high severe
+pipeline/bundle/mixed   time:   [4.7175 ms 4.7888 ms 4.8623 ms]
+

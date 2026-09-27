@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-27T17:58:03.126462+00:00",
+  "policy": {
+    "/proc/loadavg": "9.17 9.85 9.64 9/3645 83471",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq": "3140924",
+    "/sys/devices/system/cpu/cpufreq/boost": "1"
+  },
+  "fingerprint": "cf17c505d750ed3415eeffdb3ff086bad75155e50030bf3eae4a03db0e2fba7b"
+}

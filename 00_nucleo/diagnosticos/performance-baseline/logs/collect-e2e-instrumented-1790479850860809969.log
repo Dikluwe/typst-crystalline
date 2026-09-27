@@ -1,0 +1,25 @@
+e2e-instrumented-r1-context VALID
+e2e-instrumented-r1-image VALID
+e2e-instrumented-r1-pipeline-single-font VALID
+e2e-instrumented-r1-shapes VALID
+e2e-instrumented-r1-text-dense VALID
+e2e-instrumented-r2-context VALID
+e2e-instrumented-r2-image VALID
+e2e-instrumented-r2-pipeline-single-font VALID
+e2e-instrumented-r2-shapes VALID
+e2e-instrumented-r2-text-dense VALID
+e2e-instrumented-r3-context VALID
+e2e-instrumented-r3-image VALID
+e2e-instrumented-r3-pipeline-single-font VALID
+e2e-instrumented-r3-shapes VALID
+e2e-instrumented-r3-text-dense DISCARDED
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 256, in <module>
+    else:e2e(a.rounds,a.instrumented)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py", line 249, in e2e
+    run(rounds,instrumented)
+  File "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e.py", line 60, in run
+    if not valid: raise RuntimeError('Contaminated CLI block; samples discarded')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Contaminated CLI block; samples discarded

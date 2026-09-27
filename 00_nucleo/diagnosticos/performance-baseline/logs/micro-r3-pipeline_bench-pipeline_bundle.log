@@ -1,0 +1,19 @@
+Benchmarking pipeline/bundle/one
+Benchmarking pipeline/bundle/one: Warming up for 500.00 ms
+Benchmarking pipeline/bundle/one: Collecting 30 samples in estimated 2.2322 s (1395 iterations)
+Benchmarking pipeline/bundle/one: Analyzing
+pipeline/bundle/one     time:   [1.5923 ms 1.6001 ms 1.6078 ms]
+Benchmarking pipeline/bundle/several
+Benchmarking pipeline/bundle/several: Warming up for 500.00 ms
+Benchmarking pipeline/bundle/several: Collecting 30 samples in estimated 1.5407 s (930 iterations)
+Benchmarking pipeline/bundle/several: Analyzing
+pipeline/bundle/several time:   [1.6964 ms 1.7177 ms 1.7339 ms]
+Benchmarking pipeline/bundle/mixed
+Benchmarking pipeline/bundle/mixed: Warming up for 500.00 ms
+Benchmarking pipeline/bundle/mixed: Collecting 30 samples in estimated 1.9680 s (60 iterations)
+Benchmarking pipeline/bundle/mixed: Analyzing
+pipeline/bundle/mixed   time:   [32.255 ms 32.644 ms 32.986 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) low severe
+  2 (6.67%) low mild
+

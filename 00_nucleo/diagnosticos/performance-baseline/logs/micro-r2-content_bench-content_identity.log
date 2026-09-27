@@ -1,0 +1,13 @@
+Benchmarking content/identity/elem_name_catalog
+Benchmarking content/identity/elem_name_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/elem_name_catalog: Collecting 30 samples in estimated 1.5000 s (27M iterations)
+Benchmarking content/identity/elem_name_catalog: Analyzing
+content/identity/elem_name_catalog
+                        time:   [53.901 ns 55.011 ns 56.152 ns]
+Benchmarking content/identity/debug_catalog
+Benchmarking content/identity/debug_catalog: Warming up for 500.00 ms
+Benchmarking content/identity/debug_catalog: Collecting 30 samples in estimated 1.5032 s (154k iterations)
+Benchmarking content/identity/debug_catalog: Analyzing
+content/identity/debug_catalog
+                        time:   [9.3353 µs 9.5479 µs 9.7567 µs]
+

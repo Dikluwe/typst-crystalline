@@ -1,0 +1,72 @@
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Collecting 30 samples in estimated 602.93 ms (88k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Collecting 30 samples in estimated 668.65 ms (4185 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Collecting 30 samples in estimated 601.69 ms (78k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Collecting 30 samples in estimated 606.96 ms (3720 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Collecting 30 samples in estimated 607.25 ms (7440 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Collecting 30 samples in estimated 628.85 ms (2790 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Collecting 30 samples in estimated 624.63 ms (4185 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Collecting 30 samples in estimated 705.19 ms (2325 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Collecting 30 samples in estimated 694.74 ms (3255 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Collecting 30 samples in estimated 670.36 ms (1860 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Collecting 30 samples in estimated 648.05 ms (6045 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Collecting 30 samples in estimated 610.39 ms (2325 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Collecting 30 samples in estimated 600.10 ms (22k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Collecting 30 samples in estimated 674.47 ms (3720 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Collecting 30 samples in estimated 639.98 ms (7440 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Collecting 30 samples in estimated 681.63 ms (2790 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Collecting 30 samples in estimated 614.02 ms (10k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Analyzing
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Warming up for 200.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Collecting 30 samples in estimated 673.32 ms (2790 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Analyzing

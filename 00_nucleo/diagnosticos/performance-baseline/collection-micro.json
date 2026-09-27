@@ -1,0 +1,41 @@
+[
+  {
+    "start_utc": "2026-09-27T03:40:24.219516+00:00",
+    "end_utc": "2026-09-27T03:41:51.293641+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "micro"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-micro-1790480424219558202.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:42:21.297479+00:00",
+    "end_utc": "2026-09-27T03:42:54.933905+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "micro"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-micro-1790480541297576368.log",
+    "measurement": false
+  },
+  {
+    "start_utc": "2026-09-27T03:43:24.934425+00:00",
+    "end_utc": "2026-09-27T03:43:58.684283+00:00",
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/run.py",
+      "micro"
+    ],
+    "exit_code": 1,
+    "log": "logs/collect-micro-1790480604934510276.log",
+    "measurement": false
+  }
+]

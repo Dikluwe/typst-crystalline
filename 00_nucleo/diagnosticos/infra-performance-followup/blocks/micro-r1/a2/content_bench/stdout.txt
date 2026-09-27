@@ -1,0 +1,122 @@
+content/construction/text
+                        time:   [40.396 ns 41.139 ns 41.866 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+content/construction/styled
+                        time:   [94.696 ns 98.094 ns 102.08 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/construction/heading
+                        time:   [42.300 ns 44.811 ns 47.843 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/construction/math_frac
+                        time:   [47.414 ns 49.324 ns 51.233 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+content/representation/clone_leaf
+                        time:   [16.171 ns 16.845 ns 17.568 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) low mild
+  2 (6.67%) high mild
+content/representation/clone_sequence
+                        time:   [16.131 ns 16.528 ns 16.870 ns]
+content/representation/equality_sequence_equal
+                        time:   [2.4154 µs 2.5082 µs 2.5889 µs]
+content/representation/equality_sequence_late_difference
+                        time:   [2.1069 µs 2.1953 µs 2.2849 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low severe
+  2 (6.67%) low mild
+content/representation/rust_hash_sequence
+                        time:   [15.140 µs 15.599 µs 16.076 µs]
+content/representation/clone_catalog
+                        time:   [564.83 ns 574.42 ns 584.73 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) low mild
+content/representation/equality_catalog_equal
+                        time:   [113.39 ns 123.17 ns 134.07 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/representation/rust_hash_catalog
+                        time:   [13.940 µs 14.224 µs 14.536 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+
+content/sequence/normalize/0
+                        time:   [11.569 ns 11.915 ns 12.339 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/sequence/normalize/1
+                        time:   [38.419 ns 39.831 ns 41.104 ns]
+                        thrpt:  [24.329 Melem/s 25.106 Melem/s 26.029 Melem/s]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) low severe
+  1 (3.33%) high mild
+content/sequence/normalize/32
+                        time:   [276.59 ns 314.77 ns 360.84 ns]
+                        thrpt:  [88.682 Melem/s 101.66 Melem/s 115.69 Melem/s]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/sequence/normalize/256
+                        time:   [3.0073 µs 3.5848 µs 4.0063 µs]
+                        thrpt:  [63.899 Melem/s 71.412 Melem/s 85.126 Melem/s]
+
+content/identity/elem_name_catalog
+                        time:   [48.282 ns 49.099 ns 50.059 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+content/identity/debug_catalog
+                        time:   [8.8455 µs 9.1689 µs 9.6659 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+
+content/traversal/map_content_noop_wide
+                        time:   [12.104 µs 12.246 µs 12.396 µs]
+content/traversal/map_content_noop_deep
+                        time:   [2.7425 µs 2.7797 µs 2.8156 µs]
+content/traversal/map_text_identity_wide
+                        time:   [8.5077 µs 8.7343 µs 8.9444 µs]
+content/traversal/map_text_transform_wide
+                        time:   [11.313 µs 11.877 µs 12.345 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+content/traversal/map_content_noop_catalog
+                        time:   [2.6517 µs 2.6799 µs 2.7076 µs]
+content/traversal/map_text_identity_catalog
+                        time:   [1.3259 µs 1.3532 µs 1.3822 µs]
+
+content/morphology/canonicalize_mixed_tree
+                        time:   [18.299 µs 18.491 µs 18.742 µs]
+content/morphology/canonicalize_catalog
+                        time:   [2.3357 µs 2.4688 µs 2.5687 µs]
+
+content/projections/is_empty_deep
+                        time:   [155.14 ns 158.54 ns 162.49 ns]
+content/projections/plain_text_wide
+                        time:   [15.284 µs 16.043 µs 16.650 µs]
+content/projections/get_field_hit
+                        time:   [40.018 ns 42.118 ns 44.085 ns]
+content/projections/get_field_miss
+                        time:   [35.753 ns 36.981 ns 38.264 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+content/projections/is_empty_catalog
+                        time:   [146.47 ns 152.03 ns 159.45 ns]
+content/projections/plain_text_catalog
+                        time:   [1.7871 µs 1.8221 µs 1.8585 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) low mild
+  1 (3.33%) high mild
+content/projections/get_field_miss_catalog
+                        time:   [450.86 ns 479.51 ns 502.08 ns]
+
+content/page_structure/wrap_columns_fast_path
+                        time:   [5.6380 µs 5.8970 µs 6.1353 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+content/page_structure/wrap_columns_rewrite
+                        time:   [12.887 µs 13.274 µs 13.733 µs]
+

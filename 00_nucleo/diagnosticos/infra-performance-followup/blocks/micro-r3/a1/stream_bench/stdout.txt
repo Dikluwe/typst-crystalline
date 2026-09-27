@@ -1,0 +1,53 @@
+pdf_export_cohorts/pretty_serialization/page/empty/Compact
+                        time:   [6.8495 µs 6.9195 µs 6.9944 µs]
+pdf_export_cohorts/pretty_serialization/page/empty/Verbose
+                        time:   [158.74 µs 160.08 µs 161.55 µs]
+pdf_export_cohorts/pretty_serialization/text/single/Compact
+                        time:   [7.7104 µs 7.7733 µs 7.8362 µs]
+pdf_export_cohorts/pretty_serialization/text/single/Verbose
+                        time:   [162.19 µs 163.80 µs 165.37 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+pdf_export_cohorts/pretty_serialization/text/dense/Compact
+                        time:   [80.647 µs 81.468 µs 82.282 µs]
+pdf_export_cohorts/pretty_serialization/text/dense/Verbose
+                        time:   [224.24 µs 226.21 µs 228.26 µs]
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact
+                        time:   [144.81 µs 145.94 µs 147.02 µs]
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose
+                        time:   [293.33 µs 296.33 µs 299.87 µs]
+pdf_export_cohorts/pretty_serialization/shape/bezier/Compact
+                        time:   [203.46 µs 205.31 µs 207.13 µs]
+pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose
+                        time:   [352.52 µs 356.23 µs 360.24 µs]
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact
+                        time:   [106.44 µs 107.55 µs 108.71 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose
+                        time:   [263.49 µs 265.98 µs 268.74 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact
+                        time:   [26.759 µs 26.964 µs 27.157 µs]
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose
+                        time:   [179.35 µs 181.12 µs 182.86 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  4 (13.33%) low mild
+  2 (6.67%) high mild
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact
+                        time:   [84.688 µs 85.363 µs 86.172 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose
+                        time:   [244.06 µs 246.61 µs 249.96 µs]
+pdf_export_cohorts/pretty_serialization/draw/links/Compact
+                        time:   [58.164 µs 59.869 µs 61.391 µs]
+pdf_export_cohorts/pretty_serialization/draw/links/Verbose
+                        time:   [240.64 µs 271.12 µs 306.44 µs]
+Found 8 outliers among 30 measurements (26.67%)
+  3 (10.00%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  3 (10.00%) high severe
+

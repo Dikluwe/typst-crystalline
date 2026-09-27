@@ -1,0 +1,30 @@
+Benchmarking content/construction/text
+Benchmarking content/construction/text: Warming up for 500.00 ms
+Benchmarking content/construction/text: Collecting 30 samples in estimated 1.5000 s (11M iterations)
+Benchmarking content/construction/text: Analyzing
+content/construction/text
+                        time:   [45.431 ns 46.097 ns 46.812 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) low severe
+  2 (6.67%) low mild
+Benchmarking content/construction/styled
+Benchmarking content/construction/styled: Warming up for 500.00 ms
+Benchmarking content/construction/styled: Collecting 30 samples in estimated 1.5001 s (3.0M iterations)
+Benchmarking content/construction/styled: Analyzing
+content/construction/styled
+                        time:   [132.24 ns 139.44 ns 146.26 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) low mild
+Benchmarking content/construction/heading
+Benchmarking content/construction/heading: Warming up for 500.00 ms
+Benchmarking content/construction/heading: Collecting 30 samples in estimated 1.5001 s (4.8M iterations)
+Benchmarking content/construction/heading: Analyzing
+content/construction/heading
+                        time:   [55.021 ns 56.951 ns 59.132 ns]
+Benchmarking content/construction/math_frac
+Benchmarking content/construction/math_frac: Warming up for 500.00 ms
+Benchmarking content/construction/math_frac: Collecting 30 samples in estimated 1.5002 s (3.3M iterations)
+Benchmarking content/construction/math_frac: Analyzing
+content/construction/math_frac
+                        time:   [81.228 ns 84.288 ns 87.507 ns]
+

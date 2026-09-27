@@ -1,0 +1,116 @@
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Collecting 30 samples in estimated 1.5137 s (6045 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Compact: Analyzing
+pdf_export_cohorts/builder/text_serialization_modes/small/Compact
+                        time:   [249.01 µs 249.55 µs 250.11 µs]
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Collecting 30 samples in estimated 1.5449 s (11k iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/small/Pretty: Analyzing
+pdf_export_cohorts/builder/text_serialization_modes/small/Pretty
+                        time:   [158.87 µs 159.42 µs 160.03 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  4 (13.33%) high mild
+  1 (3.33%) high severe
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Collecting 30 samples in estimated 2.1359 s (1395 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Compact: Analyzing
+pdf_export_cohorts/builder/text_serialization_modes/dense/Compact
+                        time:   [1.5144 ms 1.5566 ms 1.6083 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Collecting 30 samples in estimated 1.5442 s (3255 iterations)
+Benchmarking pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty: Analyzing
+pdf_export_cohorts/builder/text_serialization_modes/dense/Pretty
+                        time:   [477.92 µs 486.33 µs 493.27 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  4 (13.33%) high mild
+  2 (6.67%) high severe
+
+Benchmarking pdf_export_cohorts/builder/empty_pages/1
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Collecting 30 samples in estimated 1.5029 s (219k iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/1: Analyzing
+pdf_export_cohorts/builder/empty_pages/1
+                        time:   [6.8070 µs 6.8160 µs 6.8256 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/builder/empty_pages/16
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Collecting 30 samples in estimated 1.5018 s (50k iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/16: Analyzing
+pdf_export_cohorts/builder/empty_pages/16
+                        time:   [29.959 µs 30.204 µs 30.478 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+Benchmarking pdf_export_cohorts/builder/empty_pages/64
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Collecting 30 samples in estimated 1.5254 s (14k iterations)
+Benchmarking pdf_export_cohorts/builder/empty_pages/64: Analyzing
+pdf_export_cohorts/builder/empty_pages/64
+                        time:   [124.80 µs 138.56 µs 151.40 µs]
+
+Benchmarking pdf_export_cohorts/builder/metadata
+Benchmarking pdf_export_cohorts/builder/metadata: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/metadata: Collecting 30 samples in estimated 1.5064 s (3720 iterations)
+Benchmarking pdf_export_cohorts/builder/metadata: Analyzing
+pdf_export_cohorts/builder/metadata
+                        time:   [428.43 µs 460.73 µs 482.47 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  3 (10.00%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+
+Benchmarking pdf_export_cohorts/builder/navigation
+Benchmarking pdf_export_cohorts/builder/navigation: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 1.7s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pdf_export_cohorts/builder/navigation: Collecting 30 samples in estimated 1.7065 s (465 iterations)
+Benchmarking pdf_export_cohorts/builder/navigation: Analyzing
+pdf_export_cohorts/builder/navigation
+                        time:   [3.5591 ms 3.7529 ms 3.9090 ms]
+Found 6 outliers among 30 measurements (20.00%)
+  2 (6.67%) low severe
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+
+Benchmarking pdf_export_cohorts/builder/resources
+Benchmarking pdf_export_cohorts/builder/resources: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/resources: Collecting 30 samples in estimated 1.6824 s (3255 iterations)
+Benchmarking pdf_export_cohorts/builder/resources: Analyzing
+pdf_export_cohorts/builder/resources
+                        time:   [507.82 µs 536.50 µs 556.66 µs]
+Found 10 outliers among 30 measurements (33.33%)
+  5 (16.67%) low severe
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+
+Benchmarking pdf_export_cohorts/builder/fonts/single
+Benchmarking pdf_export_cohorts/builder/fonts/single: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/fonts/single: Collecting 30 samples in estimated 1.6802 s (210 iterations)
+Benchmarking pdf_export_cohorts/builder/fonts/single: Analyzing
+pdf_export_cohorts/builder/fonts/single
+                        time:   [8.2311 ms 8.6765 ms 9.0313 ms]
+Found 8 outliers among 30 measurements (26.67%)
+  3 (10.00%) low severe
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Collecting 30 samples in estimated 1.6287 s (150 iterations)
+Benchmarking pdf_export_cohorts/builder/fonts/multifont_path: Analyzing
+pdf_export_cohorts/builder/fonts/multifont_path
+                        time:   [10.982 ms 11.255 ms 11.500 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) low severe
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+

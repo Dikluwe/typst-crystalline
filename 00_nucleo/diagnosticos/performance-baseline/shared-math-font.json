@@ -1,0 +1,8 @@
+{
+  "source": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf",
+  "source_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+  "output": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/fonts/BaselineMath-Regular.otf",
+  "output_sha256": "550194e02e593884585789077c84ac3d9752147fb64ba1ec12a1dc1f87135b36",
+  "fonttools_version": "4.46.0",
+  "operation": "Only name table IDs 1,2,3,4,6,16,17 changed to avoid embedded/system family collision; same resulting bytes supplied to both engines."
+}

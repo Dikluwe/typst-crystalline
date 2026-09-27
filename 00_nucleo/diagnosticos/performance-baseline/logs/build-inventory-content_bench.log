@@ -1,0 +1,43 @@
+content/construction/text: benchmark
+content/construction/styled: benchmark
+content/construction/heading: benchmark
+content/construction/math_frac: benchmark
+
+content/representation/clone_leaf: benchmark
+content/representation/clone_sequence: benchmark
+content/representation/equality_sequence_equal: benchmark
+content/representation/equality_sequence_late_difference: benchmark
+content/representation/rust_hash_sequence: benchmark
+content/representation/clone_catalog: benchmark
+content/representation/equality_catalog_equal: benchmark
+content/representation/rust_hash_catalog: benchmark
+
+content/sequence/normalize/0: benchmark
+content/sequence/normalize/1: benchmark
+content/sequence/normalize/32: benchmark
+content/sequence/normalize/256: benchmark
+
+content/identity/elem_name_catalog: benchmark
+content/identity/debug_catalog: benchmark
+
+content/traversal/map_content_noop_wide: benchmark
+content/traversal/map_content_noop_deep: benchmark
+content/traversal/map_text_identity_wide: benchmark
+content/traversal/map_text_transform_wide: benchmark
+content/traversal/map_content_noop_catalog: benchmark
+content/traversal/map_text_identity_catalog: benchmark
+
+content/morphology/canonicalize_mixed_tree: benchmark
+content/morphology/canonicalize_catalog: benchmark
+
+content/projections/is_empty_deep: benchmark
+content/projections/plain_text_wide: benchmark
+content/projections/get_field_hit: benchmark
+content/projections/get_field_miss: benchmark
+content/projections/is_empty_catalog: benchmark
+content/projections/plain_text_catalog: benchmark
+content/projections/get_field_miss_catalog: benchmark
+
+content/page_structure/wrap_columns_fast_path: benchmark
+content/page_structure/wrap_columns_rewrite: benchmark
+

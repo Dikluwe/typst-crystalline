@@ -1,0 +1,120 @@
+content/construction/text
+                        time:   [37.386 ns 37.836 ns 38.278 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low severe
+content/construction/styled
+                        time:   [112.02 ns 117.51 ns 121.27 ns]
+content/construction/heading
+                        time:   [45.505 ns 47.768 ns 49.208 ns]
+content/construction/math_frac
+                        time:   [71.244 ns 75.875 ns 78.702 ns]
+
+content/representation/clone_leaf
+                        time:   [11.916 ns 12.033 ns 12.156 ns]
+content/representation/clone_sequence
+                        time:   [11.827 ns 11.949 ns 12.073 ns]
+content/representation/equality_sequence_equal
+                        time:   [1.9142 µs 1.9464 µs 1.9744 µs]
+content/representation/equality_sequence_late_difference
+                        time:   [1.7061 µs 1.7295 µs 1.7501 µs]
+content/representation/rust_hash_sequence
+                        time:   [11.138 µs 11.237 µs 11.352 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+content/representation/clone_catalog
+                        time:   [426.66 ns 432.18 ns 437.81 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/representation/equality_catalog_equal
+                        time:   [78.189 ns 78.755 ns 79.306 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+content/representation/rust_hash_catalog
+                        time:   [10.264 µs 10.362 µs 10.460 µs]
+
+content/sequence/normalize/0
+                        time:   [19.540 ns 20.069 ns 20.488 ns]
+Found 6 outliers among 30 measurements (20.00%)
+  6 (20.00%) low mild
+content/sequence/normalize/1
+                        time:   [48.361 ns 53.130 ns 56.442 ns]
+                        thrpt:  [17.717 Melem/s 18.822 Melem/s 20.678 Melem/s]
+content/sequence/normalize/32
+                        time:   [469.63 ns 521.39 ns 555.93 ns]
+                        thrpt:  [57.561 Melem/s 61.375 Melem/s 68.139 Melem/s]
+content/sequence/normalize/256
+                        time:   [3.2552 µs 3.6584 µs 3.9270 µs]
+                        thrpt:  [65.190 Melem/s 69.977 Melem/s 78.643 Melem/s]
+
+content/identity/elem_name_catalog
+                        time:   [46.469 ns 46.641 ns 46.815 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+content/identity/debug_catalog
+                        time:   [8.2119 µs 8.2805 µs 8.3674 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+content/traversal/map_content_noop_wide
+                        time:   [12.420 µs 12.905 µs 13.235 µs]
+content/traversal/map_content_noop_deep
+                        time:   [2.8552 µs 2.9128 µs 2.9658 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) low severe
+  2 (6.67%) high mild
+content/traversal/map_text_identity_wide
+                        time:   [8.9801 µs 9.1065 µs 9.2289 µs]
+Found 7 outliers among 30 measurements (23.33%)
+  4 (13.33%) low mild
+  3 (10.00%) high mild
+content/traversal/map_text_transform_wide
+                        time:   [9.6468 µs 9.8459 µs 10.020 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) low mild
+  1 (3.33%) high severe
+content/traversal/map_content_noop_catalog
+                        time:   [2.3287 µs 2.3546 µs 2.3798 µs]
+content/traversal/map_text_identity_catalog
+                        time:   [1.4544 µs 1.4885 µs 1.5205 µs]
+
+content/morphology/canonicalize_mixed_tree
+                        time:   [20.623 µs 21.038 µs 21.457 µs]
+content/morphology/canonicalize_catalog
+                        time:   [2.2072 µs 2.2457 µs 2.2831 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+
+content/projections/is_empty_deep
+                        time:   [141.60 ns 143.83 ns 146.05 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  2 (6.67%) high mild
+content/projections/plain_text_wide
+                        time:   [13.407 µs 13.686 µs 13.911 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  3 (10.00%) low mild
+content/projections/get_field_hit
+                        time:   [40.570 ns 41.077 ns 41.516 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low severe
+  2 (6.67%) low mild
+content/projections/get_field_miss
+                        time:   [35.286 ns 35.908 ns 36.487 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+content/projections/is_empty_catalog
+                        time:   [128.80 ns 129.58 ns 130.30 ns]
+content/projections/plain_text_catalog
+                        time:   [1.4751 µs 1.5116 µs 1.5675 µs]
+content/projections/get_field_miss_catalog
+                        time:   [365.02 ns 368.15 ns 371.36 ns]
+
+content/page_structure/wrap_columns_fast_path
+                        time:   [6.5368 µs 6.6940 µs 6.7865 µs]
+content/page_structure/wrap_columns_rewrite
+                        time:   [12.486 µs 12.697 µs 12.866 µs]
+

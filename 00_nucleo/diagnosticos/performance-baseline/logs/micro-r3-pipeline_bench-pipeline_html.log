@@ -1,0 +1,13 @@
+Benchmarking pipeline/html/semantic
+Benchmarking pipeline/html/semantic: Warming up for 500.00 ms
+Benchmarking pipeline/html/semantic: Collecting 30 samples in estimated 2.2302 s (1395 iterations)
+Benchmarking pipeline/html/semantic: Analyzing
+pipeline/html/semantic  time:   [1.6120 ms 1.6358 ms 1.6651 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high severe
+Benchmarking pipeline/html/frame
+Benchmarking pipeline/html/frame: Warming up for 500.00 ms
+Benchmarking pipeline/html/frame: Collecting 30 samples in estimated 1.6588 s (930 iterations)
+Benchmarking pipeline/html/frame: Analyzing
+pipeline/html/frame     time:   [1.7920 ms 1.7985 ms 1.8055 ms]
+

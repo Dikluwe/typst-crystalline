@@ -1,0 +1,48 @@
+Benchmarking layout/measurement/real/text_short
+Benchmarking layout/measurement/real/text_short: Warming up for 200.00 ms
+Benchmarking layout/measurement/real/text_short: Collecting 30 samples in estimated 600.86 ms (196k iterations)
+Benchmarking layout/measurement/real/text_short: Analyzing
+Benchmarking layout/measurement/real/text_long
+Benchmarking layout/measurement/real/text_long: Warming up for 200.00 ms
+Benchmarking layout/measurement/real/text_long: Collecting 30 samples in estimated 759.78 ms (930 iterations)
+Benchmarking layout/measurement/real/text_long: Analyzing
+Benchmarking layout/measurement/real/sequence_64
+Benchmarking layout/measurement/real/sequence_64: Warming up for 200.00 ms
+Benchmarking layout/measurement/real/sequence_64: Collecting 30 samples in estimated 619.35 ms (11k iterations)
+Benchmarking layout/measurement/real/sequence_64: Analyzing
+Benchmarking layout/measurement/real/nested_strong_16
+Benchmarking layout/measurement/real/nested_strong_16: Warming up for 200.00 ms
+Benchmarking layout/measurement/real/nested_strong_16: Collecting 30 samples in estimated 606.08 ms (27k iterations)
+Benchmarking layout/measurement/real/nested_strong_16: Analyzing
+Benchmarking layout/measurement/real/vertical_stack_64
+Benchmarking layout/measurement/real/vertical_stack_64: Warming up for 200.00 ms
+Benchmarking layout/measurement/real/vertical_stack_64: Collecting 30 samples in estimated 620.15 ms (4185 iterations)
+Benchmarking layout/measurement/real/vertical_stack_64: Analyzing
+Benchmarking layout/style_scope/plain
+Benchmarking layout/style_scope/plain: Warming up for 200.00 ms
+Benchmarking layout/style_scope/plain: Collecting 30 samples in estimated 600.43 ms (154k iterations)
+Benchmarking layout/style_scope/plain: Analyzing
+Benchmarking layout/style_scope/strong
+Benchmarking layout/style_scope/strong: Warming up for 200.00 ms
+Benchmarking layout/style_scope/strong: Collecting 30 samples in estimated 600.64 ms (90k iterations)
+Benchmarking layout/style_scope/strong: Analyzing
+Benchmarking layout/style_scope/emph
+Benchmarking layout/style_scope/emph: Warming up for 200.00 ms
+Benchmarking layout/style_scope/emph: Collecting 30 samples in estimated 600.00 ms (95k iterations)
+Benchmarking layout/style_scope/emph: Analyzing
+Benchmarking layout/style_scope/smallcaps
+Benchmarking layout/style_scope/smallcaps: Warming up for 200.00 ms
+Benchmarking layout/style_scope/smallcaps: Collecting 30 samples in estimated 601.02 ms (143k iterations)
+Benchmarking layout/style_scope/smallcaps: Analyzing
+Benchmarking layout/style_scope/styled_once
+Benchmarking layout/style_scope/styled_once: Warming up for 200.00 ms
+Benchmarking layout/style_scope/styled_once: Collecting 30 samples in estimated 600.66 ms (122k iterations)
+Benchmarking layout/style_scope/styled_once: Analyzing
+Benchmarking layout/style_scope/styled_nested_8
+Benchmarking layout/style_scope/styled_nested_8: Warming up for 200.00 ms
+Benchmarking layout/style_scope/styled_nested_8: Collecting 30 samples in estimated 600.22 ms (50k iterations)
+Benchmarking layout/style_scope/styled_nested_8: Analyzing
+Benchmarking layout/style_scope/styled_nested_32
+Benchmarking layout/style_scope/styled_nested_32: Warming up for 200.00 ms
+Benchmarking layout/style_scope/styled_nested_32: Collecting 30 samples in estimated 608.81 ms (12k iterations)
+Benchmarking layout/style_scope/styled_nested_32: Analyzing

@@ -1,0 +1,307 @@
+{
+  "command": [
+    "cargo",
+    "bench",
+    "--manifest-path",
+    "benches/Cargo.toml",
+    "--no-run",
+    "--offline",
+    "--locked",
+    "--message-format=json"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T02:44:00.501888+00:00",
+  "end_utc": "2026-09-27T02:44:03.155630+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 1017.575299,
+  "exit_code": 0,
+  "valid": true,
+  "measurement": false,
+  "concurrent_preparation": true,
+  "source_stable": true,
+  "contamination": [
+    {
+      "pid": 3192885,
+      "ppid": 3192799,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3192886,
+      "ppid": 3192885,
+      "comm": "ninja",
+      "exe": "/usr/bin/ninja",
+      "script": null,
+      "ticks": 176
+    },
+    {
+      "pid": 3252070,
+      "ppid": 3252069,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 973
+    },
+    {
+      "pid": 3252074,
+      "ppid": 3252073,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 947
+    },
+    {
+      "pid": 3252097,
+      "ppid": 3252096,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 841
+    },
+    {
+      "pid": 3192885,
+      "ppid": 3192799,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3192886,
+      "ppid": 3192885,
+      "comm": "ninja",
+      "exe": "/usr/bin/ninja",
+      "script": null,
+      "ticks": 176
+    },
+    {
+      "pid": 3252070,
+      "ppid": 3252069,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 1007
+    },
+    {
+      "pid": 3252074,
+      "ppid": 3252073,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 981
+    },
+    {
+      "pid": 3252097,
+      "ppid": 3252096,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 875
+    },
+    {
+      "pid": 3192885,
+      "ppid": 3192799,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3192886,
+      "ppid": 3192885,
+      "comm": "ninja",
+      "exe": "/usr/bin/ninja",
+      "script": null,
+      "ticks": 176
+    },
+    {
+      "pid": 3252070,
+      "ppid": 3252069,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 1040
+    },
+    {
+      "pid": 3252074,
+      "ppid": 3252073,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 1015
+    },
+    {
+      "pid": 3252097,
+      "ppid": 3252096,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 909
+    }
+  ],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T02:44:00.589621+00:00",
+      "loadavg": "13.13 15.97 14.90 8/4034 3252402",
+      "blockers": [
+        {
+          "pid": 3192885,
+          "ppid": 3192799,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3192886,
+          "ppid": 3192885,
+          "comm": "ninja",
+          "exe": "/usr/bin/ninja",
+          "script": null,
+          "ticks": 176
+        },
+        {
+          "pid": 3252070,
+          "ppid": 3252069,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 973
+        },
+        {
+          "pid": 3252074,
+          "ppid": 3252073,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 947
+        },
+        {
+          "pid": 3252097,
+          "ppid": 3252096,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 841
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1757613 8622 581726 23676893 335164 0 4543 0 0 0",
+        "cpu5 1082700 7202 281483 25012812 64057 0 5063 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:44:00.930489+00:00",
+      "loadavg": "13.13 15.97 14.90 8/4033 3252402",
+      "blockers": [
+        {
+          "pid": 3192885,
+          "ppid": 3192799,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3192886,
+          "ppid": 3192885,
+          "comm": "ninja",
+          "exe": "/usr/bin/ninja",
+          "script": null,
+          "ticks": 176
+        },
+        {
+          "pid": 3252070,
+          "ppid": 3252069,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 1007
+        },
+        {
+          "pid": 3252074,
+          "ppid": 3252073,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 981
+        },
+        {
+          "pid": 3252097,
+          "ppid": 3252096,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 875
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1757619 8622 581730 23676914 335166 0 4543 0 0 0",
+        "cpu5 1082703 7202 281485 25012840 64058 0 5063 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T02:44:01.269107+00:00",
+      "loadavg": "13.13 15.97 14.90 4/4033 3252404",
+      "blockers": [
+        {
+          "pid": 3192885,
+          "ppid": 3192799,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3192886,
+          "ppid": 3192885,
+          "comm": "ninja",
+          "exe": "/usr/bin/ninja",
+          "script": null,
+          "ticks": 176
+        },
+        {
+          "pid": 3252070,
+          "ppid": 3252069,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 1040
+        },
+        {
+          "pid": 3252074,
+          "ppid": 3252073,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 1015
+        },
+        {
+          "pid": 3252097,
+          "ppid": 3252096,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 909
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 1757625 8622 581733 23676939 335167 0 4543 0 0 0",
+        "cpu5 1082706 7202 281486 25012870 64058 0 5063 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "f5739cd243e08aafcebd95e9bbe998ea1334462f9445d8ae8623e3347fe96690",
+  "fingerprint_after": "f5739cd243e08aafcebd95e9bbe998ea1334462f9445d8ae8623e3347fe96690",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null
+}

@@ -1,0 +1,45 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "-p",
+    "typst-wiring",
+    "--offline",
+    "--locked",
+    "--message-format=json"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T02:44:04.767583+00:00",
+  "end_utc": "2026-09-27T02:44:06.515753+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 326.070791,
+  "exit_code": 0,
+  "valid": true,
+  "measurement": false,
+  "concurrent_preparation": false,
+  "source_stable": true,
+  "contamination": [],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T02:44:04.843297+00:00",
+      "loadavg": "12.56 15.81 14.85 2/4020 3252653",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 1757687 8622 581752 23677210 335167 0 4543 0 0 0",
+        "cpu5 1082743 7202 281496 25013180 64058 0 5063 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "f5739cd243e08aafcebd95e9bbe998ea1334462f9445d8ae8623e3347fe96690",
+  "fingerprint_after": "f5739cd243e08aafcebd95e9bbe998ea1334462f9445d8ae8623e3347fe96690",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null
+}

@@ -1,0 +1,242 @@
+{
+  "shapes": {
+    "fresh": {
+      "pipeline_ms": {
+        "mean": 234.66348783333333,
+        "median": 226.18992350000002,
+        "min": 209.449974,
+        "max": 344.408335
+      },
+      "preload_ms": {
+        "mean": 0.00013691666666666667,
+        "median": 0.0001355,
+        "min": 0.000111,
+        "max": 0.00016
+      },
+      "book_first_ms": {
+        "mean": 223.41465833333334,
+        "median": 215.36560250000002,
+        "min": 200.953902,
+        "max": 328.559224
+      },
+      "book_total_ms": {
+        "mean": 223.44777541666667,
+        "median": 215.396272,
+        "min": 200.990068,
+        "max": 328.6012
+      },
+      "book_calls": {
+        "mean": 1026,
+        "median": 1026.0,
+        "min": 1026,
+        "max": 1026
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "warm": {
+      "pipeline_ms": {
+        "mean": 10.1032925,
+        "median": 10.319286000000002,
+        "min": 7.145395,
+        "max": 13.487553
+      },
+      "preload_ms": {
+        "mean": 217.99353975,
+        "median": 210.3161395,
+        "min": 191.23023,
+        "max": 315.694921
+      },
+      "book_first_ms": {
+        "mean": 0.0004701666666666667,
+        "median": 0.0003005,
+        "min": 0.00021,
+        "max": 0.001363
+      },
+      "book_total_ms": {
+        "mean": 0.03345075,
+        "median": 0.0317935,
+        "min": 0.030174,
+        "max": 0.038706
+      },
+      "book_calls": {
+        "mean": 1026,
+        "median": 1026.0,
+        "min": 1026,
+        "max": 1026
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "fresh_first_book_fraction_of_pipeline_mean": 0.9520639976680593,
+    "warm_preload_plus_pipeline_mean_ms": 228.09683225
+  },
+  "pipeline-single-font": {
+    "fresh": {
+      "pipeline_ms": {
+        "mean": 245.7639625,
+        "median": 223.04391450000003,
+        "min": 199.284165,
+        "max": 335.095314
+      },
+      "preload_ms": {
+        "mean": 0.00014216666666666666,
+        "median": 0.00013099999999999999,
+        "min": 0.00011999999999999999,
+        "max": 0.000191
+      },
+      "book_first_ms": {
+        "mean": 239.31962333333334,
+        "median": 216.525722,
+        "min": 194.701122,
+        "max": 327.97744
+      },
+      "book_total_ms": {
+        "mean": 239.32040825,
+        "median": 216.52682950000002,
+        "min": 194.702034,
+        "max": 327.978131
+      },
+      "book_calls": {
+        "mean": 12,
+        "median": 12.0,
+        "min": 12,
+        "max": 12
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "warm": {
+      "pipeline_ms": {
+        "mean": 5.55326625,
+        "median": 5.527437000000001,
+        "min": 4.812752,
+        "max": 7.579984
+      },
+      "preload_ms": {
+        "mean": 242.88787816666667,
+        "median": 215.583728,
+        "min": 208.494853,
+        "max": 328.609937
+      },
+      "book_first_ms": {
+        "mean": 0.000543,
+        "median": 0.000306,
+        "min": 0.000231,
+        "max": 0.001543
+      },
+      "book_total_ms": {
+        "mean": 0.00102575,
+        "median": 0.0008725,
+        "min": 0.000732,
+        "max": 0.002104
+      },
+      "book_calls": {
+        "mean": 12,
+        "median": 12.0,
+        "min": 12,
+        "max": 12
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "fresh_first_book_fraction_of_pipeline_mean": 0.97377833958603,
+    "warm_preload_plus_pipeline_mean_ms": 248.44114441666667
+  },
+  "context": {
+    "fresh": {
+      "pipeline_ms": {
+        "mean": 295.86058725,
+        "median": 308.0795155,
+        "min": 221.60102700000002,
+        "max": 331.91608299999996
+      },
+      "preload_ms": {
+        "mean": 0.00015883333333333334,
+        "median": 0.00016,
+        "min": 0.00011999999999999999,
+        "max": 0.00019999999999999998
+      },
+      "book_first_ms": {
+        "mean": 287.1271315,
+        "median": 297.0715685,
+        "min": 213.057257,
+        "max": 324.539697
+      },
+      "book_total_ms": {
+        "mean": 287.12924833333335,
+        "median": 297.07426,
+        "min": 213.059902,
+        "max": 324.541339
+      },
+      "book_calls": {
+        "mean": 29,
+        "median": 29.0,
+        "min": 29,
+        "max": 29
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "warm": {
+      "pipeline_ms": {
+        "mean": 7.039975833333333,
+        "median": 6.7116535,
+        "min": 6.011194,
+        "max": 8.539731999999999
+      },
+      "preload_ms": {
+        "mean": 274.40998666666667,
+        "median": 296.52116850000004,
+        "min": 214.010132,
+        "max": 313.613443
+      },
+      "book_first_ms": {
+        "mean": 0.0004968333333333334,
+        "median": 0.0003055,
+        "min": 0.00022,
+        "max": 0.001613
+      },
+      "book_total_ms": {
+        "mean": 0.0024441666666666665,
+        "median": 0.002078,
+        "min": 0.001345,
+        "max": 0.004878
+      },
+      "book_calls": {
+        "mean": 29,
+        "median": 29.0,
+        "min": 29,
+        "max": 29
+      },
+      "book_entries": {
+        "mean": 1130,
+        "median": 1130.0,
+        "min": 1130,
+        "max": 1130
+      }
+    },
+    "fresh_first_book_fraction_of_pipeline_mean": 0.9704811788850394,
+    "warm_preload_plus_pipeline_mean_ms": 281.4499625
+  }
+}

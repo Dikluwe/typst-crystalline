@@ -1,0 +1,1679 @@
+{
+  "tools": {
+    "pdfinfo": "pdfinfo version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+    "pdffonts": "pdffonts version 24.02.0\nCopyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+    "pdftotext": "pdftotext version 24.02.0\nCopyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+  },
+  "rows": [
+    {
+      "utc": "2026-09-27T03:20:46.581239+00:00",
+      "fixture": "context",
+      "round": 1,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "14b9741493a7f17f117ce8765433897290408c588ad434dd57b8115b6e16ed6b",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "03a0f2d11c10e982a645145af2a7a292190d28c515f27741c64304109e5c35df",
+        "14b9741493a7f17f117ce8765433897290408c588ad434dd57b8115b6e16ed6b",
+        "1847d767d2055082f2a95ea9469573a31495602f2a234e772be0d308020ca572",
+        "1d5aed10de2f7df17272f145ff28cdfdba952817b1147077501c84775d77465b",
+        "45b651b8c20db3dc062c6dabfbdaa32bcea26b05bf3c24c153c4638fe7ede22e",
+        "520791f77e9fc719d29b80659a0ecbe5a7db5744e84409e4617d6418855793ea",
+        "7b849196140460d81cc7b388e4e7ec2209f6006c6c96b096cf246322223a3b78",
+        "9a956f55ef1e8db1069bdb7b9301851610d5c0ada637ba9f6dae7e7133c2974a",
+        "b6d6106220319aba9b74f8ae3171d3cc8ef4947369bb254abfe99573c03e1740",
+        "c82a440dad55ded5a076673c99be57d564ff7ce3c3522327eb5c47f9e60f451b",
+        "e2b12ff8a8dab9f7dd58118cf680c6d93499ab31ce04e7be37cbdb1d7e09d8a4",
+        "fdf9532bcf316abb8f36af0bf06905339f477bcb914f9d5897166d874a932d39"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.648646+00:00",
+      "fixture": "context",
+      "round": 1,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/context/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.718643+00:00",
+      "fixture": "image",
+      "round": 1,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "542304e0f7c6cf02f8cbf033c85881a0449dfc8999887bdcf5e55cd14abf3820",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "2461d4ab1e2870487647f6007bf44c68bb023072939db3c92b33ff53df61bdeb",
+        "402b78192680d8ce2b56792fb679fcd6619380c46777de7225e298dc6fb96277",
+        "542304e0f7c6cf02f8cbf033c85881a0449dfc8999887bdcf5e55cd14abf3820",
+        "599231b11a255c9b229d6e24ea70e9c4f8ce8440871d145e6b33e62f1f970616",
+        "84a276b7f5071272e76fa6fda8e0f4a9b6a45d510ab95504d8a0e13db0892bf0",
+        "87b4d46875566a95d7b53e9c531f0b30d253f2c266f8d1efca67a76fea2305f0",
+        "91093ac76e36c0dcb3faabf8f48d07c84eeafe05eb35de5a34976f98579afdda",
+        "a8c2dcaf4dd83e052411cead1908e8f413eecba44f55872328c6bf90596c05e2",
+        "b0caab150865b807207c05d737a9eb937deca21dae0fcd12b9b019f731274939",
+        "e6da4a92cef2f2ce402ef3907d131be6c34c7d53568bc427152e2d9e907964ed",
+        "e96f387c0a7bb8775640a21d0ce0fb731d7df3e6a9e76ea40c182aedbc738816",
+        "e9fda13c7b70102485bbca58d2d7758d3d59153f5c0e225718a3cf7dfd3b1640"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.776869+00:00",
+      "fixture": "image",
+      "round": 1,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/image/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.838821+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 1,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "d60a3e3081856f20e77bef1b404db49b010dfc182f7770e15063b8c66e8f2d27",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "04b59510c5ce664df630b9a065d688a5c34359cdea05be5f0d9a7fb132b2df71",
+        "2e9df772bdcccff7f9fb8444a27e9c6fe3488f96780c8eae1e3d6306688ea9e8",
+        "38827bb824db168d34b1d6801be971eeeb2a82b2e8581654e72c9f700a8bb560",
+        "42287d73e7262a9159034b39cbdbeb1a9f27ea9350fc70f9506a98dd97f5a571",
+        "61d7b927e67851cb8245fee79572fba65ba251ce2bb6f7f15db1b6657d3b0883",
+        "7bde564c3f02599ca5d4b9cca1b3b61fc440a27447b9458739560989ca12c92e",
+        "9303a4b200d59d756314c008b71275cb2f01f5595b6585a64e7afd41833c7d8f",
+        "bab6b51b91fb737b08b666bb1e0cac0123a8bb2265a1aab084aa118f48d4655e",
+        "cacbf086ef0b2c6496e53a81501b2f3ffe408a473603b734ec9ca56a34dd0316",
+        "d60a3e3081856f20e77bef1b404db49b010dfc182f7770e15063b8c66e8f2d27",
+        "e32eeab64cbfbbe490d92e5079c45dda013104d523d5cc9f889ba774fa1acc64",
+        "ed33be982cf9409d0b905333a7dd68edba750be8152f778738f23ef55ad3bb37"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.902348+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 1,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/pipeline-single-font/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:46.972675+00:00",
+      "fixture": "shapes",
+      "round": 1,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "842b0f13018d42937ad298a1c668072320e3f5c5e6b82b0db6a22fc224155c98",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "01b504103065c549aa4c25a6c6760f42d855c4125ea15ed39cfafef843515524",
+        "1864cb1046ac5aca3ef18ae634751b923de0f3fd92b9b6cbaed941155e57b8f2",
+        "2aed5eebcf8ad8c9d7fd12f6b6b9f947d025c17a28a82c9f4991f2f6cb14c929",
+        "39cb8d9071f6c7a8321c5f6dbfa69e97631a75f3587882bdc65d1fcedeacb520",
+        "41cedfc75f3c83829235204f3c31ec55f6206a680356ce26771c6c147e84de5b",
+        "842b0f13018d42937ad298a1c668072320e3f5c5e6b82b0db6a22fc224155c98",
+        "875d4d42008ea34fe92d692aa68eb71c8dcc212839f1e5c2ffccb02b3819d6b2",
+        "b51685d301df9afd6b733ee62a731b26cd90e2173ff8c4b21bf14db24229c1c3",
+        "e020a9e1addc05fd369ea01a851711f31a74ce2350a26b8ec65dc3b866e963c3",
+        "e892ef1b4bdd5554cfb3dcb72ed9399e64dfbdf8ce5998e104f0dc93c51f2940",
+        "e9ee956ab58acb7ccf676ce42e7d78ac8664378a63d309d87b4dcbe6c3cf8c93",
+        "f4bba8a6ae2fa3fe6a449bd2be2e342aa276dadac1c0e80e03c366f573bec5c2"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.033099+00:00",
+      "fixture": "shapes",
+      "round": 1,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/shapes/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.100143+00:00",
+      "fixture": "text-dense",
+      "round": 1,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "090e0e74716af045d925face911214345e2a22d501c1c3babe24215472d3874f",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "090e0e74716af045d925face911214345e2a22d501c1c3babe24215472d3874f",
+        "123107b89a501ce092b4e44bfaedaf7b4e9b0fa9c2459037738c6f60eeb85a83",
+        "189a330d657491f543375839386f65b2aad543e60dbfb01dfe38a77c57335e2e",
+        "2afe778c0aa050e3c4c6f42d6823bfa2fd0125b0ca2e1fe4120f00d4dc6e913e",
+        "4333432cbd19c1353cf7db84fb3d4a6d2c32d4cd4af6646e7b3599181da02a14",
+        "551340053a223f0d2ca5f4c82c5ffd4963b64fa77a95680b258aed2b5b2e5ddd",
+        "74752674cce8bd1296522add581a80d7023780f7fe470b084eb3351511e6ac6e",
+        "af77e7a623ccedb598daf0c2b0e8fcb6d0d0796210e1e8417d54211a83899827",
+        "b793d60300b5ba22d05bd5f1f1104db842a0b73b0419b866b53b886ecfbc2f60",
+        "c745e80c79cd475d4bc69858ffb34cc4c77b5e1f501cb740540b95dcf324b23c",
+        "d6087bc5dd6e0bc43cd57038a08c7f9c4140d6b3c322b2637bd586132c356b53",
+        "efd22e6bc6e475087a5446d8b8e8df2bc790400e41a0cb771d8cfd722021204d"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.160217+00:00",
+      "fixture": "text-dense",
+      "round": 1,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r1/text-dense/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.215721+00:00",
+      "fixture": "context",
+      "round": 2,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "54785bfc2a06ec39771d8993f2fb5a27a6b3b7e6da9983e1363e9b56864154f6",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "389ff3fab2576e27aa01a4a38f9ac4d33e780b708f9b317baa796c2b46a84c6a",
+        "47894f531159c5f6e7049d424cce8a9ac82e3b15f9df25e746636988dd10b805",
+        "54785bfc2a06ec39771d8993f2fb5a27a6b3b7e6da9983e1363e9b56864154f6",
+        "5d9cb73f8e916625570e1493c421816a93d5ff36fb6142bb0fb4afa1f4b6737b",
+        "62a61ab4a312a40d85e9de3db715ecc14cdb72029f4c0907d3905720a8e83fbe",
+        "a6eae1d12db14f6f252ee293ad2facde508d19f8235a9824759cee3a7a9f0fef",
+        "b140a3c367c1e8be7c4b0b3810b1ccdc94a0b3717fcb61bda46c08eb4def27ee",
+        "c67e9a6db9b25c7e1f89d5acb21529ff862c89e6f76196c2d020471e7ffa70e4",
+        "ce450216d5e54addaa8fac380b5107d9d558007de5d74690489d228446d733d6",
+        "e91b6e8a59aeae23e6262a9448782e2807e8a7d820b4328733738689240e4eee",
+        "e9e3bc682c26e091799d311a9c625eed6a428ce4a0e638dc6f9e05d39441f06d",
+        "fe7b370ff7ef781a062e72e3673a1cb29fbbfd5b0648e74d839ca0f8f8836482"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.272154+00:00",
+      "fixture": "context",
+      "round": 2,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/context/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.340725+00:00",
+      "fixture": "image",
+      "round": 2,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "e4f6a3248f6844433a42618d3646d3ad9d89fba327b50b7acde2459ca082358a",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "1896b41a62a46e227b77075e9c0e12deeda1d217d4e6d2c122770e97e0486e9a",
+        "1cd7b2cb504a91276fe3f1e8a4388c90fc98a487c8bbef2204688dd72b2b50a1",
+        "3a605d7a1d6641801bce16e6ac26cec958e04c6b55c660af0d10c2bf08ada5de",
+        "624ba6dc2f0871c9ba69353c819aee61439c0afee81e4653720fee3937b60416",
+        "736b2a1c57337fe168664ceee3867dbc1e849311ee56e30f88606a11ca539d61",
+        "751a31fc13ace593d49cdfd09ec449f95a17d7e58a8fe610a400f219dd9b958e",
+        "7554c5d91cdf566c08c7aad661f16582772858e6914984e6aac55df7f3609270",
+        "8d6a850aa2ea45271c893b6ce31a60c449ec33779c786bdc572cad5a03e068b4",
+        "8db8ccc2dadc1572ac39bae31369ab6e24e22378cc882e9f276ac7289a55dc11",
+        "9f0d4bd8f501f0ae4518937270634c27e536e42329a2ed06a91fbe9d21688964",
+        "c81204b564e96d24dc3af525ed2c66ba391aafba4d6cb84f9c3d7e4a1a02eb62",
+        "e4f6a3248f6844433a42618d3646d3ad9d89fba327b50b7acde2459ca082358a"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.393895+00:00",
+      "fixture": "image",
+      "round": 2,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/image/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.450542+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 2,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "246bfdea3d9718628c804ac2c4921c30994d60d3d9cfa224ff6a493906b9b495",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "01518c767560395087077e9bfdc6546ba5af11c48a7db46759fd9ffd6b7202fa",
+        "065d3e5a95fd3bc3573ff216712d85b940f6805a7fa4ae32d72b71e4131038ba",
+        "246bfdea3d9718628c804ac2c4921c30994d60d3d9cfa224ff6a493906b9b495",
+        "428db105e50484fa117cc6a72829302c83fd87a5d3e0e97d1ef547a157bd3412",
+        "494cae958a110b8608d95c96ab26b6afc63ba0595e30bd1e8d32787ff356dff0",
+        "58a57c4f42be29bd484f9005fb9d87f2b5133f5f85edef157fb92ffdf90c1ce8",
+        "6d8e0d4b2f62fb00b68e34bc6a6718d7e97e9e9c1f7bd774529d1af94ae7a3d5",
+        "7f5fbeb73f9d6faef9848f089d07b28c6d553f30e5ab6b8f66572437f450d3ca",
+        "89da302a3b43bfeae5fbd02ef7b4c01dfb15167e91879efff197275899da3d54",
+        "af4a09123f84caecdb1836009863a74afdb3f86179af48882e9726c3ae698217",
+        "e14d0d4e652c2d84c6782ac8e8d2896e393cd5634e2db9671f943fcc41c1c4ed",
+        "e705025f89b07cecf6e339a4b84d846829293c5402c6b96f7a4a82413891fe41"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.508868+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 2,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/pipeline-single-font/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.577768+00:00",
+      "fixture": "shapes",
+      "round": 2,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "f60c5df19ba3dc7f67a8517a7b74e46529cd80b29a734f378cc96078e377ceb1",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "1c11e51151ecbb8ca5689a0264b7ce2faab85178d6ec3fe4b4978ee34acc4057",
+        "1ded4aae6d345ba3262d99703b7b48560c83f40918f683ae6ef940a35a63090e",
+        "2177c2701c95d4bc01efac5003c2e43253d7e5c3b6c9a1d11f0dced3311049a4",
+        "3b1256ba5c857bca5f0549ff8394e32a1354a15398b1d8850dc70d9873ab15bf",
+        "519d8299c24867f66f84d537ddcb29f4b00804861d0b050654b4dd5708a294d5",
+        "566a5296a8ef0f6d7e58f9d48b0d8c7e14bbe0fed21d59e6328e0902dd663a04",
+        "8e838ff7b160bceee844653d5e909f186306aefcfc60060fd3e493481d8d0b2a",
+        "9e244298ad3f973765feb75f3fc3833c060c718b034a37913111b1cd3c66403e",
+        "e01ef3eb3b46fb6ad64097d85013f1d26a9fc0edec463ce2e414af6c17c247ac",
+        "ec0029256de71c5d5214a549f5181e667b76d32862c9c1d686409cfd1c9537e3",
+        "f60c5df19ba3dc7f67a8517a7b74e46529cd80b29a734f378cc96078e377ceb1",
+        "ffe5c8773b5e35507b4a52870cee33f1f33d0841d21728f0d81eb6ead8dc7a28"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.635284+00:00",
+      "fixture": "shapes",
+      "round": 2,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/shapes/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.705668+00:00",
+      "fixture": "text-dense",
+      "round": 2,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "ff85b6bacd8d9e04ac775844c37073fed6c6c66a20d46c889128a9f22eba094c",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "02d8d92b1303cfa7732407b04c4c45beecff1a3eaffc7b6749c5c436c1a60896",
+        "0f44bd7e445f874e409397a0c93f8de824045fd2bfbaef74b1bc87950df969b3",
+        "111df50f14ba0f1525be018c6a5d3235f8b89e6e42f87b94e650c890899faeaa",
+        "13e3bb4d6485c2a27b55e3d1df90e599ca4249765cdb3aa29622a5c6ef680ad7",
+        "3d543a9e33297c00f0caad50dca76bd40dd31d0f87dc29c89fed51335b3a3ce3",
+        "6d5c6133d4883a1530c97c528cd96ed21c09fda06188774693692f460292f12d",
+        "8e4465183b6b7c885889b826b4d910e539ca068c6ea962a41c4c755842bbedde",
+        "c9bfdc6f4d0695b55a5af17441de54450c742a3feb6583f902c11fa44530145b",
+        "d876ccc60a68e65dd9aa70185f9970d0aec5593a6a487b0db80a14c2b31ea550",
+        "e9e43e203c2b649a7ef9f1a0ca87d248d8073b10ba24fc4e6a5a4746356788e2",
+        "f2a9ad622a6ccdf02b5a05a88b45c41a17a6d5618a81b053ca4288e95308bd35",
+        "ff85b6bacd8d9e04ac775844c37073fed6c6c66a20d46c889128a9f22eba094c"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.772755+00:00",
+      "fixture": "text-dense",
+      "round": 2,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r2/text-dense/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.836164+00:00",
+      "fixture": "context",
+      "round": 3,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "d135febb038bf734478f9f8630fd62d1b6f61c1ffb705ada37c3e3135b039a88",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "1cf9e4f1a60c6da54299813299393b6e50062bf8229816a318dc946a1c03ae0a",
+        "2ba3f9e2c5046d75e5f71e4c65f8813f446d98b75632ccdca3bb83ba78ed79bf",
+        "577285e44924cc76980d0d70fb74583f930c0c29b3d4528e73e26e85f81a0150",
+        "6869584e863e466f07ef1f5d48c58146e1ba7412e10c69649497a19bbd883501",
+        "68cb19a42b6be50508821d202d6854d6ccfe8c2e118301efc9f748f2f81d487e",
+        "97fea185e6c479f7ab94f08cc64fe7bb56a5d43f03a7b123cd685f5d0bbd4dad",
+        "9adc11ad7b400815b542a4164ac386910d55bb519cf36eac495bf5faf2967625",
+        "9b0bc56db056dabf50c51a52775f2d1192b6cab78e502a001533c797b16dff1f",
+        "b8b58bf648ec706e0f76a9ccc932e9081d43cab8ad9f8342853160082b1812a7",
+        "cbb8ffe95907f791ae22a3a6114e1ae173e4db9a33c9b866455717c2247cc294",
+        "d135febb038bf734478f9f8630fd62d1b6f61c1ffb705ada37c3e3135b039a88",
+        "e1713413c041dd2a0731f79af0ce99266417bcb0e75572d58a5cfd4ab045c337"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.899096+00:00",
+      "fixture": "context",
+      "round": 3,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00    64.00",
+        "Page    1 CropBox:       0.00     0.00   128.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Page 1",
+      "text_normalized_sha256": "e8b8355262d0af49d5243e0225b02368cf12bcbe0d25afd89f7cab1bbbf151fb",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/context/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "ecdc478a952abc70b3f8e5163715de9a563d18724c0d42979c336b892e4ca5ad"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:47.976271+00:00",
+      "fixture": "image",
+      "round": 3,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "a301c4c6c9df45bc5b093cc5b8e2b7039a67fa39c8ed95195b030ce9b00c4884",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "0b2ade3570c5d28172117e67b59fb9aeb49d47b3cc2b9057d3afa5a16e20b505",
+        "259822951e5057af82575135f7f65740dd5b5bc602b93a1f1d73115c83c2ce01",
+        "34cf1cedc79784743c588ac57fa79c4f35dffb172e489f1a67570cb4a42ab228",
+        "37ff9f193589f2d1b8c43b570330ba0537ec0de71164d932f6f222db7726d36b",
+        "3af5518867ae5f2498b47cd02d82f91c9f68b971e5cad79fc9a9e9dbce69aee4",
+        "833a0d0565d607e1047fe536e76ad568d15331934c403a554bad955b3f430ad0",
+        "a301c4c6c9df45bc5b093cc5b8e2b7039a67fa39c8ed95195b030ce9b00c4884",
+        "a6cfd5cefb028bd0e7aa32d41759ef5d44a947eb1d38ee9132d3a026281225f9",
+        "cfd5d273d66ed6b04bfb89a6907c2d15fe4f77409a51d1b246d9fda431c37d6b",
+        "d2b3b18eb559b74ec8bc2fd1da4c5a9fac146d18096424a5bbdf38a378235a54",
+        "e4c6ea0d3b5b0eee49d36d6a600d71aec2d3c446cf164b5e0d353dd0cf42245a",
+        "f62868d94f5afc0943af223f0be86a474fb32708367581d36c6563a6f3af7262"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.034842+00:00",
+      "fixture": "image",
+      "round": 3,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  128 x 128 pts",
+        "Page    1 MediaBox:      0.00     0.00   128.00   128.00",
+        "Page    1 CropBox:       0.00     0.00   128.00   128.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/image/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "e8c1146a3932dd524490459b3c78bea9c72ca168f499848852a709af243edbe3"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.096196+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 3,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "1764ec6fcf40d61577b426cb973dd038b4847445871101321ab9bd45d569c7af",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "051a520e7d65a17f312eb9ed2cf7dbbccb18c92c84af37aacd3b67de3f015176",
+        "0af1f0d760c514c26e16672f68f2dc3dad35e10210c2661af3387ac7109c11ae",
+        "0b7bea6da60e13e7fa4bafca15d51162ea4d33ad7a538155603ff5c76dafd0cc",
+        "1764ec6fcf40d61577b426cb973dd038b4847445871101321ab9bd45d569c7af",
+        "626ab9a4c9edf88c4815344062c53a4197b3ea8a706fd806dc3a8ee05d689a25",
+        "890cce27d67e4928cb65e31c65d6fe638f9e49110a66193ce27096ec47a4f4c0",
+        "8ac076af890b2be92cce21e3e6f87b99b3a4fd254307cb8806a8582f42ac0e9c",
+        "93acc94cc9748702b46621035555d1109eaaab0c9ee4667631cba58a49481b8b",
+        "d0dc4c932bdf16a17ef129509f6e321865cf1da05aa56c0e0a9ef0ddb228035a",
+        "d1da356429458c3f32096e84d57bb1024a80f9f7743a8a6a8e10cb176b906c16",
+        "d481eff18508740d98fdcc6eb5bb5846c9f4c5b1e0b0e776c424c857a8a1a029",
+        "fb67756b2e779644464188471ceb24144bcbf4b03cff80cb85d2a8d56a2bd16b"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.155244+00:00",
+      "fixture": "pipeline-single-font",
+      "round": 3,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  64 x 64 pts",
+        "Page    1 MediaBox:      0.00     0.00    64.00    64.00",
+        "Page    1 CropBox:       0.00     0.00    64.00    64.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Hello",
+      "text_normalized_sha256": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/pipeline-single-font/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "8234240cd3416160061032c9ee894f7a631062f68a5274adc5909ca5d691124f"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.225996+00:00",
+      "fixture": "shapes",
+      "round": 3,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "873724db835012a3b9db5437bb206ad2004852d9a20eca87b37e01cdd147bb53",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "Helvetica",
+        "Helvetica-Bold",
+        "Helvetica-Oblique"
+      ],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "0ee620f5334547c446afedc9a42a2716e004f18d494c0885ed8551bd1c1e7102",
+        "18699cd8244b510737097d557afbd303371ea37bb141dd92d5a1c34059d068fc",
+        "367c47aa6c2e391b5aca441aae324f5a3cca7bb53894cb9f2e12aeb508038250",
+        "53398f002a1ac9638a7645e83fd5a07feb8a728dc872168444d90e1cec659979",
+        "60520e4c7bebb132dc769191bbd8a16e2575c4dacde8ca0eec5b2407ed116f3a",
+        "7aa01e991bb403f1649e6ef29dc04805594d6dd277365c0f33346e366473e2e1",
+        "873724db835012a3b9db5437bb206ad2004852d9a20eca87b37e01cdd147bb53",
+        "956d69beaea6235fad1bd9323c577e2fa3a7b74e8e2c9d591ddc999ef088ccfb",
+        "9fba4249a9a6b90773106b3cf7d5a6c986fbea372602522cfe6ef0c644772525",
+        "b31023bf7b1a4d8a020ed62be06c48308467da75130bfa0d26ff2739c40cda10",
+        "c61ea802a72b7d4c94bfc5eac8b65fa1f27b96f3fec3ab35ce60974dea7cd341",
+        "e280d455a0fea7530840f9bd14f4c76862e7c4389e17113200c51202b496354e"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.286223+00:00",
+      "fixture": "shapes",
+      "round": 3,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831",
+      "pages": 1,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [],
+      "text_normalized": "",
+      "text_normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/shapes/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "23bf1cdd92a54e3541cc1a4297bcb9d527ddb4fb883d4165b96e2096f7132831"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.353900+00:00",
+      "fixture": "text-dense",
+      "round": 3,
+      "engine": "tekt",
+      "sample": "p00-tekt",
+      "pdf_sha256": "0f0b5c55dcb0f638593a7c43631d449f28bbbcd3d5bd58e81d3c37bca3fcb668",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-tekt.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-tekt.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-tekt.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "098948c7d15abb5f887ae6076befb505beb35455d64c60bcabc5eab467723e18",
+        "0c71c63185367719d34f135e2624317f0a2b06408b196c2c3c867e8045fecd91",
+        "0f0b5c55dcb0f638593a7c43631d449f28bbbcd3d5bd58e81d3c37bca3fcb668",
+        "139ca82a400059535996b8814ebc91500a07376029a6c073879df37844c284ee",
+        "515cc28af169f36b9bd94be747de8ab295b159f329ba38c9269e77f365ebffa9",
+        "58c0463ac1aa0b6d84b3714f2d34f155200256b227b9eedd825a72c2998a5714",
+        "83d82fa685062f18b81118cb61c1edc6eab2577259662415277459ab2f7aba54",
+        "9d0d3b6f2496c1800d09a7854283fd5a55f365ee5868a891999cbe62838997b4",
+        "a10d18285d5efdf5f2e1e80d69f0d02cd51cdbd273d59ce4964593198ba2af6e",
+        "da976b3f3d2346b61312957064ec9b20708710e2914d4c3c73639fa6474d6b4c",
+        "ec488e24ef4832a25a9e13a3c181caeb1982ed40c92e67142bd07ae655541f82",
+        "ef8400c27d00dd8325822023828953f113141645f7dd539ce6f77b97d4948437"
+      ],
+      "stderr_nonempty": []
+    },
+    {
+      "utc": "2026-09-27T03:20:48.419375+00:00",
+      "fixture": "text-dense",
+      "round": 3,
+      "engine": "vanilla",
+      "sample": "p00-vanilla",
+      "pdf_sha256": "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04",
+      "pages": 2,
+      "geometry": [
+        "Page    1 size:  400 x 600 pts",
+        "Page    2 size:  400 x 600 pts",
+        "Page    1 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    1 CropBox:       0.00     0.00   400.00   600.00",
+        "Page    2 MediaBox:      0.00     0.00   400.00   600.00",
+        "Page    2 CropBox:       0.00     0.00   400.00   600.00"
+      ],
+      "font_names": [
+        "LibertinusSerif-Regular"
+      ],
+      "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages.",
+      "text_normalized_sha256": "9d6cd00e7cb375b7b6c346315a4f5d4045aa4cab122c0f66d3d51b0061c7b276",
+      "commands": [
+        [
+          "pdfinfo",
+          "-box",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdffonts",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-vanilla.pdf"
+        ],
+        [
+          "pdftotext",
+          "-layout",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-vanilla.pdf",
+          "-"
+        ],
+        [
+          "pdfimages",
+          "-list",
+          "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/performance-baseline/e2e/plain/r3/text-dense/p00-vanilla.pdf"
+        ]
+      ],
+      "all_sample_pdf_hashes": [
+        "7c29f3fde17a5414783e8082ac8ca220596751110fab844d209ae7567bba1d04"
+      ],
+      "stderr_nonempty": []
+    }
+  ],
+  "comparisons": [
+    {
+      "fixture": "context",
+      "round": 1,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "context",
+      "round": 2,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "context",
+      "round": 3,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "image",
+      "round": 1,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "image",
+      "round": 2,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "image",
+      "round": 3,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "pipeline-single-font",
+      "round": 1,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "pipeline-single-font",
+      "round": 2,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "pipeline-single-font",
+      "round": 3,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "shapes",
+      "round": 1,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "shapes",
+      "round": 2,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "shapes",
+      "round": 3,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": false,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "text-dense",
+      "round": 1,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "text-dense",
+      "round": 2,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    },
+    {
+      "fixture": "text-dense",
+      "round": 3,
+      "pages_match": true,
+      "geometry_match": true,
+      "normalized_text_match": true,
+      "font_resource_names_match": true,
+      "text_font_control_match": true
+    }
+  ]
+}

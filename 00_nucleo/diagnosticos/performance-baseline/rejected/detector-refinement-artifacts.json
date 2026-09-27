@@ -1,0 +1,132 @@
+{
+  "pdf_builder_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/pdf_builder_bench-de02a96dbc3a0897",
+    "sha256": "e53f066a5314cff59b3d553f5b8fd906893ecc58b254a871f1f35bd44a776405",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "stream_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/stream_bench-df235584fc1761e5",
+    "sha256": "8f1987f7d4c397ee98b5cdef3380870e56c562e107b24c92f1de2047e99a8006",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "layout_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/layout_bench-de12bc89ebddd26c",
+    "sha256": "7648b9c8f572ab199f0889e9f00ce8b783768277a7c445e1f52ba28f92af75bd",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "pipeline_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/pipeline_bench-011e2cabd8b95865",
+    "sha256": "b90505f2d87cc50dd69298a71b537330bd72656f6eb85ff763e2591bca813af9",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "content_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/content_bench-0dff3e06c05c842a",
+    "sha256": "ac8f131e983c4c4317d759265e7a2543f7cd3b91ee26323a49bef31dc455a5bf",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "stdlib_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/stdlib_bench-f2f08a9c949e92b0",
+    "sha256": "a033b00851759883019e41534c70e675b53d3ec2e6073d9029da5a6f1caf7cd3",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "observation_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/observation_bench-4ff173dd2e1b9bdc",
+    "sha256": "95a2e62f29aa0c35a16aa10fdd19e9e2c372c86374b659877cb3376e14f1a83c",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "scanner_bench": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/scanner_bench-542d3e6e4be47a19",
+    "sha256": "118add11445f99c3378da7b2c4cd4f6be34eff48b2c3ab36598d95b7e6f31a9e",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  },
+  "typst": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/typst",
+    "sha256": "9a94d37b711428a699e49bcba239de6a065a8c1602ae3362f9b55a6ac5e608e7",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "features": [],
+    "fresh": true
+  },
+  "typst_core": {
+    "path": "/repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd",
+    "sha256": "0cce8badd6aeebc2012848a5f5959b5a1661585d49e2c217af53da75dc597482",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "features": [],
+    "fresh": true
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "utc": "2026-09-27T03:52:38.469317+00:00",
+  "driver_sha256": "f793b98e1eb5e0ff3122b7fc889a526a946ab146a679ceab93b417044e7dfb72",
+  "reason": "Prioritize short private targets; filter existing pipeline and Content groups consistently across all three rounds."
+}

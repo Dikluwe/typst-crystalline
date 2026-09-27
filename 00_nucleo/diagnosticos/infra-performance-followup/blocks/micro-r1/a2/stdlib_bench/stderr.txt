@@ -1,0 +1,116 @@
+    Finished `release` profile [optimized] target(s) in 0.26s
+Verified optimized core executable: /repos/Antigravity/typst-crystalline/target/release/deps/typst_core-af290a3b903c9cfd
+Benchmarking stdlib/registry/html0_a11y0_bundle0
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 498.4ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Collecting 30 samples in estimated 498.35 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y0_bundle0: Analyzing
+Benchmarking stdlib/registry/html1_a11y0_bundle0
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 505.0ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Collecting 30 samples in estimated 505.02 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y0_bundle0: Analyzing
+Benchmarking stdlib/registry/html0_a11y1_bundle0
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 565.3ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Collecting 30 samples in estimated 565.29 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y1_bundle0: Analyzing
+Benchmarking stdlib/registry/html1_a11y1_bundle0
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 467.4ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Collecting 30 samples in estimated 467.45 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y1_bundle0: Analyzing
+Benchmarking stdlib/registry/html0_a11y0_bundle1
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 458.4ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Collecting 30 samples in estimated 458.44 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y0_bundle1: Analyzing
+Benchmarking stdlib/registry/html1_a11y0_bundle1
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 514.3ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Collecting 30 samples in estimated 514.29 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y0_bundle1: Analyzing
+Benchmarking stdlib/registry/html0_a11y1_bundle1
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 500.6ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Collecting 30 samples in estimated 500.57 ms (465 iterations)
+Benchmarking stdlib/registry/html0_a11y1_bundle1: Analyzing
+Benchmarking stdlib/registry/html1_a11y1_bundle1
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 503.6ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Collecting 30 samples in estimated 503.64 ms (465 iterations)
+Benchmarking stdlib/registry/html1_a11y1_bundle1: Analyzing
+Benchmarking stdlib/inputs/0
+Benchmarking stdlib/inputs/0: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 524.3ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/0: Collecting 30 samples in estimated 524.32 ms (465 iterations)
+Benchmarking stdlib/inputs/0: Analyzing
+Benchmarking stdlib/inputs/16
+Benchmarking stdlib/inputs/16: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 513.0ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/16: Collecting 30 samples in estimated 512.99 ms (465 iterations)
+Benchmarking stdlib/inputs/16: Analyzing
+Benchmarking stdlib/inputs/256
+Benchmarking stdlib/inputs/256: Warming up for 150.00 ms
+
+Warning: Unable to complete 30 samples in 300.0ms. You may wish to increase target time to 502.1ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking stdlib/inputs/256: Collecting 30 samples in estimated 502.07 ms (465 iterations)
+Benchmarking stdlib/inputs/256: Analyzing
+Benchmarking stdlib/lookup/upper
+Benchmarking stdlib/lookup/upper: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/upper: Collecting 30 samples in estimated 300.00 ms (25M iterations)
+Benchmarking stdlib/lookup/upper: Analyzing
+Benchmarking stdlib/lookup/not-a-binding
+Benchmarking stdlib/lookup/not-a-binding: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/not-a-binding: Collecting 30 samples in estimated 300.00 ms (47M iterations)
+Benchmarking stdlib/lookup/not-a-binding: Analyzing
+Benchmarking stdlib/lookup/calc_abs
+Benchmarking stdlib/lookup/calc_abs: Warming up for 150.00 ms
+Benchmarking stdlib/lookup/calc_abs: Collecting 30 samples in estimated 300.00 ms (24M iterations)
+Benchmarking stdlib/lookup/calc_abs: Analyzing
+Benchmarking stdlib/native/calc_abs/int
+Benchmarking stdlib/native/calc_abs/int: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/int: Collecting 30 samples in estimated 300.01 ms (12M iterations)
+Benchmarking stdlib/native/calc_abs/int: Analyzing
+Benchmarking stdlib/native/calc_abs/float
+Benchmarking stdlib/native/calc_abs/float: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/float: Collecting 30 samples in estimated 300.01 ms (12M iterations)
+Benchmarking stdlib/native/calc_abs/float: Analyzing
+Benchmarking stdlib/native/calc_abs/overflow
+Benchmarking stdlib/native/calc_abs/overflow: Warming up for 150.00 ms
+Benchmarking stdlib/native/calc_abs/overflow: Collecting 30 samples in estimated 300.02 ms (7.3M iterations)
+Benchmarking stdlib/native/calc_abs/overflow: Analyzing
+Benchmarking stdlib/native/upper/ascii
+Benchmarking stdlib/native/upper/ascii: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/ascii: Collecting 30 samples in estimated 300.03 ms (2.6M iterations)
+Benchmarking stdlib/native/upper/ascii: Analyzing
+Benchmarking stdlib/native/upper/unicode
+Benchmarking stdlib/native/upper/unicode: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/unicode: Collecting 30 samples in estimated 300.05 ms (1.7M iterations)
+Benchmarking stdlib/native/upper/unicode: Analyzing
+Benchmarking stdlib/native/upper/wrong_type
+Benchmarking stdlib/native/upper/wrong_type: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/wrong_type: Collecting 30 samples in estimated 300.02 ms (4.9M iterations)
+Benchmarking stdlib/native/upper/wrong_type: Analyzing
+Benchmarking stdlib/native/upper/missing_arg
+Benchmarking stdlib/native/upper/missing_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/missing_arg: Collecting 30 samples in estimated 300.00 ms (7.5M iterations)
+Benchmarking stdlib/native/upper/missing_arg: Analyzing
+Benchmarking stdlib/native/upper/extra_arg
+Benchmarking stdlib/native/upper/extra_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/extra_arg: Collecting 30 samples in estimated 300.01 ms (6.9M iterations)
+Benchmarking stdlib/native/upper/extra_arg: Analyzing
+Benchmarking stdlib/native/upper/named_arg
+Benchmarking stdlib/native/upper/named_arg: Warming up for 150.00 ms
+Benchmarking stdlib/native/upper/named_arg: Collecting 30 samples in estimated 300.00 ms (4.4M iterations)
+Benchmarking stdlib/native/upper/named_arg: Analyzing

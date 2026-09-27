@@ -1,0 +1,44 @@
+Benchmarking pipeline/pdf/fallback
+Benchmarking pipeline/pdf/fallback: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/fallback: Collecting 30 samples in estimated 1.5636 s (930 iterations)
+Benchmarking pipeline/pdf/fallback: Analyzing
+pipeline/pdf/fallback   time:   [1.7113 ms 1.7229 ms 1.7357 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+Benchmarking pipeline/pdf/single_font
+Benchmarking pipeline/pdf/single_font: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/single_font: Collecting 30 samples in estimated 2.1549 s (930 iterations)
+Benchmarking pipeline/pdf/single_font: Analyzing
+pipeline/pdf/single_font
+                        time:   [2.3235 ms 2.3335 ms 2.3428 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pipeline/pdf/multifont
+Benchmarking pipeline/pdf/multifont: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 1.5s, enable flat sampling, or reduce sample count to 20.
+Benchmarking pipeline/pdf/multifont: Collecting 30 samples in estimated 1.5033 s (465 iterations)
+Benchmarking pipeline/pdf/multifont: Analyzing
+pipeline/pdf/multifont  time:   [3.2511 ms 3.2718 ms 3.2929 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pipeline/pdf/tagged
+Benchmarking pipeline/pdf/tagged: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/tagged: Collecting 30 samples in estimated 2.7753 s (930 iterations)
+Benchmarking pipeline/pdf/tagged: Analyzing
+pipeline/pdf/tagged     time:   [3.0673 ms 3.1223 ms 3.1770 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high mild
+Benchmarking pipeline/pdf/context_stable
+Benchmarking pipeline/pdf/context_stable: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/context_stable: Collecting 30 samples in estimated 1.7390 s (930 iterations)
+Benchmarking pipeline/pdf/context_stable: Analyzing
+pipeline/pdf/context_stable
+                        time:   [1.9107 ms 1.9221 ms 1.9347 ms]
+Benchmarking pipeline/pdf/line_callback
+Benchmarking pipeline/pdf/line_callback: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/line_callback: Collecting 30 samples in estimated 2.5613 s (930 iterations)
+Benchmarking pipeline/pdf/line_callback: Analyzing
+pipeline/pdf/line_callback
+                        time:   [2.7355 ms 2.7576 ms 2.7764 ms]
+

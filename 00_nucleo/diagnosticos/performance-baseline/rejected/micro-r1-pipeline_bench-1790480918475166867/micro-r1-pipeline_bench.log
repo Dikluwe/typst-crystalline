@@ -1,0 +1,95 @@
+Benchmarking pipeline/pdf/fallback
+Benchmarking pipeline/pdf/fallback: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 1.8s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/fallback: Collecting 30 samples in estimated 1.8075 s (465 iterations)
+Benchmarking pipeline/pdf/fallback: Analyzing
+pipeline/pdf/fallback   time:   [3.4362 ms 3.6111 ms 3.7866 ms]
+Benchmarking pipeline/pdf/single_font
+Benchmarking pipeline/pdf/single_font: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 2.5s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/single_font: Collecting 30 samples in estimated 2.4794 s (465 iterations)
+Benchmarking pipeline/pdf/single_font: Analyzing
+pipeline/pdf/single_font
+                        time:   [3.5143 ms 3.6650 ms 3.7798 ms]
+Benchmarking pipeline/pdf/multifont
+Benchmarking pipeline/pdf/multifont: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 2.4s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/multifont: Collecting 30 samples in estimated 2.3927 s (465 iterations)
+Benchmarking pipeline/pdf/multifont: Analyzing
+pipeline/pdf/multifont  time:   [5.2051 ms 5.5053 ms 5.8367 ms]
+Benchmarking pipeline/pdf/tagged
+Benchmarking pipeline/pdf/tagged: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 2.3s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/tagged: Collecting 30 samples in estimated 2.3241 s (465 iterations)
+Benchmarking pipeline/pdf/tagged: Analyzing
+pipeline/pdf/tagged     time:   [4.4665 ms 4.7188 ms 5.0360 ms]
+Found 5 outliers among 30 measurements (16.67%)
+  4 (13.33%) high mild
+  1 (3.33%) high severe
+Benchmarking pipeline/pdf/context_stable
+Benchmarking pipeline/pdf/context_stable: Warming up for 500.00 ms
+Benchmarking pipeline/pdf/context_stable: Collecting 30 samples in estimated 2.9441 s (930 iterations)
+Benchmarking pipeline/pdf/context_stable: Analyzing
+pipeline/pdf/context_stable
+                        time:   [3.1090 ms 3.3327 ms 3.5794 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+Benchmarking pipeline/pdf/line_callback
+Benchmarking pipeline/pdf/line_callback: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 2.0s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/line_callback: Collecting 30 samples in estimated 1.9836 s (465 iterations)
+Benchmarking pipeline/pdf/line_callback: Analyzing
+pipeline/pdf/line_callback
+                        time:   [4.3252 ms 4.6707 ms 5.1807 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking pipeline/html/semantic
+Benchmarking pipeline/html/semantic: Warming up for 500.00 ms
+Benchmarking pipeline/html/semantic: Collecting 30 samples in estimated 2.3888 s (930 iterations)
+Benchmarking pipeline/html/semantic: Analyzing
+pipeline/html/semantic  time:   [2.2628 ms 2.3060 ms 2.3603 ms]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+Benchmarking pipeline/html/frame
+Benchmarking pipeline/html/frame: Warming up for 500.00 ms
+Benchmarking pipeline/html/frame: Collecting 30 samples in estimated 2.2180 s (930 iterations)
+Benchmarking pipeline/html/frame: Analyzing
+pipeline/html/frame     time:   [2.8113 ms 2.9567 ms 3.0944 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+
+Benchmarking pipeline/raster/document_ppi
+Benchmarking pipeline/raster/document_ppi: Warming up for 500.00 ms
+Benchmarking pipeline/raster/document_ppi: Collecting 30 samples in estimated 2.7610 s (930 iterations)
+Benchmarking pipeline/raster/document_ppi: Analyzing
+pipeline/raster/document_ppi
+                        time:   [3.4018 ms 3.5815 ms 3.7556 ms]
+Benchmarking pipeline/raster/override_144
+Benchmarking pipeline/raster/override_144: Warming up for 500.00 ms
+
+Warning: Unable to complete 30 samples in 1.5s. You may wish to increase target time to 1.6s, enable flat sampling, or reduce sample count to 20.
+Benchmarking pipeline/raster/override_144: Collecting 30 samples in estimated 1.5576 s (465 iterations)
+Benchmarking pipeline/raster/override_144: Analyzing
+pipeline/raster/override_144
+                        time:   [2.9952 ms 3.2117 ms 3.4563 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high mild
+
+Benchmarking pipeline/svg/without_fonts
+Benchmarking pipeline/svg/without_fonts: Warming up for 500.00 ms
+Benchmarking pipeline/svg/without_fonts: Collecting 30 samples in estimated 2.7216 s (930 iterations)
+Benchmarking pipeline/svg/without_fonts: Analyzing
+pipeline/svg/without_fonts
+                        time:   [2.5618 ms 2.6358 ms 2.7190 ms]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking pipeline/svg/with_fonts
+Benchmarking pipeline/svg/with_fonts: Warming up for 500.00 ms
+Benchmarking pipeline/svg/with_fonts: Collecting 30 samples in estimated 2.8940 s (930 iterations)

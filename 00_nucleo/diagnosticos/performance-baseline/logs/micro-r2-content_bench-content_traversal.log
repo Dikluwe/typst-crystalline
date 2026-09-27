@@ -1,0 +1,40 @@
+Benchmarking content/traversal/map_content_noop_wide
+Benchmarking content/traversal/map_content_noop_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_wide: Collecting 30 samples in estimated 1.5015 s (113k iterations)
+Benchmarking content/traversal/map_content_noop_wide: Analyzing
+content/traversal/map_content_noop_wide
+                        time:   [13.020 µs 13.294 µs 13.568 µs]
+Benchmarking content/traversal/map_content_noop_deep
+Benchmarking content/traversal/map_content_noop_deep: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_deep: Collecting 30 samples in estimated 1.5012 s (522k iterations)
+Benchmarking content/traversal/map_content_noop_deep: Analyzing
+content/traversal/map_content_noop_deep
+                        time:   [2.8519 µs 2.8894 µs 2.9243 µs]
+Benchmarking content/traversal/map_text_identity_wide
+Benchmarking content/traversal/map_text_identity_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_identity_wide: Collecting 30 samples in estimated 1.5021 s (157k iterations)
+Benchmarking content/traversal/map_text_identity_wide: Analyzing
+content/traversal/map_text_identity_wide
+                        time:   [12.913 µs 13.127 µs 13.262 µs]
+Benchmarking content/traversal/map_text_transform_wide
+Benchmarking content/traversal/map_text_transform_wide: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_transform_wide: Collecting 30 samples in estimated 1.5043 s (116k iterations)
+Benchmarking content/traversal/map_text_transform_wide: Analyzing
+content/traversal/map_text_transform_wide
+                        time:   [10.791 µs 11.798 µs 12.561 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  1 (3.33%) high mild
+  5 (16.67%) high severe
+Benchmarking content/traversal/map_content_noop_catalog
+Benchmarking content/traversal/map_content_noop_catalog: Warming up for 500.00 ms
+Benchmarking content/traversal/map_content_noop_catalog: Collecting 30 samples in estimated 1.5001 s (498k iterations)
+Benchmarking content/traversal/map_content_noop_catalog: Analyzing
+content/traversal/map_content_noop_catalog
+                        time:   [2.9649 µs 2.9958 µs 3.0300 µs]
+Benchmarking content/traversal/map_text_identity_catalog
+Benchmarking content/traversal/map_text_identity_catalog: Warming up for 500.00 ms
+Benchmarking content/traversal/map_text_identity_catalog: Collecting 30 samples in estimated 1.5005 s (692k iterations)
+Benchmarking content/traversal/map_text_identity_catalog: Analyzing
+content/traversal/map_text_identity_catalog
+                        time:   [2.1810 µs 2.2049 µs 2.2303 µs]
+

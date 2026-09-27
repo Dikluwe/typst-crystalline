@@ -1,0 +1,123 @@
+[
+  {
+    "pdf": "context-tekt.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       128 x 64 pts"
+    ],
+    "fonts": [
+      "AAAAAA+LibertinusSerif-Regular       CID Type 0C       Identity-H       yes yes yes      5  0"
+    ],
+    "text_normalized": "Page 1"
+  },
+  {
+    "pdf": "context-vanilla.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       128 x 64 pts"
+    ],
+    "fonts": [
+      "ABREPB+LibertinusSerif-Regular-Identity-H CID Type 0C       Identity-H       yes yes yes      4  0"
+    ],
+    "text_normalized": "Page 1"
+  },
+  {
+    "pdf": "image-tekt.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       128 x 128 pts"
+    ],
+    "fonts": [
+      "Helvetica                            Type 1            WinAnsi          no  no  no       5  0",
+      "Helvetica-Bold                       Type 1            WinAnsi          no  no  no       6  0",
+      "Helvetica-Oblique                    Type 1            WinAnsi          no  no  no       7  0"
+    ],
+    "text_normalized": ""
+  },
+  {
+    "pdf": "image-vanilla.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       128 x 128 pts"
+    ],
+    "fonts": [],
+    "text_normalized": ""
+  },
+  {
+    "pdf": "math-vanilla.pdf",
+    "geometry": [
+      "Pages:           2",
+      "Page size:       400 x 600 pts"
+    ],
+    "fonts": [
+      "PWPBZC+BaselineMath-Regular-Identity-H CID Type 0C       Identity-H       yes yes yes      5  0"
+    ],
+    "text_normalized": "\ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51 \ud835\udc4e+\ud835\udc4f + \u221a\ud835\udc652 + \ud835\udc662 \ud835\udc50+\ud835\udc51"
+  },
+  {
+    "pdf": "pipeline-single-font-tekt.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       64 x 64 pts"
+    ],
+    "fonts": [
+      "AAAAAA+LibertinusSerif-Regular       CID Type 0C       Identity-H       yes yes yes      5  0"
+    ],
+    "text_normalized": "Hello"
+  },
+  {
+    "pdf": "pipeline-single-font-vanilla.pdf",
+    "geometry": [
+      "Pages:           1",
+      "Page size:       64 x 64 pts"
+    ],
+    "fonts": [
+      "XMMEKF+LibertinusSerif-Regular-Identity-H CID Type 0C       Identity-H       yes yes yes      4  0"
+    ],
+    "text_normalized": "Hello"
+  },
+  {
+    "pdf": "shapes-tekt.pdf",
+    "geometry": [
+      "Pages:           4",
+      "Page size:       400 x 600 pts"
+    ],
+    "fonts": [
+      "Helvetica                            Type 1            WinAnsi          no  no  no      11  0",
+      "Helvetica-Bold                       Type 1            WinAnsi          no  no  no      12  0",
+      "Helvetica-Oblique                    Type 1            WinAnsi          no  no  no      13  0"
+    ],
+    "text_normalized": ""
+  },
+  {
+    "pdf": "shapes-vanilla.pdf",
+    "geometry": [
+      "Pages:           10",
+      "Page size:       400 x 600 pts"
+    ],
+    "fonts": [],
+    "text_normalized": ""
+  },
+  {
+    "pdf": "text-dense-tekt.pdf",
+    "geometry": [
+      "Pages:           2",
+      "Page size:       400 x 600 pts"
+    ],
+    "fonts": [
+      "AAAAAA+LibertinusSerif-Regular       CID Type 0C       Identity-H       yes yes yes      7  0"
+    ],
+    "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+  },
+  {
+    "pdf": "text-dense-vanilla.pdf",
+    "geometry": [
+      "Pages:           2",
+      "Page size:       400 x 600 pts"
+    ],
+    "fonts": [
+      "CCFCRX+LibertinusSerif-Regular-Identity-H CID Type 0C       Identity-H       yes yes yes      5  0"
+    ],
+    "text_normalized": "Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages. Performance baseline uses identical text, fonts, and options. Repeated words exercise text layout and shaping without generated dates or external packages."
+  }
+]

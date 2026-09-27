@@ -1,0 +1,63 @@
+pdf_export_cohorts/pretty_serialization/page/empty/Compact
+                        time:   [11.324 µs 11.949 µs 12.657 µs]
+pdf_export_cohorts/pretty_serialization/page/empty/Verbose
+                        time:   [202.35 µs 206.78 µs 211.78 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+pdf_export_cohorts/pretty_serialization/text/single/Compact
+                        time:   [11.382 µs 11.690 µs 12.030 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+pdf_export_cohorts/pretty_serialization/text/single/Verbose
+                        time:   [181.09 µs 183.35 µs 186.15 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pdf_export_cohorts/pretty_serialization/text/dense/Compact
+                        time:   [96.683 µs 100.81 µs 105.67 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+pdf_export_cohorts/pretty_serialization/text/dense/Verbose
+                        time:   [272.37 µs 280.27 µs 287.98 µs]
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact
+                        time:   [194.32 µs 208.67 µs 224.78 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) low severe
+  1 (3.33%) low mild
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose
+                        time:   [325.84 µs 335.90 µs 346.01 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+pdf_export_cohorts/pretty_serialization/shape/bezier/Compact
+                        time:   [228.86 µs 235.04 µs 241.30 µs]
+pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose
+                        time:   [393.94 µs 404.39 µs 414.09 µs]
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact
+                        time:   [121.17 µs 126.53 µs 132.83 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose
+                        time:   [315.25 µs 323.34 µs 333.52 µs]
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact
+                        time:   [29.369 µs 30.280 µs 31.199 µs]
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose
+                        time:   [199.75 µs 203.39 µs 206.88 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact
+                        time:   [97.989 µs 99.981 µs 101.84 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose
+                        time:   [280.07 µs 291.48 µs 303.87 µs]
+pdf_export_cohorts/pretty_serialization/draw/links/Compact
+                        time:   [64.094 µs 65.632 µs 67.162 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+pdf_export_cohorts/pretty_serialization/draw/links/Verbose
+                        time:   [242.80 µs 249.26 µs 256.44 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) high mild
+  1 (3.33%) high severe
+

@@ -1,0 +1,112 @@
+{
+  "context": {
+    "tekt": {
+      "round_means_ms": [
+        296.28565133333336,
+        240.72539525,
+        234.58343333333335
+      ],
+      "mean_median_difference_pct": 6.842969228533129,
+      "range_pct": 25.63178593430932,
+      "stable_absolute": false
+    },
+    "vanilla": {
+      "round_means_ms": [
+        212.04705858333332,
+        175.15890725,
+        164.74439183333334
+      ],
+      "mean_median_difference_pct": 5.038022584235748,
+      "range_pct": 27.005573106531234,
+      "stable_absolute": false
+    }
+  },
+  "image": {
+    "tekt": {
+      "round_means_ms": [
+        355.70593675,
+        256.42736375,
+        217.9738215
+      ],
+      "mean_median_difference_pct": 7.906726471581558,
+      "range_pct": 53.71194136062633,
+      "stable_absolute": false
+    },
+    "vanilla": {
+      "round_means_ms": [
+        24.766420583333332,
+        21.38759375,
+        14.897701
+      ],
+      "mean_median_difference_pct": 4.8487080143002235,
+      "range_pct": 46.14226218568105,
+      "stable_absolute": false
+    }
+  },
+  "pipeline-single-font": {
+    "tekt": {
+      "round_means_ms": [
+        343.8250321666667,
+        250.56547641666666,
+        240.33546108333334
+      ],
+      "mean_median_difference_pct": 11.045621235624186,
+      "range_pct": 41.302406286506915,
+      "stable_absolute": false
+    },
+    "vanilla": {
+      "round_means_ms": [
+        255.56271741666666,
+        181.5608455,
+        174.34617333333333
+      ],
+      "mean_median_difference_pct": 12.261674512121973,
+      "range_pct": 44.732411252917046,
+      "stable_absolute": false
+    }
+  },
+  "shapes": {
+    "tekt": {
+      "round_means_ms": [
+        376.44495725,
+        292.42888525,
+        252.72229983333332
+      ],
+      "mean_median_difference_pct": 5.050742114098709,
+      "range_pct": 42.308630801261344,
+      "stable_absolute": false
+    },
+    "vanilla": {
+      "round_means_ms": [
+        20.476093833333334,
+        23.8512885,
+        24.099155166666666
+      ],
+      "mean_median_difference_pct": 4.370592669099056,
+      "range_pct": 15.190212190562924,
+      "stable_absolute": false
+    }
+  },
+  "text-dense": {
+    "tekt": {
+      "round_means_ms": [
+        337.69671766666664,
+        294.64206333333334,
+        258.53823116666666
+      ],
+      "mean_median_difference_pct": 0.7863577576162419,
+      "range_pct": 26.86598295045426,
+      "stable_absolute": false
+    },
+    "vanilla": {
+      "round_means_ms": [
+        258.4662325,
+        218.62660283333332,
+        185.022909
+      ],
+      "mean_median_difference_pct": 0.9507741742492357,
+      "range_pct": 33.593040621862656,
+      "stable_absolute": false
+    }
+  }
+}

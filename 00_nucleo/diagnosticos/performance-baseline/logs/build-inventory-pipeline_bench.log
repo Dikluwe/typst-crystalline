@@ -1,0 +1,22 @@
+pipeline/pdf/fallback: benchmark
+pipeline/pdf/single_font: benchmark
+pipeline/pdf/multifont: benchmark
+pipeline/pdf/tagged: benchmark
+pipeline/pdf/context_stable: benchmark
+pipeline/pdf/line_callback: benchmark
+
+pipeline/html/semantic: benchmark
+pipeline/html/frame: benchmark
+
+pipeline/raster/document_ppi: benchmark
+pipeline/raster/override_144: benchmark
+
+pipeline/svg/without_fonts: benchmark
+pipeline/svg/with_fonts: benchmark
+pipeline/svg/glyphs: benchmark
+pipeline/svg/destination: benchmark
+
+pipeline/bundle/one: benchmark
+pipeline/bundle/several: benchmark
+pipeline/bundle/mixed: benchmark
+

@@ -1,0 +1,12 @@
+{
+  "utc": "2026-09-27T02:39:44.287044+00:00",
+  "readings": {
+    "/sys/devices/system/cpu/cpufreq/boost": "1",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq": "1102866",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq": "4465261",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq": "3412502",
+    "/sys/class/thermal/thermal_zone0/temp": "56000"
+  },
+  "policy": "Observed only; no governor, boost, cache or process settings changed globally."
+}

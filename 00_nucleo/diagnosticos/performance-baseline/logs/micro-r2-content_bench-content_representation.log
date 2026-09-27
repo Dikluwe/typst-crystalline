@@ -1,0 +1,67 @@
+Benchmarking content/representation/clone_leaf
+Benchmarking content/representation/clone_leaf: Warming up for 500.00 ms
+Benchmarking content/representation/clone_leaf: Collecting 30 samples in estimated 1.5000 s (98M iterations)
+Benchmarking content/representation/clone_leaf: Analyzing
+content/representation/clone_leaf
+                        time:   [14.415 ns 15.113 ns 15.876 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high mild
+Benchmarking content/representation/clone_sequence
+Benchmarking content/representation/clone_sequence: Warming up for 500.00 ms
+Benchmarking content/representation/clone_sequence: Collecting 30 samples in estimated 1.5000 s (101M iterations)
+Benchmarking content/representation/clone_sequence: Analyzing
+content/representation/clone_sequence
+                        time:   [13.934 ns 14.252 ns 14.668 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking content/representation/equality_sequence_equal
+Benchmarking content/representation/equality_sequence_equal: Warming up for 500.00 ms
+Benchmarking content/representation/equality_sequence_equal: Collecting 30 samples in estimated 1.5008 s (624k iterations)
+Benchmarking content/representation/equality_sequence_equal: Analyzing
+content/representation/equality_sequence_equal
+                        time:   [2.4103 µs 2.5779 µs 2.7581 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking content/representation/equality_sequence_late_difference
+Benchmarking content/representation/equality_sequence_late_difference: Warming up for 500.00 ms
+Benchmarking content/representation/equality_sequence_late_difference: Collecting 30 samples in estimated 1.5005 s (647k iterations)
+Benchmarking content/representation/equality_sequence_late_difference: Analyzing
+content/representation/equality_sequence_late_difference
+                        time:   [2.0975 µs 2.3086 µs 2.5460 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) high mild
+  1 (3.33%) high severe
+Benchmarking content/representation/rust_hash_sequence
+Benchmarking content/representation/rust_hash_sequence: Warming up for 500.00 ms
+Benchmarking content/representation/rust_hash_sequence: Collecting 30 samples in estimated 1.5070 s (99k iterations)
+Benchmarking content/representation/rust_hash_sequence: Analyzing
+content/representation/rust_hash_sequence
+                        time:   [14.045 µs 15.196 µs 16.379 µs]
+Found 6 outliers among 30 measurements (20.00%)
+  3 (10.00%) high mild
+  3 (10.00%) high severe
+Benchmarking content/representation/clone_catalog
+Benchmarking content/representation/clone_catalog: Warming up for 500.00 ms
+Benchmarking content/representation/clone_catalog: Collecting 30 samples in estimated 1.5001 s (2.8M iterations)
+Benchmarking content/representation/clone_catalog: Analyzing
+content/representation/clone_catalog
+                        time:   [502.72 ns 522.57 ns 549.46 ns]
+Benchmarking content/representation/equality_catalog_equal
+Benchmarking content/representation/equality_catalog_equal: Warming up for 500.00 ms
+Benchmarking content/representation/equality_catalog_equal: Collecting 30 samples in estimated 1.5000 s (13M iterations)
+Benchmarking content/representation/equality_catalog_equal: Analyzing
+content/representation/equality_catalog_equal
+                        time:   [97.276 ns 103.81 ns 112.46 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+Benchmarking content/representation/rust_hash_catalog
+Benchmarking content/representation/rust_hash_catalog: Warming up for 500.00 ms
+Benchmarking content/representation/rust_hash_catalog: Collecting 30 samples in estimated 1.5027 s (105k iterations)
+Benchmarking content/representation/rust_hash_catalog: Analyzing
+content/representation/rust_hash_catalog
+                        time:   [12.969 µs 13.670 µs 14.738 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  3 (10.00%) high severe
+

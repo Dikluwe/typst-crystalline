@@ -1,0 +1,28 @@
+Benchmarking content/sequence/normalize/0
+Benchmarking content/sequence/normalize/0: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/0: Collecting 30 samples in estimated 1.5000 s (16M iterations)
+Benchmarking content/sequence/normalize/0: Analyzing
+content/sequence/normalize/0
+                        time:   [19.267 ns 20.253 ns 20.873 ns]
+Benchmarking content/sequence/normalize/1
+Benchmarking content/sequence/normalize/1: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/1: Collecting 30 samples in estimated 1.5000 s (6.4M iterations)
+Benchmarking content/sequence/normalize/1: Analyzing
+content/sequence/normalize/1
+                        time:   [60.759 ns 65.452 ns 68.773 ns]
+                        thrpt:  [14.541 Melem/s 15.278 Melem/s 16.459 Melem/s]
+Benchmarking content/sequence/normalize/32
+Benchmarking content/sequence/normalize/32: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/32: Collecting 30 samples in estimated 1.5007 s (388k iterations)
+Benchmarking content/sequence/normalize/32: Analyzing
+content/sequence/normalize/32
+                        time:   [516.44 ns 543.59 ns 563.56 ns]
+                        thrpt:  [56.782 Melem/s 58.868 Melem/s 61.963 Melem/s]
+Benchmarking content/sequence/normalize/256
+Benchmarking content/sequence/normalize/256: Warming up for 500.00 ms
+Benchmarking content/sequence/normalize/256: Collecting 30 samples in estimated 1.5158 s (44k iterations)
+Benchmarking content/sequence/normalize/256: Analyzing
+content/sequence/normalize/256
+                        time:   [3.9712 µs 4.1372 µs 4.2835 µs]
+                        thrpt:  [59.765 Melem/s 61.878 Melem/s 64.465 Melem/s]
+

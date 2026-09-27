@@ -1,0 +1,6 @@
+{
+  "utc": "2026-09-27T17:50:34.972200+00:00",
+  "head": "0fea906e176acf93ae6301e4cd17ace6aa4fe349",
+  "scope": "diagnostics only; no consumer edits before or during samples",
+  "harness_source": "unchanged copy of sealed font-microbenchmarks-vanilla/src/main.rs; diagnostic package/path identity adjusted"
+}

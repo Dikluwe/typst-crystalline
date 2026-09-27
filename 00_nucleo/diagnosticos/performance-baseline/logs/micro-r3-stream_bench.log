@@ -1,0 +1,142 @@
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Collecting 30 samples in estimated 1.5024 s (217k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/page/empty/Compact
+                        time:   [7.2425 µs 7.3224 µs 7.3764 µs]
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Collecting 30 samples in estimated 1.5340 s (11k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/page/empty/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/page/empty/Verbose
+                        time:   [141.75 µs 143.12 µs 144.11 µs]
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Collecting 30 samples in estimated 1.5022 s (191k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/text/single/Compact
+                        time:   [7.6263 µs 7.6457 µs 7.6693 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Collecting 30 samples in estimated 1.5155 s (11k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/single/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/text/single/Verbose
+                        time:   [135.20 µs 136.42 µs 137.89 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Collecting 30 samples in estimated 1.5224 s (19k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/text/dense/Compact
+                        time:   [79.514 µs 80.694 µs 81.837 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Collecting 30 samples in estimated 1.5602 s (7440 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/text/dense/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/text/dense/Verbose
+                        time:   [201.34 µs 202.67 µs 204.36 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Collecting 30 samples in estimated 1.5556 s (12k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Compact
+                        time:   [143.21 µs 146.48 µs 149.08 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Collecting 30 samples in estimated 1.5914 s (5580 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/shape/rectangles/Verbose
+                        time:   [286.82 µs 293.09 µs 300.23 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Collecting 30 samples in estimated 1.5839 s (7440 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/shape/bezier/Compact
+                        time:   [212.94 µs 215.63 µs 218.15 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) low mild
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Collecting 30 samples in estimated 1.5859 s (4185 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/shape/bezier/Verbose
+                        time:   [361.02 µs 365.08 µs 368.20 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Collecting 30 samples in estimated 1.5122 s (14k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Compact
+                        time:   [101.82 µs 103.52 µs 105.91 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Collecting 30 samples in estimated 1.5385 s (6510 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/clipped_groups/Verbose
+                        time:   [238.47 µs 241.55 µs 245.54 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Collecting 30 samples in estimated 1.5069 s (55k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Compact
+                        time:   [27.898 µs 28.694 µs 29.416 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Collecting 30 samples in estimated 1.5692 s (9765 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/semantic_untagged/Verbose
+                        time:   [166.56 µs 170.82 µs 174.80 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Collecting 30 samples in estimated 1.5223 s (16k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Compact
+                        time:   [102.31 µs 109.35 µs 117.78 µs]
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Collecting 30 samples in estimated 1.5437 s (6045 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/semantic_tagged/Verbose
+                        time:   [243.70 µs 247.80 µs 252.12 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Collecting 30 samples in estimated 1.5208 s (25k iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Compact: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/links/Compact
+                        time:   [62.220 µs 63.302 µs 64.479 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) low mild
+  1 (3.33%) high mild
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Warming up for 500.00 ms
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Collecting 30 samples in estimated 1.5006 s (6510 iterations)
+Benchmarking pdf_export_cohorts/pretty_serialization/draw/links/Verbose: Analyzing
+pdf_export_cohorts/pretty_serialization/draw/links/Verbose
+                        time:   [194.68 µs 196.04 µs 197.49 µs]
+

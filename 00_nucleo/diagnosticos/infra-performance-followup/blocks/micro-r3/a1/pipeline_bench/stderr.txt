@@ -1,0 +1,86 @@
+Benchmarking pipeline/pdf/fallback
+Benchmarking pipeline/pdf/fallback: Warming up for 200.00 ms
+Benchmarking pipeline/pdf/fallback: Collecting 30 samples in estimated 625.40 ms (240 iterations)
+Benchmarking pipeline/pdf/fallback: Analyzing
+Benchmarking pipeline/pdf/single_font
+Benchmarking pipeline/pdf/single_font: Warming up for 200.00 ms
+Benchmarking pipeline/pdf/single_font: Collecting 30 samples in estimated 681.78 ms (240 iterations)
+Benchmarking pipeline/pdf/single_font: Analyzing
+Benchmarking pipeline/pdf/multifont
+Benchmarking pipeline/pdf/multifont: Warming up for 200.00 ms
+Benchmarking pipeline/pdf/multifont: Collecting 30 samples in estimated 706.33 ms (180 iterations)
+Benchmarking pipeline/pdf/multifont: Analyzing
+Benchmarking pipeline/pdf/tagged
+Benchmarking pipeline/pdf/tagged: Warming up for 200.00 ms
+Benchmarking pipeline/pdf/tagged: Collecting 30 samples in estimated 655.71 ms (180 iterations)
+Benchmarking pipeline/pdf/tagged: Analyzing
+Benchmarking pipeline/pdf/context_stable
+Benchmarking pipeline/pdf/context_stable: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.1s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/pdf/context_stable: Collecting 30 samples in estimated 1.0572 s (465 iterations)
+Benchmarking pipeline/pdf/context_stable: Analyzing
+Benchmarking pipeline/pdf/line_callback
+Benchmarking pipeline/pdf/line_callback: Warming up for 200.00 ms
+Benchmarking pipeline/pdf/line_callback: Collecting 30 samples in estimated 621.56 ms (180 iterations)
+Benchmarking pipeline/pdf/line_callback: Analyzing
+Benchmarking pipeline/html/semantic
+Benchmarking pipeline/html/semantic: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 890.6ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/html/semantic: Collecting 30 samples in estimated 890.59 ms (465 iterations)
+Benchmarking pipeline/html/semantic: Analyzing
+Benchmarking pipeline/html/frame
+Benchmarking pipeline/html/frame: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.1s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/html/frame: Collecting 30 samples in estimated 1.0889 s (465 iterations)
+Benchmarking pipeline/html/frame: Analyzing
+Benchmarking pipeline/raster/document_ppi
+Benchmarking pipeline/raster/document_ppi: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.1s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/raster/document_ppi: Collecting 30 samples in estimated 1.0842 s (465 iterations)
+Benchmarking pipeline/raster/document_ppi: Analyzing
+Benchmarking pipeline/raster/override_144
+Benchmarking pipeline/raster/override_144: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.1s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/raster/override_144: Collecting 30 samples in estimated 1.0602 s (465 iterations)
+Benchmarking pipeline/raster/override_144: Analyzing
+Benchmarking pipeline/svg/without_fonts
+Benchmarking pipeline/svg/without_fonts: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.0s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/svg/without_fonts: Collecting 30 samples in estimated 1.0013 s (465 iterations)
+Benchmarking pipeline/svg/without_fonts: Analyzing
+Benchmarking pipeline/svg/with_fonts
+Benchmarking pipeline/svg/with_fonts: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.1s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/svg/with_fonts: Collecting 30 samples in estimated 1.0921 s (465 iterations)
+Benchmarking pipeline/svg/with_fonts: Analyzing
+Benchmarking pipeline/svg/glyphs
+Benchmarking pipeline/svg/glyphs: Warming up for 200.00 ms
+Benchmarking pipeline/svg/glyphs: Collecting 30 samples in estimated 745.55 ms (150 iterations)
+Benchmarking pipeline/svg/glyphs: Analyzing
+Benchmarking pipeline/svg/destination
+Benchmarking pipeline/svg/destination: Warming up for 200.00 ms
+Benchmarking pipeline/svg/destination: Collecting 30 samples in estimated 616.93 ms (210 iterations)
+Benchmarking pipeline/svg/destination: Analyzing
+Benchmarking pipeline/bundle/one
+Benchmarking pipeline/bundle/one: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 1.0s, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/bundle/one: Collecting 30 samples in estimated 1.0004 s (465 iterations)
+Benchmarking pipeline/bundle/one: Analyzing
+Benchmarking pipeline/bundle/several
+Benchmarking pipeline/bundle/several: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 989.1ms, enable flat sampling, or reduce sample count to 10.
+Benchmarking pipeline/bundle/several: Collecting 30 samples in estimated 989.12 ms (465 iterations)
+Benchmarking pipeline/bundle/several: Analyzing
+Benchmarking pipeline/bundle/mixed
+Benchmarking pipeline/bundle/mixed: Warming up for 200.00 ms
+Benchmarking pipeline/bundle/mixed: Collecting 30 samples in estimated 616.19 ms (210 iterations)
+Benchmarking pipeline/bundle/mixed: Analyzing

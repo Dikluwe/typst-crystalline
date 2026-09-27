@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/infra-font-followup"
+  ],
+  "environment_overrides": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "CRITERION_HOME": null,
+    "FONT_MICRO_OUTPUT": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/blocks/font-r1/a1/criterion",
+    "FONT_MICRO_REVERSE": "0"
+  }
+}

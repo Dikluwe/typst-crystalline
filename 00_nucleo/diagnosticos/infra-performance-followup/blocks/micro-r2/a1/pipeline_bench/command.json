@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/bin/pipeline_bench",
+    "--bench",
+    "--sample-size",
+    "30",
+    "--warm-up-time",
+    "0.2",
+    "--measurement-time",
+    "0.6",
+    "--nresamples",
+    "5000",
+    "--noplot"
+  ],
+  "environment_overrides": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "CRITERION_HOME": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/infra-performance-followup/blocks/micro-r2/a1/pipeline_bench/criterion",
+    "FONT_MICRO_OUTPUT": null,
+    "FONT_MICRO_REVERSE": null
+  }
+}

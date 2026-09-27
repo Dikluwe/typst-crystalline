@@ -1,0 +1,51 @@
+Benchmarking content/projections/is_empty_deep
+Benchmarking content/projections/is_empty_deep: Warming up for 500.00 ms
+Benchmarking content/projections/is_empty_deep: Collecting 30 samples in estimated 1.5000 s (7.6M iterations)
+Benchmarking content/projections/is_empty_deep: Analyzing
+content/projections/is_empty_deep
+                        time:   [178.35 ns 188.29 ns 197.48 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+Benchmarking content/projections/plain_text_wide
+Benchmarking content/projections/plain_text_wide: Warming up for 500.00 ms
+Benchmarking content/projections/plain_text_wide: Collecting 30 samples in estimated 1.5027 s (83k iterations)
+Benchmarking content/projections/plain_text_wide: Analyzing
+content/projections/plain_text_wide
+                        time:   [17.673 µs 18.090 µs 18.582 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+Benchmarking content/projections/get_field_hit
+Benchmarking content/projections/get_field_hit: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_hit: Collecting 30 samples in estimated 1.5000 s (32M iterations)
+Benchmarking content/projections/get_field_hit: Analyzing
+content/projections/get_field_hit
+                        time:   [44.356 ns 45.634 ns 46.914 ns]
+Benchmarking content/projections/get_field_miss
+Benchmarking content/projections/get_field_miss: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_miss: Collecting 30 samples in estimated 1.5000 s (37M iterations)
+Benchmarking content/projections/get_field_miss: Analyzing
+content/projections/get_field_miss
+                        time:   [40.474 ns 41.086 ns 41.750 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) low mild
+Benchmarking content/projections/is_empty_catalog
+Benchmarking content/projections/is_empty_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/is_empty_catalog: Collecting 30 samples in estimated 1.5000 s (9.5M iterations)
+Benchmarking content/projections/is_empty_catalog: Analyzing
+content/projections/is_empty_catalog
+                        time:   [143.17 ns 145.64 ns 147.86 ns]
+Benchmarking content/projections/plain_text_catalog
+Benchmarking content/projections/plain_text_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/plain_text_catalog: Collecting 30 samples in estimated 1.5002 s (911k iterations)
+Benchmarking content/projections/plain_text_catalog: Analyzing
+content/projections/plain_text_catalog
+                        time:   [1.5565 µs 1.5968 µs 1.6345 µs]
+Benchmarking content/projections/get_field_miss_catalog
+Benchmarking content/projections/get_field_miss_catalog: Warming up for 500.00 ms
+Benchmarking content/projections/get_field_miss_catalog: Collecting 30 samples in estimated 1.5000 s (3.7M iterations)
+Benchmarking content/projections/get_field_miss_catalog: Analyzing
+content/projections/get_field_miss_catalog
+                        time:   [413.15 ns 419.49 ns 425.46 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+
