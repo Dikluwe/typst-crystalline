@@ -1,0 +1,29 @@
+# L0 — infra/system-world/fonts
+Hash do Código: cf980a83
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/world/fonts.rs`
+
+## Current evidence
+
+- `03_infra/src/world/fonts.rs:22` — `with_fonts`.
+- `03_infra/src/world/fonts.rs:34` — `with_system_fonts`.
+- `03_infra/src/world/fonts.rs:46` — `with_embedded_fonts`.
+- `03_infra/src/world/fonts.rs:66` — `with_fonts_and_system`.
+- `03_infra/src/world/fonts.rs:108` — `preload_coverage_if_needed`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/world/fonts.rs`.
+
+## Owned contract
+
+- Own font builders, lazy exact coverage and conservative preloading. Invalid FontInfo entries are dropped while book/slot indices remain aligned; absent system fonts are nonfatal.
+- Preserve builder order: embedded text before embedded math/code; combined discovery uses embedded text, system, embedded math/code, project sources.
+- Prefer nonempty book coverage without loading font bytes. Only missing coverage triggers lazy cmap parsing/cache by slot; invalid faces yield empty coverage. Preserve exact codepoint filtering, candidate order and locks.
+- Preload only embedded slots for Text/MathText/RawTrimmed through conservative coverage union and first-uncovered candidate demand; post-evaluation content remains lazy. Do not incidentally redefine cache invalidation/repeated-builder behavior.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

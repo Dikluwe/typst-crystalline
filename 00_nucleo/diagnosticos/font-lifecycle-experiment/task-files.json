@@ -1,0 +1,107 @@
+{
+  "utc": "2026-09-27T12:25:03.763340+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "files": [
+    {
+      "path": "03_infra/src/world.rs",
+      "incoming_sha256": "5c4c4b12a142895519f0a864615471cf29447800d937ee215794ba1dab13349f",
+      "final_sha256": "73e416d0c2dd68479de3deb69cab479008df875136d950d66137b24cfe1c501b"
+    },
+    {
+      "path": "03_infra/src/world/fonts.rs",
+      "incoming_sha256": "f72eb4da9f122f8a273c32504beb42e73613f83b9529e85281dc3c30127b22c9",
+      "final_sha256": "f8e3a086adae497f5d354ded8773c192f2978cfe33a624116c76721b5c9722df"
+    },
+    {
+      "path": "03_infra/src/world/world_impl.rs",
+      "incoming_sha256": "705429613c91c44fb2972948f6ac3a0216190f46deb30bf006cc5d1de306234f",
+      "final_sha256": "43a8f4dae55ef9ea5b4667dec6512b9b41ffb79dbbfd899e09ca63e6c1d7f19a"
+    },
+    {
+      "path": "03_infra/src/world/tests.rs",
+      "incoming_sha256": "cc6026fb395851ad1e01d70200bb5d3739d6f215d50f9e231ac546e8a5603915",
+      "final_sha256": "e61d8335de69525037ff668c8cbe9d34225d20a1035ae892bad99dcd92e8a7c6"
+    },
+    {
+      "path": "03_infra/src/pipeline/resources.rs",
+      "incoming_sha256": "9090c201dadc67c13a078e29e8672b79cf24e8a8c0ec557f3e82bbf7ed908fa9",
+      "final_sha256": "381781a284c464d4d94d772435b97eb4a3b9692a79b1b7cabf86858e0b564a05"
+    },
+    {
+      "path": "03_infra/src/pipeline/pdf.rs",
+      "incoming_sha256": "3747066af7b96af890b3fb8249f82ece3e8f588950cf6fedc007941e58323a76",
+      "final_sha256": "e80121ddd094eb44cbe64ee4633ad0696490e2bf7c2e62af4f54b09af1f9d595"
+    },
+    {
+      "path": "03_infra/src/pipeline/bundle.rs",
+      "incoming_sha256": "073a8e76527f6604e3835da0c5b243cfb1849adca579018e324a6b3800e3122f",
+      "final_sha256": "15b046e5d5be2e84245ae4c74c05656e11b1797c48a3b3d16c403406e2948c60"
+    },
+    {
+      "path": "03_infra/src/pipeline/tests.rs",
+      "incoming_sha256": "469b578f9c6d4401d834710f802638a1d9c140f963e8ea439c2e2152f3e529f4",
+      "final_sha256": "5c0d738ddb6b7961a6b34006b3f0a55acdce069a603d14ba022de756c29a532e"
+    },
+    {
+      "path": "04_wiring/src/compile.rs",
+      "incoming_sha256": "73d31803a3bf04d92c1724dc991f70576d04d937b66e79afceacc93f2a0dab34",
+      "final_sha256": "1087dfe55e50ee36f30e2d6247b36b138019ee5de475a1501b8ad445a92f9685"
+    },
+    {
+      "path": "01_core/src/entities/font_book.rs",
+      "incoming_sha256": "e2a81a92c534d0f9db7066cea2ee684b6e17b93d2b924b8541fd6be4698b6fc5",
+      "final_sha256": "964137394a8b66cd1f27617d2c098fb583ba7b3ea048d25289719ddf3927ace6"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world.md",
+      "incoming_sha256": "ac2f4aeb73a4da844df80da42a28eeb9e35f087af26ea1b1390240691950c3e7",
+      "final_sha256": "f04603b369d6b35db6000718203353b16ec75e20fe9e1897247fa4c77b977c99"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world/fonts.md",
+      "incoming_sha256": "a7ac1ad4b6f0cba4362782132c37c075d3eea52741947b7692739e0f0e27392e",
+      "final_sha256": "8ff3c9e8e18996d09d4db9e28dfb246bc15ca86d2bca5aebd71eafb8827ce959"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world/world_impl.md",
+      "incoming_sha256": "f86aa4a81467b34c728dbe4853bfdbac685bf7f017387e3ec477ea0a976ed1ae",
+      "final_sha256": "af2c7d585af2b18a88fb24bb5fd2af16aa1ad3dabd4ee5bdac520235e30cf13c"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world/tests.md",
+      "incoming_sha256": "a63fa874f9df9df2aa2d789409eca53cc2302807c86f1a6c87bbeb194a571c1e",
+      "final_sha256": "eb647ffc90580c0735d471181f219e9755db71c2f58233b8841430b30c2314d0"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/resources.md",
+      "incoming_sha256": "629cc2ca9973348f4e907eb1ea2659b8d40efc7a351978d93929723d80fdf268",
+      "final_sha256": "1b64f7a3b2c13b7b3d808236bc6e21bde8f7cf236a9fb7cad27e2ec9b5a5b21c"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/pdf.md",
+      "incoming_sha256": "f8f1759a69ce06829f878d66e7aa549979b8201e71fabff34ddd5a5fbf5f417b",
+      "final_sha256": "7ae3d5d210adeb022e3c3fe47516bfbb97aec0791533d6b4f03e225fc6edea4e"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "incoming_sha256": "61582f8008302525caa6bc9e98468abb58d509186ac39e81342c52bedf979aa1",
+      "final_sha256": "d877eeee06e8dca33e89182b7f97d0212b6f3566f257f03ddb05076bafc85e55"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/tests.md",
+      "incoming_sha256": "a52cd5853cdd749a42bb2d6b2042b63bd65650901d2d1ccf0c00083a7987d51c",
+      "final_sha256": "ab1f92b49cf114b185eeecc70c829e917b924e3675c943247b70017322f896eb"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/compile.md",
+      "incoming_sha256": "870bd9bdb73adab65ef771988f18327cdac82a9fbb0084c3de9a03d022437b59",
+      "final_sha256": "bfa1be4c0d595a3cca42723e8e91e7aa756dac86942f1691d8bf63313e9beddf"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/font_book.md",
+      "incoming_sha256": "3bd6638b46b60242c0f783f78ba26e0503b44d51e30b2f93e695a42f9a933cf8",
+      "final_sha256": "0869466b0b3d3a63fe304a7cb5d3f1a2e926d0415a2987a71904dd04b7944350"
+    }
+  ],
+  "note": "Difference from incoming bytes, not difference from HEAD; preserves existing edits."
+}

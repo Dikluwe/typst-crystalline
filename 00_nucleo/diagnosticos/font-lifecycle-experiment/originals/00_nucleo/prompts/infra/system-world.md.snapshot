@@ -1,0 +1,39 @@
+# L0 — infra/system-world
+Hash do Código: 4e7e5ef0
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/world.rs`
+
+## Current evidence
+
+- `03_infra/src/world.rs:35` — `SystemWorldError`.
+- `03_infra/src/world.rs:43` — `fmt`.
+- `03_infra/src/world.rs:58` — `SystemWorld`.
+- `03_infra/src/world.rs:97` — `for_eval`.
+- `03_infra/src/world.rs:132` — `new`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/world.rs`.
+
+## Owned contract
+
+- Own SystemWorld state, SystemWorldError/Display, new/for_eval and input/plugin builders only. Cache, fonts, paths, packages and World implementation have independent descendant owners.
+- new accepts the existing root/main inputs, canonicalizes the physical main, eagerly reads it, registers FileId 1 and starts subsequent ids at 2. Preserve main-not-found and I/O errors.
+- for_eval creates a preloaded synthetic source at root/<input-expression> without file reads; imports still resolve against the supplied root.
+- Initialize the current per-world maps/locks, font book/library, empty SysInputs, absent plugin host and default package downloader. with_inputs stores strings and with_plugin_host stores the supplied Arc; no I/O enters the L1 contracts.
+- Preserve public paths/builders and private descendant access. Do not add a new trait, global cache or broaden helper visibility.
+
+## Child owners
+
+- `00_nucleo/prompts/infra/system-world/cache.md` owns only `03_infra/src/world/cache.rs`.
+- `00_nucleo/prompts/infra/system-world/fonts.md` owns only `03_infra/src/world/fonts.rs`.
+- `00_nucleo/prompts/infra/system-world/packages.md` owns only `03_infra/src/world/packages.rs`.
+- `00_nucleo/prompts/infra/system-world/paths.md` owns only `03_infra/src/world/paths.rs`.
+- `00_nucleo/prompts/infra/system-world/tests.md` owns only `03_infra/src/world/tests.rs`.
+- `00_nucleo/prompts/infra/system-world/world_impl.md` owns only `03_infra/src/world/world_impl.rs`.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

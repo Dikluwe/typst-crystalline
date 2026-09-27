@@ -1,0 +1,13 @@
+{
+  "valid": true,
+  "before": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "after": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "contamination": [],
+  "metadata_controls": [
+    [
+      1112,
+      "9156f28234a10295"
+    ]
+  ]
+}

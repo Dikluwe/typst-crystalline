@@ -1,0 +1,1 @@
+crystalline-lint: --fix-hashes preflight failed: canonical hash metadata must occur exactly once

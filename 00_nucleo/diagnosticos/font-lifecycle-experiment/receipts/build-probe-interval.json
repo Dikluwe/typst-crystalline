@@ -1,0 +1,61 @@
+{
+  "command": [
+    "rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=3",
+    "-C",
+    "debug-assertions=no",
+    "-C",
+    "overflow-checks=no",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/catalog_probe.rs",
+    "-L",
+    "dependency=/repos/Antigravity/typst-crystalline/target/release/deps",
+    "--extern",
+    "typst_infra=/repos/Antigravity/typst-crystalline/target/release/deps/libtypst_infra-ed65bb36a0920044.rlib",
+    "-o",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T11:42:22.356469+00:00",
+  "end_utc": "2026-09-27T11:42:24.457509+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 633.454065,
+  "exit_code": 0,
+  "valid": true,
+  "measurement": false,
+  "concurrent_preparation": false,
+  "source_stable": true,
+  "contamination": [],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T11:42:22.419580+00:00",
+      "loadavg": "3.05 3.07 3.96 3/3303 3772749",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129662 8739 683008 26408338 340817 0 5072 0 0 0",
+        "cpu5 1229786 7263 333214 28026361 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:22.739517+00:00",
+      "loadavg": "3.05 3.07 3.96 3/3300 3772783",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129666 8739 683010 26408362 340817 0 5072 0 0 0",
+        "cpu5 1229788 7263 333214 28026390 68913 0 6129 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "fingerprint_after": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null
+}

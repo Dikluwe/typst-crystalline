@@ -1,0 +1,554 @@
+{
+  "global_error_rules": [],
+  "global_warning_rules": [
+    "V12",
+    "V16",
+    "V17",
+    "V18",
+    "V5"
+  ],
+  "owned_critical_violations": [],
+  "owned_existing_notes_warnings": [
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/pdf.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 325
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 725
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 738
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/entities/font_book.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 109
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`0 | 1`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/bundle.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 121
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`Content::Document { path, .. } | Content::Asset { path, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/bundle.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 263
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 5 alternativas (`Content::Empty\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Metadata(_)`) \u2014 cobertura de bra\u00e7os subestima 5\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/bundle.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 268
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`Content::Document { .. } | Content::Asset { .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/bundle.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 346
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` delega decis\u00e3o para `content.clone()`"
+      },
+      "ruleId": "V16"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/pdf.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 318
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `FrameItem::Semantic {\n                kind: typst_core::entities::layout_types::SemanticKind::Artifact(_),\n                ..\n            }` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/pdf.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 322
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Semantic { items, .. }\n            | FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/pdf.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 505
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 4 > 2 em `[single @ ((_, font_variant, variations), bytes)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 127
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 150
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }\n            | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 155
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Line { .. }\n            | FrameItem::Image { .. }\n            | FrameItem::Shape { .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 205
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 210
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }\n            | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/resources.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 217
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 4 alternativas (`FrameItem::Line { .. }\n            | FrameItem::Glyph { .. }\n            | FrameItem::Image { .. }\n            | FrameItem::Shape { .. }`) \u2014 cobertura de bra\u00e7os subestima 4\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 373
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }\n            | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 376
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 6 alternativas (`FrameItem::Text { .. }\n            | FrameItem::TextShaped { .. }\n            | FrameItem::Line { .. }\n            | FrameItem::Glyph { .. }\n            | FrameItem::Image { .. }\n            | FrameItem::Shape { .. }`) \u2014 cobertura de bra\u00e7os subestima 6\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 431
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { pos, text, .. }\n            | FrameItem::TextShaped { pos, text, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 437
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }\n            | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 440
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 4 alternativas (`FrameItem::Line { .. }\n            | FrameItem::Glyph { .. }\n            | FrameItem::Image { .. }\n            | FrameItem::Shape { .. }`) \u2014 cobertura de bra\u00e7os subestima 4\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 719
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 722
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n            | FrameItem::Link { items, .. }\n            | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 733
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 2 alternativas (`FrameItem::Text { text, style, .. }\n        | FrameItem::TextShaped { text, style, .. }`) \u2014 cobertura de bra\u00e7os subestima 2\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/pipeline/tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 735
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`FrameItem::Group { items, .. }\n        | FrameItem::Link { items, .. }\n        | FrameItem::Semantic { items, .. }`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/world/fonts.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 163
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Bra\u00e7o de decis\u00e3o condensa 3 alternativas (`SyntaxKind::Text | SyntaxKind::MathText | SyntaxKind::RawTrimmed`) \u2014 cobertura de bra\u00e7os subestima 3\u00d7"
+      },
+      "ruleId": "V19"
+    }
+  ],
+  "note": "Root linter exits successfully but preexisting warnings/drift elsewhere remain. Original byte backups have .snapshot suffixes and are not active Rust consumers."
+}

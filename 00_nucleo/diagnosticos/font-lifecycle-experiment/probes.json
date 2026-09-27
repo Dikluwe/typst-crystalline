@@ -1,0 +1,66 @@
+{
+  "lazy": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy",
+    "sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+    "command": [
+      "rustc",
+      "--edition=2021",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "debug-assertions=no",
+      "-C",
+      "overflow-checks=no",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/catalog_probe.rs",
+      "-L",
+      "dependency=/repos/Antigravity/typst-crystalline/target/release/deps",
+      "--extern",
+      "typst_infra=/repos/Antigravity/typst-crystalline/target/release/deps/libtypst_infra-ed65bb36a0920044.rlib",
+      "-o",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+    ],
+    "infra_library": "/repos/Antigravity/typst-crystalline/target/release/deps/libtypst_infra-ed65bb36a0920044.rlib",
+    "infra_library_sha256": "a7c10e1c60116984a42c5a34cbab1fe5e115078c0c31a7808fcbc4140bf90318",
+    "source": "a4661bfa5461e946b3bf09beb406cfac45a4d931a152ae80eab1a50b85ffc35e",
+    "fingerprint": "8e63ae3b87b2e70a958fa44bd5a3947a4266593ef81b3113d947ad3be4ae8a6c",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    }
+  },
+  "interval": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval",
+    "sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+    "command": [
+      "rustc",
+      "--edition=2021",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "debug-assertions=no",
+      "-C",
+      "overflow-checks=no",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/catalog_probe.rs",
+      "-L",
+      "dependency=/repos/Antigravity/typst-crystalline/target/release/deps",
+      "--extern",
+      "typst_infra=/repos/Antigravity/typst-crystalline/target/release/deps/libtypst_infra-ed65bb36a0920044.rlib",
+      "-o",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+    ],
+    "infra_library": "/repos/Antigravity/typst-crystalline/target/release/deps/libtypst_infra-ed65bb36a0920044.rlib",
+    "infra_library_sha256": "cd447a180bb4ed4def39a3d69fbf286a6b8387048e44cc5eb81bd641fa49ee67",
+    "source": "a4661bfa5461e946b3bf09beb406cfac45a4d931a152ae80eab1a50b85ffc35e",
+    "fingerprint": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    }
+  }
+}

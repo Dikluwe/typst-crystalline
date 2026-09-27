@@ -1,0 +1,182 @@
+{
+  "plain": [
+    {
+      "fixture": "context",
+      "before_median_ms": 292.028739,
+      "interval_median_ms": 184.1261675,
+      "median_reduction_percent": 36.94929884965876,
+      "paired_before_interval_mean_ms": 107.4078365,
+      "round_mean_median_pass": {
+        "lazy": true,
+        "interval": true,
+        "vanilla": true,
+        "before": true
+      }
+    },
+    {
+      "fixture": "image",
+      "before_median_ms": 287.9966675,
+      "interval_median_ms": 182.6386165,
+      "median_reduction_percent": 36.5830799066451,
+      "paired_before_interval_mean_ms": 103.71965388888889,
+      "round_mean_median_pass": {
+        "lazy": true,
+        "interval": true,
+        "vanilla": true,
+        "before": true
+      }
+    },
+    {
+      "fixture": "pipeline-single-font",
+      "before_median_ms": 290.8179165,
+      "interval_median_ms": 184.6032295,
+      "median_reduction_percent": 36.52274532404884,
+      "paired_before_interval_mean_ms": 105.57309952777779,
+      "round_mean_median_pass": {
+        "lazy": true,
+        "interval": true,
+        "vanilla": true,
+        "before": true
+      }
+    },
+    {
+      "fixture": "shapes",
+      "before_median_ms": 292.06606999999997,
+      "interval_median_ms": 186.558134,
+      "median_reduction_percent": 36.12468096687848,
+      "paired_before_interval_mean_ms": 105.26567725,
+      "round_mean_median_pass": {
+        "lazy": true,
+        "interval": true,
+        "vanilla": true,
+        "before": true
+      }
+    },
+    {
+      "fixture": "text-dense",
+      "before_median_ms": 303.98053,
+      "interval_median_ms": 195.2640225,
+      "median_reduction_percent": 35.76429960826767,
+      "paired_before_interval_mean_ms": 109.02834408333334,
+      "round_mean_median_pass": {
+        "lazy": true,
+        "interval": true,
+        "vanilla": true,
+        "before": true
+      }
+    }
+  ],
+  "instrumented": {
+    "traced/context": {
+      "lazy": {
+        "round_mean_median_difference_pct": 0.31623107970560865,
+        "pass": true
+      },
+      "interval": {
+        "round_mean_median_difference_pct": 0.3990177485134458,
+        "pass": true
+      },
+      "vanilla": {
+        "round_mean_median_difference_pct": 0.4472238015903657,
+        "pass": true
+      },
+      "before": {
+        "round_mean_median_difference_pct": 0.0003888070797270165,
+        "pass": true
+      }
+    },
+    "traced/image": {
+      "lazy": {
+        "round_mean_median_difference_pct": 19.207862396714997,
+        "pass": false
+      },
+      "interval": {
+        "round_mean_median_difference_pct": 30.143813022441705,
+        "pass": false
+      },
+      "vanilla": {
+        "round_mean_median_difference_pct": 35.36159038249619,
+        "pass": false
+      },
+      "before": {
+        "round_mean_median_difference_pct": 20.067220719045064,
+        "pass": false
+      }
+    },
+    "traced/pipeline-single-font": {
+      "lazy": {
+        "round_mean_median_difference_pct": 15.870122377823412,
+        "pass": false
+      },
+      "interval": {
+        "round_mean_median_difference_pct": 19.094923705697568,
+        "pass": false
+      },
+      "vanilla": {
+        "round_mean_median_difference_pct": 22.465035872903062,
+        "pass": false
+      },
+      "before": {
+        "round_mean_median_difference_pct": 15.138958927744506,
+        "pass": false
+      }
+    },
+    "traced/shapes": {
+      "lazy": {
+        "round_mean_median_difference_pct": 17.464039093847855,
+        "pass": false
+      },
+      "interval": {
+        "round_mean_median_difference_pct": 22.584920924245157,
+        "pass": false
+      },
+      "vanilla": {
+        "round_mean_median_difference_pct": 34.51383112499089,
+        "pass": false
+      },
+      "before": {
+        "round_mean_median_difference_pct": 17.921887520134796,
+        "pass": false
+      }
+    },
+    "traced/text-dense": {
+      "lazy": {
+        "round_mean_median_difference_pct": 22.833559338541345,
+        "pass": false
+      },
+      "interval": {
+        "round_mean_median_difference_pct": 27.91762816334924,
+        "pass": false
+      },
+      "vanilla": {
+        "round_mean_median_difference_pct": 28.476722684954538,
+        "pass": false
+      },
+      "before": {
+        "round_mean_median_difference_pct": 20.906783429140205,
+        "pass": false
+      }
+    }
+  },
+  "catalog": {
+    "lazy": {
+      "round_means_ms": [
+        475.12428024999997,
+        502.38857141666665,
+        539.7376215833333
+      ],
+      "mean_median_difference_pct": 0.6691207811224905,
+      "pass": true
+    },
+    "interval": {
+      "round_means_ms": [
+        323.7469331666667,
+        315.5034738333333,
+        360.0167808333333
+      ],
+      "mean_median_difference_pct": 2.8856271634965713,
+      "pass": true
+    }
+  },
+  "note": "Admission establishes unchanged inputs/consumers and no detected concurrent builds/tests/benchmarks, not statistical repeatability. The ADR-0115 mean/median rule is reported explicitly; it does not prove clock or thermal stability."
+}

@@ -1,0 +1,2791 @@
+{
+  "command": [
+    "cargo",
+    "bench",
+    "--manifest-path",
+    "benches/Cargo.toml",
+    "--no-run",
+    "--offline",
+    "--locked",
+    "--message-format=json"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "start_utc": "2026-09-27T11:42:35.807630+00:00",
+  "end_utc": "2026-09-27T11:43:15.108990+00:00",
+  "launcher_elapsed_ms_not_a_benchmark": 37890.273932,
+  "exit_code": 0,
+  "valid": true,
+  "measurement": false,
+  "concurrent_preparation": true,
+  "source_stable": true,
+  "contamination": [
+    {
+      "pid": 3773057,
+      "ppid": 2981477,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 2
+    },
+    {
+      "pid": 3773060,
+      "ppid": 3773057,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773080,
+      "ppid": 3773060,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773084,
+      "ppid": 3773080,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773389,
+      "ppid": 3773084,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773396,
+      "ppid": 3773395,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 22
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774078,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774083,
+      "ppid": 3774082,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 15
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774078,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774083,
+      "ppid": 3774082,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 47
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774078,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774083,
+      "ppid": 3774082,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 79
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774078,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774083,
+      "ppid": 3774082,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 112
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774078,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774083,
+      "ppid": 3774082,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 145
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774144,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774149,
+      "ppid": 3774148,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 25
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774144,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774149,
+      "ppid": 3774148,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 57
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774144,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774149,
+      "ppid": 3774148,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 88
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773777,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773781,
+      "ppid": 3773777,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774144,
+      "ppid": 3773781,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774159,
+      "ppid": 3774158,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774161,
+      "ppid": 3774160,
+      "comm": "collect2",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774444,
+      "ppid": 3774175,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774449,
+      "ppid": 3774448,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 25
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774444,
+      "ppid": 3774175,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774449,
+      "ppid": 3774448,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 58
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774444,
+      "ppid": 3774175,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774449,
+      "ppid": 3774448,
+      "comm": "cc1plus",
+      "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+      "script": null,
+      "ticks": 90
+    },
+    {
+      "pid": 3773773,
+      "ppid": 3773771,
+      "comm": "cmake",
+      "exe": "/usr/bin/cmake",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3773774,
+      "ppid": 3773773,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774171,
+      "ppid": 3773774,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    },
+    {
+      "pid": 3774175,
+      "ppid": 3774171,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 1
+    },
+    {
+      "pid": 3774444,
+      "ppid": 3774175,
+      "comm": "gmake",
+      "exe": "/usr/bin/make",
+      "script": null,
+      "ticks": 0
+    }
+  ],
+  "telemetry": [
+    {
+      "utc": "2026-09-27T11:42:35.872555+00:00",
+      "loadavg": "3.47 3.15 3.97 6/3303 3773405",
+      "blockers": [
+        {
+          "pid": 3773057,
+          "ppid": 2981477,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 2
+        },
+        {
+          "pid": 3773060,
+          "ppid": 3773057,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773080,
+          "ppid": 3773060,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773084,
+          "ppid": 3773080,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3773389,
+          "ppid": 3773084,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3773396,
+          "ppid": 3773395,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 22
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129766 8739 683056 26409520 340818 0 5072 0 0 0",
+        "cpu5 1229811 7263 333232 28027658 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:36.201480+00:00",
+      "loadavg": "3.47 3.15 3.97 6/3301 3773419",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129772 8739 683059 26409542 340818 0 5072 0 0 0",
+        "cpu5 1229812 7263 333232 28027689 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:36.515138+00:00",
+      "loadavg": "3.47 3.15 3.97 5/3304 3773435",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129781 8739 683062 26409561 340818 0 5072 0 0 0",
+        "cpu5 1229817 7263 333236 28027711 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:36.829350+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3302 3773454",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129786 8739 683064 26409585 340818 0 5072 0 0 0",
+        "cpu5 1229820 7263 333238 28027737 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:37.138766+00:00",
+      "loadavg": "3.47 3.15 3.97 5/3304 3773460",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129790 8739 683065 26409611 340818 0 5072 0 0 0",
+        "cpu5 1229822 7263 333238 28027766 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:37.451557+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3302 3773464",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129797 8739 683066 26409635 340818 0 5072 0 0 0",
+        "cpu5 1229823 7263 333239 28027797 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:37.772949+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3302 3773468",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129801 8739 683067 26409662 340818 0 5072 0 0 0",
+        "cpu5 1229824 7263 333239 28027827 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:38.084481+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3302 3773472",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129805 8739 683067 26409689 340818 0 5072 0 0 0",
+        "cpu5 1229826 7263 333239 28027856 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:38.396294+00:00",
+      "loadavg": "3.47 3.15 3.97 2/3298 3773473",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129808 8739 683068 26409716 340818 0 5072 0 0 0",
+        "cpu5 1229826 7263 333239 28027887 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:38.707191+00:00",
+      "loadavg": "3.47 3.15 3.97 6/3299 3773489",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129812 8739 683070 26409741 340818 0 5072 0 0 0",
+        "cpu5 1229826 7263 333240 28027917 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:39.020340+00:00",
+      "loadavg": "3.47 3.15 3.97 3/3298 3773491",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129815 8739 683070 26409768 340818 0 5072 0 0 0",
+        "cpu5 1229828 7263 333240 28027947 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:39.330547+00:00",
+      "loadavg": "3.47 3.15 3.97 6/3298 3773493",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129820 8739 683071 26409794 340818 0 5072 0 0 0",
+        "cpu5 1229830 7263 333240 28027975 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:39.643438+00:00",
+      "loadavg": "3.47 3.15 3.97 2/3298 3773495",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129823 8739 683072 26409821 340818 0 5072 0 0 0",
+        "cpu5 1229834 7263 333241 28028000 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:39.956480+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3298 3773498",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129828 8739 683073 26409846 340818 0 5072 0 0 0",
+        "cpu5 1229835 7263 333241 28028031 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:40.270670+00:00",
+      "loadavg": "3.47 3.15 3.97 4/3298 3773508",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129833 8739 683075 26409870 340818 0 5072 0 0 0",
+        "cpu5 1229835 7263 333241 28028063 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:40.595299+00:00",
+      "loadavg": "3.43 3.15 3.96 2/3299 3773525",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129837 8739 683077 26409895 340818 0 5072 0 0 0",
+        "cpu5 1229837 7263 333245 28028089 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:40.910574+00:00",
+      "loadavg": "3.43 3.15 3.96 2/3298 3773543",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129840 8739 683078 26409922 340818 0 5072 0 0 0",
+        "cpu5 1229838 7263 333246 28028118 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:41.222752+00:00",
+      "loadavg": "3.43 3.15 3.96 5/3298 3773546",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129844 8739 683080 26409948 340818 0 5072 0 0 0",
+        "cpu5 1229841 7263 333246 28028146 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:41.535380+00:00",
+      "loadavg": "3.43 3.15 3.96 2/3297 3773552",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129848 8739 683081 26409974 340818 0 5072 0 0 0",
+        "cpu5 1229842 7263 333246 28028176 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:41.846742+00:00",
+      "loadavg": "3.43 3.15 3.96 6/3297 3773562",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129854 8739 683082 26409999 340818 0 5072 0 0 0",
+        "cpu5 1229843 7263 333247 28028207 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:42.161545+00:00",
+      "loadavg": "3.43 3.15 3.96 4/3297 3773564",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129857 8739 683083 26410026 340818 0 5072 0 0 0",
+        "cpu5 1229843 7263 333247 28028238 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:42.475229+00:00",
+      "loadavg": "3.43 3.15 3.96 3/3297 3773566",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129859 8739 683084 26410053 340818 0 5072 0 0 0",
+        "cpu5 1229843 7263 333247 28028270 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:42.791892+00:00",
+      "loadavg": "3.43 3.15 3.96 5/3297 3773579",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129867 8739 683085 26410076 340818 0 5072 0 0 0",
+        "cpu5 1229846 7263 333247 28028298 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:43.109485+00:00",
+      "loadavg": "3.43 3.15 3.96 4/3297 3773582",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129870 8739 683086 26410104 340818 0 5072 0 0 0",
+        "cpu5 1229846 7263 333247 28028329 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:43.423763+00:00",
+      "loadavg": "3.43 3.15 3.96 3/3297 3773591",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129873 8739 683088 26410130 340818 0 5072 0 0 0",
+        "cpu5 1229846 7263 333247 28028360 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:43.742399+00:00",
+      "loadavg": "3.43 3.15 3.96 5/3294 3773620",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129877 8739 683091 26410156 340818 0 5072 0 0 0",
+        "cpu5 1229847 7263 333248 28028390 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:44.057693+00:00",
+      "loadavg": "3.43 3.15 3.96 5/3296 3773622",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129880 8739 683092 26410183 340818 0 5072 0 0 0",
+        "cpu5 1229847 7263 333248 28028421 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:44.371057+00:00",
+      "loadavg": "3.43 3.15 3.96 2/3297 3773623",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129882 8739 683093 26410212 340818 0 5072 0 0 0",
+        "cpu5 1229848 7263 333248 28028451 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:44.689095+00:00",
+      "loadavg": "3.43 3.15 3.96 3/3296 3773637",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129884 8739 683094 26410241 340818 0 5072 0 0 0",
+        "cpu5 1229848 7263 333248 28028483 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:45.000659+00:00",
+      "loadavg": "3.43 3.15 3.96 2/3297 3773644",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129887 8739 683095 26410267 340818 0 5072 0 0 0",
+        "cpu5 1229848 7263 333248 28028514 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:45.318083+00:00",
+      "loadavg": "3.43 3.15 3.96 4/3296 3773646",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129892 8739 683095 26410293 340818 0 5072 0 0 0",
+        "cpu5 1229848 7263 333248 28028545 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:45.635701+00:00",
+      "loadavg": "3.31 3.13 3.95 4/3296 3773650",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129895 8739 683096 26410321 340818 0 5072 0 0 0",
+        "cpu5 1229848 7263 333248 28028577 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:45.949497+00:00",
+      "loadavg": "3.31 3.13 3.95 7/3298 3773657",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129898 8739 683097 26410347 340818 0 5072 0 0 0",
+        "cpu5 1229851 7263 333248 28028605 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:46.267821+00:00",
+      "loadavg": "3.31 3.13 3.95 2/3297 3773659",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129900 8739 683097 26410375 340818 0 5072 0 0 0",
+        "cpu5 1229852 7263 333248 28028637 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:46.580607+00:00",
+      "loadavg": "3.31 3.13 3.95 4/3297 3773663",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129904 8739 683098 26410402 340818 0 5072 0 0 0",
+        "cpu5 1229852 7263 333249 28028667 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:46.900835+00:00",
+      "loadavg": "3.31 3.13 3.95 4/3300 3773693",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129907 8739 683101 26410428 340818 0 5072 0 0 0",
+        "cpu5 1229854 7263 333249 28028697 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:47.215986+00:00",
+      "loadavg": "3.31 3.13 3.95 5/3300 3773694",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129910 8739 683101 26410456 340818 0 5072 0 0 0",
+        "cpu5 1229855 7263 333249 28028728 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:47.530640+00:00",
+      "loadavg": "3.31 3.13 3.95 4/3300 3773696",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129912 8739 683102 26410484 340818 0 5072 0 0 0",
+        "cpu5 1229855 7263 333250 28028759 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:47.848663+00:00",
+      "loadavg": "3.31 3.13 3.95 3/3299 3773698",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129914 8739 683103 26410513 340818 0 5072 0 0 0",
+        "cpu5 1229855 7263 333250 28028790 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:48.162902+00:00",
+      "loadavg": "3.31 3.13 3.95 3/3298 3773704",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129918 8739 683104 26410538 340818 0 5072 0 0 0",
+        "cpu5 1229855 7263 333250 28028822 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:48.480673+00:00",
+      "loadavg": "3.31 3.13 3.95 3/3298 3773705",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129921 8739 683106 26410566 340818 0 5072 0 0 0",
+        "cpu5 1229855 7263 333250 28028853 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:48.794362+00:00",
+      "loadavg": "3.31 3.13 3.95 2/3297 3773717",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129929 8739 683107 26410588 340818 0 5072 0 0 0",
+        "cpu5 1229857 7263 333250 28028882 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:49.116751+00:00",
+      "loadavg": "3.31 3.13 3.95 4/3297 3773719",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129932 8739 683107 26410616 340818 0 5072 0 0 0",
+        "cpu5 1229858 7263 333250 28028913 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:49.438095+00:00",
+      "loadavg": "3.31 3.13 3.95 18/3314 3773741",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129936 8739 683109 26410641 340818 0 5072 0 0 0",
+        "cpu5 1229860 7263 333252 28028942 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:49.754939+00:00",
+      "loadavg": "3.31 3.13 3.95 6/3295 3773750",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129939 8739 683111 26410669 340818 0 5072 0 0 0",
+        "cpu5 1229860 7263 333253 28028972 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:50.074427+00:00",
+      "loadavg": "3.31 3.13 3.95 2/3298 3773753",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129942 8739 683112 26410697 340818 0 5072 0 0 0",
+        "cpu5 1229861 7263 333253 28029003 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:50.388697+00:00",
+      "loadavg": "3.31 3.13 3.95 2/3297 3773753",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2129945 8739 683112 26410723 340818 0 5072 0 0 0",
+        "cpu5 1229861 7263 333253 28029034 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:50.726022+00:00",
+      "loadavg": "3.21 3.11 3.94 7/3309 3773857",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129954 8739 683115 26410746 340818 0 5072 0 0 0",
+        "cpu5 1229865 7263 333256 28029060 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:51.055986+00:00",
+      "loadavg": "3.21 3.11 3.94 3/3303 3774064",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129960 8739 683122 26410763 340818 0 5072 0 0 0",
+        "cpu5 1229873 7263 333263 28029076 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:51.379542+00:00",
+      "loadavg": "3.21 3.11 3.94 5/3305 3774083",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774078,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774083,
+          "ppid": 3774082,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 15
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129965 8739 683124 26410789 340818 0 5072 0 0 0",
+        "cpu5 1229874 7263 333264 28029106 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:51.699157+00:00",
+      "loadavg": "3.21 3.11 3.94 5/3305 3774090",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774078,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774083,
+          "ppid": 3774082,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 47
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129969 8739 683124 26410816 340818 0 5072 0 0 0",
+        "cpu5 1229875 7263 333265 28029135 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:52.025510+00:00",
+      "loadavg": "3.21 3.11 3.94 5/3305 3774104",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774078,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774083,
+          "ppid": 3774082,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 79
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129977 8739 683126 26410838 340818 0 5072 0 0 0",
+        "cpu5 1229876 7263 333266 28029165 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:52.350179+00:00",
+      "loadavg": "3.21 3.11 3.94 11/3305 3774112",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774078,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774083,
+          "ppid": 3774082,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 112
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129983 8739 683128 26410862 340818 0 5072 0 0 0",
+        "cpu5 1229881 7263 333269 28029190 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:52.676211+00:00",
+      "loadavg": "3.21 3.11 3.94 7/3304 3774119",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774078,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774083,
+          "ppid": 3774082,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 145
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129989 8739 683131 26410886 340818 0 5072 0 0 0",
+        "cpu5 1229882 7263 333269 28029221 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:52.988350+00:00",
+      "loadavg": "3.21 3.11 3.94 3/3304 3774143",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2129994 8739 683132 26410910 340818 0 5072 0 0 0",
+        "cpu5 1229882 7263 333269 28029252 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:53.312787+00:00",
+      "loadavg": "3.21 3.11 3.94 5/3305 3774150",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774144,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774149,
+          "ppid": 3774148,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 25
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130000 8739 683134 26410933 340818 0 5072 0 0 0",
+        "cpu5 1229885 7263 333270 28029281 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:53.631749+00:00",
+      "loadavg": "3.21 3.11 3.94 6/3306 3774152",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774144,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774149,
+          "ppid": 3774148,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 57
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130004 8739 683135 26410960 340818 0 5072 0 0 0",
+        "cpu5 1229887 7263 333270 28029310 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:53.951514+00:00",
+      "loadavg": "3.21 3.11 3.94 3/3306 3774154",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774144,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774149,
+          "ppid": 3774148,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 88
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130007 8739 683136 26410987 340818 0 5072 0 0 0",
+        "cpu5 1229888 7263 333270 28029341 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:54.273086+00:00",
+      "loadavg": "3.21 3.11 3.94 3/3308 3774167",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773777,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773781,
+          "ppid": 3773777,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774144,
+          "ppid": 3773781,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774159,
+          "ppid": 3774158,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774161,
+          "ppid": 3774160,
+          "comm": "collect2",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+          "script": null,
+          "ticks": 0
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130012 8739 683137 26411013 340818 0 5072 0 0 0",
+        "cpu5 1229888 7263 333271 28029372 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:54.610971+00:00",
+      "loadavg": "3.21 3.11 3.94 10/3316 3774338",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130019 8739 683143 26411033 340818 0 5072 0 0 0",
+        "cpu5 1229903 7263 333275 28029386 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:54.929955+00:00",
+      "loadavg": "3.21 3.11 3.94 16/3304 3774444",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130026 8739 683147 26411052 340818 0 5072 0 0 0",
+        "cpu5 1229908 7263 333279 28029409 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:55.255910+00:00",
+      "loadavg": "3.21 3.11 3.94 5/3306 3774450",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774444,
+          "ppid": 3774175,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774449,
+          "ppid": 3774448,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 25
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130035 8739 683149 26411072 340818 0 5072 0 0 0",
+        "cpu5 1229911 7263 333279 28029437 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:55.577846+00:00",
+      "loadavg": "3.27 3.12 3.94 6/3306 3774451",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774444,
+          "ppid": 3774175,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774449,
+          "ppid": 3774448,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 58
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130040 8739 683150 26411098 340818 0 5072 0 0 0",
+        "cpu5 1229913 7263 333280 28029467 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:55.905090+00:00",
+      "loadavg": "3.27 3.12 3.94 5/3307 3774458",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774444,
+          "ppid": 3774175,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774449,
+          "ppid": 3774448,
+          "comm": "cc1plus",
+          "exe": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+          "script": null,
+          "ticks": 90
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130045 8739 683151 26411125 340818 0 5072 0 0 0",
+        "cpu5 1229914 7263 333280 28029498 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:56.225015+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3307 3774458",
+      "blockers": [
+        {
+          "pid": 3773773,
+          "ppid": 3773771,
+          "comm": "cmake",
+          "exe": "/usr/bin/cmake",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3773774,
+          "ppid": 3773773,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774171,
+          "ppid": 3773774,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        },
+        {
+          "pid": 3774175,
+          "ppid": 3774171,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 1
+        },
+        {
+          "pid": 3774444,
+          "ppid": 3774175,
+          "comm": "gmake",
+          "exe": "/usr/bin/make",
+          "script": null,
+          "ticks": 0
+        }
+      ],
+      "cpu_stat": [
+        "cpu4 2130049 8739 683152 26411152 340818 0 5072 0 0 0",
+        "cpu5 1229917 7263 333280 28029527 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:56.545354+00:00",
+      "loadavg": "3.27 3.12 3.94 2/3298 3774469",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130053 8739 683153 26411178 340818 0 5072 0 0 0",
+        "cpu5 1229918 7263 333281 28029557 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:56.858266+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3298 3774480",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130056 8739 683154 26411206 340818 0 5072 0 0 0",
+        "cpu5 1229918 7263 333281 28029589 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:57.174326+00:00",
+      "loadavg": "3.27 3.12 3.94 2/3298 3774480",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130058 8739 683155 26411234 340818 0 5072 0 0 0",
+        "cpu5 1229918 7263 333281 28029619 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:57.491145+00:00",
+      "loadavg": "3.27 3.12 3.94 3/3298 3774485",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130061 8739 683157 26411261 340818 0 5072 0 0 0",
+        "cpu5 1229919 7263 333282 28029650 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:57.815378+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3298 3774486",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130063 8739 683158 26411290 340818 0 5072 0 0 0",
+        "cpu5 1229920 7263 333282 28029681 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:58.134105+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3300 3774488",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130065 8739 683160 26411317 340818 0 5072 0 0 0",
+        "cpu5 1229921 7263 333282 28029712 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:58.451439+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3300 3774488",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130068 8739 683160 26411344 340818 0 5072 0 0 0",
+        "cpu5 1229922 7263 333282 28029742 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:58.780143+00:00",
+      "loadavg": "3.27 3.12 3.94 3/3300 3774498",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130071 8739 683161 26411373 340818 0 5072 0 0 0",
+        "cpu5 1229922 7263 333282 28029775 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:59.093069+00:00",
+      "loadavg": "3.27 3.12 3.94 5/3300 3774503",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130073 8739 683162 26411400 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333282 28029806 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:59.419267+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3300 3774503",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130077 8739 683162 26411429 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333282 28029839 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:42:59.732564+00:00",
+      "loadavg": "3.27 3.12 3.94 2/3300 3774504",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130081 8739 683163 26411456 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333282 28029870 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:00.061038+00:00",
+      "loadavg": "3.27 3.12 3.94 3/3303 3774523",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130083 8739 683164 26411484 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333282 28029902 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:00.384649+00:00",
+      "loadavg": "3.27 3.12 3.94 4/3305 3774526",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130085 8739 683165 26411513 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333282 28029934 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:00.711971+00:00",
+      "loadavg": "3.49 3.17 3.95 5/3303 3774529",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130088 8739 683165 26411543 340818 0 5072 0 0 0",
+        "cpu5 1229923 7263 333283 28029967 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:01.032470+00:00",
+      "loadavg": "3.49 3.17 3.95 4/3303 3774540",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130091 8739 683166 26411571 340818 0 5072 0 0 0",
+        "cpu5 1229924 7263 333283 28029998 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:01.353673+00:00",
+      "loadavg": "3.49 3.17 3.95 6/3303 3774541",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130099 8739 683167 26411593 340818 0 5072 0 0 0",
+        "cpu5 1229930 7263 333283 28030024 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:01.683981+00:00",
+      "loadavg": "3.49 3.17 3.95 4/3303 3774541",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130104 8739 683168 26411620 340818 0 5072 0 0 0",
+        "cpu5 1229930 7263 333283 28030057 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:02.009066+00:00",
+      "loadavg": "3.49 3.17 3.95 6/3303 3774546",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130108 8739 683169 26411647 340818 0 5072 0 0 0",
+        "cpu5 1229932 7263 333283 28030088 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:02.330078+00:00",
+      "loadavg": "3.49 3.17 3.95 9/3306 3774556",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130115 8739 683170 26411671 340818 0 5072 0 0 0",
+        "cpu5 1229932 7263 333283 28030119 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:02.661626+00:00",
+      "loadavg": "3.49 3.17 3.95 5/3301 3774585",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130118 8739 683174 26411696 340818 0 5072 0 0 0",
+        "cpu5 1229934 7263 333284 28030149 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:02.975906+00:00",
+      "loadavg": "3.49 3.17 3.95 3/3301 3774611",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130122 8739 683176 26411722 340818 0 5072 0 0 0",
+        "cpu5 1229934 7263 333284 28030181 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:03.292984+00:00",
+      "loadavg": "3.49 3.17 3.95 4/3304 3774631",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130125 8739 683177 26411749 340818 0 5072 0 0 0",
+        "cpu5 1229934 7263 333284 28030212 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:03.619259+00:00",
+      "loadavg": "3.49 3.17 3.95 7/3304 3774636",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130127 8739 683179 26411777 340819 0 5072 0 0 0",
+        "cpu5 1229934 7263 333284 28030244 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:03.933898+00:00",
+      "loadavg": "3.49 3.17 3.95 3/3304 3774637",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130129 8739 683181 26411805 340819 0 5072 0 0 0",
+        "cpu5 1229934 7263 333284 28030275 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:04.259308+00:00",
+      "loadavg": "3.49 3.17 3.95 2/3320 3774657",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130134 8739 683182 26411831 340819 0 5072 0 0 0",
+        "cpu5 1229935 7263 333285 28030306 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:04.572230+00:00",
+      "loadavg": "3.49 3.17 3.95 5/3301 3774662",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130137 8739 683183 26411849 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333285 28030337 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:04.886464+00:00",
+      "loadavg": "3.49 3.17 3.95 4/3305 3774676",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130139 8739 683184 26411877 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333285 28030369 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:05.206403+00:00",
+      "loadavg": "3.49 3.17 3.95 5/3305 3774683",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130142 8739 683185 26411904 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030400 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:05.526474+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3306 3774688",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130144 8739 683186 26411933 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030432 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:05.839430+00:00",
+      "loadavg": "3.37 3.15 3.94 3/3306 3774691",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130149 8739 683187 26411958 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030464 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:06.157267+00:00",
+      "loadavg": "3.37 3.15 3.94 3/3307 3774697",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130152 8739 683188 26411984 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030495 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:06.470385+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3307 3774700",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130155 8739 683189 26412011 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030527 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:06.781154+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3307 3774715",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130160 8739 683190 26412036 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030558 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:07.094473+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3307 3774716",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130164 8739 683190 26412062 340828 0 5072 0 0 0",
+        "cpu5 1229935 7263 333286 28030589 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:07.415491+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3307 3774716",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130169 8739 683192 26412088 340828 0 5072 0 0 0",
+        "cpu5 1229940 7263 333286 28030615 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:07.732570+00:00",
+      "loadavg": "3.37 3.15 3.94 3/3307 3774719",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130171 8739 683193 26412115 340828 0 5072 0 0 0",
+        "cpu5 1229940 7263 333286 28030646 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:08.047221+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3307 3774723",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130176 8739 683194 26412141 340828 0 5072 0 0 0",
+        "cpu5 1229941 7263 333286 28030677 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:08.360475+00:00",
+      "loadavg": "3.37 3.15 3.94 4/3307 3774730",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130180 8739 683195 26412167 340828 0 5072 0 0 0",
+        "cpu5 1229941 7263 333286 28030708 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:08.674377+00:00",
+      "loadavg": "3.37 3.15 3.94 7/3307 3774733",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130182 8739 683196 26412194 340828 0 5072 0 0 0",
+        "cpu5 1229942 7263 333286 28030739 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:08.997915+00:00",
+      "loadavg": "3.37 3.15 3.94 4/3338 3774779",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130186 8739 683199 26412220 340828 0 5072 0 0 0",
+        "cpu5 1229944 7263 333287 28030767 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:09.316477+00:00",
+      "loadavg": "3.37 3.15 3.94 6/3318 3774814",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130189 8739 683200 26412247 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333287 28030799 68913 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:09.639405+00:00",
+      "loadavg": "3.37 3.15 3.94 3/3310 3774820",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130193 8739 683201 26412274 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030830 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:09.962196+00:00",
+      "loadavg": "3.37 3.15 3.94 2/3311 3774827",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130196 8739 683203 26412301 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030862 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:10.285336+00:00",
+      "loadavg": "3.37 3.15 3.94 5/3310 3774830",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130197 8739 683204 26412331 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030894 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:10.597174+00:00",
+      "loadavg": "3.26 3.13 3.93 2/3310 3774835",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130200 8739 683205 26412359 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030925 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:10.910737+00:00",
+      "loadavg": "3.26 3.13 3.93 4/3310 3774849",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130202 8739 683206 26412386 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030957 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:11.232198+00:00",
+      "loadavg": "3.26 3.13 3.93 4/3310 3774852",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130207 8739 683207 26412413 340828 0 5072 0 0 0",
+        "cpu5 1229945 7263 333288 28030989 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:11.549385+00:00",
+      "loadavg": "3.26 3.13 3.93 2/3311 3774858",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130210 8739 683209 26412439 340828 0 5072 0 0 0",
+        "cpu5 1229946 7263 333288 28031020 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:11.874249+00:00",
+      "loadavg": "3.26 3.13 3.93 6/3311 3774860",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130215 8739 683210 26412466 340828 0 5072 0 0 0",
+        "cpu5 1229946 7263 333288 28031052 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:12.187389+00:00",
+      "loadavg": "3.26 3.13 3.93 3/3311 3774863",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130220 8739 683211 26412493 340828 0 5072 0 0 0",
+        "cpu5 1229946 7263 333288 28031083 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:12.501647+00:00",
+      "loadavg": "3.26 3.13 3.93 3/3310 3774865",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130223 8739 683212 26412520 340828 0 5072 0 0 0",
+        "cpu5 1229946 7263 333288 28031115 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:12.814803+00:00",
+      "loadavg": "3.26 3.13 3.93 5/3312 3774883",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130227 8739 683214 26412544 340829 0 5072 0 0 0",
+        "cpu5 1229947 7263 333289 28031144 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:13.127719+00:00",
+      "loadavg": "3.26 3.13 3.93 4/3310 3774886",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130232 8739 683215 26412569 340829 0 5072 0 0 0",
+        "cpu5 1229949 7263 333289 28031172 68914 0 6129 0 0 0"
+      ]
+    },
+    {
+      "utc": "2026-09-27T11:43:13.447584+00:00",
+      "loadavg": "3.26 3.13 3.93 4/3307 3774912",
+      "blockers": [],
+      "cpu_stat": [
+        "cpu4 2130237 8739 683218 26412594 340829 0 5072 0 0 0",
+        "cpu5 1229950 7263 333290 28031202 68914 0 6129 0 0 0"
+      ]
+    }
+  ],
+  "fingerprint_before": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "fingerprint_after": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "affinity": null
+}

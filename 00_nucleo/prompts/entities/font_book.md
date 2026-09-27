@@ -1,235 +1,50 @@
-# Prompt L0 — `entities/font_book` — `FontBook`, `FontInfo` e cobertura Unicode exacta
-Hash do Código: 5393608b
+# L0 — entities/font_book — exact Unicode coverage and font metadata
+Hash do Código: d0e3fa73
 
-**Camada**: L1  
-**Ficheiros alvo**: `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs`  
-**Criado em**: 2026-07-31 (P937)  
-**ADRs relevantes**: ADR-0022 (`FontInfo` — L1 recebe apenas campos primitivos), ADR-0107 (paridade com a linguagem), ADR-0123 (fórmula/estrutura de dados física portável do vanilla quando justificada)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/font_book.rs`
+**Applicable ADRs:** ADR-0022, ADR-0030, ADR-0107, ADR-0108, ADR-0129.
 
----
+## Evidence before the construction decision
 
-## Contexto
+- `03_infra/src/fonts.rs:403` collects codepoints from every Unicode cmap subtable and calls the existing vector-based constructor. L3 owns font bytes, discovery and acquisition.
+- Pinned vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, `lab/typst-original/crates/typst-library/src/text/font/info.rs:119-134`, builds compact coverage for each ordered Unicode subtable and unions intervals. Its general vector constructor at `info.rs:296` still sorts and deduplicates individual codepoints.
+- `01_core/src/entities/font_book.rs:161` stores alternating outside/inside run lengths. The observable contract is exact Unicode membership and ordered iteration, including gaps and duplicates; the collection algorithm is internal mechanics.
 
-O `FontBook` (L1) é o catálogo de metadados de fontes disponíveis. É consultado
-pelo shaper para resolver famílias declaradas e para o fallback global. A
-qualidade do fallback depende da precisão da cobertura Unicode guardada em
-cada `FontInfo`.
+The existing vector API must be retained. Compact contiguous input sequences into intervals, order those intervals and merge overlapping or adjacent intervals before encoding the canonical runs. This adapts vanilla's compact interval mechanism without adding a public range builder or importing font bytes into L1. It does not eliminate L3's intermediate vector. Performance claims belong to `00_nucleo/diagnosticos/font-lifecycle-experiment.md` and its reproducible dataset.
 
-Até P880 o `Coverage` era um bitmap por bloco de 256 codepoints: barato de
-construir, mas com falsos positivos reais (ex.: uma fonte que cobre o bloco
-grego U+0300–U+03FF mas não contém α U+03B1). Esses falsos positivos forçavam
-o shaper a abrir faces durante o fallback para confirmar candidatos, o que se
-tornou o gargalo em CJK/emoji (P936).
+## Owned coverage contract
 
-P936 confirmou a estrutura do vanilla: coverage **exacta** (runs de codepoints)
-elimina completamente a necessidade de abrir faces durante `select_fallback`.
-P937 materializou essa representação em L1; P938 ajusta L3 para a extrair de
-forma **lazy** (só quando uma fonte é de facto candidata a fallback), evitando
-o custo de iterar a `cmap` de todas as fontes no arranque de documentos que não
-precisam de fallback.
+Preserve `Coverage(Vec<u32>)` as an immutable exact set after construction, with the existing `Clone`, equality, hash, debug and default behavior. Cloning copies its vector; no constant-time clone is promised.
 
----
-
-## `Coverage` — conjunto exacto de codepoints
-
-Portar a representação do vanilla (`typst-library/src/text/font/info.rs:269-318`):
+Preserve these public signatures:
 
 ```rust
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Coverage(Vec<u32>);
+pub fn new() -> Self;
+pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self;
+pub fn contains(&self, codepoint: u32) -> bool;
+pub fn is_empty(&self) -> bool;
+pub fn iter(&self) -> impl Iterator<Item = u32> + '_;
 ```
 
-O `Vec<u32>` codifica runs alternadas de codepoints **fora** e **dentro** do
-conjunto, começando por "fora" desde `0`. Para cada codepoint `c`, se
-`c == next` estende a run dentro actual; senão empurra `c - next` (fora) e
-`1` (dentro), e `next = c + 1`:
+The input may be unordered and may contain duplicates. Preserve exact set membership throughout Unicode `0..=0x10FFFF`, including zero and the upper boundary. Empty input yields empty coverage. Iteration yields each member once in ascending order. Never replace exact coverage with a block approximation.
 
-- Exemplo do vanilla: `{2,3,4,9,10,11,15,18,19}` → `[2, 3, 4, 3, 3, 1, 2, 2]`.
+Encode alternating lengths outside and inside the set, starting outside at zero. The set `{2,3,4,9,10,11,15,18,19}` encodes as `[2,3,4,3,3,1,2,2]`. Canonical encoding must be independent of input order, subtable overlap and duplicate occurrences.
 
-### Construtores
+During construction, compact adjacent input points into inclusive intervals. An interval may extend at either edge; a repeated point already inside it changes nothing. Sort intervals by their start, merge overlap/adjacency and emit the existing gap/count pairs. Arithmetic at the Unicode upper boundary must remain valid. Contains scans runs linearly, stopping once its cursor exceeds the requested codepoint. Iteration expands inside runs. No I/O, mutable globals or external font parser types are allowed.
 
-```rust
-impl Coverage {
-    /// Coverage vazia.
-    pub fn new() -> Self;
+## Font metadata and catalog contracts
 
-    /// Constrói a partir de um vector de codepoints.
-    /// Ordena (TimSort estável — O(n) em input já ordenado, como a cmap),
-    /// remove duplicados e codifica em runs.
-    /// P942: `impl Into<Vec<u32>>` (identidade para Vec, sem cópia) e `sort()`
-    /// em vez de `sort_unstable()`.
-    pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self;
-}
-```
+Preserve `FontInfo { family: String, variant: FontVariant, flags: FontFlags, coverage: Coverage }`, existing font style/weight/stretch types, clamps, symbolic names, defaults, distance functions and trait behavior. `FontFlags` retains its existing monospace and serif fields. L3 populates metadata and owns whether coverage is extracted during discovery or on demand. A populated coverage is exact and immutable.
 
-### Métodos
+`FontBook` remains a pure ordered collection of `FontInfo`. Push appends; indices preserve acquisition order. Existing new/default, infos, len and is_empty behavior and public signatures remain unchanged.
 
-```rust
-impl Coverage {
-    /// Verifica se o codepoint está coberto. O(n) linear nas runs, com
-    /// terminação antecipada (P942: pára quando `cursor > codepoint`, porque
-    /// as runs estão ordenadas) — o vanilla usa o mesmo scan linear
-    /// (`info.rs:313-326`); a referência anterior a "busca binária" estava
-    /// incorrecta.
-    pub fn contains(&self, codepoint: u32) -> bool;
+Family selection is case insensitive and chooses by weight distance, then style distance, preserving the existing tie behavior. Pattern selection uses the existing literal/regex matching rules and the same variant ranking. Family enumeration preserves insertion order. `candidates_for_char` returns precisely the indices whose populated coverage contains that character, in catalog order, without opening font faces. Its cost is linear in catalog size with a linear run scan per candidate.
 
-    /// True se não cobre nenhum codepoint.
-    pub fn is_empty(&self) -> bool;
+Fallback selection accepts already covering indices, skips invalid indices and preserves the first candidate on a complete score tie. Preserve existing ranking: likeness by monospace, serif, shared family-name prefix words and shorter family name, then variant distance by style, stretch and weight. Do not introduce vanilla's variable-font preference or axis fields here.
 
-    /// Itera todos os codepoints cobertos (útil para testes e debug).
-    pub fn iter(&self) -> impl Iterator<Item = u32>;
-}
-```
+## Boundaries and verification
 
-### Regras
+Font storage, mmap-backed bytes and the `Font` API belong exclusively to `00_nucleo/prompts/world-types.md`, whose consumer is `01_core/src/entities/world_types.rs`. This prompt does not own that consumer. System catalog lifecycle belongs to `00_nucleo/prompts/infra/system-world/fonts.md`; byte parsing and extraction belong to `00_nucleo/prompts/infra/fonts.md`. Neither L3 acquisition policy nor shaping is decided here.
 
-- Codepoints acima de `u32::MAX` não existem; a representação suporta todo o
-  espaço Unicode (`0..=0x10FFFF`).
-- `contains` deve ser **exacta**: `false` para codepoints que não estão na
-  tabela `cmap` da fonte. Sem falsos positivos.
-- A estrutura é imutável depois de construída. Clone é O(1) (Arc interno ou Vec
-  pequeno).
-
-### Proveniência
-
-A representação por runs e o algoritmo `contains` são portados do vanilla
-(`info.rs:269-318`). A decisão de reaproveitar a estrutura segue ADR-0123: é a
-fórmula/estrutura de dados que resolve o problema físico real (falsos positivos
-de bitmap), não mecânica a reinventar livremente.
-
----
-
-## `FontInfo`
-
-```rust
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct FontInfo {
-    pub family: String,
-    pub variant: FontVariant,
-    pub flags: FontFlags,
-    pub coverage: Coverage,  // exacta a partir de P937
-}
-```
-
-- `coverage` é preenchido por L3. Pode ser materializado **eager** (todas as
-  fontes no arranque) ou **lazy** (por fonte, na primeira consulta), conforme a
-  política de L3 documentada em `infra/fonts.md` e `infra/system-world.md`. Em
-  qualquer caso, uma vez preenchido é imutável e exacto.
-- L1 continua a não tocar em bytes de fonte; `FontInfo` contém apenas tipos
-  primitivos + `Coverage`.
-
----
-
-## `FontBook::candidates_for_char`
-
-```rust
-impl FontBook {
-    pub fn candidates_for_char(&self, c: char) -> impl Iterator<Item = usize> + '_ {
-        let codepoint = c as u32;
-        self.infos.iter().enumerate()
-            .filter(move |(_, info)| info.coverage.contains(codepoint))
-            .map(|(index, _)| index)
-    }
-}
-```
-
-- Devolve os índices cujo `coverage` **exacto** contém o caractere.
-- O(n) no número de fontes; a consulta `Coverage::contains` é O(log n) no
-  número de runs.
-- Não abre faces, não lê disco, não usa `ttf_parser`. A responsabilidade de
-  garantir que a `coverage` de cada `FontInfo` esteja preenchida antes desta
-  consulta é de L3 (ver `infra/system-world.md`).
-
----
-
-## `Font` (L1) — suporte a bytes mmap-backed
-
-Até P937 `Font` era `Font(Vec<u8>)`. Para evitar copiar bytes de um mmap para
-um `Vec<u8>` sempre que uma fonte do disco é carregada no shaping, `Font` passa
-a ser um enum que pode conter ou um `Arc<Vec<u8>>` (embutidas / faces extraídas
-de `.ttc`) ou um `Arc<Mmap>` (fontes simples do disco).
-
-```rust
-#[derive(Clone)]
-pub enum Font {
-    Vec(Arc<Vec<u8>>),
-    Mmap(Arc<memmap2::Mmap>),
-}
-```
-
-**Nota:** `memmap2::Mmap` é um tipo de L3. Para manter L1 pura (zero I/O),
-`Font` não cria mmap — apenas recebe o `Arc<Mmap>` já construído por L3. A
-variante `Vec` cobre todos os casos que não vêm directamente de um ficheiro
-mmap-ado (fontes embutidas, faces reconstruídas de coleções).
-
-### Interface pública
-
-```rust
-impl Font {
-    /// Constrói a partir de um Vec<u8> (fontes embutidas, faces extraídas).
-    pub fn from_data(data: Vec<u8>) -> Self;
-
-    /// Constrói a partir de um mmap já criado por L3.
-    pub fn from_mmap(mmap: Arc<memmap2::Mmap>) -> Self;
-
-    /// Devolve os bytes como slice.
-    pub fn as_slice(&self) -> &[u8];
-}
-```
-
-### Traits
-
-- `Debug`, `PartialEq`, `Eq`, `Hash`: implementados manualmente comparando
-  `as_slice()`. Duas fontes são iguais se os seus bytes forem iguais,
-  independentemente da variante interna.
-- `Clone`: clone O(1) do Arc interno.
-
-### Restrição de pureza L1
-
-L1 não importa `memmap2` nem abre ficheiros. A variante `Mmap` existe apenas
-para que L3 possa passar uma referência estável de bytes sem cópia. A criação
-de `Mmap` fica estritamente em `03_infra/src/fonts.rs`.
-
----
-
-## Critérios de Verificação
-
-```
-// Coverage exacta
-Coverage::from_codepoints([0x03B1]).contains(0x03B1) == true
-Coverage::from_codepoints([0x03B2]).contains(0x03B1) == false
-Coverage::new().is_empty() == true
-Coverage::from_codepoints([1,2,3]).iter().collect() == [1,2,3]
-
-// FontBook candidates_for_char com coverage exacta
-book.infos()[i].coverage = Coverage::from_codepoints([0x41, 0x03B1])
-book.candidates_for_char('A').collect() == [i]
-book.candidates_for_char('α').collect() == [i]
-book.candidates_for_char('你').collect() == []
-
-// Font
-Font::from_data(vec![1,2,3]).as_slice() == [1,2,3]
-// (variante Mmap testada em L3, ver infra/fonts.md)
-```
-
----
-
-## Relação com Outros Módulos
-
-| Módulo | Como consome |
-|--------|-------------|
-| `infra/fonts.rs` (L3) | Constrói `FontInfo` + `Coverage` exacta a partir de bytes; cria `Font::Mmap` ou `Font::Vec` |
-| `infra/shaper.rs` (L3) | Usa `Font::as_slice()` para `ttf_parser::Face::parse` e `rustybuzz::Face::from_slice` |
-| `infra/font_metrics.rs` (L3) | Idem |
-| `infra/fontdb.rs` (L3) | Usa `db.with_face_data` para extrair `FontInfo` + coverage no arranque |
-| `SystemWorld` (L3) | Delega `candidates_for_char` a `FontBook::candidates_for_char` |
-| `World` trait (L1) | Mantém a assinatura `candidates_for_char(&self, c: char) -> Vec<usize>` |
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Ficheiros afetados |
-|------|--------|--------------------|
-| 2026-07-31 | P937 — cobertura Unicode exacta (runs) e `Font` mmap-backed | `entities/font_book.md`, `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs` |
-| 2026-07-31 | P942 — `from_codepoints` sem cópia do Vec (`impl Into<Vec<u32>>`) e `sort()` (TimSort); `contains` com terminação antecipada | `entities/font_book.md`, `01_core/src/entities/font_book.rs` |
+Verify exact membership and ordered iteration against an independent set oracle for duplicate and overlapping subtables, reversed ranges, arbitrary order, gaps, zero and the Unicode maximum. Preserve catalog selection and fallback tests. Acceptance is set/selection semantics; wall-clock thresholds are not unit-test requirements. The historical bitmap and vector-sort decisions remain evidence in the diagnostic dataset, not current acquisition policy.

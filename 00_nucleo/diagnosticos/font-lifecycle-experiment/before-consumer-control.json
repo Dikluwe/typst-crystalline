@@ -1,0 +1,6 @@
+{
+  "comparison": "Incoming task bytes (initial originals for owned files, lazy-built snapshot for unchanged files) vs preserved before executable build state",
+  "union_keys_checked": 789,
+  "added_or_removed_keys": [],
+  "differences": []
+}

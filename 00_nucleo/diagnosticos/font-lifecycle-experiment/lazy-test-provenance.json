@@ -1,0 +1,6 @@
+{
+  "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/infra-tests-lazy",
+  "sha256": "3f7e593011009f8292d57d57f9e04ef34f4cde02aaf40b20dc355860c51c74d8",
+  "source_variant": "lazy",
+  "note": "Preserved passing lifecycle unit-test executable, before interval construction; hashes in source headers were subsequently sealed, affecting comments only."
+}

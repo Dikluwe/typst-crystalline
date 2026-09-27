@@ -1,0 +1,62 @@
+[
+  {
+    "source": "03_infra/src/world.rs",
+    "prompt": "00_nucleo/prompts/infra/system-world.md",
+    "prompt_hash": "f6cb647f",
+    "code_hash": "b4688302"
+  },
+  {
+    "source": "03_infra/src/world/fonts.rs",
+    "prompt": "00_nucleo/prompts/infra/system-world/fonts.md",
+    "prompt_hash": "89f61b34",
+    "code_hash": "d9c08969"
+  },
+  {
+    "source": "03_infra/src/world/world_impl.rs",
+    "prompt": "00_nucleo/prompts/infra/system-world/world_impl.md",
+    "prompt_hash": "45f12fcf",
+    "code_hash": "0827f104"
+  },
+  {
+    "source": "03_infra/src/world/tests.rs",
+    "prompt": "00_nucleo/prompts/infra/system-world/tests.md",
+    "prompt_hash": "99a480fb",
+    "code_hash": "17283d8a"
+  },
+  {
+    "source": "03_infra/src/pipeline/resources.rs",
+    "prompt": "00_nucleo/prompts/infra/pipeline/resources.md",
+    "prompt_hash": "81ba217d",
+    "code_hash": "c5ff672b"
+  },
+  {
+    "source": "03_infra/src/pipeline/pdf.rs",
+    "prompt": "00_nucleo/prompts/infra/pipeline/pdf.md",
+    "prompt_hash": "a1502158",
+    "code_hash": "77cf04dc"
+  },
+  {
+    "source": "03_infra/src/pipeline/bundle.rs",
+    "prompt": "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "prompt_hash": "f6c5faa8",
+    "code_hash": "566e2462"
+  },
+  {
+    "source": "03_infra/src/pipeline/tests.rs",
+    "prompt": "00_nucleo/prompts/infra/pipeline/tests.md",
+    "prompt_hash": "7f8fd8aa",
+    "code_hash": "f000cb00"
+  },
+  {
+    "source": "04_wiring/src/compile.rs",
+    "prompt": "00_nucleo/prompts/wiring/compile.md",
+    "prompt_hash": "a5f60f16",
+    "code_hash": "7f96c1e4"
+  },
+  {
+    "source": "01_core/src/entities/font_book.rs",
+    "prompt": "00_nucleo/prompts/entities/font_book.md",
+    "prompt_hash": "8d6189f1",
+    "code_hash": "d0e3fa73"
+  }
+]

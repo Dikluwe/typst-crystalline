@@ -1,0 +1,250 @@
+[
+  {
+    "name": "DejaVuSansMono-Bold.ttf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/DejaVuSansMono-Bold.ttf",
+    "tekt_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/DejaVuSansMono-Bold.ttf",
+    "vanilla_sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+    "same_bytes": true
+  },
+  {
+    "name": "DejaVuSansMono-BoldOblique.ttf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/DejaVuSansMono-BoldOblique.ttf",
+    "tekt_sha256": "91713a71d550bba22c2a6b2bb2a9ad8f9a159e12e4e9f0a5b2677998ba21213e",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/DejaVuSansMono-BoldOblique.ttf",
+    "vanilla_sha256": "91713a71d550bba22c2a6b2bb2a9ad8f9a159e12e4e9f0a5b2677998ba21213e",
+    "same_bytes": true
+  },
+  {
+    "name": "DejaVuSansMono-Oblique.ttf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/DejaVuSansMono-Oblique.ttf",
+    "tekt_sha256": "742097840c541870e8d6dc5c9b37bb1ceeea6c0dedd1d475faf903ef9df734b0",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/DejaVuSansMono-Oblique.ttf",
+    "vanilla_sha256": "742097840c541870e8d6dc5c9b37bb1ceeea6c0dedd1d475faf903ef9df734b0",
+    "same_bytes": true
+  },
+  {
+    "name": "DejaVuSansMono.ttf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/DejaVuSansMono.ttf",
+    "tekt_sha256": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/DejaVuSansMono.ttf",
+    "vanilla_sha256": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitDingbats.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitDingbats.pfb",
+    "tekt_sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitDingbats.pfb",
+    "vanilla_sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitFixed.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitFixed.pfb",
+    "tekt_sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitFixed.pfb",
+    "vanilla_sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitFixedBold.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitFixedBold.pfb",
+    "tekt_sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitFixedBold.pfb",
+    "vanilla_sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitFixedBoldItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitFixedBoldItalic.pfb",
+    "tekt_sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitFixedBoldItalic.pfb",
+    "vanilla_sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitFixedItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitFixedItalic.pfb",
+    "tekt_sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitFixedItalic.pfb",
+    "vanilla_sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSans.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSans.pfb",
+    "tekt_sha256": "a02339e95d20db14cbdfc1c6baf359cd36a091d5434925c3a4040f60e1a1af9e",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSans.pfb",
+    "vanilla_sha256": "a02339e95d20db14cbdfc1c6baf359cd36a091d5434925c3a4040f60e1a1af9e",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSansBold.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSansBold.pfb",
+    "tekt_sha256": "7bdfa36de1d5757dcfaf8b8a4be95c6e41c40fa70dbed9d78bf979a7b9959054",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSansBold.pfb",
+    "vanilla_sha256": "7bdfa36de1d5757dcfaf8b8a4be95c6e41c40fa70dbed9d78bf979a7b9959054",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSansBoldItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSansBoldItalic.pfb",
+    "tekt_sha256": "555ce45924338e2e4b32821910221ce85da691fd59a9723c4c971a7c5627fc8b",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSansBoldItalic.pfb",
+    "vanilla_sha256": "555ce45924338e2e4b32821910221ce85da691fd59a9723c4c971a7c5627fc8b",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSansItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSansItalic.pfb",
+    "tekt_sha256": "7751cbefeda351708dae8c4a88db043411bc39ab2ae2097685da845d4d16f307",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSansItalic.pfb",
+    "vanilla_sha256": "7751cbefeda351708dae8c4a88db043411bc39ab2ae2097685da845d4d16f307",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSerif.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSerif.pfb",
+    "tekt_sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSerif.pfb",
+    "vanilla_sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSerifBold.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSerifBold.pfb",
+    "tekt_sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSerifBold.pfb",
+    "vanilla_sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSerifBoldItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSerifBoldItalic.pfb",
+    "tekt_sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSerifBoldItalic.pfb",
+    "vanilla_sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSerifItalic.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSerifItalic.pfb",
+    "tekt_sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSerifItalic.pfb",
+    "vanilla_sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9",
+    "same_bytes": true
+  },
+  {
+    "name": "FoxitSymbol.pfb",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/FoxitSymbol.pfb",
+    "tekt_sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/FoxitSymbol.pfb",
+    "vanilla_sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-Bold.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Bold.otf",
+    "tekt_sha256": "0264914210ed51b3231ebc92ce529e9f2e166ba9eebf0cd4a579558690a27b64",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-Bold.otf",
+    "vanilla_sha256": "0264914210ed51b3231ebc92ce529e9f2e166ba9eebf0cd4a579558690a27b64",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-BoldItalic.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-BoldItalic.otf",
+    "tekt_sha256": "47a665259f09f554f5d133d7718cdad43ff462c6a6b2328f38023465e62d57ce",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-BoldItalic.otf",
+    "vanilla_sha256": "47a665259f09f554f5d133d7718cdad43ff462c6a6b2328f38023465e62d57ce",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-Italic.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Italic.otf",
+    "tekt_sha256": "9a393d63d6e05f620d3dc0190dfd35a8ede58c0808cf0fc9de7fcb9c723e4c24",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-Italic.otf",
+    "vanilla_sha256": "9a393d63d6e05f620d3dc0190dfd35a8ede58c0808cf0fc9de7fcb9c723e4c24",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-Regular.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Regular.otf",
+    "tekt_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-Regular.otf",
+    "vanilla_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-Semibold.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Semibold.otf",
+    "tekt_sha256": "a4b3f28e85881db34695c1f005e4c79233a6caf3a2bd286c9b418c025fb99308",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-Semibold.otf",
+    "vanilla_sha256": "a4b3f28e85881db34695c1f005e4c79233a6caf3a2bd286c9b418c025fb99308",
+    "same_bytes": true
+  },
+  {
+    "name": "LibertinusSerif-SemiboldItalic.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-SemiboldItalic.otf",
+    "tekt_sha256": "397f0d7aba35ae6a988948ae046c14c6b1e0d270fcc6e292b8bc29fd625c6101",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/LibertinusSerif-SemiboldItalic.otf",
+    "vanilla_sha256": "397f0d7aba35ae6a988948ae046c14c6b1e0d270fcc6e292b8bc29fd625c6101",
+    "same_bytes": true
+  },
+  {
+    "name": "NewCM10-Bold.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCM10-Bold.otf",
+    "tekt_sha256": "3f04ed6056dcad95e214631a03cf0db0d30b22680d7274f03e63921a8e90d8f3",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCM10-Bold.otf",
+    "vanilla_sha256": "40b0b32b63655fe802679ee4a14adb29c762a4712095d9c84cf7df7852b5152e",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCM10-BoldItalic.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCM10-BoldItalic.otf",
+    "tekt_sha256": "8e056b54044b17ac812073c3bdac3b91e5b6ef768e99814baa8651a5d07b1738",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCM10-BoldItalic.otf",
+    "vanilla_sha256": "fb53f43500c8ffbcc6dfdea5a519961d475543174ea2a0dcbe16c08510299fdf",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCM10-Italic.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCM10-Italic.otf",
+    "tekt_sha256": "f360fdd01bd528154c535705bef03721737d25a95be622b5ef1ac540ea56ff44",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCM10-Italic.otf",
+    "vanilla_sha256": "a55d07607eec48889b6e7e7d51d7703c3beb915a39690f34fe01b4e2a744a9d6",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCM10-Regular.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCM10-Regular.otf",
+    "tekt_sha256": "7e7bfec1dd8456ca76865ff7846b8764f2e0135749782b62751a2cc930a7c6c3",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCM10-Regular.otf",
+    "vanilla_sha256": "328698d764ccdf7acf6bc1088aefd83a237f6a1d8b812de1e77ac5e4483bf3d1",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCMMath-Bold.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Bold.otf",
+    "tekt_sha256": "528c420a827f1a6702c255c3e7b935a47d903906655bcb6cda8100820314447e",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCMMath-Bold.otf",
+    "vanilla_sha256": "c6c0e060da57d4f44274705afb956013047231dc62be5a4b02a351ab0dc43f2f",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCMMath-Book.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Book.otf",
+    "tekt_sha256": "60346e6fc27773d96c3cc9d3ac8a550a85e3ca624437179bd7a88b4ca18f0a18",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCMMath-Book.otf",
+    "vanilla_sha256": "2ea09ebc9167b1e1a66f31390dc917f2d4004ecfca72d51b28010e4ad6becd95",
+    "same_bytes": false
+  },
+  {
+    "name": "NewCMMath-Regular.otf",
+    "tekt_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf",
+    "tekt_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+    "vanilla_path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/94dcb99/files/fonts/NewCMMath-Regular.otf",
+    "vanilla_sha256": "d66ac1cc91c55c24d3636ae2df1238076debdff51841f9893fc5419cc2df3df7",
+    "same_bytes": false
+  }
+]

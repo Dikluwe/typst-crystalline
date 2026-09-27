@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font_book.md
-//! @prompt-hash a30a4252
+//! @prompt-hash 8d6189f1
 //! @layer L1
 //! @updated 2026-07-31
 
@@ -166,37 +166,43 @@ impl Coverage {
         Self(Vec::new())
     }
 
-    /// Constrói a partir de um vector de codepoints.
-    /// Ordena, remove duplicados e codifica em runs.
-    ///
-    /// Port do vanilla `Coverage::from_vec` (info.rs:291-310).
-    ///
-    /// **P942** — duas correcções de desempenho face à versão anterior:
-    /// 1. `impl Into<Vec<u32>>` em vez de `impl IntoIterator` — para um `Vec`
-    ///    existente a conversão é identidade (sem cópia); a versão anterior
-    ///    re-colacionava o Vec inteiro (~115 MB em ~1086 fontes do sistema).
-    /// 2. `sort()` (TimSort estável) em vez de `sort_unstable()` — os
-    ///    codepoints da `cmap` vêm já ordenados, e o TimSort é O(n) em input
-    ///    ordenado/quase-ordenado, enquanto o pdqsort é O(n log n) sempre.
-    ///    É também exactamente o método do vanilla (`info.rs:292`).
+    /// Build exact coverage from codepoints in arbitrary order.
+    /// Compact contiguous sequences before sorting and merging intervals.
+    /// The vector API and canonical alternating gap/count encoding are retained.
     pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self {
-        let mut codepoints: Vec<u32> = codepoints.into();
-        codepoints.sort();
-        codepoints.dedup();
-
-        let mut runs = Vec::new();
-        let mut next = 0u32;
-
-        for c in codepoints {
-            if let Some(run) = runs.last_mut().filter(|_| c == next) {
-                *run += 1;
-            } else {
-                runs.push(c - next);
-                runs.push(1);
+        let mut intervals: Vec<(u32, u32)> = Vec::new();
+        for codepoint in codepoints.into() {
+            if let Some((start, end)) = intervals.last_mut() {
+                if (*start..=*end).contains(&codepoint) {
+                    continue;
+                }
+                if end.checked_add(1) == Some(codepoint) {
+                    *end = codepoint;
+                    continue;
+                }
+                if codepoint.checked_add(1) == Some(*start) {
+                    *start = codepoint;
+                    continue;
+                }
             }
-            next = c + 1;
+            intervals.push((codepoint, codepoint));
         }
+        intervals.sort_unstable_by_key(|&(start, _)| start);
 
+        let mut runs: Vec<u32> = Vec::new();
+        let mut next = 0u32;
+        for (start, end) in intervals {
+            let end = end + 1;
+            if end <= next {
+                continue;
+            }
+            if start <= next && !runs.is_empty() {
+                *runs.last_mut().unwrap() += end - next;
+            } else {
+                runs.extend([start - next, end - start]);
+            }
+            next = end;
+        }
         Self(runs)
     }
 
@@ -774,6 +780,54 @@ mod tests {
         let cov = Coverage::from_codepoints([0x10FFFF]);
         assert!(cov.contains(0x10FFFF));
         assert!(!cov.contains(0x10FFFE));
+    }
+
+    #[test]
+    fn coverage_interval_construction_matches_independent_set() {
+        use std::collections::BTreeSet;
+        let controls = [
+            vec![],
+            vec![0, 0, 0x10FFFF, 0x10FFFE, 0x10FFFF],
+            vec![18, 19, 2, 4, 9, 11, 15, 3, 3, 10],
+            (0..300).chain(100..450).chain(0..300).collect(),
+            (0..300).rev().chain((200..450).rev()).collect(),
+        ];
+        for input in controls {
+            let expected: BTreeSet<_> = input.iter().copied().collect();
+            let coverage = Coverage::from_codepoints(input);
+            assert_eq!(coverage.iter().collect::<BTreeSet<_>>(), expected);
+            assert_eq!(
+                coverage.iter().collect::<Vec<_>>(),
+                expected.iter().copied().collect::<Vec<_>>()
+            );
+            for point in (0..500).chain([0x10FFFD, 0x10FFFE, 0x10FFFF]) {
+                assert_eq!(coverage.contains(point), expected.contains(&point));
+            }
+        }
+    }
+
+    #[test]
+    fn coverage_interval_construction_unordered_and_duplicate_inputs() {
+        use std::collections::BTreeSet;
+        let mut state = 0x1357_9BDFu32;
+        for _ in 0..32 {
+            let mut input = Vec::new();
+            for _ in 0..512 {
+                state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+                input.push(state % 1024);
+            }
+            let expected: BTreeSet<_> = input.iter().copied().collect();
+            let coverage = Coverage::from_codepoints(input.clone());
+            input.reverse();
+            assert_eq!(coverage, Coverage::from_codepoints(input));
+            assert_eq!(
+                coverage.iter().collect::<Vec<_>>(),
+                expected.iter().copied().collect::<Vec<_>>()
+            );
+            for point in 0..=1024 {
+                assert_eq!(coverage.contains(point), expected.contains(&point));
+            }
+        }
     }
 
     #[test]

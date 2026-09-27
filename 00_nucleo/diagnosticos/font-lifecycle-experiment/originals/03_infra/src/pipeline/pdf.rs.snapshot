@@ -1,0 +1,990 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
+//! @prompt-hash d07e2703
+//! @layer L3
+//! @updated 2026-09-26
+//!
+//! Possui todas as fachadas PDF, os resolvedores documentais e o dispatch font-aware. Conserva os wrappers de compatibilidade, DocumentID, StreamMode, tagged, pretty, pages, standard, diagnósticos UA-1, attachments e oráculo. Recebe o documento paginado pelo owner próprio.
+
+use super::*;
+
+/// Pipeline completo `Source` → bytes PDF.
+///
+/// Retorna `(Ok(pdf_bytes), warnings)` em sucesso ou
+/// `(Err(errors), warnings)` em falha. Warnings são sempre
+/// devolvidos, mesmo em erro — caller decide se os imprime.
+///
+/// Dispatch font-aware (Passo 140B, ADR-0055): se o documento
+/// contém `#set text(font: ...)` e a primeira família resolve em
+/// `world.book()`, embute a font via `export_pdf_with_font`.
+/// Caso contrário, fallback `export_pdf` (Helvetica Type1). MVP
+/// single-font per document — spans com font diferente após a
+/// primeira são silenciosamente ignorados.
+pub fn compile_to_pdf_bytes(
+    world: &dyn World,
+    source: &Source,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error(world, source, false, stream_mode, pdf_tags)
+}
+
+/// Internal variant that wires the `full_error` flag down to L1.
+///
+/// The stable public API stays on [`compile_to_pdf_bytes`] (default `false`).
+/// This function exists only to support the internal path from
+/// `RunIntent.full_error` (DEBT-59 / P428). It is `pub` only because L4 lives
+/// in a different crate; treat it as an implementation detail.
+/// Compila `source` contra `world` para bytes PDF e devolve tempos por fase.
+///
+/// P507 — instrumentação de benchmark; API pública para testes e ferramentas.
+/// O campo `parse_ms` não é preenchido por esta função (o parse ocorre no
+/// caller); o caller deve preenchê-lo se desejar o tempo total completo.
+pub fn compile_to_pdf_bytes_with_timings(
+    world: &dyn World,
+    source: &Source,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error(
+        world,
+        source,
+        false,
+        stream_mode,
+        pdf_tags,
+    )
+}
+
+/// Internal variant com instrumentação de tempos e `full_error`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+        world,
+        source,
+        full_error,
+        None,
+        stream_mode,
+        pdf_tags,
+    )
+}
+
+/// **P617** — variant com `DocumentID` externo e instrumentação de tempos.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
+        features,
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
+    )
+}
+
+/// **P1467** — resolve a precedência `--pdf-tagged` (override explícito) >
+/// `#set format.pdf(tagged: ...)` (documento) > `auto` (habilitado, sem
+/// seleção de páginas — P1468 revisita). Mesmo padrão de `resolve_svg_pretty`/
+/// `resolve_html_pretty`.
+fn resolve_pdf_tags(
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfTags {
+    let enabled = match tagged_override {
+        Some(explicit) => explicit,
+        None => match options.pdf.tagged {
+            PdfTagged::Explicit(value) => value,
+            // Sem seleção de páginas (P1468 revisita): auto resolve habilitado.
+            PdfTagged::Auto => true,
+        },
+    };
+    if enabled {
+        PdfTags::Enabled
+    } else {
+        PdfTags::Disabled
+    }
+}
+
+/// **P1468** — estende `resolve_pdf_tags` com a precedência `pages_override`
+/// (CLI, `--pages`) > `options.pdf.pages` (documento, `#set format.pdf
+/// (pages: ...)`) > `None` (todas as páginas), e decide a interação com
+/// `tagged` medida em `typst-pdf/src/lib.rs:95-118` do vanilla ratificado:
+/// documento pedindo `tagged: true` explícito + `pages` ativo é erro
+/// (`"cannot enable tagged PDF and export a page range"`); `tagged` que só
+/// resolveria `Enabled` por `Auto` produz o warning documental (2 hints) e
+/// força `Disabled`; `tagged` já `Disabled` (CLI ou documento explícitos)
+/// não emite diagnóstico novo. A checagem CLI-only (`--pdf-tagged=true` +
+/// `--pages`) é barrada antes desta função, em `wiring.md` — aqui só é
+/// alcançável o `tagged_override == Some(true)` caso o gate de wiring não
+/// tenha corrido (mantém `Enabled` sem diagnóstico, mesmo comportamento
+/// anterior). Sem `pages` resolvido, delega integralmente a
+/// `resolve_pdf_tags` (comportamento P1467 byte-idêntico).
+pub(super) fn resolve_pdf_pages_and_tags(
+    pages_override: Option<PageRanges>,
+    tagged_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> SourceResult<(Option<PageRanges>, PdfTags, Vec<SourceDiagnostic>)> {
+    let pages = pages_override.or_else(|| options.pdf.pages.clone());
+    let Some(pages) = pages else {
+        return Ok((None, resolve_pdf_tags(tagged_override, options), Vec::new()));
+    };
+
+    let (tags, diagnostics) = match (tagged_override, &options.pdf.tagged) {
+        (Some(false), _) => (PdfTags::Disabled, Vec::new()),
+        // Combinação CLI-only barrada em `wiring.md` antes de chegar aqui;
+        // preservada como não-erro se alcançada por outra via (ex.: teste
+        // directo desta função).
+        (Some(true), _) => (PdfTags::Enabled, Vec::new()),
+        (None, PdfTagged::Explicit(false)) => (PdfTags::Disabled, Vec::new()),
+        (None, PdfTagged::Explicit(true)) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "cannot enable tagged PDF and export a page range",
+            )]);
+        }
+        (None, PdfTagged::Auto) => (
+            PdfTags::Disabled,
+            vec![SourceDiagnostic::warning(
+                Span::detached(),
+                "exporting a page range disables PDF tagging",
+            )
+            .with_hint("the resulting PDF will be inaccessible")
+            .with_hint("set `pdf(tagged: false)` to silence this warning")],
+        ),
+    };
+
+    Ok((Some(pages), tags, diagnostics))
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — nome de exibição
+/// do perfil acessível ativo em `standards` (`a-1a`/`a-2a`/`a-3a`/`ua-1`),
+/// ou `None` se nenhum dos quatro perfis acessíveis está presente.
+/// Espelha `typst-pdf/src/lib.rs:120-143` do vanilla ratificado (a lista
+/// dos quatro perfis "acessíveis" — não confundir com `a-1b`/`a-2b`/etc.,
+/// que não exigem tagging).
+fn pdf_standards_accessible_name(standards: &PdfStandards) -> Option<&'static str> {
+    if let Some(archival @ (PdfArchival::A1a | PdfArchival::A2a | PdfArchival::A3a)) =
+        standards.archival
+    {
+        return Some(archival.label());
+    }
+    if let Some(accessibility @ PdfAccessibility::Ua1) = standards.accessibility {
+        return Some(accessibility.label());
+    }
+    None
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — estende
+/// `resolve_pdf_pages_and_tags` (P1468) com a resolução de
+/// `format.pdf.standard` (precedência CLI > documento > `PdfStandards::
+/// default()`, Núcleo `format-option-precedence`) e a checagem documental
+/// completa `standard`+`tagged` (depois de CLI+documento combinados),
+/// espelhando `typst-pdf/src/lib.rs:120-143` do vanilla ratificado. A
+/// checagem CLI-only equivalente (só a lista crua da CLI) pertence a
+/// `wiring.md` P1469.
+pub(super) fn resolve_pdf_pages_tags_and_standards(
+    pages_override: Option<PageRanges>,
+    tagged_override: Option<bool>,
+    standard_override: Option<PdfStandards>,
+    options: &DocumentFormatOptions,
+) -> SourceResult<(Option<PageRanges>, PdfTags, PdfStandards, Vec<SourceDiagnostic>)> {
+    let (pages, tags, diagnostics) =
+        resolve_pdf_pages_and_tags(pages_override, tagged_override, options)?;
+
+    let standards =
+        standard_override.unwrap_or_else(|| options.pdf.standard.unwrap_or_default());
+
+    if let Some(name) = pdf_standards_accessible_name(&standards) {
+        if tags == PdfTags::Disabled {
+            // A causa raiz de `Disabled` é distinguível pelo warning que
+            // `resolve_pdf_pages_and_tags` já produziu no ramo `Auto` +
+            // `pages` — reaproveitada aqui sem recalcular (contrato do L0).
+            let caused_by_pages = diagnostics.iter().any(|d| {
+                d.message.contains("exporting a page range disables PDF tagging")
+            });
+            let mut diag = SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "cannot set `pdf(tagged: false)` when exporting a {name} document"
+                ),
+            );
+            if caused_by_pages {
+                diag = diag
+                    .with_hint("using `pdf(pages: ...)` implies `pdf(tagged: false)`");
+            }
+            return Err(vec![diag]);
+        }
+    }
+
+    Ok((pages, tags, standards, diagnostics))
+}
+
+/// **P1480** — PDF/UA-1 exige `document(title:)` (krilla `ValidationError::
+/// NoDocumentTitle`, medido em typst-passo-1480.md §0: vanilla recusa
+/// compilar sob `--pdf-standard ua-1` sem título; cristalino compilava
+/// silenciosamente antes desta checagem). Mensagem/hint byte-idênticos ao
+/// vanilla (`typst-pdf/src/convert.rs:748-752`); `prefix` fixo em
+/// `"PDF/UA-1"` — combinação com archival não medida, ver `infra/
+/// pipeline.md` §P1480. Função pura, testável isoladamente do mesmo modo
+/// que `resolve_pdf_pages_tags_and_standards` (P1469).
+fn require_ua1_document_title(
+    doc: &PagedDocument,
+    standards: &PdfStandards,
+) -> Option<SourceDiagnostic> {
+    if matches!(standards.accessibility, Some(PdfAccessibility::Ua1))
+        && doc.document_info.title.is_none()
+    {
+        Some(
+            SourceDiagnostic::error(
+                Span::detached(),
+                "PDF/UA-1 error: missing document title",
+            )
+            .with_hint("set the title with `set document(title: [...])`"),
+        )
+    } else {
+        None
+    }
+}
+
+/// P1481: imagens reais precisam de texto alternativo sob PDF/UA-1.
+pub(super) fn require_ua1_image_alt(
+    doc: &PagedDocument,
+    standards: &PdfStandards,
+) -> Option<SourceDiagnostic> {
+    if !matches!(standards.accessibility, Some(PdfAccessibility::Ua1)) {
+        return None;
+    }
+    fn missing(items: &[FrameItem]) -> bool {
+        items.iter().any(|item| match item {
+            FrameItem::Image { alt, .. } => alt.is_none(),
+            FrameItem::Semantic {
+                kind: typst_core::entities::layout_types::SemanticKind::Artifact(_),
+                ..
+            } => false,
+            FrameItem::Semantic { items, .. }
+            | FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. } => missing(items),
+            _ => false,
+        })
+    }
+    if doc.pages.iter().any(|page| missing(&page.items)) {
+        Some(
+            SourceDiagnostic::error(Span::detached(), "PDF/UA-1 error: missing alt text")
+                .with_hint("make sure your images and equations have alt text"),
+        )
+    } else {
+        None
+    }
+}
+
+/// **P1467** — resolve a precedência `--pretty` (override explícito) >
+/// `#set format.pdf(pretty: ...)` (documento) > `false`.
+pub(super) fn resolve_pdf_pretty(
+    pretty_override: Option<bool>,
+    options: &DocumentFormatOptions,
+) -> PdfSerializationMode {
+    if pretty_override.unwrap_or(options.pdf.pretty) {
+        PdfSerializationMode::Pretty
+    } else {
+        PdfSerializationMode::Compact
+    }
+}
+
+fn compile_to_pdf_bytes_impl(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+    standard_override: Option<PdfStandards>,
+    oracle: bool,
+    timings: &mut Timings,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (doc_result, mut warnings) = compile_to_paged_document_full_error_and_features(
+        world, source, full_error, features, timings,
+    );
+    let doc = match doc_result {
+        Ok(d) => d,
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms;
+            return (Err(errors), warnings);
+        }
+    };
+    // **P1468/P1469** — resolve `pages` (precedência CLI > documento >
+    // `None`), `standard` (precedência CLI > documento > default) e as
+    // interações com `tagged` antes de qualquer resolução de fontes; erro
+    // documental aborta aqui, mesmo padrão do erro de anexo duplicado abaixo.
+    let (pages, pdf_tags, pdf_standards, pages_diagnostics) =
+        match resolve_pdf_pages_tags_and_standards(
+            pages_override,
+            pdf_tagged_override,
+            standard_override,
+            &doc.format_options,
+        ) {
+            Ok(resolved) => resolved,
+            Err(errors) => {
+                timings.total_ms = timings.eval_ms
+                    + timings.introspect_ms
+                    + timings.expand_context_ms
+                    + timings.layout_ms
+                    + timings.shape_ms;
+                return (Err(errors), warnings);
+            }
+        };
+    warnings.extend(pages_diagnostics);
+
+    // **P1480** — `pdf_standards`/`doc` já resolvidos; checagem de título
+    // obrigatório sob PDF/UA-1 (ver `require_ua1_document_title`).
+    if let Some(diag) = require_ua1_document_title(&doc, &pdf_standards) {
+        return (Err(vec![diag]), warnings);
+    }
+    if let Some(diag) = require_ua1_image_alt(&doc, &pdf_standards) {
+        return (Err(vec![diag]), warnings);
+    }
+
+    let serialization = resolve_pdf_pretty(pretty_override, &doc.format_options);
+
+    // P1286 — nomes duplicados só são erro no target PDF, onde ambos
+    // disputariam a mesma chave da name tree `/EmbeddedFiles`.
+    let mut attachment_paths = HashSet::new();
+    for attachment in &doc.attachments {
+        if !attachment_paths.insert(attachment.path.clone()) {
+            return (
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("attempted to attach file {} twice", attachment.path),
+                )]),
+                warnings,
+            );
+        }
+    }
+
+    // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
+    // 0 fonts resolvidos → fallback Helvetica.
+    // 1 font resolvido → preserva caminho single-font do 140B/141.
+    // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
+    let font_combos = collect_fonts_from_doc(&doc, world);
+    let resolved = resolve_fonts(&font_combos, world.book(), world);
+
+    // P667/P671/P836 — gate de instanciação de fontes variáveis.
+    let needs_variable_font_instancer =
+        resolved.iter().any(|((_, font_variant, variations), bytes)| {
+            is_variable_font(bytes)
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
+        });
+    if needs_variable_font_instancer && !variable_font_instancer_available() {
+        for ((font_list, font_variant, variations), bytes) in &resolved {
+            if is_variable_font(bytes)
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
+            {
+                let name = font_list
+                    .as_slice()
+                    .first()
+                    .and_then(|f| f.name.as_str())
+                    .unwrap_or("fonte variável");
+                return (
+                    Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
+                            name
+                        ),
+                    )]),
+                    warnings,
+                );
+            }
+        }
+    }
+
+    let t_render = Instant::now();
+    // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
+    // as transformações de paridade de operador (`export/oracle.rs`).
+    // **P1468** — `pages` não é fiado até esta família (scope-out
+    // deliberado de `infra/export/mod.md` P1468 — só `export_pdf`/
+    // `export_pdf_with_font`/`export_pdf_multifont` ganham variantes
+    // `_and_pages`); o `PdfBuilder` do oráculo continua sem filtro de
+    // páginas, comportamento anterior preservado.
+    let (pdf, subset_ms) = if oracle {
+        let (pdf, subset) = crate::export::export_pdf_oracle_and_serialization(
+            &doc,
+            &resolved,
+            document_id,
+            stream_mode,
+            pdf_tags,
+            serialization,
+        );
+        (pdf, subset)
+    } else {
+        match resolved.as_slice() {
+            [] => (
+                export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+                    &doc,
+                    document_id,
+                    stream_mode,
+                    pdf_tags,
+                    serialization,
+                    pages.clone(),
+                    pdf_standards,
+                ),
+                0.0,
+            ),
+            [single @ ((_, font_variant, variations), bytes)] => {
+                // P668 — se a única fonte resolvida for uma VF com eixos
+                // não-default, usar o caminho multi-font, que já instancia
+                // correctamente (P530/P666). O caminho single-font
+                // (`build_cidfont`) não faz instanciação.
+                // P836 — eixos fundidos (derivados + explícitos).
+                if is_variable_font(bytes)
+                    && !merge_explicit_variations(
+                        axis_variations_for_font_variant(font_variant),
+                        variations,
+                    )
+                    .is_empty()
+                {
+                    export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+                        &doc,
+                        std::slice::from_ref(single),
+                        document_id,
+                        stream_mode,
+                        pdf_tags,
+                        serialization,
+                        pages.clone(),
+                        pdf_standards,
+                    )
+                } else {
+                    export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+                        &doc,
+                        bytes,
+                        document_id,
+                        stream_mode,
+                        pdf_tags,
+                        serialization,
+                        pages.clone(),
+                        pdf_standards,
+                    )
+                }
+            }
+            many => export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
+                &doc,
+                many,
+                document_id,
+                stream_mode,
+                pdf_tags,
+                serialization,
+                pages.clone(),
+                pdf_standards,
+            ),
+        }
+    };
+    timings.subset_ms = subset_ms;
+    timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
+    timings.total_ms = timings.eval_ms
+        + timings.introspect_ms
+        + timings.expand_context_ms
+        + timings.layout_ms
+        + timings.shape_ms
+        + timings.subset_ms
+        + timings.render_ms;
+
+    (Ok(pdf), warnings)
+}
+
+/// **P1468** — variante que também recebe a seleção de páginas resolvida
+/// (`pages_override`, precedência CLI > documento > `None`, `infra/
+/// pipeline.md` P1468). Com instrumentação de tempos.
+/// **P1469** — delega `None` para `standard`; comportamento byte-idêntico
+/// preservado. Usar a variante `..._and_standard_override` para
+/// `--pdf-standard`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        None,
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante que
+/// também recebe o conjunto de standards PDF resolvido (`standard_override`,
+/// precedência CLI > documento > `PdfStandards::default()`, `infra/
+/// pipeline.md` P1469). Com instrumentação de tempos.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+    standard_override: Option<PdfStandards>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let result = compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        standard_override,
+        false,
+        &mut timings,
+    );
+    (result.0, result.1, timings)
+}
+
+/// **P1467** — variante que preserva a ausência de override de `tagged`/
+/// `pretty` até consultar `doc.format_options` (Núcleo
+/// `format-option-precedence`). Com instrumentação de tempos.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado. Usar a variante `..._and_pages_override` para `--pages`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        None,
+    )
+}
+
+/// **P1468** — mesma variante sem instrumentação de tempos, com `pages`.
+/// **P1469** — delega `None` para `standard`; comportamento byte-idêntico
+/// preservado.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        None,
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — mesma variante sem
+/// instrumentação de tempos, com `standard`.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+    standard_override: Option<PdfStandards>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        standard_override,
+        false,
+        &mut timings,
+    )
+}
+
+/// **P1467** — mesma variante sem instrumentação de tempos.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        None,
+    )
+}
+
+/// **P1468** — variante oráculo com `pages_override`. O `PageRanges`
+/// resolvido ainda decide o diagnóstico `tagged`+`pages` (documental), mas
+/// não filtra o PDF do oráculo — `infra/export/mod.md` P1468 não estende a
+/// família `export_pdf_oracle*` (ferramenta de diagnóstico de paridade de
+/// operador, `prompts/infra/export/oracle.md`).
+/// **P1469** — delega `None` para `standard`; comportamento byte-idêntico
+/// preservado (o oráculo também não fia `standard` ao `PdfBuilder` — mesmo
+/// scope-out de `pages`).
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        None,
+    )
+}
+
+/// **P1469** (escopo reduzido — contrato de linguagem) — variante oráculo
+/// com `standard_override`.
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+    pages_override: Option<PageRanges>,
+    standard_override: Option<PdfStandards>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        standard_override,
+        true,
+        &mut timings,
+    )
+}
+
+/// **P1467** — variante oráculo (`export/oracle.rs`) que preserva a ausência
+/// de override de `tagged`/`pretty` até consultar `doc.format_options`.
+/// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
+/// preservado.
+pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tagged_override: Option<bool>,
+    features: typst_core::entities::compiler_features::Features,
+    pretty_override: Option<bool>,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        None,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id(
+        world,
+        source,
+        full_error,
+        None,
+        stream_mode,
+        pdf_tags,
+    )
+}
+
+/// **P617** — variant com `DocumentID` externo.
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+#[doc(hidden)]
+pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
+        features,
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
+    )
+}
+
+/// **P980** — entrada do oráculo de paridade de operador (diagnóstico;
+/// flag CLI `--oracle-pdf`). Idêntica a
+/// `compile_to_pdf_bytes_full_error_and_document_id` mas com as
+/// transformações de `export/oracle.rs` nos content streams.
+/// `prompts/infra/export/oracle.md`.
+pub fn compile_to_pdf_bytes_oracle(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+pub fn compile_to_pdf_bytes_oracle_with_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_serialization(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tags,
+        features,
+        PdfSerializationMode::Compact,
+    )
+}
+
+pub fn compile_to_pdf_bytes_oracle_with_features_and_serialization(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+    features: typst_core::entities::compiler_features::Features,
+    serialization: PdfSerializationMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        Some(matches!(pdf_tags, PdfTags::Enabled)),
+        features,
+        Some(matches!(serialization, PdfSerializationMode::Pretty)),
+    )
+}

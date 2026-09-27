@@ -1,0 +1,61 @@
+{
+  "before": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/before-typst",
+    "sha256": "9a94d37b711428a699e49bcba239de6a065a8c1602ae3362f9b55a6ac5e608e7",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "source_record": "before-build-state.json",
+    "provenance": "Exact preserved performance-baseline executable"
+  },
+  "lazy": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/lazy-typst",
+    "sha256": "9392d62ca15e585803f6f3bb936020556e9459a31aea5255074c5d01843e3dd7",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "source_before": "f36d9a9e7d0f5f3040c54cbe44653666902ce2a7239a853c1c7cdca08a16595a",
+    "source_after": "f36d9a9e7d0f5f3040c54cbe44653666902ce2a7239a853c1c7cdca08a16595a",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-wiring",
+      "--message-format=json"
+    ]
+  },
+  "interval": {
+    "path": "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/interval-typst",
+    "sha256": "13a8b31cf4912aa62d813b5f4aca088b5862193e41ad353b21e789de9b576216",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    },
+    "source_before": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+    "source_after": "bb8e4453fded789d267c1ecf5c5dcf0f9472cfc44b24280ee12622bda82729f8",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-wiring",
+      "--message-format=json"
+    ]
+  }
+}

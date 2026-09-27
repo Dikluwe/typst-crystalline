@@ -1,0 +1,459 @@
+--- incoming/03_infra/src/world.rs
++++ 03_infra/src/world.rs
+@@ -11,7 +11,7 @@
+ use std::collections::HashMap;
+ use std::num::NonZeroU16;
+ use std::path::{Path, PathBuf};
+-use std::sync::{Arc, Mutex};
++use std::sync::{Arc, Mutex, OnceLock};
+ use typst_core::contracts::package_downloader::PackageDownloader;
+ use typst_core::contracts::plugin_host::PluginHost;
+ use typst_core::contracts::world::SysInputs;
+@@ -66,10 +66,10 @@
+     path_to_id: Mutex<HashMap<PathBuf, FileId>>,
+     /// Contador de IDs (não-global — sem V13).
+     next_id: Mutex<u16>,
+-    /// Slots de fontes (índice = parâmetro de `font()`).
+-    font_slots: Vec<FontSlot>,
+-    /// Stub do catálogo de fontes.
+-    font_book: FontBook,
++    /// Paired font slots/book, initialized once on the first font demand.
++    font_catalog: OnceLock<(Vec<FontSlot>, FontBook)>,
++    /// Private acquisition policy; no font discovery occurs while configuring it.
++    font_loader: Box<dyn Fn() -> (Vec<FontSlot>, FontBook) + Send + Sync>,
+     /// Stub de biblioteca padrão.
+     library: Library,
+     /// **P694** — pares `--input chave=valor` para `sys.inputs`. Vazio por
+@@ -114,8 +114,8 @@
+             slots: Mutex::new(slots),
+             path_to_id: Mutex::new(path_to_id),
+             next_id: Mutex::new(2),
+-            font_slots: Vec::new(),
+-            font_book: FontBook::new(),
++            font_catalog: OnceLock::from((Vec::new(), FontBook::new())),
++            font_loader: Box::new(|| (Vec::new(), FontBook::new())),
+             library: Library::new(),
+             inputs: SysInputs::default(),
+             plugin_host: None,
+@@ -173,8 +173,8 @@
+             slots: Mutex::new(slots),
+             path_to_id: Mutex::new(path_to_id),
+             next_id: Mutex::new(2),
+-            font_slots: Vec::new(),
+-            font_book: FontBook::new(),
++            font_catalog: OnceLock::from((Vec::new(), FontBook::new())),
++            font_loader: Box::new(|| (Vec::new(), FontBook::new())),
+             library: Library::new(),
+             inputs: SysInputs::default(),
+             plugin_host: None,
+--- incoming/03_infra/src/world/fonts.rs
++++ 03_infra/src/world/fonts.rs
+@@ -7,8 +7,9 @@
+ use super::SystemWorld;
+ use crate::fonts::FontSlot;
+ use std::path::PathBuf;
++use std::sync::OnceLock;
+ use typst_core::contracts::world::World;
+-use typst_core::entities::font_book::Coverage;
++use typst_core::entities::font_book::{Coverage, FontBook};
+ use typst_core::entities::source::Source;
+ use typst_core::entities::syntax_kind::SyntaxKind;
+ use typst_core::entities::world_types::Font;
+@@ -21,20 +22,19 @@
+     /// índice, como no vanilla.
+     pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
+         let (slots, book) = crate::fonts::pair_slots_with_book(font_slots);
+-        self.font_book = book;
+-        self.font_slots = slots;
+-        self
+-    }
+-
+-    /// Builder: descobre e associa as fontes instaladas no sistema.
++        self.install_font_catalog((slots, book));
++        self
++    }
++
++    /// Builder: schedules system discovery for the first catalog request.
+     ///
+     /// Usa `fontdb` para carregar as fontes do sistema operativo.
+     /// Comportamento defensivo: se nenhuma fonte for encontrada, o
+     /// `FontBook` fica vazio mas o `SystemWorld` continua funcional.
+     pub fn with_system_fonts(mut self) -> Self {
+-        let (slots, book) = crate::fontdb::load_system_fonts();
+-        self.font_slots = slots;
+-        self.font_book = book;
++        self.font_catalog = OnceLock::new();
++        self.font_loader = Box::new(crate::fontdb::load_system_fonts);
++        self.coverage_cache.get_mut().unwrap().clear();
+         self
+     }
+ 
+@@ -51,12 +51,11 @@
+         for info in sets.math_code_book.infos() {
+             book.push(info.clone());
+         }
+-        self.font_slots = slots;
+-        self.font_book = book;
+-        self
+-    }
+-
+-    /// Builder: combina fontes embutidas, do sistema e de projecto.
++        self.install_font_catalog((slots, book));
++        self
++    }
++
++    /// Builder: schedules embedded, system and project discovery on demand.
+     ///
+     /// A ordem final é: texto embutido → sistema → math/code embutido →
+     /// projecto. Isto garante que fontes especializadas do sistema (ex.:
+@@ -64,32 +63,46 @@
+     /// sobre fontes math/code embutidas que podem ter cobertura parcial
+     /// ou glifos incorrectos para scripts não latinos (P754).
+     pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self {
+-        let sets = crate::embedded_fonts::load_embedded_fonts();
+-        let mut slots = sets.text_slots;
+-        let mut book = sets.text_book;
+-
+-        let (system_slots, system_book) = crate::fontdb::load_system_fonts();
+-        slots.extend(system_slots);
+-        for info in system_book.infos() {
+-            book.push(info.clone());
+-        }
+-
+-        slots.extend(sets.math_code_slots);
+-        for info in sets.math_code_book.infos() {
+-            book.push(info.clone());
+-        }
+-
+-        let project_slots = crate::fonts::discover_fonts(font_paths);
+-        let (project_slots, project_book) =
+-            crate::fonts::pair_slots_with_book(project_slots);
+-        slots.extend(project_slots);
+-        for info in project_book.infos() {
+-            book.push(info.clone());
+-        }
+-
+-        self.font_slots = slots;
+-        self.font_book = book;
+-        self
++        let project_paths = font_paths.to_vec();
++        self.font_catalog = OnceLock::new();
++        self.font_loader = Box::new(move || {
++            let sets = crate::embedded_fonts::load_embedded_fonts();
++            let mut slots = sets.text_slots;
++            let mut book = sets.text_book;
++
++            let (system_slots, system_book) = crate::fontdb::load_system_fonts();
++            slots.extend(system_slots);
++            for info in system_book.infos() {
++                book.push(info.clone());
++            }
++
++            slots.extend(sets.math_code_slots);
++            for info in sets.math_code_book.infos() {
++                book.push(info.clone());
++            }
++
++            let project_slots = crate::fonts::discover_fonts(&project_paths);
++            let (project_slots, project_book) =
++                crate::fonts::pair_slots_with_book(project_slots);
++            slots.extend(project_slots);
++            for info in project_book.infos() {
++                book.push(info.clone());
++            }
++
++            (slots, book)
++        });
++        self.coverage_cache.get_mut().unwrap().clear();
++        self
++    }
++
++    fn install_font_catalog(&mut self, catalog: (Vec<FontSlot>, FontBook)) {
++        self.font_catalog = OnceLock::from(catalog);
++        self.font_loader = Box::new(|| (Vec::new(), FontBook::new()));
++        self.coverage_cache.get_mut().unwrap().clear();
++    }
++
++    pub(super) fn font_catalog(&self) -> &(Vec<FontSlot>, FontBook) {
++        self.font_catalog.get_or_init(|| (self.font_loader)())
+     }
+ 
+     /// **P927/P938** — pré-carrega a coverage das fontes do sistema se o
+@@ -123,7 +136,7 @@
+     /// primária.
+     fn embedded_coverage_union(&self) -> Coverage {
+         let mut codepoints = Vec::new();
+-        for slot in &self.font_slots {
++        for slot in &self.font_catalog().0 {
+             // Apenas fontes embutidas (caminho marcador). Fontes do sistema e
+             // de projecto são ignoradas de propósito — não as queremos abrir
+             // só para decidir se precisamos de as abrir.
+@@ -159,7 +172,7 @@
+     }
+ 
+     pub(super) fn world_font(&self, index: usize) -> Option<Font> {
+-        self.font_slots.get(index)?.get()
++        self.font_catalog().0.get(index)?.get()
+     }
+ 
+     /// **P938/P1410** — cobertura Unicode exacta híbrida por slot.
+@@ -169,10 +182,11 @@
+     /// impede que uma consulta mapeie todos os ficheiros de fontes instaladas.
+     pub(super) fn world_candidates_for_char(&self, c: char) -> Vec<usize> {
+         let codepoint = c as u32;
++        let (slots, book) = self.font_catalog();
+         let mut cache = self.coverage_cache.lock().unwrap();
+         let mut result = Vec::new();
+-        for (idx, slot) in self.font_slots.iter().enumerate() {
+-            let precomputed = &self.font_book.infos()[idx].coverage;
++        for (idx, slot) in slots.iter().enumerate() {
++            let precomputed = &book.infos()[idx].coverage;
+             let coverage = if precomputed.is_empty() {
+                 cache.entry(idx).or_insert_with(|| {
+                     slot.source_bytes()
+--- incoming/03_infra/src/world/world_impl.rs
++++ 03_infra/src/world/world_impl.rs
+@@ -21,7 +21,7 @@
+     }
+ 
+     fn book(&self) -> &FontBook {
+-        &self.font_book
++        &self.font_catalog().1
+     }
+ 
+     fn main(&self) -> FileId {
+--- incoming/03_infra/src/world/tests.rs
++++ 03_infra/src/world/tests.rs
+@@ -189,7 +189,7 @@
+     let dir = tempfile_write("main.typ", "text");
+     let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_system_fonts();
+     // Invariante: book.len() <= slots.len()
+-    assert!(world.book().len() <= world.font_slots.len());
++    assert!(world.book().len() <= world.font_catalog().0.len());
+ }
+ 
+ #[test]
+@@ -203,7 +203,7 @@
+         .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
+ 
+     // Sistema pode ou não ter fontes; projecto adiciona 1 slot.
+-    assert!(world.font_slots.len() >= 1);
++    assert!(world.font_catalog().0.len() >= 1);
+ }
+ 
+ #[test]
+@@ -224,7 +224,7 @@
+         .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
+ 
+     // O último slot deve ser o do projecto.
+-    let last = world.font_slots.last().unwrap();
++    let last = world.font_catalog().0.last().unwrap();
+     assert_eq!(last.path.file_name().unwrap(), "project.otf");
+ }
+ 
+@@ -490,8 +490,13 @@
+     let mut info = crate::fonts::font_info_from_bytes(&data, 0).unwrap();
+     info.coverage = Coverage::from_codepoints(vec!['A' as u32]);
+     let mut world = SystemWorld::for_eval(dir.path());
+-    world.font_book.push(info);
+-    world.font_slots.push(FontSlot::new(dir.path().join("absent.otf"), 0));
++    world.font_catalog.get_mut().unwrap().1.push(info);
++    world
++        .font_catalog
++        .get_mut()
++        .unwrap()
++        .0
++        .push(FontSlot::new(dir.path().join("absent.otf"), 0));
+     assert_eq!(world.candidates_for_char('A'), vec![0]);
+     assert!(world.candidates_for_char('你').is_empty());
+     assert!(world.coverage_cache.lock().unwrap().is_empty());
+@@ -531,3 +536,52 @@
+     std::fs::write(dir.path().join(name), content).unwrap();
+     dir
+ }
++
++#[test]
++fn font_lifecycle_discovery_waits_for_first_catalog_request() {
++    let dir = tempfile_write("main.typ", "#rect(width: 10pt, height: 10pt)");
++    let font_dir = tempdir();
++    let world = SystemWorld::new(dir.path(), "main.typ")
++        .unwrap()
++        .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
++    let data = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
++    let expected = crate::fonts::font_info_from_bytes(data, 0).unwrap().family;
++    std::fs::write(font_dir.path().join("late.otf"), data).unwrap();
++    assert_eq!(world.book().infos().last().unwrap().family, expected);
++}
++
++#[test]
++fn font_lifecycle_retains_one_catalog_under_concurrent_access() {
++    let dir = tempfile_write("main.typ", "text");
++    let world = SystemWorld::new(dir.path(), "main.typ")
++        .unwrap()
++        .with_fonts_and_system(&[]);
++    assert!(world.font_catalog.get().is_none());
++    std::thread::scope(|scope| {
++        let handles: Vec<_> = (0..4).map(|_| scope.spawn(|| world.book())).collect();
++        let books: Vec<_> =
++            handles.into_iter().map(|handle| handle.join().unwrap()).collect();
++        assert!(books.iter().all(|book| std::ptr::eq(*book, books[0])));
++    });
++    assert!(world.font_catalog.get().is_some());
++    let book = world.book();
++    assert!(std::ptr::eq(book, world.book()));
++}
++
++#[test]
++fn font_lifecycle_builder_replacement_clears_previous_coverage() {
++    let dir = tempfile_write("main.typ", "text");
++    let font_path = PathBuf::from(concat!(
++        env!("CARGO_MANIFEST_DIR"),
++        "/fixtures/fonts/NimbusSans-Regular.otf"
++    ));
++    let world = SystemWorld::new(dir.path(), "main.typ")
++        .unwrap()
++        .with_fonts(vec![FontSlot::new(font_path, 0)]);
++    assert_eq!(world.candidates_for_char('A'), vec![0]);
++    assert!(!world.coverage_cache.lock().unwrap().is_empty());
++    let world = world.with_fonts(Vec::new());
++    assert!(world.coverage_cache.lock().unwrap().is_empty());
++    assert!(world.book().is_empty());
++    assert!(world.candidates_for_char('A').is_empty());
++}
+--- incoming/03_infra/src/pipeline/resources.rs
++++ 03_infra/src/pipeline/resources.rs
+@@ -21,7 +21,7 @@
+     world: &dyn World,
+ ) -> Result<Vec<FontKey>, SourceDiagnostic> {
+     let combos = collect_fonts_from_doc(doc, world);
+-    let resolved = resolve_fonts(&combos, world.book(), world);
++    let resolved = resolve_fonts(&combos, world);
+ 
+     let needs_instancer =
+         resolved.iter().any(|((_, font_variant, variations), bytes)| {
+@@ -168,9 +168,12 @@
+ /// com a política de fallback de fonts (140B/141).
+ pub(super) fn resolve_fonts(
+     font_combos: &[(FontList, FontVariant, FontVariations)],
+-    font_book: &FontBook,
+     world: &dyn World,
+ ) -> Vec<((FontList, FontVariant, FontVariations), Vec<u8>)> {
++    if font_combos.is_empty() {
++        return Vec::new();
++    }
++    let font_book = world.book();
+     font_combos
+         .iter()
+         .filter_map(|(fl, variant, variations)| {
+--- incoming/03_infra/src/pipeline/pdf.rs
++++ 03_infra/src/pipeline/pdf.rs
+@@ -430,7 +430,7 @@
+     // 1 font resolvido → preserva caminho single-font do 140B/141.
+     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
+     let font_combos = collect_fonts_from_doc(&doc, world);
+-    let resolved = resolve_fonts(&font_combos, world.book(), world);
++    let resolved = resolve_fonts(&font_combos, world);
+ 
+     // P667/P671/P836 — gate de instanciação de fontes variáveis.
+     let needs_variable_font_instancer =
+--- incoming/03_infra/src/pipeline/bundle.rs
++++ 03_infra/src/pipeline/bundle.rs
+@@ -477,7 +477,7 @@
+                 options.pdf_serialization
+             };
+             let font_combos = collect_fonts_from_doc(&document, world);
+-            let resolved = resolve_fonts(&font_combos, world.book(), world);
++            let resolved = resolve_fonts(&font_combos, world);
+             if !variable_font_instancer_available() {
+                 for ((font_list, variant, variations), bytes) in &resolved {
+                     if is_variable_font(bytes)
+--- incoming/03_infra/src/pipeline/tests.rs
++++ 03_infra/src/pipeline/tests.rs
+@@ -1412,7 +1412,7 @@
+         (font_list("A"), FontVariant::default(), FontVariations::default()),
+         (font_list("B"), FontVariant::default(), FontVariations::default()),
+     ];
+-    let out = resolve_fonts(&inputs, world.book(), &world);
++    let out = resolve_fonts(&inputs, &world);
+     assert_eq!(out.len(), 2);
+     assert_eq!(out[0].1, vec![0xAA]);
+     assert_eq!(out[1].1, vec![0xBB]);
+@@ -1432,7 +1432,7 @@
+         (font_list("A"), FontVariant::default(), FontVariations::default()),
+         (font_list("B"), FontVariant::default(), FontVariations::default()),
+     ];
+-    let out = resolve_fonts(&inputs, world.book(), &world);
++    let out = resolve_fonts(&inputs, &world);
+     assert_eq!(out.len(), 1, "B silenciosamente filtrado");
+     assert_eq!(out[0].1, vec![0xAA]);
+ }
+@@ -1450,7 +1450,7 @@
+         (font_list("X"), FontVariant::default(), FontVariations::default()),
+         (font_list("Y"), FontVariant::default(), FontVariations::default()),
+     ];
+-    assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
++    assert!(resolve_fonts(&inputs, &world).is_empty());
+ }
+ 
+ // ── Passo 407: regex keys em FontList (DEBT-52) ─────────────────────
+@@ -2495,3 +2495,46 @@
+     };
+     assert!(matches!(parts[1], Content::SpaceFromNewline));
+ }
++
++#[test]
++fn font_lifecycle_shape_resources_do_not_request_fonts() {
++    struct NoFontWorld(MockWorld);
++    impl World for NoFontWorld {
++        fn library(&self) -> &Library {
++            self.0.library()
++        }
++        fn book(&self) -> &FontBook {
++            panic!("shapes must not acquire a font catalog")
++        }
++        fn main(&self) -> FileId {
++            self.0.main()
++        }
++        fn source(&self, id: FileId) -> FileResult<Source> {
++            self.0.source(id)
++        }
++        fn file(&self, id: FileId) -> FileResult<Bytes> {
++            self.0.file(id)
++        }
++        fn font(&self, _: usize) -> Option<Font> {
++            panic!("shapes must not load a font")
++        }
++        fn today(
++            &self,
++            _: Option<typst_core::entities::duration::Duration>,
++        ) -> Option<Datetime> {
++            None
++        }
++    }
++    let world = NoFontWorld(mock_world("#set page(width: 64pt, height: 64pt)\n#rect(width: 10pt, height: 10pt, fill: blue)"));
++    let source = world.source(world.main()).unwrap();
++    // Layout owns baseline metrics; this test isolates export resource demand.
++    let mut timings = Timings::default();
++    let (result, _) =
++        compile_to_paged_document_full_error(&world.0, &source, false, &mut timings);
++    let doc = result.expect("shape layout must succeed");
++    assert!(!doc.pages.is_empty());
++    let combos = collect_fonts_from_doc(&doc, &world);
++    assert!(combos.is_empty());
++    assert!(resolve_fonts(&combos, &world).is_empty());
++    assert!(resolve_and_instantiate_fonts(&doc, &world).unwrap().is_empty());
++}
+--- incoming/04_wiring/src/compile.rs
++++ 04_wiring/src/compile.rs
+@@ -271,11 +271,6 @@
+         }
+     };
+ 
+-    // P927/P938 — scan condicional do source bruto. Se encontrar carateres
+-    // fora da cobertura das fontes embutidas, dispara a extração lazy de
+-    // coverage das fontes do sistema antes do layout.
+-    world.preload_coverage_if_needed(&source);
+-
+     // P870 — dispatch por formato de saída: PDF, PNG (primeira página) ou SVG.
+     // **P956** — a flag `--compact` (bool cru de L2) é traduzida aqui para
+     // `StreamMode` (L3) e passada apenas às chamadas PDF; PNG/SVG não têm

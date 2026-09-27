@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 559788e9
+//! @prompt-hash 325d2d0f
 //! @layer L3
 //! @updated 2026-09-10
 //!
@@ -1066,7 +1066,10 @@ fn strip_executed_html_markers(
                 .filter(|part| !matches!(part, Content::Empty))
                 .cloned()
                 .collect();
-            if retained.iter().all(|part| matches!(part, Content::Space | Content::SpaceFromNewline)) {
+            if retained
+                .iter()
+                .all(|part| matches!(part, Content::Space | Content::SpaceFromNewline))
+            {
                 return Ok(Some(Content::Empty));
             }
             if retained.len() != parts.len() {

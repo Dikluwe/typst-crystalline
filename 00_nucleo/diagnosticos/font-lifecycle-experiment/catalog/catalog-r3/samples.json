@@ -1,0 +1,478 @@
+{
+  "samples": [
+    {
+      "discover_ms": 480.071617,
+      "drop_ms": 0.428867,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "00-lazy",
+      "wall_ms": 492.106623,
+      "utc_start": "2026-09-27T12:00:37.870965+00:00",
+      "utc_end": "2026-09-27T12:00:38.363857+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 0
+    },
+    {
+      "discover_ms": 287.822883,
+      "drop_ms": 0.415964,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "00-interval",
+      "wall_ms": 297.860886,
+      "utc_start": "2026-09-27T12:00:38.374240+00:00",
+      "utc_end": "2026-09-27T12:00:38.672454+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 0
+    },
+    {
+      "discover_ms": 297.653309,
+      "drop_ms": 0.472629,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "01-interval",
+      "wall_ms": 308.308439,
+      "utc_start": "2026-09-27T12:00:38.682100+00:00",
+      "utc_end": "2026-09-27T12:00:38.991124+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 1
+    },
+    {
+      "discover_ms": 555.263197,
+      "drop_ms": 0.437344,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "01-lazy",
+      "wall_ms": 568.660848,
+      "utc_start": "2026-09-27T12:00:39.003988+00:00",
+      "utc_end": "2026-09-27T12:00:39.573192+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 1
+    },
+    {
+      "discover_ms": 593.7605179999999,
+      "drop_ms": 0.469854,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "02-lazy",
+      "wall_ms": 606.499745,
+      "utc_start": "2026-09-27T12:00:39.587687+00:00",
+      "utc_end": "2026-09-27T12:00:40.195228+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 2
+    },
+    {
+      "discover_ms": 408.51264599999996,
+      "drop_ms": 0.542689,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "02-interval",
+      "wall_ms": 420.408344,
+      "utc_start": "2026-09-27T12:00:40.207171+00:00",
+      "utc_end": "2026-09-27T12:00:40.628079+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 2
+    },
+    {
+      "discover_ms": 413.58466100000004,
+      "drop_ms": 0.445999,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "03-interval",
+      "wall_ms": 427.644855,
+      "utc_start": "2026-09-27T12:00:40.639880+00:00",
+      "utc_end": "2026-09-27T12:00:41.067981+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 3
+    },
+    {
+      "discover_ms": 592.355773,
+      "drop_ms": 0.8288920000000001,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "03-lazy",
+      "wall_ms": 605.71902,
+      "utc_start": "2026-09-27T12:00:41.079625+00:00",
+      "utc_end": "2026-09-27T12:00:41.685990+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 3
+    },
+    {
+      "discover_ms": 592.418923,
+      "drop_ms": 0.389886,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "04-lazy",
+      "wall_ms": 604.613957,
+      "utc_start": "2026-09-27T12:00:41.697350+00:00",
+      "utc_end": "2026-09-27T12:00:42.302546+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 4
+    },
+    {
+      "discover_ms": 410.12042399999996,
+      "drop_ms": 1.5148679999999999,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "04-interval",
+      "wall_ms": 424.058771,
+      "utc_start": "2026-09-27T12:00:42.312992+00:00",
+      "utc_end": "2026-09-27T12:00:42.737453+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 4
+    },
+    {
+      "discover_ms": 400.124611,
+      "drop_ms": 0.448253,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "05-interval",
+      "wall_ms": 420.577687,
+      "utc_start": "2026-09-27T12:00:42.748953+00:00",
+      "utc_end": "2026-09-27T12:00:43.170077+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 5
+    },
+    {
+      "discover_ms": 565.495638,
+      "drop_ms": 0.229697,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "05-lazy",
+      "wall_ms": 576.762846,
+      "utc_start": "2026-09-27T12:00:43.181126+00:00",
+      "utc_end": "2026-09-27T12:00:43.758293+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 5
+    },
+    {
+      "discover_ms": 592.816951,
+      "drop_ms": 0.696055,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "06-lazy",
+      "wall_ms": 605.048012,
+      "utc_start": "2026-09-27T12:00:43.767638+00:00",
+      "utc_end": "2026-09-27T12:00:44.373179+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 6
+    },
+    {
+      "discover_ms": 402.375452,
+      "drop_ms": 0.528774,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "06-interval",
+      "wall_ms": 416.015866,
+      "utc_start": "2026-09-27T12:00:44.386223+00:00",
+      "utc_end": "2026-09-27T12:00:44.802815+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 6
+    },
+    {
+      "discover_ms": 418.864827,
+      "drop_ms": 0.426674,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "07-interval",
+      "wall_ms": 432.846525,
+      "utc_start": "2026-09-27T12:00:44.814553+00:00",
+      "utc_end": "2026-09-27T12:00:45.247842+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 7
+    },
+    {
+      "discover_ms": 525.456727,
+      "drop_ms": 0.407267,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "07-lazy",
+      "wall_ms": 537.081,
+      "utc_start": "2026-09-27T12:00:45.259093+00:00",
+      "utc_end": "2026-09-27T12:00:45.796757+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 7
+    },
+    {
+      "discover_ms": 498.246154,
+      "drop_ms": 0.341375,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "08-lazy",
+      "wall_ms": 509.010246,
+      "utc_start": "2026-09-27T12:00:45.808809+00:00",
+      "utc_end": "2026-09-27T12:00:46.318210+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 8
+    },
+    {
+      "discover_ms": 294.036789,
+      "drop_ms": 0.483209,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "08-interval",
+      "wall_ms": 305.307936,
+      "utc_start": "2026-09-27T12:00:46.327655+00:00",
+      "utc_end": "2026-09-27T12:00:46.633511+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 8
+    },
+    {
+      "discover_ms": 381.295266,
+      "drop_ms": 0.604935,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "09-interval",
+      "wall_ms": 395.784158,
+      "utc_start": "2026-09-27T12:00:46.643600+00:00",
+      "utc_end": "2026-09-27T12:00:47.040117+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 9
+    },
+    {
+      "discover_ms": 488.473639,
+      "drop_ms": 1.179053,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "09-lazy",
+      "wall_ms": 501.543652,
+      "utc_start": "2026-09-27T12:00:47.051427+00:00",
+      "utc_end": "2026-09-27T12:00:47.553873+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 9
+    },
+    {
+      "discover_ms": 493.63428,
+      "drop_ms": 1.310819,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "10-lazy",
+      "wall_ms": 508.277268,
+      "utc_start": "2026-09-27T12:00:47.567314+00:00",
+      "utc_end": "2026-09-27T12:00:48.076346+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 10
+    },
+    {
+      "discover_ms": 311.658143,
+      "drop_ms": 0.391529,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "10-interval",
+      "wall_ms": 322.976337,
+      "utc_start": "2026-09-27T12:00:48.087603+00:00",
+      "utc_end": "2026-09-27T12:00:48.411773+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 10
+    },
+    {
+      "discover_ms": 294.152359,
+      "drop_ms": 0.574448,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "11-interval",
+      "wall_ms": 307.582211,
+      "utc_start": "2026-09-27T12:00:48.423967+00:00",
+      "utc_end": "2026-09-27T12:00:48.732033+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6",
+      "iteration": 11
+    },
+    {
+      "discover_ms": 498.858042,
+      "drop_ms": 0.63387,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "11-lazy",
+      "wall_ms": 509.170285,
+      "utc_start": "2026-09-27T12:00:48.742128+00:00",
+      "utc_end": "2026-09-27T12:00:49.251772+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb",
+      "iteration": 11
+    }
+  ],
+  "warmups": [
+    {
+      "discover_ms": 499.92448900000005,
+      "drop_ms": 0.443204,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "warm-lazy-0",
+      "wall_ms": 510.98387,
+      "utc_start": "2026-09-27T12:00:36.129485+00:00",
+      "utc_end": "2026-09-27T12:00:36.641217+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb"
+    },
+    {
+      "discover_ms": 504.832249,
+      "drop_ms": 0.34564300000000003,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "lazy",
+      "round": 3,
+      "label": "warm-lazy-1",
+      "wall_ms": 515.696107,
+      "utc_start": "2026-09-27T12:00:36.651113+00:00",
+      "utc_end": "2026-09-27T12:00:37.167503+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-lazy"
+      ],
+      "executable_sha256": "a128fe848c8d9a76e684c30cc83c4e02bb314113a5f6c80ea2fa0ffc8bcdaedb"
+    },
+    {
+      "discover_ms": 340.143302,
+      "drop_ms": 1.46761,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "warm-interval-0",
+      "wall_ms": 351.664273,
+      "utc_start": "2026-09-27T12:00:37.178220+00:00",
+      "utc_end": "2026-09-27T12:00:37.530523+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6"
+    },
+    {
+      "discover_ms": 304.691489,
+      "drop_ms": 1.1486370000000001,
+      "faces": 1112,
+      "metadata_control": "9156f28234a10295",
+      "variant": "interval",
+      "round": 3,
+      "label": "warm-interval-1",
+      "wall_ms": 317.426917,
+      "utc_start": "2026-09-27T12:00:37.541721+00:00",
+      "utc_end": "2026-09-27T12:00:37.859894+00:00",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-lifecycle-experiment/bin/catalog-interval"
+      ],
+      "executable_sha256": "ae48ded7e5de9077b52f19bb05304aca0e420f37912edfdf96e4ed95474f12b6"
+    }
+  ]
+}

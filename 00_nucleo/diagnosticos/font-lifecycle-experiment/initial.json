@@ -1,0 +1,29 @@
+{
+  "utc": "2026-09-27T11:06:21.965349+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "before_executable_sha256": "9a94d37b711428a699e49bcba239de6a065a8c1602ae3362f9b55a6ac5e608e7",
+  "originals": {
+    "03_infra/src/world.rs": "5c4c4b12a142895519f0a864615471cf29447800d937ee215794ba1dab13349f",
+    "03_infra/src/world/fonts.rs": "f72eb4da9f122f8a273c32504beb42e73613f83b9529e85281dc3c30127b22c9",
+    "03_infra/src/world/world_impl.rs": "705429613c91c44fb2972948f6ac3a0216190f46deb30bf006cc5d1de306234f",
+    "03_infra/src/world/tests.rs": "cc6026fb395851ad1e01d70200bb5d3739d6f215d50f9e231ac546e8a5603915",
+    "03_infra/src/pipeline/resources.rs": "9090c201dadc67c13a078e29e8672b79cf24e8a8c0ec557f3e82bbf7ed908fa9",
+    "03_infra/src/pipeline/pdf.rs": "3747066af7b96af890b3fb8249f82ece3e8f588950cf6fedc007941e58323a76",
+    "03_infra/src/pipeline/bundle.rs": "073a8e76527f6604e3835da0c5b243cfb1849adca579018e324a6b3800e3122f",
+    "03_infra/src/pipeline/tests.rs": "469b578f9c6d4401d834710f802638a1d9c140f963e8ea439c2e2152f3e529f4",
+    "04_wiring/src/compile.rs": "73d31803a3bf04d92c1724dc991f70576d04d937b66e79afceacc93f2a0dab34",
+    "01_core/src/entities/font_book.rs": "e2a81a92c534d0f9db7066cea2ee684b6e17b93d2b924b8541fd6be4698b6fc5",
+    "03_infra/src/fonts.rs": "1224d92baae29e8bd6749aee3c0f42112e264eaa9bb933f2bfc5cce2185a15c6",
+    "00_nucleo/prompts/infra/system-world.md": "ac2f4aeb73a4da844df80da42a28eeb9e35f087af26ea1b1390240691950c3e7",
+    "00_nucleo/prompts/infra/system-world/fonts.md": "a7ac1ad4b6f0cba4362782132c37c075d3eea52741947b7692739e0f0e27392e",
+    "00_nucleo/prompts/infra/system-world/world_impl.md": "f86aa4a81467b34c728dbe4853bfdbac685bf7f017387e3ec477ea0a976ed1ae",
+    "00_nucleo/prompts/infra/system-world/tests.md": "a63fa874f9df9df2aa2d789409eca53cc2302807c86f1a6c87bbeb194a571c1e",
+    "00_nucleo/prompts/infra/pipeline/resources.md": "629cc2ca9973348f4e907eb1ea2659b8d40efc7a351978d93929723d80fdf268",
+    "00_nucleo/prompts/infra/pipeline/pdf.md": "f8f1759a69ce06829f878d66e7aa549979b8201e71fabff34ddd5a5fbf5f417b",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "61582f8008302525caa6bc9e98468abb58d509186ac39e81342c52bedf979aa1",
+    "00_nucleo/prompts/infra/pipeline/tests.md": "a52cd5853cdd749a42bb2d6b2042b63bd65650901d2d1ccf0c00083a7987d51c",
+    "00_nucleo/prompts/wiring/compile.md": "870bd9bdb73adab65ef771988f18327cdac82a9fbb0084c3de9a03d022437b59",
+    "00_nucleo/prompts/entities/font_book.md": "3bd6638b46b60242c0f783f78ba26e0503b44d51e30b2f93e695a42f9a933cf8",
+    "00_nucleo/prompts/infra/fonts.md": "9032f77265576eb5c77c60d4965f14b52ccc8ea25bfcb494de84ee0bf600eb22"
+  }
+}

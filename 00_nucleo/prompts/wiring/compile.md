@@ -1,0 +1,44 @@
+# L0 — wiring/compile
+Hash do Código: 7f96c1e4
+
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/src/compile.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+```
+
+## Current evidence
+
+- `04_wiring/src/compile.rs:40` — `report_in_order`.
+- `04_wiring/src/compile.rs:45` — `write_bundle_output`.
+- `04_wiring/src/compile.rs:81` — `run_compile`.
+- `04_wiring/src/compile.rs:86` — `run_compile_observed`.
+- `04_wiring/src/compile.rs:546` — `p1323_html_experimental_warning_matches_ratified_envelope`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/src/compile.rs`.
+
+## Owned contract
+
+L4 composes the existing L1 domain, L2 presentation and L3 infrastructure. Font/file/package acquisition, compilation and exporting remain delegated to L3. Existing stdout/stderr and output-tree publication calls are wiring orchestration (ADR-0049/0050); they do not authorize moving domain algorithms or resource acquisition into L4.
+
+- Own run_compile/run_compile_observed, report_in_order, write_bundle_output and experimental-warning constants. Preserve observed return values (exit, dependencies, input kind, optional Published) and the no-op-observer wrapper.
+- Keep pre-World validation order: bundle stdout/feature; explicit PDF pages+tagged; CLI-only accessible-standard/tagging with conditional pages hint; conflicting PdfStandards. Preserve early exits and callback order, without implicit feature activation.
+- Construct SystemWorld with current root/main/font/input/CA/plugin configuration. Map compact only to StreamMode; preserve tagging legacy false/explicit Some/absent None and pretty/pages/standard/PPI typed overrides until L3 resolves them. PDF oracle selection is PDF-only.
+- Leave font acquisition to L3 resource demand; normal compilation does not invoke explicit source coverage preloading. System/project fonts remain available through the unchanged builders and World contract.
+- Keep exhaustive target dispatch Bundle/Pdf/Png/Svg/Html, every timing/non-timing path and all BundleCompileOptions fields. Map HTML serialization to the existing L3 enum only; never perform layout/export or reconstruct format defaults in L4.
+- On successful output write bytes or complete BundleFile tree. Preserve normal-component checks, parent creation, canonical/symlink/escape checks and existing publication policy; do not add incidental hardening or atomicity changes.
+- Compilation errors exit 1; write/timing failures exit 2; success exits 0 and alone produces Published. report_in_order invokes status then diagnostics once: conditional experimental warning, warnings, errors, then operational error. Preserve opt-in CRYSTALLINE_MEASUREMENTS=1 through the existing L3 APIs.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

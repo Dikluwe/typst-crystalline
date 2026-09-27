@@ -1,0 +1,54 @@
+{
+  "utc": "2026-09-27T11:31:33.262236+00:00",
+  "machine": {
+    "system": "Linux",
+    "node": "Dell-G15-Linuxmint",
+    "release": "6.17.0-42-generic",
+    "version": "#42-Ubuntu SMP PREEMPT_DYNAMIC Thu Jul 23 19:56:28 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           48 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen 7 5800H with Radeon Graphics\nCPU family:                              25\nModel:                                   80\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nStepping:                                0\nFrequency boost:                         enabled\nCPU(s) scaling MHz:                      84%\nCPU max MHz:                             4465.2612\nCPU min MHz:                             403.4880\nBogoMIPS:                                6387.67\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk clzero irperf xsaveerptr rdpru wbnoinvd cppc arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm debug_swap\nVirtualization:                          AMD-V\nL1d cache:                               256 KiB (8 instances)\nL1i cache:                               256 KiB (8 instances)\nL2 cache:                                4 MiB (8 instances)\nL3 cache:                                16 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Mitigation; Safe RET\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Mitigation; Clear CPU buffers\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+  "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)\n",
+  "python": "3.12.3",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "selected_cpu": 4,
+  "controls": {
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq": "1102866",
+    "/sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq": "4465261",
+    "/sys/devices/system/cpu/cpufreq/boost": "1",
+    "/sys/devices/system/cpu/intel_pstate/no_turbo": null,
+    "/sys/devices/system/cpu/cpu4/topology/thread_siblings_list": "4-5"
+  },
+  "memory": "MemTotal:       65171600 kB\nMemFree:         1013964 kB\nMemAvailable:   17487764 kB\nBuffers:         1863456 kB\nCached:         32480052 kB\nSwapCached:            0 kB\nActive:         36051304 kB\nInactive:       20878156 kB\nActive(anon):   32550480 kB\nInactive(anon):  9119648 kB\nActive(file):    3500824 kB\nInactive(file): 11758508 kB\nUnevictable:      911560 kB\nMlocked:          911560 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              3572 kB\nWriteback:             0 kB\nAnonPages:      23498904 kB\nMapped:          2418548 kB\nShmem:          18172668 kB\nKReclaimable:    2499632 kB\nSlab:            3862876 kB\nSReclaimable:    2499632 kB\nSUnreclaim:      1363244 kB\nKernelStack:       53168 kB\nPageTables:       265332 kB\nSecPageTables:     22284 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    32585800 kB\nCommitted_AS:   81908740 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      171580 kB\nVmallocChunk:          0 kB\nPercpu:            17152 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:    49808004 kB\nDirectMap2M:    16621568 kB\nDirectMap1G:     1048576 kB\n",
+  "boot_id": "d4eeef02-a7b9-4cbe-82f0-8f5b4ae766f2",
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": "",
+    "RAYON_NUM_THREADS": "1",
+    "SOURCE_DATE_EPOCH": "0",
+    "TZ": "UTC",
+    "LC_ALL": "C.UTF-8"
+  },
+  "limitations": "No frequency/boost lock; warm filesystem caches; desktop and OS remain active."
+}

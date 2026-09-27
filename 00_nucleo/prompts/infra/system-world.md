@@ -1,368 +1,39 @@
-# Prompt L0 — infra/system-world
-Hash do Código: 81892945
+# L0 — infra/system-world
+Hash do Código: b4688302
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/world.rs`
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/world.rs`
-**Atualizado em**: 2026-09-15 (P1410 — coverage híbrida sem mmap integral do catálogo)
-**ADRs relevantes**: ADR-0001 (comemo/TrackedWorld), ADR-0005 (World trait), ADR-0017 (stubs)
+## Current evidence
 
-## Contexto
+- `03_infra/src/world.rs:35` — `SystemWorldError`.
+- `03_infra/src/world.rs:43` — `fmt`.
+- `03_infra/src/world.rs:58` — `SystemWorld`.
+- `03_infra/src/world.rs:97` — `for_eval`.
+- `03_infra/src/world.rs:132` — `new`.
 
-`SystemWorld` é a implementação concreta de `World` (L1) para o
-filesystem real. Vive em L3 porque lê ficheiros do disco (`std::fs`)
-e terá I/O de fontes (Passo 8) e rede (Passo 9+).
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/world.rs`.
 
-O `World` trait original em `typst-cli` usa `LazyHash<Library>`,
-`FontStore`, `FileStore`, `typst-kit` — todos evitados neste passo.
-A implementação mínima usa `std::fs` directamente.
+## Owned contract
 
-## Interface pública
+- Own SystemWorld state, SystemWorldError/Display, new/for_eval and input/plugin builders only. Cache, fonts, paths, packages and World implementation have independent descendant owners.
+- new accepts the existing root/main inputs, canonicalizes the physical main, eagerly reads it, registers FileId 1 and starts subsequent ids at 2. Preserve main-not-found and I/O errors.
+- for_eval creates a preloaded synthetic source at root/<input-expression> without file reads; imports still resolve against the supplied root.
+- Initialize the current per-world maps/locks, library, empty SysInputs, absent plugin host and default package downloader. Font state consists of a once-initialized paired catalog and a private discovery closure; an unconfigured world has an empty catalog. The font child owns discovery and replacement. with_inputs stores strings and with_plugin_host stores the supplied Arc; no I/O enters the L1 contracts.
+- Preserve public paths/builders and private descendant access. Do not add a new trait, global cache or broaden helper visibility.
 
-```rust
-pub struct SystemWorld { ... }
+## Child owners
 
-impl SystemWorld {
-    pub fn new(root: PathBuf, main: PathBuf) -> Result<Self, SystemWorldError>
-    /// **P1137-B-001** — world com main sintético vazio, sem ficheiro físico.
-    /// Imports relativos continuam ancorados em `root`.
-    pub fn for_eval(root: PathBuf) -> Self
-    /// **P450** — carrega e parseia um ficheiro `.bib` relativo a current_file.
-    pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String>
-    /// **P694** — builder: associa os pares `--input` (raw strings) e converte
-    /// para `SysInputs` (`EcoString`). Guarda no campo `inputs`.
-    pub fn with_inputs(self, inputs: Vec<(String, String)>) -> Self
-    /// **P699** — builder: instala o host de plugins WASM (L3) no
-    /// `SystemWorld`. Consumido por `World::plugin_host()` (devolve
-    /// `Some(...)`). Encadeado em `04_wiring/src/main.rs` com
-    /// `Arc::new(typst_infra::plugin_host::WasmiPluginHost::new())`.
-    pub fn with_plugin_host(self, host: Arc<dyn PluginHost>) -> Self
-    /// **P1137-CERT** — reinstala o downloader com o path lazy da CA.
-    pub fn with_custom_ca(self, cert_path: Option<PathBuf>) -> Self
-    /// **P772b** — devolve o path registado para `id`, se existir.
-    /// Usado pelo formatter de diagnósticos de L4 para mostrar o
-    /// ficheiro correcto em spans cross-file.
-    pub fn path_of(&self, id: FileId) -> Option<PathBuf>
-}
+- `00_nucleo/prompts/infra/system-world/cache.md` owns only `03_infra/src/world/cache.rs`.
+- `00_nucleo/prompts/infra/system-world/fonts.md` owns only `03_infra/src/world/fonts.rs`.
+- `00_nucleo/prompts/infra/system-world/packages.md` owns only `03_infra/src/world/packages.rs`.
+- `00_nucleo/prompts/infra/system-world/paths.md` owns only `03_infra/src/world/paths.rs`.
+- `00_nucleo/prompts/infra/system-world/tests.md` owns only `03_infra/src/world/tests.rs`.
+- `00_nucleo/prompts/infra/system-world/world_impl.md` owns only `03_infra/src/world/world_impl.rs`.
 
-impl World for SystemWorld {
-    fn library(&self) -> &Library;
-    fn book(&self)    -> &FontBook;
-    fn main(&self)    -> FileId;
-    fn source(&self, id: FileId) -> FileResult<Source>;
-    fn file(&self, id: FileId)   -> FileResult<Bytes>;
-    fn font(&self, index: usize) -> Option<Font>;
-    /// **P1410** — usa primeiro a coverage já materializada no FontBook;
-    /// somente slots sem coverage válida recorrem à extração lazy e cache.
-    fn candidates_for_char(&self, c: char) -> Vec<usize>;
-    fn today(&self, offset: Option<Duration>) -> Option<Datetime>;
-    fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
-    /// **P694** — devolve os `--input` (clone barato; poucos pares).
-    fn inputs(&self) -> SysInputs;
-    /// **P699** — devolve `Some(Arc<WasmiPluginHost>)` (host WASM em L3).
-    fn plugin_host(&self) -> Option<Arc<dyn PluginHost>>;
-}
-```
+## Verification and boundary
 
-## P1146 — implementação de `today` (condicionada ao gate ADR-0127)
-
-Após aprovação do contrato em `contracts/world.md`, `SystemWorld::today`
-escolhe a data local quando recebe `None` e UTC mais a duração exata quando
-recebe `Some`. A duração L1 é convertida para `time::Duration` em L3 com
-overflow tratado sem panic. A função devolve somente a data. Testes devem
-injetar/abstrair o instante quando precisarem provar cruzamento de dia; não
-podem depender da hora corrente para fechar o passo.
-
-**Medição P1137-B-001 (2026-08-23):** `SystemWorld::new` canonicaliza e lê
-eagerly o main (`world.rs:160-188`), portanto `typst eval` falhava antes de
-avaliar com `main file not found: ./__eval__.typ`. Usar `Cargo.toml` ou criar um
-temporário tornaria uma expressão isolada dependente de um ficheiro incidental.
-
-**Decisão:** `for_eval(root)` instala no slot principal um `Source` vazio já
-materializado, com `FileId(1)` e path virtual `root/<input-expression>`. Não lê
-nem escreve esse path. `directory_of(main)` continua a devolver `root`, para
-imports relativos futuros. Fontes, inputs, plugins e packages continuam a usar
-os builders e serviços normais do `SystemWorld`.
-
-**Campo `inputs` (P694):** `SysInputs` inicializado vazio em `new` e populado
-por `with_inputs`. É lido por `eval_with_full_error` via `World::inputs()` para
-construir o módulo `sys`. A conversão `String → EcoString` acontece aqui (L3),
-mantendo L2 livre de `ecow`/`indexmap`.
-
-**CA customizada (P1137-CERT):** `with_custom_ca` recompõe o downloader padrão
-daquele world com o path recebido de L4. Não lê o ficheiro; a leitura e o
-parsing permanecem lazy em `infra/package_downloader.md`. Assim compile, eval
-e query usam a mesma política quando uma importação dispara download.
-
-## P1141 — materialização de `RootedPath` (gate ADR-0127)
-
-### Medição antes da decisão
-
-`world.rs:493-531` já detecta package root e resolve paths absolutos/relativos,
-mas retorna `PathBuf` e a ABI atual recebe `(FileId, &str)` em toda leitura. A
-sonda P1141 mede que um `path` construído num ficheiro e consumido noutro mantém
-a raiz/base original. Vanilla ratificado separa o DTO lexical
-`RootedPath { root, vpath }` (`typst-syntax/src/path.rs:16-60`) da realização
-física pelo world.
-
-### Decisão
-
-Após confirmação, `SystemWorld` implementa os métodos P1141 de
-`contracts/world.md`:
-
-- `resolve_path(FileId, &str)` identifica `VirtualRoot::Project` ou
-  `VirtualRoot::Package(spec)`, obtém a vpath do ficheiro e normaliza em L1;
-- `read_path(&RootedPath)` escolhe a raiz física correspondente, realiza a
-  vpath, registra/cacheia o ficheiro e lê bytes;
-- `include_path(&RootedPath)` usa a mesma realização, registra `FileId` e
-  devolve `Source`.
-
-O mapeamento de package root físico deve preservar também seu `PackageSpec`;
-inferir apenas "é pacote" e perder namespace/name/version é insuficiente para
-igualdade de paths. Canonicalização física é defesa adicional, nunca fonte da
-semântica lexical; qualquer resultado fora da raiz é rejeitado. Nenhum path
-físico entra em `Value` ou L1. Caches continuam por `FileId`/path canônico.
-
-As assinaturas implementadas pertencem a trait público; não alterar L3 antes
-da confirmação ADR-0127.
-
-## Comportamento
-
-- `library()` — retorna stub `Library(())`
-- `book()` — retorna stub `FontBook(())`
-- `main()` — `FileId` do ficheiro principal
-- `source(id)` — lê do cache ou do disco via `std::fs::read_to_string`;
-  retorna `FileError::NotFound` se não existir
-- `file(id)` — lê bytes brutos via `std::fs::read`;
-  retorna `FileError::NotFound` se não existir
-- `font(_)` — `None` (stub — fontes reais no Passo 8)
-- `today(_)` — `None` (stub — Datetime real após ADR-0017)
-
-## Resolução de pacotes (P681, P-β de P678, P763)
-
-`resolve_package(spec)` procura o pacote primeiro **offline**, sem rede, na cache local do
-utilizador, seguindo a ordem de prioridade confirmada em P678:
-
-1. **Data dir** — `$XDG_DATA_HOME/typst/packages` ou `~/.local/share/typst/packages`.
-2. **Cache dir** — `$XDG_CACHE_HOME/typst/packages` ou `~/.cache/typst/packages`.
-
-Quando o pacote não é encontrado em nenhuma das bases acima e `spec.namespace == "preview"`,
-o `SystemWorld` delega o download ao mecanismo definido em
-[`infra/package_downloader.md`](./package_downloader.md) (P763). Até à implementação desse
-download, o erro mantém a mensagem offline.
-
-Para cada base, o candidato é `{base}/{namespace}/{name}/{version}` (ex.:
-`~/.cache/typst/packages/preview/cetz/0.2.2`). O primeiro que existir como
-directório é usado:
-
-1. Lê `{candidato}/typst.toml` e extrai `[package].entrypoint` (via `toml::Value`;
-   `toml` é workspace dep adicionada a `03_infra/Cargo.toml`). Sem `entrypoint`
-   → erro claro.
-2. `entrypoint_path = candidato.join(entrypoint)`; `id = register_file(entrypoint_path)`
-   (FileId estável, canonicalizado); `source(id)` devolve o `Source` do entrypoint.
-   Imports internos do pacote resolvem relativamente ao `current_file` (entrypoint),
-   cujo `directory_of` é o directório do entrypoint dentro da cache — logo os
-   `#import "..."` internos ao pacote funcionam sem tratamento especial.
-
-Erros (todos `Result::Err` com mensagem clara, distinta de "pacotes não suportados"):
-
-- Pacote não presente em nenhuma base →
-  `pacote '@preview/nome:versao' não encontrado na cache local; download ainda não implementado (ver P-γ de P678)`.
-- `typst.toml` ilegível/inválido ou sem `[package].entrypoint` → mensagem específica.
-- Entrypoint não existe no disco → mensagem específica.
-
-É **I/O em L3** (permitido): lê o filesystem fora do projecto (cache do utilizador).
-L1 (`World` trait, `eval_module_import`) só declara/consome o contrato.
-
-## Critérios de Verificação
-
-```
-Dado SystemWorld::new(root, main) com ficheiro existente
-Quando main() for chamado
-Então FileId válido
-
-Dado SystemWorld com ficheiro existente
-Quando source(main_id) for chamado
-Então Ok(Source) com text() igual ao conteúdo do ficheiro
-
-Dado SystemWorld
-Quando source(id_inexistente) for chamado
-Então Err(FileError::NotFound)
-
-Dado SystemWorld
-Quando font(0) for chamado
-Então None
-
-Dado MockWorld("Hello *world*")
-Quando source(main()) for chamado
-Então Ok(Source) com text() == "Hello *world*"
-```
-
----
-
-## Cache de bytes por `FileId` — P876
-
-`SystemWorld` mantém um cache de bytes brutos lidos via `read_bytes(current_file, path)`,
-indexado pelo `FileId` canónico do path resolvido. Chamadas repetidas ao mesmo ficheiro
-(por exemplo, 50× `image("debian-logo.png")`) devolvem o **mesmo** `Arc<Vec<u8>>`, em vez
-de reler o disco e alocar um novo `Arc` a cada chamada.
-
-### Semântica
-
-- A chave é o `FileId` obtido por `register_file(path_canonicalizado)`.
-- O valor é `Arc<Vec<u8>>` — clone O(1) nas chamadas subsequentes.
-- O cache é preenchido na primeira leitura bem-sucedida e nunca invalidado durante a
-  vida do `SystemWorld` (modelo de read-only durante a compilação de um documento).
-- `file(id)` também consulta este cache antes de ler do disco.
-
-### Motivo
-
-`01_core/src/entities/elements/image.rs:46,53` aloca um `Arc` novo a cada avaliação de
-`image()`. Sem cache de bytes, 50 chamadas ao mesmo ficheiro produzem 50 `Arc`s distintos,
-quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.rs`) e gerando
-50 XObjects em vez de 1 (paridade vanilla).
-
----
-
-## Cobertura Unicode exacta híbrida — P938/P1410
-
-A partir de P1410, fontes do sistema chegam de `load_system_fonts` com
-`Coverage` exacta já materializada enquanto o `fontdb` fornece seus bytes.
-Fontes embutidas, de projeto ou casos sem `cmap` legível podem conservar
-coverage vazia; somente esses slots usam a extração lazy de P938, cacheada por
-índice. `candidates_for_char` nunca deve chamar `source_bytes` para um
-`FontInfo` cuja coverage não está vazia.
-
-### Algoritmo de `candidates_for_char`
-
-```rust
-fn candidates_for_char(&self, c: char) -> Vec<usize> {
-    let codepoint = c as u32;
-    let mut cache = self.coverage_cache.lock().unwrap();
-    let mut result = Vec::new();
-    for (idx, slot) in self.font_slots.iter().enumerate() {
-        let precomputed = &self.font_book.infos()[idx].coverage;
-        let coverage = if precomputed.is_empty() {
-            cache.entry(idx).or_insert_with(|| extract_slot_coverage(slot))
-        } else {
-            precomputed
-        };
-        if coverage.contains(codepoint) {
-            result.push(idx);
-        }
-    }
-    result
-}
-```
-
-### Propriedades
-
-- **Exacta:** devolve apenas índices cujo `coverage` contém o codepoint;
-  sem falsos positivos do bitmap por bloco de 256.
-- **Híbrida:** fontes do sistema usam coverage do catálogo; apenas slots sem
-  coverage pré-calculada são extraídos lazy.
-- **Cache por índice:** uma vez extraída, a `Coverage` é reutilizada para
-  todos os caracteres subsequentes no mesmo `SystemWorld`.
-- **Memória virtual limitada pelo uso:** uma consulta não mapeia os ficheiros
-  de todas as fontes do sistema.
-
-## Pré-carregamento condicional de coverage — P927/P938
-
-Para documentos latinos simples que nunca precisam de fallback do sistema,
-`SystemWorld` oferece:
-
-```rust
-pub fn preload_coverage_if_needed(&self, source: &Source)
-```
-
-- Percorre o source bruto (texto literal, texto matemático, blocos raw) antes
-  do layout.
-- Constrói a união das coberturas das fontes embutidas como proxy conservador
-  para a cobertura da fonte primária.
-- No primeiro caractere não coberto pelas embutidas, dispara `candidates_for_char`,
-  que preenche lazy a coverage das fontes do sistema.
-- Texto que só existe depois de `eval` (`context`, interpolações, dados de
-  `read()`) não é visto aqui — esses casos continuam no caminho lazy original,
-  sem regressão face ao comportamento actual.
-
-`04_wiring/src/main.rs` chama `preload_coverage_if_needed(&source)` após
-`world.source(world.main())` e antes de `compile_to_pdf_bytes*`. Ver Prompt L0
-`wiring.md`.
-
-## Fontes embutidas — P753
-
-A partir de P753, `SystemWorld` suporta fontes embutidas via `typst-assets`:
-
-```rust
-impl SystemWorld {
-    /// Carrega as fontes embutidas do vanilla (Libertinus Serif, New Computer
-    /// Modern, New Computer Modern Math, DejaVu Sans Mono).
-    pub fn with_embedded_fonts(mut self) -> Self;
-
-    /// Combina embutidas + sistema + fontes de projecto.
-    pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self;
-}
-```
-
-- `with_embedded_fonts` usa `crate::embedded_fonts::load_embedded_fonts()`.
-- `with_fonts_and_system` carrega: (1) embutidas; (2) sistema via `fontdb`; (3)
-  projecto via `discover_fonts`. A ordem garante que o conjunto vanilla-like é
-  sempre disponível, e que `--font-path` pode adicionar/sobrepor fontes.
-- `with_fonts(paths)` mantém o comportamento pré-P753: apenas as fontes dos
-  paths fornecidos, sem embutidas nem sistema.
-
-Ver Prompt L0 `00_nucleo/prompts/infra/embedded_fonts.md` para a especificação
-completa do mecanismo de fontes embutidas.
-
-## Resolução de caminhos absolutos (`/...`) — P686
-
-`SystemWorld` resolve o `path` de `include_source` e `read_bytes` via o helper
-privado `resolve_path(current_file, path)`:
-
-- **Absoluto** (`path` começa por `/`): a base é a raiz do pacote de
-  `current_file` (devolvida por `package_root_of`) quando existe, ou `self.root`
-  (raiz do projecto) caso contrário. O resultado é `base.join(path sem '/' inicial)`.
-- **Relativo**: `directory_of(current_file).join(path)` — comportamento inalterado.
-
-Helpers de suporte (privados a `SystemWorld`):
-
-- `path_of(id) -> Option<PathBuf>` — path registado em `slots` para o `FileId`.
-- `package_search_roots() -> Vec<PathBuf>` — directórios `typst/packages` em
-  `data_local_dir`, `data_dir` e `cache_dir` (local, data, cache).
-- `package_root_of(&Path) -> Option<PathBuf>` — se o path vive sob um desses
-  roots com a forma `{ns}/{name}/{version}/...`, devolve
-  `{root}/{ns}/{name}/{version}`.
-
-A detecção da raiz do pacote é por **prefixo de path** (sem I/O de rede),
-coerente com `resolve_package`. Caminhos relativos com `../` que escapem a raiz
-do pacote permanecem fora de escopo (débito de sandbox pré-existente).
-
-**Língua vs mecânica (ADR-0107):** a regra absoluto/relativo e a noção de raiz de
-pacote são semântica da linguagem; a forma `{ns}/{name}/{version}` e os roots de
-procura são mecânica de L3.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Ficheiros afetados |
-|------|--------|--------------------|
-| 2026-07-23 | P876 — cache de bytes de `read_bytes` por `FileId` | `system-world.md`, `03_infra/src/world.rs` |
-| 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
-| 2026-07-31 | P937 — coverage exacta eager; remove P880/P927 (`coverage_cache`, `preload_coverage_if_needed`, `embedded_coverage_union`, `source_text_nodes`); delega `candidates_for_char` a `FontBook` | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
-| 2026-07-31 | P938 — coverage exacta lazy: `coverage_cache` por índice, `preload_coverage_if_needed` condicional, `embedded_coverage_union` e `source_text_nodes` restaurados; `candidates_for_char` preenche lazy | `system-world.md`, `fonts.md`, `wiring.md`, `03_infra/src/world.rs`, `03_infra/src/fonts.rs`, `04_wiring/src/main.rs` |
-| 2026-09-15 | P1410 — prefere coverage já materializada pelo catálogo do sistema e reserva extração lazy aos slots vazios; uma consulta deixa de mapear todas as fontes instaladas | `system-world.md`, `fontdb.md`, `03_infra/src/world.rs`, `03_infra/src/fontdb.rs` |
-| 2026-08-23 | P1137-CERT — builder lazy para CA customizada do downloader | `system-world.md`, `package_downloader.md`, `03_infra/src/world.rs` |
-## P1137-WATCH — inventário de dependências
-
-Medição anterior à decisão: `path_to_id` já continha o main e todo ficheiro
-resolvido por `register_file`, incluindo imports, includes e assets, mas o
-inventário não era exposto ao wiring.
-
-`SystemWorld::dependencies() -> Vec<PathBuf>` copia as chaves de `path_to_id`,
-ordena e remove duplicados. O resultado representa os ficheiros efetivamente
-resolvidos pela compilação, inclusive dependências transitivas e paths ainda
-inexistentes registados durante uma tentativa com erro. Fontes do sistema não
-entram neste conjunto.
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

@@ -1,0 +1,43 @@
+# L0 — infra/pipeline/pdf
+Hash do Código: a5e2cbda
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/pipeline/pdf.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
+```
+
+## Current evidence
+
+- `03_infra/src/pipeline/pdf.rs:180` — `resolve_pdf_pages_and_tags`.
+- `03_infra/src/pipeline/pdf.rs:243` — `resolve_pdf_pages_tags_and_standards`.
+- `03_infra/src/pipeline/pdf.rs:288` — `require_ua1_document_title`.
+- `03_infra/src/pipeline/pdf.rs:308` — `require_ua1_image_alt`.
+- `03_infra/src/pipeline/pdf.rs:351` — `compile_to_pdf_bytes_impl`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pipeline/pdf.rs`.
+
+## Owned contract
+
+- Own PDF compilation facades, resolved document options, PDF-only validations and font-aware export dispatch. Obtain a complete paged document from its owner; preserve raw warnings on both success and failure.
+- Preserve every compatibility wrapper's explicit/default choices, DocumentID transport, oracle path, timings and public import paths. Some DocumentID fixes the document id, not the instance id; None leaves existing random behavior. Empty executable-only content preserves the existing empty-output path.
+- Resolve pages from caller then document then all pages; resolve standards from caller then document then PdfStandards default. Resolve pretty from explicit caller then document. StreamMode (verbose production default versus explicit compact), serialization, tagging, features and DocumentID are independent axes.
+- Without page selection, explicit tagged decisions win; documentary Auto enables tagging. With pages, effective Explicit(true) fails with `cannot enable tagged PDF and export a page range`; Auto disables tagging and emits `exporting a page range disables PDF tagging` with hints `the resulting PDF will be inaccessible` and ``set `pdf(tagged: false)` to silence this warning``; explicit false stays silent.
+- CLI-only rejections and the separate CLI pages warning belong to `00_nucleo/prompts/wiring/compile.md`, not this module. Do not collapse caller absence early or duplicate those messages.
+- After pages/tagging resolution, an accessible archival profile (A1a/A2a/A3a) or Ua1 with Disabled tags fails with ``cannot set `pdf(tagged: false)` when exporting a {name} document``. Add `using `pdf(pages: ...)` implies `pdf(tagged: false)` only when pages caused disabling and false was not explicitly selected.
+- Pass resolved pages/tags/standards/serialization unchanged to all font-aware exporter branches. Standard-name/version resolution is not proof of full PDF/A or PDF/UA structural conformity; do not add a conformity engine or version-specific internal rewrites.
+- Before export validate attachments in final order: duplicate derived virtual paths fail with `attempted to attach file {path} twice`. Direct infallible exporters require a validated document; they do not replace this language error channel.
+- Only under Ua1, absent document title fails with `PDF/UA-1 error: missing document title` and hint ``set the title with `set document(title: [...])```. This checks None versus Some, not a new empty-title policy or combined-validator prefix.
+- Only under Ua1, real images without alt outside `pdf.artifact` fail with `PDF/UA-1 error: missing alt text` and hint `make sure your images and equations have alt text`. Some empty text is still supplied; keep available origin spans and existing detached-span limitation.
+- Resolve/instantiate ordered complete font keys through the resource owner. Dispatch no resolved fonts to fallback export, one to single-font export and many to multifont export without dropping explicit variations. Preserve ordinary and oracle behavior, not total PDF-byte identity as a language criterion.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
