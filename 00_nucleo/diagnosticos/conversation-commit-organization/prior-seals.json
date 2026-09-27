@@ -1,0 +1,66 @@
+{
+  "performance-baseline": {
+    "manifest_sha256": "6985978554c0e6ab9faff486bd9fa76b44befe1b1dab756f4ded6c04f79c0154",
+    "report_sha256": "42afe05305cb9009650766b753d681fdd40d63549b11c800cf059b0fbfe8b024"
+  },
+  "font-lifecycle-experiment": {
+    "manifest_sha256": "568a9c0f0d9ce1a67bad372ba137ed49b30881b56d94464e80c3f371e89920cb",
+    "report_sha256": "b653a3cdc9ac8c186aa27228d14911da6a33e4869baea4e7f92380fcd0b30d50"
+  },
+  "font-microbenchmarks": {
+    "manifest_sha256": "8d0d0805aa2a5d77f5fa97698ec4514d0482a2ebb3f9bb85026eeac17c3e4f82",
+    "report_sha256": "6595bd3b04cafa6b59ccfde057e758048c1fb732e7c88430f8773d63c6a15303"
+  },
+  "font-microbenchmarks-vanilla": {
+    "manifest_sha256": "dd33c23ad2aa80e33619d9626c857512683824ccbe80885033aabf1008130a3e",
+    "report_sha256": "d627f167e8c7d4feff53b815753ec4cad44aae4d4dc709b8fbd1bca72f692689"
+  },
+  "vanilla-font-mechanics": {
+    "manifest_sha256": "a1bca516635539d43594482cca2c4e5b4ee8b0da52d4169c0263688dc86727b7",
+    "report_sha256": "9519f583240126f11c91cd7a1a5b6f53338589adce0df698f77b0eb288d74176"
+  },
+  "reuse-trust-study": {
+    "manifest_sha256": "7fa8b09db92a3e097861322a6f0d1ba82b597ac3c9a3d6683c1f7621f7a760a3",
+    "report_sha256": "bb4df7348b6b01eb242f7c09258ae1b90aea95f170f6b60012d2203cb8f89a5b"
+  },
+  "reuse-key-followup": {
+    "manifest_sha256": "117442f80fa19a8c1646a11ee5cad846225380613cd827a0e8df5e10782c170e",
+    "report_sha256": "c6655b10824b0acf9b590d766f145261b5698d853424af642539f3bc48304e5f"
+  },
+  "shaping-axis-key-fix": {
+    "manifest_sha256": "f170072843f416c0b3ff8dad186a6fcf68d45e05c77db9280ee4251d65ff306f",
+    "report_sha256": "91d4355d1fc4ff9bf26afc8fd4bd57e7bcc3638579824ecb10904669354f8b23"
+  },
+  "shaper-prompt-audit": {
+    "manifest_sha256": "e3d2c14cd11cbf4ee74739b730968e6d5393408633565a8b968001c861db5e2f",
+    "report_sha256": "9937d522a06596c8275de04dca59ec9d49d317f6c8911f17187c8f5e09e3c3a8"
+  },
+  "shaper-contract-fixes": {
+    "manifest_sha256": "7484f50754933f359b3b115ee9534cb3a087eabb9ca14cd875515efa157fd8c5",
+    "report_sha256": "248ef25345a12b82498fbeb9f209d77d971b13fd33a15ee393a16a053187a728"
+  },
+  "infra-contract-review": {
+    "manifest_sha256": "1e2196cfa7ff62dd295b83b448b6fcbffe33bd21b238c913f5297d953375758a",
+    "report_sha256": "6bc98ef04487faf345917750b5f40fa0926f700ff24d64bdd0bdc7cb82f5c2d9"
+  },
+  "infra-axis-gate-review": {
+    "manifest_sha256": "59b9b528ea3d15b72ca8f062466ac985a68f0ccc069d886df3265cc84618b105",
+    "report_sha256": "1f7134c9533c915be5f8f36d42907f61b124283061824cfaf695fc938d84aff5"
+  },
+  "infra-performance-followup": {
+    "manifest_sha256": "77ff2cc9af7db941fbf292e7fc110c14b241fc54fd972d7089eb100f91c2a02f",
+    "report_sha256": "9f0cf56d4c04475fc12ef8b884389b75d6c7e3263bd027d6d7711e3e7bdbf9d4"
+  },
+  "shaper-language-fix": {
+    "manifest_sha256": "4f38af80fb550ada1fdc3b8e9e5526386acdf6836145a53141116ca3e6ea5e79",
+    "report_sha256": "1005fe5f5ae7a3c2df5cf46593b5915893fdee9f8f08a39f9b0bc3ff9ba925b5"
+  },
+  "font-demand-geometry-study": {
+    "manifest_sha256": "8b16aa3173b6415d2c0afaa3f81ca34c2a44b1d3b27b7a84d06e8b748e114007",
+    "report_sha256": "8e76302d3f8ca9d4b88a87f7202f76408c04fa663cc92e45b1b195aeb551607a"
+  },
+  "subframe-font-demand-followup": {
+    "manifest_sha256": "7523c020b8c715bc058a1d4a43fccd929fc4bac8f02b98422eb821041db0cd1f",
+    "report_sha256": "66e0565553c049dc468075015ad94b1abeb476b2d6a108e8ba01ca8b14c3cbd5"
+  }
+}

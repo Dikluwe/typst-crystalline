@@ -1,0 +1,25 @@
+{
+  "utc": "2026-09-27T19:42:54.353185+00:00",
+  "head_before_index_commit": "d2540371f14f3243d556886dd8e9b1b235881459",
+  "verified_datasets": [
+    "performance-baseline",
+    "font-lifecycle-experiment",
+    "font-microbenchmarks",
+    "font-microbenchmarks-vanilla",
+    "vanilla-font-mechanics",
+    "reuse-trust-study",
+    "reuse-key-followup",
+    "shaping-axis-key-fix",
+    "shaper-prompt-audit",
+    "shaper-contract-fixes",
+    "infra-contract-review",
+    "infra-axis-gate-review",
+    "infra-performance-followup",
+    "shaper-language-fix",
+    "font-demand-geometry-study",
+    "subframe-font-demand-followup"
+  ],
+  "outside_correction_sources_preserved": true,
+  "index_empty": true,
+  "report_sha256": "943ce3030e70b65068dc4d16402fca049ec647d8fb9efef1b910a4d7bc466453"
+}

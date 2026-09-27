@@ -1,0 +1,6 @@
+08812c0f0 Benchmark suite
+fc8e82abb Font catalog lifecycle
+a58dfe5a6 Pinned font measurements
+a9dfed1dc Reuse and shaper contracts
+d2540371f Performance baseline
+Explicit groups committed; unrelated remaining work preserved.
