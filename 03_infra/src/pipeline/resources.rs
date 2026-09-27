@@ -1,0 +1,260 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
+//! @prompt-hash c768ecdc
+//! @layer L3
+//! @updated 2026-09-27
+//!
+//! Possui coleta ordenada e resolução das fontes do documento, fallback por família, variações explícitas e instanciação de fontes variáveis. Recursa pelos containers e pelas camadas marginais existentes, preservando a chave completa e os diagnósticos vigentes.
+
+use super::*;
+
+/// Match the dependency guard to the instancing owner's filtered axis requests.
+pub(super) fn requires_font_instancing(
+    bytes: &[u8],
+    variant: &FontVariant,
+    variations: &FontVariations,
+) -> bool {
+    let Ok(face) = ttf_parser::Face::parse(bytes, 0) else { return false };
+    let merged =
+        merge_explicit_variations(axis_variations_for_font_variant(variant), variations);
+    face.variation_axes()
+        .into_iter()
+        .any(|axis| merged.iter().any(|request| request.tag == axis.tag))
+}
+
+/// Resolve e instancia estaticamente as fontes necessárias para
+/// rasterização PNG / exportação SVG (P870).
+///
+/// Aplica o mesmo gate de fontes variáveis do caminho PDF: se uma VF
+/// precisa de instanciação e Python/fontTools não está disponível,
+/// devolve um diagnóstico de erro. Fontes estáticas são passadas
+/// inalteradas; VFs são instanciadas para as variações fundidas
+/// (derivadas + explícitas).
+pub(super) fn resolve_and_instantiate_fonts(
+    doc: &PagedDocument,
+    world: &dyn World,
+) -> Result<Vec<FontKey>, SourceDiagnostic> {
+    let combos = collect_fonts_from_doc(doc, world);
+    let resolved = resolve_fonts(&combos, world);
+
+    let needs_instancer =
+        resolved.iter().any(|((_, font_variant, variations), bytes)| {
+            requires_font_instancing(bytes, font_variant, variations)
+        });
+    if needs_instancer && !variable_font_instancer_available() {
+        for ((font_list, font_variant, variations), bytes) in &resolved {
+            if requires_font_instancing(bytes, font_variant, variations) {
+                let name = font_list
+                    .as_slice()
+                    .first()
+                    .and_then(|f| f.name.as_str())
+                    .unwrap_or("fonte variável");
+                return Err(SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
+                        name
+                    ),
+                ));
+            }
+        }
+    }
+
+    Ok(resolved
+        .into_iter()
+        .map(|(key, bytes)| {
+            let (_, font_variant, variations) = &key;
+            let merged = merge_explicit_variations(
+                axis_variations_for_font_variant(font_variant),
+                variations,
+            );
+            let tuple_vars: Vec<(ttf_parser::Tag, f32)> =
+                merged.iter().map(|v| (v.tag, v.value)).collect();
+            let instanced =
+                instantiate_variable_font(&bytes, &tuple_vars).unwrap_or(bytes);
+            (key, instanced)
+        })
+        .collect())
+}
+
+/// Itera `doc.pages → items` recursivamente (atravessa `Group`)
+/// e devolve **todas** as combinações `(FontList, FontVariant)` distintas
+/// em ordem de primeira ocorrência (Passo 146, ADR-0055 decisão 5;
+/// P530 — chave expandida para incluir weight/style).
+///
+/// Deduplicação por igualdade estrutural via `Vec::contains`.
+/// Complexidade O(N²) em N = combinações distintas; aceite porque N é
+/// tipicamente pequeno (<10) em documentos reais.
+/// **P906** — `world` adicionado: `FrameItem::Glyph` precisa de resolver a
+/// fonte que efectivamente o cobre (`FallbackFontMetrics::resolve_font_
+/// combo`, via `base_char`), à semelhança do que `style.font` já faz
+/// directamente para `Text`/`TextShaped`. Ver nota em `collect_fonts_in_
+/// items` abaixo.
+pub(super) fn collect_fonts_from_doc(
+    doc: &PagedDocument,
+    world: &dyn World,
+) -> Vec<(FontList, FontVariant, FontVariations)> {
+    let metrics = FallbackFontMetrics::new(world);
+    let mut seen: Vec<(FontList, FontVariant, FontVariations)> = Vec::new();
+    for page in &doc.pages {
+        collect_fonts_in_items(&page.background, &metrics, &mut seen);
+        collect_fonts_in_items(&page.items, &metrics, &mut seen);
+        collect_fonts_in_items(&page.foreground, &metrics, &mut seen);
+    }
+    seen
+}
+
+/// **P906** — braço `FrameItem::Glyph` adicionado. Antes deste passo, era
+/// ignorado (`FrameItem::Glyph { .. } => {}`) — todo glifo de esticamento
+/// matemático (`layout_stretchy_delimiter`/`layout_assembly`, eixo
+/// vertical e horizontal) era invisível para a selecção Cidfont-vs-
+/// Multifont, que decide cedo no pipeline QUAIS fontes embutir a partir
+/// só dos caracteres vistos em `Text`/`TextShaped`. Achado: uma equação
+/// cujo ÚNICO conteúdo a precisar da fonte companion MATH fosse um glifo
+/// de esticamento (ex: `underbracket(a+b+c)` sem mais nenhum texto
+/// itálico matemático à volta) escolhia só a fonte de corpo como
+/// candidata Cidfont única — o glyph_id do esticamento, correcto na fonte
+/// MATH, caía fora do subset embutido (glifo `.notdef` no PDF real).
+/// Corrigido resolvendo `base_char`+`style` via `resolve_font_combo`
+/// (mesmo mecanismo `covering`/`resolve_primary_with_math_fallback` já
+/// usado internamente por `FallbackFontMetrics` para o LAYOUT) — Glyph
+/// entra na mesma lista `seen`, com a mesma deduplicação, como se fosse
+/// mais um span de texto. Ver `pipeline.md` §P906.
+fn collect_fonts_in_items(
+    items: &[FrameItem],
+    metrics: &FallbackFontMetrics,
+    seen: &mut Vec<(FontList, FontVariant, FontVariations)>,
+) {
+    for item in items {
+        match item {
+            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+                if let Some(fl) = &style.font {
+                    let variant = text_style_to_font_variant(style);
+                    // P836 — variações explícitas (`#text(variations:)`)
+                    // entram na chave: runs com o mesmo FontVariant mas
+                    // eixos explícitos distintos embutem fontes distintas.
+                    let key = (
+                        fl.clone(),
+                        variant,
+                        style.variations.clone().unwrap_or_default(),
+                    );
+                    if !seen.contains(&key) {
+                        seen.push(key);
+                    }
+                }
+            }
+            FrameItem::Glyph { style, base_char, .. } => {
+                if let Some(key) = metrics.resolve_font_combo(*base_char, style) {
+                    if !seen.contains(&key) {
+                        seen.push(key);
+                    }
+                }
+            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => {
+                collect_fonts_in_items(items, metrics, seen);
+            }
+            FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
+        }
+    }
+}
+
+/// Map-filter de `resolve_font` (Passo 141) sobre uma lista de
+/// combinações `(FontList, FontVariant)`. Devolve
+/// `((FontList, FontVariant), bytes)` para preservar a associação entre
+/// input style e output embed (Passo 146; P530 — chave expandida).
+///
+/// Silent drop quando `resolve_font` devolve `None` — consistente
+/// com a política de fallback de fonts (140B/141).
+pub(super) fn resolve_fonts(
+    font_combos: &[(FontList, FontVariant, FontVariations)],
+    world: &dyn World,
+) -> Vec<((FontList, FontVariant, FontVariations), Vec<u8>)> {
+    if font_combos.is_empty() {
+        return Vec::new();
+    }
+    let font_book = world.book();
+    font_combos
+        .iter()
+        .filter_map(|(fl, variant, variations)| {
+            resolve_font(fl, variant, font_book, world)
+                .map(|bytes| ((fl.clone(), variant.clone(), variations.clone()), bytes))
+        })
+        .collect()
+}
+
+/// Itera `doc.pages → items` recursivamente (atravessa `Group`)
+/// e devolve o primeiro `TextStyle.font` com `Some(FontList)`.
+/// Preservada do Passo 140B (MVP single-font: primeira vence —
+/// ADR-0055 decisão 3) para tests directos do helper. O dispatch
+/// principal usa `collect_fonts_from_doc` (Passo 146).
+#[allow(dead_code)]
+pub(super) fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
+    for page in &doc.pages {
+        if let Some(fl) = first_font_in_items(&page.items) {
+            return Some(fl);
+        }
+    }
+    None
+}
+
+#[allow(dead_code)]
+fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
+    for item in items {
+        match item {
+            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+                if let Some(fl) = &style.font {
+                    return Some(fl.clone());
+                }
+            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => {
+                if let Some(fl) = first_font_in_items(items) {
+                    return Some(fl);
+                }
+            }
+            FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
+        }
+    }
+    None
+}
+
+/// Itera `font_list.as_slice()` em ordem. Para cada família,
+/// consulta `font_book.select_pattern(&family.name, variant)`;
+/// se devolve `Some(index)`, chama `world.font(index)`; primeira
+/// família que completa ambos os passos vence. Se nenhuma
+/// completa, devolve `None` (pipeline cai em fallback Helvetica).
+///
+/// Paridade com vanilla: semântica "primeira-que-resolve" do
+/// `#set text(font: (...))` (Passo 141).
+///
+/// Cenário patológico (índice stale: `select` devolve `Some` mas
+/// `world.font` devolve `None`) **continua** a tentar as famílias
+/// seguintes — não curto-circuita.
+///
+/// P530 — usa a `FontVariant` real do `TextStyle` na selecção. Se o
+/// sistema tiver instâncias estáticas (ex.: UbuntuSans-Bold.ttf), são
+/// preferidas. Caso contrário, a fonte VF é resolvida e instanciada
+/// estaticamente mais tarde no export.
+pub(super) fn resolve_font(
+    font_list: &FontList,
+    variant: &FontVariant,
+    font_book: &FontBook,
+    world: &dyn World,
+) -> Option<Vec<u8>> {
+    for family in font_list.as_slice() {
+        if let Some(index) = font_book.select_pattern(&family.name, variant) {
+            if let Some(font) = world.font(index) {
+                return Some(font.as_slice().to_vec());
+            }
+        }
+    }
+    None
+}

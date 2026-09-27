@@ -1,0 +1,30 @@
+[
+  {
+    "utc": "2026-09-27T17:39:28.454654+00:00",
+    "command": [
+      "env",
+      "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python",
+      "/repos/Antigravity/typst-crystalline/target/debug/typst",
+      "compile",
+      "--font-path",
+      "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+      "00_nucleo/diagnosticos/infra-axis-gate-review/control.typ",
+      "00_nucleo/diagnosticos/infra-axis-gate-review/control-red.pdf"
+    ],
+    "exit_code": 0
+  },
+  {
+    "utc": "2026-09-27T17:39:31.457210+00:00",
+    "command": [
+      "env",
+      "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python",
+      "/repos/Antigravity/typst-crystalline/target/debug/typst",
+      "compile",
+      "--font-path",
+      "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+      "00_nucleo/diagnosticos/infra-axis-gate-review/unknown.typ",
+      "00_nucleo/diagnosticos/infra-axis-gate-review/unknown-red.pdf"
+    ],
+    "exit_code": 1
+  }
+]

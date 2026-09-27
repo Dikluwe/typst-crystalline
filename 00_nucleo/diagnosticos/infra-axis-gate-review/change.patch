@@ -1,0 +1,277 @@
+--- before/00_nucleo/prompts/infra/pipeline/resources.md
++++ after/00_nucleo/prompts/infra/pipeline/resources.md
+@@ -1,16 +1,16 @@
+ # L0 — infra/pipeline/resources
+-Hash do Código: c5ff672b
++Hash do Código: 4c59900e
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/pipeline/resources.rs`
+ 
+ ## Current evidence
+ 
+-- `03_infra/src/pipeline/resources.rs:19` — `resolve_and_instantiate_fonts`.
+-- `03_infra/src/pipeline/resources.rs:90` — `collect_fonts_from_doc`.
+-- `03_infra/src/pipeline/resources.rs:120` — `collect_fonts_in_items`.
+-- `03_infra/src/pipeline/resources.rs:169` — `resolve_fonts`.
+-- `03_infra/src/pipeline/resources.rs:192` — `first_font_from_doc`.
++- `03_infra/src/pipeline/resources.rs:33` — `resolve_and_instantiate_fonts`.
++- `03_infra/src/pipeline/resources.rs:93` — `collect_fonts_from_doc`.
++- `03_infra/src/pipeline/resources.rs:123` — `collect_fonts_in_items`.
++- `03_infra/src/pipeline/resources.rs:172` — `resolve_fonts`.
++- `03_infra/src/pipeline/resources.rs:195` — `first_font_from_doc`.
+ 
+ These are local source anchors, not a new upstream parity measurement.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pipeline/resources.rs`.
+@@ -21,6 +21,7 @@
+ - Traverse background, items, foreground and Group/Link/Semantic transparently. Preserve semantic kind/placement/alt; never flatten the wrapper or turn alt into visible text.
+ - Include Text, TextShaped and math Glyph resources. Resolve a Glyph's actual font via FallbackFontMetrics::resolve_font_combo, not just body style.font, so a companion MATH glyph cannot be omitted from export selection.
+ - Keys include FontList, FontVariant and explicit FontVariations. Derived axes plus explicit per-tag overrides determine variable-instancing need and separate resources, even if only an explicit axis differs.
++- Require the Python/fontTools availability probe only when a merged request contains an axis actually present in the resolved variable face. Requests containing only unknown axes follow the instancing owner's unchanged-bytes contract; preserve the missing-tool error for matching axes. A private local predicate owns this resource guard without exposing a new API.
+ - An empty collected font set resolves to an empty resource set without requesting World::book or World::font. All PDF, bundle PDF and raster/SVG callers use this same private resolution boundary.
+ - A family wins only after selection and source loading both succeed; stale/missing sources continue to later families. Preserve unresolved-entry filtering and variable-instancing diagnostics. Keep test-only first-font helpers internal; production selection uses the complete resolved font set.
+ 
+--- before/03_infra/src/pipeline/resources.rs
++++ after/03_infra/src/pipeline/resources.rs
+@@ -1,12 +1,26 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
+-//! @prompt-hash 81ba217d
++//! @prompt-hash c768ecdc
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ //!
+ //! Possui coleta ordenada e resolução das fontes do documento, fallback por família, variações explícitas e instanciação de fontes variáveis. Recursa pelos containers e pelas camadas marginais existentes, preservando a chave completa e os diagnósticos vigentes.
+ 
+ use super::*;
++
++/// Match the dependency guard to the instancing owner's filtered axis requests.
++pub(super) fn requires_font_instancing(
++    bytes: &[u8],
++    variant: &FontVariant,
++    variations: &FontVariations,
++) -> bool {
++    let Ok(face) = ttf_parser::Face::parse(bytes, 0) else { return false };
++    let merged =
++        merge_explicit_variations(axis_variations_for_font_variant(variant), variations);
++    face.variation_axes()
++        .into_iter()
++        .any(|axis| merged.iter().any(|request| request.tag == axis.tag))
++}
+ 
+ /// Resolve e instancia estaticamente as fontes necessárias para
+ /// rasterização PNG / exportação SVG (P870).
+@@ -25,22 +39,11 @@
+ 
+     let needs_instancer =
+         resolved.iter().any(|((_, font_variant, variations), bytes)| {
+-            is_variable_font(bytes)
+-                && !merge_explicit_variations(
+-                    axis_variations_for_font_variant(font_variant),
+-                    variations,
+-                )
+-                .is_empty()
++            requires_font_instancing(bytes, font_variant, variations)
+         });
+     if needs_instancer && !variable_font_instancer_available() {
+         for ((font_list, font_variant, variations), bytes) in &resolved {
+-            if is_variable_font(bytes)
+-                && !merge_explicit_variations(
+-                    axis_variations_for_font_variant(font_variant),
+-                    variations,
+-                )
+-                .is_empty()
+-            {
++            if requires_font_instancing(bytes, font_variant, variations) {
+                 let name = font_list
+                     .as_slice()
+                     .first()
+--- before/00_nucleo/prompts/infra/pipeline/tests.md
++++ after/00_nucleo/prompts/infra/pipeline/tests.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/pipeline/tests
+-Hash do Código: f000cb00
++Hash do Código: c3fbebaf
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/pipeline/tests.rs`
+@@ -24,6 +24,8 @@
+ 
+ Verify that resource collection and resolution for a paged document containing only shapes succeed with a World whose catalog and font accessors reject any access. Construct layout before applying the rejecting World: shape layout can legitimately require baseline and cap-height metrics. This checks export resource demand independently of installed host fonts or wall-clock timing.
+ 
++Verify with the real Ubuntu Sans variable fixture that unknown-axis-only resource requests retain source bytes even with an unavailable configured Python. Keep a matching `wght` control: it must still fail with the existing dependency diagnostic when the tool is absent. Do not mutate process-global environment in tests; the isolated test command supplies the missing interpreter.
++
+ ## Verification and boundary
+ 
+ Run `cargo test -p typst-infra --lib pipeline::tests -- --test-threads=1` when validating behavior.
+--- before/03_infra/src/pipeline/tests.rs
++++ after/03_infra/src/pipeline/tests.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
+-//! @prompt-hash 7f8fd8aa
++//! @prompt-hash 5987b49d
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ //!
+ //! Possui a suíte integrada anteriormente embutida em pipeline.rs. Conserva integralmente os oráculos e fixtures; somente a localização física muda. Exercita as fachadas públicas e os helpers internos por descendência do módulo. Não legitima alteração de código produtivo.
+ 
+@@ -2538,3 +2538,46 @@
+     assert!(resolve_fonts(&combos, &world).is_empty());
+     assert!(resolve_and_instantiate_fonts(&doc, &world).unwrap().is_empty());
+ }
++
++#[test]
++fn infra_axis_gate_unknown_axis_preserves_bytes() {
++    use typst_core::entities::layout_types::{Point, Pt, TextStyle};
++    let bytes = include_bytes!("../../fixtures/fonts/UbuntuSans-Variable.ttf");
++    let info = crate::fonts::font_info_from_bytes(bytes, 0).unwrap();
++    let face = ttf_parser::Face::parse(bytes, 0).unwrap();
++    assert!(face
++        .variation_axes()
++        .into_iter()
++        .any(|axis| axis.tag == ttf_parser::Tag::from_bytes(b"wght")));
++    assert!(!face
++        .variation_axes()
++        .into_iter()
++        .any(|axis| axis.tag == ttf_parser::Tag::from_bytes(b"ZZZZ")));
++    let world =
++        crate::world::SystemWorld::for_eval(std::env::temp_dir()).with_fonts(vec![
++            crate::fonts::FontSlot::new_embedded(
++                "<UbuntuSans fixture>".into(),
++                bytes.to_vec(),
++            ),
++        ]);
++    let doc_for = |tag: [u8; 4], value: f32| {
++        PagedDocument::new(vec![page_with(vec![FrameItem::Text {
++            pos: Point::ZERO,
++            text: "Axis control".into(),
++            style: TextStyle {
++                font: Some(FontList::single(info.family.clone().into())),
++                variations: Some(FontVariations(vec![(tag, value)])),
++                ..TextStyle::regular(Pt(12.0))
++            },
++        }])])
++    };
++    let unknown = resolve_and_instantiate_fonts(&doc_for(*b"ZZZZ", 1.0), &world)
++        .expect("unknown axes must not require an instancer");
++    assert_eq!(unknown.len(), 1);
++    assert_eq!(unknown[0].1.as_slice(), bytes);
++    if !variable_font_instancer_available() {
++        let error = resolve_and_instantiate_fonts(&doc_for(*b"wght", 700.0), &world)
++            .expect_err("matching axes still require an instancer");
++        assert!(error.message.contains("Python/fontTools"));
++    }
++}
+--- before/00_nucleo/prompts/infra/pipeline/pdf.md
++++ after/00_nucleo/prompts/infra/pipeline/pdf.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/pipeline/pdf
+-Hash do Código: 77cf04dc
++Hash do Código: 7ce6f404
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/pipeline/pdf.rs`
+@@ -36,6 +36,8 @@
+ - Only under Ua1, real images without alt outside `pdf.artifact` fail with `PDF/UA-1 error: missing alt text` and hint `make sure your images and equations have alt text`. Some empty text is still supplied; keep available origin spans and existing detached-span limitation.
+ - Resolve/instantiate ordered complete font keys through the resource owner, passing the World without requesting its catalog in advance. Dispatch no resolved fonts to fallback export, one to single-font export and many to multifont export without dropping explicit variations. Preserve ordinary and oracle behavior, not total PDF-byte identity as a language criterion.
+ 
++The resource owner's private matching-axis predicate governs the early instancer dependency check. Unknown-axis-only requests must not produce a missing-tool diagnostic; retain dependency errors for actual font axes and preserve export dispatch/options.
++
+ ## Verification and boundary
+ 
+ Verify this unit through its existing family/CLI tests when validating behavior.
+--- before/03_infra/src/pipeline/pdf.rs
++++ after/03_infra/src/pipeline/pdf.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
+-//! @prompt-hash a1502158
++//! @prompt-hash b9819efc
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ //!
+ //! Possui todas as fachadas PDF, os resolvedores documentais e o dispatch font-aware. Conserva os wrappers de compatibilidade, DocumentID, StreamMode, tagged, pretty, pages, standard, diagnósticos UA-1, attachments e oráculo. Recebe o documento paginado pelo owner próprio.
+ 
+@@ -435,21 +435,11 @@
+     // P667/P671/P836 — gate de instanciação de fontes variáveis.
+     let needs_variable_font_instancer =
+         resolved.iter().any(|((_, font_variant, variations), bytes)| {
+-            is_variable_font(bytes)
+-                && !merge_explicit_variations(
+-                    axis_variations_for_font_variant(font_variant),
+-                    variations,
+-                )
+-                .is_empty()
++            super::resources::requires_font_instancing(bytes, font_variant, variations)
+         });
+     if needs_variable_font_instancer && !variable_font_instancer_available() {
+         for ((font_list, font_variant, variations), bytes) in &resolved {
+-            if is_variable_font(bytes)
+-                && !merge_explicit_variations(
+-                    axis_variations_for_font_variant(font_variant),
+-                    variations,
+-                )
+-                .is_empty()
++            if super::resources::requires_font_instancing(bytes, font_variant, variations)
+             {
+                 let name = font_list
+                     .as_slice()
+--- before/00_nucleo/prompts/infra/pipeline/bundle.md
++++ after/00_nucleo/prompts/infra/pipeline/bundle.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/pipeline/bundle
+-Hash do Código: 566e2462
++Hash do Código: 205a2a04
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/pipeline/bundle.rs`
+@@ -38,6 +38,8 @@
+ - Treat `SpaceFromNewline` as a separator only outside top-level Document/Asset entries. Preserve its origin inside bodies, preparation and HTML semantic projection until the L1 normalization owner acts.
+ - Cross-document `.final()` generalization is not authorized by the Page-boundary contract. No new public API, target/default or partial-write policy is introduced here.
+ 
++The resource owner's private matching-axis predicate governs the early instancer dependency check. Unknown-axis-only requests must not produce a missing-tool diagnostic; retain dependency errors for actual font axes and preserve export dispatch/options.
++
+ ## Verification and boundary
+ 
+ Verify this unit through its existing family/CLI tests when validating behavior.
+--- before/03_infra/src/pipeline/bundle.rs
++++ after/03_infra/src/pipeline/bundle.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
+-//! @prompt-hash f6c5faa8
++//! @prompt-hash 1e98fdf7
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ //!
+ //! Orquestra o target bundle: entradas ordenadas, paths e colisões, snapshots globais, fronteiras Page por body e exportação por formato. Devolve a coleção completa ou erro; o write continua responsabilidade de L4. Reutiliza helpers de paged, html, pdf, svg e resources sem reconstruir snapshots isolados.
+ 
+@@ -478,15 +478,15 @@
+             };
+             let font_combos = collect_fonts_from_doc(&document, world);
+             let resolved = resolve_fonts(&font_combos, world);
+-            if !variable_font_instancer_available() {
++            let needs_instancer =
++                resolved.iter().any(|((_, variant, variations), bytes)| {
++                    super::resources::requires_font_instancing(bytes, variant, variations)
++                });
++            if needs_instancer && !variable_font_instancer_available() {
+                 for ((font_list, variant, variations), bytes) in &resolved {
+-                    if is_variable_font(bytes)
+-                        && !merge_explicit_variations(
+-                            axis_variations_for_font_variant(variant),
+-                            variations,
+-                        )
+-                        .is_empty()
+-                    {
++                    if super::resources::requires_font_instancing(
++                        bytes, variant, variations,
++                    ) {
+                         let name = font_list
+                             .as_slice()
+                             .first()

@@ -1,0 +1,11 @@
+{
+  "cwd": "/repos/Antigravity/typst-crystalline",
+  "red": "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python cargo test -p typst-infra --lib infra_axis_gate --offline -- --test-threads=1",
+  "green": "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python cargo test -p typst-infra --lib infra_axis_gate --offline -- --test-threads=1",
+  "suite": "cargo test -p typst-infra --lib pipeline::tests --offline -- --test-threads=1",
+  "build": "cargo build --offline",
+  "lint": "/home/dikluwe/.cargo/bin/crystalline-lint . --format sarif",
+  "format": "rustfmt --edition 2021 --config skip_children=true 03_infra/src/pipeline/resources.rs 03_infra/src/pipeline/pdf.rs 03_infra/src/pipeline/bundle.rs 03_infra/src/pipeline/tests.rs",
+  "probes": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/infra-axis-gate-review/run_probes.py",
+  "local_seal": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/infra-axis-gate-review/seal_scope.py"
+}

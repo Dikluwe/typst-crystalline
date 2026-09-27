@@ -1,0 +1,14 @@
+{
+  "head": "3dee39ead07f359fcfaeff2e35d16ea12068cb9e",
+  "start_utc": "2026-09-27T17:37:32.226028+00:00",
+  "initial_fix_scope": [
+    "00_nucleo/prompts/infra/pipeline/resources.md",
+    "03_infra/src/pipeline/resources.rs",
+    "00_nucleo/prompts/infra/pipeline/tests.md",
+    "03_infra/src/pipeline/tests.rs",
+    "00_nucleo/prompts/infra/pipeline/pdf.md",
+    "03_infra/src/pipeline/pdf.rs",
+    "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "03_infra/src/pipeline/bundle.rs"
+  ]
+}

@@ -1,0 +1,2 @@
+error: fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível
+

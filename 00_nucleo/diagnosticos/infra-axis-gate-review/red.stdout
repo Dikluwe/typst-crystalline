@@ -1,0 +1,18 @@
+
+running 1 test
+test pipeline::tests::infra_axis_gate_unknown_axis_preserves_bytes ... FAILED
+
+failures:
+
+---- pipeline::tests::infra_axis_gate_unknown_axis_preserves_bytes stdout ----
+
+thread 'pipeline::tests::infra_axis_gate_unknown_axis_preserves_bytes' (53384) panicked at 03_infra/src/pipeline/tests.rs:2552:78:
+unknown axes must not require an instancer: SourceDiagnostic { severity: Error, span: Span(1), message: "fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível", hints: [], trace: [] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pipeline::tests::infra_axis_gate_unknown_axis_preserves_bytes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1113 filtered out; finished in 0.01s
+

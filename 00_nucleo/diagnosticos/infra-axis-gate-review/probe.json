@@ -1,0 +1,35 @@
+{
+  "head": "3dee39ead07f359fcfaeff2e35d16ea12068cb9e",
+  "executable_sha256": "4a1c49293513005485078fd791f20cafac8630fe4318df71cc3e7fd93e015629",
+  "font_sha256": "37e90bba45a2a1172d9f6078e45daebaa1b4e537943205cc1309f142a254fe40",
+  "runs": [
+    {
+      "utc": "2026-09-27T17:35:59.844713+00:00",
+      "command": [
+        "env",
+        "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python",
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "--font-path",
+        "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+        "00_nucleo/diagnosticos/infra-axis-gate-review/control.typ",
+        "00_nucleo/diagnosticos/infra-axis-gate-review/control.svg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "utc": "2026-09-27T17:36:03.182489+00:00",
+      "command": [
+        "env",
+        "TYPST_CRYSTALLINE_PYTHON=/nonexistent/infra-axis-probe-python",
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "--font-path",
+        "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+        "00_nucleo/diagnosticos/infra-axis-gate-review/unknown.typ",
+        "00_nucleo/diagnosticos/infra-axis-gate-review/unknown.svg"
+      ],
+      "exit_code": 1
+    }
+  ]
+}

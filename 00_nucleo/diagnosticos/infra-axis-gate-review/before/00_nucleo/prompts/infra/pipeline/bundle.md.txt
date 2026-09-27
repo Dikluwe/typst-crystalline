@@ -1,0 +1,45 @@
+# L0 — infra/pipeline/bundle
+Hash do Código: 566e2462
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/pipeline/bundle.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+```
+
+## Current evidence
+
+- `03_infra/src/pipeline/bundle.rs:13` — `introspect_bundle_with_runtime_for_pipeline`.
+- `03_infra/src/pipeline/bundle.rs:55` — `BundleFile`.
+- `03_infra/src/pipeline/bundle.rs:63` — `BundleCompileOptions`.
+- `03_infra/src/pipeline/bundle.rs:77` — `bundle_error`.
+- `03_infra/src/pipeline/bundle.rs:82` — `compile_to_bundle_files`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pipeline/bundle.rs`.
+
+## Owned contract
+
+- Own `BundleFile`, `BundleCompileOptions`, ordered entry collection, path validation/collision checks, global snapshot composition and per-format rendering. Return the complete collection or diagnostics, never partial success; filesystem publication belongs to wiring.
+- Preserve all option fields and explicit absence (`None`) until the relevant format owner resolves document precedence. Keep PDF stream/serialization modes independent and `is_html_document` based on semantic format, not an asset extension.
+- Evaluate the root as Bundle only with its explicit feature. Accept documents, assets, tags and whitespace separators at top level; reject loose content, invalid/duplicate normalized paths, unknown formats and multi-page image documents before publication. HTML additionally requires its own feature.
+- Preserve ordered bodies and inherited styles. Use one global introspector and causal Location seed per body; delegate preparation of the complete set to `00_nucleo/prompts/infra/pipeline/context_stabilization.md`. Never export bodies from different validated generations or fall back to isolated snapshots.
+- Keep heading/state/label history global and Page boundaries local per body. Explicit HTML Page updates remain observable. Do not fabricate metadata padding, derive seeds from element count, hardcode page 1 or repair rendered numbering strings.
+- Font resource collection and acquisition follow the resource child owner, without an unconditional catalog request for an empty set.
+- Paged bodies use seeded layout; HTML remains semantic except its intrinsic `html.frame` islands. Bind logical page numbers from the final global PageStore with an offset advanced only by paged PDF/SVG/PNG bodies; HTML and assets consume no pages. Misalignment is an error, not a physical-index fallback.
+- For a paged body with nonzero offset, project only marginal `logical_numbers` and `visible_numberings` into the layout copy's local indices. Keep total, reference numberings, spans and supplements global and leave the original bundle introspector untouched.
+- Treat `SpaceFromNewline` as a separator only outside top-level Document/Asset entries. Preserve its origin inside bodies, preparation and HTML semantic projection until the L1 normalization owner acts.
+- Cross-document `.final()` generalization is not authorized by the Page-boundary contract. No new public API, target/default or partial-write policy is introduced here.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

@@ -1,0 +1,2540 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
+//! @prompt-hash 7f8fd8aa
+//! @layer L3
+//! @updated 2026-09-26
+//!
+//! Possui a suíte integrada anteriormente embutida em pipeline.rs. Conserva integralmente os oráculos e fixtures; somente a localização física muda. Exercita as fachadas públicas e os helpers internos por descendência do módulo. Não legitima alteração de código produtivo.
+
+use super::*;
+use std::num::NonZeroU16;
+use typst_core::entities::file_id::FileId;
+use typst_core::entities::font_book::FontBook;
+use typst_core::entities::world_types::{
+    Bytes, Datetime, FileError, FileResult, Font, Library,
+};
+
+#[test]
+fn p1247_contexto_svg_filtra_pagina_e_posicao_homologa() {
+    use typst_core::entities::label::Label;
+    use typst_core::entities::layout_types::{Point, Pt};
+
+    let mut doc = PagedDocument::new(vec![]);
+    let p0 = Label("p0".to_string());
+    let p1 = Label("p1".to_string());
+    let sem_posicao = Label("sem-posicao".to_string());
+    doc.extracted_label_pages.insert(p0.clone(), 1);
+    doc.extracted_label_pages.insert(p1.clone(), 2);
+    doc.extracted_label_pages.insert(sem_posicao.clone(), 1);
+    doc.extracted_label_positions
+        .insert(p0.clone(), Point { x: Pt(8.0), y: Pt(9.0) });
+    doc.extracted_label_positions
+        .insert(p1.clone(), Point { x: Pt(80.0), y: Pt(90.0) });
+
+    let context = svg_destination_context_for_page(&doc, 1);
+    assert!(context.id_for(&p0).is_some());
+    assert!(context.id_for(&p1).is_none());
+    assert!(context.id_for(&sem_posicao).is_none());
+}
+
+// MockWorld mínimo para smoke test — source única.
+struct MockWorld {
+    library: Library,
+    book: FontBook,
+    source: Source,
+}
+impl World for MockWorld {
+    fn library(&self) -> &Library {
+        &self.library
+    }
+    fn book(&self) -> &FontBook {
+        &self.book
+    }
+    fn main(&self) -> FileId {
+        self.source.id()
+    }
+    fn source(&self, id: FileId) -> FileResult<Source> {
+        if id == self.source.id() {
+            Ok(self.source.clone())
+        } else {
+            Err(FileError::NotFound)
+        }
+    }
+    fn file(&self, _: FileId) -> FileResult<Bytes> {
+        Err(FileError::NotFound)
+    }
+    fn font(&self, _: usize) -> Option<Font> {
+        None
+    }
+    fn today(
+        &self,
+        _: Option<typst_core::entities::duration::Duration>,
+    ) -> Option<Datetime> {
+        None
+    }
+}
+
+fn mock_world(src: &str) -> MockWorld {
+    let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+    let source = Source::new(id, src.to_string());
+    MockWorld {
+        library: Library::new(),
+        book: FontBook::new(),
+        source,
+    }
+}
+
+#[test]
+fn p1462_pipeline_collects_svg_pretty_and_empty_set_is_neutral() {
+    for (source, expected) in [
+        ("#set format.svg(pretty: true)\nHello", true),
+        ("#set format.svg()\nHello", false),
+        ("#set format.svg(pretty: true)\n#set format.svg()\nHello", true),
+        ("#set format.svg(pretty: true)\n#set format.svg(pretty: false)\nHello", false),
+        ("#set format.svg(pretty: false)\n#set format.svg(pretty: true)\nHello", true),
+    ] {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+
+        assert_eq!(result.unwrap().format_options.svg.pretty, expected);
+    }
+}
+
+#[test]
+fn p1462_pipeline_rejects_nested_format_set_rule() {
+    let world = mock_world("#block[\n#set format.svg(pretty: true)\nNested\n]");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+
+    assert!(result.unwrap_err().iter().any(|error| {
+        error
+            .message
+            .contains("format set rules are not allowed inside of containers")
+    }));
+}
+
+#[test]
+fn p1462_set_rule_diagnostics_are_explicit() {
+    for (source, expected) in [
+        ("#set format.svg(true)", "unexpected argument"),
+        ("#set format.svg(unknown: true)", "unexpected argument: unknown"),
+        ("#set format.svg(pretty: true, pretty: false)", "duplicate argument: pretty"),
+        ("#set format.svg(pretty: 1)", "expected boolean, found integer"),
+    ] {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+
+        assert!(result
+            .unwrap_err()
+            .iter()
+            .any(|error| error.message.contains(expected)));
+    }
+}
+
+#[test]
+fn p1462_format_svg_cannot_be_constructed_manually() {
+    let world = mock_world("#format.svg()");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+
+    assert!(result
+        .unwrap_err()
+        .iter()
+        .any(|error| error.message.contains("cannot be constructed manually")));
+}
+
+#[test]
+fn p1462_external_svg_observes_document_and_caller_precedence() {
+    fn render(source: &str, pretty_override: Option<bool>) -> String {
+        let world = mock_world(source);
+        let (result, _, _) =
+            compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+                &world,
+                &world.source,
+                false,
+                typst_core::entities::compiler_features::Features::default(),
+                pretty_override,
+            );
+        result.unwrap()
+    }
+
+    let body = "#rect(width: 10pt, height: 10pt)";
+    let document_pretty =
+        render("#set format.svg(pretty: true)\n#rect(width: 10pt, height: 10pt)", None);
+    let caller_compact = render(
+        "#set format.svg(pretty: true)\n#rect(width: 10pt, height: 10pt)",
+        Some(false),
+    );
+    let default_compact = render(body, None);
+    let caller_pretty = render(body, Some(true));
+
+    assert!(document_pretty.contains("\n  <"));
+    assert!(caller_pretty.contains("\n  <"));
+    assert!(!caller_compact.contains("\n  <"));
+    assert!(!default_compact.contains("\n  <"));
+}
+
+#[test]
+fn p1339_filtered_context_waits_for_later_contextual_update() {
+    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context assert.eq(c.final(), (3,))\n#context c.update(3)");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    assert!(result.is_ok(), "{result:?}");
+}
+
+#[test]
+fn p1339_filtered_context_does_not_discard_independent_error() {
+    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context panic(\"independent\")\n#context c.final()");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    assert!(result
+        .unwrap_err()
+        .iter()
+        .any(|error| error.message.contains("independent")));
+}
+
+#[test]
+fn p1406_show_outline_entry_direto_realiza_entries() {
+    let world = mock_world(concat!(
+        "#set heading(numbering: \"1.\")\n",
+        "#show outline.entry: it => [CUSTOM #(it.level): #it.body()]\n",
+        "#outline(title: none)\n\n= Alpha\n== Beta\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("P1406 deve aceitar o seletor direto").plain_text();
+    assert!(text.contains("CUSTOM 1") && text.contains("Alpha"), "{text:?}");
+    assert!(text.contains("CUSTOM 2") && text.contains("Beta"), "{text:?}");
+    assert!(!text.contains("Contents"), "title: none deve omitir título: {text:?}");
+}
+
+#[test]
+fn p1406_where_filtra_level_da_entry_gerada() {
+    let world = mock_world(concat!(
+        "#set heading(numbering: \"1.\")\n",
+        "#show outline.entry.where(level: 2): it => [SECOND: #it.body()]\n",
+        "#outline(title: none)\n\n= Alpha\n== Beta\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("P1406 where deve compilar").plain_text();
+    assert_eq!(text.matches("SECOND").count(), 1, "{text:?}");
+    assert!(text.contains("SECOND") && text.contains("Beta"), "{text:?}");
+}
+
+#[test]
+fn p1406_snapshot_de_show_e_lexical_por_outline() {
+    let world = mock_world(concat!(
+        "#set heading(numbering: \"1.\")\n",
+        "#outline(title: none)\n",
+        "#show outline.entry: it => [CUSTOM: #it.body()]\n",
+        "#outline(title: none)\n\n= Alpha\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("P1406 lexical deve compilar").plain_text();
+    assert_eq!(text.matches("CUSTOM").count(), 1, "{text:?}");
+}
+
+#[test]
+fn p1406_parent_existe_somente_durante_realizacao() {
+    let world = mock_world(concat!(
+        "#set heading(numbering: \"1.\")\n",
+        "#show outline.entry: it => it.indented(it.prefix(), it.body())\n",
+        "#outline(title: none, indent: 2em)\n\n= Alpha\n== Beta\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("parent P1406 deve existir durante show").plain_text();
+    assert!(text.contains("Alpha") && text.contains("Beta"), "{text:?}");
+}
+
+#[test]
+fn p1406_alias_preserva_identidade_do_seletor() {
+    let world = mock_world(concat!(
+        "#let entry-kind = outline.entry\n",
+        "#show entry-kind: it => [ALIAS #it.body()]\n",
+        "#outline(title: none)\n\n= Alpha\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("alias deve conservar identidade nativa").plain_text();
+    assert_eq!(text.matches("ALIAS").count(), 1, "{text:?}");
+}
+
+#[test]
+fn p1406_query_nao_duplica_e_contexto_nao_pula_realizacao() {
+    let world = mock_world(concat!(
+        "#show outline.entry: it => [ENTRY #it.body()]\n",
+        "#outline(title: none)\n\n= Alpha\n",
+        "#context assert.eq(query(outline.entry).len(), 1)\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("query deve manter uma entry").plain_text();
+    assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
+}
+
+#[test]
+fn p1406_default_emite_link_interno() {
+    let world = mock_world("#outline(title: none)\n\n= Alpha\n");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("outline default deve compilar");
+    assert!(format!("{:?}", doc.pages).contains("Destination"));
+}
+
+#[test]
+fn p1406_depth_e_outlined_filtram_entries_realizadas() {
+    let world = mock_world(concat!(
+        "#show outline.entry: it => [ENTRY #(it.level): #it.body()]\n",
+        "#outline(title: none, depth: 1)\n",
+        "#heading(outlined: false)[Hidden]\n",
+        "= Visible\n",
+        "== Deep\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("filtros P1406 devem compilar").plain_text();
+    assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
+    assert!(text.contains("ENTRY 1") && text.contains("Visible"), "{text:?}");
+}
+
+#[test]
+fn p1407_repeat_em_box_fr_multiplica_sem_duplicar_siblings() {
+    let world = mock_world(concat!(
+        "#set page(width: 180pt, height: auto, margin: 20pt)\n",
+        "A#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("repeat P1407 deve compilar").plain_text();
+    assert_eq!(text.matches('A').count(), 1, "{text:?}");
+    assert_eq!(text.matches('B').count(), 1, "{text:?}");
+    assert!(text.matches('.').count() > 10, "{text:?}");
+}
+
+#[test]
+fn p1407_repeat_responde_a_largura_finita() {
+    let compile = |width: usize| {
+        let world = mock_world(&format!(
+            "#set page(width: 300pt, height: auto, margin: 20pt)\nA#box(width: {width}pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+        ));
+        let mut timings = Timings::default();
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect("largura P1407 deve compilar")
+            .plain_text()
+            .matches('.')
+            .count()
+    };
+    let narrow = compile(120);
+    let wide = compile(240);
+    assert!(narrow > 1 && wide > narrow, "narrow={narrow}, wide={wide}");
+}
+
+fn p1407_destination_dot_count(items: &[FrameItem]) -> usize {
+    items
+        .iter()
+        .map(|item| match item {
+            FrameItem::Link { target, items, .. }
+                if matches!(
+                    target,
+                    typst_core::entities::layout_types::LinkTarget::Destination(_)
+                ) =>
+            {
+                frame_items_text(items).matches('.').count()
+            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
+            FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => 0,
+        })
+        .sum()
+}
+
+#[test]
+fn p1407_outline_expande_fill_dentro_do_link() {
+    let world = mock_world(concat!(
+        "#set page(width: 240pt, height: auto, margin: 20pt)\n",
+        "#set heading(numbering: \"1.\")\n",
+        "#outline(title: none)\n\n= Alpha\n",
+    ));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("outline P1407 deve compilar");
+    let dots: usize = doc
+        .pages
+        .iter()
+        .map(|page| p1407_destination_dot_count(&page.items))
+        .sum();
+    assert!(dots > 10, "fill dentro do link tem somente {dots} pontos");
+}
+
+#[test]
+fn p1407_repeat_degenerado_e_extremo_permanecem_limitados() {
+    let compile = |source: &str| {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect("caso limitado P1407 deve compilar")
+            .plain_text()
+    };
+    let oversized = compile(concat!(
+        "#set page(width: 100pt, height: auto, margin: 10pt)\n",
+        "A#box(width: 1pt, repeat(\"LONG\", justify: true))B\n",
+    ));
+    assert_eq!(oversized.matches("LONG").count(), 1, "{oversized:?}");
+
+    let capped = compile(concat!(
+        "#set page(width: 100100pt, height: auto, margin: 10pt)\n",
+        "A#box(width: 100000pt, repeat(\".\", gap: 0pt, justify: false))B\n",
+    ));
+    assert_eq!(capped.matches('.').count(), 1000);
+}
+
+fn p1407_dot_positions(items: &[FrameItem], positions: &mut Vec<f64>) {
+    for item in items {
+        match item {
+            FrameItem::Text { pos, text, .. }
+            | FrameItem::TextShaped { pos, text, .. } => {
+                if text.as_str() == "." {
+                    positions.push(pos.x.0);
+                }
+            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
+            FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
+        }
+    }
+}
+
+#[test]
+fn p1407_justify_distribui_residuo_sem_criar_copia() {
+    let compile = |justify: bool| {
+        let world = mock_world(&format!(
+            "#set page(width: 180pt, height: auto, margin: 20pt)\nA#box(width: 101pt, repeat(\".\", gap: 7pt, justify: {justify}))B\n"
+        ));
+        let mut timings = Timings::default();
+        let doc = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        )
+        .0
+        .expect("justify P1407 deve compilar");
+        let mut positions = Vec::new();
+        for page in &doc.pages {
+            p1407_dot_positions(&page.items, &mut positions);
+        }
+        positions
+    };
+    let fixed = compile(false);
+    let justified = compile(true);
+    assert_eq!(fixed.len(), justified.len());
+    assert!(fixed.len() > 1);
+    assert!(
+        justified.last().unwrap() > fixed.last().unwrap(),
+        "fixed={fixed:?}, justified={justified:?}"
+    );
+}
+
+fn p1502_compile_paged(source: &str) -> PagedDocument {
+    let world = mock_world(source);
+    let mut timings = Timings::default();
+    compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+        .0
+        .expect("sonda P1502 deve compilar")
+}
+
+#[test]
+fn p1502_repeat_com_prefixo_preserva_controle_sem_prefixo() {
+    let page = "#set page(width: 180pt, height: auto, margin: 20pt)\n";
+    let without_prefix = p1502_compile_paged(&format!(
+        "{page}#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+    ))
+    .plain_text();
+    let with_prefix = p1502_compile_paged(&format!(
+        "{page}A#box(width: 100pt, repeat(\".\", gap: 2pt, justify: false))B\n"
+    ))
+    .plain_text();
+
+    let expected_dots = without_prefix.matches('.').count();
+    assert!(expected_dots > 1, "{without_prefix:?}");
+    assert_eq!(without_prefix.matches('B').count(), 1, "{without_prefix:?}");
+    assert_eq!(with_prefix.matches('.').count(), expected_dots, "{with_prefix:?}");
+    assert_eq!(with_prefix.matches('A').count(), 1, "{with_prefix:?}");
+    assert_eq!(with_prefix.matches('B').count(), 1, "{with_prefix:?}");
+}
+
+#[test]
+fn p1502_duas_boxes_fr_expandem_repeats_sem_deslocar_suffix_duas_vezes() {
+    let page = "#set page(width: 220pt, height: auto, margin: 10pt)\n";
+    let compile = |body: &str| {
+        let doc = p1502_compile_paged(&format!("{page}{body}\n"));
+        let text = doc.plain_text();
+        let items = &doc.pages.first().expect("página P1502").items;
+        let middle_x = p1408_text_x(items, "M").expect("separador M deve existir");
+        let suffix_x = p1408_text_x(items, "B").expect("suffix B deve existir");
+        (text, middle_x, suffix_x)
+    };
+    let (_, control_middle_x, control_suffix_x) =
+        compile("A#box(width: 1fr)[.]M#box(width: 1fr)[:]B");
+    let (text, middle_x, suffix_x) = compile(concat!(
+        "A#box(width: 1fr, repeat(\".\", gap: 2pt, justify: false))M",
+        "#box(width: 1fr, repeat(\":\", gap: 2pt, justify: false))B",
+    ));
+
+    for marker in ['A', 'M', 'B'] {
+        assert_eq!(text.matches(marker).count(), 1, "{marker}: {text:?}");
+    }
+    assert!(text.matches('.').count() > 1, "{text:?}");
+    assert!(text.matches(':').count() > 1, "{text:?}");
+    assert!(
+        (middle_x - control_middle_x).abs() < 0.05,
+        "middle={middle_x}, control={control_middle_x}"
+    );
+    assert!(
+        (suffix_x - control_suffix_x).abs() < 0.05,
+        "suffix={suffix_x}, control={control_suffix_x}"
+    );
+}
+
+#[test]
+fn p1502_box_de_body_bloco_nao_consume_repeat_pendente_anterior() {
+    let page = "#set page(width: 180pt, height: auto, margin: 20pt)\n";
+    let repeat = "#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))";
+    let control = p1502_compile_paged(&format!("{page}{repeat}B\n")).plain_text();
+    let with_block_box = p1502_compile_paged(&format!(
+        "{page}{repeat}#box(rect(width: 1pt, height: 1pt))B\n"
+    ))
+    .plain_text();
+
+    let expected_dots = control.matches('.').count();
+    assert!(expected_dots > 1, "{control:?}");
+    assert_eq!(with_block_box.matches('.').count(), expected_dots, "{with_block_box:?}");
+    assert_eq!(with_block_box.matches('B').count(), 1, "{with_block_box:?}");
+}
+
+#[test]
+fn p1502_box_aninhada_preserva_repeat_e_prefixos() {
+    let control = p1502_compile_paged(concat!(
+        "#set page(width: 220pt, height: auto, margin: 20pt)\n",
+        "#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))B\n",
+    ))
+    .plain_text();
+    let text = p1502_compile_paged(concat!(
+        "#set page(width: 220pt, height: auto, margin: 20pt)\n",
+        "A#box(width: 120pt)[X#box(width: 80pt, repeat(\".\", gap: 2pt, justify: false))Y]B\n",
+    ))
+    .plain_text();
+
+    for marker in ['A', 'X', 'Y', 'B'] {
+        assert_eq!(text.matches(marker).count(), 1, "{marker}: {text:?}");
+    }
+    let expected_dots = control.matches('.').count();
+    assert!(expected_dots > 1, "{control:?}");
+    assert_eq!(text.matches('.').count(), expected_dots, "{text:?}");
+}
+
+#[allow(deprecated)]
+fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
+    for item in items {
+        match item {
+            FrameItem::Text { pos, text, .. } if text.as_str().contains(needle) => {
+                return Some(pos.x.0);
+            }
+            FrameItem::TextShaped { pos, text, .. } if text.as_str().contains(needle) => {
+                return Some(pos.x.0);
+            }
+            FrameItem::Group { items, .. } => {
+                if let Some(x) = p1408_text_x(items, needle) {
+                    return Some(x);
+                }
+            }
+            FrameItem::Link { items, .. } => {
+                if let Some(x) = p1408_text_x(items, needle) {
+                    return Some(x);
+                }
+            }
+            FrameItem::Semantic { items, .. } => {
+                if let Some(x) = p1408_text_x(items, needle) {
+                    return Some(x);
+                }
+            }
+            FrameItem::Text { .. } => {}
+            FrameItem::TextShaped { .. } => {}
+            FrameItem::Line { .. } => {}
+            FrameItem::Glyph { .. } => {}
+            FrameItem::Image { .. } => {}
+            FrameItem::Shape { .. } => {}
+        }
+    }
+    None
+}
+
+fn p1408_compile_positions(source: &str) -> (f64, Option<f64>) {
+    let world = mock_world(source);
+    let mut timings = Timings::default();
+    let doc =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect("box fracionária P1408 deve compilar");
+    let items = &doc.pages[0].items;
+    (p1408_text_x(items, "B").expect("suffix B deve existir"), p1408_text_x(items, "Y"))
+}
+
+#[test]
+fn p1408_um_fr_e_fr_negativo_isolado_ocupam_restante() {
+    let prefix = "#set page(width: 180pt, height: auto, margin: 10pt)\n";
+    let (one_b, _) = p1408_compile_positions(&format!("{prefix}A#box(width: 1fr)[X]B\n"));
+    let (negative_b, _) =
+        p1408_compile_positions(&format!("{prefix}A#box(width: -1fr)[X]B\n"));
+    assert!(one_b > 150.0, "one_b={one_b}");
+    assert!((one_b - negative_b).abs() < 0.01, "one={one_b}, negative={negative_b}");
+}
+
+#[test]
+fn p1408_zero_fr_nao_recebe_restante() {
+    let (suffix, _) = p1408_compile_positions(concat!(
+        "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+        "A#box(width: 0fr)[X]B\n",
+    ));
+    assert!(suffix < 40.0, "suffix={suffix}");
+}
+
+#[test]
+fn p1408_duas_caixas_preservam_razao_um_para_dois() {
+    let (suffix, middle) = p1408_compile_positions(concat!(
+        "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+        "A#box(width: 1fr)[X]#box(width: 2fr)[Y]B\n",
+    ));
+    let middle = middle.expect("body Y deve existir");
+    assert!(
+        (middle - 65.533).abs() < 0.05,
+        "middle={middle}, esperado interno=65.533 (PDF vanila=66.274)"
+    );
+    assert!(suffix > 150.0, "suffix={suffix}");
+}
+
+#[test]
+fn p1408_soma_zero_termina_sem_distribuicao() {
+    let (suffix, _) = p1408_compile_positions(concat!(
+        "#set page(width: 180pt, height: auto, margin: 10pt)\n",
+        "A#box(width: 1fr)[X]#box(width: -1fr)[Y]B\n",
+    ));
+    assert!(suffix < 50.0, "suffix={suffix}");
+}
+
+#[test]
+fn p1408_height_fracionaria_permanece_rejeitada() {
+    let world = mock_world("#box(height: 1fr)[X]\n");
+    let mut timings = Timings::default();
+    let result =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0;
+    let errors = result.expect_err("height fracionária deve continuar fora do contrato");
+    assert!(errors[0].message.contains("box(height:) espera length"));
+}
+
+#[test]
+fn p1340_selected_context_preserves_page_numbering_relayout() {
+    let world = mock_world("#set page(numbering: (current, total) => [V#current/#total])\n#let c = counter(heading.where())\n#context c.final()\nTexto");
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let document = result.unwrap();
+    assert_eq!(frame_items_text(&document.pages[0].foreground), "V1/1");
+}
+
+#[test]
+fn p1340_reused_unselected_context_keeps_legacy_result() {
+    let world = mock_world("#let x = context [x]\n#x #x");
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    assert!(result.is_ok(), "{result:?}");
+}
+
+#[test]
+fn p1340_discovery_keeps_legacy_context_options() {
+    let world = mock_world("#context [legacy]");
+    let options = context_stabilization::discovered_options_for_test(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    );
+    assert!(!options.is_empty());
+    assert!(options.into_iter().all(|(full_error, features)| !full_error
+        && features == typst_core::entities::compiler_features::Features::default()));
+}
+
+fn frame_items_text(items: &[FrameItem]) -> String {
+    let mut out = String::new();
+    for item in items {
+        match item {
+            FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                out.push_str(text)
+            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => out.push_str(&frame_items_text(items)),
+            _ => {}
+        }
+    }
+    out
+}
+
+fn contains_bold_text(items: &[FrameItem], expected: &str) -> bool {
+    items.iter().any(|item| match item {
+        FrameItem::Text { text, style, .. }
+        | FrameItem::TextShaped { text, style, .. } => text == expected && style.bold,
+        FrameItem::Group { items, .. }
+        | FrameItem::Link { items, .. }
+        | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
+        _ => false,
+    })
+}
+
+#[test]
+fn eval_to_module_retorna_modulo_e_sem_warnings() {
+    let w = mock_world("Olá");
+    let source = w.source.clone();
+    let (result, warnings) = eval_to_module_with_sink(&w, &source);
+    assert!(result.is_ok());
+    assert!(warnings.is_empty());
+}
+
+#[test]
+fn eval_to_module_ficheiro_vazio_emite_warning() {
+    let w = mock_world("");
+    let source = w.source.clone();
+    let (result, warnings) = eval_to_module_with_sink(&w, &source);
+    assert!(result.is_ok());
+    assert_eq!(warnings.len(), 1, "pilot do Passo 106 emite warning para ficheiro vazio");
+}
+
+#[test]
+fn compile_to_pdf_bytes_produz_pdf_valido() {
+    let w = mock_world("Texto de teste");
+    let source = w.source.clone();
+    let (result, _warnings) = compile_to_pdf_bytes(
+        &w,
+        &source,
+        StreamMode::Verbose,
+        crate::export::PdfTags::Enabled,
+    );
+    let pdf = result.expect("compilação deve ter sucesso");
+    assert!(!pdf.is_empty(), "bytes PDF devem existir");
+    assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
+}
+
+#[test]
+fn p1159_callback_de_page_numbering_chega_a_margem() {
+    let w =
+        mock_world("#set page(numbering: (current, total) => [V#current/#total])\nTexto");
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("callback de numbering deve compilar");
+    let margin = frame_items_text(&doc.pages[0].foreground);
+    assert_eq!(margin, "V1/1");
+}
+
+#[test]
+fn p1486_pipeline_transporta_numero_logico_realizado() {
+    let w = mock_world(
+        "#set page(numbering: \"1\")\n#counter(page).update(10)\nOne\n#pagebreak()\nTwo\n#pagebreak()\nThree\n#pagebreak()\nFour",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("numeração lógica deve realizar");
+    assert_eq!(
+        doc.pages.iter().map(|page| page.logical_number).collect::<Vec<_>>(),
+        [10, 11, 12, 13]
+    );
+    assert_eq!(
+        doc.pages
+            .iter()
+            .map(|page| frame_items_text(&page.foreground))
+            .collect::<Vec<_>>(),
+        ["10", "11", "12", "13"],
+        "a margem impressa deve usar o mesmo contador lógico do label PDF",
+    );
+}
+
+#[test]
+fn p1486_margem_composta_usa_numero_logico_e_total_logico() {
+    let w = mock_world(
+        "#set page(numbering: \"1 / 1\")\n#counter(page).update(10)\nOne\n#pagebreak()\nTwo\n#pagebreak()\nThree",
+    );
+    let mut timings = Timings::default();
+    let doc = compile_to_paged_document_full_error(&w, &w.source, false, &mut timings)
+        .0
+        .expect("numeração composta deve compilar");
+    assert_eq!(
+        doc.pages
+            .iter()
+            .map(|page| frame_items_text(&page.foreground))
+            .collect::<Vec<_>>(),
+        ["10 / 12", "11 / 12", "12 / 12"],
+    );
+}
+
+#[test]
+fn p1486_callback_de_numbering_usa_fallback_fisico_quando_filtrado() {
+    use typst_core::entities::document_format_options::PageRange;
+    let w = mock_world(
+        "#set page(numbering: (current, total) => [L#current])\nOne\n#pagebreak()\nTwo\n#pagebreak()\nThree",
+    );
+    let mut timings = Timings::default();
+    let doc = compile_to_paged_document_full_error(&w, &w.source, false, &mut timings)
+        .0
+        .expect("callback deve compilar");
+    let ranges = PageRanges::new(
+        [1, 3]
+            .into_iter()
+            .map(|index| PageRange::at(std::num::NonZeroUsize::new(index).unwrap()))
+            .collect(),
+    );
+    let pdf =
+        export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+            &doc,
+            None,
+            StreamMode::Verbose,
+            PdfTags::Disabled,
+            PdfSerializationMode::Compact,
+            Some(ranges),
+            PdfStandards::default(),
+        );
+    let raw = String::from_utf8_lossy(&pdf);
+    assert!(raw.contains("/St 1") && raw.contains("/St 3"), "{raw}");
+    assert!(!raw.contains("/St 2"), "página excluída não deve receber label");
+}
+
+#[test]
+fn p1486_bundle_preserva_offset_apos_html_svg_png() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    features.enable(Feature::Html);
+    let run = |source: &str| {
+        let world = mock_world(source);
+        compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        )
+        .0
+        .expect("bundle P1486 deve compilar")
+    };
+    for bridge in [
+        "#document(\"bridge.html\")[Bridge]",
+        "#document(\"bridge.svg\")[Bridge]\n#document(\"bridge.png\")[Bridge]",
+    ] {
+        let source = format!(
+            "#document(\"first.pdf\")[#set page(numbering: \"1\")\n\
+             #counter(page).update(10) First #pagebreak() Second]\n\
+             {bridge}\n\
+             #document(\"last.pdf\")[#set page(numbering: \"1\")\n\
+             #set format.pdf(pages: (1, 3), tagged: false)\n\
+             #counter(page).update(20) Third #pagebreak() Fourth #pagebreak() Fifth]"
+        );
+        let files = run(&source);
+        let first = files.iter().find(|file| file.path == "first.pdf").unwrap();
+        let last = files.iter().find(|file| file.path == "last.pdf").unwrap();
+        let first_pdf = String::from_utf8_lossy(&first.data);
+        let last_pdf = String::from_utf8_lossy(&last.data);
+        assert!(
+            first_pdf.contains("/St 10") && first_pdf.contains("/St 11"),
+            "{bridge}: primeira numeração"
+        );
+        assert!(last_pdf.contains("/Count 2"), "{bridge}: seleção da segunda saída");
+        assert!(
+            last_pdf.contains("/St 20") && last_pdf.contains("/St 22"),
+            "{bridge}: offset lógico"
+        );
+        assert!(!last_pdf.contains("/St 21"), "{bridge}: página excluída não rotulada");
+        let first_stream = crate::export::extract_page_content_streams_text(&first.data);
+        let last_stream = crate::export::extract_page_content_streams_text(&last.data);
+        assert!(
+            first_stream.contains("(10) Tj") && first_stream.contains("(11) Tj"),
+            "{bridge}: margem do primeiro PDF: {first_stream}"
+        );
+        assert!(
+            last_stream.contains("(20) Tj") && last_stream.contains("(22) Tj"),
+            "{bridge}: margem do segundo PDF: {last_stream}"
+        );
+        assert!(
+            !last_stream.contains("(21) Tj"),
+            "{bridge}: página excluída não deve ser desenhada: {last_stream}"
+        );
+    }
+}
+
+#[test]
+fn p1486_bundle_margem_callback_usa_vista_local_realizada() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    let world = mock_world(
+        "#document(\"first.pdf\")[#set page(numbering: (current, total) => [V#current])\n\
+         #counter(page).update(10) First #pagebreak() Second]\n\
+         #document(\"last.pdf\")[#set page(numbering: (current, total) => [V#current])\n\
+         #counter(page).update(20) Third #pagebreak() Fourth]",
+    );
+    let files = compile_to_bundle_files(
+        &world,
+        &world.source,
+        BundleCompileOptions {
+            full_error: false,
+            features,
+            document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None,
+            pdf_pages_override: None,
+            pdf_standard_override: None,
+            png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        },
+    )
+    .0
+    .expect("bundle com callback deve compilar");
+    let last = files.iter().find(|file| file.path == "last.pdf").unwrap();
+    let stream = crate::export::extract_page_content_streams_text(&last.data);
+    assert!(stream.contains("(20) Tj") && stream.contains("(21) Tj"), "{stream}");
+}
+
+#[test]
+fn p1159_location_page_numbering_ve_func_no_relayout() {
+    let w = mock_world(
+        "#set page(numbering: (current, total) => [V#current/#total])\n#context repr(here().page-numbering())",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("page-numbering contextual deve compilar");
+    assert!(
+        matches!(
+            &doc.pages[0].numbering,
+            Some(typst_core::entities::numbering::Numbering::Func(_))
+        ),
+        "a página deve preservar o callback de numbering: {:?}",
+        doc.pages[0].numbering
+    );
+    let text = doc.pages[0].plain_text();
+    assert!(text.contains("=>"), "repr contextual inesperada: {text:?}");
+}
+
+#[test]
+fn p1159_callback_usa_counter_logico_de_pagina() {
+    let w = mock_world(
+        "#counter(page).update(7)\n#set page(numbering: (current, total) => [N#current/#total])\nA#pagebreak()B#pagebreak()C",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("counter(page) lógico deve compilar");
+    let margins = doc
+        .pages
+        .iter()
+        .map(|page| frame_items_text(&page.foreground))
+        .collect::<Vec<_>>();
+    assert_eq!(margins, ["N7/9", "N8/9", "N9/9"]);
+}
+
+#[test]
+fn p1159_referencia_usa_vista_unaria_com_footer_explicito() {
+    let w = mock_world(
+        "#counter(page).update(7)\n#set page(numbering: (..nums) => [R#nums.pos().first()], footer: [EXPL])\n= Alvo <alvo>\n#pagebreak()\n#ref(<alvo>, form: \"page\")",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("referência funcional deve compilar");
+    assert!(doc.pages.iter().any(|page| page.plain_text().contains("R7")));
+    assert!(doc.pages.iter().all(|page| {
+        !page.foreground.iter().any(|item| match item {
+            FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                text.starts_with('R')
+            }
+            _ => false,
+        })
+    }));
+}
+
+#[test]
+fn p1160_aridade_visivel_preserva_erros_do_callback() {
+    for (source_text, expected) in [
+        ("#set page(numbering: x => [#x])\nX", "unexpected argument"),
+        ("#set page(numbering: (a, b, c) => [#a/#b/#c])\nX", "missing argument: c"),
+    ] {
+        let w = mock_world(source_text);
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let errors = result.expect_err("aridade inválida deve falhar");
+        assert!(errors.iter().any(|error| error.message.contains(expected)));
+    }
+}
+
+#[test]
+fn p1160_referencia_binaria_falha_sem_total() {
+    let w = mock_world(
+        "#set page(numbering: (current, total) => [#current/#total])\n= A <a>\n#pagebreak()\n#ref(<a>, form: \"page\")",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let errors = result.expect_err("referência passa somente current");
+    assert!(errors
+        .iter()
+        .any(|error| error.message.contains("missing argument: total")));
+}
+
+#[test]
+fn p1160_retorno_int_e_none_preservam_morfologia() {
+    let w = mock_world(
+        "#set page(numbering: (current, total) => 42)\nA\n#pagebreak()\n#set page(numbering: (current, total) => none)\nB",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("retornos heterogéneos devem compilar");
+    let margins = doc
+        .pages
+        .iter()
+        .map(|page| frame_items_text(&page.foreground))
+        .collect::<Vec<_>>();
+    assert_eq!(margins, ["42", ""]);
+}
+
+#[test]
+fn p1160_page_run_restaura_numbering_externo() {
+    let w = mock_world(
+        "#set page(numbering: \"I\")\n#page(numbering: (current, total) => [X#current/#total])[A#pagebreak()B]\n#pagebreak()\nC",
+    );
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("page-run funcional deve compilar");
+    let margins = doc
+        .pages
+        .iter()
+        .map(|page| frame_items_text(&page.foreground))
+        .collect::<Vec<_>>();
+    assert_eq!(margins, ["X1/3", "X2/3", "III"]);
+}
+
+#[test]
+fn p1160_callback_preserva_markup_forte() {
+    let w = mock_world("#set page(numbering: (a, b) => [*B*])\nX");
+    let source = w.source.clone();
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+    let doc = result.expect("markup forte deve compilar");
+    assert!(contains_bold_text(&doc.pages[0].foreground, "B"));
+}
+
+// ── Passo 140B: dispatch font-aware ───────────────────────────────
+
+use ecow::EcoString;
+use typst_core::entities::font_book::{
+    Coverage, FontFlags, FontInfo, FontStretch, FontStyle, FontWeight,
+};
+use typst_core::entities::font_list::{FontFamily, FontList};
+use typst_core::entities::layout_types::{
+    FrameItem, PagedDocument, Point, Pt, TextStyle,
+};
+
+fn text_item_with_font(font: Option<FontList>) -> FrameItem {
+    let mut style = TextStyle::regular(Pt(12.0));
+    style.font = font;
+    FrameItem::Text { pos: Point::ZERO, text: "X".into(), style }
+}
+
+fn page_with(items: Vec<FrameItem>) -> Page {
+    Page {
+        width: 100.0,
+        height: 100.0,
+        numbering: None,
+        logical_number: 1,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
+        items,
+    }
+}
+
+fn font_list(name: &str) -> FontList {
+    FontList::single(EcoString::from(name))
+}
+
+#[test]
+fn first_font_from_doc_documento_vazio_devolve_none() {
+    let doc = PagedDocument::new(vec![]);
+    assert!(first_font_from_doc(&doc).is_none());
+}
+
+#[test]
+fn first_font_from_doc_sem_font_devolve_none() {
+    let doc = PagedDocument::new(vec![page_with(vec![text_item_with_font(None)])]);
+    assert!(first_font_from_doc(&doc).is_none());
+}
+
+#[test]
+fn first_font_from_doc_com_font_primeira_vence() {
+    // Dois items na mesma página com fonts diferentes.
+    let doc = PagedDocument::new(vec![page_with(vec![
+        text_item_with_font(Some(font_list("Primeira"))),
+        text_item_with_font(Some(font_list("Segunda"))),
+    ])]);
+    let fl = first_font_from_doc(&doc).expect("deve resolver");
+    assert_eq!(fl.as_slice()[0].name.as_str(), Some("primeira"));
+}
+
+#[test]
+fn first_font_from_doc_font_em_pagina_segunda_encontrada() {
+    // Página 1 sem font, página 2 com font.
+    let doc = PagedDocument::new(vec![
+        page_with(vec![text_item_with_font(None)]),
+        page_with(vec![text_item_with_font(Some(font_list("Inria Serif")))]),
+    ]);
+    let fl = first_font_from_doc(&doc).expect("deve encontrar na segunda");
+    assert_eq!(fl.as_slice()[0].name.as_str(), Some("inria serif"));
+}
+
+// ── resolve_font ──────────────────────────────────────────────────
+
+/// MockWorld com `FontBook` e bytes de font injectados por índice.
+struct FontMockWorld {
+    library: Library,
+    book: FontBook,
+    fonts: Vec<Option<Font>>,
+}
+impl World for FontMockWorld {
+    fn library(&self) -> &Library {
+        &self.library
+    }
+    fn book(&self) -> &FontBook {
+        &self.book
+    }
+    fn main(&self) -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
+    fn source(&self, _: FileId) -> FileResult<Source> {
+        Err(FileError::NotFound)
+    }
+    fn file(&self, _: FileId) -> FileResult<Bytes> {
+        Err(FileError::NotFound)
+    }
+    fn font(&self, i: usize) -> Option<Font> {
+        self.fonts.get(i).cloned().flatten()
+    }
+    fn today(
+        &self,
+        _: Option<typst_core::entities::duration::Duration>,
+    ) -> Option<Datetime> {
+        None
+    }
+}
+
+fn font_info(family: &str) -> FontInfo {
+    FontInfo {
+        family: family.into(),
+        variant: FontVariant {
+            style: FontStyle::Normal,
+            weight: FontWeight::REGULAR,
+            stretch: FontStretch::NORMAL,
+        },
+        flags: FontFlags::default(),
+        coverage: Coverage::default(),
+    }
+}
+
+#[test]
+fn resolve_font_match_primeiro_devolve_bytes() {
+    let mut book = FontBook::new();
+    book.push(font_info("Inria Serif"));
+    let bytes_esperados = vec![0x11, 0x22, 0x33];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes_esperados.clone()))],
+    };
+    let fl = font_list("Inria Serif");
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("deve resolver");
+    assert_eq!(got, bytes_esperados);
+}
+
+#[test]
+fn resolve_font_nao_match_devolve_none() {
+    let mut book = FontBook::new();
+    book.push(font_info("Outra"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0]))],
+    };
+    let fl = font_list("Não Existe");
+    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+}
+
+#[test]
+fn resolve_font_font_book_vazio_devolve_none() {
+    let world = FontMockWorld {
+        library: Library::new(),
+        book: FontBook::new(),
+        fonts: vec![],
+    };
+    let fl = font_list("Qualquer");
+    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+}
+
+// ── Passo 141: array fallback chain ───────────────────────────────
+
+fn font_list_multi(names: &[&str]) -> FontList {
+    let families = names.iter().map(|n| FontFamily::new(EcoString::from(*n))).collect();
+    FontList::new(families).expect("lista não-vazia")
+}
+
+#[test]
+fn resolve_font_lista_match_indice_0() {
+    let mut book = FontBook::new();
+    book.push(font_info("A"));
+    let bytes_a = vec![0xAA, 0xAA];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes_a.clone()))],
+    };
+    let fl = font_list_multi(&["A", "B", "C"]);
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("deve resolver");
+    assert_eq!(got, bytes_a, "primeira família vence quando existe");
+}
+
+#[test]
+fn resolve_font_lista_match_indice_1() {
+    // FontBook só tem "B"; "X" não resolve, "B" sim.
+    let mut book = FontBook::new();
+    book.push(font_info("B"));
+    let bytes_b = vec![0xBB, 0xBB];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes_b.clone()))],
+    };
+    let fl = font_list_multi(&["X", "B", "C"]);
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("deve resolver via B");
+    assert_eq!(got, bytes_b, "segunda família vence quando primeira falha");
+}
+
+#[test]
+fn resolve_font_lista_match_indice_2() {
+    // FontBook só tem "C"; "X" e "Y" não resolvem.
+    let mut book = FontBook::new();
+    book.push(font_info("C"));
+    let bytes_c = vec![0xCC, 0xCC];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes_c.clone()))],
+    };
+    let fl = font_list_multi(&["X", "Y", "C"]);
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("deve resolver via C");
+    assert_eq!(got, bytes_c, "terceira família vence quando duas primeiras falham");
+}
+
+#[test]
+fn resolve_font_lista_sem_match_devolve_none() {
+    // FontBook só tem "Outra"; nenhuma família da lista resolve.
+    let mut book = FontBook::new();
+    book.push(font_info("Outra"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0xFF]))],
+    };
+    let fl = font_list_multi(&["X", "Y", "Z"]);
+    assert!(
+        resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none(),
+        "nenhuma família resolve → fallback Helvetica via None"
+    );
+}
+
+// ── Passo 146: multi-font per document ────────────────────────────
+
+#[test]
+fn collect_fonts_from_doc_documento_vazio_devolve_vazio() {
+    let doc = PagedDocument::new(vec![]);
+    let world = mock_world("");
+    assert!(collect_fonts_from_doc(&doc, &world).is_empty());
+}
+
+#[test]
+fn collect_fonts_from_doc_uma_font_devolve_unitario() {
+    let doc = PagedDocument::new(vec![page_with(vec![text_item_with_font(Some(
+        font_list("Inria"),
+    ))])]);
+    let world = mock_world("");
+    let collected = collect_fonts_from_doc(&doc, &world);
+    assert_eq!(collected.len(), 1);
+    assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("inria"));
+}
+
+#[test]
+fn collect_fonts_from_doc_duas_distintas_devolve_par_em_ordem() {
+    let doc = PagedDocument::new(vec![page_with(vec![
+        text_item_with_font(Some(font_list("Primeira"))),
+        text_item_with_font(Some(font_list("Segunda"))),
+    ])]);
+    let world = mock_world("");
+    let collected = collect_fonts_from_doc(&doc, &world);
+    assert_eq!(collected.len(), 2);
+    assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("primeira"));
+    assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("segunda"));
+}
+
+#[test]
+fn collect_fonts_from_doc_duas_iguais_dispersas_dedup() {
+    // "A" e "B" intercalados em duas páginas: dedup deve produzir
+    // [A, B] em ordem de primeira ocorrência.
+    let doc = PagedDocument::new(vec![
+        page_with(vec![
+            text_item_with_font(Some(font_list("A"))),
+            text_item_with_font(Some(font_list("B"))),
+        ]),
+        page_with(vec![
+            text_item_with_font(Some(font_list("A"))),
+            text_item_with_font(Some(font_list("B"))),
+        ]),
+    ]);
+    let world = mock_world("");
+    let collected = collect_fonts_from_doc(&doc, &world);
+    assert_eq!(
+        collected.len(),
+        2,
+        "dedup estrutural: A e B aparecem cada um uma vez no resultado"
+    );
+    assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("a"));
+    assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("b"));
+}
+
+// resolve_fonts (plural)
+
+#[test]
+fn resolve_fonts_todos_resolvem() {
+    let mut book = FontBook::new();
+    book.push(font_info("A"));
+    book.push(font_info("B"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0xAA])), Some(Font::from_data(vec![0xBB]))],
+    };
+    let inputs = vec![
+        (font_list("A"), FontVariant::default(), FontVariations::default()),
+        (font_list("B"), FontVariant::default(), FontVariations::default()),
+    ];
+    let out = resolve_fonts(&inputs, &world);
+    assert_eq!(out.len(), 2);
+    assert_eq!(out[0].1, vec![0xAA]);
+    assert_eq!(out[1].1, vec![0xBB]);
+}
+
+#[test]
+fn resolve_fonts_alguns_nao_resolvem_filtrados() {
+    // FontBook só tem "A"; "B" não resolve → filtrado silenciosamente.
+    let mut book = FontBook::new();
+    book.push(font_info("A"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0xAA]))],
+    };
+    let inputs = vec![
+        (font_list("A"), FontVariant::default(), FontVariations::default()),
+        (font_list("B"), FontVariant::default(), FontVariations::default()),
+    ];
+    let out = resolve_fonts(&inputs, &world);
+    assert_eq!(out.len(), 1, "B silenciosamente filtrado");
+    assert_eq!(out[0].1, vec![0xAA]);
+}
+
+#[test]
+fn resolve_fonts_nenhum_resolve_devolve_vazio() {
+    let mut book = FontBook::new();
+    book.push(font_info("Outra"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0]))],
+    };
+    let inputs = vec![
+        (font_list("X"), FontVariant::default(), FontVariations::default()),
+        (font_list("Y"), FontVariant::default(), FontVariations::default()),
+    ];
+    assert!(resolve_fonts(&inputs, &world).is_empty());
+}
+
+// ── Passo 407: regex keys em FontList (DEBT-52) ─────────────────────
+
+use typst_core::entities::font_list::FontNamePattern;
+use typst_core::entities::regex::Regex;
+
+fn font_list_regex(pattern: &str) -> FontList {
+    FontList::new(vec![FontFamily::new_regex(Regex::new(pattern).unwrap(), vec![])])
+        .expect("lista não-vazia")
+}
+
+#[test]
+fn resolve_font_regex_key_match() {
+    let mut book = FontBook::new();
+    book.push(font_info("Name Bold"));
+    let bytes = vec![0xDD, 0xDD];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes.clone()))],
+    };
+    let fl = font_list_regex("Name.*");
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("deve resolver via regex");
+    assert_eq!(got, bytes);
+}
+
+#[test]
+fn resolve_font_regex_key_no_match() {
+    let mut book = FontBook::new();
+    book.push(font_info("Other"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(vec![0xEE]))],
+    };
+    let fl = font_list_regex("Name.*");
+    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+}
+
+#[test]
+fn resolve_font_literal_still_works_after_p407() {
+    let mut book = FontBook::new();
+    book.push(font_info("Inria Serif"));
+    let bytes = vec![0x11, 0x22];
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(Font::from_data(bytes.clone()))],
+    };
+    let fl = font_list("Inria Serif");
+    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+        .expect("literal continua a resolver");
+    assert_eq!(got, bytes);
+}
+
+// ── P711: collect_context_blocks acumula StyleChain da posição ────
+
+use typst_core::entities::func::Func;
+use typst_core::entities::style::{Style, Styles};
+use typst_core::entities::value::Value;
+
+fn dummy_context_block(id: u64) -> Content {
+    let closure = Func::native("dummy", |_ctx, _args, _world, _file| Ok(Value::None));
+    Content::ContextBlock(Arc::new(ContextBlockElem { id, closure }))
+}
+
+#[test]
+fn collect_context_blocks_acumula_size_de_set_ancestral() {
+    let styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+    let content = Content::styled(Box::new(dummy_context_block(1)), styles);
+    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+    let (_, chain) = blocks.get(&1).expect("bloco 1 deve ter sido colectado");
+    assert_eq!(
+        chain.size(),
+        20.0,
+        "P711: a cadeia colectada tem de reflectir o #set ancestral, não o default"
+    );
+}
+
+#[test]
+fn collect_context_blocks_sem_set_mantem_default() {
+    let content = dummy_context_block(2);
+    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+    let (_, chain) = blocks.get(&2).expect("bloco 2 deve ter sido colectado");
+    assert_eq!(
+        chain.size(),
+        11.0,
+        "sem #set ancestral, o tamanho por defeito (11pt) fica inalterado"
+    );
+}
+
+#[test]
+fn collect_context_blocks_sets_aninhados_o_mais_interno_vence() {
+    // #set text(size: 20pt) [ #set text(size: 30pt) [ context ] ]
+    let inner_styles = Styles::from_iter([Style::Size(Pt(30.0))]);
+    let inner = Content::styled(Box::new(dummy_context_block(3)), inner_styles);
+    let outer_styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+    let content = Content::styled(Box::new(inner), outer_styles);
+    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+    let (_, chain) = blocks.get(&3).expect("bloco 3 deve ter sido colectado");
+    assert_eq!(
+        chain.size(),
+        30.0,
+        "o #set mais interno (mais próximo do bloco) tem de vencer"
+    );
+}
+
+#[test]
+fn collect_context_blocks_multiplos_blocos_em_sequence_cadeias_independentes() {
+    let a = Content::styled(
+        Box::new(dummy_context_block(4)),
+        Styles::from_iter([Style::Size(Pt(14.0))]),
+    );
+    let b = dummy_context_block(5);
+    let content = Content::sequence(vec![a, b]);
+    let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
+    assert_eq!(blocks.get(&4).unwrap().1.size(), 14.0);
+    assert_eq!(
+        blocks.get(&5).unwrap().1.size(),
+        11.0,
+        "bloco irmão fora do Styled não deve herdar o #set do outro ramo"
+    );
+}
+
+// ── P1467 (RED — Agente B) — resolução documental/CLI de
+// `format.pdf.tagged`/`format.pdf.pretty` ao nível de integração de
+// pipeline. A entry point pública sugerida pelo L0
+// (`infra/pipeline.md` §P1467 "API e resolução") ainda não existe
+// neste baseline — a suite inteira falha por erro de compilação até
+// `compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override`
+// ser materializada (Agente A, em paralelo).
+
+fn has_tagged_pdf_morphology(pdf: &[u8]) -> bool {
+    let raw = String::from_utf8_lossy(pdf);
+    raw.contains("/StructTreeRoot") && raw.contains("/MarkInfo")
+}
+
+fn newline_count(pdf: &[u8]) -> usize {
+    pdf.iter().filter(|&&byte| byte == b'\n').count()
+}
+
+fn compile_pdf_with_overrides(
+    source_text: &str,
+    pdf_tagged_override: Option<bool>,
+    pretty_override: Option<bool>,
+) -> Vec<u8> {
+    let world = mock_world(source_text);
+    let (result, _warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            pdf_tagged_override,
+            typst_core::entities::compiler_features::Features::default(),
+            pretty_override,
+        );
+    result.expect("compilação PDF P1467 deve ter sucesso")
+}
+
+#[test]
+fn p1467_pipeline_absence_of_both_resolves_document_auto_to_tagged() {
+    let pdf = compile_pdf_with_overrides("Hello", None, None);
+    assert!(
+        has_tagged_pdf_morphology(&pdf),
+        "auto sem seleção de páginas deve resolver para tagueado"
+    );
+}
+
+#[test]
+fn p1467_pipeline_document_tagged_false_untags_without_override() {
+    let pdf =
+        compile_pdf_with_overrides("#set format.pdf(tagged: false)\nHello", None, None);
+    assert!(!has_tagged_pdf_morphology(&pdf));
+}
+
+#[test]
+fn p1467_pipeline_document_tagged_true_is_explicit_and_tags() {
+    let pdf =
+        compile_pdf_with_overrides("#set format.pdf(tagged: true)\nHello", None, None);
+    assert!(has_tagged_pdf_morphology(&pdf));
+}
+
+#[test]
+fn p1467_pipeline_override_false_wins_over_document_tagged_true() {
+    let pdf = compile_pdf_with_overrides(
+        "#set format.pdf(tagged: true)\nHello",
+        Some(false),
+        None,
+    );
+    assert!(!has_tagged_pdf_morphology(&pdf));
+}
+
+#[test]
+fn p1467_pipeline_override_true_wins_over_document_tagged_false() {
+    let pdf = compile_pdf_with_overrides(
+        "#set format.pdf(tagged: false)\nHello",
+        Some(true),
+        None,
+    );
+    assert!(has_tagged_pdf_morphology(&pdf));
+}
+
+#[test]
+fn p1467_pipeline_pretty_override_wins_over_document_pretty_false() {
+    let compact =
+        compile_pdf_with_overrides("#set format.pdf(pretty: false)\nHello", None, None);
+    let pretty = compile_pdf_with_overrides(
+        "#set format.pdf(pretty: false)\nHello",
+        None,
+        Some(true),
+    );
+    assert!(
+        newline_count(&pretty) > newline_count(&compact),
+        "--pretty deve vencer o documento e produzir mais newlines estruturais"
+    );
+}
+
+#[test]
+fn p1467_pipeline_pretty_override_false_wins_over_document_pretty_true() {
+    let baseline = compile_pdf_with_overrides("Hello", None, None);
+    let overridden = compile_pdf_with_overrides(
+        "#set format.pdf(pretty: true)\nHello",
+        None,
+        Some(false),
+    );
+    assert_eq!(
+        newline_count(&overridden),
+        newline_count(&baseline),
+        "override explícito false deve produzir a mesma forma compacta do baseline"
+    );
+}
+
+#[test]
+fn p1467_pipeline_document_pretty_true_without_override() {
+    let compact = compile_pdf_with_overrides("Hello", None, None);
+    let pretty =
+        compile_pdf_with_overrides("#set format.pdf(pretty: true)\nHello", None, None);
+    assert!(newline_count(&pretty) > newline_count(&compact));
+}
+
+#[test]
+fn p1467_pipeline_absence_of_both_flags_is_compact_by_default() {
+    let baseline = compile_pdf_with_overrides("Hello", None, None);
+    let explicit_false =
+        compile_pdf_with_overrides("#set format.pdf(pretty: false)\nHello", None, None);
+    assert_eq!(newline_count(&baseline), newline_count(&explicit_false));
+}
+
+#[test]
+fn p1467_pipeline_tagged_and_pretty_combine_independently() {
+    let untagged_pretty = compile_pdf_with_overrides(
+        "#set format.pdf(tagged: false)\n#set format.pdf(pretty: true)\nHello",
+        None,
+        None,
+    );
+    let untagged_compact =
+        compile_pdf_with_overrides("#set format.pdf(tagged: false)\nHello", None, None);
+
+    assert!(!has_tagged_pdf_morphology(&untagged_pretty));
+    assert!(!has_tagged_pdf_morphology(&untagged_compact));
+    assert!(newline_count(&untagged_pretty) > newline_count(&untagged_compact));
+}
+
+#[test]
+fn p1467_svg_output_is_neutral_to_pdf_format_options() {
+    let world_without = mock_world("#rect(width: 10pt, height: 10pt)");
+    let (without, _, _) =
+        compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+            &world_without,
+            &world_without.source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+        );
+
+    let world_with_pdf = mock_world(
+        "#set format.pdf(tagged: false, pretty: true)\n#rect(width: 10pt, height: 10pt)",
+    );
+    let (with_pdf_options, _, _) =
+        compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
+            &world_with_pdf,
+            &world_with_pdf.source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+        );
+
+    assert_eq!(
+        without.expect("SVG sem opções PDF deve compilar"),
+        with_pdf_options.expect("SVG com #set format.pdf deve compilar e ser idêntico"),
+        "P1467: format.pdf não pode influenciar o export SVG"
+    );
+}
+
+// ── P1468 (RED — Agente B) — resolução de `format.pdf.pages` e
+// interação com `tagged`. `resolve_pdf_pages_and_tags` (contrato de
+// `infra/pipeline.md` §P1468) ainda não existe neste baseline (só
+// `resolve_pdf_tags`, P1467); a nova entry point pública
+// `..._tagged_and_pretty_and_pages_override` também não existe. A
+// suite inteira falha por erro de compilação até ambas serem
+// materializadas (Agente A, em paralelo).
+use typst_core::entities::document_format_options::{PageRange, PageRanges};
+
+fn single_page(n: usize) -> PageRanges {
+    let p = std::num::NonZeroUsize::new(n).unwrap();
+    PageRanges::new(vec![PageRange { start: Some(p), end: Some(p) }])
+}
+
+#[test]
+fn p1468_resolve_pages_absent_matches_p1467_tagged_resolution() {
+    let auto = DocumentFormatOptions::default();
+    let (pages, tags, diagnostics) = resolve_pdf_pages_and_tags(None, None, &auto)
+        .expect("sem pages, sem erro (comportamento P1467)");
+    assert_eq!(pages, None);
+    assert_eq!(tags, PdfTags::Enabled, "auto sem pages continua tagueado (P1467)");
+    assert!(diagnostics.is_empty());
+
+    let mut tagged_false = DocumentFormatOptions::default();
+    tagged_false.pdf.tagged = PdfTagged::Explicit(false);
+    let (pages, tags, diagnostics) =
+        resolve_pdf_pages_and_tags(None, None, &tagged_false)
+            .expect("sem pages, sem erro (comportamento P1467)");
+    assert_eq!(pages, None);
+    assert_eq!(tags, PdfTags::Disabled);
+    assert!(diagnostics.is_empty());
+}
+
+#[test]
+fn p1468_resolve_pages_present_with_document_tagged_explicit_true_errors() {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.tagged = PdfTagged::Explicit(true);
+    let errors = resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+        .expect_err("documento pede tagged:true + pages deve falhar");
+    assert!(
+        errors.iter().any(|e| e
+            .message
+            .contains("cannot enable tagged PDF and export a page range")),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn p1468_resolve_pages_present_with_auto_tagged_warns_and_disables() {
+    let options = DocumentFormatOptions::default(); // tagged == Auto
+    let (pages, tags, diagnostics) =
+        resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+            .expect("auto + pages não deve ser erro, só warning");
+    assert_eq!(pages, Some(single_page(1)));
+    assert_eq!(tags, PdfTags::Disabled);
+    assert!(
+        diagnostics
+            .iter()
+            .any(|d| d.message.contains("exporting a page range disables PDF tagging")),
+        "{diagnostics:?}"
+    );
+    let hints: Vec<_> = diagnostics.iter().flat_map(|d| d.hints.iter()).collect();
+    assert!(
+        hints
+            .iter()
+            .any(|h| h.contains("the resulting PDF will be inaccessible")),
+        "{hints:?}"
+    );
+    assert!(
+        hints
+            .iter()
+            .any(|h| h.contains("set `pdf(tagged: false)` to silence this warning")),
+        "{hints:?}"
+    );
+}
+
+#[test]
+fn p1468_resolve_pages_present_with_document_tagged_explicit_false_is_silent() {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.tagged = PdfTagged::Explicit(false);
+    let (pages, tags, diagnostics) =
+        resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+            .expect("tagged:false + pages não deve falhar");
+    assert_eq!(pages, Some(single_page(1)));
+    assert_eq!(tags, PdfTags::Disabled);
+    assert!(diagnostics.is_empty(), "{diagnostics:?}");
+}
+
+#[test]
+fn p1468_resolve_pages_cli_override_wins_over_document_pages() {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.tagged = PdfTagged::Explicit(false);
+    options.pdf.pages = Some(single_page(5));
+    let (pages, _tags, _diagnostics) =
+        resolve_pdf_pages_and_tags(Some(single_page(1)), None, &options)
+            .expect("override deve vencer, sem erro");
+    assert_eq!(
+        pages,
+        Some(single_page(1)),
+        "override CLI de pages deve vencer o documento"
+    );
+}
+
+#[test]
+fn p1468_resolve_pages_falls_back_to_document_then_none() {
+    let mut with_document_pages = DocumentFormatOptions::default();
+    with_document_pages.pdf.tagged = PdfTagged::Explicit(false);
+    with_document_pages.pdf.pages = Some(single_page(3));
+    let (pages, _, _) = resolve_pdf_pages_and_tags(None, None, &with_document_pages)
+        .expect("documento define pages, sem override");
+    assert_eq!(pages, Some(single_page(3)));
+
+    let neither = DocumentFormatOptions::default();
+    let (pages, _, _) =
+        resolve_pdf_pages_and_tags(None, None, &neither).expect("nenhum define pages");
+    assert_eq!(pages, None);
+}
+
+#[test]
+fn p1468_resolve_pages_tagged_override_still_applies_when_pages_absent() {
+    // Regressão P1467: `tagged_override` continua a funcionar quando
+    // `pages` não está presente (comportamento idêntico a
+    // `resolve_pdf_tags`).
+    let options = DocumentFormatOptions::default();
+    let (pages, tags, diagnostics) =
+        resolve_pdf_pages_and_tags(None, Some(false), &options)
+            .expect("override tagged sem pages não deve falhar");
+    assert_eq!(pages, None);
+    assert_eq!(tags, PdfTags::Disabled);
+    assert!(diagnostics.is_empty());
+}
+
+#[test]
+fn p1468_pipeline_new_entry_point_with_none_pages_matches_old_entry_point() {
+    let world = mock_world("#set format.pdf(pretty: true)\nHello");
+    let (old_result, _old_warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+        );
+    let (new_result, _new_warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            None,
+        );
+    assert_eq!(
+        old_result.expect("compilação antiga deve suceder"),
+        new_result.expect("compilação nova deve suceder"),
+        "P1468: entry point antiga (P1467) deve continuar byte-idêntica quando pages=None"
+    );
+}
+
+#[test]
+fn p1468_pipeline_pages_override_without_document_tagged_decision_disables_tags_with_warning(
+) {
+    let world = mock_world("Hello\n#pagebreak()\nWorld");
+    let (result, warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            Some(single_page(1)),
+        );
+    let pdf = result.expect("pages sem tagged explícito não deve falhar a compilação");
+    assert!(
+        !has_tagged_pdf_morphology(&pdf),
+        "auto + pages deve resolver destagueado (warning, não erro)"
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.message.contains("exporting a page range disables PDF tagging")),
+        "{warnings:?}"
+    );
+}
+
+#[test]
+fn p1468_pipeline_pages_override_with_document_tagged_true_errors_end_to_end() {
+    let world = mock_world("#set format.pdf(tagged: true)\nHello");
+    let (result, _warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            Some(single_page(1)),
+        );
+    let errors = result.expect_err("documento pede tagged:true + pages CLI deve falhar");
+    assert!(
+        errors.iter().any(|e| e
+            .message
+            .contains("cannot enable tagged PDF and export a page range")),
+        "{errors:?}"
+    );
+}
+
+// ── P1469 (RED — Agente B) — resolução de `format.pdf.standard` e
+// interação com `tagged`/`pages` (contrato de linguagem, escopo
+// reduzido — ver `infra/pipeline.md` P1469 e
+// `entities/document_format_options.md` P1469). `PdfStandard`/
+// `PdfStandards`/`PdfVersion`/`PdfArchival` (entities) e
+// `resolve_pdf_pages_tags_and_standards` ainda não existem neste
+// baseline (`65e68ad45dcbfd8db00aeda78d0d2fbaaadefb27`); este módulo
+// falha por erro de compilação até o carrier P1469 (mesmo gate
+// ADR-0127) ser materializado por outro agente em paralelo.
+use typst_core::entities::document_format_options::{
+    PdfArchival, PdfStandard, PdfStandards, PdfVersion,
+};
+
+fn standards(names: &[PdfStandard]) -> PdfStandards {
+    PdfStandards::new(names.iter().copied()).expect("combinação de teste deve ser válida")
+}
+
+#[test]
+fn p1469_resolve_standard_absent_matches_p1468_pages_and_tags_behavior() {
+    // Sem `standard` (nem override, nem documento): comportamento
+    // (pages, tags) idêntico a `resolve_pdf_pages_and_tags` (P1468), e
+    // `standards_final == PdfStandards::default()` (versão efetiva
+    // 1.7, sem archival/accessibility).
+    let options = DocumentFormatOptions::default();
+    let (pages, tags, standards_final, diagnostics) =
+        resolve_pdf_pages_tags_and_standards(None, None, None, &options)
+            .expect("sem standard, sem erro");
+    assert_eq!(pages, None);
+    assert_eq!(tags, PdfTags::Enabled);
+    assert_eq!(standards_final, PdfStandards::default());
+    assert_eq!(standards_final.version, PdfVersion::V1_7);
+    assert!(diagnostics.is_empty());
+}
+
+#[test]
+fn p1469_resolve_standard_non_accessible_profile_with_tagged_false_has_no_error() {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.tagged = PdfTagged::Explicit(false);
+    let (_, tags, standards_final, diagnostics) = resolve_pdf_pages_tags_and_standards(
+        None,
+        None,
+        Some(standards(&[PdfStandard::A2b])),
+        &options,
+    )
+    .expect("a-2b (não acessível) + tagged:false não deve falhar");
+    assert_eq!(tags, PdfTags::Disabled);
+    assert_eq!(standards_final.archival, Some(PdfArchival::A2b));
+    assert!(diagnostics.is_empty());
+}
+
+#[test]
+fn p1469_resolve_standard_accessible_profile_with_document_tagged_explicit_false_errors_without_pages_hint(
+) {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.tagged = PdfTagged::Explicit(false);
+    let errors = resolve_pdf_pages_tags_and_standards(
+        None,
+        None,
+        Some(standards(&[PdfStandard::A1a])),
+        &options,
+    )
+    .expect_err("perfil acessível + tagged:false documental deve falhar");
+    assert!(
+        errors.iter().any(|e| e
+            .message
+            .contains("cannot set `pdf(tagged: false)` when exporting a")),
+        "{errors:?}"
+    );
+    let hints: Vec<_> = errors.iter().flat_map(|e| e.hints.iter()).collect();
+    assert!(
+        hints.is_empty(),
+        "sem `pages` ativo, não deve haver hint de pages: {hints:?}"
+    );
+}
+
+#[test]
+fn p1469_resolve_standard_accessible_profile_with_pages_active_errors_with_pages_hint() {
+    let options = DocumentFormatOptions::default(); // tagged == Auto
+    let errors = resolve_pdf_pages_tags_and_standards(
+        Some(single_page(1)),
+        None,
+        Some(standards(&[PdfStandard::Ua1])),
+        &options,
+    )
+    .expect_err("perfil acessível + pages ativo deve falhar");
+    assert!(
+        errors.iter().any(|e| e
+            .message
+            .contains("cannot set `pdf(tagged: false)` when exporting a")),
+        "{errors:?}"
+    );
+    let hints: Vec<_> = errors.iter().flat_map(|e| e.hints.iter()).collect();
+    assert!(
+        hints
+            .iter()
+            .any(|h| h.contains("using `pdf(pages: ...)` implies `pdf(tagged: false)`")),
+        "causa raiz foi `pages`, hint deve aparecer: {hints:?}"
+    );
+}
+
+#[test]
+fn p1469_resolve_standard_accessible_profile_with_tagged_true_or_no_decision_has_no_error(
+) {
+    // `tagged: true` explícito (documento) + perfil acessível: sem erro.
+    let mut explicit_true = DocumentFormatOptions::default();
+    explicit_true.pdf.tagged = PdfTagged::Explicit(true);
+    let (_, tags, _, diagnostics) = resolve_pdf_pages_tags_and_standards(
+        None,
+        None,
+        Some(standards(&[PdfStandard::A2a])),
+        &explicit_true,
+    )
+    .expect("tagged:true explícito + perfil acessível não deve falhar");
+    assert_eq!(tags, PdfTags::Enabled);
+    assert!(diagnostics.is_empty());
+
+    // Documento sem decisão (Auto) + perfil acessível + sem `pages`:
+    // `tagged` resolve `Enabled` por P1467, sem conflito.
+    let no_decision = DocumentFormatOptions::default();
+    let (_, tags, _, diagnostics) = resolve_pdf_pages_tags_and_standards(
+        None,
+        None,
+        Some(standards(&[PdfStandard::A2a])),
+        &no_decision,
+    )
+    .expect("auto sem pages + perfil acessível não deve falhar");
+    assert_eq!(tags, PdfTags::Enabled);
+    assert!(diagnostics.is_empty());
+}
+
+#[test]
+fn p1469_resolve_standard_precedence_cli_override_wins_over_document() {
+    let mut options = DocumentFormatOptions::default();
+    options.pdf.standard = Some(standards(&[PdfStandard::A1b]));
+
+    let (_, _, standards_final, _) = resolve_pdf_pages_tags_and_standards(
+        None,
+        None,
+        Some(standards(&[PdfStandard::A4])),
+        &options,
+    )
+    .expect("a-4 sozinho não deve falhar (não acessível)");
+    assert_eq!(
+        standards_final.archival,
+        Some(PdfArchival::A4),
+        "override CLI de standard deve vencer o documento"
+    );
+
+    // Sem override: cai para o documento.
+    let (_, _, standards_final, _) =
+        resolve_pdf_pages_tags_and_standards(None, None, None, &options)
+            .expect("documento a-1b sozinho não deve falhar");
+    assert_eq!(standards_final.archival, Some(PdfArchival::A1b));
+
+    // Nenhum dos dois: cai para o default.
+    let neither = DocumentFormatOptions::default();
+    let (_, _, standards_final, _) =
+        resolve_pdf_pages_tags_and_standards(None, None, None, &neither)
+            .expect("nenhum define standard");
+    assert_eq!(standards_final, PdfStandards::default());
+}
+
+#[test]
+fn p1469_resolve_standard_new_function_with_none_standard_matches_old_resolve_pdf_pages_and_tags(
+) {
+    // Regressão: com `standard_override = None` e documento sem
+    // `pdf.standard`, o resultado (pages, tags, diagnostics) deve ser
+    // idêntico ao de `resolve_pdf_pages_and_tags` (P1468), e o
+    // `PdfStandards` efetivo deve ser o default.
+    let options = DocumentFormatOptions::default();
+    let (old_pages, old_tags, old_diagnostics) =
+        resolve_pdf_pages_and_tags(Some(single_page(2)), None, &options)
+            .expect("P1468 não deve falhar");
+    let (new_pages, new_tags, standards_final, new_diagnostics) =
+        resolve_pdf_pages_tags_and_standards(Some(single_page(2)), None, None, &options)
+            .expect("P1469 com standard=None não deve falhar");
+
+    assert_eq!(old_pages, new_pages);
+    assert_eq!(old_tags, new_tags);
+    assert_eq!(
+        old_diagnostics.iter().map(|d| d.message.clone()).collect::<Vec<_>>(),
+        new_diagnostics.iter().map(|d| d.message.clone()).collect::<Vec<_>>(),
+    );
+    assert_eq!(standards_final, PdfStandards::default());
+}
+
+#[test]
+fn p1469_pipeline_new_entry_point_with_none_standard_matches_old_entry_point() {
+    // Mesmo padrão de `p1468_pipeline_new_entry_point_with_none_pages_matches_old_entry_point`:
+    // a entry point antiga (`..._and_pages_override`, P1468) deve
+    // continuar byte-idêntica quando a nova entry point
+    // (`..._and_pages_and_standard_override`, P1469) recebe
+    // `standard_override = None`.
+    let world = mock_world("#set format.pdf(pretty: true)\nHello");
+    let (old_result, _old_warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            None,
+        );
+    let (new_result, _new_warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            None,
+            None,
+        );
+    assert_eq!(
+        old_result.expect("compilação antiga deve suceder"),
+        new_result.expect("compilação nova deve suceder"),
+        "P1469: entry point antiga (P1468) deve continuar byte-idêntica quando standard=None"
+    );
+}
+
+fn p1480_compile_with_standard(
+    source: &str,
+    standard: Option<PdfStandards>,
+) -> Result<Vec<u8>, Vec<SourceDiagnostic>> {
+    let world = mock_world(source);
+    let (result, _warnings) =
+        compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
+            &world,
+            &world.source,
+            false,
+            None,
+            StreamMode::Verbose,
+            None,
+            typst_core::entities::compiler_features::Features::default(),
+            None,
+            None,
+            standard,
+        );
+    result
+}
+
+#[test]
+fn p1480_ua1_sem_titulo_retorna_diagnostico_exato() {
+    let errors =
+        p1480_compile_with_standard("Hello", Some(standards(&[PdfStandard::Ua1])))
+            .expect_err("ua-1 sem document(title:) deve falhar");
+
+    assert_eq!(errors.len(), 1, "esperado um único diagnóstico: {errors:?}");
+    assert_eq!(errors[0].message, "PDF/UA-1 error: missing document title");
+    assert_eq!(errors[0].hints, vec!["set the title with `set document(title: [...])`"]);
+}
+
+#[test]
+fn p1481_ua1_imagem_real_exige_alt_artifact_nao() {
+    use typst_core::entities::elements::pdf_artifact::ArtifactKind;
+    use typst_core::entities::layout_types::{SemanticKind, SemanticPlacement};
+    let image = FrameItem::Image {
+        pos: Point::ZERO,
+        data: Arc::new(vec![0xff, 0xd8, 0xff]),
+        alt: None,
+        width: Pt(10.0),
+        height: Pt(10.0),
+        intrinsic_width: 1,
+        intrinsic_height: 1,
+        clip_rect: None,
+        orientation: 1,
+    };
+    let ua1 = standards(&[PdfStandard::Ua1]);
+    let mut doc = PagedDocument::new(vec![page_with(vec![image.clone()])]);
+    let diag = require_ua1_image_alt(&doc, &ua1).expect("imagem real sem alt");
+    assert_eq!(diag.message, "PDF/UA-1 error: missing alt text");
+    assert_eq!(diag.hints, vec!["make sure your images and equations have alt text"]);
+    assert!(require_ua1_image_alt(&doc, &PdfStandards::default()).is_none());
+    if let FrameItem::Image { alt, .. } = &mut doc.pages[0].items[0] {
+        *alt = Some("".into());
+    }
+    assert!(require_ua1_image_alt(&doc, &ua1).is_none());
+    doc.pages[0].items = vec![FrameItem::Semantic {
+        kind: SemanticKind::Artifact(ArtifactKind::Other),
+        placement: SemanticPlacement::Inline,
+        alt: None,
+        items: vec![image],
+    }];
+    assert!(require_ua1_image_alt(&doc, &ua1).is_none());
+}
+
+#[test]
+fn p1480_ua1_com_titulo_compila_e_emite_identificacao() {
+    let pdf = p1480_compile_with_standard(
+        "#set document(title: \"PDF/UA parity audit\")\nHello",
+        Some(standards(&[PdfStandard::Ua1])),
+    )
+    .expect("ua-1 com título deve continuar a compilar");
+    let rendered = String::from_utf8_lossy(&pdf);
+    assert!(
+        rendered.contains("<pdfuaid:part>1</pdfuaid:part>"),
+        "pipeline ua-1 deve chegar ao builder com o standard resolvido"
+    );
+    assert!(
+        rendered.contains("/ViewerPreferences << /DisplayDocTitle true >>"),
+        "pipeline ua-1 deve emitir a preferência de título"
+    );
+}
+
+#[test]
+fn p1480_sem_ua1_nao_exige_titulo() {
+    let default_pdf = p1480_compile_with_standard("Hello", None)
+        .expect("sem standard, título deve continuar opcional");
+    assert!(
+        !String::from_utf8_lossy(&default_pdf).contains("pdfuaid"),
+        "sem standard não deve emitir identificação PDF/UA"
+    );
+
+    let pdfa_pdf =
+        p1480_compile_with_standard("Hello", Some(standards(&[PdfStandard::A2u])))
+            .expect("perfil archival isolado não deve exigir título");
+    assert!(
+        !String::from_utf8_lossy(&pdfa_pdf).contains("pdfuaid"),
+        "a-2u isolado não deve emitir identificação PDF/UA"
+    );
+}
+
+#[test]
+fn p1493_html_frame_position_converge_no_pipeline_html() {
+    let world = mock_world(concat!(
+        "#html.frame(box(width: 100pt, height: 50pt, {\n",
+        "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+        "    let loc = here()\n",
+        "    assert.eq(loc.page(), none)\n",
+        "    assert.eq(loc.position(), (x: 30pt, y: 20pt))\n",
+        "  })\n",
+        "}))\n",
+    ));
+
+    let (result, _warnings) = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    );
+    let html = result.expect("posição local no html.frame deve convergir");
+    assert!(html.contains("<svg"), "html.frame deve produzir SVG: {html:?}");
+}
+
+#[test]
+fn p1493_bundle_misto_estabiliza_posicao_html_sem_contaminar_pagina() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+
+    let world = mock_world(concat!(
+        "#document(\"paged.pdf\")[\n",
+        "  #context {\n",
+        "    assert.eq(target(), \"paged\")\n",
+        "    assert.eq(here().page(), 1)\n",
+        "    [paged-control]\n",
+        "  }\n",
+        "]\n",
+        "#document(\"island.html\")[\n",
+        "  #html.frame(box(width: 100pt, height: 50pt, {\n",
+        "    place(top + left, dx: 30pt, dy: 20pt, context {\n",
+        "      assert.eq(target(), \"html\")\n",
+        "      assert.eq(here().page(), none)\n",
+        "      assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+        "    })\n",
+        "  }))\n",
+        "]\n",
+    ));
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    features.enable(Feature::Html);
+
+    let files = compile_to_bundle_files(
+        &world,
+        &world.source,
+        BundleCompileOptions {
+            full_error: false,
+            features,
+            document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None,
+            pdf_pages_override: None,
+            pdf_standard_override: None,
+            png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        },
+    )
+    .0
+    .expect("bundle misto P1493 deve convergir");
+
+    let paged = files
+        .iter()
+        .find(|file| file.path == "paged.pdf")
+        .expect("bundle deve conter paged.pdf");
+    let html = files
+        .iter()
+        .find(|file| file.path == "island.html")
+        .expect("bundle deve conter island.html");
+    assert!(!paged.is_html_document);
+    assert!(html.is_html_document);
+}
+
+#[test]
+fn p1493_descendente_unico_leitor_dispara_fixpoint_html() {
+    let world = mock_world(concat!(
+        "#html.frame(box(width: 100pt, height: 50pt, {\n",
+        "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+        "    context {\n",
+        "      assert.eq(here().page(), none)\n",
+        "      assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+        "    }\n",
+        "  })\n",
+        "}))\n",
+    ));
+
+    let (result, _warnings) = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    );
+    let html = result.expect("leitor criado pelo contexto externo deve convergir");
+    assert!(html.contains("<svg"), "html.frame deve produzir SVG: {html:?}");
+}
+
+#[test]
+fn p1493_fase_html_permanece_latched_ate_store_esvaziar() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+
+    let world = mock_world(concat!(
+        "#document(\"island.html\")[\n",
+        "  #context {\n",
+        "    let found = query(<p1493-stale-location>)\n",
+        "    if found.len() == 0 {\n",
+        "      html.frame(box(width: 100pt, height: 50pt, {\n",
+        "        place(top + left, dx: 30pt, dy: 20pt, context {\n",
+        "          let loc = here()\n",
+        "          let observed = loc.position()\n",
+        "          [#metadata(loc) <p1493-stale-location>]\n",
+        "        })\n",
+        "      }))\n",
+        "    } else {\n",
+        "      let stale = found.first().value\n",
+        "      let settled = stale.position() == none\n",
+        "      [#html.frame(box(width: 1pt, height: 1pt, [#metadata(stale) <p1493-stale-location>])) #if settled [settled-after-empty]]\n",
+        "    }\n",
+        "  }\n",
+        "]\n",
+    ));
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    features.enable(Feature::Html);
+
+    let files = compile_to_bundle_files(
+        &world,
+        &world.source,
+        BundleCompileOptions {
+            full_error: false,
+            features,
+            document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None,
+            pdf_pages_override: None,
+            pdf_standard_override: None,
+            png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        },
+    )
+    .0
+    .expect("store HTML nonempty→empty deve estabilizar");
+    let html_file = files
+        .iter()
+        .find(|file| file.path == "island.html")
+        .expect("bundle deve conter island.html");
+    let html = String::from_utf8_lossy(&html_file.data);
+    assert!(
+        html.contains("settled-after-empty"),
+        "a geração vazia deve ser observada antes de aceitar: {html:?}"
+    );
+}
+
+#[test]
+fn p1493_html_frame_position_preserva_place_com_resultado_visivel() {
+    let world = mock_world(concat!(
+        "#html.frame(box(width: 100pt, height: 50pt, {\n",
+        "  place(top + left, dx: 30pt, dy: 20pt, context {\n",
+        "    assert.eq(here().page(), none)\n",
+        "    assert.eq(here().position(), (x: 30pt, y: 20pt))\n",
+        "    [html-control]\n",
+        "  })\n",
+        "}))\n",
+    ));
+
+    let (result, _warnings) = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    );
+    result.expect("conteúdo visível não pode deslocar a posição do context");
+}
+#[test]
+fn p1494_bundle_ignora_espaco_exterior_e_preserva_origem_no_body() {
+    let body = Content::sequence(vec![
+        Content::text("水"),
+        Content::SpaceFromNewline,
+        Content::text("果"),
+    ]);
+    let document =
+        Content::document("one.typ".into(), body, None, None, vec![], None, vec![]);
+    let root =
+        Content::sequence(vec![Content::SpaceFromNewline, document, Content::Space]);
+    let mut entries = Vec::new();
+    collect_bundle_entries(&root, &mut entries).expect("bundle válido");
+    assert_eq!(entries.len(), 1);
+    let Content::Document { body, .. } = &entries[0] else {
+        panic!("entrada deve manter Document");
+    };
+    let Content::Sequence(parts) = body.as_ref() else {
+        panic!("body deve manter sequência lexical");
+    };
+    assert!(matches!(parts[1], Content::SpaceFromNewline));
+}
+
+#[test]
+fn font_lifecycle_shape_resources_do_not_request_fonts() {
+    struct NoFontWorld(MockWorld);
+    impl World for NoFontWorld {
+        fn library(&self) -> &Library {
+            self.0.library()
+        }
+        fn book(&self) -> &FontBook {
+            panic!("shapes must not acquire a font catalog")
+        }
+        fn main(&self) -> FileId {
+            self.0.main()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            self.0.source(id)
+        }
+        fn file(&self, id: FileId) -> FileResult<Bytes> {
+            self.0.file(id)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            panic!("shapes must not load a font")
+        }
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    let world = NoFontWorld(mock_world("#set page(width: 64pt, height: 64pt)\n#rect(width: 10pt, height: 10pt, fill: blue)"));
+    let source = world.source(world.main()).unwrap();
+    // Layout owns baseline metrics; this test isolates export resource demand.
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world.0, &source, false, &mut timings);
+    let doc = result.expect("shape layout must succeed");
+    assert!(!doc.pages.is_empty());
+    let combos = collect_fonts_from_doc(&doc, &world);
+    assert!(combos.is_empty());
+    assert!(resolve_fonts(&combos, &world).is_empty());
+    assert!(resolve_and_instantiate_fonts(&doc, &world).unwrap().is_empty());
+}
