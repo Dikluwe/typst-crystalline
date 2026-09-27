@@ -1,0 +1,25 @@
+{
+  "utc_start": "2026-09-27T13:41:47.370899+00:00",
+  "utc_end": "2026-09-27T13:42:02.664917+00:00",
+  "command": [
+    "cargo",
+    "build",
+    "--manifest-path",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-microbenchmarks-vanilla/Cargo.toml",
+    "--release",
+    "--offline",
+    "--locked",
+    "--target-dir",
+    "/repos/Antigravity/typst-crystalline/target",
+    "--message-format=json"
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "RUSTFLAGS": ""
+  },
+  "before": "9d29d3f8b1a0223b55eff92b955b4cd0735d205cd4c49970825ae2047bc44fe2",
+  "after": "9d29d3f8b1a0223b55eff92b955b4cd0735d205cd4c49970825ae2047bc44fe2",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "not_a_timing_sample": true
+}

@@ -1,0 +1,215 @@
+{
+  "fixtures": [
+    {
+      "all_callback_count": 9522,
+      "collection_faces": null,
+      "duplicate_callbacks_across_subtables": 7140,
+      "face_index": 0,
+      "final_continuous_ranges": 178,
+      "font_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+      "global_sequence_decreases": 3,
+      "id": "LibertinusSerif-Regular",
+      "input_bytes": 337132,
+      "note": "Byte counts are table-directory formulas, not measured allocations, RSS, I/O traffic or timings. Range counts use an independent set; no private CoverageBuilder is exposed or timed.",
+      "sfnt_checksum_u32_words_formula": 84283,
+      "sfnt_reconstruction_output_bytes_formula": 337132,
+      "sfnt_table_count": 14,
+      "sfnt_table_payload_bytes": 336880,
+      "subtables": [
+        {
+          "callback_count": 2379,
+          "continuous_ranges": 176,
+          "merged_union_ranges": 176,
+          "new_members_contributed": 2379,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 2382,
+          "continuous_ranges": 178,
+          "merged_union_ranges": 178,
+          "new_members_contributed": 3,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 2379,
+          "continuous_ranges": 176,
+          "merged_union_ranges": 178,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 2382,
+          "continuous_ranges": 178,
+          "merged_union_ranges": 178,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        }
+      ],
+      "tekt_collected_vec_payload_bytes": 38088,
+      "tekt_pre_sort_adjacent_intervals": 708,
+      "unique_members": 2382
+    },
+    {
+      "all_callback_count": 16768,
+      "collection_faces": null,
+      "duplicate_callbacks_across_subtables": 11855,
+      "face_index": 0,
+      "final_continuous_ranges": 144,
+      "font_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+      "global_sequence_decreases": 3,
+      "id": "NewCMMath-Regular",
+      "input_bytes": 1306384,
+      "note": "Byte counts are table-directory formulas, not measured allocations, RSS, I/O traffic or timings. Range counts use an independent set; no private CoverageBuilder is exposed or timed.",
+      "sfnt_checksum_u32_words_formula": 326596,
+      "sfnt_reconstruction_output_bytes_formula": 1306384,
+      "sfnt_table_count": 15,
+      "sfnt_table_payload_bytes": 1306119,
+      "subtables": [
+        {
+          "callback_count": 3497,
+          "continuous_ranges": 81,
+          "merged_union_ranges": 81,
+          "new_members_contributed": 3497,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 4887,
+          "continuous_ranges": 156,
+          "merged_union_ranges": 144,
+          "new_members_contributed": 1416,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 0,
+          "continuous_ranges": 0,
+          "merged_union_ranges": 144,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 3497,
+          "continuous_ranges": 81,
+          "merged_union_ranges": 144,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 4887,
+          "continuous_ranges": 156,
+          "merged_union_ranges": 144,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        }
+      ],
+      "tekt_collected_vec_payload_bytes": 67072,
+      "tekt_pre_sort_adjacent_intervals": 474,
+      "unique_members": 4913
+    },
+    {
+      "all_callback_count": 174060,
+      "collection_faces": 10,
+      "duplicate_callbacks_across_subtables": 129250,
+      "face_index": 0,
+      "final_continuous_ranges": 2032,
+      "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "global_sequence_decreases": 3,
+      "id": "NotoSansCJK-Regular",
+      "input_bytes": 19484784,
+      "note": "Byte counts are table-directory formulas, not measured allocations, RSS, I/O traffic or timings. Range counts use an independent set; no private CoverageBuilder is exposed or timed.",
+      "sfnt_checksum_u32_words_formula": 4116928,
+      "sfnt_reconstruction_output_bytes_formula": 16467712,
+      "sfnt_table_count": 16,
+      "sfnt_table_payload_bytes": 16467427,
+      "subtables": [
+        {
+          "callback_count": 42220,
+          "continuous_ranges": 184,
+          "merged_union_ranges": 184,
+          "new_members_contributed": 42220,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 44810,
+          "continuous_ranges": 2032,
+          "merged_union_ranges": 2032,
+          "new_members_contributed": 2590,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 0,
+          "continuous_ranges": 0,
+          "merged_union_ranges": 2032,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 42220,
+          "continuous_ranges": 184,
+          "merged_union_ranges": 2032,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 44810,
+          "continuous_ranges": 2032,
+          "merged_union_ranges": 2032,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        }
+      ],
+      "tekt_collected_vec_payload_bytes": 696240,
+      "tekt_pre_sort_adjacent_intervals": 4432,
+      "unique_members": 44810
+    },
+    {
+      "all_callback_count": 7610,
+      "collection_faces": null,
+      "duplicate_callbacks_across_subtables": 5138,
+      "face_index": 0,
+      "final_continuous_ranges": 123,
+      "font_sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+      "global_sequence_decreases": 3,
+      "id": "NotoSansMath-Regular",
+      "input_bytes": 590896,
+      "note": "Byte counts are table-directory formulas, not measured allocations, RSS, I/O traffic or timings. Range counts use an independent set; no private CoverageBuilder is exposed or timed.",
+      "sfnt_checksum_u32_words_formula": 147724,
+      "sfnt_reconstruction_output_bytes_formula": 590896,
+      "sfnt_table_count": 18,
+      "sfnt_table_payload_bytes": 590588,
+      "subtables": [
+        {
+          "callback_count": 1333,
+          "continuous_ranges": 68,
+          "merged_union_ranges": 68,
+          "new_members_contributed": 1333,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 2472,
+          "continuous_ranges": 123,
+          "merged_union_ranges": 123,
+          "new_members_contributed": 1139,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 1333,
+          "continuous_ranges": 68,
+          "merged_union_ranges": 123,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        },
+        {
+          "callback_count": 2472,
+          "continuous_ranges": 123,
+          "merged_union_ranges": 123,
+          "new_members_contributed": 0,
+          "strictly_increasing": true
+        }
+      ],
+      "tekt_collected_vec_payload_bytes": 30440,
+      "tekt_pre_sort_adjacent_intervals": 382,
+      "unique_members": 2472
+    }
+  ],
+  "structural_probe_only": true
+}

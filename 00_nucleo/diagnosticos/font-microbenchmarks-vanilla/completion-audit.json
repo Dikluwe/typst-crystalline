@@ -1,0 +1,20 @@
+{
+  "completed_utc": "2026-09-27T13:55:31.581960+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "frozen_sha256": "9d29d3f8b1a0223b55eff92b955b4cd0735d205cd4c49970825ae2047bc44fe2",
+  "report_sha256": "d627f167e8c7d4feff53b815753ec4cad44aae4d4dc709b8fbd1bca72f692689",
+  "tracked_diff_identical_to_incoming_patch": true,
+  "incoming_tracked_patch_sha256": "620dfb2eb4c541f7ddd45f503a8eb051aca63f19f16f2c7440bcdc3d96ae0939",
+  "added_scope": [
+    "00_nucleo/diagnosticos/font-microbenchmarks-vanilla",
+    "00_nucleo/diagnosticos/font-microbenchmarks-vanilla.md"
+  ],
+  "production_L0_ADR_existing_benchmarks_unchanged": true,
+  "prior_sealed_datasets_and_reports_verified": true,
+  "ratified_vanilla_cli_unchanged": true,
+  "rounds_admitted": 3,
+  "cases": 96,
+  "stable_absolute_cases": 8,
+  "global_formatting_or_hash_reseal": false,
+  "qualification": "Exploratory comparisons, unequal composed workloads explicitly classified; not end-to-end causal attribution."
+}

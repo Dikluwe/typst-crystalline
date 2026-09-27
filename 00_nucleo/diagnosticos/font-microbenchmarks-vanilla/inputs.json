@@ -1,0 +1,26 @@
+[
+  {
+    "id": "LibertinusSerif-Regular",
+    "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Regular.otf",
+    "sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+    "face_index": 0
+  },
+  {
+    "id": "NewCMMath-Regular",
+    "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf",
+    "sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+    "face_index": 0
+  },
+  {
+    "id": "NotoSansCJK-Regular",
+    "path": "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+    "face_index": 0
+  },
+  {
+    "id": "NotoSansMath-Regular",
+    "path": "/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf",
+    "sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+    "face_index": 0
+  }
+]

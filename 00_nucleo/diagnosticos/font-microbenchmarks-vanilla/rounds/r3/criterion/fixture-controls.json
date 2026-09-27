@@ -1,0 +1,165 @@
+{
+  "fixtures": [
+    {
+      "id": "LibertinusSerif-Regular",
+      "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Regular.otf",
+      "font_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+      "face_index": 0,
+      "collected_codepoints": 9522,
+      "distinct_codepoints": 2382,
+      "sequence_le_sha256": "ca5d6f6c5d30262b56dc881ac39b7b02330aef0c5c2dcde827b2ebc1932d624a",
+      "coverage_set_equal_across_generic_and_full_paths": true,
+      "tekt_family": "Libertinus Serif",
+      "vanilla_family": "Libertinus Serif",
+      "glyph_count": 2793,
+      "units_per_em": 1000,
+      "sample_glyph_ids_equal": true,
+      "tekt_acquired_sfnt_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+      "vanilla_acquired_data_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+      "vanilla_retained_collection_index": 0,
+      "queries": [
+        [
+          "hit_early",
+          32
+        ],
+        [
+          "hit_middle",
+          1509
+        ],
+        [
+          "hit_late",
+          127279
+        ],
+        [
+          "miss_after",
+          1114111
+        ],
+        [
+          "miss_gap",
+          0
+        ]
+      ]
+    },
+    {
+      "id": "NewCMMath-Regular",
+      "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf",
+      "font_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+      "face_index": 0,
+      "collected_codepoints": 16768,
+      "distinct_codepoints": 4913,
+      "sequence_le_sha256": "9f903e465da5ae7565cccae371477b892ffc43dc5c880a21d0feba393e56ef45",
+      "coverage_set_equal_across_generic_and_full_paths": true,
+      "tekt_family": "New Computer Modern Math",
+      "vanilla_family": "New Computer Modern Math",
+      "glyph_count": 8603,
+      "units_per_em": 1000,
+      "sample_glyph_ids_equal": true,
+      "tekt_acquired_sfnt_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+      "vanilla_acquired_data_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+      "vanilla_retained_collection_index": 0,
+      "queries": [
+        [
+          "hit_early",
+          32
+        ],
+        [
+          "hit_middle",
+          10907
+        ],
+        [
+          "hit_late",
+          129240
+        ],
+        [
+          "miss_after",
+          1114111
+        ],
+        [
+          "miss_gap",
+          0
+        ]
+      ]
+    },
+    {
+      "id": "NotoSansCJK-Regular",
+      "path": "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+      "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "face_index": 0,
+      "collected_codepoints": 174060,
+      "distinct_codepoints": 44810,
+      "sequence_le_sha256": "0757688837a0277bd9af5d12dbedda22465bc0682ea9a134ee3e33070f85e19b",
+      "coverage_set_equal_across_generic_and_full_paths": true,
+      "tekt_family": "Noto Sans CJK JP",
+      "vanilla_family": "Noto Sans CJK JP",
+      "glyph_count": 65535,
+      "units_per_em": 1000,
+      "sample_glyph_ids_equal": true,
+      "tekt_acquired_sfnt_sha256": "787b85a3c6a5ce274ffde92ff64f47eea34989af7474f883e334dc0341f0aad6",
+      "vanilla_acquired_data_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "vanilla_retained_collection_index": 0,
+      "queries": [
+        [
+          "hit_early",
+          32
+        ],
+        [
+          "hit_middle",
+          33066
+        ],
+        [
+          "hit_late",
+          200812
+        ],
+        [
+          "miss_after",
+          1114111
+        ],
+        [
+          "miss_gap",
+          0
+        ]
+      ]
+    },
+    {
+      "id": "NotoSansMath-Regular",
+      "path": "/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf",
+      "font_sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+      "face_index": 0,
+      "collected_codepoints": 7610,
+      "distinct_codepoints": 2472,
+      "sequence_le_sha256": "7706ba58442619eabb163c35feaeec13b0e1d8c8112eb3d6c286b84e9c3e260a",
+      "coverage_set_equal_across_generic_and_full_paths": true,
+      "tekt_family": "Noto Sans Math",
+      "vanilla_family": "Noto Sans Math",
+      "glyph_count": 2655,
+      "units_per_em": 1000,
+      "sample_glyph_ids_equal": true,
+      "tekt_acquired_sfnt_sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+      "vanilla_acquired_data_sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+      "vanilla_retained_collection_index": 0,
+      "queries": [
+        [
+          "hit_early",
+          0
+        ],
+        [
+          "hit_middle",
+          10947
+        ],
+        [
+          "hit_late",
+          126705
+        ],
+        [
+          "miss_after",
+          1114111
+        ],
+        [
+          "miss_gap",
+          1
+        ]
+      ]
+    }
+  ],
+  "preflight_outside_timers": true
+}

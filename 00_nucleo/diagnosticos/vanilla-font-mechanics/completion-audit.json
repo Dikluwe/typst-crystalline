@@ -1,0 +1,14 @@
+{
+  "completed_utc": "2026-09-27T14:20:43.148460+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "report_sha256": "9519f583240126f11c91cd7a1a5b6f53338589adce0df698f77b0eb288d74176",
+  "scope": [
+    "00_nucleo/diagnosticos/vanilla-font-mechanics/",
+    "00_nucleo/diagnosticos/vanilla-font-mechanics.md"
+  ],
+  "incoming_tracked_patch_preserved": true,
+  "prior_frozen_source_and_sealed_datasets_verified": true,
+  "probe_counts_match_prior_collected_and_distinct_controls": true,
+  "vanilla_cli_preserved": true,
+  "no_performance_measurement_or_optimization": true
+}

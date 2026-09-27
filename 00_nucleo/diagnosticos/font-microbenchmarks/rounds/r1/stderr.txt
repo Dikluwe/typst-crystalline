@@ -1,0 +1,228 @@
+Benchmarking LibertinusSerif-Regular/constructor/current_public
+Benchmarking LibertinusSerif-Regular/constructor/current_public: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/constructor/current_public: Collecting 30 samples in estimated 604.51 ms (12k iterations)
+Benchmarking LibertinusSerif-Regular/constructor/current_public: Analyzing
+Benchmarking LibertinusSerif-Regular/constructor/historical_extracted
+Benchmarking LibertinusSerif-Regular/constructor/historical_extracted: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/constructor/historical_extracted: Collecting 30 samples in estimated 615.62 ms (9300 iterations)
+Benchmarking LibertinusSerif-Regular/constructor/historical_extracted: Analyzing
+Benchmarking LibertinusSerif-Regular/clone_and_build/current_public
+Benchmarking LibertinusSerif-Regular/clone_and_build/current_public: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/clone_and_build/current_public: Collecting 30 samples in estimated 609.66 ms (22k iterations)
+Benchmarking LibertinusSerif-Regular/clone_and_build/current_public: Analyzing
+Benchmarking LibertinusSerif-Regular/cmap/decode_collect_diagnostic
+Benchmarking LibertinusSerif-Regular/cmap/decode_collect_diagnostic: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/cmap/decode_collect_diagnostic: Collecting 30 samples in estimated 601.98 ms (34k iterations)
+Benchmarking LibertinusSerif-Regular/cmap/decode_collect_diagnostic: Analyzing
+Benchmarking LibertinusSerif-Regular/metadata/public_bytes
+Benchmarking LibertinusSerif-Regular/metadata/public_bytes: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/metadata/public_bytes: Collecting 30 samples in estimated 601.21 ms (220k iterations)
+Benchmarking LibertinusSerif-Regular/metadata/public_bytes: Analyzing
+Benchmarking LibertinusSerif-Regular/contains/hit_early
+Benchmarking LibertinusSerif-Regular/contains/hit_early: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/contains/hit_early: Collecting 30 samples in estimated 600.00 ms (170M iterations)
+Benchmarking LibertinusSerif-Regular/contains/hit_early: Analyzing
+Benchmarking LibertinusSerif-Regular/contains/hit_middle
+Benchmarking LibertinusSerif-Regular/contains/hit_middle: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/contains/hit_middle: Collecting 30 samples in estimated 600.01 ms (21M iterations)
+Benchmarking LibertinusSerif-Regular/contains/hit_middle: Analyzing
+Benchmarking LibertinusSerif-Regular/contains/hit_late
+Benchmarking LibertinusSerif-Regular/contains/hit_late: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/contains/hit_late: Collecting 30 samples in estimated 600.08 ms (3.0M iterations)
+Benchmarking LibertinusSerif-Regular/contains/hit_late: Analyzing
+Benchmarking LibertinusSerif-Regular/contains/miss_after
+Benchmarking LibertinusSerif-Regular/contains/miss_after: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/contains/miss_after: Collecting 30 samples in estimated 600.02 ms (3.1M iterations)
+Benchmarking LibertinusSerif-Regular/contains/miss_after: Analyzing
+Benchmarking LibertinusSerif-Regular/contains/miss_gap
+Benchmarking LibertinusSerif-Regular/contains/miss_gap: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/contains/miss_gap: Collecting 30 samples in estimated 600.00 ms (191M iterations)
+Benchmarking LibertinusSerif-Regular/contains/miss_gap: Analyzing
+Benchmarking LibertinusSerif-Regular/slot/first_get_warm_filesystem
+Benchmarking LibertinusSerif-Regular/slot/first_get_warm_filesystem: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/slot/first_get_warm_filesystem: Collecting 30 samples in estimated 602.70 ms (12k iterations)
+Benchmarking LibertinusSerif-Regular/slot/first_get_warm_filesystem: Analyzing
+Benchmarking LibertinusSerif-Regular/slot/retained_get
+Benchmarking LibertinusSerif-Regular/slot/retained_get: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/slot/retained_get: Collecting 30 samples in estimated 600.02 ms (7.8M iterations)
+Benchmarking LibertinusSerif-Regular/slot/retained_get: Analyzing
+Benchmarking LibertinusSerif-Regular/control/black_box_bool
+Benchmarking LibertinusSerif-Regular/control/black_box_bool: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/control/black_box_bool: Collecting 30 samples in estimated 600.00 ms (501M iterations)
+Benchmarking LibertinusSerif-Regular/control/black_box_bool: Analyzing
+Benchmarking LibertinusSerif-Regular/control/batched_unit
+Benchmarking LibertinusSerif-Regular/control/batched_unit: Warming up for 200.00 ms
+Benchmarking LibertinusSerif-Regular/control/batched_unit: Collecting 30 samples in estimated 600.02 ms (10M iterations)
+Benchmarking LibertinusSerif-Regular/control/batched_unit: Analyzing
+Benchmarking NewCMMath-Regular/constructor/current_public
+Benchmarking NewCMMath-Regular/constructor/current_public: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/constructor/current_public: Collecting 30 samples in estimated 610.32 ms (11k iterations)
+Benchmarking NewCMMath-Regular/constructor/current_public: Analyzing
+Benchmarking NewCMMath-Regular/constructor/historical_extracted
+Benchmarking NewCMMath-Regular/constructor/historical_extracted: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/constructor/historical_extracted: Collecting 30 samples in estimated 637.90 ms (5580 iterations)
+Benchmarking NewCMMath-Regular/constructor/historical_extracted: Analyzing
+Benchmarking NewCMMath-Regular/clone_and_build/current_public
+Benchmarking NewCMMath-Regular/clone_and_build/current_public: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/clone_and_build/current_public: Collecting 30 samples in estimated 610.50 ms (15k iterations)
+Benchmarking NewCMMath-Regular/clone_and_build/current_public: Analyzing
+Benchmarking NewCMMath-Regular/cmap/decode_collect_diagnostic
+Benchmarking NewCMMath-Regular/cmap/decode_collect_diagnostic: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/cmap/decode_collect_diagnostic: Collecting 30 samples in estimated 601.77 ms (30k iterations)
+Benchmarking NewCMMath-Regular/cmap/decode_collect_diagnostic: Analyzing
+Benchmarking NewCMMath-Regular/metadata/public_bytes
+Benchmarking NewCMMath-Regular/metadata/public_bytes: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/metadata/public_bytes: Collecting 30 samples in estimated 600.03 ms (264k iterations)
+Benchmarking NewCMMath-Regular/metadata/public_bytes: Analyzing
+Benchmarking NewCMMath-Regular/contains/hit_early
+Benchmarking NewCMMath-Regular/contains/hit_early: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/contains/hit_early: Collecting 30 samples in estimated 600.00 ms (126M iterations)
+Benchmarking NewCMMath-Regular/contains/hit_early: Analyzing
+Benchmarking NewCMMath-Regular/contains/hit_middle
+Benchmarking NewCMMath-Regular/contains/hit_middle: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/contains/hit_middle: Collecting 30 samples in estimated 600.01 ms (6.1M iterations)
+Benchmarking NewCMMath-Regular/contains/hit_middle: Analyzing
+Benchmarking NewCMMath-Regular/contains/hit_late
+Benchmarking NewCMMath-Regular/contains/hit_late: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/contains/hit_late: Collecting 30 samples in estimated 600.04 ms (2.7M iterations)
+Benchmarking NewCMMath-Regular/contains/hit_late: Analyzing
+Benchmarking NewCMMath-Regular/contains/miss_after
+Benchmarking NewCMMath-Regular/contains/miss_after: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/contains/miss_after: Collecting 30 samples in estimated 600.09 ms (2.7M iterations)
+Benchmarking NewCMMath-Regular/contains/miss_after: Analyzing
+Benchmarking NewCMMath-Regular/contains/miss_gap
+Benchmarking NewCMMath-Regular/contains/miss_gap: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/contains/miss_gap: Collecting 30 samples in estimated 600.00 ms (162M iterations)
+Benchmarking NewCMMath-Regular/contains/miss_gap: Analyzing
+Benchmarking NewCMMath-Regular/slot/first_get_warm_filesystem
+Benchmarking NewCMMath-Regular/slot/first_get_warm_filesystem: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/slot/first_get_warm_filesystem: Collecting 30 samples in estimated 629.73 ms (8370 iterations)
+Benchmarking NewCMMath-Regular/slot/first_get_warm_filesystem: Analyzing
+Benchmarking NewCMMath-Regular/slot/retained_get
+Benchmarking NewCMMath-Regular/slot/retained_get: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/slot/retained_get: Collecting 30 samples in estimated 600.04 ms (6.1M iterations)
+Benchmarking NewCMMath-Regular/slot/retained_get: Analyzing
+Benchmarking NewCMMath-Regular/control/black_box_bool
+Benchmarking NewCMMath-Regular/control/black_box_bool: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/control/black_box_bool: Collecting 30 samples in estimated 600.00 ms (490M iterations)
+Benchmarking NewCMMath-Regular/control/black_box_bool: Analyzing
+Benchmarking NewCMMath-Regular/control/batched_unit
+Benchmarking NewCMMath-Regular/control/batched_unit: Warming up for 200.00 ms
+Benchmarking NewCMMath-Regular/control/batched_unit: Collecting 30 samples in estimated 600.01 ms (8.6M iterations)
+Benchmarking NewCMMath-Regular/control/batched_unit: Analyzing
+Benchmarking NotoSansCJK-Regular/constructor/current_public
+Benchmarking NotoSansCJK-Regular/constructor/current_public: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/constructor/current_public: Collecting 30 samples in estimated 675.14 ms (1395 iterations)
+Benchmarking NotoSansCJK-Regular/constructor/current_public: Analyzing
+Benchmarking NotoSansCJK-Regular/constructor/historical_extracted
+Benchmarking NotoSansCJK-Regular/constructor/historical_extracted: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 643.3ms, enable flat sampling, or reduce sample count to 20.
+Benchmarking NotoSansCJK-Regular/constructor/historical_extracted: Collecting 30 samples in estimated 643.30 ms (465 iterations)
+Benchmarking NotoSansCJK-Regular/constructor/historical_extracted: Analyzing
+Benchmarking NotoSansCJK-Regular/clone_and_build/current_public
+Benchmarking NotoSansCJK-Regular/clone_and_build/current_public: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/clone_and_build/current_public: Collecting 30 samples in estimated 654.41 ms (1395 iterations)
+Benchmarking NotoSansCJK-Regular/clone_and_build/current_public: Analyzing
+Benchmarking NotoSansCJK-Regular/cmap/decode_collect_diagnostic
+Benchmarking NotoSansCJK-Regular/cmap/decode_collect_diagnostic: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/cmap/decode_collect_diagnostic: Collecting 30 samples in estimated 799.35 ms (1860 iterations)
+Benchmarking NotoSansCJK-Regular/cmap/decode_collect_diagnostic: Analyzing
+Benchmarking NotoSansCJK-Regular/metadata/public_bytes
+Benchmarking NotoSansCJK-Regular/metadata/public_bytes: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/metadata/public_bytes: Collecting 30 samples in estimated 600.62 ms (306k iterations)
+Benchmarking NotoSansCJK-Regular/metadata/public_bytes: Analyzing
+Benchmarking NotoSansCJK-Regular/contains/hit_early
+Benchmarking NotoSansCJK-Regular/contains/hit_early: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/contains/hit_early: Collecting 30 samples in estimated 600.00 ms (181M iterations)
+Benchmarking NotoSansCJK-Regular/contains/hit_early: Analyzing
+Benchmarking NotoSansCJK-Regular/contains/hit_middle
+Benchmarking NotoSansCJK-Regular/contains/hit_middle: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/contains/hit_middle: Collecting 30 samples in estimated 600.00 ms (3.1M iterations)
+Benchmarking NotoSansCJK-Regular/contains/hit_middle: Analyzing
+Benchmarking NotoSansCJK-Regular/contains/hit_late
+Benchmarking NotoSansCJK-Regular/contains/hit_late: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/contains/hit_late: Collecting 30 samples in estimated 600.57 ms (202k iterations)
+Benchmarking NotoSansCJK-Regular/contains/hit_late: Analyzing
+Benchmarking NotoSansCJK-Regular/contains/miss_after
+Benchmarking NotoSansCJK-Regular/contains/miss_after: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/contains/miss_after: Collecting 30 samples in estimated 601.01 ms (205k iterations)
+Benchmarking NotoSansCJK-Regular/contains/miss_after: Analyzing
+Benchmarking NotoSansCJK-Regular/contains/miss_gap
+Benchmarking NotoSansCJK-Regular/contains/miss_gap: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/contains/miss_gap: Collecting 30 samples in estimated 600.00 ms (149M iterations)
+Benchmarking NotoSansCJK-Regular/contains/miss_gap: Analyzing
+Benchmarking NotoSansCJK-Regular/slot/first_get_warm_filesystem
+Benchmarking NotoSansCJK-Regular/slot/first_get_warm_filesystem: Warming up for 200.00 ms
+
+Warning: Unable to complete 30 samples in 600.0ms. You may wish to increase target time to 985.2ms, or reduce sample count to 10.
+Benchmarking NotoSansCJK-Regular/slot/first_get_warm_filesystem: Collecting 30 samples in estimated 985.21 ms (30 iterations)
+Benchmarking NotoSansCJK-Regular/slot/first_get_warm_filesystem: Analyzing
+Benchmarking NotoSansCJK-Regular/slot/retained_get
+Benchmarking NotoSansCJK-Regular/slot/retained_get: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/slot/retained_get: Collecting 30 samples in estimated 600.03 ms (6.9M iterations)
+Benchmarking NotoSansCJK-Regular/slot/retained_get: Analyzing
+Benchmarking NotoSansCJK-Regular/control/black_box_bool
+Benchmarking NotoSansCJK-Regular/control/black_box_bool: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/control/black_box_bool: Collecting 30 samples in estimated 600.00 ms (490M iterations)
+Benchmarking NotoSansCJK-Regular/control/black_box_bool: Analyzing
+Benchmarking NotoSansCJK-Regular/control/batched_unit
+Benchmarking NotoSansCJK-Regular/control/batched_unit: Warming up for 200.00 ms
+Benchmarking NotoSansCJK-Regular/control/batched_unit: Collecting 30 samples in estimated 600.03 ms (8.1M iterations)
+Benchmarking NotoSansCJK-Regular/control/batched_unit: Analyzing
+Benchmarking NotoSansMath-Regular/constructor/current_public
+Benchmarking NotoSansMath-Regular/constructor/current_public: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/constructor/current_public: Collecting 30 samples in estimated 611.83 ms (21k iterations)
+Benchmarking NotoSansMath-Regular/constructor/current_public: Analyzing
+Benchmarking NotoSansMath-Regular/constructor/historical_extracted
+Benchmarking NotoSansMath-Regular/constructor/historical_extracted: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/constructor/historical_extracted: Collecting 30 samples in estimated 626.91 ms (11k iterations)
+Benchmarking NotoSansMath-Regular/constructor/historical_extracted: Analyzing
+Benchmarking NotoSansMath-Regular/clone_and_build/current_public
+Benchmarking NotoSansMath-Regular/clone_and_build/current_public: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/clone_and_build/current_public: Collecting 30 samples in estimated 607.86 ms (24k iterations)
+Benchmarking NotoSansMath-Regular/clone_and_build/current_public: Analyzing
+Benchmarking NotoSansMath-Regular/cmap/decode_collect_diagnostic
+Benchmarking NotoSansMath-Regular/cmap/decode_collect_diagnostic: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/cmap/decode_collect_diagnostic: Collecting 30 samples in estimated 607.01 ms (32k iterations)
+Benchmarking NotoSansMath-Regular/cmap/decode_collect_diagnostic: Analyzing
+Benchmarking NotoSansMath-Regular/metadata/public_bytes
+Benchmarking NotoSansMath-Regular/metadata/public_bytes: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/metadata/public_bytes: Collecting 30 samples in estimated 600.31 ms (386k iterations)
+Benchmarking NotoSansMath-Regular/metadata/public_bytes: Analyzing
+Benchmarking NotoSansMath-Regular/contains/hit_early
+Benchmarking NotoSansMath-Regular/contains/hit_early: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/contains/hit_early: Collecting 30 samples in estimated 600.00 ms (186M iterations)
+Benchmarking NotoSansMath-Regular/contains/hit_early: Analyzing
+Benchmarking NotoSansMath-Regular/contains/hit_middle
+Benchmarking NotoSansMath-Regular/contains/hit_middle: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/contains/hit_middle: Collecting 30 samples in estimated 600.00 ms (7.2M iterations)
+Benchmarking NotoSansMath-Regular/contains/hit_middle: Analyzing
+Benchmarking NotoSansMath-Regular/contains/hit_late
+Benchmarking NotoSansMath-Regular/contains/hit_late: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/contains/hit_late: Collecting 30 samples in estimated 600.02 ms (4.1M iterations)
+Benchmarking NotoSansMath-Regular/contains/hit_late: Analyzing
+Benchmarking NotoSansMath-Regular/contains/miss_after
+Benchmarking NotoSansMath-Regular/contains/miss_after: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/contains/miss_after: Collecting 30 samples in estimated 600.06 ms (4.3M iterations)
+Benchmarking NotoSansMath-Regular/contains/miss_after: Analyzing
+Benchmarking NotoSansMath-Regular/contains/miss_gap
+Benchmarking NotoSansMath-Regular/contains/miss_gap: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/contains/miss_gap: Collecting 30 samples in estimated 600.00 ms (165M iterations)
+Benchmarking NotoSansMath-Regular/contains/miss_gap: Analyzing
+Benchmarking NotoSansMath-Regular/slot/first_get_warm_filesystem
+Benchmarking NotoSansMath-Regular/slot/first_get_warm_filesystem: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/slot/first_get_warm_filesystem: Collecting 30 samples in estimated 614.55 ms (16k iterations)
+Benchmarking NotoSansMath-Regular/slot/first_get_warm_filesystem: Analyzing
+Benchmarking NotoSansMath-Regular/slot/retained_get
+Benchmarking NotoSansMath-Regular/slot/retained_get: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/slot/retained_get: Collecting 30 samples in estimated 600.00 ms (6.9M iterations)
+Benchmarking NotoSansMath-Regular/slot/retained_get: Analyzing
+Benchmarking NotoSansMath-Regular/control/black_box_bool
+Benchmarking NotoSansMath-Regular/control/black_box_bool: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/control/black_box_bool: Collecting 30 samples in estimated 600.00 ms (481M iterations)
+Benchmarking NotoSansMath-Regular/control/black_box_bool: Analyzing
+Benchmarking NotoSansMath-Regular/control/batched_unit
+Benchmarking NotoSansMath-Regular/control/batched_unit: Warming up for 200.00 ms
+Benchmarking NotoSansMath-Regular/control/batched_unit: Collecting 30 samples in estimated 600.03 ms (8.6M iterations)
+Benchmarking NotoSansMath-Regular/control/batched_unit: Analyzing

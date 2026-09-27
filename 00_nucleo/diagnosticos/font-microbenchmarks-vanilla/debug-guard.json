@@ -1,0 +1,23 @@
+{
+  "command": [
+    "cargo",
+    "rustc",
+    "--manifest-path",
+    "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/font-microbenchmarks-vanilla/Cargo.toml",
+    "--release",
+    "--offline",
+    "--locked",
+    "--target-dir",
+    "/repos/Antigravity/typst-crystalline/target",
+    "--message-format=json",
+    "--",
+    "-C",
+    "debug-assertions=yes"
+  ],
+  "executable_sha256": "698d014f302adea3d77ca2a6a1d35305cab887f78a6e5fabf065b6493df2d67a",
+  "exit_code": 101,
+  "stdout": "",
+  "stderr": "\nthread 'main' (3922187) panicked at src/main.rs:125:5:\ndebug builds must not report timings\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+  "refused_before_fixture_io_and_criterion": true,
+  "note": "Explicit rustc assertion override exercises actual cfg(debug_assertions); Cargo profile JSON alone does not describe this override. Supported builds clear flags and use the fixed build command."
+}

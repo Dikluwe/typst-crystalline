@@ -1,0 +1,7 @@
+   Compiling serde_core v1.0.228
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.138
+   Compiling memchr v2.8.0
+   Compiling ttf-parser v0.25.1
+   Compiling vanilla-font-mechanics-probe v0.1.0 (/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/vanilla-font-mechanics)
+    Finished `release` profile [optimized] target(s) in 15.05s

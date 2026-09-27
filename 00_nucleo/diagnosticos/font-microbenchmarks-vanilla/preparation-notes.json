@@ -1,0 +1,11 @@
+{
+  "not_timing_samples": true,
+  "initial_failures": [
+    "Offline lockfile resolution before target creation: no targets specified.",
+    "Direct nested vanilla path dependency: outer workspace rust-version inheritance unavailable; fixed with verified byte-identical source staging, no production manifest changes."
+  ],
+  "initial_build_command": "PYTHONDONTWRITEBYTECODE=1 python3 00_nucleo/diagnosticos/font-microbenchmarks-vanilla/stage.py; CARGO_BUILD_JOBS=1 CARGO_ENCODED_RUSTFLAGS='' RUSTFLAGS='' cargo build --manifest-path 00_nucleo/diagnosticos/font-microbenchmarks-vanilla/Cargo.toml --release --offline --target-dir target --message-format=json",
+  "initial_build_source_not_frozen": true,
+  "measurement_requires_separate_final_locked_build_receipt": true,
+  "recorded_utc": "2026-09-27T13:29:05.401274+00:00"
+}

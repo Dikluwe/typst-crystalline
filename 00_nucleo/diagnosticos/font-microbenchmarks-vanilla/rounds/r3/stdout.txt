@@ -1,0 +1,357 @@
+LibertinusSerif-Regular/generic_constructor/tekt_public
+                        time:   [34.173 µs 35.877 µs 36.985 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low severe
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+LibertinusSerif-Regular/generic_constructor/vanilla_public
+                        time:   [63.130 µs 64.879 µs 66.736 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+LibertinusSerif-Regular/clone_and_generic/tekt_public
+                        time:   [23.981 µs 24.926 µs 26.251 µs]
+LibertinusSerif-Regular/clone_and_generic/vanilla_public
+                        time:   [64.053 µs 65.883 µs 67.847 µs]
+LibertinusSerif-Regular/metadata_and_coverage/tekt_composed
+                        time:   [34.576 µs 34.970 µs 35.546 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+LibertinusSerif-Regular/metadata_and_coverage/vanilla_public
+                        time:   [22.393 µs 23.309 µs 24.471 µs]
+LibertinusSerif-Regular/contains_hit_early/tekt_public
+                        time:   [2.9179 ns 3.0043 ns 3.0876 ns]
+LibertinusSerif-Regular/contains_hit_early/vanilla_public
+                        time:   [3.2283 ns 3.3922 ns 3.5528 ns]
+Found 6 outliers among 30 measurements (20.00%)
+  1 (3.33%) low severe
+  2 (6.67%) low mild
+  3 (10.00%) high mild
+LibertinusSerif-Regular/contains_hit_middle/tekt_public
+                        time:   [18.601 ns 19.225 ns 20.061 ns]
+LibertinusSerif-Regular/contains_hit_middle/vanilla_public
+                        time:   [35.372 ns 36.411 ns 37.689 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) high mild
+  3 (10.00%) high severe
+LibertinusSerif-Regular/contains_hit_late/tekt_public
+                        time:   [119.32 ns 126.16 ns 134.51 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+LibertinusSerif-Regular/contains_hit_late/vanilla_public
+                        time:   [288.51 ns 296.84 ns 304.18 ns]
+LibertinusSerif-Regular/contains_miss_after/tekt_public
+                        time:   [110.78 ns 111.53 ns 112.34 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+LibertinusSerif-Regular/contains_miss_after/vanilla_public
+                        time:   [282.04 ns 285.57 ns 290.51 ns]
+LibertinusSerif-Regular/contains_miss_gap/tekt_public
+                        time:   [2.8411 ns 2.9574 ns 3.0646 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) low mild
+LibertinusSerif-Regular/contains_miss_gap/vanilla_public
+                        time:   [2.8651 ns 2.8897 ns 2.9227 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+LibertinusSerif-Regular/first_font/tekt_slot
+                        time:   [28.048 µs 28.976 µs 29.950 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+LibertinusSerif-Regular/first_font/vanilla_store
+                        time:   [61.011 µs 62.047 µs 63.247 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  2 (6.67%) high mild
+  2 (6.67%) high severe
+LibertinusSerif-Regular/retained_font/tekt_slot
+                        time:   [31.850 ns 32.253 ns 32.748 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+LibertinusSerif-Regular/retained_font/vanilla_store
+                        time:   [31.750 ns 31.848 ns 31.963 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+LibertinusSerif-Regular/common/cmap_collect_diagnostic
+                        time:   [11.226 µs 11.917 µs 12.874 µs]
+LibertinusSerif-Regular/unmatched/tekt_metadata_only
+                        time:   [1.5574 µs 1.6298 µs 1.7240 µs]
+Found 7 outliers among 30 measurements (23.33%)
+  1 (3.33%) low mild
+  3 (10.00%) high mild
+  3 (10.00%) high severe
+LibertinusSerif-Regular/control/black_box_bool
+                        time:   [905.72 ps 966.72 ps 1.0692 ns]
+LibertinusSerif-Regular/control/batched_unit
+                        time:   [26.768 ns 27.288 ns 27.886 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+NewCMMath-Regular/generic_constructor/tekt_public
+                        time:   [30.365 µs 31.244 µs 32.287 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high severe
+NewCMMath-Regular/generic_constructor/vanilla_public
+                        time:   [99.489 µs 100.89 µs 102.46 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/clone_and_generic/tekt_public
+                        time:   [37.123 µs 38.670 µs 40.198 µs]
+NewCMMath-Regular/clone_and_generic/vanilla_public
+                        time:   [107.10 µs 111.08 µs 116.05 µs]
+NewCMMath-Regular/metadata_and_coverage/tekt_composed
+                        time:   [60.202 µs 66.725 µs 72.443 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/metadata_and_coverage/vanilla_public
+                        time:   [30.298 µs 31.409 µs 32.814 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+NewCMMath-Regular/contains_hit_early/tekt_public
+                        time:   [2.8334 ns 2.9835 ns 3.1476 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/contains_hit_early/vanilla_public
+                        time:   [2.5247 ns 2.7575 ns 2.9275 ns]
+NewCMMath-Regular/contains_hit_middle/tekt_public
+                        time:   [51.821 ns 56.299 ns 61.919 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/contains_hit_middle/vanilla_public
+                        time:   [105.04 ns 108.03 ns 111.92 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/contains_hit_late/tekt_public
+                        time:   [100.96 ns 106.48 ns 112.55 ns]
+NewCMMath-Regular/contains_hit_late/vanilla_public
+                        time:   [226.26 ns 232.00 ns 238.69 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) high mild
+  1 (3.33%) high severe
+NewCMMath-Regular/contains_miss_after/tekt_public
+                        time:   [102.78 ns 109.86 ns 118.18 ns]
+NewCMMath-Regular/contains_miss_after/vanilla_public
+                        time:   [222.92 ns 226.50 ns 230.43 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high mild
+NewCMMath-Regular/contains_miss_gap/tekt_public
+                        time:   [2.4838 ns 2.5307 ns 2.5776 ns]
+NewCMMath-Regular/contains_miss_gap/vanilla_public
+                        time:   [2.8610 ns 2.9335 ns 3.0305 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low severe
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+NewCMMath-Regular/first_font/tekt_slot
+                        time:   [33.836 µs 35.792 µs 37.158 µs]
+NewCMMath-Regular/first_font/vanilla_store
+                        time:   [133.68 µs 135.08 µs 136.54 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) low mild
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+NewCMMath-Regular/retained_font/tekt_slot
+                        time:   [30.688 ns 31.061 ns 31.551 ns]
+NewCMMath-Regular/retained_font/vanilla_store
+                        time:   [30.675 ns 30.816 ns 30.980 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NewCMMath-Regular/common/cmap_collect_diagnostic
+                        time:   [17.371 µs 17.739 µs 18.266 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+NewCMMath-Regular/unmatched/tekt_metadata_only
+                        time:   [1.1226 µs 1.2101 µs 1.2958 µs]
+Found 7 outliers among 30 measurements (23.33%)
+  1 (3.33%) high mild
+  6 (20.00%) high severe
+NewCMMath-Regular/control/black_box_bool
+                        time:   [908.80 ps 930.06 ps 957.45 ps]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+NewCMMath-Regular/control/batched_unit
+                        time:   [26.337 ns 26.678 ns 26.939 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+NotoSansCJK-Regular/generic_constructor/tekt_public
+                        time:   [332.42 µs 338.79 µs 346.73 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+NotoSansCJK-Regular/generic_constructor/vanilla_public
+                        time:   [1.1996 ms 1.2298 ms 1.2693 ms]
+NotoSansCJK-Regular/clone_and_generic/tekt_public
+                        time:   [367.72 µs 379.87 µs 394.15 µs]
+Found 2 outliers among 30 measurements (6.67%)
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+NotoSansCJK-Regular/clone_and_generic/vanilla_public
+                        time:   [1.2242 ms 1.2357 ms 1.2496 ms]
+NotoSansCJK-Regular/metadata_and_coverage/tekt_composed
+                        time:   [677.46 µs 704.91 µs 737.05 µs]
+NotoSansCJK-Regular/metadata_and_coverage/vanilla_public
+                        time:   [398.34 µs 405.69 µs 416.91 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  1 (3.33%) high mild
+  4 (13.33%) high severe
+NotoSansCJK-Regular/contains_hit_early/tekt_public
+                        time:   [2.4181 ns 2.6646 ns 2.9088 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansCJK-Regular/contains_hit_early/vanilla_public
+                        time:   [3.2310 ns 3.3423 ns 3.5022 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+NotoSansCJK-Regular/contains_hit_middle/tekt_public
+                        time:   [107.83 ns 113.75 ns 121.46 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) high mild
+  3 (10.00%) high severe
+NotoSansCJK-Regular/contains_hit_middle/vanilla_public
+                        time:   [262.09 ns 270.62 ns 279.90 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+NotoSansCJK-Regular/contains_hit_late/tekt_public
+                        time:   [1.2285 µs 1.3063 µs 1.4132 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+NotoSansCJK-Regular/contains_hit_late/vanilla_public
+                        time:   [3.0287 µs 3.0640 µs 3.1035 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansCJK-Regular/contains_miss_after/tekt_public
+                        time:   [1.2357 µs 1.3272 µs 1.4637 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+NotoSansCJK-Regular/contains_miss_after/vanilla_public
+                        time:   [3.1680 µs 3.3245 µs 3.4638 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) high mild
+  2 (6.67%) high severe
+NotoSansCJK-Regular/contains_miss_gap/tekt_public
+                        time:   [2.9959 ns 3.0549 ns 3.1188 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansCJK-Regular/contains_miss_gap/vanilla_public
+                        time:   [3.3178 ns 3.3455 ns 3.3911 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+NotoSansCJK-Regular/first_font/tekt_slot
+                        time:   [22.881 ms 23.375 ms 23.838 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+NotoSansCJK-Regular/first_font/vanilla_store
+                        time:   [6.8273 ms 7.0156 ms 7.2191 ms]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansCJK-Regular/retained_font/tekt_slot
+                        time:   [32.299 ns 32.826 ns 33.368 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) low mild
+NotoSansCJK-Regular/retained_font/vanilla_store
+                        time:   [31.084 ns 31.299 ns 31.589 ns]
+NotoSansCJK-Regular/common/cmap_collect_diagnostic
+                        time:   [289.58 µs 294.22 µs 300.27 µs]
+NotoSansCJK-Regular/unmatched/tekt_metadata_only
+                        time:   [1.6453 µs 1.7662 µs 1.8871 µs]
+NotoSansCJK-Regular/control/black_box_bool
+                        time:   [960.39 ps 1.0408 ns 1.1399 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+NotoSansCJK-Regular/control/batched_unit
+                        time:   [26.504 ns 26.717 ns 26.988 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  2 (6.67%) high mild
+  1 (3.33%) high severe
+
+NotoSansMath-Regular/generic_constructor/tekt_public
+                        time:   [18.539 µs 19.764 µs 21.352 µs]
+NotoSansMath-Regular/generic_constructor/vanilla_public
+                        time:   [56.364 µs 56.942 µs 57.454 µs]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) low mild
+NotoSansMath-Regular/clone_and_generic/tekt_public
+                        time:   [17.500 µs 18.858 µs 20.800 µs]
+NotoSansMath-Regular/clone_and_generic/vanilla_public
+                        time:   [45.724 µs 46.694 µs 48.226 µs]
+Found 8 outliers among 30 measurements (26.67%)
+  3 (10.00%) low mild
+  1 (3.33%) high mild
+  4 (13.33%) high severe
+NotoSansMath-Regular/metadata_and_coverage/tekt_composed
+                        time:   [31.775 µs 35.838 µs 41.137 µs]
+NotoSansMath-Regular/metadata_and_coverage/vanilla_public
+                        time:   [19.217 µs 19.378 µs 19.605 µs]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) high severe
+NotoSansMath-Regular/contains_hit_early/tekt_public
+                        time:   [2.9431 ns 2.9910 ns 3.0357 ns]
+Found 6 outliers among 30 measurements (20.00%)
+  2 (6.67%) low mild
+  4 (13.33%) high mild
+NotoSansMath-Regular/contains_hit_early/vanilla_public
+                        time:   [3.2668 ns 3.4025 ns 3.5349 ns]
+NotoSansMath-Regular/contains_hit_middle/tekt_public
+                        time:   [46.805 ns 47.377 ns 47.960 ns]
+NotoSansMath-Regular/contains_hit_middle/vanilla_public
+                        time:   [107.99 ns 110.72 ns 113.63 ns]
+NotoSansMath-Regular/contains_hit_late/tekt_public
+                        time:   [83.568 ns 85.371 ns 87.497 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansMath-Regular/contains_hit_late/vanilla_public
+                        time:   [197.06 ns 198.52 ns 200.05 ns]
+NotoSansMath-Regular/contains_miss_after/tekt_public
+                        time:   [79.145 ns 79.887 ns 80.881 ns]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+NotoSansMath-Regular/contains_miss_after/vanilla_public
+                        time:   [201.67 ns 210.94 ns 218.16 ns]
+Found 6 outliers among 30 measurements (20.00%)
+  4 (13.33%) high mild
+  2 (6.67%) high severe
+NotoSansMath-Regular/contains_miss_gap/tekt_public
+                        time:   [3.0723 ns 3.4595 ns 3.8966 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  4 (13.33%) low severe
+NotoSansMath-Regular/contains_miss_gap/vanilla_public
+                        time:   [2.9445 ns 3.1293 ns 3.3308 ns]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) high mild
+  1 (3.33%) high severe
+NotoSansMath-Regular/first_font/tekt_slot
+                        time:   [17.992 µs 18.665 µs 19.505 µs]
+NotoSansMath-Regular/first_font/vanilla_store
+                        time:   [73.407 µs 75.883 µs 79.188 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansMath-Regular/retained_font/tekt_slot
+                        time:   [30.933 ns 31.357 ns 31.968 ns]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+NotoSansMath-Regular/retained_font/vanilla_store
+                        time:   [31.169 ns 31.536 ns 32.144 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  5 (16.67%) high mild
+NotoSansMath-Regular/common/cmap_collect_diagnostic
+                        time:   [11.366 µs 11.867 µs 12.621 µs]
+NotoSansMath-Regular/unmatched/tekt_metadata_only
+                        time:   [1.0688 µs 1.0957 µs 1.1319 µs]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high severe
+NotoSansMath-Regular/control/black_box_bool
+                        time:   [910.05 ps 960.28 ps 1.0303 ns]
+Found 7 outliers among 30 measurements (23.33%)
+  1 (3.33%) high mild
+  6 (20.00%) high severe
+NotoSansMath-Regular/control/batched_unit
+                        time:   [26.821 ns 27.156 ns 27.422 ns]
+

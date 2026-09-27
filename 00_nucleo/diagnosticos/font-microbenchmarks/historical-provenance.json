@@ -1,0 +1,7 @@
+{
+  "source": "00_nucleo/diagnosticos/font-lifecycle-experiment/originals/01_core/src/entities/font_book.rs.snapshot",
+  "source_sha256": "e2a81a92c534d0f9db7066cea2ee684b6e17b93d2b924b8541fd6be4698b6fc5",
+  "extracted_body_sha256": "a8c5db67a7af8bb7251f0d23fb6d9df0181ae0283304f56d82258a5d0959f22a",
+  "boundary": "Coverage derive/struct/impl/default/debug; exact source slice; no production API copied or changed",
+  "comparison_limit": "Historical algorithm reproduction in the new harness; not a measurement of the full historical crate or vanilla."
+}

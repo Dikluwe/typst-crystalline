@@ -1,0 +1,98 @@
+[
+  {
+    "target": "observation_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/observation_bench-4ff173dd2e1b9bdc",
+    "sha256": "95a2e62f29aa0c35a16aa10fdd19e9e2c372c86374b659877cb3376e14f1a83c"
+  },
+  {
+    "target": "stdlib_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/stdlib_bench-f2f08a9c949e92b0",
+    "sha256": "a033b00851759883019e41534c70e675b53d3ec2e6073d9029da5a6f1caf7cd3"
+  },
+  {
+    "target": "pdf_builder_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/pdf_builder_bench-de02a96dbc3a0897",
+    "sha256": "2f9365b075fe2b54e3697052a0d8b504258e46eee853f64838af557637309fc1"
+  },
+  {
+    "target": "content_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/content_bench-0dff3e06c05c842a",
+    "sha256": "7c6a96c9a79a7622924e2836ca047e9dd0277403c4fe51583ca53f4dc1b2ca8d"
+  },
+  {
+    "target": "layout_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/layout_bench-de12bc89ebddd26c",
+    "sha256": "d476989cdebd24b110f0a595eb5062b8beb04b87a146a47c0c63edda9abee15f"
+  },
+  {
+    "target": "scanner_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/scanner_bench-542d3e6e4be47a19",
+    "sha256": "7020c720862dac8ed006f45edd29d2dd7dd89e1330679b3e6a13dc410bde20f1"
+  },
+  {
+    "target": "pipeline_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/pipeline_bench-011e2cabd8b95865",
+    "sha256": "2c4701a54aa5243aac581a3e432e253135c46ce5b5f11272ec9bade339f70f56"
+  },
+  {
+    "target": "stream_bench",
+    "profile": {
+      "opt_level": "3",
+      "debuginfo": 0,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": true
+    },
+    "executable": "/repos/Antigravity/typst-crystalline/target/release/deps/stream_bench-df235584fc1761e5",
+    "sha256": "2aba47cb068f2760c441b144d67dc929939c16c43ae0758ad03a6ea73c173683"
+  }
+]

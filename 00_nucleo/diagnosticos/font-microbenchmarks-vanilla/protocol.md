@@ -1,0 +1,30 @@
+# Pinned vanilla font microbenchmark comparison
+
+This dataset compares current dirty-tree Tekt with actual public vanilla libraries from pin `9f2b6e8715237cb086899a42873660fe744622e8`, tree `6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4`. It does not reproduce the ratified CLI build: the diagnostic links both engines in a new Cargo graph. The exact diagnostic lockfile, profile, toolchain and executable hashes are evidence. The recorded local vanilla Cargo.lock deviation remains explicit. Source staging preserves every recorded byte; it avoids nested workspace inheritance without modifying production manifests. `stage.py` validates all original and staged source hashes.
+
+Run staging, serial `prepare.py`, then `measure.py`, then `analyze.py` with Python bytecode disabled. Build commands and receipts are retained. No global formatting, production API additions or optimizations are part of this experiment. Existing benchmark executables are compiled, never run concurrently with samples. Preparation exercises rejection of debug assertions before fixture I/O and rebuilds the supported opt-level 3 release executable. Existing dirty changes are preserved and their exact status/patch recorded.
+
+Four original font files and face indices, paths and SHA-256 hashes are in inputs.json. Before timers, verify coverage sets from generic and full metadata paths, membership probes, glyph counts, units-per-em and representative glyph IDs. Family names and acquired data hashes are recorded. This is a bounded equivalence check, not proof of all font metadata or language parity.
+
+## Timed boundaries
+
+Each font has 24 cases (96 total). Results must not be added across different fixtures or attributed to complete compilation/export.
+
+- Generic constructor: identical duplicate-preserving cmap codepoint vectors cloned outside timing; vector consumption/allocation/sorting/construction and input destruction inside; result destruction outside. Vanilla Coverage::from_vec is genuinely its public generic algorithm, but is NOT the private streaming cmap path used by FontInfo.
+- Clone and generic: same vector cloning inside timing. Result destruction outside.
+- Metadata and coverage: vanilla public FontInfo::new includes parsing, metadata (including additional flags/axes) and its actual cmap construction. Tekt is explicitly diagnostic composition of public metadata, a second parse, common cmap collection and public coverage construction. Its intermediate destruction is included; final result destruction excluded. This is not an isolated call to Tekt's private production extractor and does not imply equal internal workloads.
+- Contains: identical sets and five identical hit/miss queries; input retained, query and boolean black boxes inside. Nanosecond costs must be assessed against controls and noise.
+- First font: fresh public Tekt FontSlot versus vanilla public FontStore with one FontPath. Setup/path clones/store metadata clone/book construction excluded. Slot/store lookup, lazy initialization, loading and returned handle clone included; input/output destruction excluded with iter_batched_ref. Tekt uses mmap and reconstructs TTC faces; vanilla reads the file and retains the collection/index while constructing font information. These are composed use-case costs, not isolated filesystem/parser measurements. Setup differs and can affect cache state.
+- Retained font: preloaded slot/store outside timing; lookup/lazy-cell access/returned handle clone inside; returned handle destruction outside. Vanilla additionally indexes its public store. No fresh disk read intended.
+- Common diagnostic cmap collection: parsed Face outside timing, collection allocation/callback traversal inside; result destruction outside. This is common diagnostic code, not either private extractor.
+- Unmatched Tekt metadata-only: no purported vanilla metadata-only equivalent. Two timing controls accompany every font.
+
+## Execution and acceptance
+
+CPU 4 affinity for measurement, CPU 6 for runner. Rayon one thread; environment overrides stripped, Rust flags empty. Record host, toolchain, governor/boost/frequency snapshots and load telemetry. Do not change governor or clear host caches. OS page cache is warm after preflight and warmup; lazy slots are fresh per first-font iteration, retained per retained-font iteration. No claim of cold-disk latency.
+
+Three fresh-process rounds, fixture and engine pair ordering reversed in r2. Each case: Criterion 30 samples, 200 ms warmup, 600 ms target measurement, 5000 resamples. These are sequential operation pairs, not interleaved paired observations. A 30-second quiet gate precedes each round; process inspection every 100 ms rejects concurrent builds/tests/benchmarks. Source, consumers, font files, manifests, scripts, original and staged vanilla sources, HEAD and executable fingerprinted before/after. Any mutation or detected concurrent workload rejects the whole round. Final build fingerprint must match measurement fingerprint.
+
+Retain all valid rounds and outliers. Raw Criterion times/iteration counts and estimates retained. Distribution uses sample time/iteration; unequal iteration counts are not represented as equal raw iterations. Report mean, median, SD, range, p05/p95 per round. An absolute cost is stable only if mean-versus-median of three round means differs by less than 3% AND range/median is at most 5%. This is a declared acceptance rule, not a statistical guarantee. Failed stability remains exploratory. Report Tekt/vanilla mean ratios per same-font round descriptively, without paired confidence or causal attribution. No ratios against the previous battery's absolute timings.
+
+Source archives, executable and manifest preserve this run; `/tmp` staging can be reconstructed. Reproduction requires the specified font bytes, available dependencies/toolchain and host conditions; machine-sensitive timing reproduction is not promised. Controlled follow-ups should isolate TTC reconstruction and metadata/coverage separately under equivalent workloads before claiming a cause for the end-to-end gap.

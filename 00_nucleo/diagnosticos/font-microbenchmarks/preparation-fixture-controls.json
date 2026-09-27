@@ -1,0 +1,107 @@
+{
+  "fixtures": [
+    {
+      "id": "LibertinusSerif-Regular",
+      "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/LibertinusSerif-Regular.otf",
+      "font_sha256": "fcf06307a77367394fcb0ccb241e59eea70dba3d732be309647611224679c733",
+      "face_index": 0,
+      "unicode_subtable_formats": [
+        4,
+        12,
+        4,
+        12
+      ],
+      "collected_codepoints": 9522,
+      "distinct_codepoints": 2382,
+      "codepoint_sequence_le_sha256": "ca5d6f6c5d30262b56dc881ac39b7b02330aef0c5c2dcde827b2ebc1932d624a",
+      "canonical_coverage_sha256": "a24bf616af1f963ef1c6e976b7c660be8e4a9f96975cbf01c8d30cb0f6a6665f",
+      "family": "Libertinus Serif",
+      "query_points": {
+        "hit_early": 32,
+        "hit_middle": 1509,
+        "hit_late": 127279,
+        "miss_after": 1114111,
+        "miss_gap": 0
+      },
+      "historical_equals_current_and_set_oracle": true
+    },
+    {
+      "id": "NewCMMath-Regular",
+      "path": "/home/dikluwe/.cargo/git/checkouts/typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf",
+      "font_sha256": "925289812275068dfc9dd06ac44dcd206944ee2f58f9a08186c1fd3539520e05",
+      "face_index": 0,
+      "unicode_subtable_formats": [
+        4,
+        12,
+        14,
+        4,
+        12
+      ],
+      "collected_codepoints": 16768,
+      "distinct_codepoints": 4913,
+      "codepoint_sequence_le_sha256": "9f903e465da5ae7565cccae371477b892ffc43dc5c880a21d0feba393e56ef45",
+      "canonical_coverage_sha256": "dd7867c1f6e659d6835a8b47fcfba49198e87dce4fb8241a7af292dfda494689",
+      "family": "New Computer Modern Math",
+      "query_points": {
+        "hit_early": 32,
+        "hit_middle": 10907,
+        "hit_late": 129240,
+        "miss_after": 1114111,
+        "miss_gap": 0
+      },
+      "historical_equals_current_and_set_oracle": true
+    },
+    {
+      "id": "NotoSansCJK-Regular",
+      "path": "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+      "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "face_index": 0,
+      "unicode_subtable_formats": [
+        4,
+        12,
+        14,
+        4,
+        12
+      ],
+      "collected_codepoints": 174060,
+      "distinct_codepoints": 44810,
+      "codepoint_sequence_le_sha256": "0757688837a0277bd9af5d12dbedda22465bc0682ea9a134ee3e33070f85e19b",
+      "canonical_coverage_sha256": "483dc2957a5c7a1a9f980c5055208a8f9ffb75205bdaf5fede7f69660281232c",
+      "family": "Noto Sans CJK JP",
+      "query_points": {
+        "hit_early": 32,
+        "hit_middle": 33066,
+        "hit_late": 200812,
+        "miss_after": 1114111,
+        "miss_gap": 0
+      },
+      "historical_equals_current_and_set_oracle": true
+    },
+    {
+      "id": "NotoSansMath-Regular",
+      "path": "/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf",
+      "font_sha256": "8242bd1e55368b27e32455260754cf9aa58f3ad7ea80664b66c21f1b09910d6c",
+      "face_index": 0,
+      "unicode_subtable_formats": [
+        4,
+        12,
+        4,
+        12
+      ],
+      "collected_codepoints": 7610,
+      "distinct_codepoints": 2472,
+      "codepoint_sequence_le_sha256": "7706ba58442619eabb163c35feaeec13b0e1d8c8112eb3d6c286b84e9c3e260a",
+      "canonical_coverage_sha256": "b12b6eabd53f2a40ed9cd56330ad3a6bca04b914748780cac9cd6bee5311c75e",
+      "family": "Noto Sans Math",
+      "query_points": {
+        "hit_early": 0,
+        "hit_middle": 10947,
+        "hit_late": 126705,
+        "miss_after": 1114111,
+        "miss_gap": 1
+      },
+      "historical_equals_current_and_set_oracle": true
+    }
+  ],
+  "preflight_outside_all_timers": true
+}

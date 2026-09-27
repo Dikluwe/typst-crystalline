@@ -1,0 +1,21 @@
+{
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "source_fingerprint": "d56bf20513fa733a4f8b1606103f3c1d9f9550687f164908c7b6bd61a0c6d4cf",
+  "all_three_rounds_integrity_valid": true,
+  "all_sources_and_inputs_unchanged_after_measurement": true,
+  "production_and_existing_benchmarks_and_prior_owners_unchanged_from_previous_experiment": true,
+  "prior_dataset_manifests_verified_unchanged": true,
+  "historical_slice_exact_and_source_hash_verified": true,
+  "cases": 56,
+  "criterion_samples": 5040,
+  "stable_absolute_cost_cases": [
+    "NotoSansCJK-Regular/contains/hit_late"
+  ],
+  "stable_baseline_claimed": false,
+  "executable_sha256": "fa572544608e9e71a369cb29720489dd7aa07cea2ab9c5e042bacf6a5723ea4c",
+  "source_archive_sha256": "58b59d70b13810865bb5da1ba8823a6ff2f2a580eab74ed6b4a586766f984bb3",
+  "report_sha256": "6595bd3b04cafa6b59ccfde057e758048c1fb732e7c88430f8773d63c6a15303",
+  "all_eight_existing_benchmarks_compiled": true,
+  "actual_debug_assertion_guard_refuses_before_fixtures": true,
+  "source_scope": "Only this new diagnostic directory and font-microbenchmarks.md; existing code/L0/ADRs/benches/evidence unchanged."
+}
