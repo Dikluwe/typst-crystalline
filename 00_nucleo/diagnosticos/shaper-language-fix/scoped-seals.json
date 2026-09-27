@@ -1,0 +1,17 @@
+{
+  "03_infra/src/shaper/shaping.rs": {
+    "prompt": "00_nucleo/prompts/infra/shaper/shaping.md",
+    "prompt_hash": "629d871a",
+    "code_hash": "d26779af"
+  },
+  "03_infra/src/shaper/cache.rs": {
+    "prompt": "00_nucleo/prompts/infra/shaper/cache.md",
+    "prompt_hash": "47a8c990",
+    "code_hash": "b05ee48a"
+  },
+  "03_infra/src/shaper/tests.rs": {
+    "prompt": "00_nucleo/prompts/infra/shaper/tests.md",
+    "prompt_hash": "a2bbb6fb",
+    "code_hash": "539fa3d6"
+  }
+}

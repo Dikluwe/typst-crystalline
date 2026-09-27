@@ -1,0 +1,21 @@
+
+running 2 tests
+test shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders ... FAILED
+test shaper::tests::language_width_honors_localized_advances_and_absent_language ... ok
+
+failures:
+
+---- shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders stdout ----
+
+thread 'shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders' (136371) panicked at 03_infra/src/shaper/tests.rs:1543:9:
+assertion `left == right` failed: language cache order [Some("ru"), Some("sr"), Some("ru")]
+  left: [[ShapedGlyph { glyph_id: 457, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }], [ShapedGlyph { glyph_id: 457, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }], [ShapedGlyph { glyph_id: 457, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }]]
+ right: [[ShapedGlyph { glyph_id: 457, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }], [ShapedGlyph { glyph_id: 2090, x_advance: 604, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }], [ShapedGlyph { glyph_id: 457, x_advance: 599, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'б' }]]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 0.04s
+

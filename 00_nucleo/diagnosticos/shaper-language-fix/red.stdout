@@ -1,0 +1,27 @@
+
+running 2 tests
+test shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders ... FAILED
+test shaper::tests::language_width_honors_localized_advances_and_absent_language ... FAILED
+
+failures:
+
+---- shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders stdout ----
+
+thread 'shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders' (133621) panicked at 03_infra/src/shaper/tests.rs:1539:13:
+assertion `left == right` failed: fresh language Some("sr")
+  left: (457, 599)
+ right: (2090, 604)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- shaper::tests::language_width_honors_localized_advances_and_absent_language stdout ----
+
+thread 'shaper::tests::language_width_honors_localized_advances_and_absent_language' (133622) panicked at 03_infra/src/shaper/tests.rs:1507:9:
+language Some("sr"): Pt(7.188) != 7.248
+
+
+failures:
+    shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders
+    shaper::tests::language_width_honors_localized_advances_and_absent_language
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 0.04s
+

@@ -1,0 +1,8 @@
+
+running 3 tests
+test shaper::cache::axis_key_regressions::language_key_distinguishes_explicit_codes_and_absence ... ok
+test shaper::tests::language_emission_shared_cache_matches_fresh_in_both_orders ... ok
+test shaper::tests::language_width_honors_localized_advances_and_absent_language ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1114 filtered out; finished in 0.08s
+

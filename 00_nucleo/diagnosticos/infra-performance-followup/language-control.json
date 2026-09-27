@@ -1,0 +1,152 @@
+{
+  "font_path": "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+  "font_file_bytes": 19484784,
+  "family": "Noto Sans CJK JP",
+  "rows": [
+    {
+      "text": "骨",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        45132
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 45132, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '骨' }]"
+    },
+    {
+      "text": "骨",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        45133
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 45132, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '骨' }]"
+    },
+    {
+      "text": "骨",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        45132
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 45132, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '骨' }]"
+    },
+    {
+      "text": "直",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        27873
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 27873, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '直' }]"
+    },
+    {
+      "text": "直",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        27874
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 27873, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '直' }]"
+    },
+    {
+      "text": "直",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        27873
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 27873, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '直' }]"
+    },
+    {
+      "text": "令",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        9808
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 9808, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '令' }]"
+    },
+    {
+      "text": "令",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        9809
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 9808, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '令' }]"
+    },
+    {
+      "text": "令",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        9808
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 9808, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '令' }]"
+    },
+    {
+      "text": "漢",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        24227
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 24227, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '漢' }]"
+    },
+    {
+      "text": "漢",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        58935
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 24227, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '漢' }]"
+    },
+    {
+      "text": "漢",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        58935
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 24227, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '漢' }]"
+    },
+    {
+      "text": "葛",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        34624
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 34624, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '葛' }]"
+    },
+    {
+      "text": "葛",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        34625
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 34624, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '葛' }]"
+    },
+    {
+      "text": "葛",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        34624
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 34624, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '葛' }]"
+    },
+    {
+      "text": "辻",
+      "language": "ja",
+      "direct_language_configured_ids": [
+        40043
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 40043, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '辻' }]"
+    },
+    {
+      "text": "辻",
+      "language": "zh",
+      "direct_language_configured_ids": [
+        40044
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 40043, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '辻' }]"
+    },
+    {
+      "text": "辻",
+      "language": "ko",
+      "direct_language_configured_ids": [
+        40043
+      ],
+      "tekt_glyphs": "[ShapedGlyph { glyph_id: 40043, x_advance: 1000, x_offset: 0, y_offset: 0, cluster: 0, char_code: '辻' }]"
+    }
+  ],
+  "not_a_vanilla_pipeline_oracle": true
+}

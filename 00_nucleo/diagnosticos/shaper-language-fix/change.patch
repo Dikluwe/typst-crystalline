@@ -1,0 +1,314 @@
+--- before/03_infra/src/shaper/shaping.rs
++++ 03_infra/src/shaper/shaping.rs
+@@ -1,6 +1,6 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
+-//! @prompt-hash 5495f47e
++//! @prompt-hash 629d871a
+ //! @layer L3
+ //! @updated 2026-09-27
+ 
+@@ -84,6 +84,9 @@
+ 
+                 let mut buffer = UnicodeBuffer::new();
+                 buffer.push_str(&subrun.text);
++                if let Some(lang) = style.lang {
++                    buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
++                }
+                 if run.rtl {
+                     buffer.set_direction(Direction::RightToLeft);
+                 } else {
+@@ -233,6 +236,7 @@
+                     &axis_vars,
+                     tracking_fu,
+                     ssty_level,
++                    style.lang.as_ref().map(|lang| lang.as_str()),
+                 );
+                 let cached = cache.map.get(&cache_key).cloned();
+                 let (run_glyphs, run_width) = if let Some(cached) = cached {
+@@ -248,6 +252,9 @@
+ 
+                     let mut buffer = UnicodeBuffer::new();
+                     buffer.push_str(&subrun.text);
++                    if let Some(lang) = style.lang {
++                        buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
++                    }
+                     if run.rtl {
+                         buffer.set_direction(Direction::RightToLeft);
+                     } else {
+--- before/00_nucleo/prompts/infra/shaper/shaping.md
++++ 00_nucleo/prompts/infra/shaper/shaping.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/shaping
+-Hash do Código: 07220c43
++Hash do Código: d26779af
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/shaping.rs`
+@@ -21,11 +21,21 @@
+ These are local source anchors, not a new upstream parity measurement.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/shaping.rs`.
+ 
++`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` shows
++that explicit ja/zh/ko settings do not affect Tekt glyph selection while a same-face
++rustybuzz control does. Both local buffer sites omit language configuration.
++Pinned vanilla configures language at
++`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:980`.
++Language selection is a style semantic input; glyph IDs are discriminating render
++controls, not proof of full language parity. The cache structure is mechanics.
++The repository Noto Sans fixture supplies independent ru/sr local substitutions
++with different advances; controls must cover measurement and emission separately.
++
+ ## Owned contract
+ 
+ - Own shaped_width, try_shape, UTF-8 cluster mapping, rustybuzz setup, variations, tracking, ssty and TextShaped materialization. Use sibling bidi/selection/cache helpers rather than duplicate their policies.
+ - Clone the cached base face before applying axes. Derived variant axes are merged with explicit style variations, explicit values winning by tag; preserve nonvariable/unknown-axis no-op behavior.
+-- Set direction per bidi run; preserve language, offsets, glyph ids/advances and clamped positive units_per_em. Each emitted TextShaped.text is the sub-run text and glyph clusters are UTF-8 byte offsets relative to that text, with replacement character fallback for an invalid mapping. BidiRun.byte_start is a separate original-input coordinate owned by the bidi child. Whitespace-only input takes the unchanged-Text path; traversal owns the rule against reshaping TextShaped.
++- Configure each width-measurement and emission rustybuzz buffer with the explicit TextStyle.lang when present, using its normalized language code. Leave language unset when absent, preserving the existing inferred/default behavior. Pass the same optional explicit language identity to the run-cache owner. Set direction per bidi run; preserve language, offsets, glyph ids/advances and clamped positive units_per_em. Each emitted TextShaped.text is the sub-run text and glyph clusters are UTF-8 byte offsets relative to that text, with replacement character fallback for an invalid mapping. BidiRun.byte_start is a separate original-input coordinate owned by the bidi child. Whitespace-only input takes the unchanged-Text path; traversal owns the rule against reshaping TextShaped.
+ - Measure multiline width as the maximum paragraph width. Emission resets x for each paragraph and advances y by the first primary's resolved top/bottom edges plus style leading (default 0.65em). This does not repair L1 vertical flow/pagination for an embedded newline.
+ - Preserve the existing distinct measurement/emission feature and tracking paths rather than harmonize them speculatively. In emission calculate the rounded i32 tracking increment once per candidate from resolved tracking points, positive units_per_em and style.size, using the existing conversion formula. Pass that same increment to the cache key and add it only before a following different cluster, never inside a cluster or after the last glyph of a sub-run; negative tracking remains valid.
+ - Math mode is decided by style.math. Consume the canonical ssty_eligible_text from font_metrics; request levels 1/2 only for eligible Script/ScriptScript outside math_text_item. TextItem keeps math family/target features and every non-ssty property but no explicit ssty feature (`None`), also represented as absence in its cache key.
+--- before/03_infra/src/shaper/cache.rs
++++ 03_infra/src/shaper/cache.rs
+@@ -1,6 +1,6 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
+-//! @prompt-hash cdcdfe3b
++//! @prompt-hash 47a8c990
+ //! @layer L3
+ //! @updated 2026-09-27
+ 
+@@ -14,7 +14,7 @@
+ ///
+ /// A chave inclui tudo o que afecta o output de `rustybuzz::shape` para um
+ /// sub-run: texto, identificador da face, direção, variações de eixo e
+-/// tracking. O valor guarda os glifos shaped e a largura total em unidades
++/// tracking e idioma explícito opcional. O valor guarda os glifos shaped e a largura total em unidades
+ /// de fonte.
+ pub(super) struct ShapeCache {
+     pub(super) map: HashMap<String, CachedRun>,
+@@ -38,6 +38,7 @@
+         axis_vars: &[rustybuzz::Variation],
+         tracking_fu: i32,
+         ssty_level: Option<u8>,
++        language: Option<&str>,
+     ) -> String {
+         let axis_key: String = axis_vars
+             .iter()
+@@ -46,8 +47,8 @@
+             .join(",");
+         // **P977** — o resultado do shaping muda com o nível ssty.
+         format!(
+-            "{}|{}|{}|{}|{}|ssty{:?}",
+-            text, slot_idx, rtl, axis_key, tracking_fu, ssty_level
++            "{}|{}|{}|{}|{}|ssty{:?}|lang{:?}",
++            text, slot_idx, rtl, axis_key, tracking_fu, ssty_level, language
+         )
+     }
+ }
+@@ -128,11 +129,20 @@
+                     value: f32::from_bits(bits),
+                 }]
+             };
+-            let key_a = ShapeCache::key("A", 0, false, &axis(a), 0, None);
+-            let key_b = ShapeCache::key("A", 0, false, &axis(b), 0, None);
++            let key_a = ShapeCache::key("A", 0, false, &axis(a), 0, None, None);
++            let key_b = ShapeCache::key("A", 0, false, &axis(b), 0, None, None);
+             assert_ne!(key_a, key_b);
+-            assert_eq!(key_a, ShapeCache::key("A", 0, false, &axis(a), 0, None));
++            assert_eq!(key_a, ShapeCache::key("A", 0, false, &axis(a), 0, None, None));
+         }
++    }
++
++    #[test]
++    fn language_key_distinguishes_explicit_codes_and_absence() {
++        let key = |language| ShapeCache::key("б", 0, false, &[], 0, None, language);
++        assert_ne!(key(Some("ru")), key(Some("sr")));
++        assert_ne!(key(None), key(Some("en")));
++        assert_ne!(key(None), key(Some("sr")));
++        assert_eq!(key(Some("sr")), key(Some("sr")));
+     }
+ 
+     #[allow(deprecated)]
+--- before/00_nucleo/prompts/infra/shaper/cache.md
++++ 00_nucleo/prompts/infra/shaper/cache.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/cache
+-Hash do Código: aacca113
++Hash do Código: b05ee48a
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/cache.rs`
+@@ -21,11 +21,18 @@
+ `00_nucleo/diagnosticos/shaper-prompt-audit/results.json` additionally demonstrates tracking aliases caused by decimal rounding and by changing size with an absolute tracking length.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/cache.rs`.
+ 
++The language-demand controls in
++`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` and
++buffer setup at `03_infra/src/shaper/shaping.rs:85` / `:249` identify a missing
++semantic input. Once buffers honor language, cached runs must distinguish it;
++otherwise same-face/text runs can reuse another language's glyphs and advances.
++This is an internal cache representation correction, not a public API change.
++
+ ## Owned contract
+ 
+ - Own ShapeCache/CachedRun and FaceCache/CachedFace. Run cache is local to a document; face cache is per instance/compilation and may be shared by the metrics facade.
+-- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), effective tracking increment as an exact i32 in font units, calculated by the shaping owner before lookup and effective ssty level. Values retain glyphs and i32 width in font units.
+-- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. The tracking key must identify the actual increment applied to cached glyphs; raw decimal lengths must not be rounded into a key. This correction does not establish sufficiency of untested script/language dimensions.
++- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), effective tracking increment as an exact i32 in font units, calculated by the shaping owner before lookup effective ssty level, and optional explicit normalized language code. Keep absent language distinct from every explicit code, including explicit English. Values retain glyphs and i32 width in font units.
++- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. The tracking key must identify the actual increment applied to cached glyphs; raw decimal lengths must not be rounded into a key. This correction covers explicit language identity; sufficiency of untested script dimensions remains unproved.
+ 
+ ## Verification and boundary
+ 
+@@ -33,7 +40,7 @@
+ and identical run inputs still reuse their key. For the discriminating Ubuntu Sans
+ and Cantarell fixtures, mixed AB and BA document results must match isolated fresh
+ shaping at the corresponding coordinates. Keep these regression tests in this
+-consumer's test module. This is an internal cache-identity correction under
++consumer's test module. Language-sensitive emission and width regressions belong to the test owner `00_nucleo/prompts/infra/shaper/tests.md`; shared AB/BA and repeated runs must match corresponding fresh language controls. This is an internal cache-identity correction under
+ ADR-0127, with no public API, default mode, compatibility or pipeline phase change.
+ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+ Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+--- before/03_infra/src/shaper/tests.rs
++++ 03_infra/src/shaper/tests.rs
+@@ -1,6 +1,6 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
+-//! @prompt-hash 6393dfb7
++//! @prompt-hash a2bbb6fb
+ //! @layer L3
+ //! @updated 2026-09-27
+ 
+@@ -1458,3 +1458,103 @@
+         vec![fresh_a[0].clone(), fresh_b[0].clone()]
+     );
+ }
++
++// Language-sensitive locl controls use the mandatory, versioned Noto fixture.
++fn language_fixture() -> FontWorld {
++    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
++        .join("fixtures/fonts/NotoSans-Regular.ttf");
++    let world = font_world_with(&[path.to_str().unwrap()]);
++    assert!(world.is_complete(), "versioned language fixture must load");
++    world
++}
++
++fn language_style(code: Option<&str>) -> TextStyle {
++    TextStyle {
++        font: Some(FontList::single("Noto Sans".into())),
++        size: Pt(12.0),
++        lang: code.map(|code| code.parse().unwrap()),
++        ..Default::default()
++    }
++}
++
++fn language_control(world: &FontWorld, code: Option<&str>) -> (u16, i32) {
++    let font = world.font(0).unwrap();
++    let face = rustybuzz::Face::from_slice(font.as_slice(), 0).unwrap();
++    let mut buffer = rustybuzz::UnicodeBuffer::new();
++    buffer.push_str("б");
++    buffer.set_direction(rustybuzz::Direction::LeftToRight);
++    if let Some(code) = code {
++        buffer.set_language(code.parse().unwrap());
++    }
++    let output = rustybuzz::shape(&face, &[], buffer);
++    assert_eq!(output.glyph_infos().len(), 1);
++    (output.glyph_infos()[0].glyph_id as u16, output.glyph_positions()[0].x_advance)
++}
++
++#[test]
++fn language_width_honors_localized_advances_and_absent_language() {
++    let world = language_fixture();
++    assert_eq!(language_control(&world, Some("ru")).1, 599);
++    assert_eq!(language_control(&world, Some("sr")).1, 604);
++    let font = world.font(0).unwrap();
++    let upem = ttf_parser::Face::parse(font.as_slice(), 0).unwrap().units_per_em();
++    let mut faces = FaceCache::new();
++    for code in [Some("ru"), Some("sr"), Some("ru"), None, Some("en")] {
++        let style = language_style(code);
++        let expected = language_control(&world, code).1 as f64 * 12.0 / upem as f64;
++        let width = shaped_width(&world, "б", &style, &mut faces).unwrap();
++        assert!(
++            (width.0 - expected).abs() < 1e-10,
++            "language {code:?}: {width:?} != {expected}"
++        );
++    }
++}
++
++#[test]
++fn language_emission_shared_cache_matches_fresh_in_both_orders() {
++    let world = language_fixture();
++    let shape = |codes: &[Option<&str>]| {
++        let items = codes
++            .iter()
++            .map(|&code| FrameItem::Text {
++                pos: Point::ZERO,
++                text: "б".into(),
++                style: language_style(code),
++            })
++            .collect();
++        shape_document(&world, doc_with(items)).pages[0]
++            .items
++            .iter()
++            .map(|item| match item {
++                FrameItem::TextShaped { text, glyphs, .. } => {
++                    assert_eq!(text.as_str(), "б");
++                    assert_eq!(glyphs.len(), 1);
++                    assert_eq!(glyphs[0].cluster, 0);
++                    assert_eq!(glyphs[0].char_code, 'б');
++                    glyphs.clone()
++                }
++                _ => panic!("mandatory language fixture did not shape"),
++            })
++            .collect::<Vec<_>>()
++    };
++    for codes in [
++        vec![Some("ru"), Some("sr"), Some("ru")],
++        vec![Some("sr"), Some("ru"), Some("sr")],
++        vec![None, Some("sr"), Some("en"), None],
++    ] {
++        let fresh: Vec<_> = codes
++            .iter()
++            .map(|&code| {
++                let glyphs = shape(&[code]).remove(0);
++                let expected = language_control(&world, code);
++                assert_eq!(
++                    (glyphs[0].glyph_id, glyphs[0].x_advance),
++                    expected,
++                    "fresh language {code:?}"
++                );
++                glyphs
++            })
++            .collect();
++        assert_eq!(shape(&codes), fresh, "language cache order {codes:?}");
++    }
++}
+--- before/00_nucleo/prompts/infra/shaper/tests.md
++++ 00_nucleo/prompts/infra/shaper/tests.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/tests
+-Hash do Código: 501b026b
++Hash do Código: 539fa3d6
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/tests.rs`
+@@ -15,10 +15,19 @@
+ These are local source anchors, not a new upstream parity measurement.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/tests.rs`.
+ 
++The language-demand diagnostic
++`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` and
++pinned buffer setup at
++`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:980` motivate
++language-sensitive regression controls. The versioned Noto Sans fixture contains
++ru/sr substitutions with unequal advances, allowing width and glyph paths to be
++tested without optional system fonts or fixture generation.
++
+ ## Owned contract
+ 
+ - Own only the unit suite, mocks and real-font fixtures under shaper::tests. Preserve existing names and descendant helper access; tests do not define a new API.
+ - Cover text passthrough, all page layers/semantic groups, bidi/UTF-8 offsets/multiline paragraphs, script/font fallback, sparse local slot identity, variations without contamination, tracking, math TextItem/ssty and LTR/RTL reconciliation.
++- Require explicit-language measurement and emission to match configured same-face controls, preserving original text/clusters. Cover Russian/Serbian localized substitutions with the versioned Noto Sans fixture; independently assert distinct advances, fresh results, shared AB/BA/repeated runs and absent-language behavior. These are internal render/cache controls, not a claim of full upstream language parity.
+ - Distinguish dense-local candidate identity from global slot number; cardinality alone is insufficient. Cover scoring with sparse global slots and decoy metadata at the colliding local indices, and script boundaries within one face (including leading Common and inherited characters). Verify isolated versus mixed AB/BA shaping for tracking precision and absolute tracking at different sizes; retain same-effective-increment reuse controls. Mandatory new regressions use embedded/repository fixtures rather than silently skipping missing system fonts. Keep missing-font and no-panic controls and compare language text/positions where relevant rather than claim a new upstream parity measurement.
+ 
+ ## Verification and boundary

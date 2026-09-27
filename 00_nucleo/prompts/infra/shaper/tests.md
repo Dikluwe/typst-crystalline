@@ -1,0 +1,37 @@
+# L0 — infra/shaper/tests
+Hash do Código: 539fa3d6
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/shaper/tests.rs`
+
+## Current evidence
+
+- `03_infra/src/shaper/tests.rs:38` — `p1404_fallback_interner_e_esparso_e_idempotente`.
+- `03_infra/src/shaper/tests.rs:48` — `p1404_controles_de_formato_nao_pedem_glifo`.
+- `03_infra/src/shaper/tests.rs:56` — `MockWorld`.
+- `03_infra/src/shaper/tests.rs:61` — `library`.
+- `03_infra/src/shaper/tests.rs:65` — `book`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/tests.rs`.
+
+The language-demand diagnostic
+`00_nucleo/diagnosticos/infra-performance-followup/language-control.json` and
+pinned buffer setup at
+`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:980` motivate
+language-sensitive regression controls. The versioned Noto Sans fixture contains
+ru/sr substitutions with unequal advances, allowing width and glyph paths to be
+tested without optional system fonts or fixture generation.
+
+## Owned contract
+
+- Own only the unit suite, mocks and real-font fixtures under shaper::tests. Preserve existing names and descendant helper access; tests do not define a new API.
+- Cover text passthrough, all page layers/semantic groups, bidi/UTF-8 offsets/multiline paragraphs, script/font fallback, sparse local slot identity, variations without contamination, tracking, math TextItem/ssty and LTR/RTL reconciliation.
+- Require explicit-language measurement and emission to match configured same-face controls, preserving original text/clusters. Cover Russian/Serbian localized substitutions with the versioned Noto Sans fixture; independently assert distinct advances, fresh results, shared AB/BA/repeated runs and absent-language behavior. These are internal render/cache controls, not a claim of full upstream language parity.
+- Distinguish dense-local candidate identity from global slot number; cardinality alone is insufficient. Cover scoring with sparse global slots and decoy metadata at the colliding local indices, and script boundaries within one face (including leading Common and inherited characters). Verify isolated versus mixed AB/BA shaping for tracking precision and absolute tracking at different sizes; retain same-effective-increment reuse controls. Mandatory new regressions use embedded/repository fixtures rather than silently skipping missing system fonts. Keep missing-font and no-panic controls and compare language text/positions where relevant rather than claim a new upstream parity measurement.
+
+## Verification and boundary
+
+Run `cargo test -p typst-infra --lib shaper::tests -- --test-threads=1` when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
