@@ -1,0 +1,9 @@
+
+running 4 tests
+test shaper::tests::contract_fix_sparse_fallback_scores_global_slots ... ok
+test shaper::tests::contract_fix_same_face_script_boundaries ... ok
+test shaper::tests::contract_fix_tracking_size_matches_fresh ... ok
+test shaper::tests::contract_fix_tracking_precision_matches_fresh ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 1103 filtered out; finished in 0.04s
+

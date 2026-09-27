@@ -1,0 +1,38 @@
+
+running 3 tests
+test shaper::cache::axis_key_regressions::axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs ... FAILED
+test shaper::cache::axis_key_regressions::cantarell_axis_key_mixed_runs_match_fresh_in_both_orders ... FAILED
+test shaper::cache::axis_key_regressions::ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders ... FAILED
+
+failures:
+
+---- shaper::cache::axis_key_regressions::axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs stdout ----
+
+thread 'shaper::cache::axis_key_regressions::axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs' (4144126) panicked at 03_infra/src/shaper/cache.rs:121:13:
+assertion `left != right` failed
+  left: "A|0|false|wght=104.5410||sstyNone"
+ right: "A|0|false|wght=104.5410||sstyNone"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- shaper::cache::axis_key_regressions::cantarell_axis_key_mixed_runs_match_fresh_in_both_orders stdout ----
+
+thread 'shaper::cache::axis_key_regressions::cantarell_axis_key_mixed_runs_match_fresh_in_both_orders' (4144127) panicked at 03_infra/src/shaper/cache.rs:148:9:
+assertion `left == right` failed
+  left: [[ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }], [ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]]
+ right: [[ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }], [ShapedGlyph { glyph_id: 472, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]]
+
+---- shaper::cache::axis_key_regressions::ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders stdout ----
+
+thread 'shaper::cache::axis_key_regressions::ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders' (4144128) panicked at 03_infra/src/shaper/cache.rs:148:9:
+assertion `left == right` failed
+  left: [[ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }], [ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]]
+ right: [[ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }], [ShapedGlyph { glyph_id: 511, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]]
+
+
+failures:
+    shaper::cache::axis_key_regressions::axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs
+    shaper::cache::axis_key_regressions::cantarell_axis_key_mixed_runs_match_fresh_in_both_orders
+    shaper::cache::axis_key_regressions::ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 1100 filtered out; finished in 0.01s
+

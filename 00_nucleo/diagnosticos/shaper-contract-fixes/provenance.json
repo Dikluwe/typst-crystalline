@@ -1,0 +1,14 @@
+{
+  "start_utc": "2026-09-27T16:58:55.155182+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "scope": [
+    "00_nucleo/prompts/infra/shaper/cache.md",
+    "00_nucleo/prompts/infra/shaper/font_selection.md",
+    "00_nucleo/prompts/infra/shaper/shaping.md",
+    "00_nucleo/prompts/infra/shaper/tests.md",
+    "03_infra/src/shaper/cache.rs",
+    "03_infra/src/shaper/font_selection.rs",
+    "03_infra/src/shaper/shaping.rs",
+    "03_infra/src/shaper/tests.rs"
+  ]
+}

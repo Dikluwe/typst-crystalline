@@ -1,0 +1,8 @@
+
+running 3 tests
+test shaper::cache::axis_key_regressions::axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs ... ok
+test shaper::cache::axis_key_regressions::cantarell_axis_key_mixed_runs_match_fresh_in_both_orders ... ok
+test shaper::cache::axis_key_regressions::ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1100 filtered out; finished in 0.01s
+

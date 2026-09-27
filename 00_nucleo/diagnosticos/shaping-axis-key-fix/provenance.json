@@ -1,0 +1,8 @@
+{
+  "start_utc": "2026-09-27T16:32:25.354599+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "files_before": {
+    "00_nucleo/prompts/infra/shaper/cache.md": "fd1fca6485360af3fedf20349fcfe1a543b75750e0319e1b53c90636868fc398",
+    "03_infra/src/shaper/cache.rs": "4e60d6ee61a56c980a60b61cfb6ebda85b066cb2bcfd5b77883cf59bc07d17e3"
+  }
+}

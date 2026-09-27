@@ -1,0 +1,137 @@
+{
+  "source_snapshot": {
+    "initial": "First snapshot",
+    "retained_after_edit": "First snapshot",
+    "fresh_after_edit": "Edited snapshot",
+    "retained_reads_previous_snapshot": true,
+    "note": "Current per-World snapshot contract; demonstrates why retaining this entire World without file invalidation is unsafe for recompilation, not a defect of the current fresh-World watch."
+  },
+  "negative_font_cache": {
+    "missing_first_get": false,
+    "same_slot_after_file_creation": false,
+    "replacement_slot_after_file_creation": true,
+    "note": "OnceLock caches None. File recovery requires replacing/invalidation of the slot; source bytes remain owned by live handles."
+  },
+  "ttc_acquisition_lifetime": {
+    "same_world_shares_buffer": true,
+    "fresh_world_has_distinct_live_buffer": true,
+    "contents_equal": true,
+    "sfnt_bytes": 16467712,
+    "sha256": "787b85a3c6a5ce274ffde92ff64f47eea34989af7474f883e334dc0341f0aad6",
+    "note": "Both handles kept alive; public explicit-slot builder isolates acquisition, not whole CLI discovery. Pointer identity is only a lifecycle control."
+  },
+  "catalog_replacement": {
+    "candidates_before": [
+      0
+    ],
+    "candidates_after": [],
+    "matches_fresh_catalog": true,
+    "note": "Builder replacement clears coverage tied to old slot indices; old acquired Font handles remain valid."
+  },
+  "shape_mixed_mode_vs_fresh": [
+    {
+      "text": "ffi",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+        "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+        "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    },
+    {
+      "text": "office",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+        "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+        "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    },
+    {
+      "text": "ab",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    },
+    {
+      "text": "Hello",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]",
+        "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]",
+        "[ShapedGlyph { glyph_id: 41, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'H' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'e' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'l' }, ShapedGlyph { glyph_id: 77, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'l' }, ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'o' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    },
+    {
+      "text": "123",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+        "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+        "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    },
+    {
+      "text": "sin",
+      "normal_fresh": "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+      "math_fresh": "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+      "forward": [
+        "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+        "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+      ],
+      "reverse": [
+        "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+        "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+      ],
+      "forward_matches_fresh": true,
+      "reverse_matches_fresh": true,
+      "fresh_modes_differ": false
+    }
+  ],
+  "key_precision_probe": {
+    "axis_x_bits": 1137180672,
+    "axis_y_bits": 1137180673,
+    "formatted_x": "400.0000",
+    "formatted_y": "400.0000",
+    "note": "Demonstrates a formatting collision used by current run keys; not a production private-key invocation or demonstrated variable-font output defect."
+  },
+  "no_timing_measurements": true
+}

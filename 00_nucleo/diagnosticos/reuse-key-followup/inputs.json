@@ -1,0 +1,10 @@
+[
+  {
+    "path": "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+    "sha256": "37e90bba45a2a1172d9f6078e45daebaa1b4e537943205cc1309f142a254fe40"
+  },
+  {
+    "path": "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/Cantarell-VF.otf",
+    "sha256": "bde402df2c4f87be61b4959e71e14cdeee8cd6df087fa2a75b7cc2ef49d3dca9"
+  }
+]

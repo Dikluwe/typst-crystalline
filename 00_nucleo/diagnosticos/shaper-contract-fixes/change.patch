@@ -1,0 +1,473 @@
+--- before/00_nucleo/prompts/infra/shaper/cache.md
++++ 00_nucleo/prompts/infra/shaper/cache.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/cache
+-Hash do Código: 4e9cfc55
++Hash do Código: aacca113
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/cache.rs`
+@@ -10,7 +10,7 @@
+ - `03_infra/src/shaper/cache.rs:24` — `CachedRun`.
+ - `03_infra/src/shaper/cache.rs:30` — `new`.
+ - `03_infra/src/shaper/cache.rs:34` — `key`.
+-- `03_infra/src/shaper/cache.rs:64` — `FaceCache`.
++- `03_infra/src/shaper/cache.rs:61` — `FaceCache`.
+ 
+ These are local source anchors, not a new upstream parity measurement.
+ `00_nucleo/diagnosticos/reuse-key-followup/results.json` supplies discriminating
+@@ -18,13 +18,14 @@
+ produce different fresh advances but alias under four-decimal axis formatting.
+ Mixed runs then reuse the first result in either order. This local correction
+ addresses that demonstrated alias; it makes no new vanilla parity claim.
++`00_nucleo/diagnosticos/shaper-prompt-audit/results.json` additionally demonstrates tracking aliases caused by decimal rounding and by changing size with an absolute tracking length.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/cache.rs`.
+ 
+ ## Owned contract
+ 
+ - Own ShapeCache/CachedRun and FaceCache/CachedFace. Run cache is local to a document; face cache is per instance/compilation and may be shared by the metrics facade.
+-- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), absolute/em tracking to four places and effective ssty level. Values retain glyphs and i32 width in font units.
+-- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. Preserve the existing precision of tracking; this axis correction does not establish sufficiency of other key fields.
++- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), effective tracking increment as an exact i32 in font units, calculated by the shaping owner before lookup and effective ssty level. Values retain glyphs and i32 width in font units.
++- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. The tracking key must identify the actual increment applied to cached glyphs; raw decimal lengths must not be rounded into a key. This correction does not establish sufficiency of untested script/language dimensions.
+ 
+ ## Verification and boundary
+ 
+--- before/00_nucleo/prompts/infra/shaper/font_selection.md
++++ 00_nucleo/prompts/infra/shaper/font_selection.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/font_selection
+-Hash do Código: 188eae9c
++Hash do Código: bae74965
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/font_selection.rs`
+@@ -15,11 +15,12 @@
+ 
+ - `03_infra/src/shaper/font_selection.rs:16` — `primary_candidates`.
+ - `03_infra/src/shaper/font_selection.rs:116` — `CandidateSet`.
+-- `03_infra/src/shaper/font_selection.rs:315` — `intern_fallback_slot`.
+-- `03_infra/src/shaper/font_selection.rs:352` — `split_run_by_font`.
+-- `03_infra/src/shaper/font_selection.rs:424` — `is_p1404_format_control`.
++- `03_infra/src/shaper/font_selection.rs:326` — `intern_fallback_slot`.
++- `03_infra/src/shaper/font_selection.rs:363` — `split_run_by_font`.
++- `03_infra/src/shaper/font_selection.rs:439` — `is_p1404_format_control`.
+ 
+ These are local source anchors, not a new upstream parity measurement.
++`00_nucleo/diagnosticos/shaper-prompt-audit/results.json` demonstrates sparse scoring against the wrong slots and a same-face Latin/Greek run merged across its script boundary.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/font_selection.rs`.
+ 
+ ## Owned contract
+@@ -28,9 +29,9 @@
+ - Try declared families with the actual TextStyle variant; accept only readable faces. If none resolve, consume the shared class fallback catalog before global fallback. Catalog spelling/order belongs to `00_nucleo/prompts/infra/fallback_fonts.md`.
+ - In the existing resolved-declared-list branch, append the math chain when style.math or a primary face has MATH; do not invent a second append branch. Family names do not define math content semantics.
+ - Global candidates come from World::candidates_for_char, are lazily loaded and confirmed by glyph lookup. Preserve longest-covering-run preference, with FontBook similarity using the first resolved primary to break existing preference ties. Never load uncovered catalog entries or intervening slots.
+-- The local fallback vector is a sparse interner: one dense local position per distinct global slot; result indices use primary.len()+local position. Resolve through that candidate's associated slot, never treat the local index as a global FontBook index or allocate proportional to the greatest slot.
++- The local fallback vector is a sparse interner: one dense local position per distinct global slot; result indices use primary.len()+local position. Resolve through that candidate's associated slot, never treat the local index as a global FontBook index or allocate proportional to the greatest slot. Translate candidates to their associated global slots before FontBook scoring, then translate the selected global slot back to its local candidate position without loading intervening faces.
+ - U+2060/U+202B/U+202C formatting controls stay in content and bypass coverage lookup, joining the current sub-run or first primary when isolated. Preserve their extractable codepoints and exact recognized set; other invisible characters are not generalized.
+-- Common/Inherited scripts inherit the active script; a script or font change splits the sub-run. Preserve original cluster offsets and existing missing-glyph fallback, without a new color-font/render policy.
++- Common/Inherited scripts inherit the active script, initially the first non-generic script in the bidi run when one exists. Update the active script when transitioning; a script or font change splits the sub-run even if both scripts use the same face. Preserve original cluster offsets and existing missing-glyph fallback, without a new color-font/render policy.
+ 
+ ## Verification and boundary
+ 
+--- before/00_nucleo/prompts/infra/shaper/shaping.md
++++ 00_nucleo/prompts/infra/shaper/shaping.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/shaping
+-Hash do Código: d5f389fe
++Hash do Código: 07220c43
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/shaping.rs`
+@@ -27,7 +27,7 @@
+ - Clone the cached base face before applying axes. Derived variant axes are merged with explicit style variations, explicit values winning by tag; preserve nonvariable/unknown-axis no-op behavior.
+ - Set direction per bidi run; preserve language, offsets, glyph ids/advances and clamped positive units_per_em. Each emitted TextShaped.text is the sub-run text and glyph clusters are UTF-8 byte offsets relative to that text, with replacement character fallback for an invalid mapping. BidiRun.byte_start is a separate original-input coordinate owned by the bidi child. Whitespace-only input takes the unchanged-Text path; traversal owns the rule against reshaping TextShaped.
+ - Measure multiline width as the maximum paragraph width. Emission resets x for each paragraph and advances y by the first primary's resolved top/bottom edges plus style leading (default 0.65em). This does not repair L1 vertical flow/pagination for an embedded newline.
+-- Preserve the existing distinct measurement/emission feature and tracking paths rather than harmonize them speculatively. In emission convert tracking points to rounded font units and add it only before a following different cluster, never inside a cluster or after the last glyph of a sub-run; negative tracking remains valid.
++- Preserve the existing distinct measurement/emission feature and tracking paths rather than harmonize them speculatively. In emission calculate the rounded i32 tracking increment once per candidate from resolved tracking points, positive units_per_em and style.size, using the existing conversion formula. Pass that same increment to the cache key and add it only before a following different cluster, never inside a cluster or after the last glyph of a sub-run; negative tracking remains valid.
+ - Math mode is decided by style.math. Consume the canonical ssty_eligible_text from font_metrics; request levels 1/2 only for eligible Script/ScriptScript outside math_text_item. TextItem keeps math family/target features and every non-ssty property but no explicit ssty feature (`None`), also represented as absence in its cache key.
+ - Preserve forced math script behavior independently of requesting ssty and existing default OpenType features. No family/codepoint/fixture exception, speculative feature change, vertical shaping or nonzero face-index support is introduced.
+ 
+--- before/00_nucleo/prompts/infra/shaper/tests.md
++++ 00_nucleo/prompts/infra/shaper/tests.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/tests
+-Hash do Código: 2d5c64ad
++Hash do Código: 501b026b
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/tests.rs`
+@@ -19,7 +19,7 @@
+ 
+ - Own only the unit suite, mocks and real-font fixtures under shaper::tests. Preserve existing names and descendant helper access; tests do not define a new API.
+ - Cover text passthrough, all page layers/semantic groups, bidi/UTF-8 offsets/multiline paragraphs, script/font fallback, sparse local slot identity, variations without contamination, tracking, math TextItem/ssty and LTR/RTL reconciliation.
+-- Distinguish dense-local candidate identity from global slot number; cardinality alone is insufficient. Keep missing-font and no-panic controls and compare language text/positions where relevant rather than claim a new upstream parity measurement.
++- Distinguish dense-local candidate identity from global slot number; cardinality alone is insufficient. Cover scoring with sparse global slots and decoy metadata at the colliding local indices, and script boundaries within one face (including leading Common and inherited characters). Verify isolated versus mixed AB/BA shaping for tracking precision and absolute tracking at different sizes; retain same-effective-increment reuse controls. Mandatory new regressions use embedded/repository fixtures rather than silently skipping missing system fonts. Keep missing-font and no-panic controls and compare language text/positions where relevant rather than claim a new upstream parity measurement.
+ 
+ ## Verification and boundary
+ 
+--- before/03_infra/src/shaper/cache.rs
++++ 03_infra/src/shaper/cache.rs
+@@ -1,13 +1,13 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
+-//! @prompt-hash f5c6a460
++//! @prompt-hash cdcdfe3b
+ //! @layer L3
+ //! @updated 2026-09-27
+ 
+ use std::collections::HashMap;
+ use std::sync::Arc;
+ use typst_core::contracts::world::World;
+-use typst_core::entities::layout_types::{Length, ShapedGlyph};
++use typst_core::entities::layout_types::ShapedGlyph;
+ use typst_core::entities::world_types::Font;
+ 
+ /// Cache de resultados de shaping por documento.
+@@ -36,7 +36,7 @@
+         slot_idx: usize,
+         rtl: bool,
+         axis_vars: &[rustybuzz::Variation],
+-        tracking: Option<Length>,
++        tracking_fu: i32,
+         ssty_level: Option<u8>,
+     ) -> String {
+         let axis_key: String = axis_vars
+@@ -44,13 +44,10 @@
+             .map(|v| format!("{}={:08x}", v.tag, v.value.to_bits()))
+             .collect::<Vec<_>>()
+             .join(",");
+-        let tracking_key = tracking
+-            .map(|t| format!("{:.4}:{:.4}", t.abs.0, t.em))
+-            .unwrap_or_default();
+         // **P977** — o resultado do shaping muda com o nível ssty.
+         format!(
+             "{}|{}|{}|{}|{}|ssty{:?}",
+-            text, slot_idx, rtl, axis_key, tracking_key, ssty_level
++            text, slot_idx, rtl, axis_key, tracking_fu, ssty_level
+         )
+     }
+ }
+@@ -131,10 +128,10 @@
+                     value: f32::from_bits(bits),
+                 }]
+             };
+-            let key_a = ShapeCache::key("A", 0, false, &axis(a), None, None);
+-            let key_b = ShapeCache::key("A", 0, false, &axis(b), None, None);
++            let key_a = ShapeCache::key("A", 0, false, &axis(a), 0, None);
++            let key_b = ShapeCache::key("A", 0, false, &axis(b), 0, None);
+             assert_ne!(key_a, key_b);
+-            assert_eq!(key_a, ShapeCache::key("A", 0, false, &axis(a), None, None));
++            assert_eq!(key_a, ShapeCache::key("A", 0, false, &axis(a), 0, None));
+         }
+     }
+ 
+--- before/03_infra/src/shaper/font_selection.rs
++++ 03_infra/src/shaper/font_selection.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/font_selection.md
+-//! @prompt-hash bddbbd42
++//! @prompt-hash a8011482
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ 
+ use super::bidi::BidiRun;
+ use super::cache::FaceCache;
+@@ -221,13 +221,24 @@
+         if let Some(best) = self.world.book().select_fallback(
+             self.like.as_ref(),
+             &self.variant,
+-            fallback_candidates.iter().copied(),
++            fallback_candidates.iter().filter_map(|&idx| self.candidate_slot(idx)),
+         ) {
+-            if let Some(pos) = fallback_candidates.iter().position(|&c| c == best) {
++            if let Some(pos) = fallback_candidates
++                .iter()
++                .position(|&idx| self.candidate_slot(idx) == Some(best))
++            {
+                 fallback_candidates.swap(0, pos);
+             }
+         }
+         self.best_covering_run(text, start, &fallback_candidates)
++    }
++
++    fn candidate_slot(&self, idx: usize) -> Option<usize> {
++        if idx < self.primary.len() {
++            self.primary.get(idx).map(|candidate| candidate.slot_idx)
++        } else {
++            self.fallback.get(idx - self.primary.len()).copied().flatten()
++        }
+     }
+ 
+     /// Dado um conjunto de índices de candidatos, escolhe o que cobre o maior
+@@ -360,7 +371,11 @@
+ 
+     let mut result = Vec::new();
+     let mut pos = 0usize;
+-    let mut current_script = Script::Unknown;
++    let mut current_script = text
++        .chars()
++        .map(|c| c.script())
++        .find(|&script| !is_generic_script(script))
++        .unwrap_or(Script::Unknown);
+     let mut current: Option<SubRun> = None;
+ 
+     while pos < text.len() {
+--- before/03_infra/src/shaper/shaping.rs
++++ 03_infra/src/shaper/shaping.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
+-//! @prompt-hash 4ca42dfd
++//! @prompt-hash 5495f47e
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ 
+ use super::bidi::bidi_runs;
+ use super::cache::{CachedRun, FaceCache, ShapeCache};
+@@ -218,12 +218,20 @@
+                 // usa o shaper de parágrafo comum, que nunca pede `ssty`
+                 // com efeito nesta fonte.
+                 let ssty_level = ssty_level_for_subrun(style, &subrun.text);
++                let tracking_fu = style
++                    .tracking
++                    .map(|t| {
++                        let pt = t.resolve_pt(style.size.val());
++                        (pt * candidate.units_per_em as f64 / style.size.val()).round()
++                            as i32
++                    })
++                    .unwrap_or(0);
+                 let cache_key = ShapeCache::key(
+                     &subrun.text,
+                     candidate.slot_idx,
+                     run.rtl,
+                     &axis_vars,
+-                    style.tracking,
++                    tracking_fu,
+                     ssty_level,
+                 );
+                 let cached = cache.map.get(&cache_key).cloned();
+@@ -289,14 +297,6 @@
+                     // seguinte pertence a um cluster diferente, evitando partir ligaduras
+                     // e conjuntos (ex.: devanágari) onde vários glifos compõem um único
+                     // caractere visual. O último glifo do sub-run nunca recebe tracking.
+-                    let tracking_fu = style
+-                        .tracking
+-                        .map(|t| {
+-                            let pt = t.resolve_pt(style.size.val());
+-                            (pt * candidate.units_per_em as f64 / style.size.val())
+-                                .round() as i32
+-                        })
+-                        .unwrap_or(0);
+                     let n_glyphs = infos.len();
+                     let clusters: Vec<usize> =
+                         infos.iter().map(|info| info.cluster as usize).collect();
+--- before/03_infra/src/shaper/tests.rs
++++ 03_infra/src/shaper/tests.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
+-//! @prompt-hash d4dc5ca0
++//! @prompt-hash 6393dfb7
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ 
+ use super::bidi::bidi_runs;
+ use super::cache::{FaceCache, ShapeCache};
+@@ -1269,3 +1269,192 @@
+     assert_eq!(ssty_level_for_subrun(&scriptscript_glyph, "R"), Some(2));
+     assert_eq!(ssty_level_for_subrun(&script_glyph, "RR"), None);
+ }
++
++// Regression controls from the discriminating shaper prompt audit.
++fn contract_fix_font(family: &str) -> (FontInfo, Font) {
++    typst_assets::fonts()
++        .find_map(|data| {
++            let mut info = crate::fonts::font_info_from_bytes(data, 0)?;
++            if info.family != family || info.variant != FontVariant::default() {
++                return None;
++            }
++            let face = ttf_parser::Face::parse(data, 0).unwrap();
++            info.coverage = crate::fonts::extract_coverage(&face);
++            Some((info, Font::from_data(data.to_vec())))
++        })
++        .expect("required embedded regression font")
++}
++fn contract_fix_world() -> FontWorld {
++    let (info, font) = contract_fix_font("Libertinus Serif");
++    let mut book = FontBook::new();
++    book.push(info);
++    FontWorld { book, fonts: vec![Some(font)] }
++}
++fn contract_fix_glyphs(
++    world: &FontWorld,
++    text: &str,
++    styles: &[TextStyle],
++) -> Vec<Vec<ShapedGlyph>> {
++    let items = styles
++        .iter()
++        .map(|style| FrameItem::Text {
++            pos: Point { x: Pt(0.0), y: Pt(0.0) },
++            text: text.into(),
++            style: style.clone(),
++        })
++        .collect();
++    shape_document(world, doc_with(items)).pages[0]
++        .items
++        .iter()
++        .map(|item| match item {
++            FrameItem::TextShaped { glyphs, .. } => glyphs.clone(),
++            _ => panic!("regression fixture did not shape"),
++        })
++        .collect()
++}
++fn contract_fix_tracking_pair(a: TextStyle, b: TextStyle) {
++    let world = contract_fix_world();
++    let fresh_a = contract_fix_glyphs(&world, "ab", &[a.clone()]);
++    let fresh_b = contract_fix_glyphs(&world, "ab", &[b.clone()]);
++    assert_ne!(fresh_a, fresh_b, "tracking fixture must discriminate");
++    assert_eq!(
++        contract_fix_glyphs(&world, "ab", &[a.clone(), b.clone()]),
++        vec![fresh_a[0].clone(), fresh_b[0].clone()]
++    );
++    assert_eq!(
++        contract_fix_glyphs(&world, "ab", &[b, a.clone()]),
++        vec![fresh_b[0].clone(), fresh_a[0].clone()]
++    );
++    assert_eq!(
++        contract_fix_glyphs(&world, "ab", &[a.clone(), a]),
++        vec![fresh_a[0].clone(), fresh_a[0].clone()]
++    );
++}
++#[test]
++fn contract_fix_tracking_precision_matches_fresh() {
++    let mut a = TextStyle {
++        font: Some(FontList::single("Libertinus Serif".into())),
++        size: Pt(12.0),
++        tracking: Some(Length::pt(0.00599)),
++        ..Default::default()
++    };
++    let mut b = a.clone();
++    b.tracking = Some(Length::pt(0.00601));
++    contract_fix_tracking_pair(a.clone(), b);
++    a.tracking = Some(Length::pt(-0.00599));
++    let mut b = a.clone();
++    b.tracking = Some(Length::pt(-0.00601));
++    contract_fix_tracking_pair(a, b);
++}
++#[test]
++fn contract_fix_tracking_size_matches_fresh() {
++    let a = TextStyle {
++        font: Some(FontList::single("Libertinus Serif".into())),
++        size: Pt(12.0),
++        tracking: Some(Length::pt(1.0)),
++        ..Default::default()
++    };
++    let mut b = a.clone();
++    b.size = Pt(24.0);
++    contract_fix_tracking_pair(a, b);
++}
++#[test]
++fn contract_fix_sparse_fallback_scores_global_slots() {
++    let (base, first) = contract_fix_font("Libertinus Serif");
++    let (extra, second) = contract_fix_font("New Computer Modern Math");
++    let af = ttf_parser::Face::parse(first.as_slice(), 0).unwrap();
++    let bf = ttf_parser::Face::parse(second.as_slice(), 0).unwrap();
++    let c = (0x1d400..=0x1d7ff)
++        .filter_map(char::from_u32)
++        .find(|&c| af.glyph_index(c).is_none() && bf.glyph_index(c).is_some())
++        .expect("discriminating fallback glyph");
++    let mut book = FontBook::new();
++    let mut fonts = Vec::new();
++    for i in 0..7 {
++        let mut info = base.clone();
++        info.family = match i {
++            0 => "Primary",
++            1 => "Primary Preferred Decoy",
++            2 => "ZZZ Decoy",
++            5 => "Far Fallback With Long Name",
++            6 => "Primary Extra",
++            _ => "Unused",
++        }
++        .into();
++        info.coverage = if i >= 5 { extra.coverage.clone() } else { Coverage::new() };
++        book.push(info);
++        fonts.push(if i >= 5 {
++            Some(second.clone())
++        } else if i == 0 {
++            Some(first.clone())
++        } else {
++            None
++        });
++    }
++    assert_eq!(
++        book.select_fallback(Some(&book.infos()[0]), &FontVariant::default(), [5, 6]),
++        Some(6)
++    );
++    let world = FontWorld { book, fonts };
++    let mut face_cache = FaceCache::new();
++    let primary = resolve_candidates(
++        &world,
++        &FontList::single("Primary".into()),
++        &FontVariant::default(),
++        &mut face_cache,
++    )
++    .unwrap();
++    let like = Some(world.book.infos()[0].clone());
++    let mut candidates =
++        CandidateSet::new(&world, primary, &mut face_cache, like, FontVariant::default());
++    let (index, end) = candidates.covering_run(&c.to_string(), 0).unwrap();
++    assert_eq!(end, c.len_utf8());
++    assert_eq!(candidates.get(index).unwrap().slot_idx, 6);
++}
++#[test]
++fn contract_fix_same_face_script_boundaries() {
++    let world = contract_fix_world();
++    for (text, expected) in [
++        ("abαβ", vec!["ab", "αβ"]),
++        (" abαβ", vec![" ab", "αβ"]),
++        ("a\u{301}α", vec!["a\u{301}", "α"]),
++        ("αab", vec!["α", "ab"]),
++    ] {
++        let d = shape_document(
++            &world,
++            doc_with(vec![text_item_with_font(text, "Libertinus Serif")]),
++        );
++        let pieces: Vec<_> = d.pages[0]
++            .items
++            .iter()
++            .map(|i| match i {
++                FrameItem::TextShaped { text, glyphs, .. } => {
++                    assert!(glyphs.iter().all(|g| g.glyph_id != 0));
++                    text.as_str()
++                }
++                _ => panic!("did not shape"),
++            })
++            .collect();
++        assert_eq!(pieces, expected);
++    }
++}
++
++#[test]
++fn contract_fix_equal_effective_tracking_matches_fresh() {
++    let world = contract_fix_world();
++    let a = TextStyle {
++        font: Some(FontList::single("Libertinus Serif".into())),
++        size: Pt(12.0),
++        tracking: Some(Length::em(0.1)),
++        ..Default::default()
++    };
++    let mut b = a.clone();
++    b.size = Pt(24.0);
++    let fresh_a = contract_fix_glyphs(&world, "ab", &[a.clone()]);
++    let fresh_b = contract_fix_glyphs(&world, "ab", &[b.clone()]);
++    assert_eq!(fresh_a, fresh_b);
++    assert_eq!(
++        contract_fix_glyphs(&world, "ab", &[a, b]),
++        vec![fresh_a[0].clone(), fresh_b[0].clone()]
++    );
++}

@@ -1,0 +1,107 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/shaper/cache.md
+//! @prompt-hash d6e02b6c
+//! @layer L3
+//! @updated 2026-09-26
+
+use std::collections::HashMap;
+use std::sync::Arc;
+use typst_core::contracts::world::World;
+use typst_core::entities::layout_types::{Length, ShapedGlyph};
+use typst_core::entities::world_types::Font;
+
+/// Cache de resultados de shaping por documento.
+///
+/// A chave inclui tudo o que afecta o output de `rustybuzz::shape` para um
+/// sub-run: texto, identificador da face, direção, variações de eixo e
+/// tracking. O valor guarda os glifos shaped e a largura total em unidades
+/// de fonte.
+pub(super) struct ShapeCache {
+    pub(super) map: HashMap<String, CachedRun>,
+}
+
+#[derive(Clone)]
+pub(super) struct CachedRun {
+    pub(super) glyphs: Vec<ShapedGlyph>,
+    pub(super) width: i32,
+}
+
+impl ShapeCache {
+    pub(super) fn new() -> Self {
+        Self { map: HashMap::new() }
+    }
+
+    pub(super) fn key(
+        text: &str,
+        slot_idx: usize,
+        rtl: bool,
+        axis_vars: &[rustybuzz::Variation],
+        tracking: Option<Length>,
+        ssty_level: Option<u8>,
+    ) -> String {
+        let axis_key: String = axis_vars
+            .iter()
+            .map(|v| format!("{}={:.4}", v.tag, v.value))
+            .collect::<Vec<_>>()
+            .join(",");
+        let tracking_key = tracking
+            .map(|t| format!("{:.4}:{:.4}", t.abs.0, t.em))
+            .unwrap_or_default();
+        // **P977** — o resultado do shaping muda com o nível ssty.
+        format!(
+            "{}|{}|{}|{}|{}|ssty{:?}",
+            text, slot_idx, rtl, axis_key, tracking_key, ssty_level
+        )
+    }
+}
+
+/// Cache de faces `ttf-parser` por `slot_idx` dentro de um documento.
+///
+/// Evita re-parsear a mesma fonte milhares de vezes durante a fase de
+/// `split_run_by_font` (P672). O `Face` empresta internamente dos bytes da
+/// `Font` owned; a struct vive dentro de `Arc` para que o slice `'static`
+/// seja válido enquanto a face existir.
+pub(crate) struct FaceCache {
+    pub(super) map: HashMap<usize, Option<Arc<CachedFace>>>,
+}
+
+impl FaceCache {
+    pub(crate) fn new() -> Self {
+        Self { map: HashMap::new() }
+    }
+
+    pub(crate) fn get(
+        &mut self,
+        world: &dyn World,
+        slot_idx: usize,
+    ) -> Option<&CachedFace> {
+        if !self.map.contains_key(&slot_idx) {
+            let cached = world.font(slot_idx).and_then(CachedFace::new);
+            self.map.insert(slot_idx, cached);
+        }
+        self.map
+            .get(&slot_idx)
+            .and_then(|o| o.as_ref())
+            .map(|arc| arc.as_ref())
+    }
+}
+
+pub(crate) struct CachedFace {
+    #[allow(dead_code)]
+    data: Font,
+    face: ttf_parser::Face<'static>,
+}
+
+impl CachedFace {
+    pub(crate) fn new(data: Font) -> Option<Arc<Self>> {
+        let slice: &'static [u8] = unsafe {
+            std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
+        };
+        let face = ttf_parser::Face::parse(slice, 0).ok()?;
+        Some(Arc::new(Self { data, face }))
+    }
+
+    pub(crate) fn face(&self) -> &ttf_parser::Face<'_> {
+        &self.face
+    }
+}

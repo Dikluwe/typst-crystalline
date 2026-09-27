@@ -1,0 +1,59 @@
+   Compiling yoke v0.8.3
+   Compiling zerovec v0.11.8
+   Compiling tinystr v0.8.4
+   Compiling icu_locale_core v2.3.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.5
+   Compiling icu_provider v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling indexmap v2.14.2
+   Compiling bitflags v2.11.1
+   Compiling flate2 v1.1.2
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling arrayvec v0.7.6
+   Compiling icu_locale_fallback v2.3.0
+   Compiling idna_adapter v1.2.2
+   Compiling unic-langid-impl v0.9.6
+   Compiling form_urlencoded v1.2.1
+   Compiling unic-langid-macros v0.9.6
+   Compiling idna v1.0.3
+   Compiling url v2.5.4
+   Compiling unic-langid v0.9.6
+   Compiling plist v1.8.0
+   Compiling serde_json v1.0.138
+   Compiling polycool v0.4.0
+   Compiling biblatex v0.12.0
+   Compiling toml_edit v0.22.23
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling syntect v5.3.0
+   Compiling rustix v0.38.44
+   Compiling kurbo v0.13.1
+   Compiling icu_locale v2.3.0
+   Compiling icu_collator v2.3.1
+   Compiling tiny-skia-path v0.12.0
+   Compiling png v0.17.16
+   Compiling hayagriva v0.10.1
+   Compiling rustls v0.23.42
+   Compiling icu_segmenter v2.3.0
+   Compiling write-fonts v0.48.1
+   Compiling rust_decimal v1.36.0
+   Compiling xattr v1.4.0
+   Compiling two-face v0.4.3
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+   Compiling wasmparser v0.228.0
+   Compiling toml v0.8.19
+   Compiling png v0.18.1
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling rustybuzz v0.20.1
+   Compiling wasmi v1.0.9
+   Compiling image v0.24.9
+   Compiling tar v0.4.46
+   Compiling tiny-skia v0.12.0
+   Compiling subsetter v0.2.6
+   Compiling fontdb v0.23.0
+   Compiling ureq v2.12.1
+   Compiling typst-assets v0.15.0 (https://github.com/typst/typst-assets?rev=c0ae970#c0ae970f)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling reuse-trust-study v0.1.0 (/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/reuse-trust-study)
+error: could not compile `reuse-trust-study` (bin "reuse-trust-study") due to 1 previous error

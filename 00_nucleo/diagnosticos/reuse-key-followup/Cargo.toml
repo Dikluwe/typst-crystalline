@@ -1,0 +1,16 @@
+[package]
+name = "reuse-key-followup"
+version = "0.1.0"
+edition = "2024"
+publish = false
+[workspace]
+[dependencies]
+typst-core = { path = "../../../01_core" }
+typst-infra = { path = "../../../03_infra" }
+serde_json = "1"
+sha2 = "=0.10.9"
+ttf-parser = "=0.25.1"
+[profile.release]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false

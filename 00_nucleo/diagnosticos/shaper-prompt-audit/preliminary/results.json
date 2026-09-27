@@ -1,0 +1,618 @@
+{
+  "tracking_size": {
+    "size_a_pt": 12,
+    "size_b_pt": 24,
+    "tracking_pt": 1,
+    "result": {
+      "text": "ab",
+      "fresh_a": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "fresh_b": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 499, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "mixed_ab": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "mixed_ba": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 499, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 499, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "fresh_differ": true,
+      "ab_matches_fresh": false,
+      "ba_matches_fresh": false
+    }
+  },
+  "tracking_precision": {
+    "tracking_a_pt": 0.00599,
+    "tracking_b_pt": 0.00601,
+    "formatted_a": "0.0060",
+    "formatted_b": "0.0060",
+    "result": {
+      "text": "ab",
+      "fresh_a": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "fresh_b": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 458, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "mixed_ab": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "mixed_ba": [
+        "[ShapedGlyph { glyph_id: 66, x_advance: 458, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+        "[ShapedGlyph { glyph_id: 66, x_advance: 458, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+      ],
+      "fresh_differ": true,
+      "ab_matches_fresh": false,
+      "ba_matches_fresh": false
+    }
+  },
+  "script_controls": [
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "ffi",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]",
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]",
+          "[ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "office",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 504, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 2400, x_advance: 829, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 428, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "AV",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 583, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 652, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "ab",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "sin",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 390, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 271, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 542, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Libertinus Serif",
+      "result": {
+        "text": "123",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 465, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "ffi",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+          "[ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "office",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 71, x_advance: 306, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 68, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 444, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "AV",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 750, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "ab",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "sin",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 394, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 278, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 556, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "New Computer Modern Math",
+      "result": {
+        "text": "123",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "ffi",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]",
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]",
+          "[ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "office",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 80, x_advance: 606, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 58977, x_advance: 918, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 68, x_advance: 486, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 70, x_advance: 554, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "AV",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 34, x_advance: 593, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 55, x_advance: 575, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "ab",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 66, x_advance: 563, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "sin",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 84, x_advance: 468, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 74, x_advance: 275, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 79, x_advance: 610, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans CJK JP",
+      "result": {
+        "text": "123",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 18, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 19, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 20, x_advance: 555, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "ffi",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]",
+          "[ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'i' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "office",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]",
+          "[ShapedGlyph { glyph_id: 1274, x_advance: 605, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'o' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'f' }, ShapedGlyph { glyph_id: 684, x_advance: 344, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'f' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 3, char_code: 'i' }, ShapedGlyph { glyph_id: 415, x_advance: 480, x_offset: 0, y_offset: 0, cluster: 4, char_code: 'c' }, ShapedGlyph { glyph_id: 611, x_advance: 564, x_offset: 0, y_offset: 0, cluster: 5, char_code: 'e' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "AV",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]",
+          "[ShapedGlyph { glyph_id: 1, x_advance: 639, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }, ShapedGlyph { glyph_id: 274, x_advance: 600, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'V' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "ab",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]",
+          "[ShapedGlyph { glyph_id: 317, x_advance: 561, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 372, x_advance: 615, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "sin",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]",
+          "[ShapedGlyph { glyph_id: 1553, x_advance: 479, x_offset: 0, y_offset: 0, cluster: 0, char_code: 's' }, ShapedGlyph { glyph_id: 777, x_advance: 258, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'i' }, ShapedGlyph { glyph_id: 1187, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 2, char_code: 'n' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    },
+    {
+      "font": "Noto Sans Math",
+      "result": {
+        "text": "123",
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]",
+          "[ShapedGlyph { glyph_id: 1287, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 0, char_code: '1' }, ShapedGlyph { glyph_id: 1833, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 1, char_code: '2' }, ShapedGlyph { glyph_id: 1773, x_advance: 572, x_offset: 0, y_offset: 0, cluster: 2, char_code: '3' }]"
+        ],
+        "fresh_differ": false,
+        "ab_matches_fresh": true,
+        "ba_matches_fresh": true
+      }
+    }
+  ],
+  "sparse_fallback_scoring": {
+    "global_candidates": [
+      5,
+      6
+    ],
+    "expected_global_slot": 6,
+    "expected_family": "Primary CJK",
+    "actual_emitted_font_list": "Some(FontList([FontFamily { name: Literal(\"far fallback with long name\"), variants: [], variant: None, weight: None, style: None, covers: None }]))",
+    "fixture": "Controlled metadata, real CJK bytes at both fallback slots; equal coverage and run length. Decoy metadata at slots 1/2 isolates local/global index confusion."
+  },
+  "no_timing_measurements": true
+}

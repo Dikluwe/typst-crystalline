@@ -1,0 +1,36 @@
+{
+  "completed_utc": "2026-09-27T17:04:07.212763+00:00",
+  "report_sha256": "248ef25345a12b82498fbeb9f209d77d971b13fd33a15ee393a16a053187a728",
+  "files_after": {
+    "00_nucleo/prompts/infra/shaper/cache.md": "b5e807ce722782abd92082d9af3904b9d0e537a1c0e4c2a759d7d997f79262e3",
+    "00_nucleo/prompts/infra/shaper/font_selection.md": "2600fb18ff6ac9ee05cacd049955e16267e91d18b516fbc4858a31811eaa3e5c",
+    "00_nucleo/prompts/infra/shaper/shaping.md": "478717c6e4931fa7d75dd72508bd0cc9b222155bd52dc481f63a1c99a4063de3",
+    "00_nucleo/prompts/infra/shaper/tests.md": "bea0a0afc41696a288fbbfa0c891eaafea934de44022c0027da12102e048a440",
+    "03_infra/src/shaper/cache.rs": "f601c73a0149268fed4f237205ffb30b4e891a829f8b42a64f4dff96c1ad4eb6",
+    "03_infra/src/shaper/font_selection.rs": "f740ddbd46a4aa068129518b2a2a1fd0e1f2190ffc1f9abea33076a5bb929efe",
+    "03_infra/src/shaper/shaping.rs": "0dfb714e94e628a34ce0816b75c8f4b1fa90773ef8c12dbdf9a369dd2c1dd8ba",
+    "03_infra/src/shaper/tests.rs": "d1fe580ca277ffe924d8a5a66041583d039080cdfda02d041fcc02066d9a40f2"
+  },
+  "fingerprint_delta": [
+    "00_nucleo/prompts/infra/shaper/cache.md",
+    "00_nucleo/prompts/infra/shaper/font_selection.md",
+    "00_nucleo/prompts/infra/shaper/shaping.md",
+    "00_nucleo/prompts/infra/shaper/tests.md",
+    "03_infra/src/shaper/cache.rs",
+    "03_infra/src/shaper/font_selection.rs",
+    "03_infra/src/shaper/shaping.rs",
+    "03_infra/src/shaper/tests.rs"
+  ],
+  "prior_seals_intact": true,
+  "tracked_patch_unchanged": true,
+  "red_failed": 4,
+  "green_passed": 4,
+  "final_shaper_passed": 54,
+  "final_shaper_failed": 0,
+  "build_passed": true,
+  "global_lint_error_rules": [],
+  "owned_preexisting_warning_rules": [
+    "V16"
+  ],
+  "toolchain": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3\n"
+}

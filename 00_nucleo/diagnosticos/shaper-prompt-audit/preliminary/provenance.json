@@ -1,0 +1,56 @@
+{
+  "preparation_start_utc": "2026-09-27T16:48:09.802387+00:00",
+  "probe_start_utc": "2026-09-27T16:50:40.624846+00:00",
+  "probe_end_utc": "2026-09-27T16:50:40.769272+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "source_inputs": {
+    "00_nucleo/diagnosticos/shaper-prompt-audit/run.py": "8ea3ad57f7eb7ec89592f83b41267b34f7b5544e72e5e75843325ba5bc30208e",
+    "00_nucleo/diagnosticos/shaper-prompt-audit/Cargo.toml": "6ad1b8cd8ba55ca0bdf4d7f5afda3607f60968584fe743a7a2b09cb83b58348d",
+    "00_nucleo/diagnosticos/shaper-prompt-audit/Cargo.lock": "f929da014788502a966b238b381f2d69e878116f7a3ae8febebbf675c5a44290",
+    "00_nucleo/diagnosticos/shaper-prompt-audit/inputs.json": "2bfc05f85f7b97443cb998fe4e8dc6737519b5a1466f9a159dc7b4343eabec18",
+    "00_nucleo/diagnosticos/shaper-prompt-audit/src/main.rs": "1817b88efe90a42c4ee4b4f8d2aa6accdc30287c0dd3ae3796cb076527ced5cb"
+  },
+  "consumer_pin_fingerprint_before": "21d1d1cdd4bbde10e6b058c78205b44132fd3aacc540d8441a5d2fbd8f6b65cb",
+  "consumer_pin_fingerprint_after": "21d1d1cdd4bbde10e6b058c78205b44132fd3aacc540d8441a5d2fbd8f6b65cb",
+  "vanilla_pin": "9f2b6e8715237cb086899a42873660fe744622e8",
+  "vanilla_tree": "6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4",
+  "build_commands": [
+    [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/shaper-prompt-audit/Cargo.toml",
+      "--release",
+      "--offline",
+      "--target-dir",
+      "/repos/Antigravity/typst-crystalline/target",
+      "--message-format=json"
+    ],
+    [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/shaper-prompt-audit/Cargo.toml",
+      "--release",
+      "--offline",
+      "--target-dir",
+      "/repos/Antigravity/typst-crystalline/target",
+      "--message-format=json",
+      "--locked"
+    ]
+  ],
+  "probe_command": [
+    "/repos/Antigravity/typst-crystalline/target/release/shaper-prompt-audit"
+  ],
+  "executable_sha256": "16ef7f916c61e63ab728d0a566dd33884862732932f8b413179b343148759c71",
+  "profile": {
+    "opt_level": "3",
+    "debuginfo": 0,
+    "debug_assertions": false,
+    "overflow_checks": false,
+    "test": false
+  },
+  "toolchain": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+  "structural_not_timing_measurement": true,
+  "production_and_prior_measurement_inputs_unchanged": true
+}

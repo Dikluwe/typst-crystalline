@@ -1,0 +1,11 @@
+{
+  "owned_violations": [],
+  "global_error_rules": [],
+  "global_warning_rules": [
+    "V12",
+    "V16",
+    "V17",
+    "V18",
+    "V5"
+  ]
+}

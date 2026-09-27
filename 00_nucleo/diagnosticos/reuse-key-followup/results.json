@@ -1,0 +1,141 @@
+{
+  "axis_cases": [
+    {
+      "path": "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/UbuntuSans-Variable.ttf",
+      "family": "Ubuntu Sans",
+      "axis_min": 100.0,
+      "axis_max": 800.0,
+      "grid_step": 0.5,
+      "characters": [
+        "x",
+        "H",
+        "m",
+        "A",
+        "0",
+        "a",
+        "e",
+        "W"
+      ],
+      "metric_transitions_examined": 1,
+      "formatted_collisions_examined": 1,
+      "counterexample": {
+        "text": "A",
+        "a": 104.54103088378906,
+        "b": 104.5410385131836,
+        "a_bits": 1120998658,
+        "b_bits": 1120998659,
+        "four_decimals": "104.5410",
+        "metric_a": [
+          477,
+          680,
+          838,
+          617,
+          564,
+          500,
+          541,
+          908
+        ],
+        "metric_b": [
+          477,
+          680,
+          838,
+          618,
+          564,
+          500,
+          541,
+          908
+        ],
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 511, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]",
+          "[ShapedGlyph { glyph_id: 511, x_advance: 617, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 511, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]",
+          "[ShapedGlyph { glyph_id: 511, x_advance: 618, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }]"
+        ],
+        "ab_matches_fresh": false,
+        "ba_matches_fresh": false
+      }
+    },
+    {
+      "path": "/repos/Antigravity/typst-crystalline/03_infra/fixtures/fonts/Cantarell-VF.otf",
+      "family": "Cantarell",
+      "axis_min": 100.0,
+      "axis_max": 800.0,
+      "grid_step": 0.5,
+      "characters": [
+        "x",
+        "H",
+        "m",
+        "A",
+        "0",
+        "a",
+        "e",
+        "W"
+      ],
+      "metric_transitions_examined": 1,
+      "formatted_collisions_examined": 1,
+      "counterexample": {
+        "text": "x",
+        "a": 113.05543518066406,
+        "b": 113.0554428100586,
+        "a_bits": 1122114658,
+        "b_bits": 1122114659,
+        "four_decimals": "113.0554",
+        "metric_a": [
+          446,
+          728,
+          880,
+          626,
+          600,
+          501,
+          520,
+          975
+        ],
+        "metric_b": [
+          447,
+          728,
+          880,
+          626,
+          600,
+          501,
+          520,
+          975
+        ],
+        "fresh_a": [
+          "[ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]"
+        ],
+        "fresh_b": [
+          "[ShapedGlyph { glyph_id: 472, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]"
+        ],
+        "mixed_ab": [
+          "[ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]",
+          "[ShapedGlyph { glyph_id: 472, x_advance: 446, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]"
+        ],
+        "mixed_ba": [
+          "[ShapedGlyph { glyph_id: 472, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]",
+          "[ShapedGlyph { glyph_id: 472, x_advance: 447, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'x' }]"
+        ],
+        "ab_matches_fresh": false,
+        "ba_matches_fresh": false
+      }
+    }
+  ],
+  "split_lifecycle": {
+    "initial_source": "First snapshot",
+    "fresh_source_with_retained_pool": "Edited snapshot",
+    "same_font_buffer": true,
+    "old_snapshot_preserved": true,
+    "old_family": "Ubuntu Sans",
+    "replacement_family": "Cantarell",
+    "generation_replaced_as_book_font_pair": true,
+    "limited_explicit_single_font_prototype": true
+  },
+  "no_timing_measurements": true
+}

@@ -1,0 +1,38 @@
+# L0 — infra/shaper/cache
+Hash do Código: 4e9cfc55
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/shaper/cache.rs`
+
+## Current evidence
+
+- `03_infra/src/shaper/cache.rs:19` — `ShapeCache`.
+- `03_infra/src/shaper/cache.rs:24` — `CachedRun`.
+- `03_infra/src/shaper/cache.rs:30` — `new`.
+- `03_infra/src/shaper/cache.rs:34` — `key`.
+- `03_infra/src/shaper/cache.rs:64` — `FaceCache`.
+
+These are local source anchors, not a new upstream parity measurement.
+`00_nucleo/diagnosticos/reuse-key-followup/results.json` supplies discriminating
+public shaping controls: adjacent wght coordinates in Ubuntu Sans and Cantarell
+produce different fresh advances but alias under four-decimal axis formatting.
+Mixed runs then reuse the first result in either order. This local correction
+addresses that demonstrated alias; it makes no new vanilla parity claim.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/cache.rs`.
+
+## Owned contract
+
+- Own ShapeCache/CachedRun and FaceCache/CachedFace. Run cache is local to a document; face cache is per instance/compilation and may be shared by the metrics facade.
+- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), absolute/em tracking to four places and effective ssty level. Values retain glyphs and i32 width in font units.
+- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. Preserve the existing precision of tracking; this axis correction does not establish sufficiency of other key fields.
+
+## Verification and boundary
+
+Verify that distinct axis f32 bit patterns cannot alias through decimal formatting,
+and identical run inputs still reuse their key. For the discriminating Ubuntu Sans
+and Cantarell fixtures, mixed AB and BA document results must match isolated fresh
+shaping at the corresponding coordinates. Keep these regression tests in this
+consumer's test module. This is an internal cache-identity correction under
+ADR-0127, with no public API, default mode, compatibility or pipeline phase change.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

@@ -1,0 +1,17 @@
+{
+  "completed_utc": "2026-09-27T16:55:32.842826+00:00",
+  "report_sha256": "9937d522a06596c8275de04dca59ec9d49d317f6c8911f17187c8f5e09e3c3a8",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "executable_sha256": "fc8989d3aab8a7dfbfddab04c7c0e3170f21069c6f4c81f750a6c6b93f83686c",
+  "consumer_fingerprint": "21d1d1cdd4bbde10e6b058c78205b44132fd3aacc540d8441a5d2fbd8f6b65cb",
+  "no_production_or_l0_changes": true,
+  "tracked_patch_unchanged": true,
+  "prior_seals_intact": true,
+  "behavioral_repetitions": 3,
+  "demonstrated_findings": [
+    "tracking_precision",
+    "tracking_size",
+    "local_global_fallback_scoring",
+    "same_font_script_segmentation"
+  ]
+}

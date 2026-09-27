@@ -1,0 +1,47 @@
+
+running 4 tests
+test shaper::tests::contract_fix_same_face_script_boundaries ... FAILED
+test shaper::tests::contract_fix_sparse_fallback_scores_global_slots ... FAILED
+test shaper::tests::contract_fix_tracking_precision_matches_fresh ... FAILED
+test shaper::tests::contract_fix_tracking_size_matches_fresh ... FAILED
+
+failures:
+
+---- shaper::tests::contract_fix_same_face_script_boundaries stdout ----
+
+thread 'shaper::tests::contract_fix_same_face_script_boundaries' (4187422) panicked at 03_infra/src/shaper/tests.rs:1342:9:
+assertion `left == right` failed
+  left: ["abαβ"]
+ right: ["ab", "αβ"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- shaper::tests::contract_fix_sparse_fallback_scores_global_slots stdout ----
+
+thread 'shaper::tests::contract_fix_sparse_fallback_scores_global_slots' (4187423) panicked at 03_infra/src/shaper/tests.rs:1334:35:
+assertion `left == right` failed
+  left: 5
+ right: 6
+
+---- shaper::tests::contract_fix_tracking_precision_matches_fresh stdout ----
+
+thread 'shaper::tests::contract_fix_tracking_precision_matches_fresh' (4187424) panicked at 03_infra/src/shaper/tests.rs:1300:5:
+assertion `left == right` failed
+  left: [[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }], [ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]]
+ right: [[ShapedGlyph { glyph_id: 66, x_advance: 457, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }], [ShapedGlyph { glyph_id: 66, x_advance: 458, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]]
+
+---- shaper::tests::contract_fix_tracking_size_matches_fresh stdout ----
+
+thread 'shaper::tests::contract_fix_tracking_size_matches_fresh' (4187425) panicked at 03_infra/src/shaper/tests.rs:1300:5:
+assertion `left == right` failed
+  left: [[ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }], [ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]]
+ right: [[ShapedGlyph { glyph_id: 66, x_advance: 540, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }], [ShapedGlyph { glyph_id: 66, x_advance: 499, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'a' }, ShapedGlyph { glyph_id: 67, x_advance: 493, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'b' }]]
+
+
+failures:
+    shaper::tests::contract_fix_same_face_script_boundaries
+    shaper::tests::contract_fix_sparse_fallback_scores_global_slots
+    shaper::tests::contract_fix_tracking_precision_matches_fresh
+    shaper::tests::contract_fix_tracking_size_matches_fresh
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 1103 filtered out; finished in 0.01s
+

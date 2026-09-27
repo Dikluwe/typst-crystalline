@@ -1,0 +1,16 @@
+{
+  "red": [
+    "cargo test -p typst-infra --lib axis_key --offline"
+  ],
+  "green": [
+    "cargo test -p typst-infra --lib axis_key --offline",
+    "cargo test -p typst-infra --lib shaper:: --offline"
+  ],
+  "final": [
+    "cargo build --offline",
+    "crystalline-lint . --format sarif",
+    "cargo test -p typst-infra --lib shaper:: --offline"
+  ],
+  "formatting": "rustfmt --edition 2021 --config skip_children=true 03_infra/src/shaper/cache.rs",
+  "hashes": "Only owner prompt/source metadata updated, SHA-256 excluding respective canonical metadata line. No global rewrite. Read-only hash preview aborted during preflight; stderr preserved."
+}

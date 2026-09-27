@@ -1,0 +1,32 @@
+{
+  "owned": [
+    {
+      "level": "warning",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./03_infra/src/shaper/shaping.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 28
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio"
+      },
+      "ruleId": "V16"
+    }
+  ],
+  "global_error_rules": [],
+  "global_warning_rules": [
+    "V12",
+    "V16",
+    "V17",
+    "V18",
+    "V5"
+  ]
+}

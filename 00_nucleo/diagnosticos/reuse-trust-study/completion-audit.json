@@ -1,0 +1,17 @@
+{
+  "completed_utc": "2026-09-27T15:54:41.802299+00:00",
+  "head": "6ef8b6986e74de7d5cc8f7b7e009868fc0daa5f5",
+  "report_sha256": "bb4df7348b6b01eb242f7c09258ae1b90aea95f170f6b60012d2203cb8f89a5b",
+  "scope": [
+    "00_nucleo/diagnosticos/reuse-trust-study/",
+    "00_nucleo/diagnosticos/reuse-trust-study.md"
+  ],
+  "production_L0_ADR_existing_benchmarks_unchanged": true,
+  "incoming_tracked_patch_preserved": true,
+  "prior_sealed_evidence_verified": true,
+  "scratch_source_restored_and_font_removed": true,
+  "public_API_controls_passed": true,
+  "no_timing_measurement_or_production_optimization": true,
+  "mixed_shaping_probe_discriminated_script_alias": false,
+  "note": "All six sampled fresh modes coincide; consistency passed but does not refute the missing-effective-script key risk."
+}

@@ -1,0 +1,27 @@
+{
+  "completed_utc": "2026-09-27T16:39:19.795545+00:00",
+  "report_sha256": "91d4355d1fc4ff9bf26afc8fd4bd57e7bcc3638579824ecb10904669354f8b23",
+  "files_after": {
+    "00_nucleo/prompts/infra/shaper/cache.md": "a2a0296019eb0b97cd4806fbfaea3864db352a645700d9ec555385d2322fa7e1",
+    "03_infra/src/shaper/cache.rs": "4e570f48eae232c4343ce47730d686c506449208be52b3e261903bfc8905167e"
+  },
+  "fingerprint_delta": [
+    "00_nucleo/prompts/infra/shaper/cache.md",
+    "03_infra/src/shaper/cache.rs"
+  ],
+  "tracked_patch_unchanged": true,
+  "prior_manifests_intact": true,
+  "red": {
+    "failed": 3
+  },
+  "green": {
+    "passed": 3
+  },
+  "shaper_suite": {
+    "passed": 49,
+    "failed": 0
+  },
+  "build_passed": true,
+  "global_lint_errors": [],
+  "owned_lint_violations": []
+}

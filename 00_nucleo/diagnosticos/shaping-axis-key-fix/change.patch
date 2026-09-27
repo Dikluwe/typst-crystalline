@@ -1,0 +1,192 @@
+--- before/00_nucleo/prompts/infra/shaper/cache.md
++++ 00_nucleo/prompts/infra/shaper/cache.md
+@@ -1,5 +1,5 @@
+ # L0 — infra/shaper/cache
+-Hash do Código: d1228c74
++Hash do Código: 4e9cfc55
+ 
+ **Layer:** L3
+ **Exclusive consumer:** `03_infra/src/shaper/cache.rs`
+@@ -13,16 +13,26 @@
+ - `03_infra/src/shaper/cache.rs:64` — `FaceCache`.
+ 
+ These are local source anchors, not a new upstream parity measurement.
++`00_nucleo/diagnosticos/reuse-key-followup/results.json` supplies discriminating
++public shaping controls: adjacent wght coordinates in Ubuntu Sans and Cantarell
++produce different fresh advances but alias under four-decimal axis formatting.
++Mixed runs then reuse the first result in either order. This local correction
++addresses that demonstrated alias; it makes no new vanilla parity claim.
+ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/cache.rs`.
+ 
+ ## Owned contract
+ 
+ - Own ShapeCache/CachedRun and FaceCache/CachedFace. Run cache is local to a document; face cache is per instance/compilation and may be shared by the metrics facade.
+-- Preserve exact textual run keys: text, slot, direction, variations formatted to four decimal places, absolute/em tracking to four places and effective ssty level. Values retain glyphs and i32 width in font units.
+-- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache, new eviction or key precision is authorized.
++- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), absolute/em tracking to four places and effective ssty level. Values retain glyphs and i32 width in font units.
++- Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. Preserve the existing precision of tracking; this axis correction does not establish sufficiency of other key fields.
+ 
+ ## Verification and boundary
+ 
+-Verify this unit through its existing family/CLI tests when validating behavior.
++Verify that distinct axis f32 bit patterns cannot alias through decimal formatting,
++and identical run inputs still reuse their key. For the discriminating Ubuntu Sans
++and Cantarell fixtures, mixed AB and BA document results must match isolated fresh
++shaping at the corresponding coordinates. Keep these regression tests in this
++consumer's test module. This is an internal cache-identity correction under
++ADR-0127, with no public API, default mode, compatibility or pipeline phase change.
+ Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+ Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+--- before/03_infra/src/shaper/cache.rs
++++ 03_infra/src/shaper/cache.rs
+@@ -1,8 +1,8 @@
+ //! Crystalline Lineage
+ //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
+-//! @prompt-hash d6e02b6c
++//! @prompt-hash f5c6a460
+ //! @layer L3
+-//! @updated 2026-09-26
++//! @updated 2026-09-27
+ 
+ use std::collections::HashMap;
+ use std::sync::Arc;
+@@ -41,7 +41,7 @@
+     ) -> String {
+         let axis_key: String = axis_vars
+             .iter()
+-            .map(|v| format!("{}={:.4}", v.tag, v.value))
++            .map(|v| format!("{}={:08x}", v.tag, v.value.to_bits()))
+             .collect::<Vec<_>>()
+             .join(",");
+         let tracking_key = tracking
+@@ -105,3 +105,130 @@
+         &self.face
+     }
+ }
++
++#[cfg(test)]
++mod axis_key_regressions {
++    use super::ShapeCache;
++    use crate::{fonts::FontSlot, shaper::shape_document, world::SystemWorld};
++    use typst_core::{
++        contracts::world::World,
++        entities::{
++            content::Content,
++            font_list::FontList,
++            font_variations::FontVariations,
++            layout_types::{
++                FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle,
++            },
++        },
++    };
++
++    #[test]
++    fn axis_key_distinguishes_adjacent_coordinates_and_reuses_identical_inputs() {
++        for (a, b) in [(1120998658, 1120998659), (1122114658, 1122114659)] {
++            let axis = |bits| {
++                [rustybuzz::Variation {
++                    tag: rustybuzz::ttf_parser::Tag::from_bytes(b"wght"),
++                    value: f32::from_bits(bits),
++                }]
++            };
++            let key_a = ShapeCache::key("A", 0, false, &axis(a), None, None);
++            let key_b = ShapeCache::key("A", 0, false, &axis(b), None, None);
++            assert_ne!(key_a, key_b);
++            assert_eq!(key_a, ShapeCache::key("A", 0, false, &axis(a), None, None));
++        }
++    }
++
++    #[allow(deprecated)]
++    fn shaped(
++        world: &dyn World,
++        text: &str,
++        family: &str,
++        coordinates: &[f32],
++    ) -> Vec<Vec<ShapedGlyph>> {
++        let items = coordinates
++            .iter()
++            .map(|&value| FrameItem::Text {
++                pos: Point { x: Pt(0.0), y: Pt(0.0) },
++                text: text.into(),
++                style: TextStyle {
++                    size: Pt(12.0),
++                    font: Some(FontList::single(family.into())),
++                    variations: Some(FontVariations(vec![(*b"wght", value)])),
++                    ..Default::default()
++                },
++            })
++            .collect();
++        let doc = PagedDocument::new(vec![Page {
++            width: 595.0,
++            height: 842.0,
++            logical_number: 1,
++            numbering: None,
++            supplement: Content::Empty,
++            bleed: Default::default(),
++            fill: Default::default(),
++            background: vec![],
++            foreground: vec![],
++            items,
++        }]);
++        shape_document(world, doc).pages[0]
++            .items
++            .iter()
++            .map(|item| match item {
++                FrameItem::TextShaped { glyphs, .. } => glyphs.clone(),
++                _ => panic!("variable-font fixture did not shape"),
++            })
++            .collect()
++    }
++
++    fn assert_mixed_matches_fresh(
++        file: &str,
++        text: &str,
++        bits: (u32, u32),
++        advances: (i32, i32),
++    ) {
++        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
++        let world = SystemWorld::for_eval(&root)
++            .with_fonts(vec![FontSlot::new(root.join("fixtures/fonts").join(file), 0)]);
++        let family = &world.book().infos()[0].family;
++        let a = f32::from_bits(bits.0);
++        let b = f32::from_bits(bits.1);
++        let fresh_a = shaped(&world, text, family, &[a]);
++        let fresh_b = shaped(&world, text, family, &[b]);
++        assert_eq!(fresh_a.len(), 1);
++        assert_eq!(fresh_b.len(), 1);
++        assert_eq!(fresh_a[0][0].x_advance, advances.0);
++        assert_eq!(fresh_b[0][0].x_advance, advances.1);
++        assert_ne!(fresh_a, fresh_b, "fixture must discriminate the two coordinates");
++        assert_eq!(
++            shaped(&world, text, family, &[a, b]),
++            vec![fresh_a[0].clone(), fresh_b[0].clone()]
++        );
++        assert_eq!(
++            shaped(&world, text, family, &[b, a]),
++            vec![fresh_b[0].clone(), fresh_a[0].clone()]
++        );
++        assert_eq!(
++            shaped(&world, text, family, &[a, a]),
++            vec![fresh_a[0].clone(), fresh_a[0].clone()]
++        );
++    }
++
++    #[test]
++    fn ubuntu_axis_key_mixed_runs_match_fresh_in_both_orders() {
++        assert_mixed_matches_fresh(
++            "UbuntuSans-Variable.ttf",
++            "A",
++            (1120998658, 1120998659),
++            (617, 618),
++        );
++    }
++    #[test]
++    fn cantarell_axis_key_mixed_runs_match_fresh_in_both_orders() {
++        assert_mixed_matches_fresh(
++            "Cantarell-VF.otf",
++            "x",
++            (1122114658, 1122114659),
++            (446, 447),
++        );
++    }
++}

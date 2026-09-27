@@ -1,0 +1,39 @@
+# L0 — infra/shaper/font_selection
+Hash do Código: 188eae9c
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/shaper/font_selection.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+```
+
+## Current evidence
+
+- `03_infra/src/shaper/font_selection.rs:16` — `primary_candidates`.
+- `03_infra/src/shaper/font_selection.rs:116` — `CandidateSet`.
+- `03_infra/src/shaper/font_selection.rs:315` — `intern_fallback_slot`.
+- `03_infra/src/shaper/font_selection.rs:352` — `split_run_by_font`.
+- `03_infra/src/shaper/font_selection.rs:424` — `is_p1404_format_control`.
+
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/shaper/font_selection.rs`.
+
+## Owned contract
+
+- Own FontList resolution, primary/class/MATH fallback, lazy coverage, similarity preference, dense local interning and script/font segmentation. Measurement and emission use the same primary chain.
+- Try declared families with the actual TextStyle variant; accept only readable faces. If none resolve, consume the shared class fallback catalog before global fallback. Catalog spelling/order belongs to `00_nucleo/prompts/infra/fallback_fonts.md`.
+- In the existing resolved-declared-list branch, append the math chain when style.math or a primary face has MATH; do not invent a second append branch. Family names do not define math content semantics.
+- Global candidates come from World::candidates_for_char, are lazily loaded and confirmed by glyph lookup. Preserve longest-covering-run preference, with FontBook similarity using the first resolved primary to break existing preference ties. Never load uncovered catalog entries or intervening slots.
+- The local fallback vector is a sparse interner: one dense local position per distinct global slot; result indices use primary.len()+local position. Resolve through that candidate's associated slot, never treat the local index as a global FontBook index or allocate proportional to the greatest slot.
+- U+2060/U+202B/U+202C formatting controls stay in content and bypass coverage lookup, joining the current sub-run or first primary when isolated. Preserve their extractable codepoints and exact recognized set; other invisible characters are not generalized.
+- Common/Inherited scripts inherit the active script; a script or font change splits the sub-run. Preserve original cluster offsets and existing missing-glyph fallback, without a new color-font/render policy.
+
+## Verification and boundary
+
+Verify this unit through its existing family/CLI tests when validating behavior.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

@@ -1,0 +1,9 @@
+{
+  "red": "cargo test -p typst-infra --lib contract_fix --offline",
+  "green": "cargo test -p typst-infra --lib contract_fix --offline",
+  "shaper": "cargo test -p typst-infra --lib shaper:: --offline -- --test-threads=1",
+  "build": "cargo build --offline",
+  "lint": "crystalline-lint . --format sarif",
+  "local_formatting": "rustfmt --edition 2021 --config skip_children=true <four modified shaper consumers>",
+  "hashes": "Only the four owner/consumer pairs: canonical SHA-256 without metadata; framed effective prompt hash includes existing nucleus dependencies. No global rewrite."
+}
