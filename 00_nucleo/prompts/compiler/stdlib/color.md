@@ -1,8 +1,10 @@
 # L0 — stdlib/color
-Hash do Código: 3e6f9dd6
+Hash do Código: 5adad83e
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/color.rs`
+
+Após a atomização, este consumer possui o despacho estático do tipo color, o mapa pinado e os testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/color/` possuem paleta, validação de argumentos, operações de luz, mix, transformações, inspeção, alpha e Spot. As cláusulas abaixo permanecem contexto normativo, sem nova semântica.
 
 ## Evidence and classification
 
@@ -10,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/color.rs`
 
 ## Contract and ownership
 
-Own color_type_field, predefined_color_bindings, process/spot operation adapters and validation, not the global registry or entity-side color mathematics. Preserve the existing static/bound paths and native short names.
+Own color_type_field and the pinned color map; child prompts own predefined_color_bindings, process/spot operation adapters and validation. The global registry and entity-side color mathematics remain separate. Preserve the existing static/bound paths and native short names.
 
 Qualified constructors rgb/luma/oklab/oklch/linear-rgb/cmyk/hsl/hsv delegate to their foundation native owners; no new bare hsl/hsv/linear-rgb aliases. Preserve the predefined namespace palette and native CMYK representation, not an sRGB approximation of publicly observed color space/components. Existing cyan/magenta global compatibility extras remain distinct from color namespace membership.
 

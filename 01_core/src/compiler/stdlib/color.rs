@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash f9266994
+//! @prompt-hash 6647adc2
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -27,6 +27,32 @@ use crate::entities::span::Span;
 use crate::entities::value::{Type, Value};
 
 use super::err;
+
+mod alpha;
+mod arguments;
+mod inspect;
+mod light;
+mod mix;
+mod palette;
+mod spot;
+mod transform;
+
+pub(crate) use self::alpha::{native_color_opacify, native_color_transparentize};
+use self::arguments::*;
+pub(crate) use self::inspect::{
+    native_color_components, native_color_space, native_color_to_hex,
+};
+pub(crate) use self::light::{native_color_darken, native_color_lighten};
+pub(crate) use self::mix::native_color_mix;
+use self::palette::predefined_color;
+pub use self::palette::predefined_color_bindings;
+pub(crate) use self::spot::{
+    dispatch_spot_colorant_tint, native_spot_colorant_construct, native_spot_tint,
+};
+pub(crate) use self::transform::{
+    native_color_desaturate, native_color_negate, native_color_rotate,
+    native_color_saturate,
+};
 
 fn err_typed<T>(msg: impl Into<String>) -> SourceResult<T> {
     Err(vec![SourceDiagnostic::error(Span::detached(), msg.into())])
@@ -138,830 +164,56 @@ pub fn is_color_instance_method(method: &str) -> bool {
     )
 }
 
-/// **P1143** — fonte canônica das 18 cores ratificadas, compartilhada pelo
-/// scope global e pelo namespace `color`. As quatro escalas de cinza preservam
-/// o espaço Luma observável; as demais preservam sRGB.
-const PREDEFINED_COLORS: &[(&str, Color)] = &[
-    ("black", Color::Luma { l: 0.0, a: 1.0 }),
-    ("gray", Color::Luma { l: 170.0 / 255.0, a: 1.0 }),
-    ("silver", Color::Luma { l: 221.0 / 255.0, a: 1.0 }),
-    ("white", Color::Luma { l: 1.0, a: 1.0 }),
-    ("navy", Color::Srgb { r: 0.0, g: 31.0 / 255.0, b: 63.0 / 255.0, a: 1.0 }),
-    ("blue", Color::Srgb { r: 0.0, g: 0.454902, b: 0.85098, a: 1.0 }),
-    ("aqua", Color::Srgb { r: 127.0 / 255.0, g: 219.0 / 255.0, b: 1.0, a: 1.0 }),
-    (
-        "teal",
-        Color::Srgb {
-            r: 57.0 / 255.0,
-            g: 204.0 / 255.0,
-            b: 204.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    (
-        "eastern",
-        Color::Srgb {
-            r: 35.0 / 255.0,
-            g: 157.0 / 255.0,
-            b: 173.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    (
-        "purple",
-        Color::Srgb {
-            r: 177.0 / 255.0,
-            g: 13.0 / 255.0,
-            b: 201.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    (
-        "fuchsia",
-        Color::Srgb {
-            r: 240.0 / 255.0,
-            g: 18.0 / 255.0,
-            b: 190.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    (
-        "maroon",
-        Color::Srgb {
-            r: 133.0 / 255.0,
-            g: 20.0 / 255.0,
-            b: 75.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    ("red", Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 }),
-    ("orange", Color::Srgb { r: 1.0, g: 133.0 / 255.0, b: 27.0 / 255.0, a: 1.0 }),
-    ("yellow", Color::Srgb { r: 1.0, g: 220.0 / 255.0, b: 0.0, a: 1.0 }),
-    (
-        "olive",
-        Color::Srgb {
-            r: 61.0 / 255.0,
-            g: 153.0 / 255.0,
-            b: 112.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    (
-        "green",
-        Color::Srgb {
-            r: 46.0 / 255.0,
-            g: 204.0 / 255.0,
-            b: 64.0 / 255.0,
-            a: 1.0,
-        },
-    ),
-    ("lime", Color::Srgb { r: 1.0 / 255.0, g: 1.0, b: 112.0 / 255.0, a: 1.0 }),
-];
-
-fn predefined_color(name: &str) -> Option<Color> {
-    PREDEFINED_COLORS
-        .iter()
-        .find_map(|(candidate, color)| (*candidate == name).then_some(color.clone()))
-}
-
-/// Cores nomeadas globais para injeção no scope de eval.
-///
-/// **P687** — paridade vanilla 0.15.0 (969087ec): as 18 cores oficiais
-/// (`lib.rs:359-376` / `visualize/color.rs:291-322`) com bytes sRGB exactos
-/// (confirmados via `#repr`). `cyan`/`magenta`/`none` são extras pré-P687 mantidos
-/// sem regressão (não fazem parte do conjunto oficial vanilla).
-pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
-    PREDEFINED_COLORS
-        .iter()
-        .map(|(name, color)| ((*name).into(), Value::Color(color.clone())))
-        .chain([
-            // Extras cristalinos preservados somente no global.
-            ("cyan".into(), Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
-            ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
-            ("none".into(), Value::None),
-        ])
-        .collect()
-}
-
-fn extract_color_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<Color> {
-    match val {
-        Value::Color(c) => Ok(c.clone()),
-        other => err_typed(format!(
-            "{}: argumento '{}' deve ser Color, recebeu {}",
-            fn_name,
-            arg_name,
-            other.type_name()
-        )),
-    }
-}
-
-fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<f32> {
-    match val {
-        Value::Float(f) => Ok(*f as f32),
-        Value::Int(i) => Ok(*i as f32 / 100.0),
-        Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
-        // P842 (#32) — o literal percentual é agora `Value::Ratio`.
-        Value::Ratio(r) => Ok(r.get() as f32),
-        other => err_typed(format!(
-            "{}: argumento '{}' deve ser Float ou Percentage, recebeu {}",
-            fn_name,
-            arg_name,
-            other.type_name()
-        )),
-    }
-}
-
-/// **P744** — extrai um `ColorSpace` de um `Value::Func` cujo nome é um dos
-/// constructors de cor. Erro verbatim-style do vanilla para valores inválidos.
-fn extract_color_space_arg(
-    val: &Value,
-    _fn_name: &str,
-    _arg_name: &str,
-) -> SourceResult<crate::entities::color::ColorSpace> {
-    use crate::entities::color::ColorSpace;
-    match val {
-        Value::SpotColorant(colorant) => Ok(ColorSpace::Spot(colorant.clone())),
-        Value::Func(f) => match f.name() {
-            Some("rgb") => Ok(ColorSpace::Srgb),
-            Some("luma") => Ok(ColorSpace::Luma),
-            Some("cmyk") => Ok(ColorSpace::Cmyk),
-            Some("oklab") => Ok(ColorSpace::Oklab),
-            Some("oklch") => Ok(ColorSpace::Oklch),
-            Some("linear-rgb") => Ok(ColorSpace::LinearRgb),
-            Some("hsl") => Ok(ColorSpace::Hsl),
-            Some("hsv") => Ok(ColorSpace::Hsv),
-            _ => err_typed(format!(
-                "expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, `color.hsv`, or spot colorant, found {}",
-                vanilla_type_name(val)
-            )),
-        },
-        other => err_typed(format!(
-            "expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, `color.hsv`, or spot colorant, found {}",
-            vanilla_type_name(other)
-        )),
-    }
-}
-
-fn color_space_diagnostic(error: ColorSpaceError) -> Vec<SourceDiagnostic> {
-    let message = match error {
-        ColorSpaceError::ProcessToSpot { .. } => {
-            "cannot convert process color to spot colorant space"
-        }
-        ColorSpaceError::SpotToOther { .. } => {
-            "cannot convert spot color to different spot colorant"
-        }
+#[cfg(test)]
+mod atomization_test_support {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    vec![SourceDiagnostic::error(Span::detached(), message)]
-}
+    use std::num::NonZeroU16;
 
-fn check_space(color: &Color, space: &ColorSpace) -> SourceResult<()> {
-    color
-        .clone()
-        .to_space(space.clone())
-        .map(|_| ())
-        .map_err(color_space_diagnostic)
-}
-
-/// `color.lighten(col, amount)` — aumenta luminância por `amount` **no
-/// espaço da própria cor** (semântica vanilla corrigida em P742; era Oklch).
-pub(crate) fn native_color_lighten(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.lighten() não aceita argumentos nomeados");
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
     }
-    match args.items.as_slice() {
-        [col, amount] => {
-            let c = extract_color_arg(col, "color.lighten", "col")?;
-            let a = extract_ratio_arg(amount, "color.lighten", "amount")?;
-            Ok(Value::Color(c.lighten(a)))
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
         }
-        _ => err(format!(
-            "color.lighten() requer 2 argumentos (col, amount), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// `color.darken(col, amount)` — diminui luminância por `amount` **no
-/// espaço da própria cor** (semântica vanilla corrigida em P742; era Oklch).
-pub(crate) fn native_color_darken(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.darken() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col, amount] => {
-            let c = extract_color_arg(col, "color.darken", "col")?;
-            let a = extract_ratio_arg(amount, "color.darken", "amount")?;
-            Ok(Value::Color(c.darken(a)))
+        fn book(&self) -> &FontBook {
+            &self.book
         }
-        _ => err(format!(
-            "color.darken() requer 2 argumentos (col, amount), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// `color.mix(col1, col2, weight: 0.5, space: auto)` — interpolação linear
-/// no espaço indicado (default Oklab; resultado no espaço indicado, P744).
-pub(crate) fn native_color_mix(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    let space = match args.named.get("space") {
-        Some(v) => Some(extract_color_space_arg(v, "color.mix", "space")?),
-        None => None,
-    };
-    for key in args.named.keys() {
-        if !matches!(key.as_str(), "weight" | "space") {
-            return err(format!("color.mix(): argumento nomeado inesperado '{}'", key));
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
         }
     }
-    if let Some(weight_value) = args.named.get("weight") {
-        let weight = extract_ratio_arg(weight_value, "color.mix", "weight")?;
-        return match args.items.as_slice() {
-            [Value::Color(first), Value::Color(second)] => {
-                if let Some(target) = &space {
-                    check_space(first, target)?;
-                    check_space(second, target)?;
-                }
-                Ok(Value::Color(first.clone().mix(second.clone(), weight, space)))
-            }
-            _ => err("color.mix(weight:) requer exatamente duas cores sem pesos"),
-        };
+    pub(super) fn call(
+        native: fn(&mut EvalContext, &Args, &dyn World, FileId) -> SourceResult<Value>,
+        args: Args,
+    ) -> SourceResult<Value> {
+        let world = TestWorld::default();
+        let mut ctx = EvalContext::new();
+        native(&mut ctx, &args, &world, world.main())
     }
-
-    fn entry(value: &Value) -> SourceResult<(Color, f32)> {
-        match value {
-            Value::Color(color) => Ok((color.clone(), 1.0)),
-            Value::Array(values) if values.len() == 2 => {
-                let Value::Color(color) = &values[0] else {
-                    return err_typed("expected a color or color-weight pair");
-                };
-                let weight = match &values[1] {
-                    Value::Float(value) => *value as f32,
-                    Value::Int(value) => *value as f32,
-                    Value::Ratio(value) => value.get() as f32,
-                    other => {
-                        return err_typed(format!(
-                            "expected float or ratio, found {}",
-                            vanilla_type_name(other)
-                        ))
-                    }
-                };
-                Ok((color.clone(), weight))
-            }
-            _ => err_typed("expected a color or color-weight pair"),
-        }
-    }
-
-    let colors: Vec<(Color, f32)> =
-        args.items.iter().map(entry).collect::<SourceResult<_>>()?;
-    if let Some(target) = &space {
-        for (color, _) in &colors {
-            check_space(color, target)?;
-        }
-    }
-    if matches!(
-        space,
-        Some(ColorSpace::Hsl) | Some(ColorSpace::Hsv) | Some(ColorSpace::Oklch)
-    ) && colors.len() > 2
-    {
-        return err("cannot mix more than two colors in a hue-based space");
-    }
-    match Color::mix_weighted(&colors, space) {
-        Some(color) => Ok(Value::Color(color)),
-        None => {
-            let total: f32 = colors.iter().map(|(_, weight)| *weight).sum();
-            if total <= 0.0 || colors.is_empty() {
-                err("sum of weights must be positive")
-            } else {
-                err("cannot mix more than two colors in a hue-based space")
-            }
-        }
-    }
-}
-
-/// `color.negate(col, space: auto)` — negação no espaço indicado (default
-/// Oklab) com conversão de volta ao espaço original (P744).
-pub(crate) fn native_color_negate(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    let space = match args.named.get("space") {
-        Some(v) => Some(extract_color_space_arg(v, "color.negate", "space")?),
-        None => None,
-    };
-    for key in args.named.keys() {
-        if key.as_str() != "space" {
-            return err(format!(
-                "color.negate(): argumento nomeado inesperado '{}'",
-                key
-            ));
-        }
-    }
-    match args.items.as_slice() {
-        [col] => {
-            let c = extract_color_arg(col, "color.negate", "col")?;
-            if let Some(target) = &space {
-                check_space(&c, target)?;
-                if matches!(&c, Color::Spot(_)) && !matches!(target, ColorSpace::Spot(_))
-                {
-                    return err_typed(
-                        "cannot convert process color to spot colorant space",
-                    );
-                }
-            }
-            Ok(Value::Color(c.negate(space)))
-        }
-        _ => err(format!(
-            "color.negate() requer 1 argumento (col), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// `color.saturate(col, amount)` — aumenta a saturação por `amount`
-/// (**P742**: semântica vanilla via HSV; Luma → erro verbatim medido).
-pub(crate) fn native_color_saturate(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.saturate() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col, amount] => {
-            let c = extract_color_arg(col, "color.saturate", "col")?;
-            let a = extract_ratio_arg(amount, "color.saturate", "amount")?;
-            if matches!(&c, Color::Spot(_)) {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "cannot saturate spot color",
-                )
-                .with_hint("try using the fallback color instead")]);
-            }
-            match c.saturate(a) {
-                Some(sat) => Ok(Value::Color(sat)),
-                // Verbatim vanilla (medido P742) + hint.
-                None => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "cannot saturate grayscale color",
-                )
-                .with_hint("try converting your color to RGB first")]),
-            }
-        }
-        _ => err(format!(
-            "color.saturate() requer 2 argumentos (col, amount), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// `color.desaturate(col, amount)` — diminui a saturação por `amount`
-/// (**P742**: semântica vanilla via HSV; Luma → erro verbatim medido).
-pub(crate) fn native_color_desaturate(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.desaturate() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col, amount] => {
-            let c = extract_color_arg(col, "color.desaturate", "col")?;
-            let a = extract_ratio_arg(amount, "color.desaturate", "amount")?;
-            if matches!(&c, Color::Spot(_)) {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "cannot desaturate spot color",
-                )
-                .with_hint("try using the fallback color instead")]);
-            }
-            match c.desaturate(a) {
-                Some(desat) => Ok(Value::Color(desat)),
-                // Verbatim vanilla (medido P742) + hint.
-                None => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "cannot desaturate grayscale color",
-                )
-                .with_hint("try converting your color to RGB first")]),
-            }
-        }
-        _ => err(format!(
-            "color.desaturate() requer 2 argumentos (col, amount), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P744** — `color.rotate(col, angle, space: auto)` — rotação de hue no
-/// espaço indicado (default Oklch). Só espaços com hue são válidos.
-pub(crate) fn native_color_rotate(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if matches!(args.named.get("space"), Some(Value::SpotColorant(_))) {
-        return err_typed("expected `rgb`, `luma`, `cmyk`, `oklab`, `oklch`, `color.linear-rgb`, `color.hsl`, or `color.hsv`, found spot colorant");
-    }
-    let space = match args.named.get("space") {
-        Some(v) => Some(extract_color_space_arg(v, "color.rotate", "space")?),
-        None => None,
-    };
-    for key in args.named.keys() {
-        if key.as_str() != "space" {
-            return err(format!(
-                "color.rotate(): argumento nomeado inesperado '{}'",
-                key
-            ));
-        }
-    }
-    match args.items.as_slice() {
-        [col, angle] => {
-            let c = extract_color_arg(col, "color.rotate", "col")?;
-            if matches!(&c, Color::Spot(_)) {
-                return err_typed("cannot convert process color to spot colorant space");
-            }
-            let deg = match angle {
-                Value::Angle(a) => a.to_deg() as f32,
-                other => {
-                    return err_typed(format!(
-                        "color.rotate: argumento 'angle' deve ser Angle, recebeu {}",
-                        other.type_name()
-                    ))
-                }
-            };
-            match c.rotate(deg, space) {
-                Some(rot) => Ok(Value::Color(rot)),
-                None => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "this color space does not support hue rotation",
-                )]),
-            }
-        }
-        _ => err(format!(
-            "color.rotate() requer 2 argumentos (col, angle), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P742** — `color.components(col, alpha: true)` — componentes da cor
-/// como `Array` de `Ratio`/`Float`/`Angle` (paridade vanilla medida:
-/// `red.components()` → `(100%, 25.49%, 21.18%, 100%)`).
-pub(crate) fn native_color_components(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    use crate::entities::color::ColorComponent;
-    use crate::entities::layout_types::{Angle, Ratio};
-
-    let alpha = match args.named.get("alpha") {
-        Some(Value::Bool(b)) => *b,
-        Some(other) => {
-            return err_typed(format!(
-                "color.components: argumento 'alpha' deve ser Bool, recebeu {}",
-                other.type_name()
-            ))
-        }
-        None => true,
-    };
-    for key in args.named.keys() {
-        if key.as_str() != "alpha" {
-            return err(format!(
-                "color.components(): argumento nomeado inesperado '{}'",
-                key
-            ));
-        }
-    }
-    match args.items.as_slice() {
-        [col] => {
-            let c = extract_color_arg(col, "color.components", "col")?;
-            if let Color::Spot(spot) = &c {
-                // ColorComponent usa f32 para processo; tint spot conserva Ratio f64.
-                return Ok(Value::Array(vec![Value::Ratio(spot.tint)]));
-            }
-            let items = c
-                .components(alpha)
-                .into_iter()
-                .map(|comp| match comp {
-                    ColorComponent::Ratio(v) => {
-                        Value::Ratio(Ratio::from_percent(v as f64 * 100.0))
-                    }
-                    ColorComponent::Float(v) => Value::Float(v as f64),
-                    ColorComponent::Angle(v) => Value::Angle(Angle::deg(v as f64)),
-                })
-                .collect();
-            Ok(Value::Array(items))
-        }
-        _ => err(format!(
-            "color.components() requer 1 argumento (col), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P742** — `color.space(col)` — devolve a função construtora do espaço
-/// da cor (paridade vanilla medida: `red.space() == rgb` → `true`,
-/// `repr(red.space())` → `rgb`; a igualdade por nome de nativas, P742 em
-/// `entities/func.rs`, torna `Func::native("rgb", ..)` igual ao binding
-/// global `rgb`).
-pub(crate) fn native_color_space(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    use crate::entities::color::ColorSpace;
-
-    if !args.named.is_empty() {
-        return err("color.space() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col] => {
-            let c = extract_color_arg(col, "color.space", "col")?;
-            use super::foundations::{
-                native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
-                native_oklab, native_oklch, native_rgb,
-            };
-            let value = match c.space() {
-                ColorSpace::Srgb => Value::Func(Func::native("rgb", native_rgb)),
-                ColorSpace::Luma => Value::Func(Func::native("luma", native_luma)),
-                ColorSpace::LinearRgb => {
-                    Value::Func(Func::native("linear-rgb", native_linear_rgb))
-                }
-                ColorSpace::Oklab => Value::Func(Func::native("oklab", native_oklab)),
-                ColorSpace::Oklch => Value::Func(Func::native("oklch", native_oklch)),
-                ColorSpace::Cmyk => Value::Func(Func::native("cmyk", native_cmyk)),
-                ColorSpace::Hsl => Value::Func(Func::native("hsl", native_hsl)),
-                ColorSpace::Hsv => Value::Func(Func::native("hsv", native_hsv)),
-                ColorSpace::Spot(colorant) => Value::SpotColorant(colorant),
-            };
-            Ok(value)
-        }
-        _ => err(format!(
-            "color.space() requer 1 argumento (col), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P744** — `color.to-hex(col)` → `Str` com representação hex sRGB.
-pub(crate) fn native_color_to_hex(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.to-hex() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col] => {
-            let c = extract_color_arg(col, "color.to-hex", "col")?;
-            Ok(Value::Str(c.to_hex().into()))
-        }
-        _ => err(format!(
-            "color.to-hex() requer 1 argumento (col), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P744** — `color.transparentize(col, factor)` → Color com alpha reduzido.
-pub(crate) fn native_color_transparentize(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.transparentize() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col, factor] => {
-            let c = extract_color_arg(col, "color.transparentize", "col")?;
-            let f = extract_ratio_arg(factor, "color.transparentize", "factor")?;
-            if matches!(&c, Color::Spot(_)) {
-                return err_typed("spot colors do not have an alpha component");
-            }
-            match c.transparentize(f) {
-                Some(t) => Ok(Value::Color(t)),
-                None => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "CMYK does not have an alpha component",
-                )]),
-            }
-        }
-        _ => err(format!(
-            "color.transparentize() requer 2 argumentos (col, factor), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-/// **P744** — `color.opacify(col, factor)` → Color com alpha aumentado.
-pub(crate) fn native_color_opacify(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return err("color.opacify() não aceita argumentos nomeados");
-    }
-    match args.items.as_slice() {
-        [col, factor] => {
-            let c = extract_color_arg(col, "color.opacify", "col")?;
-            let f = extract_ratio_arg(factor, "color.opacify", "factor")?;
-            if matches!(&c, Color::Spot(_)) {
-                return err_typed("spot colors do not have an alpha component");
-            }
-            match c.opacify(f) {
-                Some(o) => Ok(Value::Color(o)),
-                None => Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "CMYK does not have an alpha component",
-                )]),
-            }
-        }
-        _ => err(format!(
-            "color.opacify() requer 2 argumentos (col, factor), recebeu {}",
-            args.items.len()
-        )),
-    }
-}
-
-// ── P1473 — `color.spot(name, fallback)` (escopo reduzido, sem `.tint()`) ───
-
-/// `color.spot(name, fallback)` — constructor de `Value::SpotColorant`.
-/// Despachado por `Value::Type(Type::SpotColorant) => ...` em
-/// `eval/call_dispatch.rs` (mesmo mecanismo de `int(...)`/`str(...)`/
-/// `stroke(...)`, sem novo caminho de dispatch). Ambos os argumentos são
-/// posicionais (paridade vanilla: `#[func(constructor)] fn construct(name:
-/// Option<Str>, fallback: ProcessColor)`, sem `#[named]`).
-///
-/// `name` (`Str` ou `none`, opcional — default `none`, genuinamente
-/// opcional na língua): tipo errado → `` expected "all", string, or none,
-/// found <tipo> ``. `fallback` (`Color` de processo, obrigatório): ausente
-/// → `missing argument: fallback`; `spot`-de-`spot` → `expected color,
-/// found spot colorant` (não há spot-de-spot); outro tipo errado →
-/// `expected color, found <tipo>`.
-pub(crate) fn native_spot_colorant_construct(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if let Some(key) = args.named.keys().next() {
-        return err_typed(format!("unexpected argument: {key}"));
-    }
-    if args.items.len() > 2 {
-        return err_typed("unexpected argument");
-    }
-
-    // `name` é genuinamente opcional (positional trailing-omittable); um
-    // único positional que já é `Color` é o `fallback` sozinho (`name`
-    // omitido), não um `name` malformado.
-    let (name_arg, fallback_arg): (Option<&Value>, Option<&Value>) =
-        match args.items.len() {
-            0 => (None, None),
-            1 => match &args.items[0] {
-                v @ Value::Color(_) => (None, Some(v)),
-                other => (Some(other), None),
-            },
-            _ => (Some(&args.items[0]), Some(&args.items[1])),
-        };
-
-    let name: Option<EcoString> = match name_arg {
-        None => None,
-        Some(Value::None) => None,
-        Some(Value::Str(s)) => Some(s.clone()),
-        Some(other) => {
-            return err_typed(format!(
-                "expected \"all\", string, or none, found {}",
-                vanilla_type_name(other)
-            ));
-        }
-    };
-
-    let fallback = match fallback_arg {
-        None => return err_typed("missing argument: fallback"),
-        Some(Value::Color(Color::Spot(_))) => {
-            return err_typed("spot color found where process color is required");
-        }
-        Some(Value::Color(c)) => c.clone(),
-        Some(Value::SpotColorant(_)) => {
-            return err_typed("expected color, found spot colorant");
-        }
-        Some(other) => {
-            return err_typed(format!(
-                "expected color, found {}",
-                vanilla_type_name(other)
-            ));
-        }
-    };
-
-    Ok(Value::SpotColorant(crate::entities::color::SpotColorant { name, fallback }))
-}
-
-/// Constrói uma cor spot sem perder a identidade do colorante.
-pub(crate) fn native_spot_tint(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    if let Some(key) = args.named.keys().next() {
-        let message = if key == "value" {
-            "the argument `value` is positional".to_string()
-        } else {
-            format!("unexpected argument: {key}")
-        };
-        return Err(vec![SourceDiagnostic::error(args.span, message)]);
-    }
-    let colorant = match args.items.first() {
-        Some(Value::SpotColorant(colorant)) => colorant,
-        Some(other) => {
-            return err_typed(format!(
-                "expected spot colorant, found {}",
-                vanilla_type_name(other)
-            ))
-        }
-        None => return err_typed("missing argument: self"),
-    };
-    let tint = match args.items.get(1) {
-        Some(Value::Ratio(value)) => *value,
-        Some(other) => {
-            return err_typed(format!(
-                "expected ratio, found {}",
-                vanilla_type_name(other)
-            ))
-        }
-        None => return err_typed("missing argument: value"),
-    };
-    if args.items.len() > 2 {
-        return err_typed("unexpected argument");
-    }
-    if tint.get() < 0.0 {
-        return err_typed("spot color tint must be positive");
-    }
-    if tint.get() > 1.0 {
-        return err_typed("spot color tint must not exceed 100%");
-    }
-    Ok(Value::Color(Color::Spot(SpotColor {
-        colorant: Arc::new(colorant.clone()),
-        tint,
-    })))
-}
-
-/// Injeta o receptor de uma chamada `spot.tint(value)` sem alterar a ABI
-/// da nativa estática `color.spot.tint(spot, value)`.
-pub(crate) fn dispatch_spot_colorant_tint(
-    colorant: &SpotColorant,
-    args: Args,
-    ctx: &mut EvalContext,
-    world: &dyn crate::contracts::world::World,
-    current_file: FileId,
-) -> SourceResult<Value> {
-    let synth = if args.occurrences.is_some() {
-        let mut occurrences = args.occurrence_sequence();
-        occurrences.insert(
-            0,
-            ArgOccurrence {
-                name: None,
-                value: Value::SpotColorant(colorant.clone()),
-                span: Span::detached(),
-                value_span: Span::detached(),
-            },
-        );
-        Args::from_occurrences(args.span, occurrences)
-    } else {
-        let mut items = args.items;
-        items.insert(0, Value::SpotColorant(colorant.clone()));
-        Args::from_parts(items, args.named, args.span)
-    };
-    native_spot_tint(ctx, &synth, world, current_file)
 }
 
 #[cfg(test)]
