@@ -1,8 +1,9 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: c0f17d3b
+Hash do Código: c1305c0d
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+## Ownership após atomização de 2026-09-30
+
+Este Prompt L0 possui apenas `01_core/src/compiler/stdlib/loading.rs`, que mantém helpers compartilhados, a macro estática das nativas de formato e os testes históricos. Os contratos detalhados abaixo ficam como contexto normativo compartilhado; os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/loading/` individualizam projeção textual, encoders, decoders, CSV e leitura. A mudança só desloca funções, sem nova API pública, parser ou decisão de paridade.
 
 ## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
 
@@ -52,7 +53,7 @@ atacada com testes causais independentes após o gate do carrier.
 
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/loading.rs`
+**Ficheiro alvo histórico**: `01_core/src/compiler/stdlib/loading.rs`. Após a atomização, o módulo pai coordena as nativas compartilhadas; cada arquivo em `01_core/src/compiler/stdlib/loading/` possui o comportamento descrito no seu Prompt L0.
 **Origem**: achado da Lista B do Passo 386 (`typst-falta-migrar-lista-B-passo-386.md` §3) — cluster `loading` ausente em L1, não catalogado, bloqueante de `bibliography`. Convenção de assinatura e helpers: ver `stdlib/_comum.md`.
 **Passo de origem**: P387 (materialização).
 **ADRs**: ADR-0029 (pureza L1 / zero I/O — a razão da separação decode/leitura), ADR-0107 (paridade é com a língua — paridade = `Value` de saída, não a árvore interna do parser), ADR-0054 (perfil graded — subset por formato documentado), ADR-0111 (autorização de crates de parsing, PROPOSTO neste passo), ADR-0017 (não adicionar variant `Value` sem ADR + tipo migrado — base do scope-out de `Value::Bytes`).
@@ -1006,7 +1007,7 @@ fallback textual distinto para Symbol/Content; os três encoders faltam.
 
 ### Superfície e ownership
 
-O único consumer é `01_core/src/compiler/stdlib/loading.rs`. Deve implementar
+Os consumers proprietários dos encoders são `01_core/src/compiler/stdlib/loading/json_encode.rs`, `01_core/src/compiler/stdlib/loading/toml_encode.rs` e `01_core/src/compiler/stdlib/loading/yaml_encode.rs`. Devem implementar
 as nativas `native_json_encode`, `native_toml_encode`, `native_yaml_encode`,
 usando a assinatura vigente de função nativa, sem API pública auxiliar de
 serializer ou novo `Serialize` global em Value. A superfície Typst é:
