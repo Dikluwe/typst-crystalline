@@ -1,8 +1,10 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: 25601554
+Hash do Código: ab1e42a7
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
+
+A fachada mantém `GradientStop`, `RelativeTo`, reexports públicos e testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/entities/gradient/` possuem offsets, variantes e interpolação. O restante deste documento permanece como contrato semântico comum.
 
 ## Camada
 L1
