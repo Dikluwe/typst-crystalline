@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "layout-text-separators"
+title = "Proveniência e transporte dos separadores textuais"
+
+[[claims]]
+id = "causal-separator"
+level = "must"
+statement = "TextSeparator representa uma ocorrência de U+0020 retida pelo layout com origem Markup, Newline ou Literal; separadores não são inferidos de gaps de kerning, tracking ou posicionamento."
+
+[[claims]]
+id = "neutral-ink"
+level = "must"
+statement = "TextSeparator não acrescenta tinta, ascent, descent, baseline, altura, linha ou largura terminal de conteúdo; seu advance transporta a largura já atribuída pelo layout sem duplicá-la no cursor."
+
+[[claims]]
+id = "transport"
+level = "must"
+statement = "Translações, direção, grupos, links, envelopes e rollback conservam a ocorrência e sua ordem causal; acrescentar separadores não modifica o prefixo certificado por checkpoints de comprimento."
+
+[[claims]]
+id = "text-output"
+level = "must"
+statement = "A exportação conserva o separador real como espaço textual extraível, com a identidade de fonte e posição fornecidas; fragmentos adjacentes sem carrier continuam adjacentes."

@@ -1,6 +1,6 @@
 # ⚖️ ADR-0101: Excepção IEEE 754 em stdlib — rejeita NaN/Inf via `guard_float`
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-20
 **Passo promotor**: P309 (diagnóstico transversal) + P310 (formalização)
 **Categoria**: Arquitectural / Política numérica

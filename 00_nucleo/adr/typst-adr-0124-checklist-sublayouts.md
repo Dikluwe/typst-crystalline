@@ -1,6 +1,6 @@
 # ADR-0124 — Checklist obrigatória de propagação aos quatro sub-layouts
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-07-09
 **Aplica-se a:** qualquer passo que corrija ou adicione um mecanismo de layout no fluxo principal (`cursor.rs`, `mod.rs`).
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

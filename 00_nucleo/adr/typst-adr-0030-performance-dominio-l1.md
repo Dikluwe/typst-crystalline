@@ -1,6 +1,6 @@
 # ⚖️ ADR-0030: Gestão eficiente de RAM é domínio de L1 — alinhamento filosófico
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-03-29
 **Corrige (não revoga)**: ADR-0004 (justificativa sobre performance), ADR-0015 (remoção de ecow do parser)
 

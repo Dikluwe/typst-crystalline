@@ -1,6 +1,6 @@
 # ⚖️ ADR-0034: Diagnóstico obrigatório antes de materializar tipo do vanilla
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22
 
 ---

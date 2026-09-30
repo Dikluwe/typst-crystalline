@@ -1,6 +1,6 @@
 # ⚖️ ADR-0018: `rustc_hash` → `[l1_allowed_external]` — revoga ADR-0007
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Revoga**: ADR-0007
 **Data**: 2026-03-23
 

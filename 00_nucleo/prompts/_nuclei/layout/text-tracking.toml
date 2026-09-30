@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "text-tracking"
+title = "Fronteiras textuais e precisão do tracking"
+
+[[claims]]
+id = "eligible-boundary"
+level = "must"
+statement = "No caminho incremental LTR de estilo textual uniforme não matemático, cada par entre unidades textuais consecutivas na mesma linha recebe um único tracking; início de linha e objetos interrompem o par. Espaços literais são unidades próprias, não multiplicadores de constantes."
+
+[[claims]]
+id = "selection-width"
+level = "must"
+statement = "O intervalo anterior à unidade material integra a posição usada para escolher wrap/hifenização e é aplicado somente se a unidade permanece na mesma linha; não deve migrar para o início da próxima linha."
+
+[[claims]]
+id = "fractional-advance"
+level = "must"
+statement = "O resíduo entre tracking exato em pontos e tracking inteiro armazenado na fonte é aplicado somente antes de cluster seguinte diferente; posicionamento do sub-run, reconciliação e PDF usam a mesma extensão derivada, sem Tc adicional, sem alterar glyphs ou contratos públicos."
+
+[[claims]]
+id = "limits"
+level = "must-not"
+statement = "Não generalizar a correção de fronteiras uniformes a RTL, math, objetos ou estilos diferentes sem controles; não habilitar a preparação global de tracking nem alegar paridade de seleção para ligaduras e scripts não medidos."

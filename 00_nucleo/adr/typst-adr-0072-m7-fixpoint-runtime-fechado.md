@@ -1,6 +1,6 @@
 # ADR-0072 — M7 fixpoint runtime estruturalmente fechado
 
-**Estado**: ACEITE
+**Status:** ACCEPTED
 **Data**: 2026-05-05
 **Sub-passo**: P192B
 **Pré-condição**: M5 universal completo (P200B) + M6 fechado completo (P190I) + M9 11/11.

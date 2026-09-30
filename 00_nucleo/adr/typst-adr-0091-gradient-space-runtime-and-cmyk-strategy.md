@@ -1,6 +1,7 @@
 # ⚖️ ADR-0091: Gradient ColorSpace runtime cross-variant + CMYK strategy
 
-**Status**: **`IMPLEMENTADO`** (PROPOSTO P270.B → **IMPLEMENTADO
+**Status:** IMPLEMENTED
+**Status history:** **`IMPLEMENTADO`** (PROPOSTO P270.B → **IMPLEMENTADO
 P270.D** — materialização cumpre L1+stdlib 3 variants × 8 spaces;
 defaults Oklab preservam P262/P264/P267 bit-exact)
 **Data**: 2026-05-17

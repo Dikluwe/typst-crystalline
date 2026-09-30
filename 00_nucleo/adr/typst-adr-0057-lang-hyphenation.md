@@ -1,6 +1,6 @@
 # ⚖️ ADR-0057: Lang hyphenation em L1 via crate `hypher`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Validado**: Passo 144.E — 9 testes (5 unit `hyphenation` + 4 integração `lang_hyphenation_*`); zero violations.
 **Data**: 2026-04-24
 **Autor**: Humano + IA

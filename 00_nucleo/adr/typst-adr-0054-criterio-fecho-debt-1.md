@@ -1,6 +1,6 @@
 # ⚖️ ADR-0054: Critério de fecho de DEBT-1 inclui consumo integral
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:

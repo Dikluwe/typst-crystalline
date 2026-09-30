@@ -1,6 +1,6 @@
 # ⚖️ ADR-0027: CIDFont com subsetting via ttf-parser
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-29
 
 ## Contexto

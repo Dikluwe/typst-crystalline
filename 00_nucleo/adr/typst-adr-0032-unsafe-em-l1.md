@@ -1,6 +1,6 @@
 # ⚖️ ADR-0032: Política de `unsafe` em L1
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22
 
 ---

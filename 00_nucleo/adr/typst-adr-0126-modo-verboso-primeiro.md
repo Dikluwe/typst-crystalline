@@ -1,6 +1,6 @@
 # ADR-0126 — Modo verboso primeiro, compacto depois, acessibilidade em eixo separado
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-08-03
 **Decisor:** dono — decisão tomada **em conversa directa**, fora do ciclo normal de
 passo, entre P953 e P954 (proveniência real confirmada por varredura — ver §2).

@@ -1,6 +1,6 @@
 # ⚖️ ADR-0001: Estratégia de Migração do Typst para a Arquitetura Cristalina
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Opção escolhida**: C (comemo em `[l1_allowed_external]`, Passo 4)
 **Nota**: Opção B (isolamento em L3) continua em aberto como
 direcção futura, não registada como DEBT por não ter plano de

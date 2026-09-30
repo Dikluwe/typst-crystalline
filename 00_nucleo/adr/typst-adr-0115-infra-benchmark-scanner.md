@@ -1,6 +1,7 @@
 # ADR-0115 — Infraestrutura de benchmark para o scanner/lexer
 
-**Estado:** `EM VIGOR` (Passo 441 — infra de benchmark criada; `cargo bench` funcional e reprodutível).
+**Status:** ACCEPTED
+**Status history:** `EM VIGOR` (Passo 441 — infra de benchmark criada; `cargo bench` funcional e reprodutível).
 **Decisão do dono (registada):** usar `criterion` 0.5 em `benches/` na raiz do workspace para medir o tempo de lex/tokenização do scanner; criar corpus de 5 inputs representativos; métrica primária é ns/byte; critério de reprodutibilidade é variação < 3% entre 3 runs sequenciais.
 **ADRs relacionadas:** ADR-0032 (política de `unsafe` em L1), ADR-0030 (performance é domínio de L1), ADR-0014 (scanner herdado de `unscanny`).
 

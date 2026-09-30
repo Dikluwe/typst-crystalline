@@ -1,6 +1,6 @@
 # ADR-0127 — Gate de L0: paragem obrigatória só para contrato/comportamento; fluxo contínuo para correções internas
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-08-04
 **Decisor:** dono (resposta a pergunta sobre P962-964 — a distinção já era
 praticada; ele aceitou-a como válida e pediu que virasse regra escrita).

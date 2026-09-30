@@ -1,6 +1,6 @@
 # ADR-0122 — Paridade de definições por defeito nos testes de comparação
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-07-05
 **Aplica-se a:** todos os testes que comparam directamente o cristalino com o vanilla (posições, larguras, contagem de páginas, ou qualquer número medido dos dois lados).
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

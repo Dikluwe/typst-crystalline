@@ -1,6 +1,6 @@
 # ⚖️ ADR-0021: `time` crate → `[l1_allowed_external]` e `Datetime` real
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-27
 
 ---

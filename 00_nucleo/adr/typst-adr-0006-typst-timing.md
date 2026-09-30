@@ -1,6 +1,6 @@
 # ⚖️ ADR-0006: Remoção de `typst_timing` de L1
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-23
 
 ---

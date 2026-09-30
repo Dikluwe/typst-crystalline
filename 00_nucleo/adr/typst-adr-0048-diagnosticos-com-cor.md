@@ -1,6 +1,6 @@
 # ⚖️ ADR-0048: Cores ANSI nos diagnósticos (L3 formata com `bool`, L4 decide)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Revoga**: nenhuma.
 **Nota Passo 117 (ADR-0049)**: camada corrigida — `ColorWhen` e
 `resolve_colored_with` vivem agora em L2 (`02_shell/src/cli.rs`),

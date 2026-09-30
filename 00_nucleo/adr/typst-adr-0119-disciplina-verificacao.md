@@ -1,6 +1,6 @@
 # ADR-0119 — Disciplina de verificação, não confiança
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-07-03
 **Aplica-se a:** todo o projecto, todos os passos.
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

@@ -1,6 +1,7 @@
 # ⚖️ ADR-0077: `regex` → `[l1_allowed_external]`
 
-**Status**: **ACEITE** (transição PROPOSTO → ACEITE em P209E
+**Status:** ACCEPTED
+**Status history:** **ACEITE** (transição PROPOSTO → ACEITE em P209E
 2026-05-12 após verificação dos 8 critérios do §Plano de
 validação).
 **Data**: 2026-05-12 (PROPOSTO P209D; ACEITE P209E).

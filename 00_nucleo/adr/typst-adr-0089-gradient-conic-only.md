@@ -1,6 +1,6 @@
 # ⚖️ ADR-0089: Gradient Conic-only L1+stdlib (fecha cluster Gradient 3/3 variants)
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 267.B (criação PROPOSTO) → Passo 267.D

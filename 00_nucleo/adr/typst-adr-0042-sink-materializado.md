@@ -1,6 +1,6 @@
 # ⚖️ ADR-0042: `Sink` materializado em L1
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Validado**: Passo 104.E — 803 testes L1; +8 unitários `Sink` com dedup; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

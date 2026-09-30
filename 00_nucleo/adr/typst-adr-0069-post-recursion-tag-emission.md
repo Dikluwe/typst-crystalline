@@ -1,6 +1,6 @@
 # ⚖️ ADR-0069: Post-recursion tag emission for state-dependent payload
 
-**Status**: `ACEITE`
+**Status:** ACCEPTED
 **Validado**: 2026-05-04 — P195D 4 tests E2E (`mod
 p195d_walk_labelled`) passam; paridade observable
 preservada via mutação legacy paralela; sincronização

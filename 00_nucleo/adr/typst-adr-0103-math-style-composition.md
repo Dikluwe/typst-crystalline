@@ -1,6 +1,6 @@
 # ⚖️ ADR-0103: Composição math style — outer-wins via `Option::or`
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-20
 **Passo promotor**: P311b.4 (refinamento empírico)
 **Categoria**: Arquitectural / Regras de composição cross-variant

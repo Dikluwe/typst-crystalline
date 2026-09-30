@@ -1,6 +1,7 @@
 # ⚖️ ADR-0083: Color paridade vanilla com subset materializado
 
-**Status**: **`IMPLEMENTADO`** (PROPOSTO P257.B → **IMPLEMENTADO
+**Status:** IMPLEMENTED
+**Status history:** **`IMPLEMENTADO`** (PROPOSTO P257.B → **IMPLEMENTADO
 P257.D** — materialização cumpre 8 variantes + scope-outs
 documentados; paridade observable preservada).
 **Data**: 2026-05-15 (PROPOSTO P257.B; **IMPLEMENTADO P257.D**)

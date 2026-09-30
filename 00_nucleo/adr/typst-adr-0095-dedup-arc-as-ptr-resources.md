@@ -1,6 +1,7 @@
 # ⚖️ ADR-0095: Dedup `Arc::as_ptr` resources (PDF reusable objects)
 
-**Status**: `EM VIGOR` (criada directamente; paridade pattern P271
+**Status:** ACCEPTED
+**Status history:** `EM VIGOR` (criada directamente; paridade pattern P271
 ADR-0093/0094 — meta-ADR formalizando sub-padrão empírico N≥3
 cumulativo)
 **Data**: 2026-05-18

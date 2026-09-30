@@ -1,6 +1,6 @@
 # ⚖️ ADR-0067: Attribute-grammar pattern para scoping de propriedades
 
-**Status**: `PROPOSTO`
+**Status:** PROPOSED
 **Validado**: pendente — não vinculativo até primeira materialização.
 **Data**: 2026-05-02
 **Diagnóstico prévio**:

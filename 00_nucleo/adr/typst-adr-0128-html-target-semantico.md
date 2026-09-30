@@ -1,6 +1,6 @@
 # ADR-0128 — HTML é target semântico, não conversão do layout paginado
 
-**Estado:** EM VIGOR
+**Status:** ACCEPTED
 **Data:** 2026-08-23
 
 ## Contexto medido

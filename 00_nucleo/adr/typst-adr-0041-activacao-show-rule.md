@@ -1,6 +1,6 @@
 # ⚖️ ADR-0041: Activação de `#show` — heading, strong, emph
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Validado**: Passo 103.E — 795 testes L1; +5 integração `#show`; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

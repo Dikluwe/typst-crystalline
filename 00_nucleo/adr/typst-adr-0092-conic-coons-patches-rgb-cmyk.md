@@ -1,6 +1,7 @@
 # ⚖️ ADR-0092: Conic Type 6 Coons Patch Mesh L3 emit (preparação CMYK + RGB futuro)
 
-**Status**: **`IMPLEMENTADO`** (PROPOSTO P270.3.B → **IMPLEMENTADO
+**Status:** IMPLEMENTED
+**Status history:** **`IMPLEMENTADO`** (PROPOSTO P270.3.B → **IMPLEMENTADO
 P270.3.D** — materialização infra-estrutura Coons RGB L3 +
 4 anotações cumulativas paralelas ADR-0089/0090/0091/0054;
 flag opt-in interno default OFF preserva 2545 baseline bit-exact;

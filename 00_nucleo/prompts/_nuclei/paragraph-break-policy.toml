@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-break-policy"
+title = "Validação e resolução lexical da política de hifenização"
+
+[[claims]]
+id = "hyphenate-domain"
+level = "must"
+statement = "text.hyphenate aceita boolean ou auto; entradas de outro tipo produzem erro causal antes de materializar o body configurado."
+
+[[claims]]
+id = "justify-domain"
+level = "must"
+statement = "par.justify aceita somente boolean; auto não é um valor desta propriedade."
+
+[[claims]]
+id = "lexical-policy"
+level = "must"
+statement = "A política explícita de text.hyphenate prevalece; auto ou ausência resolvem para o valor lexical mais próximo de par.justify, cujo default é false."
+
+[[claims]]
+id = "phase-boundary"
+level = "must"
+statement = "Eval valida e transporta os valores pelo estilo lexical existente; a decisão de hifenizar pertence ao seletor privado de layout. Nenhum campo público de TextStyle é necessário para esta política."
+
+[[claims]]
+id = "diagnostic-type-names"
+level = "must"
+statement = "Diagnósticos de cast usam os nomes longos boolean, integer e string; a identidade pública dos tipos bool, int e str permanece inalterada."

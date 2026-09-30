@@ -1,6 +1,6 @@
 # ⚖️ ADR-0065: Inventariar primeiro — sub-passo `.1` para qualquer decisão arquitectural não-trivial
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-26
 
 ---

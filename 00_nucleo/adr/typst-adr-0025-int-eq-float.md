@@ -1,6 +1,6 @@
 # ⚖️ ADR-0025: `Int == Float` — desvio de `PartialEq` vs semântica do original
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-27
 
 ---

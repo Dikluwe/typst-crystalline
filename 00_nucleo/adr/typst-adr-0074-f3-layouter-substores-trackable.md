@@ -1,6 +1,7 @@
 # ⚖️ ADR-0074: F3 — Layouter sub-stores trackable (sealing post-iteração)
 
-**Status**: **ACEITE** (final, P205E 2026-05-07).
+**Status:** ACCEPTED
+**Status history:** **ACEITE** (final, P205E 2026-05-07).
 **Validado**: P205A–E concluídos; 7/7 condições do plano
 de validação CUMPRIDAS (P205D condicional cumprida via
 deferral documentado per cond 3).

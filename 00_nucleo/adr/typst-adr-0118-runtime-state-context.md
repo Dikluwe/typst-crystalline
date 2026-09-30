@@ -1,6 +1,7 @@
 # ADR-0118 — Runtime State Mutável via `context`
 
-**Estado:** `PROPOSTO` (Passo 506; aguarda confirmação do dono para promoção a `EM VIGOR`).
+**Status:** PROPOSED
+**Status history:** `PROPOSTO` (Passo 506; aguarda confirmação do dono para promoção a `EM VIGOR`).
 **Decisão pendente:** confirmação do dono + validação dos Prompts L0 associados.
 **Histórico de numeração:** slot 0118 livre após varredura de `00_nucleo/adr/` (último ocupado: 0117).
 **ADRs relacionadas:** ADR-0033 (paridade vanilla), ADR-0054 (graded parity), ADR-0066 (Introspection runtime), ADR-0107 (paridade é com a língua), ADR-0108 (medir antes de decidir), ADR-0109 (atomização).

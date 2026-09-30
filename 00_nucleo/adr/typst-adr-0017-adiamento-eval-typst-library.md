@@ -1,6 +1,6 @@
 # ⚖️ ADR-0017: Adiamento de eval() e estratégia typst-library
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-26
 
 ## Contexto

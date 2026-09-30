@@ -1,6 +1,7 @@
 # ⚖️ ADR-0076: Marco M9c — completion do Introspector cristalino
 
-**Status**: **ACEITE (completo retroactivo, P212 2026-05-12 —
+**Status:** ACCEPTED
+**Status history:** **ACEITE (completo retroactivo, P212 2026-05-12 —
 com excepções documentadas em cond #2 e cond #4 reinterpretadas
 per `P207A.div-1` reshape)**.
 **Data**: 2026-05-12 (PROPOSTO P207A; ACEITE P212 — auditoria

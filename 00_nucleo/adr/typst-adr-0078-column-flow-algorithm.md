@@ -1,6 +1,7 @@
 # ⚖️ ADR-0078: Column flow algorithm — `Region/Regions` abstraction + multi-column consumer
 
-**Status**: **IMPLEMENTADO** (P215 PROPOSTO 2026-05-12 → P221
+**Status:** IMPLEMENTED
+**Status history:** **IMPLEMENTADO** (P215 PROPOSTO 2026-05-12 → P221
 IMPLEMENTADO 2026-05-12 — sub-fases (a)+(b) materializadas;
 DEBT-56 ENCERRADO simultaneamente).
 **Data**: 2026-05-12 (PROPOSTO P215 → IMPLEMENTADO P221).
@@ -620,7 +621,8 @@ explicitamente**:
 DEBT-56 ENCERRADO simultaneamente (ver `DEBT.md` —
 critério fecho 5/5 cumprido). ADR-0061 transita
 simultaneamente PROPOSTO → IMPLEMENTADO (ver
-`typst-adr-0061-layout-fase-x-roadmap.md` — Caminho 1
+`../diagnosticos/adr-archive/process-roadmaps/typst-adr-0061-layout-fase-x-roadmap.md`
+— Caminho 1
 100% cumprido; refinos `measure`/`place` Fase 4
 candidata NÃO-reservada).
 

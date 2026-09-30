@@ -1,6 +1,6 @@
 # ⚖️ ADR-0044: `Engine<'a>` como agregador de estado de eval em L1
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Revoga**: nenhuma — complementa ADR-0036.
 **Validado**: Passo 109.E.
 **Data**: 2026-04-23

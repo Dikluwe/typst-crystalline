@@ -1,6 +1,6 @@
 # ⚖️ ADR-0046: CLI mínima em L4 (compile com diagnostics)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Revoga**: nenhuma.
 **Nota Passo 117 (ADR-0049)**: camada corrigida — CLI vive agora
 em L2 (`02_shell/`), não em L4. Decisões funcionais deste ADR

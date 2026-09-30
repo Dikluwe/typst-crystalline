@@ -1,6 +1,6 @@
 # ADR-0113 — Stub Transparente vs. Fallback Software
 
-**Status**: IMPLEMENTADO  
+**Status:** IMPLEMENTED
 **Data**: 2026-06-22  
 **Decisão**: Stub transparente preferido sobre fallback software quando infraestrutura está ausente.  
 **Decisor**: Passo 415 (administrativo-documental).  

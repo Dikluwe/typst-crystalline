@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-costs"
+title = "Custos textuais compostos por campo"
+
+[[claims]]
+id = "cast"
+level = "must"
+statement = "text.costs é dictionary com hyphenation, runt, widow, orphan opcionais, cada valor Ratio. Validar nessa ordem antes de rejeitar chaves desconhecidas; custos negativos são válidos no pin. Erro tem span do valor dictionary completo."
+
+[[claims]]
+id = "fold"
+level = "must"
+statement = "A composição lexical substitui somente campos fornecidos; cada campo ausente preserva o exterior e chega a multiplicador default 1. Dictionary vazio não limpa valores exteriores. Campos viajam separadamente no canal custom text.costs.<campo>."
+
+[[claims]]
+id = "selection"
+level = "must"
+statement = "No subconjunto global certificado, optimized lê custos do escopo compartilhado do parágrafo: custo-base de hífen 135 e runt 100 multiplicados pelos ratios efetivos. Custo de duas linhas consecutivas hifenizadas usa o mesmo custo efetivo de hífen. Simple não consulta penalidades."
+
+[[claims]]
+id = "limits"
+level = "must"
+statement = "Validação/transporte de widow e orphan por si só não implementa paginação; o owner paragraph_pagination aplica a proteção no subconjunto regional certificado. Overrides costs em fragmentos internos não substituem o custo compartilhado do parágrafo e não são barreira tipográfica; escopos integrais são fatorados pela realização existente antes de formar o parágrafo. Contextos fora do subconjunto certificado permanecem limites declarados, sem escolha global parcial ou inferência de estilo pelo glyph."
+
+[[claims]]
+id = "regional-prevention"
+level = "must"
+statement = "No subconjunto de parágrafos preparados com métricas verticais uniformes, região paginada constante e sem notas/floats/colunas, widow e orphan efetivos positivos ativam proteção; zero e negativos desativam. Não são pesos graduais. Proteger primeiras duas linhas por orphan, últimas duas por widow somente a partir do terceiro índice (zero-based i >= 2), e todas as três quando ambas proteções estão ativas e há exatamente três linhas. Só mover grupo que não cabe aqui e cabe inteiro na próxima região. Grupo maior que a região não gera loop nem página vazia artificial. Preservar fallback fora da certificação e não recalcular quebras ao emitir."

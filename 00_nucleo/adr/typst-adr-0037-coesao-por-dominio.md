@@ -1,6 +1,6 @@
 # ⚖️ ADR-0037: Coesão por domínio — ficheiros limitados a uma responsabilidade clara
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22 (`PROPOSTO`) / 2026-04-22 (`EM VIGOR` após validação nos Passos 96.1–96.2)
 
 ---

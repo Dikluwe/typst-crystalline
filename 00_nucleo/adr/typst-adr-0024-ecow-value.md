@@ -1,6 +1,6 @@
 # ⚖️ ADR-0024: `ecow` → `[l1_allowed_external]` para `Value::Str`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-27
 **Contexto**: Passo 13 — subset de Value
 

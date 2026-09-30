@@ -1,6 +1,6 @@
 # ⚖️ ADR-0052: Lang como tipo semântico em L1
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-04-24
 **Materializado em**: Passo 131B (2026-04-24)
 **Autor**: Humano + IA

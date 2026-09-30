@@ -1,6 +1,7 @@
 # ADR-0071 — Walk pipeline com Introspector acessível durante execução
 
-**Estado**: **ACEITE** (P191C — validação empírica completa após 2 helpers migrados + walk gate migrado).
+**Status:** ACCEPTED
+**Status history:** **ACEITE** (P191C — validação empírica completa após 2 helpers migrados + walk gate migrado).
 **Data**: 2026-05-05 (PROPOSTA P191A); 2026-05-05 (ACEITE P191C).
 **Pre-condição**: barreira arquitectural identificada em P190F §3.
 

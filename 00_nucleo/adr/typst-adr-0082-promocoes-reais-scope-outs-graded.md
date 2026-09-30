@@ -1,6 +1,7 @@
 # ⚖️ ADR-0082: Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais
 
-**Status**: **`EM VIGOR`** (PROPOSTO P249 → **EM VIGOR P254** —
+**Status:** ACCEPTED
+**Status history:** **`EM VIGOR`** (PROPOSTO P249 → **EM VIGOR P254** —
 paridade pattern P229 ADR-0080 promoção administrativa XS
 dedicada pós-N=3 citantes documentados literal).
 **Data**: 2026-05-14 (PROPOSTO P249; **EM VIGOR P254**)

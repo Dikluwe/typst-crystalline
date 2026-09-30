@@ -1,6 +1,6 @@
 # ⚖️ ADR-0100: ADR-0037 estendida a L3 — coesão por domínio em `03_infra/`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-05-19 (`PROPOSTO` em P307a) / 2026-05-19 (`IMPLEMENTADO` em P307d após validação empírica P307b.1 + P307b.2 + P307c)
 **Passo promotor**: P307a (diagnóstico-primeiro), promovido em P307d
 **Categoria**: Arquitectural

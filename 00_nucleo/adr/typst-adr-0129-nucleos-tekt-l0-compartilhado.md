@@ -1,6 +1,7 @@
 # ADR-0129 — Prompts L0 proprietários e Núcleos Tekt compartilhados
 
-**Estado:** EM VIGOR — APROVADA NO GATE ADR-0127  
+**Status:** ACCEPTED
+**Status history:** EM VIGOR — APROVADA NO GATE ADR-0127
 **Data:** 2026-08-25  
 **Aprovação do dono:** 2026-08-25  
 **Origem:** P1179–P1181

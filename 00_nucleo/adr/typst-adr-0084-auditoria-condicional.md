@@ -1,6 +1,6 @@
 # ⚖️ ADR-0084: Auditoria condicional — audit empírico antes de decisão B1/B2/B3
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 260 — formaliza padrão N=5 das aplicações

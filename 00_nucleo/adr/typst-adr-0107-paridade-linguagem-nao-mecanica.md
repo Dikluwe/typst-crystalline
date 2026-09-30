@@ -1,6 +1,6 @@
 # ⚖️ ADR-0107: Paridade é com a linguagem, não com a mecânica
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-06-17
 
 ---

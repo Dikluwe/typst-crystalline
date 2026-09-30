@@ -1,6 +1,6 @@
 # ⚖️ ADR-0020: `fontdb` → L3 (adiada)
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-23
 
 ---

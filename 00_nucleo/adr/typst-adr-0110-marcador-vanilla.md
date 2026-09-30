@@ -1,6 +1,7 @@
 # ADR-0110 — Marcador de correspondência vanilla `@vanilla` (legível por máquina)
 
-**Estado:** `PROPOSTO` (Passo 385; diagnóstico-primeiro — não materializa código).
+**Status:** PROPOSED
+**Status history:** `PROPOSTO` (Passo 385; diagnóstico-primeiro — não materializa código).
 **Decisão pendente:** confirmação do dono + execução do roadmap de sub-passos (§Roadmap).
 **Histórico de numeração:** `00_nucleo/adr/` varrido — o maior em uso era 0109; **0110 é o
 primeiro livre** (precedente P160A/P376: nunca assumir número sem varrer). ADR-0109 registou

@@ -1,6 +1,7 @@
 # ⚖️ ADR-0093: Meta-metodologia de evolução de ADRs (scope-out revogado parcialmente + Anotação cumulativa)
 
-**Status**: `EM VIGOR` (criada directamente; paridade pattern P260
+**Status:** ACCEPTED
+**Status history:** `EM VIGOR` (criada directamente; paridade pattern P260
 ADR-0084/0085 e P268.1 ADR-0090)
 **Data**: 2026-05-17
 **Autor**: Humano + IA

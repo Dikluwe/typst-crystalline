@@ -1,6 +1,6 @@
 # ⚖️ ADR-0102: Mecanismo math style — variant `Content::MathStyled` (Caminho I)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-20
 **Passo promotor**: P311b.2 + P311b.4 (materialização)
 **Diagnóstico**: P311a (`diagnosticos/diagnostico-math-style-passo-311a.md`)

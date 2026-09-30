@@ -1,6 +1,7 @@
 # ADR-0070 — Eliminação `CounterStateLegacy` (fim de M5 universal)
 
-**Estado**: **ACEITE** (P190I — M6 fechado).
+**Status:** ACCEPTED
+**Status history:** **ACEITE** (P190I — M6 fechado).
 **Data**: 2026-05-04 (PROPOSTA P190A); 2026-05-05 (ACEITE P190I).
 **Marco arquitectural pre-condição**: M5 universal completo (P200B).
 **Marco arquitectural pós-condição**: **M6 fechado**; F1 fechado; F3 parcialmente fechado.

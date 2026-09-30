@@ -1,6 +1,6 @@
 # ⚖️ ADR-0088: Gradient Radial materializado; Conic scope-out preservado
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 264.B (criação PROPOSTO) → Passo 264.D

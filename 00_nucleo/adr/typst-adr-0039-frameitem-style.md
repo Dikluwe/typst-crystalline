@@ -1,6 +1,6 @@
 # ⚖️ ADR-0039: Forma de estilo no `FrameItem::Text`
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Validado**: Passo 100.E — 783 testes; +3 integração `Content::Styled` end-to-end; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

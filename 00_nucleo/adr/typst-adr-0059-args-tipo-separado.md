@@ -1,6 +1,6 @@
 # ⚖️ ADR-0059: `Args` como tipo separado, não-variant de `Value`
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Validado**: Passo 149 — arqueologia (`divergencias-value-passo-149.md` §3.2); 1113 tests verdes desde Passo 16.
 **Data**: 2026-04-25
 **Autor**: Humano + IA

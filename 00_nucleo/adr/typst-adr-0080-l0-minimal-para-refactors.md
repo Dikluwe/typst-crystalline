@@ -1,6 +1,6 @@
 # ⚖️ ADR-0080: L0 minimal para refactors aditivos pós-M9c
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-13 (PROPOSTO P226; **EM VIGOR P229**)
 **Autor**: Humano + IA
 **Validado**: 9 aplicações cumulativas pós-M9c

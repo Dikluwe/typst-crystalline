@@ -1,6 +1,6 @@
 # ⚖️ ADR-0005: PackageSpec (DTO pattern) e World trait
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-22
 
 ---

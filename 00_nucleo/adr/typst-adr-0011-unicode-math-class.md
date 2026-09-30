@@ -1,6 +1,6 @@
 # ⚖️ ADR-0011: `unicode_math_class` → `[l1_allowed_external]`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-23
 
 ---

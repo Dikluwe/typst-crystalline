@@ -1,6 +1,7 @@
 # ⚖️ ADR-0045: Formato de diagnósticos: resolução em L1, formatação em L3
 
-**Status**: `EM VIGOR COM ADENDO P1139`
+**Status:** ACCEPTED
+**Status history:** `EM VIGOR COM ADENDO P1139`
 **Revoga**: nenhuma.
 **Validado**: Passo 111.E.
 **Data**: 2026-04-23

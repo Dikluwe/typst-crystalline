@@ -1,6 +1,6 @@
 # ADR-0121 — Registar a proveniência de cada medição
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-07-05
 **Aplica-se a:** todo o projecto, todos os passos que produzem um número usado para decidir algo.
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

@@ -1,6 +1,7 @@
 # ADR-0109 — Atomização: definição, e a sua distinção de desacoplamento
 
-**Estado:** aceite (decisão do dono).
+**Status:** ACCEPTED
+**Status history:** aceite (decisão do dono).
 **Contexto da decisão:** arco F (P331–P375). Substitui qualquer uso anterior de "atomização" que a
 tenha confundido com a métrica `content→elements` da lente ou com desacoplamento de imports.
 **Histórico de numeração:** o P376 gravou esta ADR como `0110` sem varrer `00_nucleo/adr/` (número

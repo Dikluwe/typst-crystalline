@@ -1,6 +1,6 @@
 # ⚖️ ADR-0106: Fronteira de extensão do F — E1 (`Content::Dynamic(Arc<dyn Element>)`)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-06-12
 **Passo promotor**: P333 (grava a decisão do dono; a implementação é por lotes, pós-Trava)
 **Experimento**: P332 (`diagnosticos/f-experimento-extensao-passo-332.md` — spikes E1/E2/E3 + tabela comparativa de 7 critérios)

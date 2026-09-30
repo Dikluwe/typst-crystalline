@@ -1,6 +1,6 @@
 # ⚖️ ADR-0064: Tradução `Smart<T>` vanilla → `Option<T>`/default cristalino
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-26
 
 ---

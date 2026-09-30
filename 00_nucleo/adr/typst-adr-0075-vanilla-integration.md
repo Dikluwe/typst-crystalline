@@ -1,6 +1,7 @@
 # ⚖️ ADR-0075: Vanilla integration via pre-built CLI + comparação estrutural
 
-**Status**: **ACEITE** (final, P206E 2026-05-08).
+**Status:** ACCEPTED
+**Status history:** **ACEITE** (final, P206E 2026-05-08).
 **Validado**: P206A–E concluídos; 7/7 condições do plano
 de validação CUMPRIDAS; `P206C.div-1` registada como
 divergência cosmética (CLI subcomando deferred).

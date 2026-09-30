@@ -1,6 +1,6 @@
 # ⚖️ ADR-0053: Font como tipo composto em L1
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-04-24
 **Materializado em**: Passo 132B (2026-04-24)
 **Autor**: Humano + IA

@@ -1,6 +1,6 @@
 # ⚖️ ADR-0055: Font consumer via pipeline CIDFont existente
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:

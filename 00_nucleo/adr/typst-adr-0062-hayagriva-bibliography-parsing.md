@@ -1,6 +1,7 @@
 # ⚖️ ADR-0062: Autorização de crate `hayagriva` para bibliography + cite (CSL parsing)
 
-**Status**: `IMPLEMENTADO` (promovido em P418, 2026-06-23)
+**Status:** IMPLEMENTED
+**Status history:** `IMPLEMENTADO` (promovido em P418, 2026-06-23)
 **Data**: 2026-04-27
 
 ---

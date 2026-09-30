@@ -1,6 +1,6 @@
 # ⚖️ ADR-0105: Modelo de elemento — D incremental agora, F (PropMap) como destino
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-06-10
 **Passo promotor**: P314 (grava a decisão; a implementação é P316+)
 **Diagnóstico**: P313 (`diagnosticos/diagnostico-modelo-elemento-passo-313.md`, §3 matriz + §4 StyleChain≡F + §5 recomendação)

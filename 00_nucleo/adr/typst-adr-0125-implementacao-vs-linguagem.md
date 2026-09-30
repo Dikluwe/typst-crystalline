@@ -1,6 +1,6 @@
 # ADR-0125 — Diferença de implementação vs. diferença de linguagem
 
-**Estado:** `EM VIGOR`
+**Status:** ACCEPTED
 **Data:** 2026-07-09
 **Aplica-se a:** qualquer passo que introduza sintaxe, argumento, propriedade, ou comportamento novo que um documento `.typ` possa invocar.
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

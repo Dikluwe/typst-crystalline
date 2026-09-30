@@ -1,6 +1,6 @@
 # ⚖️ ADR-0108: A disciplina anti-deriva — medir antes de decidir
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-06-17
 
 ---

@@ -1,6 +1,6 @@
 # ⚖️ ADR-0050: Formatter de diagnósticos em L2 (completa ADR-0049)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Completa**: ADR-0049 (CLI em L2) — ADR-0049 ganha nota
 "completada por ADR-0050 no Passo 119".
 **Não revoga**: nenhuma.

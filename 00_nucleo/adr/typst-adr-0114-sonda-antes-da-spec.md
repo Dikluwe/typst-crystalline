@@ -1,6 +1,6 @@
 # ADR-0114 — Sonda A.0 antes da spec: gate duro de medição
 
-**Status**: IMPLEMENTADO  
+**Status:** IMPLEMENTED
 **Data**: 2026-06-23  
 **Decisão**: A sonda do substrato (Fase A.0) é pré-condição para redigir uma spec de materialização. Se a spec for escrita primeiro, deve ser tratada como verificação retroativa, não como plano de materialização.  
 **Decisor**: Plano de correção de derivas P388–P427.

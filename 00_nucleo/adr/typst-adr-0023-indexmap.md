@@ -1,6 +1,6 @@
 # ⚖️ ADR-0023: `indexmap` → `[l1_allowed_external]`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-27
 
 ---

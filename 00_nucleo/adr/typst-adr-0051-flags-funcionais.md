@@ -1,6 +1,6 @@
 # ⚖️ ADR-0051: Flags funcionais em L2 — pattern e primeira flag (`-o`)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Complementa**: ADR-0047 (clap), ADR-0049 (CLI em L2),
 ADR-0050 (formatter em L2).
 **Validado**: Passo 120.E.

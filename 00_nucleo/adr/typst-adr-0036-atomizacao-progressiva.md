@@ -1,6 +1,6 @@
 # ⚖️ ADR-0036: Atomização progressiva — estado partilhado como dívida
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22
 
 ---

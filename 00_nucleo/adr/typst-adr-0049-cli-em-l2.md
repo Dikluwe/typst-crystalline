@@ -1,6 +1,6 @@
 # ⚖️ ADR-0049: CLI vive em L2 (correcção de ADRs 0046/0047/0048)
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Revoga**: nenhuma (correcção parcial, não revogação total).
 **Nota Passo 119 (ADR-0050)**: migração completada.
 `format_diagnostic` + paleta ANSI movidos para L2

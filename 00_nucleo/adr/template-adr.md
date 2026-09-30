@@ -1,58 +1,67 @@
-# ADR-NNNN: [Título]
+# ADR-NNNN — Decision title
 
-**Status**: `PROPOSTO` | `ACEITO` | `DEPRECIADO` | `SUBSTITUÍDO POR ADR-XXXX`
-**Data**: YYYY-MM-DD
+**Status:** PROPOSED
+**Date:** YYYY-MM-DD
+**Decision owners:** [name or role]
 
----
+## Context
 
-## Contexto
+Describe the measured pressure, requirement, or constraint that makes a
+cross-cutting architectural decision necessary. Cite repository evidence by
+canonical path and line when the decision depends on the current tree.
 
-Qual pressão acumulada, requisito imprevisto ou limitação motiva esta decisão.
-ADRs existem para decisões que transcendem um único componente — mudanças no
-lattice, adoção de tecnologia em L₃, redefinição de fronteiras entre estratos,
-alterações em restrições globais.
+An ADR is for a decision that crosses component boundaries, changes a global
+constraint, adopts a technology, or redefines a layer boundary. A change owned
+by one component belongs in that component's L0 prompt revision history.
 
-Se a mudança afeta apenas um componente, ela pertence ao histórico de revisões
-do prompt correspondente, não a um ADR.
+## Decision
 
----
+State the decision precisely enough that implementation and review are
+unambiguous. Separate normative requirements from historical explanation.
 
-## Decisão
+## Affected L0 prompts
 
-O que muda. Preciso o suficiente para que a implementação seja inequívoca.
+List every L0 prompt that must be revised because of this decision. Use the
+full repository-relative path including `00_nucleo/prompts/`, as required
+by ADR-0130. Do not use a basename, a prompts-root-relative abbreviation,
+or an absolute filesystem path as its identity.
 
----
+| Prompt | Required change |
+|---|---|
+| `00_nucleo/prompts/compiler/layout.md` | Example only: replace with the actual existing affected prompt and its contract change. |
 
-## Prompts Afetados
+## Consequences
 
-Lista dos arquivos em `00_nucleo/prompts/` que precisam ser revisados
-como consequência desta decisão.
+### Positive
 
-| Prompt | Natureza da mudança |
-|--------|---------------------|
-| [prompts/nome.md] | [o que muda nele] |
+- Describe the structural benefit.
 
----
+### Negative
 
-## Consequências
+- Describe introduced cost or complexity.
 
-**Positivas**: o que melhora estruturalmente.
+### Neutral
 
-**Negativas**: custos ou complexidades introduzidos.
+- Describe trade-offs without a direct integrity impact.
 
-**Neutras**: trade-offs sem impacto direto na integridade estrutural.
+## Alternatives considered
 
----
+| Alternative | Advantages | Reasons rejected |
+|---|---|---|
+| Option A | — | — |
+| Option B | — | — |
 
-## Alternativas Consideradas
+## Compatibility and supersession
 
-| Alternativa | Prós | Contras |
-|-------------|------|---------|
-| Opção A | — | — |
-| Opção B | — | — |
+State whether this ADR supersedes, amends, or is constrained by another ADR.
+Use ADR identifiers as the stable reference; paths are secondary.
 
----
+## Verification
 
-## Referências
+Define the evidence that demonstrates compliance. When a number is used to
+close or classify work, record the exact commit or the uncommitted working-tree
+state, as required by ADR-0121.
 
-- [links para issues, PRs, ou documentação externa relevante]
+## References
+
+- Add repository evidence, issues, standards, or primary documentation.

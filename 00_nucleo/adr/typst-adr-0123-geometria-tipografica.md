@@ -1,6 +1,6 @@
 # ADR-0123 — Geometria tipográfica como categoria própria: fidelidade literal ao vanilla, não mecânica divergente
 
-**Estado:** `PROPOSTO`
+**Status:** PROPOSED
 **Data:** 2026-07-25
 **Histórico de numeração:** proposta inicialmente como `0112`, que **colidia de facto** com
 `ADR-0112` já existente (`rust_decimal em L1`, P399) — renumerada para `0123`, sequencial depois de

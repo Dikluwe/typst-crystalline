@@ -1,6 +1,6 @@
 # ⚖️ ADR-0058: Tipo simplificado — `type()` devolve `Value::Str` em vez de `Value::Type(Type)`
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Validado**: Passo 149 — arqueologia (`divergencias-value-passo-149.md` §3.1); 1113 tests verdes desde Passo 13.
 **Data**: 2026-04-25
 **Autor**: Humano + IA

@@ -1,6 +1,6 @@
 # ⚖️ ADR-0085: Diagnóstico imutável — artefacto produzido por audit
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 260 — formaliza padrão N=4 das aplicações

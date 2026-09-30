@@ -1,6 +1,6 @@
 # ⚖️ ADR-0022: `FontBook` real em L3
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-27
 
 ---

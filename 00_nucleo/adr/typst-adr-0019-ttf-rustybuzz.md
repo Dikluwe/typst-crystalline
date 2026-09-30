@@ -1,6 +1,6 @@
 # ⚖️ ADR-0019: `ttf-parser` e `rustybuzz` → L3
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-23
 
 ---

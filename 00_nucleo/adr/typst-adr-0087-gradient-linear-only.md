@@ -1,6 +1,6 @@
 # ⚖️ ADR-0087: Gradient Linear materializado; Radial/Conic scope-out
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 262.B (criação PROPOSTO) → Passo 262.D

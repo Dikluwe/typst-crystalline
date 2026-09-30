@@ -1,6 +1,7 @@
 # ADR-0098 — Single source of truth como invariante anti-bug
 
-**Status**: IMPLEMENTADO (desde P281; formalizado em P288)
+**Status:** IMPLEMENTED
+**Status history:** IMPLEMENTADO (desde P281; formalizado em P288)
 **Data**: 2026-05-19
 **Passo promotor**: P288 (`P-style-lang-variant`)
 **Categoria**: Meta-arquitectural

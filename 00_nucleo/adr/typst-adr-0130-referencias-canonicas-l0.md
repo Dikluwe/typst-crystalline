@@ -1,59 +1,69 @@
-# ADR-0130 — Referências canônicas de Prompts L0
+# ADR-0130 — Canonical L0 prompt references
 
-**Estado:** vigente — decisão homologada originalmente no Passo 1062
+**Status:** ACCEPTED
+**Layer:** L0 — Governance and Document Traceability
+**Created on:** 2026-08-17 (Step 1062)
+**Decision owner:** Repository owner
+**Approval:** ADR-0127 — owner approval of Option (b), explicit full paths, in Step 1062.
 
-**Camada**: L0 — Governança e Rastreabilidade Documental
-**Criado em**: 2026-08-17 (Passo 1062)
-**Gate**: `ADR-0127` — Homologação da Opção (b) pelo dono (caminhos completos explícitos)
+## 1. Context
 
----
+Different components can legitimately share a leaf filename. A basename
+therefore does not uniquely identify an L0 owner. Preserve the existing
+prompt-to-consumer ownership rules and directory structure; disambiguate
+references rather than renaming prompts or introducing duplicate owners.
 
-## 1. Princípio da Identificação Única por Caminho Completo
+## 2. Canonical references in Markdown prose
 
-Devido à estrutura modular do compilador Typst, múltiplos submódulos em camadas distintas compartilham intencionalmente nomes de arquivos folha idênticos para manter a correspondência 1:1 com a arquitetura Rust (ex.: 7 arquivos `mod.md` correspondendo aos submódulos `mod.rs`, além de `layout.md`, `heading.md`, `footnote.md`, `bibliography.md`, etc., presentes em `compiler/`, `entities/` e `infra/`).
+Every reference or citation to an L0 prompt in a Markdown document must use
+its full **repository-relative path**, including the literal prefix
+`00_nucleo/prompts/`. Use forward slashes and preserve the actual path and
+filename. This is the single canonical prose-reference format.
 
-Para eliminar qualquer ambiguidade nas especificações L0 e na rastreabilidade com o código L1:
+Existing examples:
 
-> [!IMPORTANT]
-> **Regra de Desambiguação de Prompts (P1062 / ADR-0127)**:
-> Toda referência ou citação a outro prompt L0 em qualquer arquivo `.md` deve utilizar **obrigatoriamente o caminho completo relativo a `00_nucleo/prompts/`**.
->
-> * **Correto**: `compiler/layout.md`, `entities/layout.md`, `infra/layout.md`, `entities/ast/mod.md`, `compiler/eval/mod.md`
-> * **Incorreto**: `layout.md`, `mod.md`, `heading.md`
+- `00_nucleo/prompts/compiler/layout.md`
+- `00_nucleo/prompts/compiler/eval.md`
+- `00_nucleo/prompts/entities/content.md`
+- `00_nucleo/prompts/infra/export/stream.md`
 
-Esta regra segue o mesmo princípio de explicitação e resiliência a fatiamento estabelecido no Passo 1054 ("preferir explicitação canônica a remissões curtas ambíguas").
+Do not use `layout.md`, `compiler/layout.md`, an absolute filesystem path,
+or a document-relative abbreviation as the prompt's identity. A Markdown
+link may use a relative target for navigation, but its visible prompt-path
+label must retain the full repository-relative identity.
 
----
+This reconciles prose with the explicit repository-root convention already
+used in source headers. It does not rename or relocate a prompt, alter its
+hash, change its ownership, or authorize changes to its contract.
 
-## 2. Padrão de Anotação nos Arquivos-Fonte Rust (L1)
+## 3. Rust provenance annotations (L1–L4)
 
-Todo arquivo de código-fonte Rust gerado ou mantido a partir de um prompt L0 deve declarar a anotação de proveniência no topo do módulo utilizando o caminho completo relativo à raiz do repositório:
+Every Rust source file generated or maintained from an L0 prompt declares
+its owner at the top of the module. The existing `@prompt` syntax remains
+unchanged: the path is relative to the repository root and includes
+`00_nucleo/prompts/`. It is not relative to the Rust file or the prompts root.
 
 ```rust
 //! @prompt 00_nucleo/prompts/<subpasta>/<nome_do_prompt>.md
 //! @prompt-hash <hash_crc32_ou_sha>
 ```
 
-Exemplos canônicos:
-- `01_core/src/contracts/world.rs` $\to$ `//! @prompt 00_nucleo/prompts/contracts/world.md`
-- `01_core/src/compiler/layout/mod.rs` $\to$ `//! @prompt 00_nucleo/prompts/compiler/layout.md`
-- `01_core/src/entities/ast/code.rs` $\to$ `//! @prompt 00_nucleo/prompts/entities/ast/code.md`
+Existing source-to-owner examples:
 
----
+- `01_core/src/contracts/world.rs` → `//! @prompt 00_nucleo/prompts/contracts/world.md`
+- `01_core/src/compiler/layout/mod.rs` → `//! @prompt 00_nucleo/prompts/compiler/layout.md`
+- `01_core/src/entities/ast/code.rs` → `//! @prompt 00_nucleo/prompts/entities/ast/code.md`
 
-## 3. Inventário de Nomes Folha Compartilhados (Referência P1060)
+The annotation points to the consumer's owning prompt, not a shared Tekt
+nucleus; ADR-0129 governs ownership and nucleus pins.
 
-O inventário do Passo 1060 catalogou 35 nomes de arquivos repetidos entre pastas, totalizando 83 arquivos. Ao citar qualquer um destes arquivos, a atenção ao caminho completo é crítica:
+## 4. Verification and historical evidence
 
-1. **7 ocorrências**: `mod.md` (`compiler/`, `compiler/eval/`, `entities/`, `entities/ast/`, `entities/types/`, `infra/`, `contracts/`).
-2. **3 ocorrências** (8 nomes, 24 arquivos):
-   - `layout.md` (`compiler/`, `entities/`, `infra/`)
-   - `heading.md` (`compiler/layout/`, `entities/`, `infra/`)
-   - `footnote.md` (`compiler/layout/`, `entities/`, `infra/`)
-   - `bibliography.md` (`compiler/layout/`, `entities/`, `infra/`)
-   - `table.md` (`compiler/layout/`, `entities/`, `infra/`)
-   - `label.md` (`compiler/`, `entities/`, `infra/`)
-   - `color.md` (`compiler/`, `entities/`, `infra/`)
-   - `_comum.md` (`compiler/`, `entities/`, `infra/`)
-3. **2 ocorrências** (26 nomes, 52 arquivos):
-   - `page.md`, `math.md`, `stroke.md`, `image.md`, `state.md`, `counter.md`, `context.md`, `shape.md`, `text.md`, `align.md`, etc.
+Check that each example resolves to an existing file and each source example
+names its actual `@prompt` owner. Check that the governance reference and ADR
+template use the same prose convention. No source-header migration is needed.
+
+The Step 1060 inventory and the historical explanation formerly embedded
+here are preserved in
+[the ADR-0130 historical diagnostic](../diagnosticos/adr-0130-step-1060-history.md).
+They are retrospective evidence, not a normative inventory of the current tree.

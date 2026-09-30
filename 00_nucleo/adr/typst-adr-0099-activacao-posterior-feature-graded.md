@@ -1,6 +1,7 @@
 # ADR-0099 — Activação posterior de feature graded como padrão de pendência
 
-**Status**: IMPLEMENTADO (desde P285; formalizado em P289)
+**Status:** IMPLEMENTED
+**Status history:** IMPLEMENTADO (desde P285; formalizado em P289)
 **Data**: 2026-05-19
 **Passo promotor**: P289 (`P-style-weight-variant`)
 **Categoria**: Meta-arquitectural / processo

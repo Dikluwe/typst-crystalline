@@ -1,6 +1,6 @@
 # ⚖️ ADR-0068: Layouter location-aware via Locator dedicado determinístico
 
-**Status**: `ACEITE`
+**Status:** ACCEPTED
 **Validado**: 2026-05-03 — P185D 4 tests E2E confirmaram
 sincronização-por-construção; P185E ratificou em relatório
 consolidado.

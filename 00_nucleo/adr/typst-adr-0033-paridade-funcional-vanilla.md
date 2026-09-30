@@ -1,6 +1,6 @@
 # ⚖️ ADR-0033: Paridade funcional com vanilla como invariante arquitectural
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22
 
 ---

@@ -1,6 +1,7 @@
 # ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
 
-**Status**: **ACEITE (completo retroactivo + paridade trait
+**Status:** ACCEPTED
+**Status history:** **ACEITE (completo retroactivo + paridade trait
 estendida M9c, P212 2026-05-12)**.
 **Validado**: 2026-05-07 (P204H — 8/9 condições
 CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`);

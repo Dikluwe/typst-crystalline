@@ -1,6 +1,6 @@
 # ⚖️ ADR-0016: `typst_utils::LazyHash` → removido de L1
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-25
 
 ---

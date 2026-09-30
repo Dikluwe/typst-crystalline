@@ -1,6 +1,6 @@
 # ⚖️ ADR-0104: Atomicidade para agentes — força arquitetural de primeira classe
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-06-10
 **Passo promotor**: P314 (materialização de processo/linhagem)
 **Diagnóstico**: P313 (`diagnosticos/diagnostico-modelo-elemento-passo-313.md`, §0 requisito + §2.1 imposto medido + §6 texto do princípio)

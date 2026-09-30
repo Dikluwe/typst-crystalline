@@ -1,6 +1,6 @@
 # ⚖️ ADR-0009: `default_math_class` → `01_core/entities/math_class.rs`
 
-**Status**: `IMPLEMENTADO`
+**Status:** IMPLEMENTED
 **Data**: 2026-03-23
 
 ---

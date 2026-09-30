@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "pdf-shaped-advances"
+title = "Avanços shaped como fonte única do espaçamento PDF"
+
+[[claims]]
+id = "advance-authority"
+level = "must"
+statement = "Nos emissores PDF single e coalescido, TextShaped CIDFont/Multifont usa os avanços autoritativos fornecidos; tracking não é somado novamente pelo estado de character spacing."
+
+[[claims]]
+id = "explicit-spacing-state"
+level = "must"
+statement = "Emissão PDF shaped estabelece Tc=0 no bloco de texto antes de TJ, nos modos compacto e verboso, inclusive para tracking zero ou ausente; não depende do estado herdado."
+
+[[claims]]
+id = "boundary-authority"
+level = "must"
+statement = "Compensações TJ entre itens coalescidos conservam as posições absolutas fornecidas e o modelo existente de arredondamento; não substituem posição por avanço nominal."
+
+[[claims]]
+id = "plain-and-bitmap-boundary"
+level = "must-not"
+statement = "Não aplicar a regra dos avanços shaped ao fallback Type1 ou Text que emite Tj sem avanços; bitmap mantém desenho por imagem. Não mudar fonte, glyphs, offsets ou seleção de layout para corrigir spacing PDF."

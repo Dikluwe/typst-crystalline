@@ -1,6 +1,6 @@
 # ⚖️ ADR-0035: `ecow::EcoVec` autorizado em L1
 
-**Status**: `EM VIGOR`
+**Status:** ACCEPTED
 **Data**: 2026-04-22
 
 ---
