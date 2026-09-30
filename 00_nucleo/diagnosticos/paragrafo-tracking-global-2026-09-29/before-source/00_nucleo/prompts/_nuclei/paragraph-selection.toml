@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-selection"
+title = "Preparação, seleção e emissão de parágrafos certificados"
+
+[[claims]]
+id = "strategy-transport"
+level = "must"
+statement = "linebreaks validado conserva Auto ou simple/optimized no canal privado par.linebreaks; auto usa optimized quando justify é verdadeiro e simple nos demais casos."
+
+[[claims]]
+id = "prepared-input"
+level = "must"
+statement = "Os dois seletores consomem a mesma preparação pura e completa: palavras, fragmentos de estilo e separadores causais medidos por métricas injetadas. Não emitem frames, alteram regiões ou reexecutam eval."
+
+[[claims]]
+id = "scope"
+level = "must"
+statement = "A seleção global desta rodada certifica apenas texto latino LTR sem tracking, matemática ou smallcaps; hifenização lexical pode integrar candidatos da preparação quando a palavra possui estilo/política uniformes, em largura constante fora de colunas, células e floats. Conteúdo recusado conserva o percurso incremental e permanece um limite declarado, nunca prova de optimized completo."
+
+[[claims]]
+id = "materialization"
+level = "must"
+statement = "A emissão conserva texto, estilos e origens dos separadores, aplica seu avanço uma vez, admite baselines e fecha apenas linhas materialmente continuadas; a última linha permanece natural salvo redução necessária dos espaços."
+
+[[claims]]
+id = "hyphen-candidates"
+level = "must"
+statement = "A preparação resolve hyphenate lexicalmente (Bool explícito ou auto pela justificação) antes de gerar candidatos, conserva offsets UTF-8 seguros e mede ranges partidos com métricas injetadas. Simple e optimized usam esses mesmos candidatos; o custo global inclui penalidade de hifenização e de linhas consecutivas com hífen."
+
+[[claims]]
+id = "hyphen-optical-overhang"
+level = "must"
+statement = "O custo do candidato inclui a largura natural do hífen; somente a emissão de linha selecionada que termina em hífen compensa 55% do avanço do glyph na margem, conforme o overhang default medido, mas somente quando a política lexical overhang do fragmento final está ativa; false desativa a compensação. A compensação não é espaço textual nem altera texto, fronteira ou candidato."

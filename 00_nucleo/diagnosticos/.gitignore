@@ -1,0 +1,13 @@
+# Keep reports, reproducibility scripts, and compact provenance snapshots.
+# Probe outputs (PDF, XML, logs, images, generated fixtures and binaries) stay local.
+*
+!*/
+!.gitignore
+!*.md
+!*.py
+!*.rs
+!*.toml
+!*.sh
+!*.lock
+!*.sha256
+!*.json.gz

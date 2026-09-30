@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+    "01_core",
+    "02_shell",
+    "03_infra",
+    "04_wiring",
+    # lab/typst-original não é membro do workspace cristalino
+    # compile separadamente se necessário para testes de paridade
+]
+
+[workspace.package]
+version     = "0.1.0"
+edition     = "2021"
+authors     = ["Typst GmbH <hi@typst.app>"]
+license     = "Apache-2.0"
+repository  = "https://github.com/typst/typst"
+
+[workspace.dependencies]
+thiserror = "2"
+comemo    = "0.4"
+anyhow    = "1"

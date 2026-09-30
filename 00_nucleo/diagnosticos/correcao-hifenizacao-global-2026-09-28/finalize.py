@@ -1,0 +1,17 @@
+from pathlib import Path
+import json,hashlib,datetime,subprocess,re,collections
+P=Path('00_nucleo/diagnosticos/correcao-hifenizacao-global-2026-09-28');sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest();load=lambda f:json.loads((P/f).read_text())
+for f in ['build-final.log','release-final.log']:assert 'Finished' in (P/f).read_text()
+assert '1127 passed; 0 failed' in (P/'infra-final.log').read_text()
+assert '6346 passed; 0 failed; 2 ignored' in (P/'core-verified.log').read_text()
+lint=load('lint-final.sarif');levels=collections.Counter(x.get('level','warning') for r in lint['runs'] for x in r.get('results',[]));assert levels['error']==0
+accept=load('acceptance.json');assert not accept['failed'];binary=sha('target/release/typst');assert binary==accept['binary_sha256'];probe=load('after-pdf/proveniencia.json');assert binary==probe['binary_sha256']['tekt']
+current={}
+for root in ['01_core','02_shell','03_infra','04_wiring','00_nucleo/prompts']:
+ for f in Path(root).rglob('*'):
+  if f.is_file() and f.suffix in ['.rs','.md','.toml'] and 'target' not in f.parts:current[str(f)]=sha(f)
+changed_after_probes=sorted(f for f in current.keys()|probe['source_sha256'].keys() if current.get(f)!=probe['source_sha256'].get(f))
+assert changed_after_probes==['00_nucleo/prompts/infra/integration_tests.md','03_infra/src/integration_tests.rs'],changed_after_probes
+scope=load('scope-review.json');assert not scope['unexpected'];assert current==scope['source_sha256'];assert all(sha(f)==h for f,h in accept['scope_sha256'].items())
+receipt={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'working_tree':'não commitada','status':subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all'],text=True),'diff_HEAD_stat':subprocess.check_output(['git','diff','HEAD','--stat'],text=True),'binaries':{'tekt':binary,'vanilla':sha('lab/typst-original/target/release/typst')},'vanilla_pin':'9f2b6e8715237cb086899a42873660fe744622e8','vanilla_tree':'6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4','binary_identity_bridge':{'probe':probe['binary_sha256']['tekt'],'rebuilt_final':binary,'same_bytes':True,'changed_after_probes':changed_after_probes,'explanation':'Only cfg(test) integration observer and its owner changed after PDF probes; final rebuild is byte-identical.'},'source_sha256':current,'artifacts_sha256':{f:sha(P/f) for f in ['acceptance.py','acceptance.json','scope-review.json','review.diff','scoped-seals.json','red.log','first-green.log','core-verified.log','infra-verified.log','infra-observer-targeted.log','infra-final.log','build-final.log','release-final.log','lint-final.sarif','visual/comparison.json']},'checks':len(accept['checks']),'inputs':accept['bilateral_inputs'],'new_geometry_agreements':accept['new_geometry_agreements'],'new_geometry_improvements':len(accept['physical_improvements']),'pdf_copy_difference_cases':len(accept['copy_identity_difference_cases']),'tests':{'core_passed':6346,'core_ignored':2,'infra_passed':1127},'lint_levels':dict(levels),'changed_productive_L0_files':len(scope['changed']),'unexpected_scope':scope['unexpected'],'visual':load('visual/comparison.json'),'open':accept['open']}
+(P/'finalreceipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n');print(json.dumps({k:receipt[k] for k in ['utc','binaries','checks','inputs','lint_levels','changed_productive_L0_files','binary_identity_bridge']},ensure_ascii=False))

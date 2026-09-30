@@ -1,0 +1,11 @@
+# Auditoria causal: tracking, hifenização e cortes de shaping — 2026-09-30
+
+Estado: working tree não commitada em `17f13b1df79b87ea065ee62e78164b18e477da3d`. [Proveniência](proveniencia.json) fixa hora UTC, `git diff HEAD --stat`, lista de arquivos, fonte, rustybuzz e comandos. Nenhum arquivo produtivo ou Prompt L0 vigente foi alterado nesta auditoria.
+
+A [sonda bilateral](bilateral/results.json) confirma que o percurso incremental com tracking uniforme `0.2pt` e hifenização diverge do vanilla em texto/quebras. Os três controles de escopo misto também divergem, mas não provam que a causa seja a mesma: `paragraph_prepare::styled` os recusa antes da seleção global.
+
+O [teste causal](causal-probe.rs.txt) passa com rustybuzz 0.20.1 e Noto Sans. O prefixo isolado `de` mede 1179 unidades; em `development`, a fronteira de byte 2 é insegura e o prefixo do run completo mede 1159; em `declaration`, a mesma fronteira é segura e mede 1179. `representation` tem corte seguro após `representa`. O [triângulo de caixas](triangulo-causal.json) confirma a consequência no PDF: `representa-` precisa de um intervalo terminal de 0,2 pt, mas acrescentá-lo em `de-` cria erro de 0,2 pt. O vanilla decide reutilizar ou remodelar em `inline/shaping.rs:546-571,642-710`; o Tekt só recebe largura escalar de `FontMetrics` e descarta as flags no shaper L3. Isto identifica o dado ausente, sem transformar a mecânica vanilla em requisito de arquitetura.
+
+A [proposta L0](contrato-l0-proposto.md) delimita uma única adição pública: `FontMetrics::word_break_safety(...)->Option<bool>`, com `Some(true)` para slice reutilizável, `Some(false)` para remodelagem e `None` para desconhecido/fallback. Ela especifica os owners L1/L3, o teste RED pós-gate e a matriz de aceitação bilateral. Tracking misto fica fora dessa autorização e exige preservação própria da identidade lexical dos runs.
+
+**Gate pendente:** [ADR-0127](../../adr/typst-adr-0127-gate-l0-paragem-vs-fluxo.md) exige confirmação antes de adicionar método a trait pública. O rascunho permanece em diagnósticos, sem hash L0 ou código produtivo; após aprovação, transpor cláusulas aos prompts owners, calcular hashes/pins, escrever testes RED e então implementar.

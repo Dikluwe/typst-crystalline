@@ -1,0 +1,836 @@
+# Prompt L0 — layout_types
+Hash do Código: 4ce9e0f8
+
+## P1339 — causa existente das conversões de Angle
+
+### Medição anterior à decisão
+
+HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
+`layout_types.rs:1277-1290` já define Angle em radianos e os métodos
+to_rad/to_deg. A fonte vanilla ratificada `layout/angle.rs:142-151`
+documenta conversões Angle → float, não os constructors Rust homônimos.
+A medição histórica conserva expressões, saídas, UTC e proveniência; os
+owners relevantes são os declarados neste L0 e em seus consumers atuais.
+
+### Decisão
+
+Angle conserva a unidade interna em radianos; to_rad devolve essa medida
+como float, to_deg devolve a equivalente em graus. Estas são as causas
+existentes reutilizadas por angle.rad/angle.deg. Os constructors Rust
+Angle::rad/deg não são essas operações públicas de conversão.
+
+Preservar finitos, zeros com sinal e infinitos; não alterar representação,
+assinaturas, operações aritméticas ou construção de Angle. Não criar novo
+módulo para copiar estas fórmulas. Divergência pública de precisão nas
+entradas medidas refuta a suficiência e exige correção de causa, não
+arredondamento arbitrário no repr. Angle NaN permanece sob a resolução
+condicional já autorizada na decisão registrada:
+não modificar aritmética para fabricar receiver bilateral.
+
+## P1286 — attachments e artifact semântico propostos (GATE ADR-0127)
+
+### Medição anterior à decisão
+
+`PagedDocument` não transporta anexos. `FrameItem::Semantic` já transporta
+Formula e builder/stream constroem tagging real; reutilizar Formula para
+artifact emitiria `/Formula` e MCID, semanticamente errado.
+
+### Contrato público proposto
+
+- `PagedDocument` ganha `pub attachments: Vec<Arc<PdfAttachElem>>`, em ordem
+  documental. O layout coleta markers invisíveis; nenhum `FrameItem` visual é
+  criado. `plain_text` ignora o vetor.
+- `SemanticKind` ganha `Artifact(ArtifactKind)`. O envelope preserva filhos
+  visuais, usa `alt: None` e não participa na árvore estrutural/MCIDs.
+  Visitors continuam descendo nos filhos.
+
+Não há nova fase: eval produz markers, layout coleta/embrulha, export consome
+o `PagedDocument`. São alterações de enum/campo público e ficam bloqueadas até
+confirmação ADR-0127. `PdfTags::Enabled` continua default; Disabled preserva
+o visual sem tags.
+
+## P1140.20.2 — canvas e camadas
+
+Conforme `entities/page_canvas.md`, PageConfig ganha bleed folded, PageFill,
+background e foreground declarativos. Page ganha bleed físico, fill e vetores
+separados background/body/foreground. Width/height seguem trimados. Plain
+text/visitors semânticos percorrem só body; export visual percorre três layers.
+
+## P1140.20.1 — geometria lógica
+
+Tipos normativos pertencem a `entities/page_geometry.md`. `PageConfig` ganha
+`binding: PageBinding`; margem preserva especificação folded e resolve
+snapshot físico por página. Flip aplica exatamente uma vez no delta.
+
+O default deriva de `Paper::A4.width_pt()/height_pt()`: remover `595.28`,
+`841.89` e fallbacks em pontos. Margem mantém `2.5 / 21`; dois eixos infinitos
+usam A4 normativo. `Page` guarda margens físicas, não `paper`. Propriedades
+P1140.20.2–.4 continuam ausentes.
+
+## P1140.15 — margens de página por lado
+
+Medição: numa página de 180 pt com `left: 12pt`, `right: 38pt`, `top: 10pt`
+e `bottom: 10pt`, o conteúdo RTL cristalino termina em 168 pt (`180 − 12`),
+enquanto o vanilla termina em 142 pt (`180 − 38`). `PageConfig::margin: f64`
+perde a distinção antes do layout.
+
+Adicionar `PageMarginSpec`, com campos públicos
+`left/right/top/bottom: Option<f64>`, e `PageMargins`, com os mesmos quatro
+campos públicos resolvidos como `f64`. `None` num lado da especificação
+significa `auto` para esse lado; `PageMargins` é o snapshot físico resolvido.
+
+`PageConfig.margin` passa de `f64` para `PageMargins`. `margin_is_auto: bool` é
+removido: auto existe por lado na especificação aplicada. O default resolve os
+quatro lados com `auto_margin()`; margem uniforme produz quatro valores iguais.
+Nenhum alias escalar escolhe um lado silenciosamente.
+
+## Módulo
+`01_core/src/entities/layout_types.rs`
+
+## Propósito
+Tipos de dados de layout: coordenadas, frames, documento paginado.
+
+## P1227 — transporte de paint de formas até aos exporters
+
+### Medição anterior à decisão
+
+`01_core/src/entities/layout_types.rs:435` declara
+`FrameItem::Shape.fill: Option<Color>`, enquanto
+`01_core/src/compiler/layout/shape.rs:129` recebe `Paint` da forma mas chama
+`to_color()`. Assim, Gradient e Tiling perdem tipo, stops, geometria e repetição
+antes de L3. O stroke já transporta `Stroke.paint: Paint` sem esta perda.
+
+### Mudança de contrato aprovada
+
+Alterar `FrameItem::Shape.fill` de `Option<Color>` para `Option<Paint>`. Este
+campo é o contrato público L1→L3. O dono confirmou o gate ADR-0127 em
+2026-08-26. Todos os constructors, visitors e transforms preservam o valor sem
+o reduzir a cor; exporters sem suporte nativo podem aplicar o fallback próprio
+já especificado, mas recebem o `Paint` íntegro.
+
+Conic continua transportado, mas o SVG não pode alegar equivalência nativa sem
+orçamento de erro validado. Espaços de cor sem conversão morfológica modelada
+também não podem ser promovidos silenciosamente a equivalência.
+
+## P1140.5-A — grupo semântico de fórmula
+
+### Medição antes da decisão
+
+O vanilla default gerou PDF `Tagged: yes`, `/StructElem /S /Formula` e
+`/Alt(accessible equation)`; `--no-pdf-tags` removeu a structure tree. O PDF
+cristalino medido gerou `Tagged: no`. `FrameItem` atual possui apenas desenho,
+Group geométrico e Link (`layout_types.rs:303-442`), sem unidade semântica.
+
+### Decisão
+
+Adicionar variante fechada `FrameItem::Semantic` com `SemanticKind::Formula`,
+`SemanticPlacement::{Inline, Block}`, `alt: Option<EcoString>` e `items` filhos.
+Ela não possui desenho próprio: bounds/plain text/visitors/shaping/export visual
+descem nos filhos. String vazia permanece `Some("")`; ausência e `none` são
+`None`. A variante é contrato L1→L3 e força revisão exaustiva dos consumidores.
+
+P1140.5 prova transporte até a fronteira de exportação. A geração de MCIDs,
+ParentTree e StructTreeRoot pertence ao P1140.6; não fingir tagging por
+`/ActualText` ou por um comentário no content stream.
+Puramente declarativos — sem I/O, sem métricas de fonte.
+
+### P1140.12 — barreira semântica de quebra explícita
+
+Adicionar `SemanticKind::ExplicitLinebreakBoundary`. O envelope é visualmente
+transparente, sem alt e contém apenas um filho Text vazio posicionado na
+baseline da linha fechada. Sua única semântica é impedir que pós-processadores
+fundam novamente linhas separadas por `linebreak`; não representa fórmula,
+não produz texto e não desenha.
+
+A variante é contrato público L1→L3. Posição y e espaço restante não
+distinguem wrapping automático de quebra explícita depois que o Frame perdeu
+a causa do flush. Não substituir o marcador por limiar empírico.
+
+### P1140.13 — fronteira semântica de parágrafo
+
+Medição prévia: `Content::Parbreak` altera apenas a geometria vertical em
+`compiler/layout/mod.rs`; depois de fechado o `PagedDocument`, L3 não consegue
+distinguir essa causa sem comparar distâncias entre baselines. A aproximação
+vigente (`1.5 × altura`) não é semântica e pode confundir parágrafos com
+wrapping automático.
+
+Adicionar `SemanticKind::ParbreakBoundary`. O envelope é visualmente
+transparente, tem `SemanticPlacement::Block`, contém um filho `Text` vazio na
+baseline da linha que termina e preserva até L3 a causa estrutural da quebra.
+Ele não representa texto, glifo, espaço, altura ou conteúdo acessível.
+
+`ExplicitLinebreakBoundary` e `ParbreakBoundary` são variantes distintas: a
+primeira fecha uma linha dentro do mesmo parágrafo; a segunda fecha o próprio
+parágrafo. Consumers que só precisam impedir reflow podem tratá-las como a
+mesma classe de barreira, sem apagar a distinção semântica do contrato.
+
+## Divergência do original
+- **Abs** original: `Abs(Scalar)` com unidades raw internas e conversões pt/mm/cm.
+  Cristalino usa `Pt(f64)` — mais simples, suficiente para o Passo 19.
+- **Frame** original: `items: Arc<LazyHash<Vec<(Point, FrameItem)>>>` — posição na tupla.
+  Cristalino embute `pos: Point` em `FrameItem::Text` — mais simples.
+- **PagedDocument** original: `EcoVec<Page>` + `DocumentInfo` + `Arc<PagedIntrospector>`.
+  Cristalino usa `Vec<Frame>` — stub até Passo 20+.
+
+## Tipos
+
+### `Pt`
+Newtype f64 para pontos tipográficos. `Pt + Pt` OK; `Pt + f64` NÃO implementado.
+
+### `Point`, `Size`
+Coordenada 2D e tamanho 2D em `Pt`.
+
+### `FrameItem`
+Variantes:
+- `Text { pos, text, style }`
+- `Line { start, end, thickness, color, cap }`
+- `Glyph { pos, glyph_id, x_advance, size }`
+- `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`
+- `Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit }` (Passo 76)
+- `Group { pos, matrix, clip_mask, inner_width, inner_height, items }` (Passo 78)
+- `Link { target, items, pos, size }` (P422/P424/P463)
+- `LinkTarget::Url(EcoString) | LinkTarget::Destination(Label)` (P463)
+
+**`Line.color: Option<Color>`** (Passo 285) — `Some(c)` emite `r g b RG`
+antes do stroke (`S`) no PDF; `None` preserva default preto bit-exact
+(backward-compat para frac/sqrt overline/linhas geométricas pré-P285).
+Activa o `stroke` parseado em `Content::Underline`/`Strike`/`Overline`
+(P284 §5.4 — pendência registada e agora resolvida). Regra de herança
+no consumer Layouter: `color = stroke.or(self.style.fill)` (utilizador
+explícito > herança do texto corrente > default preto).
+
+### P1431 — `FrameItem::Line.cap` para augment de matriz
+
+Medição anterior à decisão: `FrameItem::Line` transporta apenas posição,
+espessura e cor no consumer produtivo (`01_core/src/entities/layout_types.rs:
+395-402`), embora `Stroke` já possua `LineCap` (`entities/geometry.rs:10-15,
+75-86`). A fonte vanilla pinada conserva o `FixedStroke` completo nas linhas
+de augment e fixa `LineCap::Square` no stroke automático
+(`typst-layout/src/math/table.rs:36-53`).
+
+Adicionar `cap: LineCap` a `FrameItem::Line`. O campo é parte do contrato
+L1→L3 e deve sobreviver a translação, slicing, grupos e reconstruções sem ser
+recalculado. Todos os produtores legados de `Line` usam `LineCap::Butt`,
+preservando o comportamento anterior; somente consumidores com intenção
+explícita diferente escolhem outro valor. P1431 usa `Square` no augment auto e
+propaga o cap do stroke customizado.
+
+O escopo semântico deste refino inclui somente raster e PDF pelos L0s
+proprietários P1431. SVG e demais targets não ganham promessa de cap neste
+passo; adaptações necessárias para exaustividade compilável devem ignorar o
+novo campo sem alterar a saída.
+
+`Image`: representa uma imagem a renderizar na página.
+- `pos`: canto superior esquerdo em coordenadas de página (pt).
+- `data: Arc<Vec<u8>>`: bytes raw da imagem — zero-copy via Arc.
+- `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout.
+- `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis — obrigatórias
+  para o dicionário XObject PDF (/Width, /Height intrínsecos ≠ tamanho de layout).
+- `orientation`: valor EXIF `Orientation` (1-8) lido do cabeçalho. O exportador
+  PDF usa este valor para compor a matriz `cm` de transformação (P776).
+
+`Link` (P422/P424/P463): hiperligação. O `body` é renderizado normalmente e os
+itens resultantes ficam em `items`. O destino é preservado como metadado
+(`LinkTarget`) para o exportador PDF:
+- `LinkTarget::Url` → annotation `/Subtype /Link` com `/A << /S /URI >>`;
+- `LinkTarget::Destination(Label)` → annotation `/Subtype /Link` com
+  `/A << /S /GoTo /D /name >>` (navegação interna para `/Dests`).
+`pos` e `size` definem a bounding box da área clicável. Cor/sublinhado
+são scope-out (aguardam `FrameItem::Decoration`).
+
+`plain_text()` ignora `Image`, `Line`, `Glyph`, `Shape`, `Group` e desce
+recursivamente em `Link` — retorna apenas texto.
+
+### `Frame`
+Canvas de uma página. `plain_text()` para verificação em testes.
+
+### `PagedDocument`
+Resultado de `layout()`. `plain_text()` concatena páginas com `"\n"`.
+Campos de labels (P460):
+- `extracted_label_pages: HashMap<Label, usize>` — mapa label → página (1-based),
+  gerado por `layout_labelled` durante a passagem.
+- `extracted_label_positions: HashMap<Label, Point>` — mapa label → posição (x, y)
+  no momento da inserção, usado pelo exportador PDF para `/Dests`.
+**P488** — campos de página para LoF/LoT (fixpoint carry-forward):
+- `extracted_figure_page_numbers: Vec<usize>` — páginas de figuras contadas, em ordem de documento.
+- `extracted_table_page_numbers: Vec<usize>` — páginas de tabelas contadas, em ordem de documento.
+
+**P535** — headings para bookmarks PDF:
+- `extracted_headings: Vec<(Label, Option<String>, Content, usize)>` — cópia
+  de `Introspector::headings_for_toc()` no pipeline, usada pelo exportador para
+  construir a árvore `/Outlines`. Cada tuplo é `(auto-label, número, body, level)`.
+
+**P536** — metadados do documento (`/Info`):
+- `document_info: DocumentInfo` — metadados definidos por `#set document(...)`.
+  Copiado do `Module` pelo pipeline antes da exportação PDF.
+
+Todos inicializados vazios em `new()` e populados por `Layouter::finish()` ou
+pelo pipeline pós-layout — sem alterar a assinatura de `layout()`.
+
+## `PageConfig`
+
+Configuração da página activa durante o layout. Campos principais:
+- `width`, `height`: dimensões em pt.
+- `margin`: margem uniforme em pt.
+- `numbering`: padrão de numeração automática (P532).
+- `columns`: número de colunas activas (P537b).
+
+### Margem automática por omissão
+
+A margem por omissão **não é um valor fixo**. Segue o vanilla 0.15.0:
+
+```text
+margin = min(width, height) * (2.5 / 21)
+```
+
+Equivalentemente, `≈ 11.90476 %` da menor dimensão da página. Para uma
+página A4 (`595.28 pt × 841.89 pt`), isto produz `70.87 pt` (`≈ 2.5 cm`).
+Para uma página pequena (`height: 200 pt`, `width: 595.28 pt`), produz
+`≈ 23.81 pt`.
+
+> **Fonte de paridade (P1031)** — a fórmula é **citação literal**, e em duas camadas do
+> vanilla ratificado (`e0e8ca4d`):
+>
+> - **Documentação da linguagem** — `crates/typst-library/src/layout/page.rs:127-131`, doc
+>   comment do campo `margin`, publicado em
+>   `typst.app/docs/reference/layout/page/#parameters-margin`:
+>   *"The page's margins. - `{auto}`: The margins are set automatically to **2.5/21 times
+>   the smaller dimension of the page**. This results in **2.5 cm margins for an A4 page**."*
+>   Isto sustenta tanto a fórmula como o valor A4 de `≈ 2.5 cm` citados acima.
+> - **Implementação** — `crates/typst-layout/src/pages/run.rs:121`:
+>   `let default = Rel::<Length>::from((2.5 / 21.0) * min);`
+>
+> **Natureza**: literal. Note-se que a fórmula está **na documentação publicada**, não só no
+> código — é regra de linguagem, não detalhe de implementação, o que reforça que
+> `margin_is_auto` tem de reproduzir o recálculo e não fixar `70.87`.
+
+`PageConfig` distingue duas situações através do campo `margin_is_auto`:
+
+- `margin_is_auto: true` — margem calculada automaticamente. O default é
+  `true`. Sempre que `SetPage` alterar `width` ou `height` sem fornecer um
+  valor explícito de `margin`, a margem deve ser recalculada pela fórmula
+  acima (`auto_margin()`).
+- `margin_is_auto: false` — margem fixa definida pelo utilizador. Não é
+  recalculada quando `width`/`height` mudam.
+
+`PageConfig::default()` deve calcular a margem a partir de `width` e
+`height`, não hard-codificar `70.87`. Quando `SetPage` recebe `margin`
+explicitamente, `margin_is_auto` passa a `false`. Quando `margin` é
+ausente, `margin_is_auto` não muda — o default é `true`, e uma margem
+fixa pelo utilizador permanece fixa até novo `margin` explícito.
+
+Sempre que `SetPage` altera `width` ou `height`, se `margin_is_auto` for
+`true` a margem é recalculada pela fórmula; se for `false`, a margem
+fixa é preservada.
+
+## Critérios de verificação
+- `Pt(10.0) + Pt(5.0) == Pt(15.0)`
+- `Pt * f64` compila; `Pt + f64` não compila
+- `Frame::plain_text()` junta texto dos FrameItem::Text com espaço
+- `PagedDocument::plain_text()` concatena páginas com newline
+- `PageConfig::default()` calcula margem como `min(width, height) * 2.5 / 21`
+
+## P482 — `ShapedGlyph` e `FrameItem::TextShaped`
+
+**P482** adiciona:
+
+```rust
+pub struct ShapedGlyph {
+    pub glyph_id:  u16,
+    pub x_advance: i32,
+    pub x_offset:  i32,
+    pub y_offset:  i32,
+    pub cluster:   u32,
+    pub char_code: char,
+}
+```
+
+e variante:
+
+```rust
+FrameItem::TextShaped {
+    pos:    Point,
+    glyphs: Vec<ShapedGlyph>,
+    style:  TextStyle,
+    text:   EcoString,  // texto original (fallback + CMap)
+}
+```
+
+`TextShaped` é produzido pelo shaper L3 (`03_infra/src/shaper.rs`) a
+partir de `FrameItem::Text` com `style.font.is_some()`. `Text` é
+preservado como fallback (Type1 / fonte não carregada).
+
+`plain_text_items` trata `TextShaped` como `Text` — extrai `text` field.
+
+Todos os match exaustivos de `FrameItem` em L1 devem incluir arm `TextShaped`.
+Ver ADR-0120.
+
+## P483 — FrameItem::Text deprecated
+
+**Data:** 2026-06-28
+
+`FrameItem::Text` marcado `#[deprecated(since = "P483")]`. Continua a existir
+como fallback para fontes não carregadas ou Type1. Todos os sites de match
+legítimos receberam `#[allow(deprecated)]` ou `#![allow(deprecated)]`.
+
+`From<&StyleChain> for TextStyle` preenche agora `font` com pelo menos
+`FontList("Helvetica")` quando nenhum `#set text(font:...)` está activo.
+Garante cobertura ≥95% do shaping em produção.
+
+Path primário em `export/stream.rs`: `TextShaped` antes de `Text`.
+
+## P484 — FrameItem::Text como tipo pré-shaping (permanente)
+
+**Data:** 2026-06-28
+
+`FrameItem::Text` **não removido**. A remoção exigiria migrar os emit sites de
+L1 (`cursor.rs`, `list_item.rs`, etc.) para emitir `FrameItem::TextShaped`
+directamente — impossível sem bytes de fonte (ADR-0029). `FrameItem::Text` é
+o tipo de **pré-shaping**: emitido por L1, convertido para `TextShaped` pelo
+shaper L3. O `#[deprecated]` (P483) sinaliza que L3/export não deve usar
+`Text` directamente; não indica remoção iminente.
+
+## P485 — `units_per_em: u16` em `FrameItem::TextShaped`
+
+**Data:** 2026-06-28
+
+`FrameItem::TextShaped` recebe campo adicional `units_per_em: u16`:
+
+```rust
+TextShaped {
+    pos:          Point,
+    glyphs:       Vec<ShapedGlyph>,
+    style:        TextStyle,
+    text:         EcoString,
+    units_per_em: u16,   // ← P485
+}
+```
+
+Populado por `shaper.rs::try_shape` via `rb_face.units_per_em().max(1) as u16`.
+Usado em `emit_shaped_pdf` para calcular números TJ: `-(x_advance / upm * 1000)`.
+Sites de match que não precisam de `units_per_em` usam `..` (wildcard).
+
+## P784 — `TextStyle.math: bool`
+
+**Data:** 2026-07-17
+
+Novo campo `pub math: bool` em `TextStyle` (default `false`, via `#[derive(Default)]`).
+`true` sse este texto é conteúdo matemático. Definido **uma única vez**, em
+`layout/equation.rs::layout_equation` (`TextStyle { math: true, ..self.style.clone() }`,
+por cima do estilo herdado antes de chamar `MathLayouter::layout_equation`) — herdado
+daí em diante por toda a árvore de layout math via `..style.clone()` (os sub-layouts
+de math, `layout_text_node`/`attach.rs`/`frac.rs`/`root.rs`, nunca tocam `.font`
+nem `.math`, só `.italic`/`.size`).
+
+**Motivo**: `03_infra/src/shaper.rs` decide se engata a cadeia de fallback específica
+de matemática (`fallback_fonts.rs::DEFAULT_FALLBACK_FONTS_MATH`) como primárias
+adicionais. A condição original (P783, só `primary_has_math` — a fonte já resolvida
+tem tabela MATH OpenType própria) nunca disparava no caso comum: a fonte de corpo
+por omissão (`Libertinus Serif`) não tem tabela MATH. `style.math` dá ao shaper um
+sinal directo e correcto de "isto é matemática", independente de qualquer propriedade
+da fonte primária resolvida. Ver `infra/shaper.md` §P784 para a lógica de consumo.
+
+Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()` normal)
+precisaram de valor explícito: `entities/style_chain.rs::From<&StyleChain>` (`false`
+— `StyleChain` não carrega contexto math) e `compiler/layout/text.rs` (herda de
+`layouter.style.math`, merge de `#set text(...)` não é math-específico).
+
+## P836 — campo `TextStyle::variations`
+
+`TextStyle` ganha o campo
+`pub variations: Option<crate::entities::font_variations::FontVariations>`
+(default `None`), propagado do resolver `StyleChain::variations()` no
+`From<&StyleChain> for TextStyle` e do merge de `layout/text.rs`
+(canal custom `"text.variations"` + herdado do `layouter.style`).
+
+Transporta as coordenadas de eixo explícitas de `#text(variations:)` /
+`#set text(variations:)` até L3 (shaper, métricas, export), onde são
+fundidas com os eixos derivados de `FontVariant` — ver
+`infra/font_variant.md` (P836).
+
+## P891 — campo `TextStyle::math_script: bool`
+
+**Data:** 2026-07-24
+
+Novo campo `pub math_script: bool` em `TextStyle` (default `false`, via
+`#[derive(Default)]`, mesmo padrão de P784). `true` sse todo o conteúdo desta
+chamada de layout está dentro de um script (sub/super-índice) de `MathAttach`
+— definido **uma única vez**, em `attach.rs` ao construir `script_style`
+(`TextStyle { math_script: true, size: style.size *
+self.constants.script_percent_scale_down, ..style.clone() }`).
+
+**Motivo**: `compiler/math/layout/spacing.rs::compute_gaps` precisa de saber se
+a sequência inteira está em script size para suprimir `spacing_between`
+(paridade vanilla `process.rs::spacing()`, condição "unless in script size" —
+ver `math/layout/spacing.md` §P891). O cristalino processa uma sequência
+inteira com um único `TextStyle` partilhado (ao contrário do `MathSize`
+discreto por item do vanilla) — este campo é a adaptação mínima que carrega
+esse sinal até `compute_gaps` sem introduzir um enum de tamanho discreto.
+
+Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()`
+normal) precisam de valor explícito, mesmos dois sites identificados em P784:
+`entities/style_chain.rs::From<&StyleChain>` (`false` — `StyleChain` não
+carrega contexto math/script) e `compiler/layout/text.rs` (herda de
+`layouter.style.math_script`, merge de `#set text(...)` não é
+script-específico).
+
+## P915 — campo `TextStyle::cramped: bool`
+
+**Data:** 2026-07-26
+
+Novo campo `pub cramped: bool` em `TextStyle` (default `false`, via
+`#[derive(Default)]`, mesmo padrão exacto de P891/`math_script`). `true` sse
+o conteúdo desta chamada de layout está num contexto tipográfico "cramped"
+(TeXbook/OpenType MATH — ver `scripts.rs:318-382` do vanilla, lido em
+`typst-passo-915-relatorio.md` Fase A). Forçado a `true` em **4 pontos**
+(mapeados por leitura do vanilla, não por inventário assumido):
+
+1. **`attach.rs`** — estilo do subscrito (posições bottom-left/bottom-right,
+   `bl`/`sub`), nunca o do superscrito (`tl`/`sup`, que herda `cramped` do
+   estilo ambiente sem forçar). Ver `compiler/math/layout/attach.md` §P915.
+2. **`frac.rs`** — estilo do denominador, nunca o do numerador (que herda).
+   Ver `compiler/math/layout/frac.md` §P915.
+3. **`root.rs`** — estilo do radicando e do índice (`root(n, x)`). Ver
+   `compiler/math/layout/root.md` §P915.
+4. **`accent.rs`** — estilo da base, incondicional (o cristalino só implementa
+   accent "acima" — `MathAccentElem` não tem campo de posição — logo a
+   condição do vanilla "só se accent.is_bottom()==false" é trivialmente
+   sempre verdadeira aqui). Ver `compiler/math/layout/accent.md` §P915.
+
+**Consumido** em `attach.rs::compute_script_shifts` — lê `cramped` do
+`TextStyle` **ambiente** passado a `layout_attach` (não do `script_style`
+interno), para decidir entre `superscript_shift_up`/`superscript_shift_up_
+cramped` (`entities/math_constants.md` §P915) — só quando há superscrito
+presente (`tl`/`sup`); nada mais na fórmula de `compute_script_shifts` muda.
+
+**Achado de âmbito, não corrigido**: o vanilla também aplica cramped à base
+de `overline()` (não `underline()`) — o cristalino não tem `overline()`/
+`underline()` como construção matemática (esses nomes resolvem para
+decoração de texto, `DecoKind::Overline`, via `stdlib/text.rs`, não para
+`Content::MathUnderover`) — não há call site a tocar. Registado, não
+inventado.
+
+## P906 — `FrameItem::Glyph` ganha `style: TextStyle` + `base_char: char`
+
+**Contexto**: mecanismo de esticamento horizontal de glifo (`compiler/layout.md`
+§P906) — mas o achado abaixo é mais fundo, e partilhado com o eixo vertical
+já existente (`layout_stretchy_delimiter`/`layout_assembly`).
+
+**Achado, em cadeia, cada camada só visível depois de corrigir a anterior**:
+`FrameItem::Glyph` (usado sempre que um glifo de variante/assembly
+matemático não tem mapeamento Unicode de volta a char) só tinha
+`{ pos, glyph_id, x_advance, size }` — nenhum campo de identidade de fonte
+nem de carácter original. Consequência, confirmada por medição directa em
+PDF real (`pdftotext -bbox`, `mutool`), não por inferência:
+
+1. **Exportador não sabia que fonte usar** (`export/stream.md` §P906) —
+   corrigido com `style` (usado para resolver via
+   `FallbackFontMetrics::resolve_font_combo`).
+2. **Selecção de QUAIS fontes embutir no PDF** (`infra/pipeline.md` §P906)
+   é feita cedo, a partir de caracteres vistos em `Text`/`TextShaped` — cega
+   a `Glyph` (que não carrega nenhum char). Corrigido com `base_char: char`
+   (o carácter ORIGINAL pedido ao esticamento, ex. `⎵`/`⏟` — não o
+   `glyph_id` resultante, que só é interpretável dentro da fonte de onde
+   veio, informação perdida ao sair de L1, que trata `FontMetrics` como
+   opaco).
+
+**Não é redundante**: `style` sozinho (sem `base_char`) não chega para (2) —
+`style.font` num `FrameItem::Glyph` nunca é reescrito para a fonte
+efectivamente resolvida (ao contrário de `TextShaped.style.font`, reescrito
+por `shaper.rs` durante o shaping) — só `base_char` permite re-resolver a
+fonte candidata correcta no ponto de selecção. `base_char` sozinho (sem
+`style`) não chega para (1) — a resolução de candidata depende de
+`style.math`/`style.size`/variante, não só do char.
+
+**Construção**: 4 sites em L1 (`layout_stretchy_delimiter`/
+`layout_stretchy_glyph_horizontal` em `stretchy.rs`, `layout_assembly`/
+`layout_assembly_horizontal` em `assembly.rs`) — todos já tinham `c: char`/
+`style: &TextStyle` em scope, custo de fio zero. 6 sites de reconstrução
+(`offset_item`/`translate_frame_item`-like em `equation.rs`, `cursor.rs`,
+`slicing.rs`, `footnote_flush.rs`, `helpers.rs`, `math/layout/mod.rs`) só
+propagam os campos inalterados.
+
+## P945 — campo `TextStyle::math_size: MathSize` (nível discreto do vanilla)
+
+**Data:** 2026-08-01
+
+**Medição que motiva** (`typst-passo-945` Fase A): `$ mat(1,2,3;4,5,6;7,8,9) $`
+em equação de **bloco** (`Display`) — o vanilla compõe as células a **11pt**
+(denominator de `Display` = `Text`, factor 1.0 —
+`lab/typst-original/crates/typst-library/src/math/style.rs:343-363`); o
+cristalino compunha a `11pt × script_percent_scale_down = 7.7pt` (P923
+implementou a descida de nível como ×0.7 incondicional — correcto só para
+`Text→Script`, errado para `Display→Text`). Grelha ~30% mais curta → alvo do
+delimitador curto → assembly com peças a menos (3 vs 4 glifos por lado,
+`mutool trace`).
+
+**Decisão**: novo enum e campo, mesmo padrão de P784/P891/P915:
+
+```rust
+pub enum MathSize { Display, Text, Script, ScriptScript }
+// em TextStyle:
+pub math_size: MathSize  // default: Text (via Default)
+```
+
+Semântica: o **nível MathSize discreto do vanilla** em vigor nesta chamada de
+layout (equivalente a `EquationElem::size` na chain do vanilla). Os factores
+de escala continuam a vir de `MathConstants`
+(`script_percent_scale_down`/`script_script_percent_scale_down`, absolutos ao
+tamanho base) — o campo só regista *em que nível* estamos, para que as
+descidas de nível saibam o factor correcto:
+
+| Transição (vanilla) | Factor sobre o tamanho corrente |
+|---|---|
+| `Display → Text` | ×1.0 |
+| `Text → Script` | ×`script_percent_scale_down` |
+| `Script → ScriptScript` | ×`sscript / script` (≈0.5/0.7) |
+| `ScriptScript → ScriptScript` | ×1.0 |
+
+**Ponto de entrada**: `compiler/layout/equation.rs::layout_equation` fixa
+`math_size: Display` (bloco) / `Text` (inline) no `math_style` — paridade com
+o vanilla (`EquationElem::size` = Display/Text conforme `block`,
+`equation.rs:189-195`).
+
+**Actualização nos pontos de descida** (sem mudar o factor de tamanho que
+cada um já aplica hoje — só mantêm o campo honesto para consumidores
+abaixo): `attach.rs` (scripts → desce um nível, Display/Text→Script,
+Script/SScript→SScript), `frac.rs` (numerador/denominador → Display→Text,
+Text→Script, …), `root.rs`, `underover.rs`, `matrix.rs`/`cases.rs` (estes
+dois **também** corrigem o factor — ver `compiler/math/layout/matrix.md`
+§P945).
+
+## P968 — `faux_bold_stroke_pt`: limiar de intenção bold (weight ≥ 600), não "qualquer peso > 400"
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (`typst-passo-968` Fase A; auditoria externa
+2026-08-05 secção 8.3): no documento de 30 secções, **1541 de 2074 blocos
+de texto (74.30%)** saem com `2 Tr` + `w` de 0.073pt/0.051pt; o vanilla usa
+`0 Tr` em 100%. O documento tem **0% de negrito genuíno** (nenhum
+`*...*`/`strong` — a única ocorrência de `*` no fonte é `x^*`, expoente).
+Os dois `w` medidos batem exactamente com a fórmula de P139 aplicada a
+**weight 450**: 50/300 × size × 0.04 = 0.073pt a 11pt e 0.051pt a 7.7pt
+(script). A origem do 450: P944 fixa `weight: Some(450)` no `math_style` de
+toda a equação (`compiler/layout/equation.rs`), replicando o show_set do
+vanilla (`TextElem::weight = 450`,
+`lab/typst-original/crates/typst-library/src/math/equation.rs:197`) —
+**paridade de língua, correcta, fica**. A divergência é o gate de P139
+disparar para ela: o vanilla **não tem** mecanismo de faux-bold em lado
+nenhum (selecção de variante real via fontdb, sempre `0 Tr`).
+
+**Decisão**: `faux_bold_stroke_pt` só produz stroke quando o weight
+expressa **intenção de negrito** — limiar **weight ≥ 600** (fronteira
+semibold/bold do OpenType). Abaixo de 600 o peso é um peso real da fonte
+(450 Book do math, 500 medium, …), a satisfazer por selecção de variante,
+nunca por contorno. A fórmula de P139 (`((w − 400)/300) × size × k`) fica
+inalterada acima do limiar (700 → 0.44pt @ 11pt, como antes).
+
+```rust
+pub fn faux_bold_stroke_pt(&self, k: f64) -> f64 {
+    let w = self.weight.unwrap_or(400);
+    if w < 600 {
+        return 0.0; // P968 — peso real da fonte não é intenção de negrito
+    }
+    ((w as f64 - 400.0) / 300.0) * self.size.val() * k
+}
+```
+
+**O que não muda**: texto genuinamente negrito (weight 700) sem variante
+bold real carregada continua a receber `2 Tr` + contorno — divergência de
+mecânica consciente registada em P956 (a frente tipográfica de selecção de
+variantes bold é pré-existente e fica como estava). Os pontos de emissão
+(`stream.rs` Type1 e envelope verbose P956) não mudam — consomem o mesmo
+helper.
+## P1140.24 — running matter de página
+
+`PageConfig` transporta `number_align`, `header`, `header_ascent`, `footer` e
+`footer_descent` segundo `entities/page_running.md`. Os defaults são
+center+bottom, Auto, 30%, Auto, 30%. Conteúdo marginal é composto em camada
+visual separada do body.
+## P1140.25 — snapshot de supplement
+
+`PageConfig` guarda `PageSupplement`; `Page` guarda o `Content` resolvido por
+página. O vetor validado mantém alinhamento 1:1 com pages e numberings. Ver
+`entities/page_supplement.md`.
+
+## P1157 — snapshots tipados de numbering
+
+### Medição antes da decisão
+
+O introspector vanilla preserva `Numbering`, e `loc.page-numbering()` devolveu
+a função original. Logo `EcoString` no snapshot perde semântica.
+
+### Decisão
+
+`PageConfig.numbering` e `Page.numbering` passam a
+`Option<entities::numbering::Numbering>`. São estado resolvido: `None` significa
+desativado. `Page` também conserva o span de origem necessário para erro de
+callback e o número lógico corrente validado; estes campos públicos exatos serão
+materializados somente após o gate. Geometria e ordem de páginas não mudam.
+
+## P1486 — número lógico da página para rótulos PDF (PROPOSTO; GATE ADR-0127)
+
+### Medição anterior à decisão
+
+Na working tree não commitada sobre `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`
+(proveniência, fixtures e extração: `00_nucleo/diagnosticos/typst-p1486-page-labels.md`),
+o vanilla pinado rotula a seleção física 1+3 com `1, 3` sob padrão `"1"`
+e com `10, 12` após `counter(page).update(10)`. O cristalino atual rotula
+ambas como `1, 2`. Em `layout_types.rs:853-865`, `Page` preserva o
+`numbering`, mas não o número lógico; em `pipeline.rs:1847-1856`, o
+`PageStore` realizado possui os números lógicos, enquanto
+`pipeline.rs:1558-1565` devolve apenas o documento. A inferência do Passo
+1486 de que `Page.numbering` mais índice físico bastariam é refutada pelo
+segundo probe. Rótulo visto pelo leitor é observável; a escolha de campo é
+mecânica (ADR-0107). A inferência de que o store final é fonte suficiente
+seria refutada por uma página cujo número lógico realizado difira do seu
+snapshot após o último relayout.
+
+### Contrato público proposto
+
+`Page` ganha `pub logical_number: usize`, número lógico validado da própria
+página, independente do índice físico e da seleção PDF. Construtores de
+layout L1 iniciam-no pelo número físico quando ainda não há store realizado;
+o pipeline L3 substitui esse valor pelo snapshot lógico do `PageStore` final,
+em correspondência 1:1, antes de devolver o `PagedDocument` para exportação.
+O campo não muda `plain_text`, canvas, conteúdo visual, contadores ou seleção.
+Uma página construída diretamente para exportação declara explicitamente o
+seu número lógico. O span de origem de P1157 permanece fora deste passo.
+
+**Paragem obrigatória:** adicionar um campo público de entidade é mudança de
+contrato pela ADR-0127. Nenhum código L1/L3 deve materializar este bloco
+antes de confirmação específica do dono para P1486.
+# P1226 — `FrameItem::Shape.fill_rule`
+
+Medição pública: o frame cristalino perdia `curve(fill-rule: "even-odd")`
+antes do export SVG. `fill_rule: FillRule` pertence ao variant público
+`FrameItem::Shape`. Layout propaga o valor de `ShapeElem`; todos os emissores
+existentes que não expõem regra usam `NonZero`. Exportadores consomem o campo,
+sem derivá-lo da orientação dos segmentos.
+
+## Vocabulário semântico de tabela
+
+`SemanticKind` representa Table com summary, Row, HeaderCell com
+level/scope/rowspan/colspan e DataCell com rowspan/colspan. O carrier também
+representa THead e TBody e admite TR direta sob Table para linhas
+explicitamente mistas.
+
+Headers repetidos em páginas distintas preservam uma identidade lógica única,
+com vínculos físicos por página destinados ao exporter. `level` é dado
+relacional transitório e não atributo numérico de saída.
+
+Todo carrier é visualmente transparente: bounds, plain text, visitors,
+shaping, transforms e layers descem nos filhos. L1 não aloca object IDs ou
+MCIDs e não escreve PDF.
+
+## Proveniência `TextItem`
+
+`TextStyle` contém:
+
+```rust
+pub math_text_item: bool
+```
+
+O default é `false`, inclusive nos construtores regulares. `true` é usado
+somente quando `Content::Text` direto em contexto matemático corresponde à
+morfologia TextItem. O estado válido é
+`math=true && math_text_item=true`: `math` conserva família, fallback,
+tamanho e shaping; o novo bit separa propriedades exclusivas da rota de glifo.
+
+O campo não é configurável pelo utilizador, não entra em `StyleDelta`,
+`StyleChain`, parsing ou eval. Ele é preservado em `FrameItem::Text`,
+`TextShaped` e merges de `TextStyle`, sem criar campo em `FrameItem`.
+
+MathIdent, MathText, números, GlyphFragment, formas extensíveis e
+MathClassOverride promovido a glifo mantêm `math_text_item=false`.
+
+## Efeito morfológico
+
+Quando `math_text_item=true`:
+
+- mantém `math=true` e todos os eixos não exclusivos de GlyphFragment;
+- exclui a correção itálica de glifo singular;
+- exclui a substituição OpenType `ssty` no shaping e no fallback métrico,
+  mesmo em Script ou ScriptScript.
+
+Quando `false`, IC e `.st/.sts` permanecem ativas nas rotas matemáticas que
+as definem. Não criar outro campo, heurística nominal ou lista de caracteres.
+
+## P1405 — label semântica de prefixo de outline
+
+`SemanticKind` ganha `Label`, carrier fechado da função interna equivalente a
+`PdfMarkerTag::Label` do vanila. É um envelope inline visualmente transparente:
+preserva os items do prefixo e não cria texto, medida ou Location. Seu único
+consumer produtivo é o pipeline PDF tagueado; não confundir com `LabelElem`
+(destino nomeado) nem com `Artifact`, que remove conteúdo da structure tree.
+
+## P1462 — opções de formato no documento paginado (MATERIALIZADO)
+
+### Medição anterior à decisão
+
+No baseline `7442d33b6bf48f136826d28cf71bd62f8710a432`,
+`PagedDocument` transporta páginas, introspecção e `DocumentInfo`, mas nenhuma
+opção de formato; por isso o exporter SVG só pode observar o booleano fornecido
+externamente. O vanilla resolve as opções documentais antes do export.
+
+### Contrato público
+
+Acrescentar a `PagedDocument`:
+
+```rust
+pub format_options: DocumentFormatOptions
+```
+
+`PagedDocument::new` inicializa o campo com `Default`, preservando todos os
+callers existentes e `pretty == false`. L3 substitui o default somente depois
+de a extração pura do conteúdo final ter sucesso. O campo não contém flags
+CLI, bytes serializados nem handles de exporter.
+
+`DocumentFormatOptions` pertence exclusivamente a
+`entities/document_format_options.rs`; este owner somente o transporta no
+documento. `Page`, `PageConfig`, frames, geometria e plain text não mudam.
+Trata-se de campo público. A mudança foi aprovada explicitamente e materializada
+em 2026-09-19.
+
+## P1466 — metadado de depreciação válido
+
+O atributo de `FrameItem::Text` usa uma versão semver válida em `since`; a
+mensagem e o status deprecated permanecem iguais. Esta correção é metadado
+Rust para satisfazer análise estática e não remove a variante, não altera
+fallback, layout, serialização ou API pública da linguagem.
+
+## P1481 — carriers públicos de idioma e semântica PDF/UA (IMPLEMENTADO; confirmado em 2026-09-23)
+
+### Medição anterior à decisão
+
+Na fixture P1480 após P1480, veraPDF 1.30.2 `-f ua1` mede 102 regras
+aprovadas e quatro falhadas; o vanilla pinado passa 106/0. O QDF vanilla
+tem catálogo `/Lang (en)`, nós H1/P/Strong e spans com MCID; o
+`PagedDocument` cristalino não transporta idioma documental, embora
+`TextStyle.lang` transporte idioma local. Na fixture
+`p1481-no-text-fr.typ` (SHA-256
+`8e1b27cf49c91d2edbe132aa69f893bb554bca7141121fe87a544ed219455b38`),
+o vanilla emite `/Lang (fr)` sem nenhum item de texto: inferir a língua
+pelos glifos é refutado. `ImageElem` e `FrameItem::Image` perdem `alt`;
+`StyleDelta.bold_from_strong/italic_from_emph` preserva a origem até
+`TextStyle`, que hoje a descarta.
+
+### Contrato público confirmado em 2026-09-23
+
+- `PagedDocument` ganha `pub document_language: Option<Lang>`.
+  `Some` é o primeiro idioma documental efetivo antes da emissão; `None`
+  preserva ausência de regra e L3 aplica somente o default `en` medido no
+  vanilla para PDF/UA. A escolha não depende de texto pintado nem de
+  `dc:language` fixo. `PagedDocument::new` inicializa `None`.
+- `TextStyle` ganha `pub semantic_strong: bool` e
+  `pub semantic_emph: bool`, default `false`, derivados exclusivamente
+  da proveniência `from_strong/from_emph` da chain. Não são sinônimos de
+  `bold/italic` de render; mudar peso ou inclinação manualmente não cria
+  Strong/Em.
+- `FrameItem::Image` ganha `alt: Option<EcoString>`, com `None`
+  distinto de `Some("")`; o valor atravessa layout/shaping sem afetar
+  geometria ou bytes da imagem.
+
+São campos públicos de L1 e alteram constructors/patterns existentes:
+Gate ADR-0127 satisfeito pela confirmação humana em 2026-09-23. Sem novo modo,
+trait, fase eval/layout ou dispatch dinâmico.
