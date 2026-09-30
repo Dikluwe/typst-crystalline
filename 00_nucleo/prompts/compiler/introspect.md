@@ -1,5 +1,5 @@
 # L0 — introspect
-Hash do Código: 99e9efc1
+Hash do Código: ee4924de
 
 ```text
 Núcleos Tekt:
@@ -19,8 +19,14 @@ They return `TagIntrospector`, not a separate counter-state object.
 the full reevaluation helper is specified separately in
 `00_nucleo/prompts/compiler/introspect/fixpoint.md`.
 
-This owner specifies traversal, occurrence capture, concrete queries and
-entrypoint coordination only. Child owners specify payload extraction
+This owner retains the public `introspect` compatibility wrapper and
+coordinates the static child units. The behavioral owners for bibliography
+conversion, concrete queries, entrypoints, outline synthesis, time
+materialization, store population, parent indexing, target classification and
+causal traversal are respectively the individual Prompt L0 files under `00_nucleo/prompts/compiler/introspect/`.
+Their extraction preserves the contracts below as shared context and does not
+introduce a second implementation. The parent wrapper remains the sole
+productive behavior of this owner. Child owners specify payload extraction
 (`00_nucleo/prompts/compiler/introspect/extract_payload.md`), classification
 (`00_nucleo/prompts/compiler/introspect/locatable.md`), heading projections
 (`00_nucleo/prompts/compiler/introspect/heading.md`), label text
