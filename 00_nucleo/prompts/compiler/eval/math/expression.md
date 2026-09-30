@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math/expression
-Hash do Código: e7dde2fb
+Hash do Código: 9517fdb3
 
 ## Ownership e medição
 
@@ -7,7 +7,7 @@ Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/expression
 
 ## Contrato
 
-Avaliar o match exaustivo de expressões matemáticas mantendo a morfologia e a ordem de avaliação. Preservar assinaturas, semântica da linguagem e diagnósticos de `00_nucleo/prompts/compiler/eval/math.md`; não alterar fase do pipeline, defaults ou compatibilidade. A extração é interna a L1, sem I/O nem estado global mutável.
+Avaliar o match exaustivo de expressões matemáticas mantendo a morfologia e a ordem de avaliação. Delegar o braço `Expr::FuncCall` ao owner `00_nucleo/prompts/compiler/eval/math/expression_call.md`, sem mudar a posição do braço. Preservar assinaturas, semântica da linguagem e diagnósticos de `00_nucleo/prompts/compiler/eval/math.md`; não alterar fase do pipeline, defaults ou compatibilidade. A extração é interna a L1, sem I/O nem estado global mutável.
 
 ## Aceitação
 

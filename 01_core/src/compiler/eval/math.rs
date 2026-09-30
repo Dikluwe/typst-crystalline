@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash 3b1f8175
+//! @prompt-hash 4791faf2
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -31,6 +31,7 @@ mod construct;
 mod delimiters;
 mod entry;
 mod expression;
+mod expression_call;
 mod lookup;
 
 pub(super) use self::entry::eval_math_content;
