@@ -70,7 +70,9 @@ mod call;
 /// Metadados sintáticos privados e pontuais para os diagnósticos de
 /// `float.is-nan`. Não atravessam `entities::Args` nem sobrevivem à chamada.
 mod call_spans;
+mod invoke;
 mod location;
+mod selector_intercepts;
 mod trace_plugin;
 mod type_fields;
 mod value_methods;
@@ -87,6 +89,13 @@ use self::{apply::*, call_spans::*, trace_plugin::*, value_methods::*};
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn selector_interception_distinguishes_logical_methods() {
+        assert!(selector_intercepts::is_selector_logical("and"));
+        assert!(selector_intercepts::is_selector_logical("or"));
+        assert!(!selector_intercepts::is_selector_logical("within"));
+    }
 
     #[test]
     fn atomized_dispatch_preserves_type_fields_and_with_order() {
