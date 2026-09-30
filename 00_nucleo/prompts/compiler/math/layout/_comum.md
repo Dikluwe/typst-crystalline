@@ -1,5 +1,5 @@
 # L0 — math/layout/_comum
-Hash do Código: a219d973
+Hash do Código: 686601ce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -23,7 +23,7 @@ Historical evidence and unresolved discrepancies are archived in
 Own only `01_core/src/compiler/math/layout/mod.rs`: MathLayouter, MathBox,
 equation entrypoints, static dispatch, recursive transformations, sequence/grid
 composition and external-content bridging. Feature geometry belongs to its
-child owner, not to entities. Keep closed static dispatch and exhaustive
+child owner, not to entities. Recursive glyph/default style transformation belongs to `00_nucleo/prompts/compiler/math/layout/style_transform.md`. Keep closed static dispatch and exhaustive
 FrameItem handling; no registry, vtable or reverse entities-to-compiler import.
 
 Child owners are `00_nucleo/prompts/compiler/math/layout/accent.md`,
