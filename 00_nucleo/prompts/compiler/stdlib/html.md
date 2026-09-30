@@ -1,9 +1,10 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: e102b032
+Hash do Código: 1a0ad5c6
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
 **Ficheiro proprietário:** `01_core/src/compiler/stdlib/html.rs`
+**Atomização interna:** a fachada conserva a interface pública e os testes históricos; os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/html/` possuem namespace, frame, tags tipadas, tipos, tabelas globais e específicas e coerções de atributos, construção tipada e `elem` genérico. Esta seção histórica permanece como contrato semântico comum.
 **ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0128
 
 ## Medição anterior à decisão
