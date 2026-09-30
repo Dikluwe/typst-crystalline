@@ -1,8 +1,10 @@
 # L0 — stdlib/calc
-Hash do Código: dd012312
+Hash do Código: 8e44f9bf
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/calc.rs`
+
+Após a atomização de 2026-09-30, este consumer possui a composição de `make_calc_module` e os testes históricos. Os Prompts L0 individuais em `00_nucleo/prompts/compiler/stdlib/calc/` possuem os comportamentos de abs, potência/raiz, arredondamento, extremos, trigonometria, hiperbólicas, logaritmos, aritmética inteira, combinatória, norma, erf e helpers numéricos. As cláusulas abaixo permanecem o contexto normativo compartilhado, sem mudar a linguagem.
 
 ## Evidence and classification
 
@@ -10,7 +12,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/calc.rs`
 
 ## Contract and ownership
 
-Own make_calc_module, scalar native implementations, their local numeric helpers, return kinds, argument validation and diagnostics. Preserve the current module bindings and native identities; calc.abs's intrinsic name is abs through import/alias/With, not calc.abs. Keep deliberate crystalline log10/deg/rad extensions; log10 requires a positive number and deg/rad convert plain numeric radians/degrees. Removing them requires a compatibility decision.
+Own make_calc_module and its static bindings; the child prompts own scalar native implementations and numeric helpers, including return kinds, argument validation and diagnostics. Preserve the current module bindings and native identities; calc.abs's intrinsic name is abs through import/alias/With, not calc.abs. Keep deliberate crystalline log10/deg/rad extensions; log10 requires a positive number and deg/rad convert plain numeric radians/degrees. Removing them requires a compatibility decision.
 
 ### Absolute value and diagnostic precedence
 
