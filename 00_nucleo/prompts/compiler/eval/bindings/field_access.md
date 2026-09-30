@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access
-Hash do Código: 1b3572cf
+Hash do Código: c85f0de7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -7,6 +7,7 @@ Núcleos Tekt:
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/field_access.rs`
+**Atomização interna:** a fachada conserva a interface e os testes; os Prompts L0 em `00_nucleo/prompts/compiler/eval/bindings/field_access/` possuem identidade, campos, erros de callee e métodos de Content. O contrato abaixo permanece comum.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
