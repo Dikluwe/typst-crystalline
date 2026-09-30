@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods
-Hash do Código: 73b6b045
+Hash do Código: 09c11ef7
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -31,10 +31,13 @@ retained in the assigned history diagnostic, not asserted as a fresh measurement
 
 ## Contract
 
-Own AST adapters for state, counter, color, version and selectors, and the
-native function.where semantic helper. Evaluate receiver/arguments once and
-delegate native validation and execution to the corresponding stdlib owners;
-do not duplicate color, version-index, state or counter parsers.
+Own the import and re-export boundary for AST adapters covering state,
+counter, color, version, selectors and native function.where. Each behavior
+family has a single child owner under `compiler/eval/bindings/value_methods/`:
+`state.md`, `counter.md`, `color.md`, `version.md`, `element_where.md` and
+`selector.md`. The child owners preserve single evaluation of receiver and
+arguments and delegate native validation to the corresponding stdlib owners.
+Do not duplicate color, version-index, state or counter parsers.
 
 state supports update/get/display/at/final; counter supports
 step/update/get/display/at/final. Resolve causal label requests and register
