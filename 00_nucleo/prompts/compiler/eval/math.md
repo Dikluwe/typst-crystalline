@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math
-Hash do Código: 64356a12
+Hash do Código: 3e3a5a51
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -7,6 +7,7 @@ Núcleos Tekt:
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/math.rs`
+**Atomização interna:** a fachada mantém imports e acesso de `eval_math_content`; os Prompts L0 individuais em `00_nucleo/prompts/compiler/eval/math/` possuem lookup, entrada, callee, argumentos, construção, expressão e delimitadores. O contrato abaixo permanece comum.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
