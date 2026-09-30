@@ -1,11 +1,12 @@
 # L0 — compiler/eval/call_dispatch
-Hash do Código: 30f9c85c
+Hash do Código: 6ae85063
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/call_dispatch.rs`
+**Atomização interna:** a fachada preserva testes e interface; os Prompts L0 individuais em `00_nucleo/prompts/compiler/eval/call_dispatch/` possuem spans, argumentos, aplicação, campos de tipo, métodos de valor, traces/plugins, resolução de chamadas e métodos de Location. O contrato abaixo continua a fonte semântica comum.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
