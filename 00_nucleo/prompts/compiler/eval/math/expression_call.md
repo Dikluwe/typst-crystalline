@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math/expression_call
-Hash do Código: 7685b804
+Hash do Código: 8b7a4d65
 
 ## Ownership e medição
 
@@ -9,7 +9,7 @@ A lógica extraída estava em `01_core/src/compiler/eval/math/expression.rs:138-
 
 ## Contrato
 
-Own the `Expr::FuncCall` arm in mathematical evaluation, including lexical shadowing, qualified callees, native math functions, fallback symbol calls and their errors. Preserve argument evaluation order, spans, content morphology and the static dispatch order defined by the parent math prompt. Não alterar contrato público, fase do pipeline, comportamento por defeito ou compatibilidade.
+Own lexical shadowing and qualified callees in the `Expr::FuncCall` arm. Delegate ordered native math function dispatch to `00_nucleo/prompts/compiler/eval/math/native_dispatch.md` and unknown/global/symbol fallback to `00_nucleo/prompts/compiler/eval/math/call_fallback.md`. Preserve argument evaluation order, spans, content morphology and the static dispatch order defined by the parent math prompt. Não alterar contrato público, fase do pipeline, comportamento por defeito ou compatibilidade.
 
 ## Aceitação
 
