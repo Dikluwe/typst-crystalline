@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid.md
-//! @prompt-hash f850d71c
+//! @prompt-hash 14290f6a
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -8,6 +8,8 @@
 //! no Passo 96.7 conforme ADR-0037.
 
 mod borders;
+mod row_groups;
+mod rules;
 use self::borders::*;
 
 use super::PendingAlignYEntry;
@@ -182,100 +184,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if columns.is_empty() { vec![TrackSizing::Auto] } else { columns.to_vec() };
         let num_cols = cols.len();
 
-        // P772i — header/footer como row-group real: extrair as células do
-        // corpo de `Content::GridHeader`/`GridFooter` (um `Content::Sequence`
-        // se houver mais que uma célula, ou o `Content` da própria célula se
-        // só houver uma — `Content::sequence` colapsa Vec de 1 elemento) e
-        // colar antes/depois das células normais. Cada grupo é preenchido
-        // com `Content::Empty` até múltiplo de `num_cols` — headers/footers
-        // ocupam linhas inteiras (paridade vanilla, `resolve.rs` §"row
-        // group"). **Scope-out explícito** (não silencioso — ver
-        // 00_nucleo/diagnosticos/paridade-producao-p772i.md): renderiza uma
-        // única vez, não repete em quebras de página (equivalente vanilla de
-        // `Header`/`Footer`/`Repeatable<T>` com `range`/`level` não
-        // implementado).
-        fn row_group_cells(content: &Content, num_cols: usize) -> Vec<Content> {
-            let mut group_cells = match content {
-                Content::Sequence(items) => items.to_vec(),
-                other => vec![other.clone()],
+        let combined_cells =
+            match row_groups::combine_cells(cells, header, footer, num_cols) {
+                Ok(cells) => cells,
+                Err(row) => {
+                    self.layout_errors.push(
+                        crate::entities::source_result::SourceDiagnostic::error(
+                            crate::entities::span::Span::detached(),
+                            format!(
+                                "cell would conflict with header also spanning row {row}"
+                            ),
+                        )
+                        .with_hint("try moving the cell or the header"),
+                    );
+                    self.cell_align = saved_cell_align;
+                    return;
+                }
             };
-            let remainder = group_cells.len() % num_cols;
-            if remainder != 0 {
-                group_cells
-                    .resize(group_cells.len() + (num_cols - remainder), Content::Empty);
-            }
-            group_cells
-        }
-        // P772v — `layout_grid` é partilhado por `Content::Grid` e
-        // `Content::Table` (cluster P379); os braços `TableHeader`/
-        // `TableFooter` estendem o mesmo mecanismo de row-group de P772i
-        // para `table()`, extraindo `.body` da mesma forma.
-        let header_cells: Vec<Content> = header
-            .map(|h| match h {
-                Content::GridHeader(e) => row_group_cells(&e.body, num_cols),
-                Content::TableHeader(e) => row_group_cells(&e.body, num_cols),
-                other => row_group_cells(other, num_cols),
-            })
-            .unwrap_or_default();
-        let footer_cells: Vec<Content> = footer
-            .map(|f| match f {
-                Content::GridFooter(e) => row_group_cells(&e.body, num_cols),
-                Content::TableFooter(e) => row_group_cells(&e.body, num_cols),
-                other => row_group_cells(other, num_cols),
-            })
-            .unwrap_or_default();
-        // P789 — detecção de conflito célula↔header (paridade vanilla
-        // `check_for_conflicting_cell_row`, resolve.rs:2112): célula do
-        // corpo com `y` explícito cujo range `y..y+rowspan` intersecta as
-        // linhas do header (0..header_rows) é erro, não sobreposição
-        // silenciosa. Mensagem e hint idênticos ao vanilla (observável ao
-        // nível da língua — ADR-0107). Só células do corpo são verificadas
-        // (equivalente ao `!in_row_group` do vanilla); células com
-        // `y: None` são auto-posicionadas e contornam o header. Conflito
-        // célula↔footer é scope-out documentado no L0 (layout.md §P789):
-        // o range absoluto do footer só existe pós-placement no modelo
-        // splice. `Span::detached()` — mesmo trade-off de P647 (elementos
-        // não carregam span).
-        let header_rows = header_cells.len() / num_cols;
-        if header_rows > 0 {
-            let conflict = cells.iter().find_map(|cell| {
-                let (y, rowspan) = match cell {
-                    Content::GridCell(e) => (e.y, e.rowspan),
-                    Content::TableCell(e) => (e.y, e.rowspan),
-                    _ => (None, None), // neutro: N16[β] — Content não-cell retorna (None, None) para y/rowspan (sem posição explícita)
-                };
-                let y = y?;
-                let rowspan = rowspan.unwrap_or(1).max(1);
-                // Linhas do header são contíguas a partir de 0 no modelo
-                // splice — a primeira linha do range dentro do header é `y`.
-                (y < header_rows).then_some(y)
-            });
-            if let Some(row) = conflict {
-                self.layout_errors.push(
-                    crate::entities::source_result::SourceDiagnostic::error(
-                        crate::entities::span::Span::detached(),
-                        format!(
-                            "cell would conflict with header also spanning row {row}"
-                        ),
-                    )
-                    .with_hint("try moving the cell or the header"),
-                );
-                self.cell_align = saved_cell_align;
-                return;
-            }
-        }
-        let combined_cells: Vec<Content> = if header_cells.is_empty()
-            && footer_cells.is_empty()
-        {
-            cells.to_vec()
-        } else {
-            let mut combined =
-                Vec::with_capacity(header_cells.len() + cells.len() + footer_cells.len());
-            combined.extend(header_cells);
-            combined.extend_from_slice(cells);
-            combined.extend(footer_cells);
-            combined
-        };
         let cells: &[Content] = &combined_cells;
 
         // Guarda Passo 83 — rows vazias caem em [Auto] para evitar
@@ -1172,83 +1097,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             &mut self.regions.current.current_items,
         );
 
-        // P512 — desenhar hlines/vlines por cima das células, usando os
-        // Y reais emitidos (já consideraram paginação).
-        if !hlines.is_empty() || !vlines.is_empty() {
-            let grid_left = col_starts.first().copied().unwrap_or(0.0);
-            let row_bottom = |r: usize| {
-                emitted_row_starts.get(r).copied().unwrap_or(0.0)
-                    + row_heights.get(r).copied().unwrap_or(0.0)
-            };
-            let col_right = |c: usize| {
-                col_starts.get(c).copied().unwrap_or(0.0)
-                    + resolved_widths.get(c).copied().unwrap_or(0.0)
-            };
-
-            for h in hlines {
-                // **P739A** — `stroke: none` → linha não desenhada (paridade
-                // vanilla, medido; zero-thickness seria hairline em PDF).
-                let Some(stroke) = h.stroke() else {
-                    continue;
-                };
-                let row = h.row().min(num_rows_produced_final.saturating_sub(1));
-                let y = match h.position() {
-                    "bottom" => row_bottom(row),
-                    _ => emitted_row_starts.get(row).copied().unwrap_or(0.0),
-                };
-                let start = h.start().min(num_cols);
-                let end = h.end().map(|e| e.min(num_cols)).unwrap_or(num_cols);
-                if start >= end {
-                    continue;
-                }
-                let x0 = col_starts.get(start).copied().unwrap_or(grid_left);
-                let x1 = col_right(end.saturating_sub(1));
-                // P887 (achado 3 de P885, extensão) — `width` = `dx.abs()`,
-                // não `0.0` (ver comentário equivalente nas bordas de
-                // célula acima); sem isto o traço tem comprimento zero.
-                self.regions.current.current_items.push(FrameItem::Shape {
-                    pos: Point { x: Pt(x0), y: Pt(y) },
-                    kind: ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
-                    width: (x1 - x0).abs(),
-                    height: 0.0,
-                    fill: None,
-                    stroke: Some(stroke.clone()),
-                    fill_rule: Default::default(),
-                    parent_bbox_at_emit: None,
-                });
-            }
-
-            for v in vlines {
-                let Some(stroke) = v.stroke() else { continue };
-                let col = v.col().min(num_cols.saturating_sub(1));
-                let x = match v.position() {
-                    "right" => col_right(col),
-                    _ => col_starts.get(col).copied().unwrap_or(grid_left),
-                };
-                let start = v.start().min(num_rows_produced_final);
-                let end = v
-                    .end()
-                    .map(|e| e.min(num_rows_produced_final))
-                    .unwrap_or(num_rows_produced_final);
-                if start >= end {
-                    continue;
-                }
-                let y0 = emitted_row_starts.get(start).copied().unwrap_or(0.0);
-                let y1 = row_bottom(end.saturating_sub(1));
-                // P887 (achado 3 de P885, extensão) — `height` = `dy.abs()`,
-                // não `0.0` (mesma correcção do hline acima).
-                self.regions.current.current_items.push(FrameItem::Shape {
-                    pos: Point { x: Pt(x), y: Pt(y0) },
-                    kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
-                    width: 0.0,
-                    height: (y1 - y0).abs(),
-                    fill: None,
-                    stroke: Some(stroke.clone()),
-                    fill_rule: Default::default(),
-                    parent_bbox_at_emit: None,
-                });
-            }
-        }
+        rules::emit_explicit_rules(
+            hlines,
+            vlines,
+            num_rows_produced_final,
+            num_cols,
+            &emitted_row_starts,
+            &row_heights,
+            &col_starts,
+            &resolved_widths,
+            &mut self.regions.current.current_items,
+        );
 
         // P232 — restore cell_align ao sair de Grid context (paridade
         // cell_origin_* save/restore pattern P84.6).
