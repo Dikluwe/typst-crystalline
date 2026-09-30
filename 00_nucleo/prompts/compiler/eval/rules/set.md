@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Avaliação de set rules
-Hash do Código: c2a718d6
+Hash do Código: f69caf78
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -25,3 +25,7 @@ As assinaturas, identidades, casts, defaults, precedência de erros e fase de av
 ## Aceitação
 
 Suíte L1 e `crystalline-lint .` sem regressão. Paridade em semântica, sintaxe e morfologia (ADR-0107/0108), ownership exclusivo e pins válidos (ADR-0129/0130).
+
+## Delegação de branches P1500
+
+O dispatcher conserva a ordem dos targets. Os braços `page` e `text` pertencem exclusivamente a `rules/set/page.md` e `rules/set/text.md`; este owner conserva os demais targets e o encaminhamento estático. A separação não altera defaults, contrato público nem fase.
