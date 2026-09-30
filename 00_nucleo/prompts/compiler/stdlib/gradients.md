@@ -1,8 +1,9 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: 2264f8ed
+Hash do Código: e95b07b3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`
+**Atomização interna**: a fachada preserva as funções públicas por reexport e os Prompts L0 em `00_nucleo/prompts/compiler/stdlib/gradients/` possuem despacho, acessores, amostragem, modificadores, parsing e construtores por variante. O contrato restante continua comum.
 **Origem**: Passo 96.5 (extraído de `stdlib.rs` conforme ADR-0037), com marcos
 P262 (`gradient.linear`), P264 (`gradient.radial`) e P267 (`gradient.conic`).
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded), ADR-0087
